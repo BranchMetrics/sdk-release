@@ -1,7 +1,16 @@
-iOS SDK Notes
+# iOS SDK Notes
+-----------------------
+-----------------------
 
-To build the Xcode project
+### Step 1: Download Universal Framework to build Static Library
 
-1. You must clone https://github.com/kstenerud/iOS-Universal-Framework
-2. Then, follow the notes to install the framework using the install template for the Real framework. This will extend Xcode with templates.
-3. In the MobileAppTracker Xcode project, choose simulator so that the static library will be built for simulator and devices
+  1. You must clone https://github.com/kstenerud/iOS-Universal-Framework
+  2. Then, follow the notes to install the framework using the install template for the Real framework. This will extend Xcode with templates.
+
+### Step 2: Re-open Xcode source project and Build Library
+
+  1. choose simulator so the universal framework will build simulator and device platforms
+
+### Step 3: Include MAT SDK library in your project
+
+  1. follow instructions in MAT integration document
