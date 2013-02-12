@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>--project-name</key>
+	<string>MobileAppTracker.framework</string>
+	<key>--project-company</key>
+	<string>HasOffers</string>
+	<key>--company-id</key>
+	<string>com.hasoffers</string>
+	<key>--output</key>
+	<string>./docs</string>
+	<key>--create-docset</key>
+	<false/>
+	<key>--install-docset</key>
+	<false/>
+	<key>--create-html</key>
+	<true/>
+	<key>--prefix-merged-sections</key>
+	<true/>
+	<key>--keep-intermediate-files</key>
+	<true/>
+	<key>--no-repeat-first-par</key>
+	<true/>
+</dict>
+</plist>
