@@ -5,22 +5,44 @@
 	<key>--project-name</key>
 	<string>MobileAppTracker.framework</string>
 	<key>--project-company</key>
-	<string>HasOffers</string>
+	<string>HasOffers Inc.</string>
+	<key>--project-version</key>
+	<string>2.3</string>
 	<key>--company-id</key>
 	<string>com.hasoffers</string>
 	<key>--output</key>
 	<string>./docs</string>
 	<key>--create-docset</key>
-	<false/>
+	<true/>
 	<key>--install-docset</key>
-	<false/>
+	<true/>
+	<key>--publish-docset</key>
+	<true/>
 	<key>--create-html</key>
 	<true/>
 	<key>--prefix-merged-sections</key>
 	<true/>
 	<key>--keep-intermediate-files</key>
 	<true/>
+	<key>--print-settings</key>
+	<true/>
+	<key>--verbose</key>
+	<integer>4</integer>
 	<key>--no-repeat-first-par</key>
 	<true/>
+	<key>--docset-atom-filename</key>
+	<string>MobileAppTracker.atom</string>
+	<key>--docset-package-filename</key>
+	<string>MobileAppTracker</string>
+	<key>--docset-feed-url</key>
+	<string>https://docs.mobileapptracker.com/MobileAppTracker/%DOCSETATOMFILENAME</string>
+	<key>--docset-package-url</key>
+	<string>https://docs.mobileapptracker.com/MobileAppTracker/%DOCSETPACKAGEFILENAME</string>
+	<key>--docset-fallback-url</key>
+	<string>https://docs.mobileapptracker.com/MobileAppTracker</string>
+	<key>--warn-undocumented-member</key>
+	<false/>
+	<key>--exit-threshold</key>
+	<integer>2</integer>
 </dict>
 </plist>

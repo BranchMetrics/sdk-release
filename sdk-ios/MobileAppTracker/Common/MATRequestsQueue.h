@@ -7,6 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+#import "MATRequestsQueuePart.h"
+#import "MATUtils.h"
+#import "MATKeyStrings.h"
 
 @interface MATRequestsQueue : NSObject <NSXMLParserDelegate>
 {

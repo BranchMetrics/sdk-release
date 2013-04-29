@@ -27,10 +27,6 @@
  */
 
 #import "MATCWorks.h"
-#import <CommonCrypto/CommonDigest.h>
-#import <UIKit/UIPasteboard.h>
-#import <UIKit/UIKit.h>
-
 
 static NSString * kConversionWorksKey = @"CWorks";
 static NSString * kConversionWorksDomain = @"Conversionworks.org";

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MATUtils.h"
 
 @interface MATRequestsQueuePart : NSObject <NSXMLParserDelegate>
 {
@@ -14,6 +15,7 @@
     
     NSString * fileName_;
     NSString * filePathName_;
+    NSString * parentFolder_;
     
     NSInteger index_;
     BOOL modified_;
@@ -24,6 +26,7 @@
 
 @property (nonatomic, copy) NSString * fileName;
 @property (nonatomic, copy) NSString * filePathName;
+@property (nonatomic, copy) NSString * parentFolder;
 
 @property (readonly) BOOL requestsLimitReached;
 @property (readonly) BOOL empty;
@@ -33,9 +36,9 @@
 @property (nonatomic, assign, getter = isModified) BOOL modified;
 
 
-+ (id)partWithIndex:(NSInteger)index;
++ (id)partWithIndex:(NSInteger)index parentFolder:(NSString *)parentFolder;
 
-- (id)initWithIndex:(NSInteger)index;
+- (id)initWithIndex:(NSInteger)index parentFolder:(NSString *)parentFolder;
 
 - (BOOL)push:(NSDictionary*)requestData;
 - (NSDictionary*)pop;

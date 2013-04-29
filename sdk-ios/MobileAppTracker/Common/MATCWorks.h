@@ -26,7 +26,10 @@
  SOFTWARE.
  */
 
+#import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIPasteboard.h>
+#import <UIKit/UIKit.h>
 
 @interface MATCWorks : NSObject
 { 

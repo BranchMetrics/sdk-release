@@ -51,6 +51,7 @@
 		4FDFA21F15C7079A00BEEC38 /* MATReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* MATReachability.m */; };
 		F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */; };
 		F8A2EA8416445D3E0023FCE1 /* MATCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */; };
+		F8B3437416E55A1900FF81A2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B3437316E55A1900FF81A2 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -88,6 +89,7 @@
 		4FDFA21D15C7079A00BEEC38 /* MATReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATReachability.m; sourceTree = "<group>"; };
 		F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATCWorks.h; sourceTree = "<group>"; };
 		F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATCWorks.m; sourceTree = "<group>"; };
+		F8B3437316E55A1900FF81A2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8B3437416E55A1900FF81A2 /* UIKit.framework in Frameworks */,
 				4FDFA18615C700D300BEEC38 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -122,6 +125,7 @@
 		4FDFA18415C700D300BEEC38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F8B3437316E55A1900FF81A2 /* UIKit.framework */,
 				4FDFA18515C700D300BEEC38 /* Foundation.framework */,
 			);
 			name = Frameworks;

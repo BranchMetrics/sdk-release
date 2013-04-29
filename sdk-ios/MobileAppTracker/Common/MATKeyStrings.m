@@ -26,16 +26,16 @@ NSString * const KEY_DATA                       	= @"data";
 NSString * const KEY_DEBUG                      	= @"debug";
 NSString * const KEY_DEVICE_BRAND               	= @"device_brand";
 NSString * const KEY_DEVICE_CARRIER             	= @"device_carrier";
-NSString * const KEY_DEVICE_ID                  	= @"device_id";
 NSString * const KEY_DEVICE_MODEL               	= @"device_model";
 NSString * const KEY_DOMAIN                     	= @"domain";
 NSString * const KEY_EVENT_REFERRAL             	= @"event_referral";
 NSString * const KEY_FB_COOKIE_ID               	= @"fb_cookie_id";
 NSString * const KEY_GUID_EMPTY                 	= @"00000000-0000-0000-0000-000000000000";
-NSString * const KEY_HTTP                           = @"HTTP";
-NSString * const KEY_HTTPS                      	= @"HTTPS";
+NSString * const KEY_HTTP                           = @"http";
+NSString * const KEY_HTTPS                      	= @"https";
 NSString * const KEY_INSDATE                    	= @"insdate";
 NSString * const KEY_INSTALL_DATE               	= @"install_date";
+NSString * const KEY_INSTALL_LOG_ID                 = @"install_log_id";
 NSString * const KEY_IOS                            = @"ios";
 NSString * const KEY_IOS_AD_TRACKING                = @"ios_ad_tracking";
 NSString * const KEY_IOS_IFA                        = @"ios_ifa";
@@ -74,6 +74,7 @@ NSString * const KEY_SYSTEM_DATE                    = @"system_date";
 NSString * const KEY_TARGET_BUNDLE_ID               = @"target_package";
 NSString * const KEY_TRACKING_ID                    = @"tracking_id";
 NSString * const KEY_TRUSTE_TPID                    = @"truste_tpid";
+NSString * const KEY_UPDATE_LOG_ID                  = @"update_log_id";
 NSString * const KEY_URL                            = @"url";
 NSString * const KEY_USER_ID                        = @"user_id";
 NSString * const KEY_VER                            = @"ver";
@@ -100,16 +101,28 @@ NSString * const HTTP_METHOD_POST                   = @"POST";
 NSString * const HTTP_CONTENT_TYPE                  = @"content-type";
 NSString * const HTTP_CONTENT_TYPE_APPLICATION_JSON = @"application/json";
 
-NSString * const KEY_ERROR_DOMAIN_MOBILEAPPTRACKER      = @"com.hasoffers.MobileAppTracker";
+NSString * const KEY_ERROR_DOMAIN_MOBILEAPPTRACKER          = @"com.hasoffers.MobileAppTracker";
 
-NSString * const KEY_ERROR_MAT_ADVERTISER_ID_MISSING    = @"mat_advertiser_id_missing";
-NSString * const KEY_ERROR_MAT_ADVERTISER_KEY_MISSING   = @"mat_advertiser_key_missing";
-NSString * const KEY_ERROR_MAT_APP_TO_APP_FAILURE       = @"mat_app_to_app_failure";
-NSString * const KEY_ERROR_MAT_NETWORK_NOT_REACHABLE    = @"mat_network_not_reachable";
+NSString * const KEY_ERROR_MAT_SERVER_ERROR                 = @"mat_error_server_error";
+NSString * const KEY_ERROR_MAT_ADVERTISER_ID_MISSING        = @"mat_error_advertiser_id_missing";
+NSString * const KEY_ERROR_MAT_CONVERSION_KEY_MISSING       = @"mat_error_conversion_key_missing";
+NSString * const KEY_ERROR_MAT_APP_TO_APP_FAILURE           = @"mat_error_app_to_app_failure";
+NSString * const KEY_ERROR_MAT_NETWORK_NOT_REACHABLE        = @"mat_error_network_not_reachable";
+NSString * const KEY_ERROR_MAT_OPEN_EVENT_ERROR             = @"mat_error_open_event_error";
 
-NSString * const STRING_EMPTY                           = @"";
+NSString * const KEY_MAT_INSTALL_LOG_ID                     = @"mat_install_log_id";
+NSString * const KEY_MAT_INSTALL_LOG_ID_REQUEST_TIMESTAMP   = @"mat_install_log_id_request_timestamp";
+NSString * const KEY_MAT_OPEN_EVENT_TIMESTAMP               = @"mat_open_event_timestamp";
+NSString * const KEY_MAT_UPDATE_LOG_ID                      = @"mat_udpate_log_id";
 
-NSString * const SERVER_DOMAIN_COOKIE_TRACKING          = @"http://launch1.co";
-NSString * const SERVER_DOMAIN_REGULAR_TRACKING_PROD    = @"engine.mobileapptracking.com";
-NSString * const SERVER_DOMAIN_REGULAR_TRACKING_STAGE   = @"engine.stage.mobileapptracking.com";
-NSString * const SERVER_PATH_TRACKING_ENGINE            = @"serve";
+NSString * const KEY_MAT_FIXED_FOR_ICLOUD                   = @"mat_fixed_for_icloud";
+
+NSString * const STRING_EMPTY                               = @"";
+
+NSString * const SERVER_DOMAIN_COOKIE_TRACKING              = @"http://launch1.co";
+NSString * const SERVER_DOMAIN_REGULAR_TRACKING_PROD        = @"engine.mobileapptracking.com";
+NSString * const SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG  = @"debug.engine.mobileapptracking.com";
+NSString * const SERVER_DOMAIN_REGULAR_TRACKING_STAGE       = @"engine.stage.mobileapptracking.com";
+NSString * const SERVER_PATH_TRACKING_ENGINE            	= @"serve";
+NSString * const SERVER_PATH_TRACKING_ENGINE_NO_LOG         = @"serve_no_log";
+NSString * const SERVER_PATH_GET_INSTALL_LOG_ID            	= @"v1/Integrations/Sdk/GetLog.txt";
