@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /*
  * Please add this to your AndroidManifest.xml file.
@@ -21,6 +22,7 @@ public class Tracker extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String referrer = intent.getStringExtra("referrer");
         if (referrer != null) { //is it coming from android market?
+            Log.d(MATConstants.TAG, "Received install referrer " + referrer);
             SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
             SharedPreferences.Editor editor = SP.edit();
             editor.putString("referrer", referrer);
