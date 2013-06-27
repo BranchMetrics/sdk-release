@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -23,7 +22,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -31,19 +32,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -53,6 +57,9 @@ import android.webkit.WebView;
  * @author john.gu@hasoffers.com
  */
 public class MobileAppTracker {
+    public static final int GENDER_MALE = 0;
+    public static final int GENDER_FEMALE = 1;
+    
     private static final Uri ATTRIBUTION_ID_CONTENT_URI = Uri.parse("content://com.facebook.katana.provider.AttributionIdProvider");
     private static final String ATTRIBUTION_ID_COLUMN_NAME = "aid";
     private static final String IV = "heF9BATUfWuISyO8";
@@ -62,6 +69,8 @@ public class MobileAppTracker {
     // Interface for making url requests
     private UrlRequester urlRequester;
     
+    // Whether connectivity receiver is registered or not
+    private boolean isRegistered = false;
     // Whether to allow duplicate installs from this device
     private boolean allowDups = false;
     // Whether to show debug output
@@ -130,6 +139,11 @@ public class MobileAppTracker {
                                     "tpid",
                                     "ar",
                                     "ti",
+                                    "age",
+                                    "gender",
+                                    "latitude",
+                                    "longitude",
+                                    "altitude",
                                     "connection_type",
                                     "mobile_country_code",
                                     "mobile_network_code",
@@ -144,7 +158,12 @@ public class MobileAppTracker {
         SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
         install = SP.getString("install", "");
         if (initialized && getQueueSize() > 0 && isOnline()) {
-            dumpQueue();
+            try {
+                dumpQueue();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
         }
         
         // Set up connectivity listener so we dump the queue when re-connected to Internet
@@ -152,18 +171,25 @@ public class MobileAppTracker {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isOnline() && getQueueSize() > 0) {
-                    dumpQueue();
+                    try {
+                        dumpQueue();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
         };
         
-        // Unregister receiver in case one is still previously registered
-        try {
+        if (isRegistered) {
+            // Unregister receiver in case one is still previously registered
             context.getApplicationContext().unregisterReceiver(networkStateReceiver);
-        } catch (IllegalArgumentException e) {
+            isRegistered = false;
         }
+        
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         context.getApplicationContext().registerReceiver(networkStateReceiver, filter);
+        isRegistered = true;
     }
 
     /**
@@ -185,38 +211,39 @@ public class MobileAppTracker {
      * @param currency currency code for the revenue
      * @param shouldBuildData whether link needs encrypted data to be appended or not
      */
-    private void addEventToQueue(String link, String json, String action, double revenue, String currency, boolean shouldBuildData) {
+    private void addEventToQueue(String link, String json, String action, double revenue, String currency, boolean shouldBuildData) throws InterruptedException {
         // Acquire semaphore before modifying queue
+        queueAvailable.acquire();
+
         try {
-            queueAvailable.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // JSON-serialize the link and json to store in Shared Preferences as a string
-        JSONObject jsonEvent = new JSONObject();
-        try {
-            jsonEvent.put("link", link);
-            if (json != null) {
-                jsonEvent.put("json", json);
+            // JSON-serialize the link and json to store in Shared Preferences as a string
+            JSONObject jsonEvent = new JSONObject();
+            try {
+                jsonEvent.put("link", link);
+                if (json != null) {
+                    jsonEvent.put("json", json);
+                }
+                jsonEvent.put("action", action);
+                jsonEvent.put("revenue", revenue);
+                if (currency == null) {
+                    currency = "USD";
+                }
+                jsonEvent.put("currency", currency);
+                jsonEvent.put("should_build_data", shouldBuildData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                // Return if we can't create JSONObject
+                return;
             }
-            jsonEvent.put("action", action);
-            jsonEvent.put("revenue", revenue);
-            if (currency == null) {
-                currency = "USD";
-            }
-            jsonEvent.put("currency", currency);
-            jsonEvent.put("should_build_data", shouldBuildData);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            SharedPreferences.Editor editor = EventQueue.edit();
+            int count = getQueueSize() + 1;
+            setQueueSize(count);
+            String eventIndex = Integer.valueOf(count).toString();
+            editor.putString(eventIndex, jsonEvent.toString());
+            editor.commit();
+        } finally {
+            queueAvailable.release();
         }
-        SharedPreferences.Editor editor = EventQueue.edit();
-        int count = EventQueue.getInt("queuesize", 0);
-        count += 1;
-        String cnt = Integer.valueOf(count).toString();
-        editor.putString(cnt, jsonEvent.toString());
-        editor.putInt("queuesize", count);
-        editor.commit();
-        queueAvailable.release();
     }
 
     /**
@@ -241,57 +268,71 @@ public class MobileAppTracker {
     /**
      * Processes the event queue, method will only process MAX_DUMP_SIZE events per call.
      * @return void
+     * @throws InterruptedException 
      */
-    private synchronized void dumpQueue() {
-        int size = getQueueSize();
-        if (size == 0) {
-            return;
-        }
+    private synchronized void dumpQueue() throws InterruptedException {
+        queueAvailable.acquire();
         
-        int x = 1;
-        if (size > MATConstants.MAX_DUMP_SIZE) {
-            x = 1 + (size - MATConstants.MAX_DUMP_SIZE);
-        }
-        
-        // Iterate through events and do postbacks for each, using GetLink
-        for (; x <= size; x++) {
-            String key = Integer.valueOf(x).toString();
-            String eventJson = EventQueue.getString(key, null);
+        try {
+            int size = getQueueSize();
+            if (size == 0) {
+                return;
+            }
             
-            if (eventJson != null) {
-                String link = null;
-                String json = null;
-                String action = null;
-                double revenue = 0;
-                String currency = null;
-                boolean shouldBuildData = false;
-                try {
-                    // De-serialize the stored string from the queue to get URL and json values
-                    JSONObject event = new JSONObject(eventJson);
-                    link = event.getString("link");
-                    if (event.has("json")) {
-                        json = event.getString("json");
-                    }
-                    action = event.getString("action");
-                    revenue = event.getDouble("revenue");
-                    currency = event.getString("currency");
-                    shouldBuildData = event.getBoolean("should_build_data");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            int index = 1;
+            if (size > MATConstants.MAX_DUMP_SIZE) {
+                index = 1 + (size - MATConstants.MAX_DUMP_SIZE);
+            }
+            
+            // Iterate through events and do postbacks for each, using GetLink
+            for (; index <= size; index++) {
+                String key = Integer.valueOf(index).toString();
+                String eventJson = EventQueue.getString(key, null);
                 
-                if (link != null) {
+                if (eventJson != null) {
+                    String link = null;
+                    String json = null;
+                    String action = null;
+                    double revenue = 0;
+                    String currency = null;
+                    boolean shouldBuildData = false;
                     try {
+                        // De-serialize the stored string from the queue to get URL and json values
+                        JSONObject event = new JSONObject(eventJson);
+                        link = event.getString("link");
+                        if (event.has("json")) {
+                            json = event.getString("json");
+                        }
+                        action = event.getString("action");
+                        revenue = event.getDouble("revenue");
+                        currency = event.getString("currency");
+                        shouldBuildData = event.getBoolean("should_build_data");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        // Can't rebuild saved request, remove from queue and return
                         setQueueSize(getQueueSize() - 1);
                         SharedPreferences.Editor editor = EventQueue.edit();
                         editor.remove(key);
                         editor.commit();
+                        return;
+                    }
+                    
+                    // Remove request from queue and execute
+                    setQueueSize(getQueueSize() - 1);
+                    SharedPreferences.Editor editor = EventQueue.edit();
+                    editor.remove(key);
+                    editor.commit();
+                    
+                    try {
                         pool.execute(new GetLink(link, json, action, revenue, currency, shouldBuildData));
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Log.d(MATConstants.TAG, "Request could not be executed from queue");
                     }
                 }
             }
+        } finally {
+            queueAvailable.release();
         }
     }
 
@@ -308,15 +349,9 @@ public class MobileAppTracker {
      * @return whether Internet connection exists
      */
     private boolean isOnline() {
-        try {
-            ConnectivityManager connectivityManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (connectivityManager.getActiveNetworkInfo() != null) {
-                // we are connected to a network
-                return true;
-            }
-        } catch (Exception e) {
-        }
-        return false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
@@ -393,7 +428,7 @@ public class MobileAppTracker {
                         String mnc = networkOperator.substring(3);
                         setMCC(mcc);
                         setMNC(mnc);
-                    } catch (Exception e) {
+                    } catch (IndexOutOfBoundsException e) {
                         // networkOperator is unreliable for CDMA devices
                         Log.d(MATConstants.TAG, "MCC/MNC not found");
                     }
@@ -405,63 +440,54 @@ public class MobileAppTracker {
             setLanguage(Locale.getDefault().getDisplayLanguage(Locale.US));
             setCurrencyCode("USD");
             
+            String packageName = context.getPackageName();
+            setPackageName(packageName);
+            
+            PackageManager pm = context.getPackageManager();
+            ApplicationInfo ai;
             try {
-                Resources appR = context.getResources();
-                CharSequence txt = appR.getText(appR.getIdentifier("app_name", "string", context.getPackageName()));
-                setAppName(txt.toString());
-            } catch (Exception e) {
-                Log.d(MATConstants.TAG, "App name not found");
+                ai = pm.getApplicationInfo(packageName, 0);
+            } catch (NameNotFoundException e) {
+                ai = null;
+                Log.d(MATConstants.TAG, "ApplicationInfo not found");
+                e.printStackTrace();
             }
-            
-            setPackageName(context.getPackageName());
-            
-            // retrieving Android market referrer value
-            try {
-                SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
-                setReferrer(SP.getString("referrer", ""));
-            } catch (Exception e) {
-                Log.d(MATConstants.TAG, "Referrer not found");
-            }
-            
-            try {
-                SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
-                install = SP.getString("install", "");
-            } catch (Exception e) {
-                install = "";
-            }
-            
-            try {
-                setAppVersion(context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode);
-            } catch (Exception e) {
-                Log.d(MATConstants.TAG, "App version not found");
-                setAppVersion(0);
-            }
-            
-            try {
-                String appFile = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).sourceDir;
+            if (ai != null) {
+                setAppName(pm.getApplicationLabel(ai).toString());
+                
+                String appFile = pm.getApplicationInfo(packageName, 0).sourceDir;
                 long insdate = new File(appFile).lastModified();
                 Date installDate = new Date(insdate);
                 SimpleDateFormat sdfDate = new SimpleDateFormat(MATConstants.DATE_FORMAT, Locale.US);
                 sdfDate.setTimeZone(TimeZone.getTimeZone("UTC"));
                 setInstallDate(sdfDate.format(installDate));
-            } catch (Exception e) {
-                setInstallDate("0");
             }
+            
+            try {
+                PackageInfo pi = pm.getPackageInfo(packageName, 0);
+                setAppVersion(pi.versionCode);
+            } catch (NameNotFoundException e) {
+                Log.d(MATConstants.TAG, "App version not found");
+                setAppVersion(0);
+            }
+            
+            // retrieving Android market referrer value
+            SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
+            setReferrer(SP.getString("referrer", ""));
+            
+            SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
+            install = SP.getString("install", "");
             
             // execute Runnable on UI thread to set user agent
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new GetUserAgent(context));
             
             // Show annoying alert about debug mode if enabled
-            if (debugMode) {
-                try {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Debug Mode Enabled");
-                    builder.setMessage("MAT SDK debug mode is enabled - please disable before app submission.");
-                    builder.show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (debugMode || allowDups) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Debug Mode Enabled");
+                builder.setMessage("MAT SDK debug mode is enabled - please disable before app submission.");
+                builder.show();
             }
             
             // Set screen density
@@ -470,13 +496,16 @@ public class MobileAppTracker {
             
             // Set screen layout size
             WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            @SuppressWarnings("deprecation")
             int width = wm.getDefaultDisplay().getWidth();
+            @SuppressWarnings("deprecation")
             int height = wm.getDefaultDisplay().getHeight();
             setScreenSize(Integer.toString(width) + "x" + Integer.toString(height));
             
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d(MATConstants.TAG, "MobileAppTracker initialization failed");
             return false;
         }
     }
@@ -511,8 +540,9 @@ public class MobileAppTracker {
             try {
                 trackingId = response.getString("tracking_id");
                 redirectUrl = response.getString("url");
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (JSONException e) {
+                Log.d(MATConstants.TAG, "Unable to get tracking ID or redirect url from app-to-app tracking");
+                return "";
             }
         }
         
@@ -529,7 +559,8 @@ public class MobileAppTracker {
                 Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(redirectUrl));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
-            } catch (Exception e) {
+            } catch (ActivityNotFoundException e) {
+                Log.d(MATConstants.TAG, "Unable to start activity to open " + redirectUrl);
             }
         }
         
@@ -641,29 +672,26 @@ public class MobileAppTracker {
     /**
      * Method for applications to track events using a new action event with event id, map (event item).
      * @param event event name or event ID in MAT system
-     * @param map HashMap of an event item to convert to json to post to server.
+     * @param eventItem event item to post to server.
      * @return 1 on success and -1 on failure.
      */
-    public int trackAction(String event, HashMap<String, String> map) {
-        // Create a JSONObject using the given HashMap
-        JSONObject jsonObject = new JSONObject(map);
+    public int trackAction(String event, MATEventItem eventItem) {
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(jsonObject);
+        jsonArray.put(eventItem.toJSON());
         return track(event, jsonArray.toString(), 0, null);
     }
 
     /**
      * Method for applications to track events using a new action event with event id, list of event items.
      * @param event event name or event ID in MAT system
-     * @param list List of event items to convert to json to post to server.
+     * @param list List of event items to post to server.
      * @return 1 on success and -1 on failure.
      */
-    public int trackAction(String event, List<HashMap<String, String>> list) {
-        // Create a JSONArray using the given List of Maps
+    public int trackAction(String event, List<MATEventItem> list) {
+        // Create a JSONArray of event items
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < list.size(); i++) {
-            JSONObject jsonObject = new JSONObject((HashMap<String, String>) list.get(i));
-            jsonArray.put(jsonObject);
+            jsonArray.put(list.get(i).toJSON());
         }
         return track(event, jsonArray.toString(), 0, null);
     }
@@ -695,13 +723,18 @@ public class MobileAppTracker {
      * @param json JSON data to post to the server
      * @param revenue revenue amount tied to the action
      * @param currency currency code for the revenue amount
-     * @return 1 on success, 2 if already installed and -1 on failure.
+     * @return 1 on success and -1 on failure.
      */
     private synchronized int track(String event, String json, double revenue, String currency) {
         if (!initialized) return -1;
         
         if (isOnline() && getQueueSize() > 0) {
-            dumpQueue();
+            try {
+                dumpQueue();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
         }
         
         // Clear the parameters from parameter table that should be reset between events
@@ -714,7 +747,7 @@ public class MobileAppTracker {
         setAction("conversion"); // Default to conversion
         if (containsChar(event)) { // check if eventid contains a character
             if (event.equals("open")) setAction("open");
-            else if (event.equals("close")) setAction("close");
+            else if (event.equals("close")) return -1; // Don't send close events anymore
             else if (event.equals("install")) setAction("install");
             else if (event.equals("update")) setAction("update");
             else setEventName(event);
@@ -722,11 +755,9 @@ public class MobileAppTracker {
             setEventId(event);
         }
         
-        String link = null;
-        try {
-            link = buildLink();
-        } catch (Exception e) {
-            e.printStackTrace();
+        String link = buildLink();
+        if (link == null) {
+            Log.d(MATConstants.TAG, "Error constructing url for tracking call");
             return -1;
         }
         
@@ -736,11 +767,17 @@ public class MobileAppTracker {
                 pool.schedule(new GetLink(link, json, action, revenue, currency, true), MATConstants.DELAY, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.d(MATConstants.TAG, "Request could not be executed from track");
             }
         } else {
             if (!action.equals("open")) {
-                addEventToQueue(link, json, action, revenue, currency, true);
                 if (debugMode) Log.d(MATConstants.TAG, "Not online: track will be queued");
+                try {
+                    addEventToQueue(link, json, action, revenue, currency, true);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return 1;
@@ -789,7 +826,8 @@ public class MobileAppTracker {
                 // UTF-8 encode the tracking ID
                 try {
                     trackingId = URLEncoder.encode(trackingId, "UTF-8");
-                } catch (Exception e) {
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
                 
                 // Add to paramTable for data encrypting
@@ -798,6 +836,7 @@ public class MobileAppTracker {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d(MATConstants.TAG, "Error reading app-to-app values");
         }
         return link.toString();
     }
@@ -819,13 +858,9 @@ public class MobileAppTracker {
         // update referrer value if INSTALL_REFERRER intent wasn't received during initialization
         if (getReferrer() != null && getReferrer().length() == 0) {
             SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
-            try {
-                String referrer = SP.getString("referrer", "");
-                if (referrer.length() != 0) {
-                    setReferrer(referrer);
-                }
-            } catch (ClassCastException e) {
-                e.printStackTrace();
+            String referrer = SP.getString("referrer", "");
+            if (referrer.length() != 0) {
+                setReferrer(referrer);
             }
         }
         
@@ -837,6 +872,7 @@ public class MobileAppTracker {
                     Thread.sleep(MATConstants.DELAY);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
             // Append install log id for opens and events if we have it stored
@@ -900,6 +936,7 @@ public class MobileAppTracker {
             }
         }
         
+        // Append Facebook mobile cookie value if exists
         try {
             String facebookCookie = getAttributionId(context.getContentResolver());
             if (facebookCookie != null) {
@@ -916,6 +953,7 @@ public class MobileAppTracker {
             try {
                 intent = URLEncoder.encode(intent, "UTF-8");
             } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
             // Append Facebook re-engagement intent to url as "source"
             link.append("&source=").append(intent);
@@ -1005,17 +1043,25 @@ public class MobileAppTracker {
         
         public void run() {
             try {
-                // Create WebView to set user agent, then destroy WebView
-                WebView webview = new WebView(this.context);
-                webview.setVisibility(View.GONE);
-                WebSettings settings = webview.getSettings();
-                settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-                settings.setSavePassword(false);
-                setUserAgent(webview.getSettings().getUserAgentString());
-                webview.destroy();
+                String userAgent;
+                if (Build.VERSION.SDK_INT >= 17) {
+                    userAgent = getDefaultUserAgent(this.context);
+                } else {
+                    // Create WebView to set user agent, then destroy WebView
+                    WebView wv = new WebView(this.context);
+                    userAgent = wv.getSettings().getUserAgentString();
+                    wv.destroy();
+                }
+                setUserAgent(userAgent);
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.d(MATConstants.TAG, "Could not get user agent");
             }
+        }
+        
+        @TargetApi(17)
+        public String getDefaultUserAgent(Context context) {
+            return WebSettings.getDefaultUserAgent(context);
         }
     }
     
@@ -1050,11 +1096,7 @@ public class MobileAppTracker {
         
         public void run() {
             if (shouldBuildData) {
-                try {
-                    link = buildData(link, action, revenue, currency);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                link = buildData(link, action, revenue, currency);
             }
             
             // If action is open, check whether we have done an open in the past 24h
@@ -1068,40 +1110,72 @@ public class MobileAppTracker {
             
             Log.d(MATConstants.TAG, "Sending " + action + " event to server...");
             
-            try {
-                JSONObject response = urlRequester.requestUrl(link, json);
-                if (response == null) {
+            JSONObject response = urlRequester.requestUrl(link, json);
+            if (response == null) {
+                try {
                     addEventToQueue(link, json, action, revenue, currency, false);
-                    if (debugMode) Log.d(MATConstants.TAG, "Request failed: track will be queued");
-                    return;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
-                
-                // Signal didSucceedWithData event to interface
-                if (matResponse != null) {
-                    matResponse.didSucceedWithData(response);
-                }
-                
-                // Set log ID from install/update response
-                if (action.equals("install")) {
+                if (debugMode) Log.d(MATConstants.TAG, "Request failed: track will be queued");
+                return;
+            }
+            
+            // Signal didSucceedWithData event to interface
+            if (matResponse != null) {
+                matResponse.didSucceedWithData(response);
+            }
+            
+            // Set log ID from install/update response
+            if (action.equals("install")) {
+                try {
                     setInstallLogId(response.getString("log_id"));
-                } else if (action.equals("update")) {
-                    setUpdateLogId(response.getString("log_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(MATConstants.TAG, "Install log id could not be found in response");
                 }
-                
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "Server response: " + response.toString());
-                    if (response.length() > 0) {
-                        String success = response.getJSONObject("log_action").getJSONObject("conversion").getString("status");
-                        if (success.equals("rejected")) {
-                            String statusCode = response.getJSONObject("log_action").getJSONObject("conversion").getString("status_code");
-                            Log.d(MATConstants.TAG, "Event was rejected by server: status code " + statusCode);
+            } else if (action.equals("update")) {
+                try {
+                    setUpdateLogId(response.getString("log_id"));
+                } catch (JSONException e) {
+                    Log.d(MATConstants.TAG, "Update log id could not be found in response");
+                    e.printStackTrace();
+                }
+            }
+            
+            if (debugMode) {
+                Log.d(MATConstants.TAG, "Server response: " + response.toString());
+                if (response.length() > 0) {
+                    try {
+                        if (!response.getString("log_action").equals("null")) {
+                            JSONObject logAction = response.getJSONObject("log_action");
+                            if (logAction.has("conversion")) {
+                                JSONObject conversion = logAction.getJSONObject("conversion");
+                                if (conversion.has("status")) {
+                                    String status = conversion.getString("status");
+                                    if (status.equals("rejected")) {
+                                        String statusCode = conversion.getString("status_code");
+                                        Log.d(MATConstants.TAG, "Event was rejected by server: status code " + statusCode);
+                                    } else {
+                                        Log.d(MATConstants.TAG, "Event was accepted by server");
+                                    }
+                                }
+                            }
                         } else {
-                            Log.d(MATConstants.TAG, "Event was accepted by server");
+                            if (response.has("options")) {
+                                JSONObject options = response.getJSONObject("options");
+                                if (options.has("conversion_status")) {
+                                    String conversionStatus = options.getString("conversion_status");
+                                    Log.d(MATConstants.TAG, "Event was " + conversionStatus + " by server");
+                                }
+                            }
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(MATConstants.TAG, "Server response status could not be parsed");
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
@@ -1262,6 +1336,28 @@ public class MobileAppTracker {
         putInParamTable("ac", action);
     }
 
+    public int getAge() {
+        if (paramTable.get("age") == null) {
+            return 0;
+        }
+        return Integer.parseInt(paramTable.get("age"));
+    }
+
+    public void setAge(int age) {
+        putInParamTable("age", Integer.toString(age));
+    }
+
+    public double getAltitude() {
+        if (paramTable.get("altitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("altitude"));
+    }
+
+    public void setAltitude(double altitude) {
+        putInParamTable("altitude", Double.toString(altitude));
+    }
+
     public String getAndroidId() {
         return paramTable.get("ad");
     }
@@ -1341,12 +1437,37 @@ public class MobileAppTracker {
         putInParamTable("dm", device_model);
     }
 
+    public int getGender() {
+        if (paramTable.get("gender") == null) {
+            return 0;
+        }
+        return Integer.parseInt(paramTable.get("gender"));
+    }
+    
+    public void setGender(int gender) {
+        putInParamTable("gender", Integer.toString(gender));
+    }
+    
     public String getInstallDate() {
         return paramTable.get("id");
     }
 
     private void setInstallDate(String install_date) {
         putInParamTable("id", install_date);
+    }
+
+    public String getInstallLogId() {
+        // Get log id from SharedPreferences
+        SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_INSTALL, 0);
+        return SP.getString("logId", "");
+    }
+
+    private void setInstallLogId(String logId) {
+        // Store log id from install in SharedPreferences
+        SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_INSTALL, 0);
+        SharedPreferences.Editor editor = SP.edit();
+        editor.putString(MATConstants.PREFS_LOG_ID_KEY, logId);
+        editor.commit();
     }
 
     public String getLanguage() {
@@ -1366,18 +1487,26 @@ public class MobileAppTracker {
         editor.commit();
     }
 
-    public String getInstallLogId() {
-        // Get log id from SharedPreferences
-        SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_INSTALL, 0);
-        return SP.getString("logId", "");
+    public double getLatitude() {
+        if (paramTable.get("latitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("latitude"));
+    }
+    
+    public void setLatitude(double latitude) {
+        putInParamTable("latitude", Double.toString(latitude));
     }
 
-    private void setInstallLogId(String logId) {
-        // Store log id from install in SharedPreferences
-        SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_INSTALL, 0);
-        SharedPreferences.Editor editor = SP.edit();
-        editor.putString(MATConstants.PREFS_LOG_ID_KEY, logId);
-        editor.commit();
+    public double getLongitude() {
+        if (paramTable.get("longitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("longitude"));
+    }
+    
+    public void setLongitude(double longitude) {
+        putInParamTable("longitude", Double.toString(longitude));
     }
 
     public String getMacAddress() {
@@ -1476,13 +1605,13 @@ public class MobileAppTracker {
      * @param value the value
      */
     private void putInParamTable(String key, String value) {
-        if (value != null) {
+        if (key != null && value != null) {
             try {
                 value = URLEncoder.encode(value, "UTF-8");
-                paramTable.put(key, value);
-            } catch (Exception e) {
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+            paramTable.put(key, value);
         }
     }
     
