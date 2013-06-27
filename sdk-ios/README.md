@@ -1,16 +1,21 @@
-# iOS SDK Notes
------------------------
------------------------
+MobileAppTracker
+================
 
-### Step 1: Download Universal Framework to build Static Library
+MobileAppTracker iOS SDK Source and Documentation
 
-  1. You must clone https://github.com/kstenerud/iOS-Universal-Framework
-  2. Then, follow the notes to install the framework using the install template for the Real framework. This will extend Xcode with templates.
+----------------
 
-### Step 2: Re-open Xcode source project and Build Library
+### Steps to build the MobileAppTracker iOS Framework:
 
-  1. choose simulator so the universal framework will build simulator and device platforms
+#### Step 1: Download Universal Framework to build Static Library
 
-### Step 3: Include MAT SDK library in your project
+  * You must clone https://github.com/kstenerud/iOS-Universal-Framework
+  * Then, follow the notes to install the framework using the install template for the Real framework. This will extend Xcode with templates.
 
-  1. follow instructions in MAT integration document
+#### Step 2: Re-open Xcode source project and Build Library
+
+  * choose simulator so the universal framework will build simulator and device platforms
+
+#### Step 3: Include MAT SDK library in your project
+
+  * follow instructions in MAT integration document

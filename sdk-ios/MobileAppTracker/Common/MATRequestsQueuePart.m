@@ -33,6 +33,7 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
 @synthesize modified = modified_;
 @synthesize fileName = fileName_;
 @synthesize filePathName = filePathName_;
+@synthesize parentFolder = parentFolder_;
 
 @synthesize requests = requests_;
 @synthesize loaded = loaded_;
@@ -76,21 +77,22 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
     self.loadedRequestsCount = count;
 }
 
-+ (id)partWithIndex:(NSInteger)index
++ (id)partWithIndex:(NSInteger)index parentFolder:(NSString *)parentFolder
 {
-    return [[[MATRequestsQueuePart alloc] initWithIndex:index] autorelease];
+    return [[[MATRequestsQueuePart alloc] initWithIndex:index parentFolder:parentFolder] autorelease];
 }
 
-- (id)initWithIndex:(NSInteger)index
+- (id)initWithIndex:(NSInteger)index parentFolder:(NSString *)parentDir
 {
     self = [super init];
     
     if (self)
     {
-        index_ = index;
+        self.index = index;
+        self.parentFolder = parentDir;
         [self generateFileName];
-        modified_ = NO;
-        requests_ = [[NSMutableArray alloc] init];
+        self.modified = NO;
+        self.requests = [NSMutableArray array];
     }
     
     return self;
@@ -169,37 +171,45 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
     // store the serialized request data to a file
     [strDescr writeToFile:self.filePathName atomically:YES encoding:NSUTF8StringEncoding error:&error];    
     
+#if DEBUG_LOG
     if (error)
     {
-        NSLog(@"%@", [error localizedDescription]);
+        NSLog(@"MATReqQuePart.save: error = %@", [error localizedDescription]);
     }
+#endif
     
     self.modified = NO;
 }
 
 - (void)dealloc
 {
-    self.requests = nil;
-    self.fileName = nil;
-    self.filePathName = nil;
+    [requests_ release], requests_= nil;
+    [fileName_ release], fileName_= nil;
+    [filePathName_ release], filePathName_= nil;
+    [parentFolder_ release], parentFolder_= nil;
+    
     [super dealloc];
 }
 
 - (NSString*)generateFileName
 {
-    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsDirectory = [paths objectAtIndex:0];
-
     self.fileName = [NSString stringWithFormat:@"queue_part_%d.xml", self.index];
+
+#if DEBUG_LOG
+    NSLog(@"MATReqQuePart: generateFileName: dir  = %@", self.parentFolder);
+    NSLog(@"MATReqQuePart: generateFileName: file = %@", self.fileName);
+#endif
+    self.filePathName = [self.parentFolder stringByAppendingPathComponent:self.fileName];
     
-    NSString * filePathName = [documentsDirectory stringByAppendingPathComponent:@"queue"];
-    filePathName = [filePathName stringByAppendingPathComponent:self.fileName];    
-    self.filePathName = filePathName;
+#if DEBUG_LOG
+    NSLog(@"MATReqQuePart: generateFileName: fileName     = %@", self.fileName);
+    NSLog(@"MATReqQuePart: generateFileName: filePathName = %@", self.filePathName);
+#endif
     
     return self.fileName;
 }
 
-- (NSComparisonResult) indexComparator:(MATRequestsQueuePart*)other
+- (NSComparisonResult)indexComparator:(MATRequestsQueuePart*)other
 {
     if (self.index < other.index)
     {

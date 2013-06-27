@@ -14,7 +14,11 @@ xcuserdata
 profile
 *.moved-aside
 Resources/Configuration/Private.xcconfig
+
 # OS X
 .DS_Store
 .pid_file
 .sass-cache
+
+#appledoc
+docs/docset-installed.txt

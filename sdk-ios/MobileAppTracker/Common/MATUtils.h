@@ -7,10 +7,27 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MATConnectionManager.h"
 #import <MobileAppTracker/MobileAppTracker.h>
+#import <sys/xattr.h>
+#import <dlfcn.h>
+#import <objc/runtime.h>
+
+/****************************************
+ *  VERY IMPORTANT!
+ *  These values should be zero for releases.
+ ****************************************/
+#define DEBUG_JAILBREAK_LOG         0
+#define DEBUG_LINK_LOG              0
+#define DEBUG_LOG                   0
+#define DEBUG_REQUEST_LOG           0
+#define DEBUG_REMOTE_LOG            0
+#define DEBUG_STAGING               0
+
+@protocol MATConnectionManagerDelegate;
 
 @interface MATUtils : NSObject
+
+extern const float IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (NSString*)generateUserAgentString;
 + (NSString*)generateFBCookieIdString;
@@ -25,6 +42,10 @@
 
 + (NSString *)bundleId;
 
++ (BOOL)isNetworkReachable;
+
++ (void)setShouldDebug:(BOOL)yesorno;
+
 + (void)startTrackingSessionForTargetBundleId:(NSString*)targetBundleId
                             publisherBundleId:(NSString*)publisherBundleId
                                  advertiserId:(NSString*)advertiserId
@@ -32,6 +53,10 @@
                                   publisherId:(NSString*)publisherId
                                      redirect:(BOOL)shouldRedirect
                            connectionDelegate:(id<MATConnectionManagerDelegate>)matDelegate;
+
++ (void)sendRequestGetInstallLogIdWithLink:(NSString *)link
+                                    params:(NSMutableDictionary*)params
+                        connectionDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
 
 + (void)stopTrackingSession;
 + (BOOL)isTrackingSessionStartedForTargetApplication:(NSString*)targetPackageName;
@@ -53,5 +78,16 @@
 
 + (void)storeToPasteBoardTrackingId:(NSMutableDictionary *)params;
 + (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error;
+
++ (NSDateFormatter *)sharedDateFormatter;
++ (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime;
+
++ (void)handleInstallLogId:(NSMutableDictionary *)params;
++ (void)failedToRequestInstallLogId:(NSMutableDictionary *)params withError:(NSError *)error;
+
++ (float)getNumericiOSVersion:(NSString *)iOSVersion;
++ (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL;
+
++ (NSString *)serverDomainName;
 
 @end
