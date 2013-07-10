@@ -7,9 +7,13 @@
 //
 
 #import "MATRequestsQueuePart.h"
+#import "MATKeyStrings.h"
+#import "NSString+MATURLEncoding.h"
 
 const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
- 
+
+NSString * const XML_NODE_QUEUEPART = @"QueuePart";
+NSString * const XML_NODE_REQUEST = @"Request";
 
 @interface MATRequestsQueuePart()
 
@@ -88,10 +92,10 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
     
     if (self)
     {
-        self.index = index;
+        index_ = index;
         self.parentFolder = parentDir;
         [self generateFileName];
-        self.modified = NO;
+        modified_ = NO;
         self.requests = [NSMutableArray array];
     }
     
@@ -101,9 +105,14 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
 
 - (BOOL)push:(NSDictionary*)requestData
 {
+    DLog(@"MATReqQuePart: push: %@", requestData);
+    
     if (self.requestsLimitReached) { return NO; }
     
     [requests_ addObject:requestData];
+    
+    DLog(@"MATReqQuePart: push: requestQueue size = %d", requestData.count);
+    
     self.modified = YES;
     
     return YES;
@@ -112,12 +121,17 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
 - (NSDictionary*)pop
 {
     NSDictionary * requestData = nil;
+	
+    DLog(@"MATReqQuePart: pop: filePath      = %@", self.filePathName);
+    DLog(@"MATReqQuePart: pop: requestsCnt   = %d", self.requests.count);
+    DLog(@"MATReqQuePart: pop: loadedReqCnt  = %d", self.loadedRequestsCount);
+    DLog(@"MATReqQuePart: pop: shouldLoad    = %d", self.shouldLoadOnRequest);
     
     /// Load requests from file if should load is set
     if ([requests_ count] == 0 && self.shouldLoadOnRequest)
     {
-        [self load];        
-    }     
+        [self load];
+    }
     
     if ([requests_ count] > 0)
     {
@@ -125,28 +139,40 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
         
         [requestData retain];
         
-        [requests_ removeObjectAtIndex:0];        
+        [requests_ removeObjectAtIndex:0];
         self.modified = YES;
     }
     
+    DLog(@"MATReqQuePart: pop: remaining requests queue size = %d", requests_.count);
+    
+    DLog(@"MATReqQuePart: pop: %@", requestData);
     return [requestData autorelease];
 }
 
 - (BOOL)load
 {
+    DLog(@"MATReqQuePart: load: fileName = %@, is already loaded: %d", self.fileName, self.loaded);
     if (!self.loaded)
     {
         NSData * fileData = [NSData dataWithContentsOfFile:self.filePathName];
+        
+#if DEBUG_LOG
+        NSLog(@"MATReqQuePart: load: data length = %d", fileData.length);
+        
+        NSString *strFileData = [[NSString alloc] initWithData:fileData encoding:NSUTF8StringEncoding];
+        NSLog(@"MATReqQuePart: load: data to be parsed = %@", strFileData);
+        [strFileData release], strFileData = nil;
+#endif
+        
         if (fileData)
         {
             NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:fileData];
             [xmlParser setDelegate:self];
             [xmlParser parse];
+            [xmlParser release], xmlParser = nil;
             
             self.loaded = YES;
             self.shouldLoadOnRequest = NO;
-
-            [xmlParser release]; xmlParser = nil;
         }
     }
     
@@ -155,27 +181,47 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
 
 - (void)save
 {
+    DLog(@"MATReqQuePart save");
     NSError * error = nil;
     
     // serialize the request queue
-    NSMutableString *strDescr = [NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<QueuePart>"];
+    NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_QUEUEPART];
     
     for (NSDictionary * request in self.requests)
     {
-        /// Store it's information
-        [strDescr appendFormat:@"<Request url=\"%@\" json=\"%@\"></Request>", [request valueForKey:@"url"], [request valueForKey:@"json"]];
+        // clean up the text to make it compliant with XML
+        
+        NSString *urlValue = [request valueForKey:KEY_URL];
+        NSString *encodedUrl = [urlValue gtm_stringBySanitizingAndEscapingForXML];
+        
+        NSString *jsonValue = [request valueForKey:KEY_JSON];
+        NSString *encodedJson = [jsonValue gtm_stringBySanitizingAndEscapingForXML];
+		
+        encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
+        
+        // serialize the request
+        [strDescr appendFormat:@"<%@ %@=\"%@\"%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedJson, XML_NODE_REQUEST];
     }
     
-    [strDescr appendString:@"</QueuePart>"];
+    [strDescr appendFormat:@"</%@>", XML_NODE_QUEUEPART];
     
     // store the serialized request data to a file
-    [strDescr writeToFile:self.filePathName atomically:YES encoding:NSUTF8StringEncoding error:&error];    
+    [strDescr writeToFile:self.filePathName atomically:YES encoding:NSUTF8StringEncoding error:&error];
     
 #if DEBUG_LOG
+    
     if (error)
     {
-        NSLog(@"MATReqQuePart.save: error = %@", [error localizedDescription]);
+        NSLog(@"MATReqQuePart: save: error = %@", [error localizedDescription]);
     }
+    
+    NSError *error1 = nil;
+    NSString *content = [NSString stringWithContentsOfFile:self.filePathName
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:&error1];
+    NSLog(@"MATReqQuePart: save: read: error1  = %@", error1);
+    NSLog(@"MATReqQuePart: save: read: path    = %@", self.filePathName);
+    NSLog(@"MATReqQuePart: save: read: content = %@", content);
 #endif
     
     self.modified = NO;
@@ -194,16 +240,23 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
 - (NSString*)generateFileName
 {
     self.fileName = [NSString stringWithFormat:@"queue_part_%d.xml", self.index];
-
-#if DEBUG_LOG
-    NSLog(@"MATReqQuePart: generateFileName: dir  = %@", self.parentFolder);
-    NSLog(@"MATReqQuePart: generateFileName: file = %@", self.fileName);
-#endif
+	
+    DLog(@"MATReqQuePart: generateFileName: dir  = %@", self.parentFolder);
+    DLog(@"MATReqQuePart: generateFileName: file = %@", self.fileName);
+    
     self.filePathName = [self.parentFolder stringByAppendingPathComponent:self.fileName];
     
 #if DEBUG_LOG
     NSLog(@"MATReqQuePart: generateFileName: fileName     = %@", self.fileName);
     NSLog(@"MATReqQuePart: generateFileName: filePathName = %@", self.filePathName);
+    
+    NSError *error2 = nil;
+    NSString* content = [NSString stringWithContentsOfFile:self.filePathName
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:&error2];
+    NSLog(@"MATReqQuePart: generateFileName: read: error2  = %@", error2);
+    NSLog(@"MATReqQuePart: generateFileName: read: path    = %@", self.filePathName);
+    NSLog(@"MATReqQuePart: generateFileName: read: content = %@", content);
 #endif
     
     return self.fileName;
@@ -223,14 +276,17 @@ const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
     return NSOrderedSame;
 }
 
-#pragma mark -
-#pragma mark NSXMLParser Delegate Methods
+#pragma mark mark - NSXMLParser Delegate Methods
 
 // sent when the parser finds an element start tag.
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
+    DLog(@"MATReqQuePart: parser: elementName = %@", elementName);
+    
     if(0 == [elementName compare:@"Request"])
     {
+        DLog(@"MATReqQuePart: parser: create object using: %@", attributeDict);
+        
         [self push:[NSDictionary dictionaryWithDictionary:attributeDict]];
     }
 }

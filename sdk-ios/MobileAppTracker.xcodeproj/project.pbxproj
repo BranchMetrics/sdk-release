@@ -32,16 +32,10 @@
 		4FDFA1B515C7029A00BEEC38 /* MATJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19F15C7029A00BEEC38 /* MATJSONSerializer.m */; };
 		4FDFA1B615C7029A00BEEC38 /* NSString+MATURLEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* NSString+MATURLEncoding.h */; };
 		4FDFA1B715C7029A00BEEC38 /* NSString+MATURLEncoding.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A115C7029A00BEEC38 /* NSString+MATURLEncoding.m */; };
-		4FDFA1B815C7029A00BEEC38 /* MATOpenUDID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A215C7029A00BEEC38 /* MATOpenUDID.h */; };
-		4FDFA1B915C7029A00BEEC38 /* MATOpenUDID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A315C7029A00BEEC38 /* MATOpenUDID.m */; };
-		4FDFA1BA15C7029A00BEEC38 /* MATRemoteLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A415C7029A00BEEC38 /* MATRemoteLogger.h */; };
-		4FDFA1BB15C7029A00BEEC38 /* MATRemoteLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A515C7029A00BEEC38 /* MATRemoteLogger.m */; };
 		4FDFA1BC15C7029A00BEEC38 /* MATRequestsQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A615C7029A00BEEC38 /* MATRequestsQueue.h */; };
 		4FDFA1BD15C7029A00BEEC38 /* MATRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */; };
 		4FDFA1BE15C7029A00BEEC38 /* MATRequestsQueuePart.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A815C7029A00BEEC38 /* MATRequestsQueuePart.h */; };
 		4FDFA1BF15C7029A00BEEC38 /* MATRequestsQueuePart.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A915C7029A00BEEC38 /* MATRequestsQueuePart.m */; };
-		4FDFA1C015C7029A00BEEC38 /* MATUserAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1AA15C7029A00BEEC38 /* MATUserAgent.h */; };
-		4FDFA1C115C7029A00BEEC38 /* MATUserAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1AB15C7029A00BEEC38 /* MATUserAgent.m */; };
 		4FDFA1C215C7029A00BEEC38 /* MATUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1AC15C7029A00BEEC38 /* MATUtils.h */; };
 		4FDFA1C315C7029A00BEEC38 /* MATUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1AD15C7029A00BEEC38 /* MATUtils.m */; };
 		4FDFA21815C7032400BEEC38 /* MATEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21415C7032400BEEC38 /* MATEncrypter.m */; };
@@ -69,16 +63,10 @@
 		4FDFA19F15C7029A00BEEC38 /* MATJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATJSONSerializer.m; sourceTree = "<group>"; };
 		4FDFA1A015C7029A00BEEC38 /* NSString+MATURLEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MATURLEncoding.h"; sourceTree = "<group>"; };
 		4FDFA1A115C7029A00BEEC38 /* NSString+MATURLEncoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MATURLEncoding.m"; sourceTree = "<group>"; };
-		4FDFA1A215C7029A00BEEC38 /* MATOpenUDID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATOpenUDID.h; sourceTree = "<group>"; };
-		4FDFA1A315C7029A00BEEC38 /* MATOpenUDID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATOpenUDID.m; sourceTree = "<group>"; };
-		4FDFA1A415C7029A00BEEC38 /* MATRemoteLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATRemoteLogger.h; sourceTree = "<group>"; };
-		4FDFA1A515C7029A00BEEC38 /* MATRemoteLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATRemoteLogger.m; sourceTree = "<group>"; };
 		4FDFA1A615C7029A00BEEC38 /* MATRequestsQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATRequestsQueue.h; sourceTree = "<group>"; };
 		4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATRequestsQueue.m; sourceTree = "<group>"; };
 		4FDFA1A815C7029A00BEEC38 /* MATRequestsQueuePart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATRequestsQueuePart.h; sourceTree = "<group>"; };
 		4FDFA1A915C7029A00BEEC38 /* MATRequestsQueuePart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATRequestsQueuePart.m; sourceTree = "<group>"; };
-		4FDFA1AA15C7029A00BEEC38 /* MATUserAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUserAgent.h; sourceTree = "<group>"; };
-		4FDFA1AB15C7029A00BEEC38 /* MATUserAgent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUserAgent.m; sourceTree = "<group>"; };
 		4FDFA1AC15C7029A00BEEC38 /* MATUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUtils.h; sourceTree = "<group>"; };
 		4FDFA1AD15C7029A00BEEC38 /* MATUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUtils.m; sourceTree = "<group>"; };
 		4FDFA21315C7032400BEEC38 /* MATEncrypter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEncrypter.h; sourceTree = "<group>"; };
@@ -166,18 +154,12 @@
 				4FDFA19F15C7029A00BEEC38 /* MATJSONSerializer.m */,
 				4FDFA19C15C7029A00BEEC38 /* MATKeyStrings.h */,
 				4FDFA19D15C7029A00BEEC38 /* MATKeyStrings.m */,
-				4FDFA1A215C7029A00BEEC38 /* MATOpenUDID.h */,
-				4FDFA1A315C7029A00BEEC38 /* MATOpenUDID.m */,
 				4FDFA21C15C7079A00BEEC38 /* MATReachability.h */,
 				4FDFA21D15C7079A00BEEC38 /* MATReachability.m */,
-				4FDFA1A415C7029A00BEEC38 /* MATRemoteLogger.h */,
-				4FDFA1A515C7029A00BEEC38 /* MATRemoteLogger.m */,
 				4FDFA1A615C7029A00BEEC38 /* MATRequestsQueue.h */,
 				4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */,
 				4FDFA1A815C7029A00BEEC38 /* MATRequestsQueuePart.h */,
 				4FDFA1A915C7029A00BEEC38 /* MATRequestsQueuePart.m */,
-				4FDFA1AA15C7029A00BEEC38 /* MATUserAgent.h */,
-				4FDFA1AB15C7029A00BEEC38 /* MATUserAgent.m */,
 				4FDFA1AC15C7029A00BEEC38 /* MATUtils.h */,
 				4FDFA1AD15C7029A00BEEC38 /* MATUtils.m */,
 				4FDFA1A015C7029A00BEEC38 /* NSString+MATURLEncoding.h */,
@@ -199,11 +181,8 @@
 				4FDFA1B215C7029A00BEEC38 /* MATKeyStrings.h in Headers */,
 				4FDFA1B415C7029A00BEEC38 /* MATJSONSerializer.h in Headers */,
 				4FDFA1B615C7029A00BEEC38 /* NSString+MATURLEncoding.h in Headers */,
-				4FDFA1B815C7029A00BEEC38 /* MATOpenUDID.h in Headers */,
-				4FDFA1BA15C7029A00BEEC38 /* MATRemoteLogger.h in Headers */,
 				4FDFA1BC15C7029A00BEEC38 /* MATRequestsQueue.h in Headers */,
 				4FDFA1BE15C7029A00BEEC38 /* MATRequestsQueuePart.h in Headers */,
-				4FDFA1C015C7029A00BEEC38 /* MATUserAgent.h in Headers */,
 				4FDFA1C215C7029A00BEEC38 /* MATUtils.h in Headers */,
 				4FDFA21E15C7079A00BEEC38 /* MATReachability.h in Headers */,
 				F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */,
@@ -339,11 +318,8 @@
 				4FDFA1B315C7029A00BEEC38 /* MATKeyStrings.m in Sources */,
 				4FDFA1B515C7029A00BEEC38 /* MATJSONSerializer.m in Sources */,
 				4FDFA1B715C7029A00BEEC38 /* NSString+MATURLEncoding.m in Sources */,
-				4FDFA1B915C7029A00BEEC38 /* MATOpenUDID.m in Sources */,
-				4FDFA1BB15C7029A00BEEC38 /* MATRemoteLogger.m in Sources */,
 				4FDFA1BD15C7029A00BEEC38 /* MATRequestsQueue.m in Sources */,
 				4FDFA1BF15C7029A00BEEC38 /* MATRequestsQueuePart.m in Sources */,
-				4FDFA1C115C7029A00BEEC38 /* MATUserAgent.m in Sources */,
 				4FDFA1C315C7029A00BEEC38 /* MATUtils.m in Sources */,
 				4FDFA21815C7032400BEEC38 /* MATEncrypter.m in Sources */,
 				4FDFA21A15C7032400BEEC38 /* MobileAppTracker.m in Sources */,
@@ -458,7 +434,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MobileAppTracker/MobileAppTracker-Prefix.pch";
 				GCC_VERSION = "";
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "MobileAppTracker/MobileAppTracker-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
@@ -494,7 +474,11 @@
 				GCC_PREFIX_HEADER = "MobileAppTracker/MobileAppTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
 				GCC_VERSION = "";
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "MobileAppTracker/MobileAppTracker-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;

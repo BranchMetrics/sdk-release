@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>--project-name</key>
-	<string>MobileAppTracker.framework</string>
+	<string>MobileAppTracker</string>
 	<key>--project-company</key>
-	<string>HasOffers Inc.</string>
+	<string>HasOffers Inc</string>
 	<key>--project-version</key>
-	<string>2.3</string>
+	<string>2.5.1</string>
 	<key>--company-id</key>
 	<string>com.hasoffers</string>
 	<key>--output</key>
@@ -15,7 +15,7 @@
 	<key>--create-docset</key>
 	<true/>
 	<key>--install-docset</key>
-	<true/>
+	<false/>
 	<key>--publish-docset</key>
 	<true/>
 	<key>--create-html</key>
@@ -31,15 +31,15 @@
 	<key>--no-repeat-first-par</key>
 	<true/>
 	<key>--docset-atom-filename</key>
-	<string>MobileAppTracker.atom</string>
+	<string>sdk_ios.atom</string>
 	<key>--docset-package-filename</key>
 	<string>MobileAppTracker</string>
 	<key>--docset-feed-url</key>
-	<string>https://docs.mobileapptracker.com/MobileAppTracker/%DOCSETATOMFILENAME</string>
+	<string>https://api.mobileapptracking.com/documentation/%DOCSETATOMFILENAME</string>
 	<key>--docset-package-url</key>
-	<string>https://docs.mobileapptracker.com/MobileAppTracker/%DOCSETPACKAGEFILENAME</string>
+	<string>https://api.mobileapptracking.com/documentation/%DOCSETPACKAGEFILENAME</string>
 	<key>--docset-fallback-url</key>
-	<string>https://docs.mobileapptracker.com/MobileAppTracker</string>
+	<string>https://api.mobileapptracking.com/documentation</string>
 	<key>--warn-undocumented-member</key>
 	<false/>
 	<key>--exit-threshold</key>

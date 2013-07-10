@@ -33,7 +33,7 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 @property (nonatomic, assign) BOOL shouldAllowDuplicates;
 @property (nonatomic, assign) id<MATConnectionManagerDelegate> delegate;
 
-- (void)beginUrlRequest:(NSString *)link andEventItems:(NSString*)eventItems withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
+- (void)beginUrlRequest:(NSString *)link andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
 
 - (void)beginRequestGetTrackingId:(NSString *)link
                withDelegateTarget:(id)target

@@ -110,11 +110,23 @@
     
     NSEnumerator *theEnumerator = [inArray objectEnumerator];
     id theValue = NULL;
+    
+    NSString *serializedValue = nil;
+    
     while ((theValue = [theEnumerator nextObject]) != NULL)
 	{
-        [theString appendString:[self serializeObject:theValue]];
-        if (theValue != [inArray lastObject])
-            [theString appendString:@","];
+        @try {
+            serializedValue = [self serializeObject:theValue];
+            
+            [theString appendString:serializedValue];
+            if (theValue != [inArray lastObject])
+            {
+                [theString appendString:@","];
+            }
+        } @catch (NSException *e) {
+            // if value serialization fails then we ignore the key-value pair
+            DLog(@"MATJSONSerializer serializeDictionary: exception = %@", e);
+        }
 	}
     return([NSString stringWithFormat:@"[%@]", theString]);
 }
@@ -126,14 +138,29 @@
     NSArray *theKeys = [inDictionary allKeys];
     NSEnumerator *theEnumerator = [theKeys objectEnumerator];
     NSString *theKey = NULL;
+    
+    NSString *serializedKey = nil;
+    NSString *serializedValue = nil;
+    
     while ((theKey = [theEnumerator nextObject]) != NULL)
 	{
         id theValue = [inDictionary objectForKey:theKey];
         
-        [theString appendFormat:@"%@:%@", [self serializeString:theKey], [self serializeObject:theValue]];
-        if (theKey != [theKeys lastObject])
-            [theString appendString:@","];
+        @try {
+            serializedKey = [self serializeString:theKey];
+            serializedValue = [self serializeObject:theValue];
+            
+            [theString appendFormat:@"%@:%@", serializedKey, serializedValue];
+            if (theKey != [theKeys lastObject])
+            {
+                [theString appendString:@","];
+            }
+        } @catch (NSException *e) {
+            // if key or value serialization fails then we ignore the key
+            DLog(@"MATJSONSerializer serializeDictionary: exception = %@", e);
+        }
 	}
+    
     return([NSString stringWithFormat:@"{%@}", theString]);
 }
 

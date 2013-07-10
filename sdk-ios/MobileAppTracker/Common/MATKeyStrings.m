@@ -10,6 +10,7 @@
 
 NSString * const KEY_ACTION                     	= @"action";
 NSString * const KEY_ADVERTISER_ID                  = @"advertiser_id";
+NSString * const KEY_APP_AD_TRACKING                = @"app_ad_tracking";
 NSString * const KEY_APP_NAME                       = @"app_name";
 NSString * const KEY_APP_VERSION                    = @"app_version";
 NSString * const KEY_APPLE                          = @"Apple";
@@ -50,6 +51,7 @@ NSString * const KEY_MAT_APP_VERSION                = @"mat_app_version";
 NSString * const KEY_MAT_ID                         = @"mat_id";
 NSString * const KEY_ODIN                           = @"odin";
 NSString * const KEY_OPEN_UDID                      = @"open_udid";
+NSString * const KEY_OS_ID                          = @"os_id";
 NSString * const KEY_OS_JAILBROKE               	= @"os_jailbroke";
 NSString * const KEY_OS_VERSION                     = @"os_version";
 NSString * const KEY_PACKAGE_NAME                   = @"package_name";
@@ -69,6 +71,7 @@ NSString * const KEY_SITE_ID                        = @"site_id";
 NSString * const KEY_SKIP_DUP                      	= @"skip_dup";
 NSString * const KEY_SOURCE                         = @"source";
 NSString * const KEY_STAGING                        = @"staging";
+NSString * const KEY_STORE_RECEIPT                  = @"store_receipt";
 NSString * const KEY_SUCCESS                        = @"success";
 NSString * const KEY_SYSTEM_DATE                    = @"system_date";
 NSString * const KEY_TARGET_BUNDLE_ID               = @"target_package";
@@ -79,6 +82,23 @@ NSString * const KEY_URL                            = @"url";
 NSString * const KEY_USER_ID                        = @"user_id";
 NSString * const KEY_VER                            = @"ver";
 NSString * const KEY_XML                            = @"xml";
+
+NSString * const KEY_ITEM                           = @"item";
+NSString * const KEY_QUANTITY                       = @"quantity";
+NSString * const KEY_UNIT_PRICE                     = @"unit_price";
+
+NSString * const KEY_AGE                            = @"age";
+NSString * const KEY_GENDER                         = @"gender";
+
+NSString * const KEY_LATITUDE                       = @"latitude";
+NSString * const KEY_LONGITUDE                      = @"longitude";
+NSString * const KEY_ALTITUDE                       = @"altitude";
+
+NSString * const KEY_ATTRIBUTE_SUB1                 = @"attribute_sub1";
+NSString * const KEY_ATTRIBUTE_SUB2                 = @"attribute_sub2";
+NSString * const KEY_ATTRIBUTE_SUB3                 = @"attribute_sub3";
+NSString * const KEY_ATTRIBUTE_SUB4                 = @"attribute_sub4";
+NSString * const KEY_ATTRIBUTE_SUB5                 = @"attribute_sub5";
 
 NSString * const KEY_CARRIER_COUNTRY_CODE           = @"mobile_country_code";
 NSString * const KEY_CARRIER_COUNTRY_CODE_ISO       = @"carrier_country_code";
@@ -98,6 +118,7 @@ NSString * const EVENT_CLOSE                        = @"close";
 NSString * const EVENT_CONVERSION                   = @"conversion";
 
 NSString * const HTTP_METHOD_POST                   = @"POST";
+NSString * const HTTP_CONTENT_LENGTH                = @"content-length";
 NSString * const HTTP_CONTENT_TYPE                  = @"content-type";
 NSString * const HTTP_CONTENT_TYPE_APPLICATION_JSON = @"application/json";
 
@@ -106,9 +127,12 @@ NSString * const KEY_ERROR_DOMAIN_MOBILEAPPTRACKER          = @"com.hasoffers.Mo
 NSString * const KEY_ERROR_MAT_SERVER_ERROR                 = @"mat_error_server_error";
 NSString * const KEY_ERROR_MAT_ADVERTISER_ID_MISSING        = @"mat_error_advertiser_id_missing";
 NSString * const KEY_ERROR_MAT_CONVERSION_KEY_MISSING       = @"mat_error_conversion_key_missing";
+NSString * const KEY_ERROR_MAT_CONVERSION_KEY_INVALID       = @"mat_error_conversion_key_invalid";
+NSString * const KEY_ERROR_MAT_INVALID_PARAMETERS           = @"mat_error_invalid_parameters";
 NSString * const KEY_ERROR_MAT_APP_TO_APP_FAILURE           = @"mat_error_app_to_app_failure";
 NSString * const KEY_ERROR_MAT_NETWORK_NOT_REACHABLE        = @"mat_error_network_not_reachable";
-NSString * const KEY_ERROR_MAT_OPEN_EVENT_ERROR             = @"mat_error_open_event_error";
+NSString * const KEY_ERROR_MAT_OPEN_EVENT                   = @"mat_error_open_event_error";
+NSString * const KEY_ERROR_MAT_CLOSE_EVENT                  = @"mat_error_close_event_error";
 
 NSString * const KEY_MAT_INSTALL_LOG_ID                     = @"mat_install_log_id";
 NSString * const KEY_MAT_INSTALL_LOG_ID_REQUEST_TIMESTAMP   = @"mat_install_log_id_request_timestamp";

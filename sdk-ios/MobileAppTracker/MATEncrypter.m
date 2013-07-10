@@ -83,7 +83,7 @@
 	strncpy((char *)outputstring, [str UTF8String], [str length]);
 	
 	for(int i = 0; i < [str length]; i++)
-		[hexret appendFormat:@"%02X", outputstring[i]];	
+		[hexret appendFormat:@"%02X", outputstring[i]];
 	
 	//NSLog(@"hex encode %@ %@",str,hexret);
 	return hexret;

@@ -7,11 +7,9 @@
 //
 
 #import "MATUtils.h"
-#import "MATUserAgent.h"
-#import "MATOpenUDID.h"
 #import "MATKeyStrings.h"
 #import "MATConnectionManager.h"
-#import "MobileAppTracker.h"
+#import "../MobileAppTracker.h"
 #import "MATConnectionManager.h"
 
 #import <MobileCoreServices/UTType.h>
@@ -22,7 +20,7 @@
 #include <net/if.h>
 #include <net/if_dl.h>
 
-const float IOS_VERSION_501 = 5.01f;
+const float MAT_IOS_VERSION_501 = 5.01f;
 
 NSString * const PASTEBOARD_NAME_TRACKING_COOKIE = @"com.hasoffers.matsdkref";
 NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
@@ -39,7 +37,7 @@ NSString * const MAT_APP_TO_APP_TRACKING_STATUS = @"MAT_APP_TO_APP_TRACKING_STAT
 
 static NSDateFormatter *dateFormatter = nil;
 
-static BOOL _shouldDebug = FALSE;
+static BOOL _shouldDebug = NO;
 
 + (NSDateFormatter *)sharedDateFormatter
 {
@@ -62,13 +60,19 @@ static BOOL _shouldDebug = FALSE;
     
     NSCalendar *calendar = [NSCalendar currentCalendar];
     
-    [calendar rangeOfUnit:NSDayCalendarUnit startDate:&fromDate
-                 interval:NULL forDate:fromDateTime];
-    [calendar rangeOfUnit:NSDayCalendarUnit startDate:&toDate
-                 interval:NULL forDate:toDateTime];
+    [calendar rangeOfUnit:NSDayCalendarUnit
+                startDate:&fromDate
+                 interval:NULL
+                  forDate:fromDateTime];
+    [calendar rangeOfUnit:NSDayCalendarUnit
+                startDate:&toDate
+                 interval:NULL
+                  forDate:toDateTime];
     
     NSDateComponents *difference = [calendar components:NSDayCalendarUnit
-                                               fromDate:fromDate toDate:toDate options:0];
+                                               fromDate:fromDate
+                                                 toDate:toDate
+                                                options:0];
     
     return [difference day];
 }
@@ -76,11 +80,29 @@ static BOOL _shouldDebug = FALSE;
 
 + (NSString*)generateUserAgentString
 {    
-    MATUserAgent * userAgent = [[MATUserAgent alloc] init];
-    NSString * agentString = [userAgent.agentString copy];
-    [userAgent release]; userAgent = nil;
+    // perform this code on the main thread, since it creates a UIWebView.
+    __block NSString *userAgent = STRING_EMPTY;
     
-    return [agentString autorelease];
+    void(^block)(void)=  ^{
+        UIWebView* webView = [[UIWebView alloc] init];
+        userAgent = [[webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] copy];
+        [webView release], webView = nil;
+    };
+ 
+    // Make sure that the dispatch_sync call does not get dead-locked when called on the main thread
+    // Ref: http://stackoverflow.com/questions/5225130/grand-central-dispatch-gcd-vs-performselector-need-a-better-explanation/5226271#5226271
+    if([NSThread isMainThread])
+    {
+        // execute the code on the current (main) thread
+        block();
+    }
+    else
+    {
+        // synchronously execute the code on the main thread
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+    
+    return [userAgent autorelease];
 }
 
 
@@ -91,89 +113,10 @@ static BOOL _shouldDebug = FALSE;
     UIPasteboard *pb = [UIPasteboard pasteboardWithName:PASTEBOARD_NAME_FACEBOOK_APP create:NO];
     if (pb)
     {
-        attributionID = [pb.string copy];        
+        attributionID = [pb.string copy];
     }
     
     return [attributionID autorelease];
-}
-
-+ (NSString*)generateODIN1String
-{
-    NSString * odinString = nil;
-    
-    const unsigned int addrBufSize = 6;
-    
-    unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-    unsigned char addrBuf[addrBufSize];
-    [self generateMacAddressString:&addrBuf[0]];
-    if (CC_SHA1(addrBuf, addrBufSize, digest))
-    {
-        odinString = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                      digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7], digest[8], digest[9], 
-                      digest[10], digest[11], digest[12], digest[13], digest[14], digest[15], digest[16], digest[17], digest[18], digest[19]];
-    }
-    
-    return odinString;
-}
-
-+ (NSString *)generateMacAddressString:(unsigned char*)dataBuf
-{
-    int mgmtInfoBase[6];
-    char *msgBuffer = NULL;
-    NSString *errorFlag = NULL;
-    size_t length;
-    
-    // Setup the management Information Base (mib)
-    mgmtInfoBase[0] = CTL_NET; // Request network subsystem
-    mgmtInfoBase[1] = AF_ROUTE; // Routing table info
-    mgmtInfoBase[2] = 0;
-    mgmtInfoBase[3] = AF_LINK; // Request link layer information
-    mgmtInfoBase[4] = NET_RT_IFLIST; // Request all configured interfaces
-    
-    // With all configured interfaces requested, get handle index
-    if ((mgmtInfoBase[5] = if_nametoindex("en0")) == 0)
-        errorFlag = @"if_nametoindex failure";
-    // Get the size of the data available (store in len)
-    else if (sysctl(mgmtInfoBase, 6, NULL, &length, NULL, 0) < 0)
-        errorFlag = @"sysctl mgmtInfoBase failure";
-    // Alloc memory based on above call
-    else if ((msgBuffer = malloc(length)) == NULL)
-        errorFlag = @"buffer allocation failure";
-    // Get system information, store in buffer
-    else if (sysctl(mgmtInfoBase, 6, msgBuffer, &length, NULL, 0) < 0)
-    {
-        free(msgBuffer);
-        errorFlag = @"sysctl msgBuffer failure";
-    }
-    else
-    {
-        // Map msgbuffer to interface message structure
-        struct if_msghdr *interfaceMsgStruct = (struct if_msghdr *) msgBuffer;
-        
-        // Map to link-level socket structure
-        struct sockaddr_dl *socketStruct = (struct sockaddr_dl *) (interfaceMsgStruct + 1);
-        
-        // Copy link layer address data in socket structure to an array
-        unsigned char macAddress[6];        
-        memcpy(&macAddress, socketStruct->sdl_data + socketStruct->sdl_nlen, 6);
-        
-        if (dataBuf)
-        {
-            memcpy(dataBuf, &macAddress[0], 6);
-        }
-        
-        // Read from char array into a string object, into traditional Mac address format
-        NSString *macAddressString = [NSString stringWithFormat:@"%02X:%02X:%02X:%02X:%02X:%02X",
-                                      macAddress[0], macAddress[1], macAddress[2], macAddress[3], macAddress[4], macAddress[5]];
-        
-        // Release the buffer memory
-        free(msgBuffer);
-
-        return macAddressString;
-    }
-    
-    // Error...    
-    return errorFlag;
 }
 
 + (NSString *)getUUID
@@ -182,12 +125,7 @@ static BOOL _shouldDebug = FALSE;
     CFStringRef string = CFUUIDCreateString(NULL, theUUID);
     CFRelease(theUUID);
 
-    return [( NSString *)string autorelease];    
-}
-
-+ (NSString *)getOpenUDID
-{
-    return [MATOpenUDID value];
+    return [( NSString *)string autorelease];
 }
 
 + (void)startTrackingSessionForTargetBundleId:(NSString*)targetBundleId
@@ -214,9 +152,7 @@ static BOOL _shouldDebug = FALSE;
                                                    KEY_PUBLISHER_ID, publisherId,
                                                    KEY_RESPONSE_FORMAT, KEY_XML];
     
-#if DEBUG_LOG
-    NSLog(@"app-to-app tracking link: %@", strLink);
-#endif
+    DLog(@"app-to-app tracking link: %@", strLink);
     
     NSMutableDictionary *dictItems = [NSMutableDictionary dictionary];
     [dictItems setValue:targetBundleId forKey:KEY_TARGET_BUNDLE_ID];
@@ -248,9 +184,7 @@ static BOOL _shouldDebug = FALSE;
     // Sample Response:
     //513e26ffeb323-20130311-1,install
     
-#if DEBUG_LOG
-    NSLog(@"requestInstallLogId: link = %@", link);
-#endif
+    DLog(@"requestInstallLogId: link = %@", link);
     
     [params setValue:[MobileAppTracker sharedManager] forKey:@"delegateTarget"];
     
@@ -287,9 +221,7 @@ static BOOL _shouldDebug = FALSE;
 
 + (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error
 {
-#if DEBUG_LOG
-    NSLog(@"failedToRequestTrackingId: dict = %@, error = %@", params, error);
-#endif
+    DLog(@"failedToRequestTrackingId: dict = %@, error = %@", params, error);
     
     MobileAppTracker *mat = [MobileAppTracker sharedManager];
     
@@ -306,9 +238,7 @@ static BOOL _shouldDebug = FALSE;
 {
     NSString *response = [[NSString alloc] initWithData:[params valueForKey:KEY_SERVER_RESPONSE] encoding:NSUTF8StringEncoding];
 
-#if DEBUG_LOG
-    NSLog(@"%@", response);
-#endif
+    DLog(@"MATUtils storeToPasteBoardTrackingId: %@", response);
     
     NSString *strSuccess = [self parseXmlString:response forTag:KEY_SUCCESS];
     NSString *strRedirectUrl = [self parseXmlString:response forTag:KEY_URL];
@@ -317,12 +247,10 @@ static BOOL _shouldDebug = FALSE;
     NSNumber *strTargetBundleId = [params valueForKey:KEY_TARGET_BUNDLE_ID];
     NSNumber *strRedirect = [params valueForKey:KEY_REDIRECT];
 
-#if DEBUG_LOG
-    NSLog(@"Success = %@, TrackingId = %@, RedirectUrl = %@, TargetBundleId = %@, Redirect = %@", strSuccess, strTrackingId, strRedirectUrl, strTargetBundleId, strRedirect);
-#endif
+    DLog(@"Success = %@, TrackingId = %@, RedirectUrl = %@, TargetBundleId = %@, Redirect = %@", strSuccess, strTrackingId, strRedirectUrl, strTargetBundleId, strRedirect);
     
-    bool success = [strSuccess boolValue];
-    bool redirect = [strRedirect boolValue];
+    BOOL success = [strSuccess boolValue];
+    BOOL redirect = [strRedirect boolValue];
     
     MobileAppTracker *mat = [MobileAppTracker sharedManager];
     
@@ -380,13 +308,11 @@ static BOOL _shouldDebug = FALSE;
 
 + (BOOL)isTrackingSessionStartedForTargetApplication:(NSString*)targetBundleId
 {
-    // get the target bundle id that another app_with_mat_sdk might have stored on the pasteboard
+    // get the target bundle id that another app_with_MAT_SDK might have stored on the pasteboard
     NSString * storedBundleId = [MATUtils getStringForKey:KEY_TARGET_BUNDLE_ID fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-
-#if DEBUG_LOG
-    NSLog(@"isTrackingSessionStartedForTargetApplication: pb_name = %@", PASTEBOARD_NAME_TRACKING_COOKIE);
-    NSLog(@"isTrackingSessionStartedForTargetApplication: stored = %@, target = %@", storedBundleId, targetBundleId);
-#endif
+    
+    DLog(@"isTrackingSessionStartedForTargetApplication: pb_name = %@", PASTEBOARD_NAME_TRACKING_COOKIE);
+    DLog(@"isTrackingSessionStartedForTargetApplication: stored = %@, target = %@", storedBundleId, targetBundleId);
     
     // a tracking session would exist if the target bundle id stored on the pasteboard matches the current target bundle id
     return storedBundleId && NSOrderedSame == [storedBundleId caseInsensitiveCompare:targetBundleId];
@@ -451,7 +377,10 @@ static BOOL _shouldDebug = FALSE;
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setValue:value forKey:key];
-    [defaults synchronize];
+    
+    // Note: Moved this synchronize call to MobileAppTracker handleNotification: -- UIApplicationWillResignActiveNotification notification,
+    // so that the synchronize method instead of being called for each key, gets called only once just before the app becomes inactive.
+    //[defaults synchronize];
 }
 
 + (BOOL)checkJailBreak
@@ -464,26 +393,26 @@ static BOOL _shouldDebug = FALSE;
     // array of jail broken paths
     NSArray *jailBrokenPaths = [NSArray arrayWithObjects:
                                 @"/Applications/Cydia.app",
-                                @"/Applications/RockApp.app",
-                                @"/Applications/Icy.app",
-                                @"/usr/sbin/sshd",
-                                @"/usr/bin/sshd",
-                                @"/usr/libexec/sftp-server",
-                                @"/Applications/WinterBoard.app",
-                                @"/Applications/SBSettings.app",
-                                @"/Applications/MxTube.app",
-                                @"/Applications/IntelliScreen.app",
-                                @"/Library/MobileSubstrate/DynamicLibraries/Veency.plist",
-                                @"/Applications/FakeCarrier.app",
-                                @"/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",
-                                @"/private/var/lib/apt",
                                 @"/Applications/blackra1n.app",
-                                @"/private/var/stash",
+                                @"/Applications/FakeCarrier.app",
+                                @"/Applications/Icy.app",
+                                @"/Applications/IntelliScreen.app",
+                                @"/Applications/MxTube.app",
+                                @"/Applications/RockApp.app",
+                                @"/Applications/SBSettings.app",
+                                @"/Applications/WinterBoard.app",
+                                @"/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",
+                                @"/Library/MobileSubstrate/DynamicLibraries/Veency.plist",
+                                @"/private/var/lib/apt",
+                                @"/private/var/lib/cydia",
                                 @"/private/var/mobile/Library/SBSettings/Themes",
+                                @"/private/var/stash",
+                                @"/private/var/tmp/cydia.log",
                                 @"/System/Library/LaunchDaemons/com.ikey.bbot.plist",
                                 @"/System/Library/LaunchDaemons/com.saurik.Cydia.Startup.plist",
-                                @"/private/var/tmp/cydia.log",
-                                @"/private/var/lib/cydia", nil];
+                                @"/usr/bin/sshd",
+                                @"/usr/libexec/sftp-server",
+                                @"/usr/sbin/sshd", nil];
     
     BOOL jailBroken = NO;
     for (NSString * path in jailBrokenPaths)
@@ -503,13 +432,13 @@ static BOOL _shouldDebug = FALSE;
         
         if(!jailBroken)
         {
-            // METHOD 3: Check if the standard Foundation framework is present at the expected file path.
-            
-            // There's no shell access, but check if we are being cheated
+            // METHOD 3: There's no shell access, but check if we are being cheated.
+            // Check if the standard Foundation framework is present at the expected file path.
+            // xCon operates by inserting its own code between an application trying to detect jailbreak and the original code of the function. In case of system function we can't detect if we are calling the original or not. However, we can check integrity of other methods that are being spoofed by xCon. So, by checking the module (name of the file where the actual code resides) of Objective-C call -[NSFileManager fileExistsAtPath:] I can safely assume if we are being cheated. The check is performed with dladdr() call.
             
             // class is NSFileManager and method is fileExistsAtPath:
-            Class class = NSClassFromString(@"NSFileManager");
-            SEL method = NSSelectorFromString(@"fileExistsAtPath:");
+            Class class = NSFileManager.class;
+            SEL method = @selector(fileExistsAtPath:);
             
             IMP implementation = class_getMethodImplementation (class, method);
             
@@ -529,11 +458,6 @@ static BOOL _shouldDebug = FALSE;
     return jailBroken;
 }
 
-+ (NSString *)getMacAddress
-{    
-    return [[[MATUtils generateMacAddressString:NULL] copy] autorelease];
-}
-
 + (NSString *)bundleId
 {
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:KEY_CFBUNDLEIDENTIFIER];
@@ -541,10 +465,7 @@ static BOOL _shouldDebug = FALSE;
 
 + (BOOL)isNetworkReachable
 {
-#if DEBUG_LOG
-    NSLog(@"MATUtils: isNetworkReachable");
-    NSLog(@"MATUtils: isNetworkReachable: status = %d", [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus]);
-#endif
+    DLog(@"MATUtils: isNetworkReachable: status = %d", [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus]);
     return NotReachable != [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus];
 }
 
@@ -552,9 +473,7 @@ static BOOL _shouldDebug = FALSE;
 
 + (void)handleInstallLogId:(NSMutableDictionary *)params
 {
-#if DEBUG_LOG
-    NSLog(@"MATUtils handleInstallLogId: params = %@", params);
-#endif
+    DLog(@"MATUtils handleInstallLogId: params = %@", params);
     
     if([[MobileAppTracker sharedManager] respondsToSelector:@selector(handleInstallLogId:)])
     {
@@ -564,9 +483,7 @@ static BOOL _shouldDebug = FALSE;
 
 + (void)failedToRequestInstallLogId:(NSMutableDictionary *)params withError:(NSError *)error
 {
-#if DEBUG_LOG
-    NSLog(@"MATUtils failedToRequestInstallLogId: params = %@, \nerror = %@", params, error);
-#endif
+    DLog(@"MATUtils failedToRequestInstallLogId: params = %@, \nerror = %@", params, error);
     
     if([[MobileAppTracker sharedManager] respondsToSelector:@selector(failedToRequestInstallLogId:withError:)])
     {
@@ -599,37 +516,37 @@ static BOOL _shouldDebug = FALSE;
 // No-op for iOS versions 5.0 and below.
 + (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL
 {
-#if DEBUG_LOG
-    NSLog(@"MATUtils.addSkipBackupAttributeToItemAtURL: %@", URL);
-#endif
-    assert([[NSFileManager defaultManager] fileExistsAtPath: [URL path]]);
+    DLog(@"MATUtils addSkipBackupAttributeToItemAtURL: %@", URL);
     
-    float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+    BOOL success = NO;
     
-    BOOL success = FALSE;
-    
-    if(systemVersion == IOS_VERSION_501)
+    if([[NSFileManager defaultManager] fileExistsAtPath: [URL path]])
     {
-        const char* filePath = [[URL path] fileSystemRepresentation];
+        float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
         
-        const char* attrName = "com.apple.MobileBackup";
-        u_int8_t attrValue = 1;
-        
-        int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
-        success = result == 0;
-    }
-    else if(systemVersion > IOS_VERSION_501)
-    {
-        NSError *error = nil;
-        success = [URL setResourceValue:[NSNumber numberWithBool:YES]
-                                 forKey:NSURLIsExcludedFromBackupKey
-                                  error:&error];
-#if DEBUG_LOG
-        if(!success)
+        if(systemVersion == MAT_IOS_VERSION_501)
         {
-            NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+            const char* filePath = [[URL path] fileSystemRepresentation];
+            
+            const char* attrName = "com.apple.MobileBackup";
+            u_int8_t attrValue = 1;
+            
+            int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+            success = 0 == result;
         }
+        else if(systemVersion > MAT_IOS_VERSION_501)
+        {
+            NSError *error = nil;
+            success = [URL setResourceValue:[NSNumber numberWithBool:YES]
+                                     forKey:NSURLIsExcludedFromBackupKey
+                                      error:&error];
+#if DEBUG_LOG
+            if(!success)
+            {
+                NSLog(@"MATUtils addSkipBackupAttributeToItemAtURL: Error excluding %@ from backup %@", [URL lastPathComponent], error);
+            }
 #endif
+        }
     }
     
     return success;
@@ -637,9 +554,6 @@ static BOOL _shouldDebug = FALSE;
 
 + (NSString *)serverDomainName
 {
-    //domainName = @"api.dev.platform.hasservers.com";
-    //domainName = @"dev.engine.mobileapptracking.com"
-    
     NSString *domainName = nil;
     
     if([[[MobileAppTracker sharedManager].sdkDataParameters valueForKey:KEY_STAGING] boolValue])
@@ -648,14 +562,13 @@ static BOOL _shouldDebug = FALSE;
     }
     else
     {
-        // when debugging on PROD, use a different server domain name
-        domainName = (_shouldDebug ? SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : SERVER_DOMAIN_REGULAR_TRACKING_PROD);
+        // on PROD, use a different server domain name when DEBUG MODE is enabled
+        domainName = _shouldDebug ? SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : SERVER_DOMAIN_REGULAR_TRACKING_PROD;
     }
-#if DEBUG_LINK_LOG
-    NSLog(@"MATUtils serverDomainName: stage  = %d", [[[MobileAppTracker sharedManager].sdkDataParameters valueForKey:KEY_STAGING] boolValue]);
-    NSLog(@"MATUtils serverDomainName: debug  = %d", _shouldDebug);
-    NSLog(@"MATUtils serverDomainName: domain = %@", domainName);
-#endif
+    
+    DLLog(@"MATUtils serverDomainName: stage  = %d", [[[MobileAppTracker sharedManager].sdkDataParameters valueForKey:KEY_STAGING] boolValue]);
+    DLLog(@"MATUtils serverDomainName: debug  = %d", _shouldDebug);
+    DLLog(@"MATUtils serverDomainName: domain = %@", domainName);
     
     return domainName;
 }
@@ -663,6 +576,313 @@ static BOOL _shouldDebug = FALSE;
 + (void)setShouldDebug:(BOOL)yesorno
 {
     _shouldDebug = yesorno;
+}
+
+
+//////////////////////////////////
+//
+//  NSData+Base64.h
+//  base64
+//
+//  Created by Matt Gallagher on 2009/06/03.
+//  Copyright 2009 Matt Gallagher. All rights reserved.
+//
+//  This software is provided 'as-is', without any express or implied
+//  warranty. In no event will the authors be held liable for any damages
+//  arising from the use of this software. Permission is granted to anyone to
+//  use this software for any purpose, including commercial applications, and to
+//  alter it and redistribute it freely, subject to the following restrictions:
+//
+//  1. The origin of this software must not be misrepresented; you must not
+//     claim that you wrote the original software. If you use this software
+//     in a product, an acknowledgment in the product documentation would be
+//     appreciated but is not required.
+//  2. Altered source versions must be plainly marked as such, and must not be
+//     misrepresented as being the original software.
+//  3. This notice may not be removed or altered from any source
+//     distribution.
+//
+//////////////////////////////////
+
+//
+// Mapping from 6 bit pattern to ASCII character.
+//
+static unsigned char base64EncodeLookup[65] =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+//
+// Definition for "masked-out" areas of the base64DecodeLookup mapping
+//
+#define xx 65
+
+//
+// Mapping from ASCII character to 6 bit pattern.
+//
+static unsigned char base64DecodeLookup[256] =
+{
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 62, xx, xx, xx, 63,
+    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, xx, xx, xx, xx, xx, xx,
+    xx,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, xx, xx, xx, xx, xx,
+    xx, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
+};
+
+//
+// Fundamental sizes of the binary and base64 encode/decode units in bytes
+//
+#define BINARY_UNIT_SIZE 3
+#define BASE64_UNIT_SIZE 4
+
+//
+// NewBase64Decode
+//
+// Decodes the base64 ASCII string in the inputBuffer to a newly malloced
+// output buffer.
+//
+//  inputBuffer - the source ASCII string for the decode
+//      length - the length of the string or -1 (to specify strlen should be used)
+//      outputLength - if not-NULL, on output will contain the decoded length
+//
+// returns the decoded buffer. Must be free'd by caller. Length is given by
+//      outputLength.
+//
+void *NewBase64Decode(
+                      const char *inputBuffer,
+                      size_t length,
+                      size_t *outputLength)
+{
+    if (length == -1)
+    {
+        length = strlen(inputBuffer);
+    }
+    
+    size_t outputBufferSize =
+    ((length+BASE64_UNIT_SIZE-1) / BASE64_UNIT_SIZE) * BINARY_UNIT_SIZE;
+    unsigned char *outputBuffer = (unsigned char *)malloc(outputBufferSize);
+    
+    size_t i = 0;
+    size_t j = 0;
+    while (i < length)
+    {
+        //
+        // Accumulate 4 valid characters (ignore everything else)
+        //
+        unsigned char accumulated[BASE64_UNIT_SIZE];
+        size_t accumulateIndex = 0;
+        while (i < length)
+        {
+            unsigned char decode = base64DecodeLookup[inputBuffer[i++]];
+            if (decode != xx)
+            {
+                accumulated[accumulateIndex] = decode;
+                accumulateIndex++;
+                
+                if (accumulateIndex == BASE64_UNIT_SIZE)
+                {
+                    break;
+                }
+            }
+        }
+        
+        //
+        // Store the 6 bits from each of the 4 characters as 3 bytes
+        //
+        outputBuffer[j] = (accumulated[0] << 2) | (accumulated[1] >> 4);
+        outputBuffer[j + 1] = (accumulated[1] << 4) | (accumulated[2] >> 2);
+        outputBuffer[j + 2] = (accumulated[2] << 6) | accumulated[3];
+        j += accumulateIndex - 1;
+    }
+    
+    if (outputLength)
+    {
+        *outputLength = j;
+    }
+    return outputBuffer;
+}
+
+//
+// NewBase64Encode
+//
+// Encodes the arbitrary data in the inputBuffer as base64 into a newly malloced
+// output buffer.
+//
+//  inputBuffer - the source data for the encode
+//      length - the length of the input in bytes
+//  separateLines - if zero, no CR/LF characters will be added. Otherwise
+//              a CR/LF pair will be added every 64 encoded chars.
+//      outputLength - if not-NULL, on output will contain the encoded length
+//              (not including terminating 0 char)
+//
+// returns the encoded buffer. Must be free'd by caller. Length is given by
+//      outputLength.
+//
+char *NewBase64Encode(
+                      const void *buffer,
+                      size_t length,
+                      bool separateLines,
+                      size_t *outputLength)
+{
+    const unsigned char *inputBuffer = (const unsigned char *)buffer;
+    
+#define MAX_NUM_PADDING_CHARS 2
+#define OUTPUT_LINE_LENGTH 64
+#define INPUT_LINE_LENGTH ((OUTPUT_LINE_LENGTH / BASE64_UNIT_SIZE) * BINARY_UNIT_SIZE)
+#define CR_LF_SIZE 2
+    
+    //
+    // Byte accurate calculation of final buffer size
+    //
+    size_t outputBufferSize =
+    ((length / BINARY_UNIT_SIZE)
+     + ((length % BINARY_UNIT_SIZE) ? 1 : 0))
+    * BASE64_UNIT_SIZE;
+    if (separateLines)
+    {
+        outputBufferSize +=
+        (outputBufferSize / OUTPUT_LINE_LENGTH) * CR_LF_SIZE;
+    }
+    
+    //
+    // Include space for a terminating zero
+    //
+    outputBufferSize += 1;
+    
+    //
+    // Allocate the output buffer
+    //
+    char *outputBuffer = (char *)malloc(outputBufferSize);
+    if (!outputBuffer)
+    {
+        return NULL;
+    }
+    
+    size_t i = 0;
+    size_t j = 0;
+    const size_t lineLength = separateLines ? INPUT_LINE_LENGTH : length;
+    size_t lineEnd = lineLength;
+    
+    while (true)
+    {
+        if (lineEnd > length)
+        {
+            lineEnd = length;
+        }
+        
+        for (; i + BINARY_UNIT_SIZE - 1 < lineEnd; i += BINARY_UNIT_SIZE)
+        {
+            //
+            // Inner loop: turn 48 bytes into 64 base64 characters
+            //
+            outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+            outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
+                                                   | ((inputBuffer[i + 1] & 0xF0) >> 4)];
+            outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i + 1] & 0x0F) << 2)
+                                                   | ((inputBuffer[i + 2] & 0xC0) >> 6)];
+            outputBuffer[j++] = base64EncodeLookup[inputBuffer[i + 2] & 0x3F];
+        }
+        
+        if (lineEnd == length)
+        {
+            break;
+        }
+        
+        //
+        // Add the newline
+        //
+        outputBuffer[j++] = '\r';
+        outputBuffer[j++] = '\n';
+        lineEnd += lineLength;
+    }
+    
+    if (i + 1 < length)
+    {
+        //
+        // Handle the single '=' case
+        //
+        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+        outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
+                                               | ((inputBuffer[i + 1] & 0xF0) >> 4)];
+        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i + 1] & 0x0F) << 2];
+        outputBuffer[j++] = '=';
+    }
+    else if (i < length)
+    {
+        //
+        // Handle the double '=' case
+        //
+        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0x03) << 4];
+        outputBuffer[j++] = '=';
+        outputBuffer[j++] = '=';
+    }
+    outputBuffer[j] = 0;
+    
+    //
+    // Set the output length and return the buffer
+    //
+    if (outputLength)
+    {
+        *outputLength = j;
+    }
+    return outputBuffer;
+}
+
+//
+// dataFromBase64String:
+//
+// Creates an NSData object containing the base64 decoded representation of
+// the base64 string 'aString'
+//
+// Parameters:
+//    aString - the base64 string to decode
+//
+// returns the autoreleased NSData representation of the base64 string
+//
++ (NSData *)dataFromBase64String:(NSString *)aString
+{
+    NSData *data = [aString dataUsingEncoding:NSASCIIStringEncoding];
+    size_t outputLength;
+    void *outputBuffer = NewBase64Decode([data bytes], [data length], &outputLength);
+    NSData *result = [NSData dataWithBytes:outputBuffer length:outputLength];
+    free(outputBuffer);
+    return result;
+}
+
+//
+// base64EncodedString
+//
+// Creates an NSString object that contains the base 64 encoding of the
+// receiver's data. Lines are broken at 64 characters long.
+//
+// returns an autoreleased NSString being the base 64 representation of the
+//      receiver.
+//
++ (NSString *)base64EncodedStringForData:(NSData *)data
+{
+    size_t outputLength;
+    char *outputBuffer =
+    NewBase64Encode([data bytes], [data length], false, &outputLength);
+    
+    NSString *result =
+    [
+    [[NSString alloc] initWithBytes:outputBuffer
+                             length:outputLength
+                           encoding:NSASCIIStringEncoding]
+     autorelease]
+    ;
+    free(outputBuffer);
+    return result;
 }
 
 @end
