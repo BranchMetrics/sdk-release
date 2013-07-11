@@ -135,7 +135,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, [hostName UTF8String]);
 	if(reachability!= NULL)
 	{
-        retVal= [[[self alloc] init] autorelease];        
+        retVal= [[[self alloc] init] autorelease];
 		if(retVal!= NULL)
 		{
 			retVal->reachabilityRef = reachability;
@@ -195,7 +195,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	BOOL retVal = NotReachable;
 	if((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect))
 	{
-		retVal = ReachableViaWiFi;	
+		retVal = ReachableViaWiFi;
 	}
 	return retVal;
 }

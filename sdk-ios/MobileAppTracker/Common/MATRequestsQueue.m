@@ -11,6 +11,12 @@
 NSString * const MAT_REQUEST_QUEUE_FOLDER = @"queue";
 NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 
+NSString * const XML_NODE_PART = @"Part";
+NSString * const XML_NODE_PARTS = @"Parts";
+
+NSString * const XML_NODE_ATTRIBUTE_INDEX = @"index";
+NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
+
 @interface MATRequestsQueue()
 
 @property (nonatomic, retain) NSMutableArray * queueParts;
@@ -57,29 +63,23 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         
         float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
         
-        NSSearchPathDirectory folderType = systemVersion < IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
+        NSSearchPathDirectory folderType = systemVersion < MAT_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
         NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
         NSString *baseFolder = [paths objectAtIndex:0];
         
-#if DEBUG_LOG
-        NSLog(@"storage dir  = %@", self.pathStorageDir);
-        NSLog(@"storage file = %@", self.pathStorageFile);
-#endif
+        DLog(@"MATReqQue: init: storage dir  = %@", self.pathStorageDir);
+        DLog(@"MATReqQue: init: storage file = %@", self.pathStorageFile);
         
         self.pathStorageDir = [baseFolder stringByAppendingPathComponent:MAT_REQUEST_QUEUE_FOLDER];
         self.pathStorageFile = [self.pathStorageDir stringByAppendingPathComponent:XML_FILE_NAME];
         
-#if DEBUG_LOG
-        NSLog(@"MATRequestsQueue.init: systemVersion = %f", systemVersion);
-        NSLog(@"MATRequestsQueue.init: pathStorageDir = %@, exists = %d", pathStorageDir, [[NSFileManager defaultManager] fileExistsAtPath:pathStorageDir]);
-        NSLog(@"MATRequestsQueue.init: pathStorageFile = %@", pathStorageFile);
-#endif
+        DLog(@"MATReqQue: init: systemVersion = %f", systemVersion);
+        DLog(@"MATReqQue: init: pathStorageDir = %@, exists = %d", pathStorageDir, [[NSFileManager defaultManager] fileExistsAtPath:pathStorageDir]);
+        DLog(@"MATReqQue: init: pathStorageFile = %@", pathStorageFile);
         
-        if(systemVersion < IOS_VERSION_501)
+        if(systemVersion < MAT_IOS_VERSION_501)
         {
-#if DEBUG_LOG
-            NSLog(@"MATRequestsQueue.init: set pathOld");
-#endif
+            DLog(@"MATReqQue: init: set pathOld");
             self.pathOld = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:MAT_REQUEST_QUEUE_FOLDER];
         }
         
@@ -89,9 +89,7 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
             [[NSFileManager defaultManager] createDirectoryAtPath:self.pathStorageDir withIntermediateDirectories:NO attributes:nil error:nil];
         }
         
-#if DEBUG_LOG
-        NSLog(@"MATRequestsQueue.init: pathOld = %@", self.pathOld);
-#endif
+        DLog(@"MATReqQue: init: pathOld = %@", self.pathOld);
         
         [self fixForiCloud];
     }
@@ -125,9 +123,7 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 
 - (MATRequestsQueuePart*)addNewPart
 {
-#if DEBUG_LOG
-    NSLog(@"MATReqQue.addNewPart: pathStorageDir = %@", self.pathStorageDir);
-#endif
+    DLog(@"MATReqQue: addNewPart: pathStorageDir = %@", self.pathStorageDir);
     
     MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:[self getSmallestPartFreeIndex] parentFolder:self.pathStorageDir];
     [queueParts_ addObject:part];
@@ -138,6 +134,8 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 - (BOOL)removePart:(MATRequestsQueuePart*)part
 {
     if (!part) { return NO; }
+    
+    DLog(@"MATReqQue: removePart: partToRemove = %@", part.filePathName);
     
     [[NSFileManager defaultManager] removeItemAtPath:part.filePathName error:nil];
     [queueParts_ removeObject:part];
@@ -172,14 +170,29 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         {
             lastPart = [self addNewPart];
         }
-        
+#if DEBUG_LOG
+        NSLog(@"MATReqQue: push: %@", object);
+        BOOL pushSuccessful =
+#endif
         [lastPart push:object];
+        
+#if DEBUG_LOG
+        NSLog(@"MATReqQue: push: successful = %d", pushSuccessful);
+        
+        NSString* content = [NSString stringWithContentsOfFile:lastPart.filePathName
+                                                      encoding:NSUTF8StringEncoding
+                                                         error:NULL];
+        NSLog(@"MATReqQue: push: path = %@", lastPart.filePathName);
+        NSLog(@"MATReqQue: push: content = %@", content);
+#endif
     }
 }
 
 - (NSDictionary*)pop
 {
     NSDictionary * object = nil;
+
+    DLog(@"MATReqQue: pop: start");
     
     @synchronized(self)
     {
@@ -187,6 +200,7 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         if (firstPart)
         {
             object = [firstPart pop];
+            DLog(@"MATReqQue: pop: pass1: %@,\nfirstPart isEmpty = %d", object, firstPart.empty);
             if (firstPart.empty)
             {
                 [self removePart:firstPart];
@@ -194,19 +208,18 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         }
     }
     
+    DLog(@"MATReqQue: pop: end: %@", object);
     return object;
 }
 
 - (void)save
 {
-#if DEBUG_LOG
-    NSLog(@"MATRequestsQueue.save()");
-#endif
+    DLog(@"MATReqQue: save: %@", self.pathStorageFile);
     
     /// Save parts description file
-    NSString * filePathName = self.pathStorageFile;
+    NSString * filePath = self.pathStorageFile;
     
-    NSMutableString *strDescr = [NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Parts>"];
+    NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_PARTS];
     
     for (MATRequestsQueuePart *part in queueParts_)
     {
@@ -217,27 +230,33 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         }
         
         /// Store it's information
-        [strDescr appendFormat:@"<Part index=\"%d\" requests=\"%d\"></Part>", part.index, part.queuedRequestsCount];
+        [strDescr appendFormat:@"<%@ %@=\"%d\" %@=\"%d\"></%@>", XML_NODE_PART, XML_NODE_ATTRIBUTE_INDEX, part.index, XML_NODE_ATTRIBUTE_REQUESTS, part.queuedRequestsCount, XML_NODE_PART];
     }
     
-    [strDescr appendString:@"</Parts>"];
+    [strDescr appendFormat:@"</%@>", XML_NODE_PARTS];
     
     NSError * error = nil;
-    [strDescr writeToFile:filePathName atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    [strDescr writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+
+#if DEBUG_LOG
+    NSError *error1 = nil;
+    NSString* content = [NSString stringWithContentsOfFile:filePath
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:&error1];
+    NSLog(@"MATReqQue: save: read: error1  = %@", error1);
+    NSLog(@"MATReqQue: save: read: path    = %@", filePath);
+    NSLog(@"MATReqQue: save: read: content = %@", content);
+#endif
     
     if (error)
     {
-#if DEBUG_LOG
-        NSLog(@"%@", [error localizedDescription]);
-#endif
+        DLog(@"MATReqQue: save: error = %@", [error localizedDescription]);
     }
 }
 
 - (BOOL)load
 {
-#if DEBUG_LOG
-    NSLog(@"MATRequestsQueue.load()");
-#endif
+    DLog(@"MATReqQue: load: filePath = %@", self.pathStorageFile);
     
     BOOL result = NO;
     
@@ -248,6 +267,11 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
     NSData * descsData = [NSData dataWithContentsOfFile:self.pathStorageFile];
     if (descsData)
     {
+#if DEBUG_LOG
+        NSString *fileContents = [[NSString alloc] initWithData:descsData encoding:NSUTF8StringEncoding];
+        NSLog(@"MATReqQue: load: fileContents = %@", fileContents);
+        [fileContents release], fileContents = nil;
+#endif
         NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:descsData];
         [xmlParser setDelegate:self];
         [xmlParser parse];
@@ -262,7 +286,7 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
     /// Load last part from file
     [[self getLastPart] load];
     
-    return result;    
+    return result;
 }
 
 #pragma mark - NSXMLParser Delegate Methods
@@ -270,14 +294,14 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 // sent when the parser finds an element start tag.
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-    if(0 == [elementName compare:@"Part"])
+    if(0 == [elementName compare:XML_NODE_PART])
     {
-        NSUInteger index = [[attributeDict objectForKey:@"index"] intValue];
-        NSUInteger requests = [[attributeDict objectForKey:@"requests"] intValue];
+        NSUInteger index = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_INDEX] intValue];
+        NSUInteger requests = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_REQUESTS] intValue];
         
-#if DEBUG_LOG
-        NSLog(@"MATReqQue.parser: pathStorageDir = %@", self.pathStorageDir);
-#endif
+        DLog(@"MATReqQue: parser: pathStorageDir = %@", self.pathStorageDir);
+        DLog(@"MATReqQue: parser: index          = %d", index);
+        DLog(@"MATReqQue: parser: request Count  = %d", requests);
         
         MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:index parentFolder:self.pathStorageDir];
         part.queuedRequestsCount = requests;
@@ -294,9 +318,7 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 // -- for iOS v5.0   and below : Moves file to Library/Caches
 - (void)fixForiCloud
 {
-#if DEBUG_LOG
-    NSLog(@"MATRequestsQueue.fixForCloud: KEY_MAT_FIXED_FOR_ICLOUD = %d", [[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD]);
-#endif
+    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD]);
     
     // This fix is needed only once and never again.
     if(![[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD])
@@ -307,30 +329,22 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
         
         float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
         
-#if DEBUG_LOG
-        NSLog(@"MATRequestsQueue.fixForCloud: systemVersion = %f", systemVersion);
-#endif
+        DLog(@"MATReqQue: fixForCloud: systemVersion = %f", systemVersion);
         
-        if(systemVersion < IOS_VERSION_501)
+        if(systemVersion < MAT_IOS_VERSION_501)
         {
             NSString *oldPath = self.pathOld;
             
-#if DEBUG_LOG
-            NSLog(@"MATRequestsQueue.fixForCloud: oldPath = %@, exists = %d", oldPath, [[NSFileManager defaultManager] fileExistsAtPath:oldPath]);
-#endif
+            DLog(@"MATReqQue: fixForCloud: oldPath = %@, exists = %d", oldPath, [[NSFileManager defaultManager] fileExistsAtPath:oldPath]);
             
             // If old request queue storage folder Documents/queue exists, then move it to the Library/Caches folder.
             if([[NSFileManager defaultManager] fileExistsAtPath:oldPath])
             {
-#if DEBUG_LOG
-                NSLog(@"MATRequestsQueue.fixForCloud: Removing destination path = %@.", queueStorageFolder);
-#endif
+                DLog(@"MATReqQue: fixForCloud: Removing destination path = %@.", queueStorageFolder);
                 // Make sure that the destination does not already contain a folder with the same name
                 [[NSFileManager defaultManager] removeItemAtPath:queueStorageFolder error:&error];
 
-#if DEBUG_LOG
-                NSLog(@"MATRequestsQueue.fixForCloud: Moving old %@ to new %@.", oldPath, queueStorageFolder);
-#endif
+                DLog(@"MATReqQue: fixForCloud: Moving old %@ to new %@.", oldPath, queueStorageFolder);
                 // move queue storage files from old Documents folder location to the new non-iCloud Library/Cache location
                 [[NSFileManager defaultManager] moveItemAtPath:oldPath toPath:queueStorageFolder error:&error];
             }
@@ -344,17 +358,15 @@ NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
 #if DEBUG_LOG
         if(error)
         {
-            NSLog(@"MATRequestsQueue.fixForCloud: Error = %@", error);
+            NSLog(@"MATReqQue: fixForCloud: Error = %@", error);
         }
 #endif
         
         if(!error)
         {
-#if DEBUG_LOG
-            NSLog(@"MATRequestsQueue.fixForCloud: set key KEY_MAT_FIXED_FOR_ICLOUD = TRUE");
-#endif
+            DLog(@"MATReqQue: fixForCloud: set key KEY_MAT_FIXED_FOR_ICLOUD = YES");
             // Set a flag to note that the do-not-back-to-iCloud change was successful.
-            [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:KEY_MAT_FIXED_FOR_ICLOUD];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KEY_MAT_FIXED_FOR_ICLOUD];
         }
     }
 }
