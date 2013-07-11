@@ -87,7 +87,7 @@ public class UrlRequester {
         if (response != null) {
             try {
                 StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK){
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
                     Log.d(MATConstants.TAG, "Request was sent");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                     StringBuilder builder = new StringBuilder();

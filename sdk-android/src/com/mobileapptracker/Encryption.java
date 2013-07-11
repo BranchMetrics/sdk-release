@@ -2,7 +2,6 @@ package com.mobileapptracker;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -136,13 +135,33 @@ public class Encryption {
             MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
             digest.update(s.getBytes());
             byte[] messageDigest = digest.digest();
-
-            // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++) {
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-            }
-            return hexString.toString().toUpperCase(Locale.US);
+            return bytesToHex(messageDigest);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    
+    public String sha1(String s) {
+        try {
+            // Create SHA-1 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
+            digest.update(s.getBytes());
+            byte[] messageDigest = digest.digest();
+            return bytesToHex(messageDigest);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    
+    public String sha256(String s) {
+        try {
+            // Create SHA-256 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            digest.update(s.getBytes());
+            byte[] messageDigest = digest.digest();
+            return bytesToHex(messageDigest);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

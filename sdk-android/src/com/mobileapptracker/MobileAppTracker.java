@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -132,6 +131,8 @@ public class MobileAppTracker {
                                     "av",
                                     "dc",
                                     "ad",
+                                    "android_id_md5",
+                                    "android_id_sha1",
                                     "r",
                                     "c",
                                     "id",
@@ -482,14 +483,6 @@ public class MobileAppTracker {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new GetUserAgent(context));
             
-            // Show annoying alert about debug mode if enabled
-            if (debugMode || allowDups) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Debug Mode Enabled");
-                builder.setMessage("MAT SDK debug mode is enabled - please disable before app submission.");
-                builder.show();
-            }
-            
             // Set screen density
             float density = context.getResources().getDisplayMetrics().density;
             setScreenDensity(Float.toString(density));
@@ -739,7 +732,6 @@ public class MobileAppTracker {
         
         // Clear the parameters from parameter table that should be reset between events
         paramTable.remove("android_purchase_status");
-        paramTable.remove("ar");
         paramTable.remove("ei");
         paramTable.remove("en");
         paramTable.remove("event_referrer");
@@ -845,6 +837,8 @@ public class MobileAppTracker {
      * Builds encrypted data in conversion link based on class member values.
      * @param origLink the base URL to append data to
      * @param action the event action (install/update/open/conversion)
+     * @param revenue revenue associated with event
+     * @param currency currency code for event
      * @return encrypted URL string based on class settings.
      */
     private String buildData(String origLink, String action, double revenue, String currency) {
@@ -884,7 +878,7 @@ public class MobileAppTracker {
                 // Call GetLog endpoint
                 if (isTodayLatestDate(MATConstants.PREFS_LAST_LOG_ID, MATConstants.PREFS_LAST_LOG_ID_KEY)) {
                     // Build the url to request the log id
-                    StringBuilder logIdUrl = new StringBuilder("http://").append(MATConstants.MAT_DOMAIN).append("/v1/Integrations/Sdk/GetLog?sdk=android&package_name=").append(getPackageName()).append("&advertiser_id=").append(getAdvertiserId()).append("&keys[mac_address]=").append(getMacAddress()).append("&keys[device_id]=").append(getDeviceId());
+                    StringBuilder logIdUrl = new StringBuilder("https://").append(MATConstants.MAT_DOMAIN).append("/v1/Integrations/Sdk/GetLog?sdk=android&package_name=").append(getPackageName()).append("&advertiser_id=").append(getAdvertiserId()).append("&keys[mac_address]=").append(getMacAddress()).append("&keys[device_id]=").append(getDeviceId());
                     // Add encrypted package name as data
                     StringBuilder encryptedPackageName = new StringBuilder("package_name=").append(getPackageName());
                     try {
@@ -1366,6 +1360,30 @@ public class MobileAppTracker {
         putInParamTable("ad", android_id);
     }
 
+    public String getAndroidIdMd5() {
+        return paramTable.get("android_id_md5");
+    }
+
+    private void setAndroidIdMd5(String android_id_md5) {
+        putInParamTable("android_id_md5", android_id_md5);
+    }
+
+    public String getAndroidIdSha1() {
+        return paramTable.get("android_id_sha1");
+    }
+
+    private void setAndroidIdSha1(String android_id_sha1) {
+        putInParamTable("android_id_sha1", android_id_sha1);
+    }
+
+    public String getAndroidIdSha256() {
+        return paramTable.get("android_id_sha256");
+    }
+
+    private void setAndroidIdSha256(String android_id_sha256) {
+        putInParamTable("android_id_sha256", android_id_sha256);
+    }
+
     public String getAppName() {
         return paramTable.get("an");
     }
@@ -1613,6 +1631,21 @@ public class MobileAppTracker {
             }
             paramTable.put(key, value);
         }
+    }
+    
+    public void setUseAndroidIdMd5() {
+        setAndroidIdMd5(URLEnc.md5(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
+        setAndroidId("");
+    }
+    
+    public void setUseAndroidIdSha1() {
+        setAndroidIdSha1(URLEnc.sha1(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
+        setAndroidId("");
+    }
+    
+    public void setUseAndroidIdSha256() {
+        setAndroidIdSha256(URLEnc.sha256(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
+        setAndroidId("");
     }
     
     /**
