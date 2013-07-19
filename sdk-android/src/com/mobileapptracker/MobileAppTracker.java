@@ -133,6 +133,7 @@ public class MobileAppTracker {
                                     "ad",
                                     "android_id_md5",
                                     "android_id_sha1",
+                                    "android_id_sha256",
                                     "r",
                                     "c",
                                     "id",
@@ -151,7 +152,8 @@ public class MobileAppTracker {
                                     "screen_density",
                                     "screen_layout_size",
                                     "android_purchase_status",
-                                    "event_referrer");
+                                    "event_referrer",
+                                    "app_ad_tracking");
         
         initialized = initializeVariables(context, advertiserId, key, collectDeviceId, collectMacAddress);
         URLEnc = new Encryption(key, MobileAppTracker.IV);
@@ -1183,6 +1185,14 @@ public class MobileAppTracker {
 
     public void setAdvertiserId(String advertiser_id) {
         putInParamTable("adv", advertiser_id);
+    }
+
+    public void setAppAdTracking(boolean appAdTracking) {
+        if (appAdTracking) {
+            putInParamTable("app_ad_tracking", Integer.toString(1));
+        } else {
+            putInParamTable("app_ad_tracking", Integer.toString(0));
+        }
     }
 
     public String getCurrencyCode() {
