@@ -208,13 +208,15 @@ public class MobileAppTracker {
     /**
      * Saves an event to the queue, used if there is no Internet connection.
      * @param link URL of the event postback
-     * @param json (Optional) JSON information to post to server
+     * @param eventItems (Optional) MATEventItem JSON information to post to server
      * @param action the action for the event (conversion/install/open)
      * @param revenue value associated with the event
      * @param currency currency code for the revenue
+     * @param iapSignature 
+     * @param iapData 
      * @param shouldBuildData whether link needs encrypted data to be appended or not
      */
-    private void addEventToQueue(String link, String json, String action, double revenue, String currency, boolean shouldBuildData) throws InterruptedException {
+    private void addEventToQueue(String link, String eventItems, String action, double revenue, String currency, String iapData, String iapSignature, boolean shouldBuildData) throws InterruptedException {
         // Acquire semaphore before modifying queue
         queueAvailable.acquire();
 
@@ -223,8 +225,8 @@ public class MobileAppTracker {
             JSONObject jsonEvent = new JSONObject();
             try {
                 jsonEvent.put("link", link);
-                if (json != null) {
-                    jsonEvent.put("json", json);
+                if (eventItems != null) {
+                    jsonEvent.put("event_items", eventItems);
                 }
                 jsonEvent.put("action", action);
                 jsonEvent.put("revenue", revenue);
@@ -232,6 +234,12 @@ public class MobileAppTracker {
                     currency = "USD";
                 }
                 jsonEvent.put("currency", currency);
+                if (iapData != null) {
+                    jsonEvent.put("iap_data", iapData);
+                }
+                if (iapSignature != null) {
+                    jsonEvent.put("iap_signature", iapSignature);
+                }
                 jsonEvent.put("should_build_data", shouldBuildData);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -294,21 +302,29 @@ public class MobileAppTracker {
                 
                 if (eventJson != null) {
                     String link = null;
-                    String json = null;
+                    String eventItems = null;
                     String action = null;
                     double revenue = 0;
                     String currency = null;
+                    String iapData = null;
+                    String iapSignature = null;
                     boolean shouldBuildData = false;
                     try {
                         // De-serialize the stored string from the queue to get URL and json values
                         JSONObject event = new JSONObject(eventJson);
                         link = event.getString("link");
-                        if (event.has("json")) {
-                            json = event.getString("json");
+                        if (event.has("event_items")) {
+                            eventItems = event.getString("event_items");
                         }
                         action = event.getString("action");
                         revenue = event.getDouble("revenue");
                         currency = event.getString("currency");
+                        if (event.has("iap_data")) {
+                            iapData = event.getString("iap_data");
+                        }
+                        if (event.has("iap_signature")) {
+                            iapSignature = event.getString("iap_signature");
+                        }
                         shouldBuildData = event.getBoolean("should_build_data");
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -327,7 +343,7 @@ public class MobileAppTracker {
                     editor.commit();
                     
                     try {
-                        pool.execute(new GetLink(link, json, action, revenue, currency, shouldBuildData));
+                        pool.execute(new GetLink(link, eventItems, action, revenue, currency, iapData, iapSignature, shouldBuildData));
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.d(MATConstants.TAG, "Request could not be executed from queue");
@@ -584,7 +600,7 @@ public class MobileAppTracker {
             String savedVersion = SP.getString("version", "");
             if (savedVersion.length() != 0 && Integer.parseInt(savedVersion) != getAppVersion()) { // If have been tracked before, check if is an update
                 if (debugMode) Log.d(MATConstants.TAG, "App version has changed since last trackInstall, sending update to server");
-                track("update", null, 0, null);
+                track("update", null, 0, null, null, null);
                 editor = SP.edit();
                 editor.putString("version", Integer.toString(getAppVersion()));
                 editor.commit();
@@ -603,7 +619,7 @@ public class MobileAppTracker {
             editor.putString("version", Integer.toString(getAppVersion()));
             editor.commit();
         }
-        return track("install", null, 0, null);
+        return track("install", null, 0, null, null, null);
     }
 
     /**
@@ -619,7 +635,7 @@ public class MobileAppTracker {
             String savedVersion = SP.getString("version", "");
             if (savedVersion.length() != 0 && Integer.parseInt(savedVersion) != getAppVersion()) { // If have been tracked before, check if is an update
                 if (debugMode) Log.d(MATConstants.TAG, "App version has changed since last trackInstall, sending update to server");
-                track("update", null, 0, null);
+                track("update", null, 0, null, null, null);
                 editor = SP.edit();
                 editor.putString("version", Integer.toString(getAppVersion()));
                 editor.commit();
@@ -639,7 +655,7 @@ public class MobileAppTracker {
             editor.commit();
             this.install = "installed";
         }
-        return track("update", null, 0, null);
+        return track("update", null, 0, null, null, null);
     }
 
     /**
@@ -652,7 +668,7 @@ public class MobileAppTracker {
      */
     public int trackPurchase(String event, int purchaseStatus, double revenue, String currency) {
         setPurchaseStatus(purchaseStatus);
-        return track(event, null, revenue, currency);
+        return track(event, null, revenue, currency, null, null);
     }
 
     /**
@@ -661,7 +677,7 @@ public class MobileAppTracker {
      * @return 1 on success and -1 on failure.
      */
     public int trackAction(String event) {
-        return track(event, null, 0, null);
+        return track(event, null, 0, null, null, null);
     }
 
     /**
@@ -673,7 +689,13 @@ public class MobileAppTracker {
     public int trackAction(String event, MATEventItem eventItem) {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(eventItem.toJSON());
-        return track(event, jsonArray.toString(), 0, null);
+        return track(event, jsonArray.toString(), 0, null, null, null);
+    }
+    
+    public int trackAction(String event, MATEventItem eventItem, String inAppPurchaseData, String inAppSignature) {
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(eventItem.toJSON());
+        return track(event, jsonArray.toString(), 0, null, inAppPurchaseData, inAppSignature);
     }
 
     /**
@@ -688,7 +710,16 @@ public class MobileAppTracker {
         for (int i = 0; i < list.size(); i++) {
             jsonArray.put(list.get(i).toJSON());
         }
-        return track(event, jsonArray.toString(), 0, null);
+        return track(event, jsonArray.toString(), 0, null, null, null);
+    }
+    
+    public int trackAction(String event, List<MATEventItem> list, String inAppPurchaseData, String inAppSignature) {
+        // Create a JSONArray of event items
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i < list.size(); i++) {
+            jsonArray.put(list.get(i).toJSON());
+        }
+        return track(event, jsonArray.toString(), 0, null, inAppPurchaseData, inAppSignature);
     }
 
     /**
@@ -698,7 +729,7 @@ public class MobileAppTracker {
      * @return 1 on success and -1 on failure.
      */
     public int trackAction(String event, double revenue) {
-        return track(event, null, revenue, null);
+        return track(event, null, revenue, null, null, null);
     }
 
     /**
@@ -709,18 +740,22 @@ public class MobileAppTracker {
      * @return 1 on success and -1 on failure.
      */
     public int trackAction(String event, double revenue, String currency) {
-        return track(event, null, revenue, currency);
+        return track(event, null, revenue, currency, null, null);
+    }
+    
+    public int trackAction(String event, double revenue, String currency, String inAppPurchaseData, String inAppSignature) {
+        return track(event, null, revenue, currency, inAppPurchaseData, inAppSignature);
     }
 
     /**
      * Method calls a new action event based on class member settings.
      * @param event event name or event ID in MAT system
-     * @param json JSON data to post to the server
+     * @param eventItems MATEventItem json data to post to the server
      * @param revenue revenue amount tied to the action
      * @param currency currency code for the revenue amount
      * @return 1 on success and -1 on failure.
      */
-    private synchronized int track(String event, String json, double revenue, String currency) {
+    private synchronized int track(String event, String eventItems, double revenue, String currency, String iapData, String iapSignature) {
         if (!initialized) return -1;
         
         if (isOnline() && getQueueSize() > 0) {
@@ -758,7 +793,7 @@ public class MobileAppTracker {
         String action = getAction();
         if (isOnline()) {
             try {
-                pool.schedule(new GetLink(link, json, action, revenue, currency, true), MATConstants.DELAY, TimeUnit.MILLISECONDS);
+                pool.schedule(new GetLink(link, eventItems, action, revenue, currency, iapData, iapSignature, true), MATConstants.DELAY, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(MATConstants.TAG, "Request could not be executed from track");
@@ -767,7 +802,7 @@ public class MobileAppTracker {
             if (!action.equals("open")) {
                 if (debugMode) Log.d(MATConstants.TAG, "Not online: track will be queued");
                 try {
-                    addEventToQueue(link, json, action, revenue, currency, true);
+                    addEventToQueue(link, eventItems, action, revenue, currency, iapData, iapSignature, true);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
@@ -1066,27 +1101,33 @@ public class MobileAppTracker {
      */
     private class GetLink implements Runnable {
         private String link = null;
-        private String json = null;
+        private String eventItems = null;
         private String action = null;
         private double revenue = 0;
         private String currency = null;
+        private String iapData = null;
+        private String iapSignature = null;
         private boolean shouldBuildData = false;
         
         /**
          * Instantiates a new GetLink Runnable.
          * @param link url to request
-         * @param json json data to post
+         * @param eventItems eventItem data to post
          * @param action the event action
          * @param revenue the revenue amount
          * @param currency the currency code
+         * @param iapSignature 
+         * @param iapData 
          * @param shouldBuildData whether link needs encrypted data appended
          */
-        public GetLink(String link, String json, String action, double revenue, String currency, boolean shouldBuildData) {
+        public GetLink(String link, String eventItems, String action, double revenue, String currency, String iapData, String iapSignature, boolean shouldBuildData) {
             this.link = link;
-            this.json = json;
+            this.eventItems = eventItems;
             this.action = action;
             this.revenue = revenue;
             this.currency = currency;
+            this.iapData = iapData;
+            this.iapSignature = iapSignature;
             this.shouldBuildData = shouldBuildData;
         }
         
@@ -1106,10 +1147,32 @@ public class MobileAppTracker {
             
             Log.d(MATConstants.TAG, "Sending " + action + " event to server...");
             
-            JSONObject response = urlRequester.requestUrl(link, json);
+            // Construct JSONObject from eventItems and iapData/iapSignature
+            JSONObject postData = new JSONObject();
+            try {
+                if (eventItems != null) {
+                    // Add event items under key "data"
+                    JSONArray eventItemsJson = new JSONArray(eventItems);
+                    postData.put("data", eventItemsJson);
+                }
+                
+                if (iapData != null) {
+                    JSONObject iapDataJson = new JSONObject(iapData);
+                    postData.put("store_iap_data", iapDataJson);
+                }
+                
+                if (iapSignature != null) {
+                    postData.put("store_iap_signature", iapSignature);
+                }
+            } catch (JSONException e) {
+                if (debugMode) Log.d(MATConstants.TAG, "Could not build JSON for event items or verification values");
+                e.printStackTrace();
+            }
+            
+            JSONObject response = urlRequester.requestUrl(link, postData);
             if (response == null) {
                 try {
-                    addEventToQueue(link, json, action, revenue, currency, false);
+                    addEventToQueue(link, eventItems, action, revenue, currency, iapData, iapSignature, false);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();

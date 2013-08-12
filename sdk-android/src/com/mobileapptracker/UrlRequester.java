@@ -23,7 +23,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -53,14 +52,14 @@ public class UrlRequester {
     /**
      * Does an HTTP request to the given url, GET or POST based on whether json was passed or not
      * @param url the url to hit
-     * @param json event item json, if not null then will POST to url
+     * @param json JSONObject with event item and iap verification json, if not null or empty then will POST to url
      * @return JSONObject of the server response, null if request failed
      */
-    public JSONObject requestUrl(String url, String json) {
+    public JSONObject requestUrl(String url, JSONObject json) {
         HttpResponse response = null;
         
         // If no JSON passed, do HttpGet
-        if (json == null) {
+        if (json == null || json.length() == 0) {
             try {
                 response = client.execute(new HttpGet(url));
             } catch (Exception e) {
@@ -69,11 +68,7 @@ public class UrlRequester {
         } else {
             // Put JSON as entity for HttpPost
             try {
-                JSONObject data = new JSONObject();
-                JSONArray value = new JSONArray(json);
-                
-                data.put("data", value);
-                StringEntity se = new StringEntity(data.toString());
+                StringEntity se = new StringEntity(json.toString());
                 se.setContentType("application/json");
                 
                 HttpPost request = new HttpPost(url);
