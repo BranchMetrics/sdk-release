@@ -130,6 +130,9 @@ public class Encryption {
     }
 
     public String md5(String s) {
+        if(s == null) {
+            return "";
+        }
         try {
             // Create MD5 Hash
             MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
@@ -141,8 +144,11 @@ public class Encryption {
         }
         return "";
     }
-    
+
     public String sha1(String s) {
+        if(s == null) {
+            return "";
+        }
         try {
             // Create SHA-1 Hash
             MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
@@ -154,8 +160,11 @@ public class Encryption {
         }
         return "";
     }
-    
+
     public String sha256(String s) {
+        if(s == null) {
+            return "";
+        }
         try {
             // Create SHA-256 Hash
             MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
