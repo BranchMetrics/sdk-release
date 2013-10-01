@@ -28,7 +28,7 @@ import org.json.JSONTokener;
 
 import android.util.Log;
 
-public class UrlRequester {
+class UrlRequester {
     // HTTP client for firing requests
     private HttpClient client;
     

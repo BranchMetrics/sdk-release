@@ -8,7 +8,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Encryption {
+class Encryption {
     private IvParameterSpec ivspec;
     private SecretKeySpec keyspec;
     private Cipher cipher;
@@ -32,8 +32,8 @@ public class Encryption {
     }
 
     /**
-     * @param text
-     * @return
+     * @param text String to encrypt
+     * @return AES-encrypted string
      * @throws Exception
      */
     public byte[] encrypt(String text) throws Exception {
@@ -53,8 +53,8 @@ public class Encryption {
     }
 
     /**
-     * @param code
-     * @return
+     * @param code Encrypted string to decrypt
+     * @return AES-decrypted string
      * @throws Exception
      */
     public byte[] decrypt(String code) throws Exception {
@@ -73,8 +73,8 @@ public class Encryption {
     }
 
     /**
-     * @param data
-     * @return
+     * @param data Byte array to convert to hex
+     * @return Hex string
      */
     public String bytesToHex(byte[] data) {
         if (data == null) {
@@ -94,8 +94,8 @@ public class Encryption {
     }
 
     /**
-     * @param str
-     * @return
+     * @param str Hex string to convert to bytes
+     * @return Byte array
      */
     public static byte[] hexToBytes(String str) {
         if (str == null) {
@@ -113,8 +113,8 @@ public class Encryption {
     }
 
     /**
-     * @param source
-     * @return
+     * @param source String that requires padding
+     * @return Padded string for AES/CBC encryption
      */
     private static String padString(String source) {
         char paddingChar = ' ';
@@ -129,8 +129,12 @@ public class Encryption {
         return source;
     }
 
+    /**
+     * @param s String to MD5 hash
+     * @return MD5 hashed string
+     */
     public String md5(String s) {
-        if(s == null) {
+        if (s == null) {
             return "";
         }
         try {
@@ -144,9 +148,13 @@ public class Encryption {
         }
         return "";
     }
-
+    
+    /**
+     * @param s String to SHA-1 hash
+     * @return SHA-1 hashed string
+     */
     public String sha1(String s) {
-        if(s == null) {
+        if (s == null) {
             return "";
         }
         try {
@@ -160,9 +168,13 @@ public class Encryption {
         }
         return "";
     }
-
+    
+    /**
+     * @param s String to SHA-256 hash
+     * @return SHA-256 hashed string
+     */
     public String sha256(String s) {
-        if(s == null) {
+        if (s == null) {
             return "";
         }
         try {

@@ -1,6 +1,6 @@
 package com.mobileapptracker;
 
-public class MATConstants {
+class MATConstants {
     // SharedPreferences filename for referrer
     static final String PREFS_REFERRER = "mat_referrer";
     // SharedPreferences filename for Facebook re-engagement intent
@@ -28,6 +28,11 @@ public class MATConstants {
     // SharedPreferences filename for previously seen app version
     static final String PREFS_VERSION = "mat_app_version";
     
+    // Device ID permission
+    static final String DEVICE_ID_PERMISSION = "android.permission.READ_PHONE_STATE";
+    // MAC Address permission
+    static final String MAC_ADDRESS_PERMISSION = "android.permission.ACCESS_WIFI_STATE";
+    
     // Server domain
     static final String MAT_DOMAIN = "engine.mobileapptracking.com";
     // Server domain for debug
@@ -38,7 +43,7 @@ public class MATConstants {
     // Date format for checking opens date
     static final String DATE_ONLY_FORMAT = "MM-dd-yyyy";
     // MAT Android SDK version number
-    static final String SDK_VERSION = "2.5";
+    static final String SDK_VERSION = "2.6";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued
@@ -46,5 +51,5 @@ public class MATConstants {
     // Set a network timeout time of 60s
     static final int TIMEOUT = 60000;
     // Time in milliseconds to wait for INSTALL_REFERRER before tracking
-    static final int DELAY = 5000;
+    static final int DELAY = 10000;
 }

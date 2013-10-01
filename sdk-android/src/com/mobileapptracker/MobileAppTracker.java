@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -41,21 +43,19 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 /**
  * @author tony@hasoffers.com
  * @author john.gu@hasoffers.com
  */
-public class MobileAppTracker {
+public class MobileAppTracker implements Observer {
     public static final int GENDER_MALE = 0;
     public static final int GENDER_FEMALE = 1;
     
@@ -78,8 +78,6 @@ public class MobileAppTracker {
     private boolean initialized = false;
     // Whether MobileAppTracker class was constructed
     private boolean constructed = false;
-    // Whether to use https encryption or not
-    private boolean httpsEncryption = true;
     // Whether app has been installed or not
     private String install;
     // Advertiser key in our system
@@ -100,16 +98,14 @@ public class MobileAppTracker {
     // SharedPreferences for storing events that were not fired
     private SharedPreferences EventQueue;
     private SharedPreferences SP;
-
+    
     /**
      * Instantiates a new MobileAppTracker.
      * @param context the application context
      * @param advertiserId the MAT advertiser ID for the app
      * @param key the MAT advertiser key for the app
-     * @param collectDeviceId whether to collect device id
-     * @param collectMacAddress whether to collect MAC address
      */
-    public MobileAppTracker(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
+    public MobileAppTracker(Context context, String advertiserId, String key) {
         if (constructed) return;
         constructed = true;
         this.context = context;
@@ -152,10 +148,34 @@ public class MobileAppTracker {
                                     "screen_density",
                                     "screen_layout_size",
                                     "android_purchase_status",
-                                    "event_referrer",
+                                    "referral_source",
+                                    "referral_url",
                                     "app_ad_tracking");
         
-        initialized = initializeVariables(context, advertiserId, key, collectDeviceId, collectMacAddress);
+        // Add listener for INSTALL_REFERRER
+        Tracker.getObservable().addObserver(this);
+        
+        initialized = initializeVariables(context, advertiserId, key);
+        
+        // Try to convert context to an Activity to get referral source and url
+        try {
+            Activity act = ((Activity) context);
+            // Set source package
+            setReferralSource(act.getCallingPackage());
+            // Set source url query
+            Intent intent = act.getIntent();
+            if (intent != null) {
+                Uri uri = intent.getData();
+                if (uri != null) {
+                    String referralUrl = uri.toString();
+                    setReferralUrl(referralUrl);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(MATConstants.TAG,"Context is not an Activity, can't get referral source and url");
+        }
+        
         URLEnc = new Encryption(key, MobileAppTracker.IV);
         EventQueue = context.getSharedPreferences(MATConstants.PREFS_NAME, 0);
         SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
@@ -196,27 +216,18 @@ public class MobileAppTracker {
     }
 
     /**
-     * Instantiates a new MobileAppTracker with collectDeviceId, collectMacAddress enabled by default.
-     * @param context the application context
-     * @param advertiserId the MAT advertiser ID for the app
-     * @param key the MAT advertiser key for the app
-     */
-    public MobileAppTracker(Context context, String advertiserId, String key) {
-        this(context, advertiserId, key, true, true);
-    }
-
-    /**
      * Saves an event to the queue, used if there is no Internet connection.
      * @param link URL of the event postback
      * @param eventItems (Optional) MATEventItem JSON information to post to server
      * @param action the action for the event (conversion/install/open)
      * @param revenue value associated with the event
      * @param currency currency code for the revenue
-     * @param iapSignature 
-     * @param iapData 
+     * @param refId the advertiser ref ID associated with the event
+     * @param iapData the receipt data from Google Play
+     * @param iapSignature the receipt signature from Google Play
      * @param shouldBuildData whether link needs encrypted data to be appended or not
      */
-    private void addEventToQueue(String link, String eventItems, String action, double revenue, String currency, String iapData, String iapSignature, boolean shouldBuildData) throws InterruptedException {
+    private void addEventToQueue(String link, String eventItems, String action, double revenue, String currency, String refId, String iapData, String iapSignature, boolean shouldBuildData) throws InterruptedException {
         // Acquire semaphore before modifying queue
         queueAvailable.acquire();
 
@@ -234,6 +245,9 @@ public class MobileAppTracker {
                     currency = "USD";
                 }
                 jsonEvent.put("currency", currency);
+                if (refId != null) {
+                    jsonEvent.put("ref_id", refId);
+                }
                 if (iapData != null) {
                     jsonEvent.put("iap_data", iapData);
                 }
@@ -306,6 +320,7 @@ public class MobileAppTracker {
                     String action = null;
                     double revenue = 0;
                     String currency = null;
+                    String refId = null;
                     String iapData = null;
                     String iapSignature = null;
                     boolean shouldBuildData = false;
@@ -319,6 +334,9 @@ public class MobileAppTracker {
                         action = event.getString("action");
                         revenue = event.getDouble("revenue");
                         currency = event.getString("currency");
+                        if (event.has("ref_id")) {
+                            refId = event.getString("ref_id");
+                        }
                         if (event.has("iap_data")) {
                             iapData = event.getString("iap_data");
                         }
@@ -343,7 +361,7 @@ public class MobileAppTracker {
                     editor.commit();
                     
                     try {
-                        pool.execute(new GetLink(link, eventItems, action, revenue, currency, iapData, iapSignature, shouldBuildData));
+                        pool.execute(new GetLink(link, eventItems, action, revenue, currency, refId, iapData, iapSignature, shouldBuildData));
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.d(MATConstants.TAG, "Request could not be executed from queue");
@@ -378,15 +396,23 @@ public class MobileAppTracker {
      * @param context the application context
      * @param advertiserId the advertiser id in MAT
      * @param key the advertiser key
-     * @param collectDeviceId whether to collect device id
-     * @param collectMacAddress whether to collect MAC address
      * @return whether variables were initialized successfully
      */
-    private boolean initializeVariables(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
+    private boolean initializeVariables(Context context, String advertiserId, String key) {
         try {
-            setAdvertiserId(advertiserId);
-            setKey(key);
+            // Strip the whitespace from advertiser id and key before storing
+            setAdvertiserId(advertiserId.trim());
+            setKey(key.trim());
             setAction("conversion");
+            
+            boolean collectDeviceId = false;
+            boolean collectMacAddress = false;
+            if (context.checkCallingOrSelfPermission(MATConstants.DEVICE_ID_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
+                collectDeviceId = true;
+            }
+            if (context.checkCallingOrSelfPermission(MATConstants.MAC_ADDRESS_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
+                collectMacAddress = true;
+            }
             
             SP = context.getSharedPreferences(MATConstants.PREFS_MAT_ID, 0);
             String matId = SP.getString("mat_id", "");
@@ -403,10 +429,12 @@ public class MobileAppTracker {
             setDeviceBrand(android.os.Build.MANUFACTURER);
             setOsVersion(android.os.Build.VERSION.RELEASE);
             
+            // Only collect device id if READ_PHONE_STATE permission exists
             if (collectDeviceId) {
                 setDeviceId(getDeviceId(context));
             }
             
+            // Only collect MAC address if ACCESS_WIFI_STATE permission exists
             if (collectMacAddress) {
                 WifiManager wifiMan = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                 if (wifiMan != null) {
@@ -489,10 +517,6 @@ public class MobileAppTracker {
                 Log.d(MATConstants.TAG, "App version not found");
                 setAppVersion(0);
             }
-            
-            // retrieving Android market referrer value
-            SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
-            setReferrer(SP.getString("referrer", ""));
             
             SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
             install = SP.getString("install", "");
@@ -579,19 +603,11 @@ public class MobileAppTracker {
     }
 
     /**
-     * trackInstall with default context.
-     * @return 1 on success, 2 on already installed state, 3 on update, and -1 on failure
+     * Main tracking install function, this function only needs to be successfully called one time on application install.
+     * Subsequent calls will not send more installs.
+     * @return 1 on request sent, 2 on already installed state, 3 on update, and -1 on failure
      */
     public int trackInstall() {
-        return trackInstall(context);
-    }
-
-    /**
-     * Main tracking Install function, this function only needs to be successfully called one time on application install.
-     * @param context the application context
-     * @return 1 on success, 2 on already installed state, 3 on update, and -1 on failure
-     */
-    public synchronized int trackInstall(Context context) {
         SharedPreferences.Editor editor;
         SP = context.getSharedPreferences(MATConstants.PREFS_INSTALL, 0);
         install = SP.getString("install", "");
@@ -600,7 +616,7 @@ public class MobileAppTracker {
             String savedVersion = SP.getString("version", "");
             if (savedVersion.length() != 0 && Integer.parseInt(savedVersion) != getAppVersion()) { // If have been tracked before, check if is an update
                 if (debugMode) Log.d(MATConstants.TAG, "App version has changed since last trackInstall, sending update to server");
-                track("update", null, 0, null, null, null);
+                track("update", null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
                 editor = SP.edit();
                 editor.putString("version", Integer.toString(getAppVersion()));
                 editor.commit();
@@ -619,12 +635,12 @@ public class MobileAppTracker {
             editor.putString("version", Integer.toString(getAppVersion()));
             editor.commit();
         }
-        return track("install", null, 0, null, null, null);
+        return track("install", null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
     }
 
     /**
      * Tracking update function, this function can be called to send an update event.
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackUpdate() {
         SharedPreferences.Editor editor;
@@ -635,7 +651,7 @@ public class MobileAppTracker {
             String savedVersion = SP.getString("version", "");
             if (savedVersion.length() != 0 && Integer.parseInt(savedVersion) != getAppVersion()) { // If have been tracked before, check if is an update
                 if (debugMode) Log.d(MATConstants.TAG, "App version has changed since last trackInstall, sending update to server");
-                track("update", null, 0, null, null, null);
+                track("update", null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
                 editor = SP.edit();
                 editor.putString("version", Integer.toString(getAppVersion()));
                 editor.commit();
@@ -655,54 +671,65 @@ public class MobileAppTracker {
             editor.commit();
             this.install = "installed";
         }
-        return track("update", null, 0, null, null, null);
+        return track("update", null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
     }
 
     /**
-     * Method for applications to track purchase events with a special purchase status parameter.
+     * Tracking event function, track purchase events with a special purchase status parameter.
      * @param event event name or event ID in MAT system
      * @param purchaseStatus the status of the purchase: 0 for success, 1 for fail, 2 for refund
      * @param revenue revenue amount tied to the action
      * @param currency currency code for the revenue amount
-     * @return 1 on success and -1 on failure
+     * @param refId the advertiser ref ID to associate with the event
+     * @param inAppPurchaseData the receipt data from Google Play
+     * @param inAppSignature the receipt signature from Google Play
+     * @return 1 on request sent and -1 on failure
      */
-    public int trackPurchase(String event, int purchaseStatus, double revenue, String currency) {
+    public int trackPurchase(String event, int purchaseStatus, double revenue, String currency, String refId, String inAppPurchaseData, String inAppSignature) {
         setPurchaseStatus(purchaseStatus);
-        return track(event, null, revenue, currency, null, null);
+        return track(event, null, revenue, currency, refId, inAppPurchaseData, inAppSignature);
     }
 
     /**
-     * Method for applications to track events using a new action event with event id.
+     * Tracking event function, track events by event ID or name.
      * @param event event name or event ID in MAT system
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackAction(String event) {
-        return track(event, null, 0, null, null, null);
+        return track(event, null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
     }
 
     /**
-     * Method for applications to track events using a new action event with event id, map (event item).
+     * Tracking event function, track events by event ID or name, and event item.
      * @param event event name or event ID in MAT system
      * @param eventItem event item to post to server.
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackAction(String event, MATEventItem eventItem) {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(eventItem.toJSON());
-        return track(event, jsonArray.toString(), 0, null, null, null);
+        return track(event, jsonArray.toString(), getRevenue(), getCurrencyCode(), getRefId(), null, null);
     }
     
+    /**
+     * Tracking event function, track events by event ID or name, event item, and in-app purchase data and signature for purchase verification.
+     * @param event event name or event ID in MAT system
+     * @param eventItem event item to post to server.
+     * @param inAppPurchaseData the receipt data from Google Play
+     * @param inAppSignature the receipt signature from Google Play
+     * @return 1 on request sent and -1 on failure.
+     */
     public int trackAction(String event, MATEventItem eventItem, String inAppPurchaseData, String inAppSignature) {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(eventItem.toJSON());
-        return track(event, jsonArray.toString(), 0, null, inAppPurchaseData, inAppSignature);
+        return track(event, jsonArray.toString(), getRevenue(), getCurrencyCode(), getRefId(), inAppPurchaseData, inAppSignature);
     }
 
     /**
-     * Method for applications to track events using a new action event with event id, list of event items.
+     * Tracking event function, track events by event ID or name, and a list of event items.
      * @param event event name or event ID in MAT system
      * @param list List of event items to post to server.
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackAction(String event, List<MATEventItem> list) {
         // Create a JSONArray of event items
@@ -710,41 +737,71 @@ public class MobileAppTracker {
         for (int i = 0; i < list.size(); i++) {
             jsonArray.put(list.get(i).toJSON());
         }
-        return track(event, jsonArray.toString(), 0, null, null, null);
+        return track(event, jsonArray.toString(), getRevenue(), getCurrencyCode(), getRefId(), null, null);
     }
     
+    /**
+     * Tracking event function, track events by event ID or name, a list of event items, and in-app purchase data and signature for purchase verification.
+     * @param event event name or event ID in MAT system
+     * @param list List of event items to post to server.
+     * @param inAppPurchaseData the receipt data from Google Play
+     * @param inAppSignature the receipt signature from Google Play
+     * @return 1 on request sent and -1 on failure.
+     */
     public int trackAction(String event, List<MATEventItem> list, String inAppPurchaseData, String inAppSignature) {
         // Create a JSONArray of event items
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < list.size(); i++) {
             jsonArray.put(list.get(i).toJSON());
         }
-        return track(event, jsonArray.toString(), 0, null, inAppPurchaseData, inAppSignature);
+        return track(event, jsonArray.toString(), getRevenue(), getCurrencyCode(), getRefId(), inAppPurchaseData, inAppSignature);
     }
 
     /**
-     * Method for applications to track events using a new action event with event id, revenue.
+     * Tracking event function, track events by event ID or name, revenue.
      * @param event event name or event ID in MAT system
      * @param revenue revenue amount tied to the action
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackAction(String event, double revenue) {
-        return track(event, null, revenue, null, null, null);
+        return track(event, null, revenue, getCurrencyCode(), getRefId(), null, null);
     }
 
     /**
-     * Method for applications to track events using a new action event with event id, revenue and currency.
+     * Tracking event function, track events by event ID or name, revenue and currency.
      * @param event event name or event ID in MAT system
      * @param revenue revenue amount tied to the action
      * @param currency currency code for the revenue amount
-     * @return 1 on success and -1 on failure.
+     * @return 1 on request sent and -1 on failure.
      */
     public int trackAction(String event, double revenue, String currency) {
-        return track(event, null, revenue, currency, null, null);
+        return track(event, null, revenue, currency, getRefId(), null, null);
     }
     
-    public int trackAction(String event, double revenue, String currency, String inAppPurchaseData, String inAppSignature) {
-        return track(event, null, revenue, currency, inAppPurchaseData, inAppSignature);
+    /**
+     * Tracking event function, track events by event ID or name, revenue, currency, and advertiser ref ID.
+     * @param event event name or event ID in MAT system
+     * @param revenue revenue amount tied to the action
+     * @param currency currency code for the revenue amount
+     * @param refId the advertiser ref ID to associate with the event
+     * @return 1 on request sent and -1 on failure.
+     */
+    public int trackAction(String event, double revenue, String currency, String refId) {
+        return track(event, null, revenue, currency, refId, null, null);
+    }
+    
+    /**
+     * Tracking event function, track events by event ID or name, revenue, currency, advertiser ref ID, and in-app purchase data and signature for purchase verification.
+     * @param event event name or event ID in MAT system
+     * @param revenue revenue amount tied to the action
+     * @param currency currency code for the revenue amount
+     * @param refId the advertiser ref ID to associate with the event
+     * @param inAppPurchaseData the receipt data from Google Play
+     * @param inAppSignature the receipt signature from Google Play
+     * @return 1 on request sent and -1 on failure.
+     */
+    public int trackAction(String event, double revenue, String currency, String refId, String inAppPurchaseData, String inAppSignature) {
+        return track(event, null, revenue, currency, refId, inAppPurchaseData, inAppSignature);
     }
 
     /**
@@ -753,9 +810,12 @@ public class MobileAppTracker {
      * @param eventItems MATEventItem json data to post to the server
      * @param revenue revenue amount tied to the action
      * @param currency currency code for the revenue amount
-     * @return 1 on success and -1 on failure.
+     * @param refId the advertiser ref ID to associate with the event
+     * @param inAppPurchaseData the receipt data from Google Play
+     * @param inAppSignature the receipt signature from Google Play
+     * @return 1 on request sent and -1 on failure.
      */
-    private synchronized int track(String event, String eventItems, double revenue, String currency, String iapData, String iapSignature) {
+    private synchronized int track(String event, String eventItems, double revenue, String currency, String refId, String inAppPurchaseData, String inAppSignature) {
         if (!initialized) return -1;
         
         if (isOnline() && getQueueSize() > 0) {
@@ -768,10 +828,10 @@ public class MobileAppTracker {
         }
         
         // Clear the parameters from parameter table that should be reset between events
-        paramTable.remove("android_purchase_status");
         paramTable.remove("ei");
         paramTable.remove("en");
-        paramTable.remove("event_referrer");
+        paramTable.remove("ar");
+        paramTable.remove("r");
         
         setAction("conversion"); // Default to conversion
         if (containsChar(event)) { // check if eventid contains a character
@@ -793,7 +853,11 @@ public class MobileAppTracker {
         String action = getAction();
         if (isOnline()) {
             try {
-                pool.schedule(new GetLink(link, eventItems, action, revenue, currency, iapData, iapSignature, true), MATConstants.DELAY, TimeUnit.MILLISECONDS);
+                if (getReferrer() == null || (getInstallLogId() == null && getUpdateLogId() == null)) {
+                    pool.schedule(new GetLink(link, eventItems, action, revenue, currency, refId, inAppPurchaseData, inAppSignature, true), MATConstants.DELAY, TimeUnit.MILLISECONDS);
+                } else {
+                    pool.execute(new GetLink(link, eventItems, action, revenue, currency, refId, inAppPurchaseData, inAppSignature, true));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(MATConstants.TAG, "Request could not be executed from track");
@@ -802,7 +866,7 @@ public class MobileAppTracker {
             if (!action.equals("open")) {
                 if (debugMode) Log.d(MATConstants.TAG, "Not online: track will be queued");
                 try {
-                    addEventToQueue(link, eventItems, action, revenue, currency, iapData, iapSignature, true);
+                    addEventToQueue(link, eventItems, action, revenue, currency, refId, inAppPurchaseData, inAppSignature, true);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
@@ -817,11 +881,7 @@ public class MobileAppTracker {
      * @return encrypted URL string based on class settings.
      */
     private String buildLink() {
-        String encryption = "https://";
-        if (!httpsEncryption) {
-            encryption = "http://";
-        }
-        StringBuilder link = new StringBuilder(encryption).append(getAdvertiserId()).append(".");
+        StringBuilder link = new StringBuilder("https://").append(getAdvertiserId()).append(".");
         if (debugMode) {
             link.append(MATConstants.MAT_DOMAIN_DEBUG);
         } else {
@@ -876,36 +936,27 @@ public class MobileAppTracker {
      * @param action the event action (install/update/open/conversion)
      * @param revenue revenue associated with event
      * @param currency currency code for event
+     * @param refId the advertiser ref ID to associate with the event
      * @return encrypted URL string based on class settings.
      */
-    private String buildData(String origLink, String action, double revenue, String currency) {
+    private String buildData(String origLink, String action, double revenue, String currency, String refId) {
         StringBuilder link = new StringBuilder(origLink);
         
         setRevenue(revenue);
         if (currency != null) {
             setCurrencyCode(currency);
         }
+        setRefId(refId);
         
-        // update referrer value if INSTALL_REFERRER intent wasn't received during initialization
-        if (getReferrer() != null && getReferrer().length() == 0) {
+        // Try to update referrer value if we don't have one
+        if (getReferrer() == null) {
             SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
             String referrer = SP.getString("referrer", "");
-            if (referrer.length() != 0) {
-                setReferrer(referrer);
-            }
+            setReferrer(referrer);
         }
         
         // For opens and events, try to add install_log_id
         if (action.equals("open") || action.equals("conversion")) {
-            // If log id not set, wait a few seconds in case install/update was just sent
-            if (getInstallLogId().length() == 0 && getUpdateLogId().length() == 0) {
-                try {
-                    Thread.sleep(MATConstants.DELAY);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    Thread.currentThread().interrupt();
-                }
-            }
             // Append install log id for opens and events if we have it stored
             if (getInstallLogId().length() > 0) {
                 link.append("&install_log_id=" + getInstallLogId());
@@ -929,12 +980,14 @@ public class MobileAppTracker {
                     String type = "";
                     JSONObject response = urlRequester.requestUrl(logIdUrl.toString(), null);
                     if (response != null) {
-                        try {
-                            JSONObject data = response.getJSONObject("data");
-                            logId = data.getString("log_id");
-                            type = data.getString("type");
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        if (!response.isNull("data")) {
+                            try {
+                                JSONObject data = response.getJSONObject("data");
+                                logId = data.getString("log_id");
+                                type = data.getString("type");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     
@@ -1074,25 +1127,15 @@ public class MobileAppTracker {
         
         public void run() {
             try {
-                String userAgent;
-                if (Build.VERSION.SDK_INT >= 17) {
-                    userAgent = getDefaultUserAgent(this.context);
-                } else {
-                    // Create WebView to set user agent, then destroy WebView
-                    WebView wv = new WebView(this.context);
-                    userAgent = wv.getSettings().getUserAgentString();
-                    wv.destroy();
-                }
+                // Create WebView to set user agent, then destroy WebView
+                WebView wv = new WebView(this.context);
+                String userAgent = wv.getSettings().getUserAgentString();
+                wv.destroy();
                 setUserAgent(userAgent);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(MATConstants.TAG, "Could not get user agent");
             }
-        }
-        
-        @TargetApi(17)
-        public String getDefaultUserAgent(Context context) {
-            return WebSettings.getDefaultUserAgent(context);
         }
     }
     
@@ -1105,6 +1148,7 @@ public class MobileAppTracker {
         private String action = null;
         private double revenue = 0;
         private String currency = null;
+        private String refId = null;
         private String iapData = null;
         private String iapSignature = null;
         private boolean shouldBuildData = false;
@@ -1116,16 +1160,18 @@ public class MobileAppTracker {
          * @param action the event action
          * @param revenue the revenue amount
          * @param currency the currency code
-         * @param iapSignature 
-         * @param iapData 
+         * @param refId the advertiser ref ID associated with the event
+         * @param iapData the receipt data from Google Play
+         * @param iapSignature the receipt signature from Google Play
          * @param shouldBuildData whether link needs encrypted data appended
          */
-        public GetLink(String link, String eventItems, String action, double revenue, String currency, String iapData, String iapSignature, boolean shouldBuildData) {
+        public GetLink(String link, String eventItems, String action, double revenue, String currency, String refId, String iapData, String iapSignature, boolean shouldBuildData) {
             this.link = link;
             this.eventItems = eventItems;
             this.action = action;
             this.revenue = revenue;
             this.currency = currency;
+            this.refId = refId;
             this.iapData = iapData;
             this.iapSignature = iapSignature;
             this.shouldBuildData = shouldBuildData;
@@ -1133,7 +1179,7 @@ public class MobileAppTracker {
         
         public void run() {
             if (shouldBuildData) {
-                link = buildData(link, action, revenue, currency);
+                link = buildData(link, action, revenue, currency, refId);
             }
             
             // If action is open, check whether we have done an open in the past 24h
@@ -1157,8 +1203,7 @@ public class MobileAppTracker {
                 }
                 
                 if (iapData != null) {
-                    JSONObject iapDataJson = new JSONObject(iapData);
-                    postData.put("store_iap_data", iapDataJson);
+                    postData.put("store_iap_data", iapData);
                 }
                 
                 if (iapSignature != null) {
@@ -1172,7 +1217,7 @@ public class MobileAppTracker {
             JSONObject response = urlRequester.requestUrl(link, postData);
             if (response == null) {
                 try {
-                    addEventToQueue(link, eventItems, action, revenue, currency, iapData, iapSignature, false);
+                    addEventToQueue(link, eventItems, action, revenue, currency, refId, iapData, iapSignature, false);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Thread.currentThread().interrupt();
@@ -1242,14 +1287,65 @@ public class MobileAppTracker {
     /******************
      * Public Setters *
      ******************/
+    
+    /**
+     * Gets the MAT advertiser ID.
+     * @return MAT advertiser ID
+     */
     public String getAdvertiserId() {
         return paramTable.get("adv");
     }
 
+    /**
+     * Sets the MAT advertiser ID.
+     * @param advertiser_id MAT advertiser ID
+     */
     public void setAdvertiserId(String advertiser_id) {
         putInParamTable("adv", advertiser_id);
     }
 
+    /**
+     * Gets the user age set.
+     * @return age
+     */
+    public int getAge() {
+        if (paramTable.get("age") == null) {
+            return 0;
+        }
+        return Integer.parseInt(paramTable.get("age"));
+    }
+
+    /**
+     * Sets the user's age.
+     * @param age User age to track in MAT
+     */
+    public void setAge(int age) {
+        putInParamTable("age", Integer.toString(age));
+    }
+
+    /**
+     * Gets the device altitude. Must be set, not automatically retrieved.
+     * @return device altitude
+     */
+    public double getAltitude() {
+        if (paramTable.get("altitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("altitude"));
+    }
+
+    /**
+     * Sets the device altitude.
+     * @param altitude device altitude
+     */
+    public void setAltitude(double altitude) {
+        putInParamTable("altitude", Double.toString(altitude));
+    }
+
+    /**
+     * Sets whether the app allows for ad tracking.
+     * @param appAdTracking false if user has opted out of ad tracking, true if not (default)
+     */
     public void setAppAdTracking(boolean appAdTracking) {
         if (appAdTracking) {
             putInParamTable("app_ad_tracking", Integer.toString(1));
@@ -1258,41 +1354,44 @@ public class MobileAppTracker {
         }
     }
 
+    /**
+     * Gets the ISO 4217 currency code.
+     * @return ISO 4217 currency code
+     */
     public String getCurrencyCode() {
         return paramTable.get("c");
     }
 
+    /**
+     * Sets the ISO 4217 currency code.
+     * @param currency_code the currency code
+     */
     public void setCurrencyCode(String currency_code) {
         putInParamTable("c", currency_code);
     }
 
-    public String getEventId() {
-        return paramTable.get("ei");
-    }
-
-    public void setEventId(String event_id) {
-        putInParamTable("ei", event_id);
-    }
-
-    public String getEventName() {
-        return paramTable.get("en");
-    }
-
-    public void setEventName(String event_name) {
-        putInParamTable("en", event_name);
-    }
-
-    public String getEventReferrer() {
-        return paramTable.get("event_referrer");
+    /**
+     * Gets the user gender set.
+     * @return gender 0 for male, 1 for female
+     */
+    public int getGender() {
+        if (paramTable.get("gender") == null) {
+            return 0;
+        }
+        return Integer.parseInt(paramTable.get("gender"));
     }
     
-    public void setEventReferrer(String referrerPackage) {
-        putInParamTable("event_referrer", referrerPackage);
+    /**
+     * Sets the user gender.
+     * @param gender use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE
+     */
+    public void setGender(int gender) {
+        putInParamTable("gender", Integer.toString(gender));
     }
 
     /**
      * Gets the key used for encrypting the event urls.
-     * @return key
+     * @return conversion key
      */
     public final String getKey() {
         return this.key;
@@ -1307,30 +1406,80 @@ public class MobileAppTracker {
         URLEnc = new Encryption(key, MobileAppTracker.IV);
     }
 
+    /**
+     * Gets the device latitude. Must be set, not automatically retrieved.
+     * @return device latitude
+     */
+    public double getLatitude() {
+        if (paramTable.get("latitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("latitude"));
+    }
+    
+    /**
+     * Sets the device latitude.
+     * @param latitude the device latitude
+     */
+    public void setLatitude(double latitude) {
+        putInParamTable("latitude", Double.toString(latitude));
+    }
+
+    /**
+     * Gets the device longitude. Must be set, not automatically retrieved.
+     * @return device longitude
+     */
+    public double getLongitude() {
+        if (paramTable.get("longitude") == null) {
+            return 0;
+        }
+        return Double.parseDouble(paramTable.get("longitude"));
+    }
+    
+    /**
+     * Sets the device longitude.
+     * @param longitude the device longitude
+     */
+    public void setLongitude(double longitude) {
+        putInParamTable("longitude", Double.toString(longitude));
+    }
+
+    /**
+     * Register a MATResponse interface to receive server response callback
+     * @param response a MATResponse object that will be called when server request is complete
+     */
     public void setMATResponse(MATResponse response) {
         matResponse = response;
     }
 
-    public String getOsId() {
-        return paramTable.get("oi");
-    }
-
-    public void setOsId(String os_id) {
-        putInParamTable("oi", os_id);
-    }
-
+    /**
+     * Gets the app package name
+     * @return package name of app
+     */
     public String getPackageName() {
         return paramTable.get("pn");
     }
 
+    /**
+     * Sets the app package name
+     * @param package_name App package name
+     */
     public void setPackageName(String package_name) {
         putInParamTable("pn", package_name);
     }
 
+    /**
+     * Gets the Google Play INSTALL_REFERRER
+     * @return Play INSTALL_REFERRER
+     */
     public String getReferrer() {
         return paramTable.get("ir");
     }
 
+    /**
+     * Overrides the Google Play INSTALL_REFERRER received
+     * @param referrer Your custom referrer value
+     */
     public void setReferrer(String referrer) {
         putInParamTable("ir", referrer);
     }
@@ -1351,33 +1500,60 @@ public class MobileAppTracker {
         putInParamTable("ar", ref_id);
     }
 
-    public String getRevenue() {
-        return paramTable.get("r");
+    /**
+     * Gets the revenue amount set
+     * @return revenue amount
+     */
+    public Double getRevenue() {
+        if (paramTable.get("r") == null) {
+            return Double.valueOf(0);
+        }
+        return Double.parseDouble(paramTable.get("r"));
     }
 
+    /**
+     * Sets the revenue amount to report on next tracking call
+     * @param revenue Revenue amount
+     */
     public void setRevenue(double revenue) {
         putInParamTable("r", Double.toString(revenue));
     }
 
+    /**
+     * Gets the MAT site ID set
+     * @return site ID in MAT
+     */
     public String getSiteId() {
         return paramTable.get("si");
     }
 
+    /**
+     * Sets the MAT site ID to specify which app to attribute to
+     * @param site_id MAT site ID to attribute to
+     */
     public void setSiteId(String site_id) {
         putInParamTable("si", site_id);
     }
 
+    /**
+     * Gets the TRUSTe ID set
+     * @return TRUSTe ID
+     */
     public String getTRUSTeId() {
         return paramTable.get("tpid");
     }
 
+    /**
+     * Sets the TRUSTe ID, should generate via their SDK
+     * @param tpid TRUSTe ID
+     */
     public void setTRUSTeId(String tpid) {
         putInParamTable("tpid", tpid);
     }
 
     /**
      * Gets the custom user ID.
-     * @return the user id
+     * @return custom user id
      */
     public String getUserId() {
         return paramTable.get("ui");
@@ -1395,6 +1571,10 @@ public class MobileAppTracker {
      * Private Setters *
      *******************/
     
+    /**
+     * Gets the action of the event
+     * @return install/update/conversion
+     */
     public String getAction() {
         return paramTable.get("ac");
     }
@@ -1403,28 +1583,10 @@ public class MobileAppTracker {
         putInParamTable("ac", action);
     }
 
-    public int getAge() {
-        if (paramTable.get("age") == null) {
-            return 0;
-        }
-        return Integer.parseInt(paramTable.get("age"));
-    }
-
-    public void setAge(int age) {
-        putInParamTable("age", Integer.toString(age));
-    }
-
-    public double getAltitude() {
-        if (paramTable.get("altitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("altitude"));
-    }
-
-    public void setAltitude(double altitude) {
-        putInParamTable("altitude", Double.toString(altitude));
-    }
-
+    /**
+     * Gets the ANDROID_ID of the device
+     * @return ANDROID_ID
+     */
     public String getAndroidId() {
         return paramTable.get("ad");
     }
@@ -1433,6 +1595,10 @@ public class MobileAppTracker {
         putInParamTable("ad", android_id);
     }
 
+    /**
+     * Gets the MD5 hash of the ANDROID_ID of the device
+     * @return ANDROID_ID MD5 hash
+     */
     public String getAndroidIdMd5() {
         return paramTable.get("android_id_md5");
     }
@@ -1441,6 +1607,10 @@ public class MobileAppTracker {
         putInParamTable("android_id_md5", android_id_md5);
     }
 
+    /**
+     * Gets the SHA-1 hash of the ANDROID_ID of the device
+     * @return ANDROID_HD SHA-1 hash
+     */
     public String getAndroidIdSha1() {
         return paramTable.get("android_id_sha1");
     }
@@ -1449,6 +1619,10 @@ public class MobileAppTracker {
         putInParamTable("android_id_sha1", android_id_sha1);
     }
 
+    /**
+     * Gets the SHA-256 hash of the ANDROID_ID of the device
+     * @return ANDROID_HD SHA-256 hash
+     */
     public String getAndroidIdSha256() {
         return paramTable.get("android_id_sha256");
     }
@@ -1457,6 +1631,10 @@ public class MobileAppTracker {
         putInParamTable("android_id_sha256", android_id_sha256);
     }
 
+    /**
+     * Gets the app name
+     * @return app name
+     */
     public String getAppName() {
         return paramTable.get("an");
     }
@@ -1465,6 +1643,10 @@ public class MobileAppTracker {
         putInParamTable("an", app_name);
     }
 
+    /**
+     * Gets the app version
+     * @return app version
+     */
     public int getAppVersion() {
         if (paramTable.get("av") == null) {
             return 0;
@@ -1476,6 +1658,10 @@ public class MobileAppTracker {
         putInParamTable("av", Integer.toString(app_version));
     }
 
+    /**
+     * Gets the device carrier if any
+     * @return mobile device carrier/service provider name
+     */
     public String getCarrier() {
         return paramTable.get("dc");
     }
@@ -1486,7 +1672,7 @@ public class MobileAppTracker {
 
     /**
      * Gets the connection type (mobile or WIFI);.
-     * @return connection type
+     * @return whether device is connected by WIFI or mobile data connection
      */
     public String getConnectionType() {
         return paramTable.get("connection_type");
@@ -1496,6 +1682,10 @@ public class MobileAppTracker {
         putInParamTable("connection_type", connection_type);
     }
 
+    /**
+     * Gets the ISO 639-1 country code
+     * @return ISO 639-1 country code
+     */
     public String getCountryCode() {
         return paramTable.get("cc");
     }
@@ -1504,6 +1694,10 @@ public class MobileAppTracker {
         putInParamTable("cc", country_code);
     }
 
+    /**
+     * Gets the device brand/manufacturer (HTC, Apple, etc)
+     * @return device brand/manufacturer name
+     */
     public String getDeviceBrand() {
         return paramTable.get("db");
     }
@@ -1512,6 +1706,10 @@ public class MobileAppTracker {
         putInParamTable("db", device_brand);
     }
 
+    /**
+     * Gets the Device ID, also known as IMEI/MEID, if any
+     * @return device IMEI/MEID
+     */
     public String getDeviceId() {
         return paramTable.get("d");
     }
@@ -1520,6 +1718,10 @@ public class MobileAppTracker {
         putInParamTable("d", device_id);
     }
 
+    /**
+     * Gets the device model name
+     * @return device model name
+     */
     public String getDeviceModel() {
         return paramTable.get("dm");
     }
@@ -1528,17 +1730,38 @@ public class MobileAppTracker {
         putInParamTable("dm", device_model);
     }
 
-    public int getGender() {
-        if (paramTable.get("gender") == null) {
-            return 0;
-        }
-        return Integer.parseInt(paramTable.get("gender"));
+    /**
+     * Gets the last event id set.
+     * @return event ID in MAT
+     */
+    public String getEventId() {
+        return paramTable.get("ei");
     }
-    
-    public void setGender(int gender) {
-        putInParamTable("gender", Integer.toString(gender));
+
+    /**
+     * Sets the event id set.
+     * @return event_id the event ID in MAT
+     */
+    private void setEventId(String event_id) {
+        putInParamTable("ei", event_id);
     }
-    
+
+    /**
+     * Gets the last event name set.
+     * @return event name in MAT
+     */
+    public String getEventName() {
+        return paramTable.get("en");
+    }
+
+    private void setEventName(String event_name) {
+        putInParamTable("en", event_name);
+    }
+
+    /**
+     * Gets the date of app install
+     * @return date that app was installed
+     */
     public String getInstallDate() {
         return paramTable.get("id");
     }
@@ -1547,6 +1770,10 @@ public class MobileAppTracker {
         putInParamTable("id", install_date);
     }
 
+    /**
+     * Gets the MAT install log ID
+     * @return MAT install log ID
+     */
     public String getInstallLogId() {
         // Get log id from SharedPreferences
         SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_INSTALL, 0);
@@ -1561,6 +1788,10 @@ public class MobileAppTracker {
         editor.commit();
     }
 
+    /**
+     * Gets the language of the device
+     * @return device language
+     */
     public String getLanguage() {
         return paramTable.get("l");
     }
@@ -1578,28 +1809,10 @@ public class MobileAppTracker {
         editor.commit();
     }
 
-    public double getLatitude() {
-        if (paramTable.get("latitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("latitude"));
-    }
-    
-    public void setLatitude(double latitude) {
-        putInParamTable("latitude", Double.toString(latitude));
-    }
-
-    public double getLongitude() {
-        if (paramTable.get("longitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("longitude"));
-    }
-    
-    public void setLongitude(double longitude) {
-        putInParamTable("longitude", Double.toString(longitude));
-    }
-
+    /**
+     * Gets the MAC address of device
+     * @return device MAC address
+     */
     public String getMacAddress() {
         return paramTable.get("ma");
     }
@@ -1608,6 +1821,10 @@ public class MobileAppTracker {
         putInParamTable("ma", mac_address);
     }
 
+    /**
+     * Gets the MAT ID generated on install
+     * @return MAT ID
+     */
     public String getMatId() {
         return paramTable.get("mi");
     }
@@ -1618,7 +1835,7 @@ public class MobileAppTracker {
 
     /**
      * Gets the mobile country code.
-     * @return the mcc
+     * @return mobile country code associated with the carrier
      */
     public String getMCC() {
         return paramTable.get("mobile_country_code");
@@ -1630,7 +1847,7 @@ public class MobileAppTracker {
 
     /**
      * Gets the mobile network code.
-     * @return the mobile network code
+     * @return mobile network code associated with the carrier
      */
     public String getMNC() {
         return paramTable.get("mobile_network_code");
@@ -1640,6 +1857,10 @@ public class MobileAppTracker {
         putInParamTable("mobile_network_code", mnc);
     }
 
+    /**
+     * Gets the Android OS version
+     * @return Android OS version
+     */
     public String getOsVersion() {
         return paramTable.get("ov");
     }
@@ -1652,6 +1873,34 @@ public class MobileAppTracker {
         putInParamTable("android_purchase_status", Integer.toString(purchaseStatus));
     }
 
+    /**
+     * Gets the package name of the app that started this Activity, if any
+     * @return source package name that caused open via StartActivityForResult
+     */
+    public String getReferralSource() {
+        return paramTable.get("referral_source");
+    }
+
+    private void setReferralSource(String referralPackage) {
+        putInParamTable("referral_source", referralPackage);
+    }
+
+    /**
+     * Gets the url scheme that started this Activity, if any
+     * @return full url of app scheme that caused open
+     */
+    public String getReferralUrl() {
+        return paramTable.get("referral_url");
+    }
+
+    private void setReferralUrl(String referralUrl) {
+        putInParamTable("referral_url", referralUrl);
+    }
+
+    /**
+     * Gets the screen density of the device
+     * @return 0.75/1.0/1.5/2.0/3.0/4.0 for ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi
+     */
     public String getScreenDensity() {
         return paramTable.get("screen_density");
     }
@@ -1660,6 +1909,10 @@ public class MobileAppTracker {
         putInParamTable("screen_density", density);
     }
 
+    /**
+     * Gets the screen size of the device
+     * @return widthxheight
+     */
     public String getScreenSize() {
         return paramTable.get("screen_layout_size");
     }
@@ -1668,6 +1921,10 @@ public class MobileAppTracker {
         putInParamTable("screen_layout_size", screensize);
     }
 
+    /**
+     * Gets the MAT update log ID
+     * @return MAT update log ID
+     */
     public String getUpdateLogId() {
         // Get log id from SharedPreferences
         SP = context.getSharedPreferences(MATConstants.PREFS_LOG_ID_UPDATE, 0);
@@ -1682,6 +1939,10 @@ public class MobileAppTracker {
         editor.commit();
     }
 
+    /**
+     * Gets the device browser user agent
+     * @return device user agent
+     */
     public String getUserAgent() {
         return paramTable.get("ua");
     }
@@ -1706,16 +1967,25 @@ public class MobileAppTracker {
         }
     }
     
+    /**
+     * Enable sending ANDROID_ID as MD5 hash in request - removes raw ANDROID_ID
+     */
     public void setUseAndroidIdMd5() {
         setAndroidIdMd5(URLEnc.md5(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
         setAndroidId("");
     }
     
+    /**
+     * Enable sending ANDROID_ID as SHA-1 hash in request - removes raw ANDROID_ID
+     */
     public void setUseAndroidIdSha1() {
         setAndroidIdSha1(URLEnc.sha1(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
         setAndroidId("");
     }
     
+    /**
+     * Enable sending ANDROID_ID as SHA-256 hash in request - removes raw ANDROID_ID
+     */
     public void setUseAndroidIdSha256() {
         setAndroidIdSha256(URLEnc.sha256(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID)));
         setAndroidId("");
@@ -1735,14 +2005,6 @@ public class MobileAppTracker {
      */
     public void setDebugMode(boolean debug) {
         debugMode = debug;
-    }
-    
-    /**
-     * Sets whether to use https encryption.
-     * @param use_https whether to use https or not
-     */
-    public void setHttpsEncryption(boolean use_https) {
-        httpsEncryption = use_https;
     }
     
     /**
@@ -1782,5 +2044,10 @@ public class MobileAppTracker {
             }
         }
         return false;
+    }
+
+    // Update referrer value from Tracker
+    public void update(Observable observable, Object data) {
+        setReferrer((String) data);
     }
 }

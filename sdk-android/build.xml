@@ -86,6 +86,16 @@
          In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
+
+    <target name="doc" description="generate javadocs">
+        <property name="doc.dir" location="doc"/>
+        <javadoc sourcepath="${source.dir}" destdir="${doc.dir}" classpath="${android.jar}" additionalparam=" -linkoffline http://d.android.com/reference file:${android.doc}" />
+    </target>
+    
+    <target name="package-doc" description="build javadocs jar" depends="doc">
+        <jar compress="true" destfile="MobileAppTracker-javadoc.jar" basedir="doc" />
+    </target>
+
     <target name="-obfuscate">
         <if condition="${proguard.enabled}">
             <then>

@@ -1,9 +1,11 @@
 package com.mobileapptracker;
 
+import java.net.URLDecoder;
+import java.util.Observable;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 /*
@@ -16,17 +18,38 @@ import android.util.Log;
  *
  */
 public class Tracker extends BroadcastReceiver {
-    SharedPreferences SP;
-
+    private static final ObservableChanged _observable = new ObservableChanged();
+    
+    protected static Observable getObservable() {
+        return _observable;
+    }
+    
     @Override
     public void onReceive(Context context, Intent intent) {
-        String referrer = intent.getStringExtra("referrer");
-        if (referrer != null) { //is it coming from android market?
-            Log.d(MATConstants.TAG, "Received install referrer " + referrer);
-            SP = context.getSharedPreferences(MATConstants.PREFS_REFERRER, 0);
-            SharedPreferences.Editor editor = SP.edit();
-            editor.putString("referrer", referrer);
-            editor.commit(); // save the referrer value, will be retrieved later on main activity
+        try {
+            if ((null != intent) && (intent.getAction().equals("com.android.vending.INSTALL_REFERRER"))) {
+                String rawReferrer = intent.getStringExtra("referrer");
+                if (rawReferrer != null) {
+                    String referrer = URLDecoder.decode(rawReferrer, "UTF-8");
+                    Log.d(MATConstants.TAG, "MAT received referrer " + referrer);
+                    
+                    // Save the referrer value in SharedPreferences
+                    context.getSharedPreferences(MATConstants.PREFS_REFERRER, Context.MODE_PRIVATE).edit().putString("referrer", referrer).commit();
+                    
+                    // Notify listeners of change
+                    _observable.notifyObservers(referrer);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    protected static class ObservableChanged extends Observable {
+        // Make hasChanged always true
+        @Override
+        public boolean hasChanged() {
+            return true;
         }
     }
 }
