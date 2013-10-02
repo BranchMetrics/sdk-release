@@ -104,8 +104,10 @@ public class MobileAppTracker implements Observer {
      * @param context the application context
      * @param advertiserId the MAT advertiser ID for the app
      * @param key the MAT advertiser key for the app
+     * @param collectDeviceId whether to collect device ID
+     * @param collectMacAddress whether to collect MAC address
      */
-    public MobileAppTracker(Context context, String advertiserId, String key) {
+    public MobileAppTracker(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
         if (constructed) return;
         constructed = true;
         this.context = context;
@@ -155,7 +157,7 @@ public class MobileAppTracker implements Observer {
         // Add listener for INSTALL_REFERRER
         Tracker.getObservable().addObserver(this);
         
-        initialized = initializeVariables(context, advertiserId, key);
+        initialized = initializeVariables(context, advertiserId, key, collectDeviceId, collectMacAddress);
         
         // Try to convert context to an Activity to get referral source and url
         try {
@@ -215,6 +217,17 @@ public class MobileAppTracker implements Observer {
         isRegistered = true;
     }
 
+    /**
+     * Instantiates a new MobileAppTracker with device ID/MAC address collection by default.
+     * @param context the application context
+     * @param advertiserId the MAT advertiser ID for the app
+     * @param key the MAT advertiser key for the app
+     * @return
+     */
+    public MobileAppTracker(Context context, String advertiserId, String key) {
+        this(context, advertiserId, key, true, true);
+    }
+    
     /**
      * Saves an event to the queue, used if there is no Internet connection.
      * @param link URL of the event postback
@@ -396,22 +409,24 @@ public class MobileAppTracker implements Observer {
      * @param context the application context
      * @param advertiserId the advertiser id in MAT
      * @param key the advertiser key
+     * @param collectDeviceId whether to collect device ID
+     * @param collectMacAddress whether to collect MAC address
      * @return whether variables were initialized successfully
      */
-    private boolean initializeVariables(Context context, String advertiserId, String key) {
+    private boolean initializeVariables(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
         try {
             // Strip the whitespace from advertiser id and key before storing
             setAdvertiserId(advertiserId.trim());
             setKey(key.trim());
             setAction("conversion");
             
-            boolean collectDeviceId = false;
-            boolean collectMacAddress = false;
+            boolean hasDeviceIdPermission = false;
+            boolean hasMacAddressPermission = false;
             if (context.checkCallingOrSelfPermission(MATConstants.DEVICE_ID_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
-                collectDeviceId = true;
+                hasDeviceIdPermission = true;
             }
             if (context.checkCallingOrSelfPermission(MATConstants.MAC_ADDRESS_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
-                collectMacAddress = true;
+                hasMacAddressPermission = true;
             }
             
             SP = context.getSharedPreferences(MATConstants.PREFS_MAT_ID, 0);
@@ -430,12 +445,12 @@ public class MobileAppTracker implements Observer {
             setOsVersion(android.os.Build.VERSION.RELEASE);
             
             // Only collect device id if READ_PHONE_STATE permission exists
-            if (collectDeviceId) {
+            if (collectDeviceId && hasDeviceIdPermission) {
                 setDeviceId(getDeviceId(context));
             }
             
             // Only collect MAC address if ACCESS_WIFI_STATE permission exists
-            if (collectMacAddress) {
+            if (collectMacAddress && hasMacAddressPermission) {
                 WifiManager wifiMan = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                 if (wifiMan != null) {
                     WifiInfo wifiInfo = wifiMan.getConnectionInfo();
@@ -460,7 +475,7 @@ public class MobileAppTracker implements Observer {
             if (tm != null) {
                 if (tm.getNetworkCountryIso() != null) {
                     setCountryCode(tm.getNetworkCountryIso());
-                } else if (collectDeviceId) {
+                } else if (collectDeviceId && hasDeviceIdPermission) {
                     if (tm.getSimCountryIso() != null) {
                         setCountryCode(tm.getSimCountryIso());
                     }
