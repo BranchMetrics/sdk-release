@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tokens version="1.0">
+	<File path="Classes/MATEventItem.html">
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/cl/MATEventItem</TokenIdentifier>
+			<Abstract type="html">MATEventItem represents event items for use with MAT events.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+            
+			
+			<NodeRef refid="1"/>
+		</Token>
+		
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setItem:</TokenIdentifier>
+			<Abstract type="html">name of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *item</Declaration>
+			
+			
+			<Anchor>//api/name/item</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/item</TokenIdentifier>
+			<Abstract type="html">name of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *item</Declaration>
+			
+			
+			<Anchor>//api/name/item</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/item</TokenIdentifier>
+			<Abstract type="html">name of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *item</Declaration>
+			
+			
+			<Anchor>//api/name/item</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setUnitPrice:</TokenIdentifier>
+			<Abstract type="html">unit price of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float unitPrice</Declaration>
+			
+			
+			<Anchor>//api/name/unitPrice</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/unitPrice</TokenIdentifier>
+			<Abstract type="html">unit price of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float unitPrice</Declaration>
+			
+			
+			<Anchor>//api/name/unitPrice</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/unitPrice</TokenIdentifier>
+			<Abstract type="html">unit price of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float unitPrice</Declaration>
+			
+			
+			<Anchor>//api/name/unitPrice</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setQuantity:</TokenIdentifier>
+			<Abstract type="html">quantity of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) int quantity</Declaration>
+			
+			
+			<Anchor>//api/name/quantity</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/quantity</TokenIdentifier>
+			<Abstract type="html">quantity of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) int quantity</Declaration>
+			
+			
+			<Anchor>//api/name/quantity</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/quantity</TokenIdentifier>
+			<Abstract type="html">quantity of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) int quantity</Declaration>
+			
+			
+			<Anchor>//api/name/quantity</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setRevenue:</TokenIdentifier>
+			<Abstract type="html">revenue of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float revenue</Declaration>
+			
+			
+			<Anchor>//api/name/revenue</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/revenue</TokenIdentifier>
+			<Abstract type="html">revenue of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float revenue</Declaration>
+			
+			
+			<Anchor>//api/name/revenue</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/revenue</TokenIdentifier>
+			<Abstract type="html">revenue of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, assign) float revenue</Declaration>
+			
+			
+			<Anchor>//api/name/revenue</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setAttribute1:</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub1 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute1</Declaration>
+			
+			
+			<Anchor>//api/name/attribute1</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/attribute1</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub1 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute1</Declaration>
+			
+			
+			<Anchor>//api/name/attribute1</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/attribute1</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub1 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute1</Declaration>
+			
+			
+			<Anchor>//api/name/attribute1</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setAttribute2:</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub2 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute2</Declaration>
+			
+			
+			<Anchor>//api/name/attribute2</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/attribute2</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub2 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute2</Declaration>
+			
+			
+			<Anchor>//api/name/attribute2</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/attribute2</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub2 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute2</Declaration>
+			
+			
+			<Anchor>//api/name/attribute2</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setAttribute3:</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub3 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute3</Declaration>
+			
+			
+			<Anchor>//api/name/attribute3</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/attribute3</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub3 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute3</Declaration>
+			
+			
+			<Anchor>//api/name/attribute3</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/attribute3</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub3 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute3</Declaration>
+			
+			
+			<Anchor>//api/name/attribute3</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setAttribute4:</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub4 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute4</Declaration>
+			
+			
+			<Anchor>//api/name/attribute4</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/attribute4</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub4 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute4</Declaration>
+			
+			
+			<Anchor>//api/name/attribute4</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/attribute4</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub4 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute4</Declaration>
+			
+			
+			<Anchor>//api/name/attribute4</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/setAttribute5:</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub5 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute5</Declaration>
+			
+			
+			<Anchor>//api/name/attribute5</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/MATEventItem/attribute5</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub5 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute5</Declaration>
+			
+			
+			<Anchor>//api/name/attribute5</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/MATEventItem/attribute5</TokenIdentifier>
+			<Abstract type="html">an extra parameter that corresponds to attribute_sub5 property of the event item</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>@property (nonatomic, copy) NSString *attribute5</Declaration>
+			
+			
+			<Anchor>//api/name/attribute5</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/clm/MATEventItem/eventItemWithName:unitPrice:quantity:</TokenIdentifier>
+			<Abstract type="html">Method to create an event item. Revenue will be calculated using (quantity * unitPrice.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>+ (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>name</Name>
+					<Abstract type="html">name of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>unitPrice</Name>
+					<Abstract type="html">unit price of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>quantity</Name>
+					<Abstract type="html">quantity of the event item</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/eventItemWithName:unitPrice:quantity:</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/clm/MATEventItem/eventItemWithName:unitPrice:quantity:revenue:</TokenIdentifier>
+			<Abstract type="html">Method to create an event item.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>+ (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>name</Name>
+					<Abstract type="html">name of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>unitPrice</Name>
+					<Abstract type="html">unit price of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>quantity</Name>
+					<Abstract type="html">quantity of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>revenue</Name>
+					<Abstract type="html">revenue of the event item, to be used instead of (quantity * unitPrice</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/eventItemWithName:unitPrice:quantity:revenue:</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/clm/MATEventItem/eventItemWithName:attribute1:attribute2:attribute3:attribute4:attribute5:</TokenIdentifier>
+			<Abstract type="html">Method to create an event item.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>+ (MATEventItem *)eventItemWithName:(NSString *)name attribute1:(NSString *)attribute1 attribute2:(NSString *)attribute2 attribute3:(NSString *)attribute3 attribute4:(NSString *)attribute4 attribute5:(NSString *)attribute5</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>name</Name>
+					<Abstract type="html">name of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute1</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub1 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute2</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub2 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute3</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub3 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute4</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub4 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute5</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub5 property of the event item</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/eventItemWithName:attribute1:attribute2:attribute3:attribute4:attribute5:</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/clm/MATEventItem/eventItemWithName:unitPrice:quantity:revenue:attribute1:attribute2:attribute3:attribute4:attribute5:</TokenIdentifier>
+			<Abstract type="html">Method to create an event item.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>+ (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue attribute1:(NSString *)attribute1 attribute2:(NSString *)attribute2 attribute3:(NSString *)attribute3 attribute4:(NSString *)attribute4 attribute5:(NSString *)attribute5</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>name</Name>
+					<Abstract type="html">name of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>unitPrice</Name>
+					<Abstract type="html">unit price of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>quantity</Name>
+					<Abstract type="html">quantity of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>revenue</Name>
+					<Abstract type="html">revenue of the event item, to be used instead of (quantity * unitPrice</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute1</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub1 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute2</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub2 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute3</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub3 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute4</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub4 property of the event item</Abstract>
+				</Parameter><Parameter>
+					<Name>attribute5</Name>
+					<Abstract type="html">an extra parameter that corresponds to attribute_sub5 property of the event item</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/eventItemWithName:unitPrice:quantity:revenue:attribute1:attribute2:attribute3:attribute4:attribute5:</Anchor>
+            <NodeRef refid="1"/>
+		</Token>
+		
+        
+	</File>
+</Tokens>

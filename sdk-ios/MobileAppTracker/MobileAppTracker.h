@@ -2,13 +2,13 @@
 //  MobileAppTracker.h
 //  MobileAppTracker
 //
-//  Created by HasOffers on 07/09/13.
+//  Created by HasOffers on 10/02/13.
 //  Copyright (c) 2013 HasOffers. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-#define MATVERSION @"2.5.1"
+#define MATVERSION @"2.6"
 
 @protocol MobileAppTrackerDelegate;
 
@@ -18,19 +18,29 @@
  */
 @interface MobileAppTracker : NSObject
 
-#pragma mark -
 
-typedef enum MATGender
-{
-    MALE = 0,
-    FEMALE = 1
-} MATGender;
+#pragma mark - MATGender
+
+/** @name Gender type constants */
+/*!
+ Gender type. An integer -- 0 or 1.
+ */
+typedef NSInteger MATGender;
+/*!
+ Gender type MALE. Equals 0.
+ */
+extern const NSInteger MAT_GENDER_MALE;
+/*!
+ Gender type FEMALE. Equals 1.
+ */
+extern const NSInteger MAT_GENDER_FEMALE;
+
 
 #pragma mark - MobileAppTracker Shared Instance
 
 /** @name MobileAppTracker Shared Instance */
 /*!
- A singleton of the MobileAppTracker Class
+ A singleton of the MobileAppTracker class
  */
 + (MobileAppTracker *)sharedManager;
 
@@ -186,13 +196,6 @@ typedef enum MATGender
 - (void)setTrusteTPID:(NSString *)trusteTPID;
 
 /*!
- Use HTTPS for requests to the MAT server.
- YES/NO
- @param yesorno YES means use https, defaults to YES.
- */
-- (void)setUseHTTPS:(BOOL)yesorno;
-
-/*!
  Sets the user id.
  @param userId The string name for the user id.
  */
@@ -213,7 +216,7 @@ typedef enum MATGender
 
 /*!
  Sets the user's gender.
- @param userGender user's gender
+ @param userGender user's gender, possible values MAT_GENDER_MALE (0), MAT_GENDER_FEMALE (1).
  */
 - (void)setGender:(MATGender)userGender;
 
@@ -235,9 +238,10 @@ typedef enum MATGender
 /*!
  Set app-level ad-tracking.
  YES/NO
- @param enable YES means opt-out, defaults to YES.
+ @param enable YES means opt-in, NO means opt-out.
  */
 - (void)setAppAdTracking:(BOOL)enable;
+
 
 #pragma mark - Track Install/Update Methods
 
@@ -485,74 +489,6 @@ typedef enum MATGender
 
 @end
 
-#pragma mark - Deprecated Methods
-
-@interface MobileAppTracker (Deprecated)
-
-// Note: A method identified as deprecated has been superseded and may become unsupported in the future.
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use startTrackerWithMATAdvertiserId:MATConversionKey
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (BOOL)startTrackerWithAdvertiserId:(NSString *)aid advertiserKey:(NSString *)key withError:(NSError **)error __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use startTrackerWithMATAdvertiserId:MATConversionKey
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key withError:(NSError **)error __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setMATAdvertiserId:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setAdvertiserId:(NSString *)advertiser_id __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setMATConversionKey:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setAdvertiserKey:(NSString *)advertiser_key __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setAppleAdvertisingIdentifier:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setAdvertiserIdentifier:(NSUUID *)advertiser_identifier __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setAppleVendorIdentifier:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setVendorIdentifier:(NSUUID * )vendor_identifier __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setShouldAutoGenerateAppleAdvertisingIdentifier:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setShouldAutoGenerateAdvertiserIdentifier:(BOOL)yesorno __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setShouldAutoGenerateAppleVendorIdentifier:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setShouldAutoGenerateVendorIdentifier:(BOOL)yesorno __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setDebugMode:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setShouldDebugResponseFromServer:(BOOL)yesorno __deprecated;
-
-/*!
- <span style="color:red">Deprecated Method:</span> Instead use setAllowDuplicateRequests:
- @warning <span style="color:red">Deprecated Method</span>
- */
-- (void)setShouldAllowDuplicateRequests:(BOOL)yesorno __deprecated;
-
-@end
-
 
 #pragma mark - MobileAppTrackerDelegate
 
@@ -580,6 +516,7 @@ typedef enum MATGender
 - (void)mobileAppTracker:(MobileAppTracker *)tracker didFailWithError:(NSError *)error;
 
 @end
+
 
 #pragma mark - MATEventItem
 
@@ -631,11 +568,20 @@ typedef enum MATGender
 /** @name Methods to create MATEventItem objects.*/
 
 /*!
+ Method to create an event item. Revenue will be calculated using (quantity * unitPrice).
+ 
+ @param name name of the event item
+ @param unitPrice unit price of the event item
+ @param quantity quantity of the event item
+ */
++ (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity;
+
+/*!
  Method to create an event item.
  @param name name of the event item
  @param unitPrice unit price of the event item
  @param quantity quantity of the event item
- @param revenue revenue of the event item
+ @param revenue revenue of the event item, to be used instead of (quantity * unitPrice)
  */
 + (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue;
 
@@ -660,7 +606,7 @@ typedef enum MATGender
  @param name name of the event item
  @param unitPrice unit price of the event item
  @param quantity quantity of the event item
- @param revenue revenue of the event item
+ @param revenue revenue of the event item, to be used instead of (quantity * unitPrice)
  @param attribute1 an extra parameter that corresponds to attribute_sub1 property of the event item
  @param attribute2 an extra parameter that corresponds to attribute_sub2 property of the event item
  @param attribute3 an extra parameter that corresponds to attribute_sub3 property of the event item

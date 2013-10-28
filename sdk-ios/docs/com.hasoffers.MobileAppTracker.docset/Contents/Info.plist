@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.hasoffers.MobileAppTracker</string>
+	<key>CFBundleName</key>
+	<string>MobileAppTracker Documentation</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.6</string>
+	<key>CFBundleVersion</key>
+	<string>2.6</string>
+	
+	
+	
+	<key>DocSetFallbackURL</key>
+	<string>https://api.mobileapptracking.com/v1/Advertiser/Sites/Sdks</string>
+	<key>DocSetFeedName</key>
+	<string>MobileAppTracker Documentation</string>
+	<key>DocSetFeedURL</key>
+	<string>https://s3.amazonaws.com/mat_sdk/sdk-ios/documentation/sdk_ios.atom</string>
+	<key>DocSetMinimumXcodeVersion</key>
+	<string>3.0</string>
+	
+	<key>DashDocSetFamily</key>
+	<string>appledoc</string>
+	<key>DocSetPublisherIdentifier</key>
+	<string>com.hasoffers.documentation</string>
+	<key>DocSetPublisherName</key>
+	<string>HasOffers Inc</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2013 HasOffers Inc. All rights reserved.</string>
+</dict>
+</plist>

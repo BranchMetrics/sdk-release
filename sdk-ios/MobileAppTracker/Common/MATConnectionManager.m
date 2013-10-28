@@ -73,6 +73,10 @@ static MATConnectionManager * instance__ = nil;
 - (void)stopQueueDump;
 - (void)enqueueNetworkRequestWithUrlString:(NSString *)urlString andPOSTData:(NSString *)postData;
 
+- (void)beginUrlRequest:(NSString *)trackingLink andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate storedRequest:(BOOL)isStoredRequest;
+
+- (void)fireStoredRequests;
+
 - (void)handleNetworkChange:(NSNotification *)notice;
 
 @end
@@ -193,23 +197,23 @@ static MATConnectionManager * instance__ = nil;
 
 #pragma mark - Network Request Methods
 
-- (void)beginRequestGetTrackingId:(NSString *)link
+- (void)beginRequestGetTrackingId:(NSString *)trackingLink
                withDelegateTarget:(id)target
               withSuccessSelector:(SEL)selectorSuccess
               withFailureSelector:(SEL)selectorFailure
                      withArgument:(NSMutableDictionary *)dict
                      withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate
 {
-    //http://engine.mobileapptracking.com/serve?action=click&publisher_advertiser_id=1587&package_name=com.HasOffers.matsdktestapp&response_format=json
+    //https://engine.mobileapptracking.com/serve?action=click&publisher_advertiser_id=1587&package_name=com.HasOffers.matsdktestapp&response_format=json
     
     // ignore the request if the network is not reachable
     if(NotReachable != self.status)
     {
         self.delegate = connectionDelegate;
         
-        DLLog(@"MATConnManager: beginRequestGetTrackingId: %@", link);
+        DLLog(@"MATConnManager: beginRequestGetTrackingId: %@", trackingLink);
         
-        NSURL * url = [NSURL URLWithString:link];
+        NSURL * url = [NSURL URLWithString:trackingLink];
         NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                             timeoutInterval:MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL];
@@ -233,7 +237,7 @@ static MATConnectionManager * instance__ = nil;
     }
 }
 
-- (void)beginRequestGetInstallLogId:(NSString *)link
+- (void)beginRequestGetInstallLogId:(NSString *)trackingLink
                  withDelegateTarget:(id)target
                 withSuccessSelector:(SEL)selectorSuccess
                 withFailureSelector:(SEL)selectorFailure
@@ -245,7 +249,7 @@ static MATConnectionManager * instance__ = nil;
     {
         self.delegate = connectionDelegate;
         
-        NSURL * url = [NSURL URLWithString:link];
+        NSURL * url = [NSURL URLWithString:trackingLink];
         NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                             timeoutInterval:MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL];
@@ -264,7 +268,7 @@ static MATConnectionManager * instance__ = nil;
         connection.delegateSuccessSelector = selectorSuccess;
         connection.delegateFailureSelector = selectorFailure;
         connection.delegateArgument = dict;
-
+        
         DLLog(@"MATConnManager: beginRequestGetInstallLogId: connectionManager = %@", self);
         [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
         [connection start];
@@ -272,12 +276,12 @@ static MATConnectionManager * instance__ = nil;
     }
 }
 
-- (void)beginUrlRequest:(NSString *)link andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate
+- (void)beginUrlRequest:(NSString *)trackingLink andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate
 {
-    [self beginUrlRequest:link andPOSTData:postData withDelegate:connectionDelegate storedRequest:NO];
+    [self beginUrlRequest:trackingLink andPOSTData:postData withDelegate:connectionDelegate storedRequest:NO];
 }
 
-- (void)beginUrlRequest:(NSString *)link andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate storedRequest:(BOOL)isStoredRequest
+- (void)beginUrlRequest:(NSString *)trackingLink andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate storedRequest:(BOOL)isStoredRequest
 {
     self.delegate = connectionDelegate;
     
@@ -289,7 +293,7 @@ static MATConnectionManager * instance__ = nil;
         {
             DLog(@"MATConnManager: beginUrlRequest: debug mode");
         
-            link = [link stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
+            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
         }
     
         // duplicate installs/events/ref_ids allowed or not
@@ -297,12 +301,12 @@ static MATConnectionManager * instance__ = nil;
         {
             DLog(@"MATConnManager: beginUrlRequest: allow duplicate requests");
             
-            link = [link stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
+            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
         }
         
         // Append json format to the url
         // This in the future, can be overridden by developer
-        link = [link stringByAppendingFormat:@"&%@=%@", KEY_RESPONSE_FORMAT, KEY_JSON];
+        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=%@", KEY_RESPONSE_FORMAT, KEY_JSON];
     }
     
     // Fire a network request only if the internet is currently available, otherwise store the request for later.
@@ -314,32 +318,32 @@ static MATConnectionManager * instance__ = nil;
         
         NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
         [errorDetails setValue:KEY_ERROR_MAT_NETWORK_NOT_REACHABLE forKey:NSLocalizedFailureReasonErrorKey];
-        [errorDetails setValue:@"Network not reachable, store the request for now." forKey:NSLocalizedDescriptionKey];
+        [errorDetails setValue:@"Network not reachable, request stored." forKey:NSLocalizedDescriptionKey];
         
         NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1201 userInfo:errorDetails];
         [mat performSelector:NSSelectorFromString(@"notifyDelegateFailureWithError:") withObject:error];
         
         // Store to queue, so that the request may be fired when internet becomes available.
-        [self enqueueNetworkRequestWithUrlString:link andPOSTData:postData];
+        [self enqueueNetworkRequestWithUrlString:trackingLink andPOSTData:postData];
     }
     else
     {
         DLog(@"MATConnManager: beginUrlRequest: Network is reachable, continue with the network request.");
         
-        NSURL * url = [NSURL URLWithString:link];
+        NSURL * url = [NSURL URLWithString:trackingLink];
         
         NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                             timeoutInterval:MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL];
         
 #if DEBUG_REQUEST_LOG
-        NSRange range = [link rangeOfString:[NSString stringWithFormat:@"&%@=", KEY_DATA]];
-        range.length = [link length] - range.location;
-        NSString * debugString = [link stringByReplacingCharactersInRange:range withString:STRING_EMPTY];
+        NSRange range = [trackingLink rangeOfString:[NSString stringWithFormat:@"&%@=", KEY_DATA]];
+        range.length = [trackingLink length] - range.location;
+        NSString * debugString = [trackingLink stringByReplacingCharactersInRange:range withString:STRING_EMPTY];
         NSLog(@"MATConnManager: beginUrlRequest: URL: %@", debugString);
 #endif
         
-        DLLog(@"MATConnManager: beginUrlRequest: URL Link = %@", link);
+        DLLog(@"MATConnManager: beginUrlRequest: URL trackingLink = %@", trackingLink);
         
         DRLog(@"MATConnManager: beginUrlRequest: post data = %@", postData);
         
@@ -386,11 +390,11 @@ static MATConnectionManager * instance__ = nil;
     if (dict)
     {
         // extract stored data
-        NSString * link = [dict valueForKey:KEY_URL];
+        NSString * trackingLink = [dict valueForKey:KEY_URL];
         NSString * json = [dict valueForKey:KEY_JSON];
         
         // fire web request
-        [self beginUrlRequest:link andPOSTData:json withDelegate:self.delegate storedRequest:YES];
+        [self beginUrlRequest:trackingLink andPOSTData:json withDelegate:self.delegate storedRequest:YES];
         
         // store request queue to file
         [requestsQueue_ save];

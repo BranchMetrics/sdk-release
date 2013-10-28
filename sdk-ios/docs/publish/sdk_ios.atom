@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:docset="http://developer.apple.com/rss/docset_extensions" xml:lang="en">
+    <id>https://s3.amazonaws.com/mat_sdk/sdk-ios/documentation/sdk_ios.atom/20131002173026</id>
+    <title type="text">MobileAppTracker Documentation</title>
+    <rights>Copyright © 2013 HasOffers Inc. All rights reserved.</rights>
+    <link rel="self" href="https://s3.amazonaws.com/mat_sdk/sdk-ios/documentation/sdk_ios.atom"></link>
+    <docset:publisherName>HasOffers Inc</docset:publisherName>
+    <docset:publisherID>com.hasoffers.documentation</docset:publisherID>
+    <updated>2013-10-02T17:30:26-07:00</updated>
+    <entry>
+        <id>tag:s3.amazonaws.com,2013-10-02:com.hasoffers.MobileAppTracker/2.6.0</id>
+        <title type="text">MobileAppTracker Documentation</title>
+        <updated>2013-10-02T17:30:26-07:00</updated>
+        <content type="text">MobileAppTracker Documentation (v2.6.0)</content>
+        <link rel="enclosure" type="application/octet-stream" href="https:/api.mobileapptracking.com/v1/Advertiser/Sites/Sdks/Xar.xar" length="70910"></link>
+        <docset:identifier>com.hasoffers.MobileAppTracker</docset:identifier>
+        <docset:version>2.6.0</docset:version>
+        <docset:minimumXcodeVersion>3.0.0</docset:minimumXcodeVersion>
+    </entry>
+</feed>

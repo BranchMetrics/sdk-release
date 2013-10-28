@@ -46,7 +46,7 @@
 //  Returns:
 //    Autoreleased NSString
 //
-- (NSString *)gtm_stringBySanitizingAndEscapingForXML;
+- (NSString *)MATgtm_stringBySanitizingAndEscapingForXML;
 
 /// Get a string where characters that invalid characters per the XML spec have been removed
 //
@@ -58,7 +58,7 @@
 //  Returns:
 //    Autoreleased NSString
 //
-- (NSString *)gtm_stringBySanitizingToXMLSpec;
+- (NSString *)MATgtm_stringBySanitizingToXMLSpec;
 
 // There is no stringByUnescapingFromXML because the XML parser will do this.
 // The above api is here just incase you need to create XML yourself.

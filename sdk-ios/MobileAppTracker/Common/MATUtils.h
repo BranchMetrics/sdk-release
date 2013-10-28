@@ -72,18 +72,20 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (NSString *)serverDomainName;
 
-void *NewBase64Decode(
-                      const char *inputBuffer,
-                      size_t length,
-                      size_t *outputLength);
+#pragma mark -
 
-char *NewBase64Encode(
-                      const void *inputBuffer,
-                      size_t length,
-                      bool separateLines,
-                      size_t *outputLength);
+void *MATNewBase64Decode(
+                         const char *inputBuffer,
+                         size_t length,
+                         size_t *outputLength);
 
-+ (NSData *)dataFromBase64String:(NSString *)aString;
-+ (NSString *)base64EncodedStringForData:(NSData *)data;
+char *MATNewBase64Encode(
+                         const void *buffer,
+                         size_t length,
+                         bool separateLines,
+                         size_t *outputLength);
+
++ (NSData *)MATdataFromBase64String:(NSString *)aString;
++ (NSString *)MATbase64EncodedStringFromData:(NSData *)data;
 
 @end

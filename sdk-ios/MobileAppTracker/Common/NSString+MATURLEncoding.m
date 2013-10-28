@@ -203,11 +203,11 @@ static NSString *AutoreleasedCloneForXML(NSString *src, BOOL escaping) {
 
 @implementation NSString (MATGTMNSStringXMLAdditions)
 
-- (NSString *)gtm_stringBySanitizingAndEscapingForXML {
+- (NSString *)MATgtm_stringBySanitizingAndEscapingForXML {
     return AutoreleasedCloneForXML(self, YES);
 } // gtm_stringBySanitizingAndEscapingForXML
 
-- (NSString *)gtm_stringBySanitizingToXMLSpec {
+- (NSString *)MATgtm_stringBySanitizingToXMLSpec {
     return AutoreleasedCloneForXML(self, NO);
 } // gtm_stringBySanitizingToXMLSpec
 

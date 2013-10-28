@@ -7,7 +7,7 @@
 	<key>--project-company</key>
 	<string>HasOffers Inc</string>
 	<key>--project-version</key>
-	<string>2.5.1</string>
+	<string>2.6</string>
 	<key>--company-id</key>
 	<string>com.hasoffers</string>
 	<key>--output</key>
@@ -27,19 +27,19 @@
 	<key>--print-settings</key>
 	<true/>
 	<key>--verbose</key>
-	<integer>4</integer>
+	<string>4</string>
 	<key>--no-repeat-first-par</key>
 	<true/>
 	<key>--docset-atom-filename</key>
 	<string>sdk_ios.atom</string>
 	<key>--docset-package-filename</key>
-	<string>MobileAppTracker</string>
+	<string>Xar</string>
 	<key>--docset-feed-url</key>
-	<string>https://api.mobileapptracking.com/documentation/%DOCSETATOMFILENAME</string>
+	<string>https://s3.amazonaws.com/mat_sdk/sdk-ios/documentation/%DOCSETATOMFILENAME</string>
 	<key>--docset-package-url</key>
-	<string>https://api.mobileapptracking.com/documentation/%DOCSETPACKAGEFILENAME</string>
+	<string>https://api.mobileapptracking.com/v1/Advertiser/Sites/Sdks/%DOCSETPACKAGEFILENAME</string>
 	<key>--docset-fallback-url</key>
-	<string>https://api.mobileapptracking.com/documentation</string>
+	<string>https://api.mobileapptracking.com/v1/Advertiser/Sites/Sdks</string>
 	<key>--warn-undocumented-member</key>
 	<false/>
 	<key>--exit-threshold</key>

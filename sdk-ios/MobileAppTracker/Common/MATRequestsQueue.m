@@ -28,6 +28,8 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 - (BOOL)removePart:(MATRequestsQueuePart*)part;
 - (NSUInteger)getSmallestPartFreeIndex;
 
+- (void)fixForiCloud;
+
 @end
 
 @implementation MATRequestsQueue
@@ -145,12 +147,12 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 
 - (NSUInteger)getSmallestPartFreeIndex
 {
-    NSUInteger index = 0;
+    NSUInteger indexFree = 0;
     for (MATRequestsQueuePart * part in queueParts_)
     {
-        if (part.index == index)
+        if (part.index == indexFree)
         {
-            ++index;
+            ++indexFree;
         }
         else
         {
@@ -158,7 +160,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         }
     }
     
-    return index;
+    return indexFree;
 }
 
 - (void)push:(NSDictionary*)object
@@ -296,14 +298,14 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 {
     if(0 == [elementName compare:XML_NODE_PART])
     {
-        NSUInteger index = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_INDEX] intValue];
+        NSUInteger storedIndex = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_INDEX] intValue];
         NSUInteger requests = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_REQUESTS] intValue];
         
         DLog(@"MATReqQue: parser: pathStorageDir = %@", self.pathStorageDir);
-        DLog(@"MATReqQue: parser: index          = %d", index);
+        DLog(@"MATReqQue: parser: index          = %d", storedIndex);
         DLog(@"MATReqQue: parser: request Count  = %d", requests);
         
-        MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:index parentFolder:self.pathStorageDir];
+        MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:storedIndex parentFolder:self.pathStorageDir];
         part.queuedRequestsCount = requests;
         part.shouldLoadOnRequest = YES;
         [queueParts_ addObject:part];

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tokens version="1.0">
+	<File path="Protocols/MobileAppTrackerDelegate.html">
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intf/MobileAppTrackerDelegate</TokenIdentifier>
+			<Abstract type="html">Protocol that allows for callbacks from the MobileAppTracker methods.
+To use, set your class as the delegate for MAT and implement these methods.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+            
+			
+			<NodeRef refid="3"/>
+		</Token>
+		
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intfm/MobileAppTrackerDelegate/mobileAppTracker:didSucceedWithData:</TokenIdentifier>
+			<Abstract type="html">Delegate method called when a track action succeeds.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>- (void)mobileAppTracker:(MobileAppTracker *)tracker didSucceedWithData:(NSData *)data</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>tracker</Name>
+					<Abstract type="html">The MobileAppTracker instance.</Abstract>
+				</Parameter><Parameter>
+					<Name>data</Name>
+					<Abstract type="html">The success data returned by the MobileAppTracker.</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/mobileAppTracker:didSucceedWithData:</Anchor>
+            <NodeRef refid="3"/>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intfm/MobileAppTrackerDelegate/mobileAppTracker:didFailWithError:</TokenIdentifier>
+			<Abstract type="html">Delegate method called when a track action fails.</Abstract>
+			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
+			
+			<Declaration>- (void)mobileAppTracker:(MobileAppTracker *)tracker didFailWithError:(NSError *)error</Declaration>
+			<Parameters>
+				<Parameter>
+					<Name>tracker</Name>
+					<Abstract type="html">The MobileAppTracker instance.</Abstract>
+				</Parameter><Parameter>
+					<Name>error</Name>
+					<Abstract type="html">Error object returned by the MobileAppTracker.</Abstract>
+				</Parameter>
+			</Parameters>
+			
+			<Anchor>//api/name/mobileAppTracker:didFailWithError:</Anchor>
+            <NodeRef refid="3"/>
+		</Token>
+		
+        
+	</File>
+</Tokens>

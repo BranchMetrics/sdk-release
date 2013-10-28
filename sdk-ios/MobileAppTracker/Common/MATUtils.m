@@ -144,7 +144,7 @@ static BOOL _shouldDebug = NO;
     NSString *domainName = [MATUtils serverDomainName];
     
     NSString *strLink = [NSString stringWithFormat:@"%@://%@/%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                                   KEY_HTTPS, domainName, SERVER_PATH_TRACKING_ENGINE,
+                                                   @"https", domainName, SERVER_PATH_TRACKING_ENGINE,
                                                    KEY_ACTION, EVENT_CLICK,
                                                    KEY_PUBLISHER_ADVERTISER_ID, advertiserId,
                                                    KEY_PACKAGE_NAME, targetBundleId,
@@ -172,25 +172,25 @@ static BOOL _shouldDebug = NO;
                      withDelegate:connectionDelegate];
 }
 
-+ (void)sendRequestGetInstallLogIdWithLink:(NSString *)link
++ (void)sendRequestGetInstallLogIdWithLink:(NSString *)weblink
                                     params:(NSMutableDictionary*)params
                         connectionDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate
 {
     // fire a network request to fetch the install_log_id from the server
     
     // Sample Request:
-    //http://engine.stage.mobileapptracking.com/v1/Integrations/Sdk/GetLog.csv?debug=13&sdk=android&package_name=com.hasofferstestapp&advertiser_id=877&data=77f89db08afe4cefd98babeb5eef7c604adf8e83e6c5d3c9c296d1641b0a4404ec0031e49da11404da1bbf728f15ca1663f63a9e77bf15b7a86dfb1218f15e5d&fields[]=log_id&fields[]=type
+    //https://engine.stage.mobileapptracking.com/v1/Integrations/Sdk/GetLog.csv?debug=13&sdk=android&package_name=com.hasofferstestapp&advertiser_id=877&data=77f89db08afe4cefd98babeb5eef7c604adf8e83e6c5d3c9c296d1641b0a4404ec0031e49da11404da1bbf728f15ca1663f63a9e77bf15b7a86dfb1218f15e5d&fields[]=log_id&fields[]=type
     
     // Sample Response:
     //513e26ffeb323-20130311-1,install
     
-    DLog(@"requestInstallLogId: link = %@", link);
+    DLog(@"requestInstallLogId: link = %@", weblink);
     
     [params setValue:[MobileAppTracker sharedManager] forKey:@"delegateTarget"];
     
     MATConnectionManager *cm = [MATConnectionManager sharedManager];
     
-    [cm beginRequestGetInstallLogId:link
+    [cm beginRequestGetInstallLogId:weblink
                  withDelegateTarget:[MATUtils class]
                 withSuccessSelector:@selector(handleInstallLogId:)
                 withFailureSelector:@selector(failedToRequestInstallLogId:withError:)
@@ -578,10 +578,11 @@ static BOOL _shouldDebug = NO;
     _shouldDebug = yesorno;
 }
 
+#pragma mark - Base64 Encoding/Decoding Methods
 
 //////////////////////////////////
 //
-//  NSData+Base64.h
+//  NSData+Base64.m
 //  base64
 //
 //  Created by Matt Gallagher on 2009/06/03.
@@ -607,7 +608,7 @@ static BOOL _shouldDebug = NO;
 //
 // Mapping from 6 bit pattern to ASCII character.
 //
-static unsigned char base64EncodeLookup[65] =
+static unsigned char MATbase64EncodeLookup[65] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 //
@@ -618,7 +619,7 @@ static unsigned char base64EncodeLookup[65] =
 //
 // Mapping from ASCII character to 6 bit pattern.
 //
-static unsigned char base64DecodeLookup[256] =
+static unsigned char MATbase64DecodeLookup[256] =
 {
     xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
     xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,
@@ -651,64 +652,69 @@ static unsigned char base64DecodeLookup[256] =
 // output buffer.
 //
 //  inputBuffer - the source ASCII string for the decode
-//      length - the length of the string or -1 (to specify strlen should be used)
-//      outputLength - if not-NULL, on output will contain the decoded length
+//	length - the length of the string or -1 (to specify strlen should be used)
+//	outputLength - if not-NULL, on output will contain the decoded length
 //
 // returns the decoded buffer. Must be free'd by caller. Length is given by
-//      outputLength.
+//	outputLength.
 //
-void *NewBase64Decode(
-                      const char *inputBuffer,
-                      size_t length,
-                      size_t *outputLength)
+void *MATNewBase64Decode(
+                         const char *inputBuffer,
+                         size_t length,
+                         size_t *outputLength)
 {
-    if (length == -1)
-    {
-        length = strlen(inputBuffer);
-    }
-    
-    size_t outputBufferSize =
+	if (length == -1)
+	{
+		length = strlen(inputBuffer);
+	}
+	
+	size_t outputBufferSize =
     ((length+BASE64_UNIT_SIZE-1) / BASE64_UNIT_SIZE) * BINARY_UNIT_SIZE;
-    unsigned char *outputBuffer = (unsigned char *)malloc(outputBufferSize);
-    
-    size_t i = 0;
-    size_t j = 0;
-    while (i < length)
-    {
-        //
-        // Accumulate 4 valid characters (ignore everything else)
-        //
-        unsigned char accumulated[BASE64_UNIT_SIZE];
-        size_t accumulateIndex = 0;
-        while (i < length)
-        {
-            unsigned char decode = base64DecodeLookup[inputBuffer[i++]];
-            if (decode != xx)
-            {
-                accumulated[accumulateIndex] = decode;
-                accumulateIndex++;
-                
-                if (accumulateIndex == BASE64_UNIT_SIZE)
-                {
-                    break;
-                }
-            }
-        }
-        
-        //
-        // Store the 6 bits from each of the 4 characters as 3 bytes
-        //
-        outputBuffer[j] = (accumulated[0] << 2) | (accumulated[1] >> 4);
-        outputBuffer[j + 1] = (accumulated[1] << 4) | (accumulated[2] >> 2);
-        outputBuffer[j + 2] = (accumulated[2] << 6) | accumulated[3];
-        j += accumulateIndex - 1;
-    }
-    
-    if (outputLength)
-    {
-        *outputLength = j;
-    }
-    return outputBuffer;
+	unsigned char *outputBuffer = (unsigned char *)malloc(outputBufferSize);
+	
+	size_t i = 0;
+	size_t j = 0;
+	while (i < length)
+	{
+		//
+		// Accumulate 4 valid characters (ignore everything else)
+		//
+		unsigned char accumulated[BASE64_UNIT_SIZE];
+		size_t accumulateIndex = 0;
+		while (i < length)
+		{
+			unsigned char decode = MATbase64DecodeLookup[inputBuffer[i++]];
+			if (decode != xx)
+			{
+				accumulated[accumulateIndex] = decode;
+				accumulateIndex++;
+				
+				if (accumulateIndex == BASE64_UNIT_SIZE)
+				{
+					break;
+				}
+			}
+		}
+		
+		//
+		// Store the 6 bits from each of the 4 characters as 3 bytes
+		//
+		// (Uses improved bounds checking suggested by Alexandre Colucci)
+		//
+		if(accumulateIndex >= 2)
+			outputBuffer[j] = (accumulated[0] << 2) | (accumulated[1] >> 4);
+		if(accumulateIndex >= 3)
+			outputBuffer[j + 1] = (accumulated[1] << 4) | (accumulated[2] >> 2);
+		if(accumulateIndex >= 4)
+			outputBuffer[j + 2] = (accumulated[2] << 6) | accumulated[3];
+		j += accumulateIndex - 1;
+	}
+	
+	if (outputLength)
+	{
+		*outputLength = j;
+	}
+	return outputBuffer;
 }
 
 //
@@ -718,124 +724,124 @@ void *NewBase64Decode(
 // output buffer.
 //
 //  inputBuffer - the source data for the encode
-//      length - the length of the input in bytes
+//	length - the length of the input in bytes
 //  separateLines - if zero, no CR/LF characters will be added. Otherwise
-//              a CR/LF pair will be added every 64 encoded chars.
-//      outputLength - if not-NULL, on output will contain the encoded length
-//              (not including terminating 0 char)
+//		a CR/LF pair will be added every 64 encoded chars.
+//	outputLength - if not-NULL, on output will contain the encoded length
+//		(not including terminating 0 char)
 //
 // returns the encoded buffer. Must be free'd by caller. Length is given by
-//      outputLength.
+//	outputLength.
 //
-char *NewBase64Encode(
-                      const void *buffer,
-                      size_t length,
-                      bool separateLines,
-                      size_t *outputLength)
+char *MATNewBase64Encode(
+                         const void *buffer,
+                         size_t length,
+                         bool separateLines,
+                         size_t *outputLength)
 {
-    const unsigned char *inputBuffer = (const unsigned char *)buffer;
-    
+	const unsigned char *inputBuffer = (const unsigned char *)buffer;
+	
 #define MAX_NUM_PADDING_CHARS 2
 #define OUTPUT_LINE_LENGTH 64
 #define INPUT_LINE_LENGTH ((OUTPUT_LINE_LENGTH / BASE64_UNIT_SIZE) * BINARY_UNIT_SIZE)
 #define CR_LF_SIZE 2
-    
-    //
-    // Byte accurate calculation of final buffer size
-    //
-    size_t outputBufferSize =
+	
+	//
+	// Byte accurate calculation of final buffer size
+	//
+	size_t outputBufferSize =
     ((length / BINARY_UNIT_SIZE)
      + ((length % BINARY_UNIT_SIZE) ? 1 : 0))
     * BASE64_UNIT_SIZE;
-    if (separateLines)
-    {
-        outputBufferSize +=
+	if (separateLines)
+	{
+		outputBufferSize +=
         (outputBufferSize / OUTPUT_LINE_LENGTH) * CR_LF_SIZE;
-    }
+	}
+	
+	//
+	// Include space for a terminating zero
+	//
+	outputBufferSize += 1;
     
-    //
-    // Include space for a terminating zero
-    //
-    outputBufferSize += 1;
+	//
+	// Allocate the output buffer
+	//
+	char *outputBuffer = (char *)malloc(outputBufferSize);
+	if (!outputBuffer)
+	{
+		return NULL;
+	}
     
-    //
-    // Allocate the output buffer
-    //
-    char *outputBuffer = (char *)malloc(outputBufferSize);
-    if (!outputBuffer)
-    {
-        return NULL;
-    }
-    
-    size_t i = 0;
-    size_t j = 0;
-    const size_t lineLength = separateLines ? INPUT_LINE_LENGTH : length;
-    size_t lineEnd = lineLength;
-    
-    while (true)
-    {
-        if (lineEnd > length)
-        {
-            lineEnd = length;
-        }
+	size_t i = 0;
+	size_t j = 0;
+	const size_t lineLength = separateLines ? INPUT_LINE_LENGTH : length;
+	size_t lineEnd = lineLength;
+	
+	while (true)
+	{
+		if (lineEnd > length)
+		{
+			lineEnd = length;
+		}
         
-        for (; i + BINARY_UNIT_SIZE - 1 < lineEnd; i += BINARY_UNIT_SIZE)
-        {
-            //
-            // Inner loop: turn 48 bytes into 64 base64 characters
-            //
-            outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
-            outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
-                                                   | ((inputBuffer[i + 1] & 0xF0) >> 4)];
-            outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i + 1] & 0x0F) << 2)
-                                                   | ((inputBuffer[i + 2] & 0xC0) >> 6)];
-            outputBuffer[j++] = base64EncodeLookup[inputBuffer[i + 2] & 0x3F];
-        }
-        
-        if (lineEnd == length)
-        {
-            break;
-        }
-        
-        //
-        // Add the newline
-        //
-        outputBuffer[j++] = '\r';
-        outputBuffer[j++] = '\n';
-        lineEnd += lineLength;
-    }
-    
-    if (i + 1 < length)
-    {
-        //
-        // Handle the single '=' case
-        //
-        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
-        outputBuffer[j++] = base64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
-                                               | ((inputBuffer[i + 1] & 0xF0) >> 4)];
-        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i + 1] & 0x0F) << 2];
-        outputBuffer[j++] = '=';
-    }
-    else if (i < length)
-    {
-        //
-        // Handle the double '=' case
-        //
-        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
-        outputBuffer[j++] = base64EncodeLookup[(inputBuffer[i] & 0x03) << 4];
-        outputBuffer[j++] = '=';
-        outputBuffer[j++] = '=';
-    }
-    outputBuffer[j] = 0;
-    
-    //
-    // Set the output length and return the buffer
-    //
-    if (outputLength)
-    {
-        *outputLength = j;
-    }
-    return outputBuffer;
+		for (; i + BINARY_UNIT_SIZE - 1 < lineEnd; i += BINARY_UNIT_SIZE)
+		{
+			//
+			// Inner loop: turn 48 bytes into 64 base64 characters
+			//
+			outputBuffer[j++] = MATbase64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+			outputBuffer[j++] = MATbase64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
+                                                      | ((inputBuffer[i + 1] & 0xF0) >> 4)];
+			outputBuffer[j++] = MATbase64EncodeLookup[((inputBuffer[i + 1] & 0x0F) << 2)
+                                                      | ((inputBuffer[i + 2] & 0xC0) >> 6)];
+			outputBuffer[j++] = MATbase64EncodeLookup[inputBuffer[i + 2] & 0x3F];
+		}
+		
+		if (lineEnd == length)
+		{
+			break;
+		}
+		
+		//
+		// Add the newline
+		//
+		outputBuffer[j++] = '\r';
+		outputBuffer[j++] = '\n';
+		lineEnd += lineLength;
+	}
+	
+	if (i + 1 < length)
+	{
+		//
+		// Handle the single '=' case
+		//
+		outputBuffer[j++] = MATbase64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+		outputBuffer[j++] = MATbase64EncodeLookup[((inputBuffer[i] & 0x03) << 4)
+                                                  | ((inputBuffer[i + 1] & 0xF0) >> 4)];
+		outputBuffer[j++] = MATbase64EncodeLookup[(inputBuffer[i + 1] & 0x0F) << 2];
+		outputBuffer[j++] =	'=';
+	}
+	else if (i < length)
+	{
+		//
+		// Handle the double '=' case
+		//
+		outputBuffer[j++] = MATbase64EncodeLookup[(inputBuffer[i] & 0xFC) >> 2];
+		outputBuffer[j++] = MATbase64EncodeLookup[(inputBuffer[i] & 0x03) << 4];
+		outputBuffer[j++] = '=';
+		outputBuffer[j++] = '=';
+	}
+	outputBuffer[j] = 0;
+	
+	//
+	// Set the output length and return the buffer
+	//
+	if (outputLength)
+	{
+		*outputLength = j;
+	}
+	return outputBuffer;
 }
 
 //
@@ -849,14 +855,14 @@ char *NewBase64Encode(
 //
 // returns the autoreleased NSData representation of the base64 string
 //
-+ (NSData *)dataFromBase64String:(NSString *)aString
++ (NSData *)MATdataFromBase64String:(NSString *)aString
 {
-    NSData *data = [aString dataUsingEncoding:NSASCIIStringEncoding];
-    size_t outputLength;
-    void *outputBuffer = NewBase64Decode([data bytes], [data length], &outputLength);
-    NSData *result = [NSData dataWithBytes:outputBuffer length:outputLength];
-    free(outputBuffer);
-    return result;
+	NSData *data = [aString dataUsingEncoding:NSASCIIStringEncoding];
+	size_t outputLength;
+	void *outputBuffer = MATNewBase64Decode([data bytes], [data length], &outputLength);
+	NSData *result = [NSData dataWithBytes:outputBuffer length:outputLength];
+	free(outputBuffer);
+	return result;
 }
 
 //
@@ -866,23 +872,23 @@ char *NewBase64Encode(
 // receiver's data. Lines are broken at 64 characters long.
 //
 // returns an autoreleased NSString being the base 64 representation of the
-//      receiver.
+//	receiver.
 //
-+ (NSString *)base64EncodedStringForData:(NSData *)data
++ (NSString *)MATbase64EncodedStringFromData:(NSData *)data
 {
-    size_t outputLength;
-    char *outputBuffer =
-    NewBase64Encode([data bytes], [data length], false, &outputLength);
-    
-    NSString *result =
+	size_t outputLength;
+	char *outputBuffer =
+    MATNewBase64Encode([data bytes], [data length], false, &outputLength);
+	
+	NSString *result =
     [
-    [[NSString alloc] initWithBytes:outputBuffer
-                             length:outputLength
-                           encoding:NSASCIIStringEncoding]
+     [[NSString alloc] initWithBytes:outputBuffer
+                              length:outputLength
+                            encoding:NSASCIIStringEncoding]
      autorelease]
     ;
-    free(outputBuffer);
-    return result;
+	free(outputBuffer);
+	return result;
 }
 
 @end

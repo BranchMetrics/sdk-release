@@ -30,18 +30,20 @@
 
 const int MAT_CONVERSION_KEY_LENGTH = 32;
 
+const NSInteger MAT_GENDER_MALE = 0;
+const NSInteger MAT_GENDER_FEMALE = 1;
+
 @interface MobileAppTracker() <MATConnectionManagerDelegate>
 
 @property (nonatomic, retain) NSMutableDictionary *parameters;
-@property (nonatomic, retain) NSString * serverPath;
-@property (nonatomic, retain) NSDictionary * doNotEncryptDict;
+@property (nonatomic, retain) NSString *serverPath;
+@property (nonatomic, retain) NSDictionary *doNotEncryptDict;
 
 // this is set by the setter so we can reset the currency code default
 // after track actions since parameters is used
 @property (nonatomic, retain) NSString *defaultCurrencyCode;
 
 // settings to check for generating data
-@property (nonatomic, assign) BOOL shouldUseHTTPS;
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;
 @property (nonatomic, assign) BOOL shouldDetectJailbroken;
 @property (nonatomic, assign) BOOL shouldGenerateVendorIdentifier;
@@ -49,25 +51,30 @@ const int MAT_CONVERSION_KEY_LENGTH = 32;
 
 - (NSString*)urlStringForServerUrl:(NSString *)serverUrl
                               path:(NSString *)path
-                            params:(NSDictionary*)params
-                      ignoreParams:(NSSet*)ignoreParams
-                   encryptionLevel:(NSString*)encryptionLevel;
+                            params:(NSDictionary *)params
+                      ignoreParams:(NSSet *)ignoreParams
+                   encryptionLevel:(NSString *)encryptionLevel;
 
-- (NSString*)prepareUrlWithReferenceId:(NSString*)refId encryptionLevel:(NSString*)encryptionLevel ignoreParams:(NSSet*)ignoreParams;
-- (NSString*)prepareUrlWithReferenceId:(NSString*)refId encryptionLevel:(NSString*)encryptionLevel ignoreParams:(NSSet*)ignoreParams isOpenEvent:(BOOL)isOpenEvent;
-- (void)sendRequestWithEventItems:(NSArray *)params referenceId:(NSString*)refId isOpenEvent:(BOOL)isOpenEvent;
+- (NSString*)prepareUrlWithReferenceId:(NSString *)refId encryptionLevel:(NSString *)encryptionLevel ignoreParams:(NSSet *)ignoreParams;
+- (NSString*)prepareUrlWithReferenceId:(NSString *)refId encryptionLevel:(NSString *)encryptionLevel ignoreParams:(NSSet *)ignoreParams isOpenEvent:(BOOL)isOpenEvent;
+- (void)sendRequestWithEventItems:(NSArray *)params referenceId:(NSString *)refId isOpenEvent:(BOOL)isOpenEvent;
+- (void)sendRequestWithEventItems:(NSArray *)eventItems receipt:(NSString *)receipt referenceId:(NSString*)refId isOpenEvent:(BOOL)isOpenEvent;
 - (void)initVariablesForTrackAction:(NSString *)eventIdOrName eventIsId:(BOOL)isId;
 - (void)loadParametersData;
 - (void)loadFacebookCookieId;
 - (BOOL)shouldUseParam:(NSString *)paramKey;
-- (void)resetApplicationOpenUrlKeys;
+//- (void)resetApplicationOpenUrlKeys;
 - (void)createInstallMarker;
-- (BOOL)checkTracking:(NSString*)refId;
+- (BOOL)cookieTrackingInProgress:(NSString *)refId;
 - (void)notifyDelegateSuccessMessage:(NSString *)message;
 - (void)notifyDelegateFailureWithError:(NSError *)error;
 
 - (void)fetchCWorksClickKey:(NSString **)key andValue:(NSNumber **)value;
 - (void)fetchCWorksImpressionKey:(NSString **)key andValue:(NSNumber **)value;
+
+- (void)requestInstallLogId;
+- (void)requestInstallLogIdWithOpenRequestParams:(NSMutableDictionary *)params;
+- (void)requestInstallLogId:(BOOL)isOpenPending params:(NSMutableDictionary *)params;
 
 /*!
  Record a Track Update or Install
@@ -80,9 +87,25 @@ const int MAT_CONVERSION_KEY_LENGTH = 32;
 - (void)trackInstallWithUpdateOnly:(BOOL)updateOnly
                        referenceId:(NSString *)refId;
 
+- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+                          eventIsId:(BOOL)isId
+                         eventItems:(NSArray *)eventItems
+                        referenceId:(NSString *)refId
+                      revenueAmount:(float)revenueAmount
+                       currencyCode:(NSString *)currencyCode
+                   transactionState:(NSInteger)transactionState
+                            receipt:(NSData *)receipt
+                     forceOpenEvent:(BOOL)forceOpenEvent;
+
 // Methods to handle install_log_id response
 - (void)handleInstallLogId:(NSMutableDictionary *)params;
 - (void)failedToRequestInstallLogId:(NSMutableDictionary *)params withError:(NSError *)error;
+
+- (BOOL)shouldFireOpenEventCausedError:(NSError **)error;
+
+- (void)callMethod:(NSDictionary *)params;
+
+- (BOOL)isInstallRequestAlreadyFired;
 
 @end
 
@@ -103,7 +126,6 @@ const int MAT_CONVERSION_KEY_LENGTH = 32;
 @synthesize doNotEncryptDict = _doNotEncryptDict;
 @synthesize serverPath = _serverPath;
 @synthesize defaultCurrencyCode = _defaultCurrencyCode;
-@synthesize shouldUseHTTPS = _shouldUseHTTPS;
 @synthesize shouldDetectJailbroken = _shouldDetectJailbroken;
 @synthesize shouldUseCookieTracking = _shouldUseCookieTracking;
 @synthesize shouldGenerateVendorIdentifier = _shouldGenerateVendorIdentifier;
@@ -151,7 +173,6 @@ BOOL IS_TRACKER_STARTED = NO;
         
         // !!! very important to init some parms here
         [self setUseCookieTracking:NO]; // by default do not use cookie tracking
-        [self setUseHTTPS:YES];
         [self setShouldAutoDetectJailbroken:YES];
         [self setShouldAutoGenerateAppleVendorIdentifier:YES];
         [self setShouldAutoGenerateAppleAdvertisingIdentifier:YES];
@@ -179,24 +200,27 @@ BOOL IS_TRACKER_STARTED = NO;
     NSString *errorKey = nil;
     int errorCode = 0;
     
+    aid = [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    key = [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    
     if(nil == aid || 0 == aid.length)
     {
         hasError = YES;
-        errorMessage = @"No MAT Advertiser Id passed in.";
+        errorMessage = @"No MAT Advertiser Id provided.";
         errorKey = KEY_ERROR_MAT_ADVERTISER_ID_MISSING;
         errorCode = 1101;
     }
     else if(nil == key || 0 == key.length)
     {
         hasError = YES;
-        errorMessage = @"No MAT Conversion Key passed in.";
+        errorMessage = @"No MAT Conversion Key provided.";
         errorKey = KEY_ERROR_MAT_CONVERSION_KEY_MISSING;
         errorCode = 1102;
     }
     else if(MAT_CONVERSION_KEY_LENGTH != key.length)
     {
         hasError = YES;
-        errorMessage = @"Invalid MAT Conversion Key passed in.";
+        errorMessage = [NSString stringWithFormat:@"Invalid MAT Conversion Key provided, length = %d. Expected key length = %d", key.length, MAT_CONVERSION_KEY_LENGTH];
         errorKey = KEY_ERROR_MAT_CONVERSION_KEY_INVALID;
         errorCode = 1103;
     }
@@ -238,10 +262,9 @@ BOOL IS_TRACKER_STARTED = NO;
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication
 {
-    // set the data into the params data so that the url is build with these
-    // Application openUrl params
-    [self.parameters setValue:urlString forKey:KEY_EVENT_REFERRAL];
-    [self.parameters setValue:sourceApplication forKey:KEY_SOURCE];
+    // include the params -- referring app and url -- in the next tracking request
+    [self.parameters setValue:[urlString urlEncodeUsingEncoding:NSUTF8StringEncoding] forKey:KEY_REFERRAL_URL];
+    [self.parameters setValue:sourceApplication forKey:KEY_REFERRAL_SOURCE];
 }
 
 #pragma mark - Notfication Handlers
@@ -570,7 +593,7 @@ BOOL IS_TRACKER_STARTED = NO;
                 if(receipt && receipt.length > 0)
                 {
                     // Base64 encode the IAP receipt data
-                    strReceipt = [MATUtils base64EncodedStringForData:receipt];
+                    strReceipt = [MATUtils MATbase64EncodedStringFromData:receipt];
                 }
                 
                 // fire the tracking request
@@ -690,7 +713,11 @@ BOOL IS_TRACKER_STARTED = NO;
     {
         if (!markerExists) // no marker exists, so it must be an install
         {
-            if (![self checkTracking:refId])
+            if ([self cookieTrackingInProgress:refId])
+            {
+                result = @"Install action not sent: cookie tracking is on.";
+            }
+            else
             {
                 // store a marker to note that an install/update has been fired
                 [MATUtils setUserDefaultValue:bundleVersion forKey:KEY_MAT_APP_VERSION];
@@ -701,10 +728,6 @@ BOOL IS_TRACKER_STARTED = NO;
                                       referenceId:refId];
                 
                 result = @"Install action sent.";
-            }
-            else
-            {
-                result = @"Install action not sent: cookie tracking is on.";
             }
         }
         else if (!versionsEqual) // marker exits and the versions are not equal, so record an update
@@ -852,18 +875,13 @@ BOOL IS_TRACKER_STARTED = NO;
 {
     [self.parameters setValue:[advertising_identifier UUIDString] forKey:KEY_IOS_IFA];
     
-    ASIdentifierManager *adMgr = [ASIdentifierManager sharedManager];
-    [self.parameters setValue:[NSString stringWithFormat:@"%d", adMgr.advertisingTrackingEnabled] forKey:KEY_IOS_AD_TRACKING];
+    NSString *strEnabled = [NSString stringWithFormat:@"%d", [ASIdentifierManager sharedManager].advertisingTrackingEnabled];
+    [self.parameters setValue:strEnabled forKey:KEY_IOS_AD_TRACKING];
 }
 
 - (void)setAppleVendorIdentifier:(NSUUID * )vendor_identifier
 {
     [self.parameters setValue:[vendor_identifier UUIDString] forKey:KEY_IOS_IFV];
-}
-
-- (void)setUseHTTPS:(BOOL)yesorno
-{
-    self.shouldUseHTTPS = yesorno;
 }
 
 - (void)setUseCookieTracking:(BOOL)yesorno
@@ -995,7 +1013,8 @@ BOOL IS_TRACKER_STARTED = NO;
 
 - (void)setLatitude:(double)latitude longitude:(double)longitude
 {
-    [self setLatitude:latitude longitude:longitude altitude:0.0];
+    [self.parameters setValue:[NSString stringWithFormat:@"%f", latitude] forKey:KEY_LATITUDE];
+    [self.parameters setValue:[NSString stringWithFormat:@"%f", longitude] forKey:KEY_LONGITUDE];
 }
 
 - (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude
@@ -1009,23 +1028,23 @@ BOOL IS_TRACKER_STARTED = NO;
 #pragma mark Private Methods
 
 /// returns YES if cookie based tracking worked
-- (BOOL)checkTracking:(NSString*)refId
+- (BOOL)cookieTrackingInProgress:(NSString*)refId
 {
     if (self.shouldUseCookieTracking)
     {
         [self initVariablesForTrackAction:EVENT_INSTALL eventIsId:NO];
-        NSString * link = [self prepareUrlWithReferenceId:refId encryptionLevel:HIGHLY_ENCRYPTED ignoreParams:nil];
+        NSString * trackingLink = [self prepareUrlWithReferenceId:refId encryptionLevel:HIGHLY_ENCRYPTED ignoreParams:nil];
         
         if ([MATConnectionManager sharedManager].shouldDebug)
         {
-            link = [link stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
+            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
         }
         if ([MATConnectionManager sharedManager].shouldAllowDuplicates)
         {
-            link = [link stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
+            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
         }
         
-        NSURL * url = [NSURL URLWithString:link];
+        NSURL * url = [NSURL URLWithString:trackingLink];
         [[UIApplication sharedApplication] openURL:url];
         
         return YES;
@@ -1063,13 +1082,7 @@ BOOL IS_TRACKER_STARTED = NO;
     {
         NSString *domainName = [MATUtils serverDomainName];
         
-        self.serverPath = [NSString stringWithFormat:@"%@://%@.%@", KEY_HTTP, [self.parameters objectForKey:KEY_ADVERTISER_ID], domainName];
-    }
-    
-    //Check if HTTPS is turned on
-    if(self.shouldUseHTTPS)
-    {
-        self.serverPath = [self.serverPath stringByReplacingOccurrencesOfString:KEY_HTTP withString:KEY_HTTPS];
+        self.serverPath = [NSString stringWithFormat:@"%@://%@.%@", @"https", [self.parameters objectForKey:KEY_ADVERTISER_ID], domainName];
     }
     
     DLog(@"MobileAppTracker initVar: %@", self.serverPath);
@@ -1151,8 +1164,6 @@ BOOL IS_TRACKER_STARTED = NO;
 
 - (NSString*)prepareUrlWithReferenceId:(NSString*)refId encryptionLevel:(NSString*)encryptionLevel ignoreParams:(NSSet*)ignoreParams isOpenEvent:(BOOL)isOpenEvent
 {
-    DLog(@"MAT prepareUrl: pass 1");
-    
     NSMutableDictionary *parametersCopy = [NSMutableDictionary dictionaryWithDictionary:self.parameters];
     
     if (refId)
@@ -1160,7 +1171,6 @@ BOOL IS_TRACKER_STARTED = NO;
         [parametersCopy setValue:refId forKey:KEY_REF_ID];
     }
     
-    DLog(@"MAT prepareUrl: pass 2");
     DLog(@"MAT prepareUrl: isOpenEvent = %d, installLogId = %d, updateLogId = %d", isOpenEvent, nil != [self.parameters valueForKey:KEY_INSTALL_LOG_ID], nil != [self.parameters valueForKey:KEY_UPDATE_LOG_ID]);
     
     // Use serve_no_log endpoint only when: event = OPEN and install_log_id is not available.
@@ -1178,7 +1188,7 @@ BOOL IS_TRACKER_STARTED = NO;
                                       encryptionLevel:encryptionLevel];
     
     // clean out the application openURL keys
-    [self resetApplicationOpenUrlKeys];
+    //[self resetApplicationOpenUrlKeys];
     
     DLog(@"MAT prepareUrl: pass end: %@", urlString);
     
@@ -1192,8 +1202,8 @@ BOOL IS_TRACKER_STARTED = NO;
     
     NSString *paramLowerCase = [paramKey lowercaseString];
     
-    if ([paramLowerCase isEqualToString:KEY_EVENT_REFERRAL] ||
-        [paramLowerCase isEqualToString:KEY_SOURCE])
+    if ([paramLowerCase isEqualToString:KEY_REFERRAL_URL] ||
+        [paramLowerCase isEqualToString:KEY_REFERRAL_SOURCE])
     {
         NSString *temp = [self.parameters valueForKey:paramKey];
         
@@ -1204,11 +1214,11 @@ BOOL IS_TRACKER_STARTED = NO;
     return useParam;
 }
 
-- (void)resetApplicationOpenUrlKeys
-{
-    [self.parameters setValue:STRING_EMPTY forKey:KEY_EVENT_REFERRAL];
-    [self.parameters setValue:STRING_EMPTY forKey:KEY_SOURCE];
-}
+//- (void)resetApplicationOpenUrlKeys
+//{
+//    [self.parameters setValue:STRING_EMPTY forKey:KEY_EVENT_REFERRAL];
+//    [self.parameters setValue:STRING_EMPTY forKey:KEY_SOURCE];
+//}
 
 -(void)sendRequestWithEventItems:(NSArray *)eventItems referenceId:(NSString*)refId isOpenEvent:(BOOL)isOpenEvent
 {
@@ -1224,9 +1234,9 @@ BOOL IS_TRACKER_STARTED = NO;
     [self loadFacebookCookieId];
     
     NSSet * ignoreParams = [NSSet setWithObjects:KEY_REDIRECT_URL, KEY_KEY, nil];
-    NSString * link = [self prepareUrlWithReferenceId:refId encryptionLevel:NORMALLY_ENCRYPTED ignoreParams:ignoreParams isOpenEvent:isOpenEvent];
+    NSString * trackingLink = [self prepareUrlWithReferenceId:refId encryptionLevel:NORMALLY_ENCRYPTED ignoreParams:ignoreParams isOpenEvent:isOpenEvent];
     
-    DRLog(@"MAT sendRequestWithEventItems: %@", link);
+    DRLog(@"MAT sendRequestWithEventItems: %@", trackingLink);
     
     // serialized event items
     NSArray *arrDictEventItems = eventItems;
@@ -1272,7 +1282,7 @@ BOOL IS_TRACKER_STARTED = NO;
     }
     
     // fire the event tracking request
-    [[MATConnectionManager sharedManager] beginUrlRequest:link andPOSTData:strPost withDelegate:self];
+    [[MATConnectionManager sharedManager] beginUrlRequest:trackingLink andPOSTData:strPost withDelegate:self];
 }
 
 // loads a facebook cookie into the parameters
@@ -1388,7 +1398,7 @@ BOOL IS_TRACKER_STARTED = NO;
     
     //Application openUrl parms
     // initialized to empty so we don't pass them each time
-    [self resetApplicationOpenUrlKeys];
+    //[self resetApplicationOpenUrlKeys];
     
     // Currency code
     if (!self.defaultCurrencyCode)
@@ -1400,7 +1410,7 @@ BOOL IS_TRACKER_STARTED = NO;
     //init doNotEncrypt set
     NSSet * doNotEncryptForNormalLevelSet = [NSSet setWithObjects:KEY_ADVERTISER_ID, KEY_SITE_ID, KEY_DOMAIN, KEY_ACTION,
                                              KEY_SITE_EVENT_ID, KEY_SDK, KEY_VER, KEY_KEY_INDEX, KEY_SITE_EVENT_NAME,
-                                             KEY_EVENT_REFERRAL, KEY_SOURCE, KEY_TRACKING_ID, KEY_PACKAGE_NAME, nil];
+                                             KEY_REFERRAL_URL, KEY_REFERRAL_SOURCE, KEY_TRACKING_ID, KEY_PACKAGE_NAME, nil];
     NSSet * doNotEncryptForHighLevelSet = [NSSet setWithObjects:KEY_ADVERTISER_ID, KEY_SITE_ID, KEY_SDK, KEY_ACTION, KEY_PACKAGE_NAME, nil];
     NSDictionary * doNotEncryptDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                        doNotEncryptForNormalLevelSet, NORMALLY_ENCRYPTED,
@@ -1446,7 +1456,7 @@ BOOL IS_TRACKER_STARTED = NO;
     if([dict count] > 0)
     {
         *key = [NSString stringWithFormat:@"cworks_click[%@]", [[dict allKeys] objectAtIndex:0]];
-        *value = dict[[[dict allKeys] objectAtIndex:0]];
+        *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
     }
 }
 
@@ -1458,7 +1468,7 @@ BOOL IS_TRACKER_STARTED = NO;
     if([dict count] > 0)
     {
         *key = [NSString stringWithFormat:@"cworks_impression[%@]", [[dict allKeys] objectAtIndex:0]];
-        *value = dict[[[dict allKeys] objectAtIndex:0]];
+        *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
     }
 }
 
@@ -1693,17 +1703,17 @@ BOOL IS_TRACKER_STARTED = NO;
             
             NSString *domainName = [MATUtils serverDomainName];
             
-            NSString *pathServer = [NSString stringWithFormat:@"%@://%@", KEY_HTTPS, domainName];
+            NSString *pathServer = [NSString stringWithFormat:@"%@://%@", @"https", domainName];
             
-            NSString *link = [self urlStringForServerUrl:pathServer
-                                                    path:SERVER_PATH_GET_INSTALL_LOG_ID
-                                                  params:self.parameters
-                                            ignoreParams:ignoreParams
-                                         encryptionLevel:NORMALLY_ENCRYPTED];
+            NSString *weblink = [self urlStringForServerUrl:pathServer
+                                                       path:SERVER_PATH_GET_INSTALL_LOG_ID
+                                                     params:self.parameters
+                                               ignoreParams:ignoreParams
+                                            encryptionLevel:NORMALLY_ENCRYPTED];
             
-            link = [NSString stringWithFormat:@"%@&fields[]=log_id&fields[]=type", link];
+            weblink = [NSString stringWithFormat:@"%@&fields[]=log_id&fields[]=type", weblink];
             
-            [MATUtils sendRequestGetInstallLogIdWithLink:link
+            [MATUtils sendRequestGetInstallLogIdWithLink:weblink
                                                   params:params
                                       connectionDelegate:self];
         }
@@ -1829,69 +1839,14 @@ BOOL IS_TRACKER_STARTED = NO;
 @end
 
 
-#pragma mark - Deprecated Methods
-
-@implementation MobileAppTracker (Deprecated)
-
-- (BOOL)startTrackerWithAdvertiserId:(NSString *)aid advertiserKey:(NSString *)key withError:(NSError **)error
-{
-    return [self startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
-}
-
-- (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key withError:(NSError **)error
-{
-    return [self startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
-}
-
-- (void)setAdvertiserId:(NSString *)advertiser_id
-{
-    [self setMATAdvertiserId:advertiser_id];
-}
-
-- (void)setAdvertiserKey:(NSString *)advertiser_key
-{
-    [self setMATConversionKey:advertiser_key];
-}
-
-- (void)setAdvertiserIdentifier:(NSUUID *)advertiser_identifier
-{
-    [self setAppleAdvertisingIdentifier:advertiser_identifier];
-}
-
-- (void)setVendorIdentifier:(NSUUID * )vendor_identifier
-{
-    [self setAppleVendorIdentifier:vendor_identifier];
-}
-
-- (void)setShouldAutoGenerateAdvertiserIdentifier:(BOOL)yesorno
-{
-    [self setShouldAutoGenerateAppleAdvertisingIdentifier:yesorno];
-}
-
-- (void)setShouldAutoGenerateVendorIdentifier:(BOOL)yesorno
-{
-    [self setShouldAutoGenerateAppleVendorIdentifier:yesorno];
-}
-
-- (void)setShouldDebugResponseFromServer:(BOOL)yesorno
-{
-    [self setDebugMode:yesorno];
-}
-
-- (void)setShouldAllowDuplicateRequests:(BOOL)yesorno
-{
-    [self setAllowDuplicateRequests:yesorno];
-}
-
-@end
-
-
-
-
-
 @implementation MATEventItem
 
 @synthesize item, unitPrice, quantity, revenue, attribute1, attribute2, attribute3, attribute4, attribute5;
+
++ (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity
+{
+    return [MATEventItem eventItemWithName:name unitPrice:unitPrice quantity:quantity revenue:0 attribute1:nil attribute2:nil attribute3:nil attribute4:nil attribute5:nil];
+}
 
 + (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue
 {
@@ -1951,36 +1906,36 @@ BOOL IS_TRACKER_STARTED = NO;
     
     if([self item] && [NSNull null] != (id)[self item])
     {
-        dict[KEY_ITEM] = [self item];
+        [dict setValue:[self item] forKey:KEY_ITEM];
     }
     
-    dict[KEY_UNIT_PRICE] = [NSString stringWithFormat:@"%f", [self unitPrice]];
-    dict[KEY_QUANTITY] = [NSString stringWithFormat:@"%d", [self quantity]];
-    dict[KEY_REVENUE] = [NSString stringWithFormat:@"%f", [self revenue]];
+    [dict setValue:[NSString stringWithFormat:@"%f", [self unitPrice]] forKey:KEY_UNIT_PRICE];
+    [dict setValue:[NSString stringWithFormat:@"%d", [self quantity]] forKey:KEY_QUANTITY];
+    [dict setValue:[NSString stringWithFormat:@"%f", [self revenue]] forKey:KEY_REVENUE];
     
     if([self attribute1] && [NSNull null] != (id)[self attribute1])
     {
-        dict[KEY_ATTRIBUTE_SUB1] = [self attribute1];
+        [dict setValue:[self attribute1] forKey:KEY_ATTRIBUTE_SUB1];
     }
     
     if([self attribute2] && [NSNull null] != (id)[self attribute2])
     {
-        dict[KEY_ATTRIBUTE_SUB2] = [self attribute2];
+        [dict setValue:[self attribute2] forKey:KEY_ATTRIBUTE_SUB2];
     }
     
     if([self attribute3] && [NSNull null] != (id)[self attribute3])
     {
-        dict[KEY_ATTRIBUTE_SUB3] = [self attribute3];
+        [dict setValue:[self attribute3] forKey:KEY_ATTRIBUTE_SUB3];
     }
     
     if([self attribute4] && [NSNull null] != (id)[self attribute4])
     {
-        dict[KEY_ATTRIBUTE_SUB4] = [self attribute4];
+        [dict setValue:[self attribute4] forKey:KEY_ATTRIBUTE_SUB4];
     }
     
     if([self attribute5] && [NSNull null] != (id)[self attribute5])
     {
-        dict[KEY_ATTRIBUTE_SUB5] = [self attribute5];
+        [dict setValue:[self attribute5] forKey:KEY_ATTRIBUTE_SUB5];
     }
     
     return dict;

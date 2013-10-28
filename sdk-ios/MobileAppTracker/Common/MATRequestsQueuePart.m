@@ -49,9 +49,9 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return index_;
 }
 
-- (void)setIndex:(NSInteger)index
+- (void)setIndex:(NSInteger)targetIndex
 {
-    index_ = index;
+    index_ = targetIndex;
     [self generateFileName];
     self.modified = YES;
 }
@@ -81,18 +81,18 @@ NSString * const XML_NODE_REQUEST = @"Request";
     self.loadedRequestsCount = count;
 }
 
-+ (id)partWithIndex:(NSInteger)index parentFolder:(NSString *)parentFolder
++ (id)partWithIndex:(NSInteger)targetIndex parentFolder:(NSString *)parentFolder
 {
-    return [[[MATRequestsQueuePart alloc] initWithIndex:index parentFolder:parentFolder] autorelease];
+    return [[[MATRequestsQueuePart alloc] initWithIndex:targetIndex parentFolder:parentFolder] autorelease];
 }
 
-- (id)initWithIndex:(NSInteger)index parentFolder:(NSString *)parentDir
+- (id)initWithIndex:(NSInteger)targetIndex parentFolder:(NSString *)parentDir
 {
     self = [super init];
     
     if (self)
     {
-        index_ = index;
+        index_ = targetIndex;
         self.parentFolder = parentDir;
         [self generateFileName];
         modified_ = NO;
@@ -192,10 +192,10 @@ NSString * const XML_NODE_REQUEST = @"Request";
         // clean up the text to make it compliant with XML
         
         NSString *urlValue = [request valueForKey:KEY_URL];
-        NSString *encodedUrl = [urlValue gtm_stringBySanitizingAndEscapingForXML];
+        NSString *encodedUrl = [urlValue MATgtm_stringBySanitizingAndEscapingForXML];
         
         NSString *jsonValue = [request valueForKey:KEY_JSON];
-        NSString *encodedJson = [jsonValue gtm_stringBySanitizingAndEscapingForXML];
+        NSString *encodedJson = [jsonValue MATgtm_stringBySanitizingAndEscapingForXML];
 		
         encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
         
