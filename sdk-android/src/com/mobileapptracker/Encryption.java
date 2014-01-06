@@ -8,7 +8,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-class Encryption {
+public class Encryption {
     private IvParameterSpec ivspec;
     private SecretKeySpec keyspec;
     private Cipher cipher;
@@ -76,7 +76,7 @@ class Encryption {
      * @param data Byte array to convert to hex
      * @return Hex string
      */
-    public String bytesToHex(byte[] data) {
+    public static String bytesToHex(byte[] data) {
         if (data == null) {
             return null;
         }
@@ -133,7 +133,7 @@ class Encryption {
      * @param s String to MD5 hash
      * @return MD5 hashed string
      */
-    public String md5(String s) {
+    public static String md5(String s) {
         if (s == null) {
             return "";
         }
@@ -153,7 +153,7 @@ class Encryption {
      * @param s String to SHA-1 hash
      * @return SHA-1 hashed string
      */
-    public String sha1(String s) {
+    public static String sha1(String s) {
         if (s == null) {
             return "";
         }
@@ -173,7 +173,7 @@ class Encryption {
      * @param s String to SHA-256 hash
      * @return SHA-256 hashed string
      */
-    public String sha256(String s) {
+    public static String sha256(String s) {
         if (s == null) {
             return "";
         }

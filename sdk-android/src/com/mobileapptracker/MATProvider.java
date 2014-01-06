@@ -1,5 +1,6 @@
 package com.mobileapptracker;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -13,6 +14,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
+@SuppressLint("Registered")
 public class MATProvider extends ContentProvider {
     public static final String _ID = "_id";
     public static final String PUBLISHER_PACKAGE_NAME = "publisher_package_name";

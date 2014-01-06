@@ -1,7 +1,6 @@
 package com.mobileapptracker;
 
 import java.net.URLDecoder;
-import java.util.Observable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,12 +17,6 @@ import android.util.Log;
  *
  */
 public class Tracker extends BroadcastReceiver {
-    private static final ObservableChanged _observable = new ObservableChanged();
-    
-    protected static Observable getObservable() {
-        return _observable;
-    }
-    
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
@@ -36,20 +29,15 @@ public class Tracker extends BroadcastReceiver {
                     // Save the referrer value in SharedPreferences
                     context.getSharedPreferences(MATConstants.PREFS_REFERRER, Context.MODE_PRIVATE).edit().putString("referrer", referrer).commit();
                     
-                    // Notify listeners of change
-                    _observable.notifyObservers(referrer);
+                    // Post conversion install to update referrer
+                    MobileAppTracker mat = MobileAppTracker.getInstance();
+                    if (mat != null) {
+                        mat.trackInstallWithReferrer();
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-    
-    protected static class ObservableChanged extends Observable {
-        // Make hasChanged always true
-        @Override
-        public boolean hasChanged() {
-            return true;
         }
     }
 }

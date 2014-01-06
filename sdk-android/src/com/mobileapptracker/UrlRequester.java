@@ -82,8 +82,8 @@ class UrlRequester {
         if (response != null) {
             try {
                 StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                    Log.d(MATConstants.TAG, "Request was sent");
+                Log.d(MATConstants.TAG, "Request completed with status " + statusLine.getStatusCode());
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK || statusLine.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                     StringBuilder builder = new StringBuilder();
                     for (String line = null; (line = reader.readLine()) != null;) {
@@ -96,8 +96,6 @@ class UrlRequester {
                     } else {
                         return new JSONObject();
                     }
-                } else {
-                    Log.d(MATConstants.TAG, "Request failed with status " + statusLine.getStatusCode());
                 }
                 // Closes the connection.
                 response.getEntity().getContent().close();
