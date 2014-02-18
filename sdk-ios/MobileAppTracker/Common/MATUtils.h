@@ -13,6 +13,7 @@
 #import <objc/runtime.h>
 
 @protocol MATConnectionManagerDelegate;
+@class MATConnectionManager;
 
 @interface MATUtils : NSObject
 
@@ -24,6 +25,7 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 + (NSString *)getUUID;
 
 + (NSString *)bundleId;
++ (NSString *)installDate;
 
 + (BOOL)isNetworkReachable;
 
@@ -35,11 +37,7 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
                                    campaignId:(NSString*)campaignId
                                   publisherId:(NSString*)publisherId
                                      redirect:(BOOL)shouldRedirect
-                           connectionDelegate:(id<MATConnectionManagerDelegate>)matDelegate;
-
-+ (void)sendRequestGetInstallLogIdWithLink:(NSString *)link
-                                    params:(NSMutableDictionary*)params
-                        connectionDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
+                            connectionManager:(MATConnectionManager*)connectionManager;
 
 + (void)stopTrackingSession;
 + (BOOL)isTrackingSessionStartedForTargetApplication:(NSString*)targetPackageName;
@@ -69,6 +67,8 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (float)getNumericiOSVersion:(NSString *)iOSVersion;
 + (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL;
+
++ (NSString *)jsonSerialize:(id)object;
 
 + (NSString *)serverDomainName;
 

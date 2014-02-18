@@ -7,6 +7,7 @@
 //
 
 #import "MATRequestsQueue.h"
+#import "MATUtils.h"
 
 NSString * const MAT_REQUEST_QUEUE_FOLDER = @"queue";
 NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
@@ -99,14 +100,9 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     return self;
 }
 
-- (void)dealloc
+-(NSString*) description
 {
-    [queueParts_ release], queueParts_ = nil;
-    [pathOld release], pathOld = nil;
-    [pathStorageDir release], pathStorageDir = nil;
-    [pathStorageFile release], pathStorageFile = nil;
-
-    [super dealloc];
+    return [NSString stringWithFormat:@"queue with %lu items, %lu parts", (unsigned long)[queueParts_ count], (unsigned long)[self queuedRequestsCount]];
 }
 
 #pragma mark - Queue Helper Methods
@@ -231,8 +227,8 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
             [part save];
         }
         
-        /// Store it's information
-        [strDescr appendFormat:@"<%@ %@=\"%d\" %@=\"%d\"></%@>", XML_NODE_PART, XML_NODE_ATTRIBUTE_INDEX, part.index, XML_NODE_ATTRIBUTE_REQUESTS, part.queuedRequestsCount, XML_NODE_PART];
+        /// Store its information
+        [strDescr appendFormat:@"<%@ %@=\"%ld\" %@=\"%lu\"></%@>", XML_NODE_PART, XML_NODE_ATTRIBUTE_INDEX, (long)part.index, XML_NODE_ATTRIBUTE_REQUESTS, (unsigned long)part.queuedRequestsCount, XML_NODE_PART];
     }
     
     [strDescr appendFormat:@"</%@>", XML_NODE_PARTS];
@@ -272,12 +268,10 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 #if DEBUG_LOG
         NSString *fileContents = [[NSString alloc] initWithData:descsData encoding:NSUTF8StringEncoding];
         NSLog(@"MATReqQue: load: fileContents = %@", fileContents);
-        [fileContents release], fileContents = nil;
 #endif
         NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:descsData];
         [xmlParser setDelegate:self];
         [xmlParser parse];
-        [xmlParser release]; xmlParser = nil;
         
         result = YES;
     }
@@ -302,8 +296,8 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         NSUInteger requests = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_REQUESTS] intValue];
         
         DLog(@"MATReqQue: parser: pathStorageDir = %@", self.pathStorageDir);
-        DLog(@"MATReqQue: parser: index          = %d", storedIndex);
-        DLog(@"MATReqQue: parser: request Count  = %d", requests);
+        DLog(@"MATReqQue: parser: index          = %lu", (unsigned long)storedIndex);
+        DLog(@"MATReqQue: parser: request Count  = %lu", (unsigned long)requests);
         
         MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:storedIndex parentFolder:self.pathStorageDir];
         part.queuedRequestsCount = requests;
@@ -320,10 +314,10 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 // -- for iOS v5.0   and below : Moves file to Library/Caches
 - (void)fixForiCloud
 {
-    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD]);
+    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue]);
     
     // This fix is needed only once and never again.
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD])
+    if(![[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue])
     {
         NSString *queueStorageFolder = self.pathStorageDir;
         
@@ -368,7 +362,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         {
             DLog(@"MATReqQue: fixForCloud: set key KEY_MAT_FIXED_FOR_ICLOUD = YES");
             // Set a flag to note that the do-not-back-to-iCloud change was successful.
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KEY_MAT_FIXED_FOR_ICLOUD];
+            [MATUtils setUserDefaultValue:@TRUE forKey:KEY_MAT_FIXED_FOR_ICLOUD];
         }
     }
 }

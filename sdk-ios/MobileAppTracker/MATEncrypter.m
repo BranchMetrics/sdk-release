@@ -10,8 +10,8 @@
 
 @interface MATEncrypter()
 
-+ (NSMutableString *)hexEncode:(NSMutableString *)str;
-+ (NSData *)aesEncryptData:(NSData *)data withKey:(NSMutableString *)mykey;
++ (NSString *)hexEncode:(NSData *)str;
++ (NSData *)aesEncryptData:(NSData *)data withKey:(NSString *)mykey;
 
 @end
 
@@ -19,30 +19,27 @@
 @implementation MATEncrypter
 
 
-+(NSMutableString *)encryptString:(NSMutableString *)str withKey:(NSString *)key
-{    
-	NSString *encodedInput = [self hexEncode:str];
++(NSString *)encryptString:(NSMutableString *)str withKey:(NSString *)key
+{
+    // hex encode the input string
+	NSString *encodedInput = [self hexEncode:[str dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // hex encoded input data
     NSData *inputData = [encodedInput dataUsingEncoding:NSUTF8StringEncoding];
     
-	NSData * outputData = [self aesEncryptData:inputData withKey:[NSMutableString stringWithString:key]];
-	unsigned char outputstring[[outputData length] + 1];
+    // encrypt the hex encoded input data
+	NSData * outputData = [self aesEncryptData:inputData withKey:key];
     
-	[outputData getBytes:outputstring];
-	NSMutableString *hexret = [NSMutableString stringWithCapacity:(([outputData length] * 2) + 1)];
+    // hex encode the encrypted data
+	NSString *hexret = [self hexEncode:outputData];
     
-	for(int i = 0; i < [outputData length]; i++)
-    {
-		[hexret appendFormat:@"%02X", outputstring[i]];
-    }
-	
 	return hexret;
 }
 
 
-+ (NSData *)aesEncryptData:(NSData *)data withKey:(NSMutableString *)mykey
++ (NSData *)aesEncryptData:(NSData *)data withKey:(NSString *)mykey
 {
-	const void * iv = nil;
-	int keyLength = [mykey length];
+	NSInteger keyLength = [mykey length];
 	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
 	{		
 		return nil;
@@ -58,16 +55,15 @@
 	
     CCCryptorStatus result = CCCrypt(kCCEncrypt, 
 									 kCCAlgorithmAES128 , 
-									 (iv == nil ? kCCOptionECBMode | kCCOptionPKCS7Padding : kCCOptionPKCS7Padding),        
+									 kCCOptionECBMode | kCCOptionPKCS7Padding,
 									 keyBytes, 
 									 keyLength, 
-									 iv,
+									 NULL,
 									 [data bytes],
 									 [data length],
 									 encryptedBytes, 
 									 encryptedLength,
 									 &numBytesEncrypted);
-	
     
 	if(result == kCCSuccess)
 		return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
@@ -75,20 +71,23 @@
 	return nil;
 }
 
-+ (NSMutableString *)hexEncode:(NSMutableString *)str
-{
-	NSMutableString *hexret = [NSMutableString string];
-	unsigned char outputstring[[str length]+1];
-	
-	strncpy((char *)outputstring, [str UTF8String], [str length]);
-	
-	for(int i = 0; i < [str length]; i++)
-		[hexret appendFormat:@"%02X", outputstring[i]];
-	
-	//NSLog(@"hex encode %@ %@",str,hexret);
-	return hexret;
-}
 
++ (NSString *)hexEncode:(NSData *)data
+{
+	// extract bytes from NSData object
+	NSUInteger dataLength = [data length];
+    unsigned char dataBytes[dataLength + 1];
+    [data getBytes:dataBytes length:dataLength];
+	
+    // create the hex encoded string
+    NSMutableString *hexret = [NSMutableString string];
+	for(int i = 0; i < dataLength; i++)
+    {
+		[hexret appendFormat:@"%02X", dataBytes[i]];
+    }
+    
+	return [NSString stringWithString:hexret];
+}
 
 
 @end

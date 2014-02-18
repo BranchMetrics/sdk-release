@@ -22,6 +22,6 @@
  @param str The string to be encrypted.
  @param key The key used to encrypt the string.
  */
-+ (NSMutableString *)encryptString:(NSMutableString *)str withKey:(NSString *)key;
++ (NSString *)encryptString:(NSString *)str withKey:(NSString *)key;
 
 @end

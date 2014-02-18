@@ -5,17 +5,6 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
 
-    /****************************************
-     *  VERY IMPORTANT!
-     *  These values should be zero for releases.
-     ****************************************/
-    #define DEBUG_JAILBREAK_LOG         0
-    #define DEBUG_LINK_LOG              0
-    #define DEBUG_LOG                   0
-    #define DEBUG_REQUEST_LOG           0
-    #define DEBUG_STAGING               0
-    #define CUSTOM_LOG                  0
-
     #if DEBUG_LOG
         #define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
     #else
