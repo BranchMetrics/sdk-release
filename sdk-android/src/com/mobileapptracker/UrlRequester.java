@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -83,22 +82,25 @@ class UrlRequester {
             try {
                 StatusLine statusLine = response.getStatusLine();
                 Log.d(MATConstants.TAG, "Request completed with status " + statusLine.getStatusCode());
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK || statusLine.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+                if (statusLine.getStatusCode() >= 200 && statusLine.getStatusCode() <= 299) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                     StringBuilder builder = new StringBuilder();
                     for (String line = null; (line = reader.readLine()) != null;) {
                         builder.append(line).append("\n");
                     }
+                    reader.close();
                     if (builder.length() > 0) {
                         JSONTokener tokener = new JSONTokener(builder.toString());
-                        JSONObject finalResult = new JSONObject(tokener);
-                        return finalResult;
+                        return new JSONObject(tokener);
                     } else {
                         return new JSONObject();
                     }
                 }
-                // Closes the connection.
-                response.getEntity().getContent().close();
+                // for HTTP 3XX and 4XX, assume we're doing it wrong and it will never succeed
+                // for HTTP 5XX, assume the server is broken and will be fixed later
+                else if (statusLine.getStatusCode() >= 500) {
+                    return new JSONObject();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
