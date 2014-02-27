@@ -10,17 +10,20 @@
 #import <UIKit/UIKit.h>
 #import "MATEventItem.h"
 
-#define MATVERSION @"3.0.4"
+#define MATVERSION @"3.0.6"
 
 
 #pragma mark - enumerated types
 
-/** @name Results for tracking actions */
+/** @name Error codes */
 typedef enum {
-    MATActionResultFailure = -1,
-    MATActionResultRequestSent = 1,
-    MATActionResultAlreadyInstalled
-} MATActionResult;
+    MATNoAdvertiserIDProvided = 1101,
+    MATNoConversionKeyProvided = 1102,
+    MATInvalidConversionKey = 1103,
+    MATTrackingWithoutInitializing = 1132,
+    MATInvalidEventClose = 1131,
+    MATServerErrorResponse = 1111
+} MATErrorCode;
 
 /** @name Gender type constants */
 typedef enum {
@@ -48,9 +51,8 @@ typedef enum {
  Starts Mobile App Tracker with MAT Advertiser Id and MAT Conversion Key. Both values are required.
  @param aid the MAT Advertiser Id provided in Mobile App Tracking.
  @param key the MAT Conversion Key provided in Mobile App Tracking.
- @return YES if error occurs, NO otherwise.
  */
-+ (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
++ (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
 
 
 #pragma mark - Delegate
@@ -86,7 +88,7 @@ typedef enum {
 + (void)setAllowDuplicateRequests:(BOOL)yesorno;
 
 
-#pragma mark - Data Parameters
+#pragma mark - Data Setters
 
 /** @name Setter Methods */
 
@@ -267,6 +269,23 @@ typedef enum {
 + (void)setEventAttribute5:(NSString*)value;
 
 
+#pragma mark - Data Getters
+
+/** @name Getter Methods */
+
+/*!
+ Get the MAT ID for this installation (mat_id).
+ @return MAT ID
+ */
++ (NSString*)matId;
+
+/*!
+ Get the MAT log ID for the first app open (open_log_id).
+ @return open log ID
+ */
++ (NSString*)openLogId;
+
+
 #pragma mark - Show iAd advertising
 
 /** @name iAd advertising */
@@ -291,13 +310,13 @@ typedef enum {
 /*!
  To be called when an app opens; typically in the didFinishLaunching event.
  */
-+ (MATActionResult)trackSession;
++ (void)trackSession;
 
 /*!
  To be called when an app opens; typically in the didFinishLaunching event.
  @param refId A reference id used to track an install and/or update, corresponds to advertiser_ref_id on the website.
  */
-+ (MATActionResult)trackSessionWithReferenceId:(NSString *)refId;
++ (void)trackSessionWithReferenceId:(NSString *)refId;
 
 
 #pragma mark - Track Actions
@@ -488,6 +507,7 @@ typedef enum {
 /*!
  Protocol that allows for callbacks from the MobileAppTracker methods.
  To use, set your class as the delegate for MAT and implement these methods.
+ Delegate methods are called on an arbitrary thread.
  */
 @protocol MobileAppTrackerDelegate <NSObject>
 @optional

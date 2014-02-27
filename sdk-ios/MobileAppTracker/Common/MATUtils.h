@@ -25,7 +25,7 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 + (NSString *)getUUID;
 
 + (NSString *)bundleId;
-+ (NSString *)installDate;
++ (NSDate *)installDate;
 
 + (BOOL)isNetworkReachable;
 
@@ -52,8 +52,8 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (id)userDefaultValueforKey:(NSString *)key;
 + (void)setUserDefaultValue:(id)value forKey:(NSString* )key;
++ (void)synchronizeUserDefaults;
 
-+ (NSString *)formattedCurrentDateTime;
 + (BOOL)checkJailBreak;
 
 + (void)storeToPasteBoardTrackingId:(NSMutableDictionary *)params;

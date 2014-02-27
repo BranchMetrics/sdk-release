@@ -213,7 +213,7 @@ static BOOL _shouldDebug = NO;
     NSError *errorForUser = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1301 userInfo:errorDetails];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [mat performSelector:NSSelectorFromString(@"notifyDelegateFailureWithError:") withObject:errorForUser];
+    [mat performSelector:@selector(notifyDelegateFailureWithError:) withObject:errorForUser];
 #pragma clang diagnostic pop
 }
 
@@ -247,7 +247,7 @@ static BOOL _shouldDebug = NO;
             NSMutableDictionary * itemsDict = [NSMutableDictionary dictionary];
             [itemsDict setValue:strPublisherBundleId forKey:KEY_PACKAGE_NAME];
             [itemsDict setValue:strTrackingId forKey:KEY_TRACKING_ID];
-            [itemsDict setValue:[MATUtils formattedCurrentDateTime] forKey:KEY_SESSION_DATETIME];
+            [itemsDict setValue:[self epochStringForDate:[NSDate date]] forKey:KEY_SESSION_DATETIME];
             [itemsDict setValue:strTargetBundleId forKey:KEY_TARGET_BUNDLE_ID];
             
             NSData * archivedData = [NSKeyedArchiver archivedDataWithRootObject:itemsDict];
@@ -258,7 +258,7 @@ static BOOL _shouldDebug = NO;
         
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [mat performSelector:NSSelectorFromString(@"notifyDelegateSuccessMessage:") withObject:successDetails];
+        [mat performSelector:@selector(notifyDelegateSuccessMessage:) withObject:successDetails];
 #pragma clang diagnostic pop
         
         if(redirect && strRedirectUrl && 0 < strRedirectUrl.length)
@@ -275,15 +275,11 @@ static BOOL _shouldDebug = NO;
         NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1302 userInfo:errorDetails];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [mat performSelector:NSSelectorFromString(@"notifyDelegateFailureWithError:") withObject:error];
+        [mat performSelector:@selector(notifyDelegateFailureWithError:) withObject:error];
 #pragma clang diagnostic pop
     }
 }
 
-+ (NSString *)formattedCurrentDateTime
-{
-    return [[MATUtils sharedDateFormatter] stringFromDate:[NSDate date]];
-}
 
 + (void)stopTrackingSession
 {
@@ -378,6 +374,11 @@ static BOOL _shouldDebug = NO;
     //[defaults synchronize];
 }
 
++(void) synchronizeUserDefaults
+{
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 + (BOOL)checkJailBreak
 {
 #if TARGET_IPHONE_SIMULATOR
@@ -459,13 +460,13 @@ static BOOL _shouldDebug = NO;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleIdentifierKey];
 }
 
-+ (NSString *)installDate
++ (NSDate *)installDate
 {
     // Determine install date from app bundle
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     NSDictionary *appAttrs = [fileManager attributesOfItemAtPath:bundlePath error:nil];
-    return [appAttrs[NSFileCreationDate] description];
+    return appAttrs[NSFileCreationDate];
 }
 
 
@@ -916,6 +917,12 @@ char *MATNewBase64Encode(
                                               encoding:NSASCIIStringEncoding];
 	free(outputBuffer);
 	return result;
+}
+
+
++(NSString*) epochStringForDate:(NSDate*)date
+{
+    return [NSString stringWithFormat:@"%ld", (long)round( [date timeIntervalSince1970] )];
 }
 
 @end

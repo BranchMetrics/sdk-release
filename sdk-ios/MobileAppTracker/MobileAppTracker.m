@@ -28,18 +28,23 @@
 
 static const int MAT_CONVERSION_KEY_LENGTH = 32;
 
+static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
+
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
+
+static NSOperationQueue *opQueue = nil;
 
 
 @interface MobileAppTracker() <MATConnectionManagerDelegate, ADBannerViewDelegate>
 {
     ADBannerView *iAd;
     
-    BOOL isTrackerStarted;
     BOOL debugMode;
 }
 
 - (void)setEventAttributeN:(NSUInteger)number toValue:(NSString*)value;
+
+@property (atomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
 @property (nonatomic, assign) id <MobileAppTrackerDelegate> delegate;
 @property (nonatomic, retain) MATConnectionManager *connectionManager;
@@ -66,20 +71,22 @@ static const int MAT_CONVERSION_KEY_LENGTH = 32;
 
 @implementation MobileAppTracker
 
-static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
+#pragma mark - init methods
 
-#pragma mark -
-#pragma mark init method
++(void) initialize
+{
+    opQueue = [NSOperationQueue new];
+    opQueue.maxConcurrentOperationCount = 1;
+}
 
 - (id)init
 {
     if (self = [super init])
     {
-        // Initialization code here
         // create an empty parameters object
         // this won't generate any auto params yet
         self.parameters = [MATSettings new];
-        
+            
 #if DEBUG_STAGING
         self.parameters.staging = TRUE;
 #endif
@@ -102,38 +109,38 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - Public Methods
 
-- (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
+- (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
     BOOL hasError = NO;
-    isTrackerStarted = NO;
+    self.trackerStarted = NO;
     
     NSString *errorMessage = nil;
     NSString *errorKey = nil;
     int errorCode = 0;
     
-    aid = [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    key = [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *aid_ = [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *key_ = [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
-    if(0 == aid.length)
+    if(0 == aid_.length)
     {
         hasError = YES;
         errorMessage = @"No MAT Advertiser Id provided.";
         errorKey = KEY_ERROR_MAT_ADVERTISER_ID_MISSING;
-        errorCode = 1101;
+        errorCode = MATNoAdvertiserIDProvided;
     }
-    else if(0 == key.length)
+    else if(0 == key_.length)
     {
         hasError = YES;
         errorMessage = @"No MAT Conversion Key provided.";
         errorKey = KEY_ERROR_MAT_CONVERSION_KEY_MISSING;
-        errorCode = 1102;
+        errorCode = MATNoConversionKeyProvided;
     }
-    else if(MAT_CONVERSION_KEY_LENGTH != key.length)
+    else if(MAT_CONVERSION_KEY_LENGTH != key_.length)
     {
         hasError = YES;
-        errorMessage = [NSString stringWithFormat:@"Invalid MAT Conversion Key provided, length = %lu. Expected key length = %d", (unsigned long)key.length, MAT_CONVERSION_KEY_LENGTH];
+        errorMessage = [NSString stringWithFormat:@"Invalid MAT Conversion Key provided, length = %lu. Expected key length = %d", (unsigned long)key_.length, MAT_CONVERSION_KEY_LENGTH];
         errorKey = KEY_ERROR_MAT_CONVERSION_KEY_INVALID;
-        errorCode = 1103;
+        errorCode = MATInvalidConversionKey;
     }
     
     if(hasError)
@@ -149,24 +156,16 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     }
     else
     {
-        self.parameters.advertiserId = aid;
-        self.parameters.conversionKey = key;
+        self.parameters.advertiserId = aid_;
+        self.parameters.conversionKey = key_;
         
-        isTrackerStarted = YES;
-        
-        // Observe app-did-become-active notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleNotification:)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
+        self.trackerStarted = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleNotification:)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
     }
-    
-    return hasError;
 }
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication
@@ -180,10 +179,10 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 - (void)handleNotification:(NSNotification *)notice
 {
-    if(NSOrderedSame == [notice.name compare:UIApplicationWillResignActiveNotification])
+    if([notice.name isEqualToString:UIApplicationWillResignActiveNotification])
     {
         // make sure that the user default local storage is written to disk before the app closes
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [MATUtils synchronizeUserDefaults];
     }
 }
 
@@ -414,17 +413,18 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                             receipt:(NSData *)receipt
                      postConversion:(BOOL)postConversion
 {
-    if(!isTrackerStarted)
+    if(!self.isTrackerStarted)
     {
         // Create an error object
-        int errorCode = 1132;
         NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
         NSString *errorMessage = @"Invalid MAT Advertiser Id or MAT Conversion Key passed in.";
         NSString *errorKey = KEY_ERROR_MAT_INVALID_PARAMETERS;
         [errorDetails setValue:errorKey forKey:NSLocalizedFailureReasonErrorKey];
         [errorDetails setValue:errorMessage forKey:NSLocalizedDescriptionKey];
         
-        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:errorCode userInfo:errorDetails];
+        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER
+                                             code:MATTrackingWithoutInitializing
+                                         userInfo:errorDetails];
         
         [self notifyDelegateFailureWithError:error];
         return;
@@ -438,7 +438,9 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         [errorDetails setValue:KEY_ERROR_MAT_CLOSE_EVENT forKey:NSLocalizedFailureReasonErrorKey];
         [errorDetails setValue:@"MAT does not support tracking of \"close\" event." forKey:NSLocalizedDescriptionKey];
         
-        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1131 userInfo:errorDetails];
+        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER
+                                             code:MATInvalidEventClose
+                                         userInfo:errorDetails];
         [self notifyDelegateFailureWithError:error];
         return;
     }
@@ -482,12 +484,12 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - Track Session
 
-- (MATActionResult)trackSession
+- (void)trackSession
 {
-    return [self trackSessionWithReferenceId:nil];
+    [self trackSessionWithReferenceId:nil];
 }
 
-- (MATActionResult)trackSessionWithReferenceId:(NSString *)refId
+- (void)trackSessionWithReferenceId:(NSString *)refId
 {
     [self trackActionForEventIdOrName:EVENT_SESSION referenceId:refId];
 
@@ -502,8 +504,6 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         }];
     }
 #endif
-
-    return MATActionResultRequestSent;
 }
 
 
@@ -546,82 +546,71 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - Set auto-generating properties
 
-- (void)setShouldAutoDetectJailbroken:(BOOL)yesorno
+- (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetect
 {
-    self.shouldDetectJailbroken = yesorno;
+    self.shouldDetectJailbroken = shouldAutoDetect;
     
-    if (!yesorno)
-    {
-        self.parameters.jailbroken = nil;
-    }
-    else
-    {
+    if (shouldAutoDetect)
         self.parameters.jailbroken = @([MATUtils checkJailBreak]);
-    }
+    else
+        self.parameters.jailbroken = nil;
 }
 
-- (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)yesorno
+- (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)shouldAutoGenerate
 {
-    self.shouldGenerateVendorIdentifier = yesorno;
-    if (!yesorno)
-    {
-        self.parameters.ifv = nil;
-    }
-    else
-    {
-        if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)])
-        {
+    self.shouldGenerateVendorIdentifier = shouldAutoGenerate;
+    if( shouldAutoGenerate ) {
+        if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
             NSString *uuidStr = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-            if (uuidStr && ![uuidStr isEqualToString:KEY_GUID_EMPTY])
-            {
+            if (uuidStr && ![uuidStr isEqualToString:KEY_GUID_EMPTY]) {
                 self.parameters.ifv = uuidStr;
             }
         }
     }
+    else
+        self.parameters.ifv = nil;
 }
 
 #pragma mark - Non-trivial setters
 
-- (void)setDebugMode:(BOOL)yesorno
+- (void)setDebugMode:(BOOL)newDebugMode
 {
-    DLog(@"MAT: setDebugMode = %d", yesorno);
+    DLog(@"MAT: setDebugMode = %d", newDebugMode);
     
-    debugMode = yesorno;
-    self.connectionManager.shouldDebug = yesorno;
-    [MATUtils setShouldDebug:yesorno];
+    debugMode = newDebugMode;
+    self.connectionManager.shouldDebug = newDebugMode;
+    [MATUtils setShouldDebug:newDebugMode];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // show an alert if the debug mode is enabled
-        if(yesorno)
-        {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning"
-                                                            message:@"MAT Debug Mode Enabled. Use only when debugging, do not release with this enabled!!"
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"OK"
-                                                  otherButtonTitles:nil];
-            [alert show];
-        }
-    });
+    // show an alert if the debug mode is enabled
+    if(newDebugMode) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [[[UIAlertView alloc] initWithTitle:@"Warning"
+                                        message:@"MAT Debug Mode Enabled. Use only when debugging, do not release with this enabled!!"
+                                       delegate:nil
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil]
+             show];
+        }];
+    }
 }
 
-- (void)setAllowDuplicateRequests:(BOOL)yesorno
+- (void)setAllowDuplicateRequests:(BOOL)allowDuplicates
 {
-    DLog(@"MAT: setAllowDuplicateRequests = %d", yesorno);
+    DLog(@"MAT: setAllowDuplicateRequests = %d", allowDuplicates);
     
-    self.connectionManager.shouldAllowDuplicates = yesorno;
+    self.connectionManager.shouldAllowDuplicates = allowDuplicates;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // show an alert if the allow duplicate requests   enabled
-        if(yesorno)
-        {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning"
-                                                            message:@"Allow Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!!"
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"OK"
-                                                  otherButtonTitles:nil];
-            [alert show];
-        }
-    });
+    // show an alert if the allow duplicate requests   enabled
+    if(allowDuplicates) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [[[UIAlertView alloc] initWithTitle:@"Warning"
+                                        message:@"Allow Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!!"
+                                       delegate:nil
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil]
+             show];
+        }];
+    }
 }
 
 - (void)setEventAttributeN:(NSUInteger)number toValue:(NSString*)value
@@ -650,45 +639,6 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - Private Methods
 
-/// returns YES if cookie based tracking worked
-- (BOOL)cookieTrackingInProgress:(NSString*)refId
-{
-    if (self.shouldUseCookieTracking)
-    {
-        [self initVariablesForTrackAction:EVENT_INSTALL];
-        NSString * trackingLink = [self prepareUrlWithReferenceId:refId encryptionLevel:HIGHLY_ENCRYPTED ignoreParams:nil];
-        
-        if (self.connectionManager.shouldDebug)
-        {
-            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
-        }
-        if (self.connectionManager.shouldAllowDuplicates)
-        {
-            trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
-        }
-        
-        NSURL * url = [NSURL URLWithString:trackingLink];
-        [[UIApplication sharedApplication] openURL:url];
-        
-        return YES;
-    }
-    else
-    {
-        if ([MATUtils isTrackingSessionStartedForTargetApplication:[MATUtils bundleId]])
-        {
-            NSString * sessionDateTime = [MATUtils getSessionDateTime];
-            self.parameters.sessionDate = sessionDateTime;
-            
-            NSString * trackingId = [MATUtils getTrackingId];
-            self.parameters.trackingId = trackingId;
-            
-            [MATUtils stopTrackingSession];
-        }
-    }
-    
-    return NO;
-}
-
 - (void)initVariablesForTrackAction:(NSString *)eventIdOrName
 {
     if (self.shouldUseCookieTracking && [[eventIdOrName lowercaseString] isEqualToString:EVENT_INSTALL])
@@ -699,12 +649,12 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     {
         NSString *domainName = [MATUtils serverDomainName];
         
-        self.serverPath = [NSString stringWithFormat:@"%@://%@.%@", @"https", self.parameters.advertiserId, domainName];
+        self.serverPath = [NSString stringWithFormat:@"https://%@.%@", self.parameters.advertiserId, domainName];
     }
 
     self.parameters.actionName = eventIdOrName;
     
-    self.parameters.systemDate = [MATUtils formattedCurrentDateTime];
+    self.parameters.systemDate = [NSDate date];
 
     // Note: set CWorks click param
     NSString *cworksClickKey = nil;
@@ -850,7 +800,9 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
             [errorDetails setValue:KEY_ERROR_MAT_SERVER_ERROR forKey:NSLocalizedFailureReasonErrorKey];
             [errorDetails setValue:strData forKey:NSLocalizedDescriptionKey];
             
-            NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1111 userInfo:errorDetails];
+            NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER
+                                                 code:MATServerErrorResponse
+                                             userInfo:errorDetails];
             [self.delegate mobileAppTrackerDidFailWithError:error];
         }
         return;
@@ -907,6 +859,8 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 + (MobileAppTracker *)sharedManager
 {
+    // note that the initialization is slow (potentially hundreds of milliseconds),
+    // so call this function on a background thread if it might be the first time
     static MobileAppTracker *sharedManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -916,207 +870,309 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     return sharedManager;
 }
 
-+ (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
++ (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
-    return [[self sharedManager] startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
+    }];
 }
 
 + (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate
 {
-    [self sharedManager].delegate = delegate;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].delegate = delegate;
 #if DEBUG
-    [self sharedManager].parameters.delegate = (id <MATSettingsDelegate>)delegate;
+        [self sharedManager].parameters.delegate = (id <MATSettingsDelegate>)delegate;
 #endif
+    }];
 }
 
 + (void)setDebugMode:(BOOL)yesorno
 {
-    [[self sharedManager] setDebugMode:yesorno];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setDebugMode:yesorno];
+    }];
 }
 
 + (void)setAllowDuplicateRequests:(BOOL)yesorno
 {
-    [[self sharedManager] setAllowDuplicateRequests:yesorno];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setAllowDuplicateRequests:yesorno];
+    }];
 }
 
 + (void)setExistingUser:(BOOL)existingUser
 {
-    [self sharedManager].parameters.existingUser = @(existingUser);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.existingUser = @(existingUser);
+    }];
 }
 
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
-    [self sharedManager].parameters.ifa = [appleAdvertisingIdentifier UUIDString];
-    [self sharedManager].parameters.ifaTracking = @(adTrackingEnabled);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.ifa = [appleAdvertisingIdentifier UUIDString];
+        [self sharedManager].parameters.ifaTracking = @(adTrackingEnabled);
+    }];
 }
 
 + (void)setAppleVendorIdentifier:(NSUUID * )appleVendorIdentifier
 {
-    [self sharedManager].parameters.ifv = [appleVendorIdentifier UUIDString];
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.ifv = [appleVendorIdentifier UUIDString];
+    }];
 }
 
 + (void)setCurrencyCode:(NSString *)currencyCode
 {
-    [self sharedManager].parameters.defaultCurrencyCode = currencyCode;
-    [self sharedManager].parameters.currencyCode = currencyCode;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.defaultCurrencyCode = currencyCode;
+        [self sharedManager].parameters.currencyCode = currencyCode;
+    }];
 }
 
 + (void)setJailbroken:(BOOL)yesorno
 {
-    [self sharedManager].parameters.jailbroken = @(yesorno);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.jailbroken = @(yesorno);
+    }];
 }
 
 + (void)setPackageName:(NSString *)packageName
 {
-    [self sharedManager].parameters.packageName = packageName;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.packageName = packageName;
+    }];
 }
 
 + (void)setShouldAutoDetectJailbroken:(BOOL)yesorno
 {
-    [[self sharedManager] setShouldAutoDetectJailbroken:yesorno];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoDetectJailbroken:yesorno];
+    }];
 }
 
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)yesorno
 {
-    [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:yesorno];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:yesorno];
+    }];
 }
 
 + (void)setSiteId:(NSString *)siteId
 {
-    [self sharedManager].parameters.siteId = siteId;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.siteId = siteId;
+    }];
 }
 
 + (void)setTRUSTeId:(NSString *)tpid;
 {
-    [self sharedManager].parameters.trusteTPID = tpid;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.trusteTPID = tpid;
+    }];
 }
 
 + (void)setUserEmail:(NSString *)userEmail
 {
-    [self sharedManager].parameters.userEmail = userEmail;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.userEmail = userEmail;
+    }];
 }
 
 + (void)setUserId:(NSString *)userId
 {
-    [self sharedManager].parameters.userId = userId;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.userId = userId;
+    }];
 }
 
 + (void)setUserName:(NSString *)userName
 {
-    [self sharedManager].parameters.userName = userName;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.userName = userName;
+    }];
 }
 
 + (void)setFacebookUserId:(NSString *)facebookUserId
 {
-    [self sharedManager].parameters.facebookUserId = facebookUserId;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.facebookUserId = facebookUserId;
+    }];
 }
 
 + (void)setTwitterUserId:(NSString *)twitterUserId
 {
-    [self sharedManager].parameters.twitterUserId = twitterUserId;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.twitterUserId = twitterUserId;
+    }];
 }
 
 + (void)setGoogleUserId:(NSString *)googleUserId
 {
-    [self sharedManager].parameters.googleUserId = googleUserId;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.googleUserId = googleUserId;
+    }];
 }
 
 + (void)setAge:(NSInteger)userAge
 {
-    [self sharedManager].parameters.age = @(userAge);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.age = @(userAge);
+    }];
 }
 
 + (void)setGender:(MATGender)userGender
 {
-    // if an unknown value has been provided then default to "MALE" gender
-    long gen = MATGenderFemale == userGender ? MATGenderFemale : MATGenderMale;
-    [self sharedManager].parameters.gender = @(gen);
+    [opQueue addOperationWithBlock:^{
+        // if an unknown value has been provided then default to "MALE" gender
+        long gen = MATGenderFemale == userGender ? MATGenderFemale : MATGenderMale;
+        [self sharedManager].parameters.gender = @(gen);
+    }];
 }
 
 + (void)setLatitude:(double)latitude longitude:(double)longitude
 {
-    [self sharedManager].parameters.latitude = @(latitude);
-    [self sharedManager].parameters.longitude = @(longitude);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.latitude = @(latitude);
+        [self sharedManager].parameters.longitude = @(longitude);
+    }];
 }
 
 + (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude
 {
     [self setLatitude:latitude longitude:longitude];
-    [self sharedManager].parameters.altitude = @(altitude);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.altitude = @(altitude);
+    }];
 }
 
 + (void)setAppAdTracking:(BOOL)enable
 {
-    [self sharedManager].parameters.appAdTracking = @(enable);
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.appAdTracking = @(enable);
+    }];
 }
 
 + (void)setPluginName:(NSString *)pluginName
 {
-    if( pluginName == nil )
-        [self sharedManager].parameters.pluginName = pluginName;
-    else
-        for( NSString *allowedName in PLUGIN_NAMES )
-            if( [pluginName isEqualToString:allowedName] ) {
-                [self sharedManager].parameters.pluginName = pluginName;
-                break;
-            }
+    [opQueue addOperationWithBlock:^{
+        if( pluginName == nil )
+            [self sharedManager].parameters.pluginName = pluginName;
+        else
+            for( NSString *allowedName in PLUGIN_NAMES )
+                if( [pluginName isEqualToString:allowedName] ) {
+                    [self sharedManager].parameters.pluginName = pluginName;
+                    break;
+                }
+    }];
 }
 
 + (void)setEventAttribute1:(NSString*)value
 {
-    [[self sharedManager] setEventAttributeN:1 toValue:value];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setEventAttributeN:1 toValue:value];
+    }];
 }
 
 + (void)setEventAttribute2:(NSString*)value
 {
-    [[self sharedManager] setEventAttributeN:2 toValue:value];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setEventAttributeN:2 toValue:value];
+    }];
 }
 
 + (void)setEventAttribute3:(NSString*)value
 {
-    [[self sharedManager] setEventAttributeN:3 toValue:value];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setEventAttributeN:3 toValue:value];
+    }];
 }
 
 + (void)setEventAttribute4:(NSString*)value
 {
-    [[self sharedManager] setEventAttributeN:4 toValue:value];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setEventAttributeN:4 toValue:value];
+    }];
 }
 
 + (void)setEventAttribute5:(NSString*)value
 {
-    [[self sharedManager] setEventAttributeN:5 toValue:value];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setEventAttributeN:5 toValue:value];
+    }];
 }
 
-+ (MATActionResult)trackSession
++ (NSString*)matId
 {
-    return [[self sharedManager] trackSession];
+    return [self sharedManager].parameters.matId;
 }
 
-+ (MATActionResult)trackSessionWithReferenceId:(NSString *)refId
++ (NSString*)openLogId
 {
-    return [[self sharedManager] trackSessionWithReferenceId:refId];
+    return [self sharedManager].parameters.openLogId;
+}
+
++ (void)displayiAdInView:(UIView*)view
+{
+    [opQueue addOperationWithBlock:^{
+        MobileAppTracker *mat = [self sharedManager];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [mat displayiAdInView:view];
+        }];
+    }];
+}
+
++ (void) removeiAd
+{
+    [opQueue addOperationWithBlock:^{
+        MobileAppTracker *mat = [self sharedManager];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [mat removeiAd];
+        }];
+    }];
+}
+
++ (void)trackSession
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackSession];
+    }];
+}
+
++ (void)trackSessionWithReferenceId:(NSString *)refId
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackSessionWithReferenceId:refId];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
                         referenceId:(NSString *)refId
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                          referenceId:refId];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                              referenceId:refId];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
@@ -1124,26 +1180,32 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                          referenceId:refId
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
                          eventItems:(NSArray *)eventItems
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems
-                                          referenceId:refId];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems
+                                              referenceId:refId];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
@@ -1151,10 +1213,12 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
@@ -1163,11 +1227,13 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems
-                                          referenceId:refId
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
@@ -1177,12 +1243,14 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                        currencyCode:(NSString *)currencyCode
                    transactionState:(NSInteger)transactionState
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems
-                                          referenceId:refId
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode
-                                     transactionState:transactionState];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode
+                                         transactionState:transactionState];
+    }];
 }
 
 + (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
@@ -1193,23 +1261,29 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                    transactionState:(NSInteger)transactionState
                             receipt:(NSData *)receipt
 {
-    [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
-                                           eventItems:eventItems
-                                          referenceId:refId
-                                        revenueAmount:revenueAmount
-                                         currencyCode:currencyCode
-                                     transactionState:transactionState
-                                              receipt:receipt];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode
+                                         transactionState:transactionState
+                                                  receipt:receipt];
+    }];
 }
 
 + (void)setUseCookieTracking:(BOOL)yesorno
 {
-    [self sharedManager].shouldUseCookieTracking = yesorno;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].shouldUseCookieTracking = yesorno;
+    }];
 }
 
 + (void)setRedirectUrl:(NSString *)redirectURL
 {
-    [self sharedManager].parameters.redirectUrl = redirectURL;
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.redirectUrl = redirectURL;
+    }];
 }
 
 + (void)setTracking:(NSString *)targetAppPackageName
@@ -1218,26 +1292,20 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         publisherId:(NSString *)targetAdvertiserPublisherId
            redirect:(BOOL)shouldRedirect
 {
-    [[self sharedManager] setTracking:targetAppPackageName
-                         advertiserId:targetAppAdvertiserId
-                              offerId:targetAdvertiserOfferId
-                          publisherId:targetAdvertiserPublisherId
-                             redirect:shouldRedirect];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setTracking:targetAppPackageName
+                             advertiserId:targetAppAdvertiserId
+                                  offerId:targetAdvertiserOfferId
+                              publisherId:targetAdvertiserPublisherId
+                                 redirect:shouldRedirect];
+    }];
 }
 
 + (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication
 {
-    [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
-}
-
-+ (void)displayiAdInView:(UIView*)view
-{
-    [[self sharedManager] displayiAdInView:view];
-}
-
-+ (void) removeiAd
-{
-    [[self sharedManager] removeiAd];
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
+    }];
 }
 
 @end
