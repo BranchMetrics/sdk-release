@@ -33,8 +33,7 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 @property (nonatomic, assign) BOOL shouldAllowDuplicates;
 @property (nonatomic, assign) id<MATConnectionManagerDelegate> delegate;
 
-+ (MATConnectionManager*)sharedManager;
-+ (void)destroyManager;
+@property (nonatomic, readonly) MATRequestsQueue * requestsQueue;
 
 - (void)enqueueUrlRequest:(NSString *)trackingLink
               andPOSTData:(NSString*)postData

@@ -15,9 +15,9 @@
 
 
 @interface MATTestParams : NSObject
-{
-    NSMutableDictionary *params;
-}
+
+-(BOOL) isEqualToParams:(MATTestParams*)other;
+-(BOOL) isEmpty;
 
 -(BOOL) extractParamsString:(NSString*)string;
 -(BOOL) extractParamsJSON:(NSString*)json;

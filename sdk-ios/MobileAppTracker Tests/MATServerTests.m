@@ -24,7 +24,7 @@
 
 - (void)setUp
 {
-    waitFor( 10. ); // wait for previous tests - not necessary when we can reset the sharedManager
+    waitFor( 10. ); // wait for previous tests
     
     [super setUp];
     
@@ -33,7 +33,7 @@
     callFailedDuplicate = FALSE;
 
     [MobileAppTracker setAllowDuplicateRequests:YES];
-    [MobileAppTracker startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [MobileAppTracker setDelegate:self];
 
     emptyRequestQueue();
@@ -52,55 +52,54 @@
 
 -(void) testInstall
 {
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 6. );
-    XCTAssertTrue( callSuccess, @"trackSession should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackSession should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackSession should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
 }
 
 
-/* JAB 1/29/14: duplicates not being rejected now for some reason...
 -(void) testInstallDuplicate
 {
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureAction:@"something"];
     waitFor( 10. );
-    XCTAssertTrue( callSuccess, @"trackSession should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackSession should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackSession should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
 
     callSuccess = FALSE;
     [MobileAppTracker setAllowDuplicateRequests:NO];
 
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureAction:@"something"];
     waitFor( 10. );
-    XCTAssertFalse( callSuccess, @"trackSession duplicate should not have succeeded" );
-    XCTAssertTrue( callFailed, @"trackSession duplicate should not have succeeded" );
-    XCTAssertTrue( callFailedDuplicate, @"trackSession duplicate should not have succeeded" );
+    XCTAssertFalse( callSuccess, @"measureSession duplicate should not have succeeded" );
+    XCTAssertTrue( callFailed, @"measureSession duplicate should not have succeeded" );
+    XCTAssertTrue( callFailedDuplicate, @"measureSession duplicate should not have succeeded" );
 }
- */
 
 
 -(void) testInstallPostConversion
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    [mat performSelector:@selector(trackSessionPostConversionWithReferenceId:) withObject:nil];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    waitFor( 0.1 ); // let it initialize
+    [mat performSelector:@selector(trackInstallPostConversionWithReferenceId:) withObject:nil];
 #pragma clang diagnostic pop
     
     waitFor( 6. );
-    XCTAssertTrue( callSuccess, @"trackSessionPostConversion should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackSessionPostConversion should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackSessionPostConversion should have succeeded" );
+    XCTAssertTrue( callSuccess, @"trackInstallPostConversion should have succeeded" );
+    XCTAssertFalse( callFailed, @"trackInstallPostConversion should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"trackInstallPostConversion should have succeeded" );
 }
 
 
 -(void) testUpdate
 {
     [MobileAppTracker setExistingUser:YES];
-    [MobileAppTracker trackSession];
-    waitFor( 6. );
+    [MobileAppTracker measureSession];
+    waitFor( 7. );
     XCTAssertTrue( callSuccess, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailed, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
@@ -110,7 +109,7 @@
 -(void) testActionNameEvent
 {
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
+    [MobileAppTracker measureAction:eventName];
     waitFor( 6. );
     XCTAssertTrue( callSuccess, @"trackAction should have succeeded" );
     XCTAssertFalse( callFailed, @"trackAction should have succeeded" );
@@ -118,12 +117,11 @@
 }
 
 
-/* JAB 1/29/14: duplicates not being rejected now for some reason...
 -(void) testActionNameEventDuplicate
 {
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 1. );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 2. );
     XCTAssertTrue( callSuccess, @"trackAction should have succeeded" );
     XCTAssertFalse( callFailed, @"trackAction should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"trackAction should have succeeded" );
@@ -132,13 +130,12 @@
     [MobileAppTracker setAllowDuplicateRequests:NO];
     waitFor( 5. );
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 1. );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 2. );
     XCTAssertFalse( callSuccess, @"trackAction duplicate should not have succeeded" );
     XCTAssertTrue( callFailed, @"trackAction duplicate should not have succeeded" );
     XCTAssertTrue( callFailedDuplicate, @"trackAction duplicate should not have succeeded" );
 }
-*/
 
 
 -(void) testActionNameIdItemsRevenue
@@ -152,10 +149,10 @@
     static CGFloat revenue = 3.14159;
     static NSString* const currencyCode = @"XXX";
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
+    [MobileAppTracker measureAction:eventName
+                         eventItems:items
+                      revenueAmount:revenue
+                       currencyCode:currencyCode];
     waitFor( 1. );
 
     XCTAssertTrue( callSuccess, @"trackAction with items should have succeeded" );
@@ -168,19 +165,19 @@
 {
     [MobileAppTracker setAllowDuplicateRequests:NO];
 
-    [MobileAppTracker trackActionForEventIdOrName:@"purchase" referenceId:@"sword" revenueAmount:1. currencyCode:@"USD"];
-    waitFor( 1. );
-    XCTAssertTrue( callSuccess, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction with items should have succeeded" );
+    [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
+    waitFor( 5. );
+    XCTAssertTrue( callSuccess, @"trackAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"trackAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"trackAction with revenue should have succeeded" );
 
     callSuccess = FALSE;
     
-    [MobileAppTracker trackActionForEventIdOrName:@"purchase" referenceId:@"sword" revenueAmount:1. currencyCode:@"USD"];
-    waitFor( 1. );
-    XCTAssertTrue( callSuccess, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction with items should have succeeded" );
+    [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
+    waitFor( 5. );
+    XCTAssertTrue( callSuccess, @"trackAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"trackAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"trackAction with revenue should have succeeded" );
 }
 
 
@@ -206,16 +203,14 @@
 }
 
 // secret functions to test server URLs
-/*
 -(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
 {
-    NSLog( @"plaintext params %@, encrypted params %@\n", paramsPlaintext, paramsEncrypted );
+    //NSLog( @"plaintext params %@, encrypted params %@\n", paramsPlaintext, paramsEncrypted );
 }
 
 -(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    NSLog( @"requesting with url %@ and post data %@\n", trackingUrl, postData );
+    //NSLog( @"requesting with url %@ and post data %@\n", trackingUrl, postData );
 }
-*/
 
 @end

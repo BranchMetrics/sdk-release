@@ -45,7 +45,7 @@
 
 -(void) commonSetup
 {
-    [MobileAppTracker startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     MobileAppTracker.delegate = self;
 }
 
@@ -58,7 +58,7 @@
     NSUUID *newIfv = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -69,7 +69,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:nil]];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -80,7 +80,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:nil];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -91,7 +91,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@""]];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -102,7 +102,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -113,7 +113,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"0000000000000000000000000000000000000000000000000000000000000000000000"]];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -124,7 +124,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -140,7 +140,7 @@
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
     [MobileAppTracker setShouldAutoGenerateAppleVendorIdentifier:NO];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -156,7 +156,7 @@
     NSUUID *newIfa = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleAdvertisingIdentifier:newIfa advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -168,7 +168,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:nil]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -180,7 +180,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:nil
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -192,7 +192,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@""]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -204,7 +204,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -216,23 +216,13 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifa", @"00000000-0000-0000-0000-000000000000" );
 }
 
-// what happens if we change some of these values before calling startTracker?
-// need a way to stop/reset tracker first - #172
-
-/*
- - (void)setAppAdTracking:(BOOL)enable;
- - (void)setJailbroken:(BOOL)yesorno;
- - (void)setShouldAutoDetectJailbroken:(BOOL)yesorno;
- - (void)setShouldAutoGenerateAppleAdvertisingIdentifier:(BOOL)yesorno;
- - (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)yesorno;
- */
 
 #pragma mark - MAT delegate
 

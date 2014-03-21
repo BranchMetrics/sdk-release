@@ -26,6 +26,8 @@
     MATRequestsQueue *requestsQueue;
 
     MATTestParams *params;
+    MATTestParams *queryString;
+    MATTestParams *queryString2;
 }
 @end
 
@@ -35,7 +37,7 @@
 {
     [super setUp];
 
-    [MobileAppTracker startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [MobileAppTracker setDelegate:self];
     
     [MobileAppTracker setDebugMode:YES];
@@ -43,7 +45,7 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     connectionManager = [mat performSelector:@selector(connectionManager)];
     requestsQueue = [connectionManager performSelector:@selector(requestsQueue)];
     while( [requestsQueue pop] ); // clear queue
@@ -53,6 +55,7 @@
     successMessages = [NSMutableArray array];
     
     params = [MATTestParams new];
+    queryString = [MATTestParams new];
 }
 
 - (void)tearDown
@@ -100,7 +103,7 @@
 -(void) testAAAAAQueueFlush // run this test first to clear out queue and pending requests
 {
     emptyRequestQueue();
-    waitFor( 10. );
+    waitFor( 30. );
     [self checkAndClearExpectedQueueSize:0];
 
     [self takeOffline];
@@ -113,7 +116,7 @@
 {
     [self takeOffline];
     XCTAssertTrue( connectionManager.status == NotReachable, @"connection status should be not reachable" );
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     
     waitFor( 6. );
     XCTAssertTrue( connectionManager.status == NotReachable, @"connection status should be not reachable" );
@@ -126,7 +129,7 @@
 -(void) testOfflineFailureQueuedRetried
 {
     [self takeOffline];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     
     waitFor( 6. );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -135,17 +138,19 @@
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
+    
+    waitFor( 5. ); // wait for server response
 }
 
 
 -(void) testEnqueue2
 {
     [self takeOffline];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 6. );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
-    [MobileAppTracker trackActionForEventIdOrName:@"yourMomEvent"];
+    [MobileAppTracker measureAction:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"second offline call should not have received a failure notification" );
     [self checkAndClearExpectedQueueSize:2];
@@ -156,20 +161,21 @@
     [MobileAppTracker setDebugMode:FALSE];
     
     [self takeOffline];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 6. );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     
-    [MobileAppTracker trackActionForEventIdOrName:@"yourMomEvent"];
+    [MobileAppTracker measureAction:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
     XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
  	[[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
-    waitFor( 1. );
+    waitFor( 5. );
     XCTAssertFalse( callFailed, @"dequeuing call should not have failed" );
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
+    waitFor( 10. );
 }
 
 -(void) testEnqueue2RetriedOrder
@@ -177,17 +183,17 @@
     [MobileAppTracker setDebugMode:TRUE];
 
     [self takeOffline];
-    [MobileAppTracker trackActionForEventIdOrName:@"event1"];
-    [MobileAppTracker trackActionForEventIdOrName:@"event2"];
+    [MobileAppTracker measureAction:@"event1"];
+    [MobileAppTracker measureAction:@"event2"];
     waitFor( 0.1 );
     
     XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
  	[[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
-    waitFor( 5. );
+    waitFor( 10. );
 
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
-    XCTAssertTrue( [successMessages count] == 2, @"both calls should have succeeded" );
+    XCTAssertTrue( [successMessages count] == 2, @"both calls should have succeeded, but %lu did", (unsigned long)[successMessages count] );
 
     for( NSInteger i = 0; i < [successMessages count]; i++ ) {
         NSData *data = successMessages[i];
@@ -202,54 +208,85 @@
 -(void) testSessionQueue
 {
     [MobileAppTracker setDebugMode:TRUE];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 1. );
     XCTAssertFalse( callFailed, @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"session call should not have been attempted after 1 sec" );
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 1, @"expected 1 queued requests" );
+    XCTAssertTrue( requestsQueue.queuedRequestsCount == 0, @"expected no queued requests, but found %lu", (unsigned long)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
 
-    waitFor( 6. );
+    waitFor( 10. );
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
-    XCTAssertTrue( [successMessages count] == 2, @"both calls should have succeeded" );
+    XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
+    XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
     [self checkAndClearExpectedQueueSize:0];
 }
 
 -(void) testSessionQueueOrder
 {
+    queryString2 = [MATTestParams new];
+
     [MobileAppTracker setDebugMode:TRUE];
-    [MobileAppTracker trackSession];
-    [MobileAppTracker trackActionForEventIdOrName:@"event name"];
+    [MobileAppTracker measureSession];
+    [MobileAppTracker measureAction:@"event name"];
     waitFor( 1. );
+
     XCTAssertFalse( callFailed, @"no calls should have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"no calls should have been attempted after 1 sec" );
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests, but found %d", requestsQueue.queuedRequestsCount );
-    
+    XCTAssertTrue( requestsQueue.queuedRequestsCount == 1, @"expected 1 queued requests, but found %lu", (unsigned long)requestsQueue.queuedRequestsCount );
+
     waitFor( 6. );
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
+
+    XCTAssertTrue( [queryString checkDefaultValues], @"default value check failed: %@", queryString );
+    XCTAssertTrue( [queryString2 checkDefaultValues], @"default value check failed: %@", queryString2 );
+    XCTAssertTrue( [queryString checkKey:@"action" isEqualToValue:EVENT_SESSION], @"first call should be \"session\"" );
+    XCTAssertTrue( [queryString2 checkKey:@"action" isEqualToValue:EVENT_CONVERSION], @"second call should be \"conversion\"" );
 }
 
 
 #pragma mark - iAd attribution override
 
--(void) testiAdAttributionOverride
+-(void) testiAdAttributionOverrideTrue
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     MATSettings *settings = [mat performSelector:@selector(parameters)];
 #pragma clang diagnostic pop
 
     settings.iadAttribution = @FALSE;
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 1. );
     ASSERT_KEY_VALUE( @"iad_attribution", [@(FALSE) stringValue] );
     
     settings.iadAttribution = @TRUE;
     waitFor( 5. );
-    ASSERT_KEY_VALUE( @"iad_attribution", [@(TRUE) stringValue] );
+    XCTAssertTrue( [queryString checkKey:@"iad_attribution" isEqualToValue:[@(TRUE) stringValue]],
+                   @"should have set iad_attribution to true" );
+}
+
+
+-(void) testiAdAttributionOverrideFalse
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    MATSettings *settings = [mat performSelector:@selector(parameters)];
+#pragma clang diagnostic pop
+    
+    settings.iadAttribution = @FALSE;
+    [MobileAppTracker measureSession];
+    waitFor( 1. );
+    ASSERT_KEY_VALUE( @"iad_attribution", [@(FALSE) stringValue] );
+    
+    waitFor( 5. );
+    XCTAssertTrue( [queryString checkKey:@"iad_attribution" isEqualToValue:[@(FALSE) stringValue]],
+                  @"should have set iad_attribution to true" );
 }
 
 
@@ -267,7 +304,7 @@
     [queue save];
 
     NSDictionary *readItem = [queue pop];
-    XCTAssertTrue( [readItem count] == [item count], @"saved %ud keys, recovered %ud", [item count], [readItem count] );
+    XCTAssertTrue( [readItem count] == [item count], @"saved %lud keys, recovered %lud", (unsigned long)[item count], (unsigned long)[readItem count] );
     for( NSInteger i = 0; i < MIN( [item count], [readItem count] ); i++ ) {
         NSString *readKey = [readItem allKeys][i];
         NSString *key = [item allKeys][i];
@@ -313,9 +350,15 @@
 
 -(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL %@", trackingUrl );
-    if( postData )
+    MATTestParams *qs = queryString;
+    if( queryString2 && ![qs isEmpty] )
+        qs = queryString2;
+    
+    XCTAssertTrue( [qs extractParamsString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
+    if( postData ) {
         XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
+        XCTAssertTrue( [qs extractParamsJSON:postData], @"couldn't extract POST JSON %@", postData );
+    }
 }
 
 @end

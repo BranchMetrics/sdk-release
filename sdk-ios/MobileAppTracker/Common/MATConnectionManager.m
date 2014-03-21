@@ -9,7 +9,6 @@
 #import "MATConnectionManager.h"
 #import "MATKeyStrings.h"
 #import "MATUtils.h"
-#import "../MobileAppTracker.h"
 
 static const NSUInteger MAX_QUEUE_DUMP_TRIES_FAILURES       =   5;
 
@@ -23,7 +22,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, retain) NSString *postData;
 @property (nonatomic, retain) NSMutableData *responseData;
-@property (nonatomic, assign) BOOL isAppToApp, isInstallLogId;
+@property (nonatomic, assign) BOOL isAppToApp;
 @property (nonatomic, assign) SEL delegateSuccessSelector, delegateFailureSelector;
 @property (nonatomic, retain) id delegateTarget;
 @property (nonatomic, retain) id delegateArgument;
@@ -37,7 +36,6 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 @synthesize url, postData;
 @synthesize responseData;
 @synthesize isAppToApp;
-@synthesize isInstallLogId;
 @synthesize delegateTarget;
 @synthesize delegateArgument;
 @synthesize delegateSuccessSelector;
@@ -48,11 +46,8 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
 /********* MATConnectionManager private interface ********/
 
-static MATConnectionManager * instance__ = nil;
-
 @interface MATConnectionManager()
 
-@property (nonatomic, retain) MATRequestsQueue * requestsQueue;
 @property (nonatomic, retain) MATReachability * reachability;
 @property (assign) BOOL dumpingQueue;
 @property (assign) NSUInteger dumpTriesFailures;
@@ -77,20 +72,6 @@ static MATConnectionManager * instance__ = nil;
 @synthesize shouldDebug = _shouldDebug;
 @synthesize shouldAllowDuplicates = _shouldAllowDuplicates;
 @synthesize delegate = _delegate;
-
-+ (MATConnectionManager*)sharedManager
-{
-    if( !instance__ ) {
-        instance__ = [[MATConnectionManager alloc] init];
-    }
-    
-    return instance__;
-}
-
-+ (void)destroyManager
-{
-    instance__ = nil;
-}
 
 - (id)init
 {
@@ -288,13 +269,13 @@ static MATConnectionManager * instance__ = nil;
 
 - (void)dumpNextFromQueue
 {
-    if( NotReachable == self.status )
-        [self stopQueueDump];
-
     [queueQueue addOperationWithBlock:^{
+        if( NotReachable == self.status )
+            [self stopQueueDump];
+        if( !dumpingQueue_ ) return;
+
         // retrieve next request item from storage queue
         NSDictionary * dict = [requestsQueue_ pop];
-        
         DLLog(@"MATConnManager: dumpNextFromQueue %@", dict);
         
         // if a stored request is found
@@ -329,12 +310,26 @@ static MATConnectionManager * instance__ = nil;
 }
 
 
-- (void)enqueueUrlRequest:(NSString *)trackingLink andPOSTData:(NSString*)postData
+- (void)pushUrlRequestToHead:(NSString*)trackingLink POSTData:(NSString*)postData
 {
-    [self enqueueUrlRequest:trackingLink andPOSTData:postData runDate:[NSDate date]];
+    // note that postData might be nil
+    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSDate date], KEY_RUN_DATE,
+                           trackingLink, KEY_URL, postData, KEY_JSON, nil];
+    DLLog(@"MATConnManager: pushing to head %@", dict);
+
+    [queueQueue addOperationWithBlock:^{
+        [self.requestsQueue pushToHead:dict];
+        [self.requestsQueue save];
+    }];
+
+    // without this delay, we might dump before the queue is updated (race condition)
+    // without running on a particular queue, the current runloop might stop during the delay
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self performSelector:@selector(dumpQueue) withObject:nil afterDelay:0.5];
+    });
 }
 
-- (void)enqueueUrlRequest:(NSString *)trackingLink
+- (void)enqueueUrlRequest:(NSString*)trackingLink
               andPOSTData:(NSString*)postData
                   runDate:(NSDate*)runDate
 {
@@ -342,10 +337,17 @@ static MATConnectionManager * instance__ = nil;
     NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:runDate, KEY_RUN_DATE,
                            trackingLink, KEY_URL, postData, KEY_JSON, nil];
     DLLog(@"MATConnManager: enqueuing %@", dict);
-    [self.requestsQueue push:dict];
-    [self.requestsQueue save];
 
-    [self dumpQueue];
+    [queueQueue addOperationWithBlock:^{
+        [self.requestsQueue push:dict];
+        [self.requestsQueue save];
+    }];
+
+    // without a delay, we might dump before the queue is updated (race condition)
+    // without running on a particular queue, the current runloop might stop during the delay
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self performSelector:@selector(dumpQueue) withObject:nil afterDelay:0.5];
+    });
 }
 
 
@@ -354,7 +356,7 @@ static MATConnectionManager * instance__ = nil;
 -(void)connection:(MNSURLConnection *)connection didFailWithError:(NSError *)error
 {
     // do not requeue failed request to fetch tracking id for app to app tracking
-    if(connection.isAppToApp || connection.isInstallLogId)
+    if(connection.isAppToApp)
     {
         // suppress the memory leak warning -- we do not expect a memory leak since we are dealing with Class object and SEL.
 #pragma clang diagnostic push
@@ -381,7 +383,7 @@ static MATConnectionManager * instance__ = nil;
         DLLog(@"MATConnManager: connection:didFailWithError: failed url = %@", connection.url.absoluteString);
         
         // Store to queue, so that the request may be fired when internet becomes available.
-        [self enqueueUrlRequest:connection.url.absoluteString andPOSTData:connection.postData];
+        [self pushUrlRequestToHead:connection.url.absoluteString POSTData:connection.postData];
 
         if([self.delegate respondsToSelector:@selector(connectionManager:didFailWithError:)])
         {
@@ -414,14 +416,14 @@ static MATConnectionManager * instance__ = nil;
     NSLog(@"MATConnManager: didReceiveResponse: connectionManager = %@", self);
     NSLog(@"MATConnManager: didReceiveResponse: http response code = %ld", (long)code1);
 #endif
-    if(!connection.isAppToApp && !connection.isInstallLogId)
+    if(!connection.isAppToApp)
     {
         NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
         NSInteger code = [httpResponse statusCode];
+        NSDictionary *headers = [httpResponse allHeaderFields];
         
-        // if the network request was successful
-        if( code >= 200 && code <= 299 )
-        {
+        // if the network request was successful, great
+        if( code >= 200 && code <= 299 ) {
             self.dumpTriesFailures = 0;
             
             DRLog(@"MATConnManager: didReceiveResponse: previous request successful: call dumpNextFromQueue");
@@ -429,10 +431,12 @@ static MATConnectionManager * instance__ = nil;
             // fire the next stored request
             [self dumpNextFromQueue];
         }
-        // for HTTP 3XX and 4XX, assume we're doing it wrong and it will never succeed
-        // for HTTP 5XX, assume the server is broken and will be fixed later
-        else if( code >= 500 )
-        {
+        // for HTTP 400, if it's from our server, drop the request and don't retry
+        else if( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
+            DRLog(@"MATConnManager: didReceiveResponse: won't retry with 400 error" );
+        }
+        // for all other calls, assume the server/connection is broken and will be fixed later
+        else {
             // if the queue is already being dumped
             if (self.dumpingQueue)
             {
@@ -445,10 +449,8 @@ static MATConnectionManager * instance__ = nil;
             }
             
             // Store to queue, so that the request may be fired when internet becomes available.
-            [self enqueueUrlRequest:connection.url.absoluteString andPOSTData:connection.postData];
+            [self pushUrlRequestToHead:connection.url.absoluteString POSTData:connection.postData];
         }
-        else
-            DRLog( @"not retrying request that would otherwise be enqueued forever" );
     }
 }
 
@@ -474,8 +476,7 @@ static MATConnectionManager * instance__ = nil;
                                     && connection.delegateSuccessSelector
                                     && [connection.delegateTarget respondsToSelector:connection.delegateSuccessSelector]);
     
-    if((connection.isAppToApp || connection.isInstallLogId) &&
-       connection.delegateSuccessSelector &&
+    if(connection.isAppToApp && connection.delegateSuccessSelector &&
        [connection.delegateTarget respondsToSelector:connection.delegateSuccessSelector])
     {
         if(!connection.delegateArgument)
@@ -495,7 +496,7 @@ static MATConnectionManager * instance__ = nil;
 
     DLog(@"MATConnManager: calling delegate success callback: %d", (!connection.isAppToApp && !connection.isInstallLogId && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)]));
     
-    if(!connection.isAppToApp && !connection.isInstallLogId && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)])
+    if(!connection.isAppToApp && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)])
     {
         [self.delegate connectionManager:self didSucceedWithData:connection.responseData];
     }

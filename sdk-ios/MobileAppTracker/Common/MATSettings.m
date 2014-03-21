@@ -84,13 +84,15 @@
         // default to USD for currency code
         self.defaultCurrencyCode = KEY_CURRENCY_USD;
         
+        self.payingUser = [MATUtils userDefaultValueforKey:KEY_IS_PAYING_USER];
+        
          //init doNotEncrypt set
          NSSet * doNotEncryptForNormalLevelSet = [NSSet setWithObjects:KEY_ADVERTISER_ID, KEY_SITE_ID, KEY_DOMAIN, KEY_ACTION,
                                                   KEY_SITE_EVENT_ID, KEY_SDK, KEY_VER, KEY_KEY_INDEX, KEY_SITE_EVENT_NAME,
                                                   KEY_REFERRAL_URL, KEY_REFERRAL_SOURCE, KEY_TRACKING_ID, KEY_PACKAGE_NAME,
-                                                  KEY_IAD_ATTRIBUTION, nil];
+                                                  KEY_IAD_ATTRIBUTION, KEY_TRANSACTION_ID, nil];
          NSSet * doNotEncryptForHighLevelSet = [NSSet setWithObjects:KEY_ADVERTISER_ID, KEY_SITE_ID, KEY_SDK, KEY_ACTION,
-                                                KEY_PACKAGE_NAME, KEY_IAD_ATTRIBUTION, nil];
+                                                KEY_PACKAGE_NAME, KEY_IAD_ATTRIBUTION, KEY_TRANSACTION_ID, nil];
         NSDictionary * doNotEncryptDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                            doNotEncryptForNormalLevelSet, NORMALLY_ENCRYPTED,
                                            doNotEncryptForHighLevelSet, HIGHLY_ENCRYPTED, nil];
@@ -107,29 +109,36 @@
 }
 
 
+-(NSString*) domainName:(BOOL)debug
+{
+    if(self.staging)
+        return SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
+    else
+        // on prod, use a different server domain name when debug mode is enabled
+        return debug ? SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : SERVER_DOMAIN_REGULAR_TRACKING_PROD;
+}
+
+
 -(void) resetBeforeTrackAction
 {
     self.actionName = nil;
 }
 
 
--(NSString*) urlStringForServerUrl:(NSString*)serverUrl
-                              path:(NSString*)path
+-(NSString*) urlStringForDebugMode:(BOOL)debugMode
                       ignoreParams:(NSSet*)ignoreParams
                    encryptionLevel:(NSString*)encryptionLevel
 {
-    return [self urlStringForServerUrl:serverUrl
-                                  path:path
-                           referenceId:nil
-                          ignoreParams:ignoreParams
-                       encryptionLevel:encryptionLevel];
+    return [self urlStringForReferenceId:nil
+                               debugMode:debugMode
+                            ignoreParams:ignoreParams
+                         encryptionLevel:encryptionLevel];
 }
 
--(NSString*) urlStringForServerUrl:(NSString*)serverUrl
-                              path:(NSString*)path
-                       referenceId:(NSString*)referenceId
-                      ignoreParams:(NSSet*)ignoreParams
-                   encryptionLevel:(NSString*)encryptionLevel
+-(NSString*) urlStringForReferenceId:(NSString*)referenceId
+                           debugMode:(BOOL)debugMode
+                        ignoreParams:(NSSet*)ignoreParams
+                     encryptionLevel:(NSString*)encryptionLevel
 {
     // determine correct event name and action name
     NSString *eventNameOrId = nil;
@@ -140,6 +149,9 @@
         isId = YES;
         eventNameOrId = [self.actionName copy];
         self.actionName = EVENT_CONVERSION;
+    }
+    else if( self.postConversion && [self.actionName isEqualToString:EVENT_INSTALL] ) {
+        // don't modify action name
     }
     else if( [[self.actionName lowercaseString] isEqualToString:EVENT_INSTALL] ||
              [[self.actionName lowercaseString] isEqualToString:EVENT_UPDATE] ||
@@ -206,6 +218,7 @@
     [self addValue:self.ifaTracking forKey:KEY_IOS_AD_TRACKING ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.iadAttribution forKey:KEY_IAD_ATTRIBUTION ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.appAdTracking forKey:KEY_APP_AD_TRACKING ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.payingUser forKey:KEY_IS_PAYING_USER ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.existingUser forKey:KEY_EXISTING_USER ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.userEmail forKey:KEY_USER_EMAIL ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.userId forKey:KEY_USER_ID ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -247,6 +260,8 @@
     for( NSString *key in [self.cworksImpression allKeys] )
         [self addValue:self.cworksImpression[key] forKey:key ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 
+    [self addValue:[[NSUUID UUID] UUIDString] forKey:KEY_TRANSACTION_ID ignoreParams:ignoreParams doNotEncrypt:doNotEncryptSet encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+
 #if DEBUG
     if( [self.delegate respondsToSelector:@selector(_matURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [self.delegate performSelector:@selector(_matURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:) withObject:encryptedParams withObject:nonEncryptedParams];
@@ -260,8 +275,17 @@
  
     DLLog(@"MAT urlStringForServerUrl: encrypted data: %@", encryptedData);
  
+    NSString *host = [NSString stringWithFormat:@"https://%@.%@",
+                      self.advertiserId,
+                      [self domainName:debugMode]];
+
     // create the final url string by appending the unencrypted and encrypted params
-    return [NSString stringWithFormat:@"%@/%@?%@&%@=%@", serverUrl, path, nonEncryptedParams, KEY_DATA, encryptedData];
+    return [NSString stringWithFormat:@"%@/%@?%@&%@=%@",
+            host,
+            SERVER_PATH_TRACKING_ENGINE,
+            nonEncryptedParams,
+            KEY_DATA,
+            encryptedData];
 }
 
 -(void) addValue:(id)value
@@ -277,6 +301,8 @@
     NSString *useString = nil;
     if( [value isKindOfClass:[NSNumber class]] )
         useString = [(NSNumber*)value stringValue];
+    else if( [value isKindOfClass:[NSDate class]] )
+        useString = [NSString stringWithFormat:@"%ld", (long)round( [value timeIntervalSince1970] )];
     else if( [value isKindOfClass:[NSString class]] )
         useString = [(NSString*)value urlEncodeUsingEncoding:NSUTF8StringEncoding];
     else

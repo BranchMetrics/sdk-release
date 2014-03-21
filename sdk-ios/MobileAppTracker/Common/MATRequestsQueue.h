@@ -21,6 +21,7 @@
 @property (readonly) NSUInteger queuedRequestsCount;
 
 - (void)push:(NSDictionary*)object;
+- (void)pushToHead:(NSDictionary*)object;
 - (NSDictionary*)pop;
 
 - (void)save;

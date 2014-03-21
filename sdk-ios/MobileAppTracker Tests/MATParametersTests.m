@@ -27,7 +27,7 @@
 {
     [super setUp];
 
-    [MobileAppTracker startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [MobileAppTracker setDelegate:self];
     
     params = [MATTestParams new];
@@ -37,13 +37,14 @@
 
 - (void)tearDown
 {
-    [super tearDown];
-    
     [MobileAppTracker setCurrencyCode:nil];
     [MobileAppTracker setPackageName:kTestBundleId];
     [MobileAppTracker setPluginName:nil];
 
     emptyRequestQueue();
+    waitFor( 10. );
+
+    [super tearDown];
 }
 
 
@@ -55,7 +56,7 @@
     NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -68,7 +69,7 @@
     NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -81,7 +82,7 @@
     NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -94,7 +95,7 @@
     NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -107,7 +108,7 @@
     NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -123,7 +124,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -136,7 +137,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -149,7 +150,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -162,7 +163,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -175,7 +176,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)MAT_GENDER_MALE];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -188,7 +189,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)MAT_GENDER_MALE];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -206,14 +207,12 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"latitude", expectedLat );
     ASSERT_KEY_VALUE( @"longitude", expectedLon );
-    // fails because we have no real way to reset sharedManager #172
-    //XCTAssertFalse( [params checkKeyHasValue:@"altitude"], @"should not have set altitude" );
 }
 
 -(void) testLatLongZero
@@ -224,7 +223,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -240,7 +239,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -256,7 +255,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -272,7 +271,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -288,7 +287,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -304,7 +303,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -322,7 +321,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -341,7 +340,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -360,7 +359,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -379,7 +378,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -396,7 +395,7 @@
     static NSString* const currency = @"CAD";
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -405,7 +404,7 @@
 
 -(void) testCurrencyCodeDefault
 {
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -418,7 +417,7 @@
     static NSString* const currency = @"";
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -428,7 +427,7 @@
 -(void) testCurrencyCodeNil
 {
     [MobileAppTracker setCurrencyCode:nil];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -440,7 +439,7 @@
     static NSString* const currency = @"0000000000000000000000000000000000000000000";
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -455,7 +454,7 @@
     static NSString* const package = @"yourMom";
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -467,7 +466,7 @@
     static NSString* const package = @"";
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -477,7 +476,7 @@
 -(void) testPackageNil
 {
     [MobileAppTracker setPackageName:nil];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -489,7 +488,7 @@
     static NSString* const package = @"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -511,7 +510,7 @@
     [MobileAppTracker setEventAttribute3:attr3];
     [MobileAppTracker setEventAttribute4:attr4];
     [MobileAppTracker setEventAttribute5:attr5];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -531,7 +530,7 @@
     [MobileAppTracker setEventAttribute3:attr];
     [MobileAppTracker setEventAttribute4:attr];
     [MobileAppTracker setEventAttribute5:attr];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -549,7 +548,7 @@
     [MobileAppTracker setEventAttribute3:nil];
     [MobileAppTracker setEventAttribute4:nil];
     [MobileAppTracker setEventAttribute5:nil];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -574,7 +573,7 @@
     [MobileAppTracker setEventAttribute3:attr3];
     [MobileAppTracker setEventAttribute4:attr4];
     [MobileAppTracker setEventAttribute5:attr5];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -593,7 +592,7 @@
     static NSString* const plugin = @"yourMom";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -605,7 +604,7 @@
     static NSString* const plugin = @"";
 
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -615,7 +614,7 @@
 -(void) testPluginNameNil
 {
     [MobileAppTracker setPluginName:nil];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -627,7 +626,7 @@
     static NSString* const plugin = @"air";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -639,7 +638,7 @@
     static NSString* const plugin = @"AIR";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -651,7 +650,7 @@
     static NSString* const plugin = @"cocos2dx";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -663,7 +662,7 @@
     static NSString* const plugin = @"marmalade";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -675,7 +674,7 @@
     static NSString* const plugin = @"phonegap";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -687,7 +686,7 @@
     static NSString* const plugin = @"titanium";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -699,7 +698,7 @@
     static NSString* const plugin = @"unity";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -711,7 +710,7 @@
     static NSString* const plugin = @"xamarin";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -726,7 +725,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setSiteId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -738,7 +737,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setTRUSTeId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -748,7 +747,7 @@
 -(void) testExistingUser
 {
     [MobileAppTracker setExistingUser:TRUE];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -760,7 +759,7 @@
     static NSString* const EMAIL_ID = @"tempUserEmail@tempUserCompany.com";
     
     [MobileAppTracker setUserEmail:EMAIL_ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -772,7 +771,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setUserId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -784,7 +783,7 @@
     static NSString* const USER_NAME = @"testName";
     
     [MobileAppTracker setUserName:USER_NAME];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -796,7 +795,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setFacebookUserId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -808,7 +807,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setTwitterUserId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -820,11 +819,44 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setGoogleUserId:ID];
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"google_user_id", ID );
+}
+
+-(void) testPayingUser
+{
+    [MobileAppTracker setPayingUser:TRUE];
+    [MobileAppTracker measureSession];
+    waitFor( 0.1 );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"is_paying_user", [@TRUE stringValue] );
+    XCTAssertTrue( [MobileAppTracker isPayingUser], @"should be a paying user" );
+}
+
+-(void) testPayingUserAutomatic
+{
+    [MobileAppTracker setPayingUser:FALSE];
+    [MobileAppTracker measureAction:@"testEvent" eventItems:nil referenceId:nil revenueAmount:1. currencyCode:@"USD"];
+    waitFor( 0.1 );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"is_paying_user", [@TRUE stringValue] );
+    XCTAssertTrue( [MobileAppTracker isPayingUser], @"should be a paying user" );
+}
+
+-(void) testPayingUserFalse
+{
+    [MobileAppTracker setPayingUser:FALSE];
+    [MobileAppTracker measureSession];
+    waitFor( 0.1 );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"is_paying_user", [@FALSE stringValue] );
+    XCTAssertFalse( [MobileAppTracker isPayingUser], @"should not be a paying user" );
 }
 
 
@@ -835,13 +867,13 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     MATSettings *sharedParams = [mat performSelector:@selector(parameters)];
 #pragma clang diagnostic pop
 
     sharedParams.iadAttribution = @(TRUE);
 
-    [MobileAppTracker trackSession];
+    [MobileAppTracker measureSession];
     waitFor( 0.1 );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );

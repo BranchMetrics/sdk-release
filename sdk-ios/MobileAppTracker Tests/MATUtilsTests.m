@@ -56,9 +56,9 @@ static NSString* const testKey = @"fakeMatKey";
     
     NSString *actualOutput = [MATUtils jsonSerialize:dict1];
     
-    NSString *expectedOutput = @"{\"data\":[{\"attribute_sub4\":\"attr4\",\"attribute_sub2\":\"attr2\",\"item\":\"item1\",\"attribute_sub5\":\"attr5\",\"quantity\":1,\"attribute_sub3\":\"attr3\",\"revenue\":2.99,\"attribute_sub1\":\"attr1\",\"unit_price\":2.99}]}";
+    NSString *expectedOutput = @"{\"data\":[{\"quantity\":1,\"unit_price\":2.99,\"attribute_sub5\":\"attr5\",\"attribute_sub3\":\"attr3\",\"revenue\":2.99,\"attribute_sub1\":\"attr1\",\"attribute_sub4\":\"attr4\",\"item\":\"item1\",\"attribute_sub2\":\"attr2\"}]}";
 
-    NSLog(@"expected %@, actual: %@", expectedOutput, actualOutput);
+    //NSLog(@"expected %@, actual: %@", expectedOutput, actualOutput);
     
     XCTAssertTrue([expectedOutput isEqualToString:actualOutput], @"JSON Serialization failed: expected %@, actual: %@", expectedOutput, actualOutput);
 }

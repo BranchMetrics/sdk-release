@@ -13,8 +13,8 @@
 #import "MATConnectionManager.h"
 #import "MATSettings.h"
 
-#import <MobileCoreServices/UTType.h>
 #import <SystemConfiguration/SystemConfiguration.h>
+#import <MobileCoreServices/UTType.h>
 
 #include <CommonCrypto/CommonDigest.h>
 #include <sys/sysctl.h>
@@ -23,24 +23,14 @@
 
 const float MAT_IOS_VERSION_501 = 5.01f;
 
-NSString * const PASTEBOARD_NAME_TRACKING_COOKIE = @"com.hasoffers.matsdkref";
 NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
-
-NSString * const MAT_APP_TO_APP_TRACKING_STATUS = @"MAT_APP_TO_APP_TRACKING_STATUS";
 
 static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
 
-@interface MATUtils (PrivateMethods)
-
-+ (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag;
-
-@end
 
 @implementation MATUtils
 
 static NSDateFormatter *dateFormatter = nil;
-
-static BOOL _shouldDebug = NO;
 
 + (NSDateFormatter *)sharedDateFormatter
 {
@@ -136,47 +126,6 @@ static BOOL _shouldDebug = NO;
     return returnString;
 }
 
-+ (void)startTrackingSessionForTargetBundleId:(NSString*)targetBundleId
-                            publisherBundleId:(NSString*)publisherBundleId
-                                 advertiserId:(NSString*)advertiserId
-                                   campaignId:(NSString*)campaignId
-                                  publisherId:(NSString*)publisherId
-                                     redirect:(BOOL)shouldRedirect
-                            connectionManager:(MATConnectionManager*)connectionManager
-{
-    if (!targetBundleId) targetBundleId = STRING_EMPTY;
-    if (!advertiserId) advertiserId     = STRING_EMPTY;
-    if (!campaignId) campaignId         = STRING_EMPTY;
-    if (!publisherId) publisherId       = STRING_EMPTY;
-    
-    NSString *domainName = [MATUtils serverDomainName];
-    
-    NSString *strLink = [NSString stringWithFormat:@"%@://%@/%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                                                   @"https", domainName, SERVER_PATH_TRACKING_ENGINE,
-                                                   KEY_ACTION, EVENT_CLICK,
-                                                   KEY_PUBLISHER_ADVERTISER_ID, advertiserId,
-                                                   KEY_PACKAGE_NAME, targetBundleId,
-                                                   KEY_CAMPAIGN_ID, campaignId,
-                                                   KEY_PUBLISHER_ID, publisherId,
-                                                   KEY_RESPONSE_FORMAT, KEY_XML];
-    
-    DLog(@"app-to-app tracking link: %@", strLink);
-    
-    NSMutableDictionary *dictItems = [NSMutableDictionary dictionary];
-    [dictItems setValue:targetBundleId forKey:KEY_TARGET_BUNDLE_ID];
-    [dictItems setValue:[NSNumber numberWithBool:shouldRedirect] forKey:KEY_REDIRECT];
-    [dictItems setValue:publisherBundleId forKey:KEY_PACKAGE_NAME];
-    [dictItems setValue:advertiserId forKey:KEY_ADVERTISER_ID];
-    [dictItems setValue:campaignId forKey:KEY_CAMPAIGN_ID];
-    [dictItems setValue:publisherId forKey:KEY_PUBLISHER_ID];
-    
-    [connectionManager beginRequestGetTrackingId:strLink
-                              withDelegateTarget:[MATUtils class]
-                             withSuccessSelector:@selector(storeToPasteBoardTrackingId:)
-                             withFailureSelector:@selector(failedToRequestTrackingId:withError:)
-                                    withArgument:dictItems];
-}
-
 
 + (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag
 {
@@ -199,133 +148,6 @@ static BOOL _shouldDebug = NO;
     return value;
 }
 
-+ (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error
-{
-    DLog(@"failedToRequestTrackingId: dict = %@, error = %@", params, error);
-    
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    
-    NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
-    [errorDetails setValue:KEY_ERROR_MAT_APP_TO_APP_FAILURE forKey:NSLocalizedFailureReasonErrorKey];
-    [errorDetails setValue:@"Failed to start app-to-app tracking." forKey:NSLocalizedDescriptionKey];
-    [errorDetails setValue:error forKey:NSUnderlyingErrorKey];
-    
-    NSError *errorForUser = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1301 userInfo:errorDetails];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [mat performSelector:@selector(notifyDelegateFailureWithError:) withObject:errorForUser];
-#pragma clang diagnostic pop
-}
-
-+ (void)storeToPasteBoardTrackingId:(NSMutableDictionary *)params
-{
-    NSString *response = [[NSString alloc] initWithData:[params valueForKey:KEY_SERVER_RESPONSE] encoding:NSUTF8StringEncoding];
-
-    DLog(@"MATUtils storeToPasteBoardTrackingId: %@", response);
-    
-    NSString *strSuccess = [self parseXmlString:response forTag:KEY_SUCCESS];
-    NSString *strRedirectUrl = [self parseXmlString:response forTag:KEY_URL];
-    NSString *strTrackingId = [self parseXmlString:response forTag:KEY_TRACKING_ID];
-    NSString *strPublisherBundleId = [params valueForKey:KEY_PACKAGE_NAME];
-    NSNumber *strTargetBundleId = [params valueForKey:KEY_TARGET_BUNDLE_ID];
-    NSNumber *strRedirect = [params valueForKey:KEY_REDIRECT];
-
-    DLog(@"Success = %@, TrackingId = %@, RedirectUrl = %@, TargetBundleId = %@, Redirect = %@", strSuccess, strTrackingId, strRedirectUrl, strTargetBundleId, strRedirect);
-    
-    BOOL success = [strSuccess boolValue];
-    BOOL redirect = [strRedirect boolValue];
-    
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    
-    if(success)
-    {
-        UIPasteboard * cookiePasteBoard = [UIPasteboard pasteboardWithName:PASTEBOARD_NAME_TRACKING_COOKIE create:YES];
-        if (cookiePasteBoard)
-        {
-            cookiePasteBoard.persistent = YES;
-            
-            NSMutableDictionary * itemsDict = [NSMutableDictionary dictionary];
-            [itemsDict setValue:strPublisherBundleId forKey:KEY_PACKAGE_NAME];
-            [itemsDict setValue:strTrackingId forKey:KEY_TRACKING_ID];
-            [itemsDict setValue:[self epochStringForDate:[NSDate date]] forKey:KEY_SESSION_DATETIME];
-            [itemsDict setValue:strTargetBundleId forKey:KEY_TARGET_BUNDLE_ID];
-            
-            NSData * archivedData = [NSKeyedArchiver archivedDataWithRootObject:itemsDict];
-            [cookiePasteBoard setValue:archivedData forPasteboardType:(NSString*)kUTTypeTagSpecificationKey];
-        }
-        
-        NSString *successDetails = [NSString stringWithFormat:@"{\"%@\":{\"message\":\"Started app-to-app tracking.\",\"success\":\"%d\",\"redirect\":\"%d\",\"redirect_url\":\"%@\"}}", MAT_APP_TO_APP_TRACKING_STATUS, success, redirect, strRedirectUrl ? strRedirectUrl : STRING_EMPTY];
-        
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [mat performSelector:@selector(notifyDelegateSuccessMessage:) withObject:successDetails];
-#pragma clang diagnostic pop
-        
-        if(redirect && strRedirectUrl && 0 < strRedirectUrl.length)
-        {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:strRedirectUrl]];
-        }
-    }
-    else
-    {
-        NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
-        [errorDetails setValue:KEY_ERROR_MAT_APP_TO_APP_FAILURE forKey:NSLocalizedFailureReasonErrorKey];
-        [errorDetails setValue:@"Failed to start app-to-app tracking." forKey:NSLocalizedDescriptionKey];
-        
-        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1302 userInfo:errorDetails];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [mat performSelector:@selector(notifyDelegateFailureWithError:) withObject:error];
-#pragma clang diagnostic pop
-    }
-}
-
-
-+ (void)stopTrackingSession
-{
-    UIPasteboard * cookiePasteBoard = [UIPasteboard pasteboardWithName:PASTEBOARD_NAME_TRACKING_COOKIE create:NO];
-    if (cookiePasteBoard)
-    {
-        [UIPasteboard removePasteboardWithName:PASTEBOARD_NAME_TRACKING_COOKIE];
-    }
-}
-
-+ (BOOL)isTrackingSessionStartedForTargetApplication:(NSString*)targetBundleId
-{
-    // get the target bundle id that another app_with_MAT_SDK might have stored on the pasteboard
-    NSString * storedBundleId = [MATUtils getStringForKey:KEY_TARGET_BUNDLE_ID fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-    
-    DLog(@"isTrackingSessionStartedForTargetApplication: pb_name = %@", PASTEBOARD_NAME_TRACKING_COOKIE);
-    DLog(@"isTrackingSessionStartedForTargetApplication: stored = %@, target = %@", storedBundleId, targetBundleId);
-    
-    // a tracking session would exist if the target bundle id stored on the pasteboard matches the current target bundle id
-    return storedBundleId && NSOrderedSame == [storedBundleId caseInsensitiveCompare:targetBundleId];
-}
-
-+ (NSString*)getPublisherBundleId
-{
-    return [MATUtils getStringForKey:KEY_PACKAGE_NAME fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-}
-
-+ (NSString*)getSessionDateTime
-{
-    return [MATUtils getStringForKey:KEY_SESSION_DATETIME fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-}
-
-+ (NSString*)getAdvertiserId
-{
-    return [MATUtils getStringForKey:KEY_ADVERTISER_ID fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-}
-
-+ (NSString*)getCampaignId
-{
-    return [MATUtils getStringForKey:KEY_CAMPAIGN_ID fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-}
-
-+ (NSString*)getTrackingId
-{
-    return [MATUtils getStringForKey:KEY_TRACKING_ID fromPasteBoard:PASTEBOARD_NAME_TRACKING_COOKIE];
-}
 
 + (NSString*)getStringForKey:(NSString*)key fromPasteBoard:(NSString *)pasteBoardName
 {
@@ -350,6 +172,7 @@ static BOOL _shouldDebug = NO;
     
     return storedValue;
 }
+
 
 + (id)userDefaultValueforKey:(NSString *)key
 {
@@ -476,29 +299,6 @@ static BOOL _shouldDebug = NO;
     return NotReachable != [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus];
 }
 
-#pragma mark - install_log_id request handler methods
-
-+ (void)handleInstallLogId:(NSMutableDictionary *)params
-{
-    DLog(@"MATUtils handleInstallLogId: params = %@", params);
-    
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    if([mat respondsToSelector:@selector(handleInstallLogId:)])
-    {
-        [mat performSelector:@selector(handleInstallLogId:) withObject:params];
-    }
-}
-
-+ (void)failedToRequestInstallLogId:(NSMutableDictionary *)params withError:(NSError *)error
-{
-    DLog(@"MATUtils failedToRequestInstallLogId: params = %@, \nerror = %@", params, error);
-    
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    if([mat respondsToSelector:@selector(failedToRequestInstallLogId:withError:)])
-    {
-        [mat performSelector:@selector(failedToRequestInstallLogId:withError:) withObject:params withObject:error];
-    }
-}
 
 // Gets the float value equivalent of the iOS system version string x.y.z.
 // Note: This method assumes that the individual sub-version components -- y or z -- have values between 0..9.
@@ -582,35 +382,6 @@ static BOOL _shouldDebug = NO;
     return output;
 }
 
-
-
-+ (NSString *)serverDomainName
-{
-    NSString *domainName = nil;
-    
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    MATSettings *settings = [mat performSelector:@selector(parameters)];
-    if(settings.staging)
-    {
-        domainName = SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
-    }
-    else
-    {
-        // on PROD, use a different server domain name when DEBUG MODE is enabled
-        domainName = _shouldDebug ? SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : SERVER_DOMAIN_REGULAR_TRACKING_PROD;
-    }
-    
-    DLLog(@"MATUtils serverDomainName: stage  = %d", [settings staging]);
-    DLLog(@"MATUtils serverDomainName: debug  = %d", _shouldDebug);
-    DLLog(@"MATUtils serverDomainName: domain = %@", domainName);
-    
-    return domainName;
-}
-
-+ (void)setShouldDebug:(BOOL)yesorno
-{
-    _shouldDebug = yesorno;
-}
 
 #pragma mark - Base64 Encoding/Decoding Methods
 
@@ -917,12 +688,6 @@ char *MATNewBase64Encode(
                                               encoding:NSASCIIStringEncoding];
 	free(outputBuffer);
 	return result;
-}
-
-
-+(NSString*) epochStringForDate:(NSDate*)date
-{
-    return [NSString stringWithFormat:@"%ld", (long)round( [date timeIntervalSince1970] )];
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MATEncrypter.h"
+#import "MATTests.h"
 
 @interface MATEncrypterTests : XCTestCase
 
@@ -136,19 +137,6 @@
     XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
 }
 
-int char2hex(unsigned char c) {
-    switch (c) {
-        case '0' ... '9':
-            return c - '0';
-        case 'a' ... 'f':
-            return c - 'a' + 10;
-        case 'A' ... 'F':
-            return c - 'A' + 10;
-        default:
-            return 0xFF;
-    }
-}
-
 
 + (NSData *)decodeHexData:(NSData *)input {
     
@@ -166,8 +154,7 @@ int char2hex(unsigned char c) {
 
 + (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
 {
-	const void * iv = nil;
-	int keyLength = [mykey length];
+	long keyLength = [mykey length];
 	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
 	{
 		return nil;
@@ -183,10 +170,10 @@ int char2hex(unsigned char c) {
 	
     CCCryptorStatus result = CCCrypt(kCCDecrypt,
 									 kCCAlgorithmAES128 ,
-									 (iv == nil ? kCCOptionECBMode | kCCOptionPKCS7Padding : kCCOptionPKCS7Padding),
+									 kCCOptionECBMode | kCCOptionPKCS7Padding,
 									 keyBytes,
 									 keyLength,
-									 iv,
+									 NULL,
 									 [str bytes],
 									 [str length],
 									 encryptedBytes,

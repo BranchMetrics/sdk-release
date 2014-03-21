@@ -10,15 +10,52 @@
 #import "MATTests.h"
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATUtils.h"
+#import "MATEncrypter.h"
 
 static NSString* const kDataItemKey = @"testBodyDataItems";
 static NSString* const kReceiptItemKey = @"testBodyReceipt";
+
+@interface MATTestParams ()
+
+@property (nonatomic, strong) NSMutableDictionary *params;
+
+@end
+
 
 @implementation MATTestParams
 
 -(NSString*) description
 {
-    return [params description];
+    return [_params description];
+}
+
+
+-(id) copy
+{
+    id new = [[self class] new];
+    ((MATTestParams*)new).params = [self.params mutableCopy];
+    return new;
+}
+
+
+-(BOOL) isEqualToParams:(MATTestParams*)other
+{
+    if( _params == nil ) return FALSE;
+    
+    for( NSString *key in _params ) {
+        if( ![other valueForKey:key] )
+            return FALSE;
+        if( ![[self valueForKey:key] isEqual:[other valueForKey:key]] )
+            return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+-(BOOL) isEmpty
+{
+    return (_params == nil);
 }
 
 
@@ -35,13 +72,20 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
         if( [keyValue count] != 2 ) continue;
         if( [keyValue[0] isEqualToString:@""] ) continue;
         
+        if( [keyValue[0] isEqualToString:@"data"] ) {
+            NSData *decodedData = [self decodeHexData:[keyValue[1] dataUsingEncoding:NSUTF8StringEncoding]];
+            NSData *decryptedData = [self decodeHexData:[self aesDecrypt:kTestConversionKey data:decodedData]];
+            NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+            return [self extractParamsString:[decryptedString stringByRemovingPercentEncoding]];
+        }
+
         NSString *unencodedValue = keyValue[1];
         if( ![unencodedValue isEqualToString:@""] )
             unencodedValue = [unencodedValue stringByRemovingPercentEncoding];
 
-        if( params == nil )
-            params = [NSMutableDictionary dictionary];
-        params[keyValue[0]] = unencodedValue;
+        if( _params == nil )
+            _params = [NSMutableDictionary dictionary];
+        _params[keyValue[0]] = unencodedValue;
     }
     
     return TRUE;
@@ -60,13 +104,13 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
             if( data[@"data"] != nil ) {
                 NSArray *items = data[@"data"];
                 if( [items isKindOfClass:[NSArray class]] ) {
-                    if( params == nil )
-                        params = [NSMutableDictionary dictionary];
-                    if( params[kDataItemKey] == nil )
-                        params[kDataItemKey] = [NSMutableArray array];
+                    if( _params == nil )
+                        _params = [NSMutableDictionary dictionary];
+                    if( _params[kDataItemKey] == nil )
+                        _params[kDataItemKey] = [NSMutableArray array];
                     for( NSDictionary *item in items ) {
                         if( [item isKindOfClass:[NSDictionary class]] )
-                            [params[kDataItemKey] addObject:item];
+                            [_params[kDataItemKey] addObject:item];
                         else
                             return FALSE;
                     }
@@ -75,9 +119,9 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
                     return FALSE;
             }
             if( data[@"store_receipt"] != nil ) {
-                if( params == nil )
-                    params = [NSMutableDictionary dictionary];
-                params[kReceiptItemKey] = data[@"store_receipt"];
+                if( _params == nil )
+                    _params = [NSMutableDictionary dictionary];
+                _params[kReceiptItemKey] = data[@"store_receipt"];
             }
         }
         else
@@ -90,26 +134,79 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 
 -(NSString*) valueForKey:(NSString*)key
 {
-    return params[key];
+    return _params[key];
 }
+
+
+#pragma mark - Decryption
+
+- (NSData *)decodeHexData:(NSData *)input {
+    
+    NSMutableData *resultData = [NSMutableData dataWithLength:([input length]) / 2];
+    
+    const unsigned char *hexBytes = [input bytes];
+    unsigned char *resultBytes = [resultData mutableBytes];
+    
+    for(NSUInteger i = 0; i < [input length] / 2; i++) {
+        resultBytes[i] = (char2hex(hexBytes[i + i]) << 4) | char2hex(hexBytes[i + i + 1]);
+    }
+    
+    return resultData;
+}
+
+- (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
+{
+	long keyLength = [mykey length];
+	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
+	{
+		return nil;
+	}
+	
+	char keyBytes[keyLength + 1];
+	bzero(keyBytes, sizeof(keyBytes));
+	[mykey getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
+	
+	size_t numBytesEncrypted = 0;
+	size_t encryptedLength = [str length] + kCCBlockSizeAES128;
+	char encryptedBytes[encryptedLength +1];
+	
+    CCCryptorStatus result = CCCrypt(kCCDecrypt,
+									 kCCAlgorithmAES128 ,
+									 kCCOptionECBMode | kCCOptionPKCS7Padding,
+									 keyBytes,
+									 keyLength,
+									 NULL,
+									 [str bytes],
+									 [str length],
+									 encryptedBytes,
+									 encryptedLength,
+									 &numBytesEncrypted);
+	
+    
+	if(result == kCCSuccess)
+		return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
+    
+	return nil;
+}
+
 
 
 #pragma mark - Value assertions
 
 -(BOOL) checkIsEmpty
 {
-    return (params == nil);
+    return (_params == nil);
 }
 
 
 -(BOOL) checkKeyHasValue:(NSString*)key
 {
-    return (params[key] != nil);
+    return (_params[key] != nil);
 }
 
 -(BOOL) checkKey:(NSString*)key isEqualToValue:(NSString*)value
 {
-    return [self checkKeyHasValue:key] && [params[key] isEqualToString:value];
+    return [self checkKeyHasValue:key] && [_params[key] isEqualToString:value];
 }
 
 -(BOOL) checkAppValues
@@ -129,10 +226,11 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 {
     BOOL retval =
     [self checkKey:@"sdk" isEqualToValue:@"ios"] &&
-    [self checkKeyHasValue:@"ver"];
+    [self checkKeyHasValue:@"ver"] &&
+    [self checkKeyHasValue:@"transaction_id"];
     
     if( !retval )
-        NSLog( @"sdk values failed: %d %d", [self checkKey:@"sdk" isEqualToValue:@"ios"], [self checkKeyHasValue:@"ver"] );
+        NSLog( @"sdk values failed: %d %d %d", [self checkKey:@"sdk" isEqualToValue:@"ios"], [self checkKeyHasValue:@"ver"], [self checkKeyHasValue:@"transaction_id"] );
     
     return retval;
 }
@@ -153,6 +251,17 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
     if( !retval )
         NSLog( @"device values failed: %d %d %d %d %d %d %d %d %d", [self checkKeyHasValue:@"conversion_user_agent"], [self checkKeyHasValue:@"country_code"], [self checkKeyHasValue:@"language"], [self checkKeyHasValue:@"system_date"], [self checkKeyHasValue:@"device_brand"], [self checkKeyHasValue:@"device_model"], [self checkKeyHasValue:@"os_version"], [self checkKeyHasValue:@"insdate"], [self checkKey:@"os_jailbroke" isEqualToValue:@"0"] );
     
+    NSString *sysDateString = [self valueForKey:@"system_date"];
+    if( sysDateString ) {
+        NSTimeInterval sysDate = [sysDateString longLongValue];
+        NSTimeInterval now = round( [[NSDate date] timeIntervalSince1970] );
+        NSTimeInterval elapsed = now - sysDate;
+        if( elapsed < 0. || elapsed > 60. ) {
+            NSLog( @"%lf elapsed since call's system date %lf (now %lf)", elapsed, sysDate, now );
+            retval = FALSE;
+        }
+    }
+
     return retval;
 }
 
@@ -166,7 +275,7 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 
 -(BOOL) checkDataItems:(NSArray*)items
 {
-    NSArray *foundItems = params[kDataItemKey];
+    NSArray *foundItems = _params[kDataItemKey];
     if( [items count] != [foundItems count] )
         return FALSE;
     
@@ -194,12 +303,12 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 
 -(BOOL) checkNoDataItems
 {
-    return (params[kDataItemKey] == nil);
+    return (_params[kDataItemKey] == nil);
 }
 
 -(BOOL) checkReceiptEquals:(NSData*)receiptValue
 {
-    return [params[kReceiptItemKey] isEqualToString:[MATUtils MATbase64EncodedStringFromData:receiptValue]];
+    return [_params[kReceiptItemKey] isEqualToString:[MATUtils MATbase64EncodedStringFromData:receiptValue]];
 }
 
 @end

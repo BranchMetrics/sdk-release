@@ -28,12 +28,26 @@ void emptyRequestQueue()
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     MATConnectionManager *cm = [mat performSelector:@selector(connectionManager)];
     MATRequestsQueue *requestsQueue = [cm performSelector:@selector(requestsQueue)];
     while( [requestsQueue pop] ); // clear queue
     [cm performSelector:@selector(stopQueueDump)];
 #pragma clang diagnostic pop
+}
+
+
+int char2hex(unsigned char c) {
+    switch (c) {
+        case '0' ... '9':
+            return c - '0';
+        case 'a' ... 'f':
+            return c - 'a' + 10;
+        case 'A' ... 'F':
+            return c - 'A' + 10;
+        default:
+            return 0xFF;
+    }
 }
 
 

@@ -18,6 +18,8 @@ void waitFor( NSTimeInterval duration );
 
 void emptyRequestQueue();
 
+int char2hex(unsigned char c);
+
 
 @interface MATTests : NSObject
 

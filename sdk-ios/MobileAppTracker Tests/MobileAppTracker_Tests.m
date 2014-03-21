@@ -28,7 +28,7 @@
 {
     [super setUp];
     
-    [MobileAppTracker startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [MobileAppTracker setDelegate:self];
     [MobileAppTracker setExistingUser:NO];
 
@@ -56,8 +56,8 @@
 
 -(void) testInstall
 {
-    [MobileAppTracker trackSession];
-    waitFor( 0.25 );
+    [MobileAppTracker measureSession];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -69,8 +69,8 @@
 -(void) testInstallWithReference
 {
     static NSString* const referenceId = @"abcdefg";
-    [MobileAppTracker trackSessionWithReferenceId:referenceId];
-    waitFor( 0.25 );
+    [MobileAppTracker measureSessionWithReferenceId:referenceId];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -83,8 +83,8 @@
 -(void) testUpdate
 {
     [MobileAppTracker setExistingUser:TRUE];
-    [MobileAppTracker trackSession];
-    waitFor( 0.25 );
+    [MobileAppTracker measureSession];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -99,14 +99,14 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    MobileAppTracker *mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     waitFor( 1. );
-    [mat performSelector:@selector(trackSessionPostConversionWithReferenceId:) withObject:nil];
+    [mat performSelector:@selector(trackInstallPostConversionWithReferenceId:) withObject:nil];
 #pragma clang diagnostic pop
     
-    waitFor( 0.25 );
+    waitFor( 1. );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
+    ASSERT_KEY_VALUE( @"action", EVENT_INSTALL );
     ASSERT_KEY_VALUE( @"post_conversion", @"1" );
 
     waitFor( 6. );
@@ -120,8 +120,8 @@
     static NSString* const sourceApplication = @"Mail";
     [MobileAppTracker applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
 
-    [MobileAppTracker trackSession];
-    waitFor( 0.25 );
+    [MobileAppTracker measureSession];
+    waitFor( 1. );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -138,8 +138,8 @@
 -(void) testActionNameEvent
 {
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -151,8 +151,8 @@
 -(void) testActionNameId
 {
     static NSString* const eventName = @"103";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -166,8 +166,8 @@
 {
     static NSString* const eventName = @"103";
     static NSString* const referenceId = @"abcdefg";
-    [MobileAppTracker trackActionForEventIdOrName:eventName referenceId:referenceId];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName referenceId:referenceId];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -182,10 +182,8 @@
     static CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName revenueAmount:revenue currencyCode:currencyCode];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -203,11 +201,11 @@
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                      referenceId:referenceId
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName
+                        referenceId:referenceId
+                      revenueAmount:revenue
+                       currencyCode:currencyCode];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -227,8 +225,8 @@
     MATEventItem *item = [MATEventItem eventItemWithName:itemName unitPrice:itemPrice quantity:itemQuantity];
     NSArray *items = @[item];
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName eventItems:items];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName eventItems:items];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -242,8 +240,8 @@
     static NSString* const eventName = @"103";
     NSArray *items = @[@{@"quantity":@1.415}];
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName eventItems:items];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName eventItems:items];
+    waitFor( 1. );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -261,10 +259,8 @@
     NSArray *items = @[item];
     static NSString* const referenceId = @"abcdefg";
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                      referenceId:referenceId];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName eventItems:items referenceId:referenceId];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -285,11 +281,11 @@
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName
+                         eventItems:items
+                      revenueAmount:revenue
+                       currencyCode:currencyCode];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -313,12 +309,12 @@
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                      referenceId:referenceId
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName
+                         eventItems:items
+                        referenceId:referenceId
+                      revenueAmount:revenue
+                       currencyCode:currencyCode];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -345,13 +341,13 @@
     static NSInteger const transactionState = 98101;
     NSString *expectedTransactionState = [NSString stringWithFormat:@"%d", (int)transactionState];
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                      referenceId:referenceId
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode
-                                 transactionState:transactionState];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName
+                         eventItems:items
+                        referenceId:referenceId
+                      revenueAmount:revenue
+                       currencyCode:currencyCode
+                   transactionState:transactionState];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -380,14 +376,14 @@
     NSString *expectedTransactionState = [NSString stringWithFormat:@"%d", (int)transactionState];
     NSData *receiptData = [@"myEventReceipt" dataUsingEncoding:NSUTF8StringEncoding];
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                       eventItems:items
-                                      referenceId:referenceId
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode
-                                 transactionState:transactionState
-                                          receipt:receiptData];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName
+                         eventItems:items
+                        referenceId:referenceId
+                      revenueAmount:revenue
+                       currencyCode:currencyCode
+                   transactionState:transactionState
+                            receipt:receiptData];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -405,8 +401,8 @@
 -(void) testEventNameSpaces
 {
     static NSString* const eventName = @"test event name";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -420,8 +416,8 @@
 
 -(void) testInstallActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_INSTALL];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_INSTALL];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -435,8 +431,8 @@
 
 -(void) testUpdateActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_UPDATE];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_UPDATE];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -450,8 +446,8 @@
 
 -(void) testCloseActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_CLOSE];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_CLOSE];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkIsEmpty], @"'%@' action should be ignored", EVENT_CLOSE );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
@@ -461,8 +457,8 @@
 
 -(void) testOpenActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_OPEN];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_OPEN];
+    waitFor( 1. );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION);
@@ -476,8 +472,8 @@
 
 -(void) testSessionActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_SESSION];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_SESSION];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION);
@@ -492,8 +488,8 @@
 // "click" events are treated the same as arbitrary event names
 -(void) testClickActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_CLICK];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_CLICK];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -506,8 +502,8 @@
 // "conversion" events are treated the same as arbitrary event names
 -(void) testConversionActionEvent
 {
-    [MobileAppTracker trackActionForEventIdOrName:EVENT_CONVERSION];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:EVENT_CONVERSION];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -522,8 +518,8 @@
 {
     static NSString* const eventName = @"registration";
     
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -541,10 +537,8 @@
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
 
-    [MobileAppTracker trackActionForEventIdOrName:eventName
-                                    revenueAmount:revenue
-                                     currencyCode:currencyCode];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName revenueAmount:revenue currencyCode:currencyCode];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
@@ -557,8 +551,8 @@
 
 -(void) testTwoEvents
 {
-    [MobileAppTracker trackSession];
-    waitFor( 0.25 );
+    [MobileAppTracker measureSession];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
@@ -566,8 +560,8 @@
     params = [MATTestParams new];
     
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker trackActionForEventIdOrName:eventName];
-    waitFor( 0.25 );
+    [MobileAppTracker measureAction:eventName];
+    waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );

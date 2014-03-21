@@ -41,6 +41,7 @@
 - (id)initWithIndex:(NSInteger)index parentFolder:(NSString *)parentFolder;
 
 - (BOOL)push:(NSDictionary*)requestData;
+- (BOOL)pushToHead:(NSDictionary*)requestData;
 - (NSDictionary*)pop;
 
 - (BOOL)load;

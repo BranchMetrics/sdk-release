@@ -58,19 +58,25 @@ NSString * const XML_NODE_REQUEST = @"Request";
 
 - (BOOL)requestsLimitReached
 {
-    return ([self.requests count] >= REQUESTS_MAX_COUNT_IN_PART);
+    @synchronized( requests_ ) {
+        return ([self.requests count] >= REQUESTS_MAX_COUNT_IN_PART);
+    }
 }
 
 - (BOOL)empty
 {
-    return ([self.requests count] == 0);
+    @synchronized( requests_ ) {
+        return ([self.requests count] == 0);
+    }
 }
 
 - (NSUInteger)queuedRequestsCount
 {
-    if (self.requests && [self.requests count] > 0)
-    {
-        return [self.requests count];
+    @synchronized( requests_ ) {
+        if (self.requests && [self.requests count] > 0)
+        {
+            return [self.requests count];
+        }
     }
     
     return self.loadedRequestsCount;
@@ -107,9 +113,27 @@ NSString * const XML_NODE_REQUEST = @"Request";
 {
     DLog(@"MATReqQuePart: push: %@", requestData);
     
-    if (self.requestsLimitReached) { return NO; }
+    if (self.requestsLimitReached)
+        return NO;
     
-    [requests_ addObject:requestData];
+    @synchronized( requests_ ) {
+        [requests_ addObject:requestData];
+    }
+    
+    self.modified = YES;
+    
+    return YES;
+}
+
+-(BOOL) pushToHead:(NSDictionary*)requestData
+{
+    DLog(@"MATReqQuePart: pushToHead: %@", requestData);
+    
+    if (self.requestsLimitReached) return NO;
+    
+    @synchronized( requests_ ) {
+        [requests_ insertObject:requestData atIndex:0];
+    }
     
     self.modified = YES;
     
@@ -126,17 +150,19 @@ NSString * const XML_NODE_REQUEST = @"Request";
     DLog(@"MATReqQuePart: pop: shouldLoad    = %d", self.shouldLoadOnRequest);
     
     /// Load requests from file if should load is set
-    if ([requests_ count] == 0 && self.shouldLoadOnRequest)
-    {
-        [self load];
-    }
+    @synchronized( requests_ ) {
+        if ([requests_ count] == 0 && self.shouldLoadOnRequest)
+        {
+            [self load];
+        }
     
-    if ([requests_ count] > 0)
-    {
-        requestData = [requests_ objectAtIndex:0];
+        if ([requests_ count] > 0)
+        {
+            requestData = [requests_ objectAtIndex:0];
         
-        [requests_ removeObjectAtIndex:0];
-        self.modified = YES;
+            [requests_ removeObjectAtIndex:0];
+            self.modified = YES;
+        }
     }
     
     DLog(@"MATReqQuePart: pop: remaining requests queue size = %lu", (unsigned long)requests_.count);
@@ -177,22 +203,24 @@ NSString * const XML_NODE_REQUEST = @"Request";
 {
     NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_QUEUEPART];
     
-    for (NSDictionary * request in self.requests)
-    {
-        // clean up the text to make it compliant with XML
-        NSString *urlValue = [request valueForKey:KEY_URL];
-        NSString *encodedUrl = [urlValue MATgtm_stringBySanitizingAndEscapingForXML];
-        
-        NSString *jsonValue = [request valueForKey:KEY_JSON];
-        NSString *encodedJson = [jsonValue MATgtm_stringBySanitizingAndEscapingForXML];
-        encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
-        
-        NSDate *runDate = [request valueForKey:KEY_RUN_DATE];
-        NSString *encodedDate = [runDate description];
-        encodedDate = encodedDate ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_RUN_DATE, encodedDate] : STRING_EMPTY;
-		
-        // serialize the request
-        [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedJson, encodedDate, XML_NODE_REQUEST];
+    @synchronized( requests_ ) {
+        for (NSDictionary * request in self.requests)
+        {
+            // clean up the text to make it compliant with XML
+            NSString *urlValue = [request valueForKey:KEY_URL];
+            NSString *encodedUrl = [urlValue MATgtm_stringBySanitizingAndEscapingForXML];
+            
+            NSString *jsonValue = [request valueForKey:KEY_JSON];
+            NSString *encodedJson = [jsonValue MATgtm_stringBySanitizingAndEscapingForXML];
+            encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
+            
+            NSDate *runDate = [request valueForKey:KEY_RUN_DATE];
+            NSString *encodedDate = [runDate description];
+            encodedDate = encodedDate ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_RUN_DATE, encodedDate] : STRING_EMPTY;
+            
+            // serialize the request
+            [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedJson, encodedDate, XML_NODE_REQUEST];
+        }
     }
     
     [strDescr appendFormat:@"</%@>", XML_NODE_QUEUEPART];

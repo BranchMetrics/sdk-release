@@ -17,9 +17,9 @@
 
 @property (nonatomic, assign) BOOL postConversion; // KEY_POST_CONVERSION
 
-@property (nonatomic, copy) NSString *installDate; // KEY_INSDATE
+@property (nonatomic, copy) NSDate *installDate; // KEY_INSDATE
 @property (nonatomic, copy) NSString *sessionDate; // KEY_SESSION_DATETIME
-@property (nonatomic, copy) NSString *systemDate; // KEY_SYSTEM_DATE
+@property (nonatomic, copy) NSDate *systemDate; // KEY_SYSTEM_DATE
 
 @property (nonatomic, copy) NSString *referralUrl; // KEY_REFERRAL_URL
 @property (nonatomic, copy) NSString *referralSource; // KEY_REFERRAL_SOURCE
@@ -59,6 +59,8 @@
 @property (nonatomic, copy) NSNumber *iadAttribution; // KEY_IAD_ATTRIBUTION
 
 @property (nonatomic, copy) NSNumber *appAdTracking; // KEY_APP_AD_TRACKING
+
+@property (nonatomic, copy) NSNumber *payingUser; // KEY_IS_PAYING_USER
 
 @property (nonatomic, copy) NSNumber *existingUser; // KEY_EXISTING_USER
 @property (nonatomic, copy) NSString *userEmail; // KEY_USER_EMAIL
@@ -101,18 +103,18 @@
 
 -(void) loadFacebookCookieId;
 
+-(NSString*) domainName:(BOOL)debug;
+
 -(void) resetBeforeTrackAction;
 
--(NSString*) urlStringForServerUrl:(NSString*)serverUrl
-                              path:(NSString*)path
+-(NSString*) urlStringForDebugMode:(BOOL)debugMode
                       ignoreParams:(NSSet*)ignoreParams
                    encryptionLevel:(NSString*)encryptionLevel;
 
--(NSString*) urlStringForServerUrl:(NSString*)serverUrl
-                              path:(NSString*)path
-                       referenceId:(NSString*)referenceId
-                      ignoreParams:(NSSet*)ignoreParams
-                   encryptionLevel:(NSString*)encryptionLevel;
+-(NSString*) urlStringForReferenceId:(NSString*)referenceId
+                           debugMode:(BOOL)debugMode
+                        ignoreParams:(NSSet*)ignoreParams
+                     encryptionLevel:(NSString*)encryptionLevel;
 
 -(void) resetAfterRequest;
 

@@ -111,4 +111,9 @@
     return dict;
 }
 
+- (NSString *)debugDescription
+{
+    return [NSString stringWithFormat:@"<%@: %p> %@", [self class], self, [self dictionary]];
+}
+
 @end
