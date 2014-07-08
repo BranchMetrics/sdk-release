@@ -17,8 +17,11 @@ public class MATEventQueue {
     // Binary semaphore for controlling adding to queue/dumping queue
     private Semaphore queueAvailable;
     
-    // Instance of mat to make getLink call from (for testing)
+    // Instance of mat to make getLink call on (can't use getInstance during testing)
     private MobileAppTracker mat;
+    
+    // current retry timeout, in seconds
+    private static long retryTimeout = 0;
     
     public MATEventQueue(Context context, MobileAppTracker mat) {
         eventQueue = context.getSharedPreferences(MATConstants.PREFS_NAME, Context.MODE_PRIVATE);
@@ -55,66 +58,39 @@ public class MATEventQueue {
         editor.commit();
     }
     
+    /**
+     * Returns a specific item from the queue, without deleting the item.
+     * @return JSONObject of the item
+     */
+    protected synchronized String getKeyFromQueue( String key ) {
+        return eventQueue.getString(key, null);
+    }
+    
+    /**
+     * Sets the values for a particular queue key.
+     */
+    protected synchronized void setQueueItemForKey( JSONObject item, String key ) {
+        SharedPreferences.Editor editor = eventQueue.edit();
+        editor.putString(key, item.toString());
+        editor.commit();
+    }
+    
     protected class Add implements Runnable {
         private String link = null;
-        private String eventItems = null;
-        private String action = null;
-        private double revenue = 0;
-        private String currency = null;
-        private String refId = null;
-        private String iapData = null;
-        private String iapSignature = null;
-        private String eventAttribute1 = null;
-        private String eventAttribute2 = null;
-        private String eventAttribute3 = null;
-        private String eventAttribute4 = null;
-        private String eventAttribute5 = null;
-        private boolean shouldBuildData = false;
+        private String data = null;
+        private JSONObject postBody = null;
         private Date runDate = null;
         
         /**
          * Saves an event to the queue.
          * @param link URL of the event postback
-         * @param eventItems (Optional) MATEventItem JSON information to post to server
-         * @param action the action for the event (conversion/install/open)
-         * @param revenue value associated with the event
-         * @param currency currency code for the revenue
-         * @param refId the advertiser ref ID associated with the event
-         * @param iapData the receipt data from Google Play
-         * @param iapSignature the receipt signature from Google Play
-         * @param shouldBuildData whether link needs encrypted data to be appended or not
+         * @param postBody the body of the POST request
          * @param runDate datetime for request to be made
          */
-        protected Add(
-                String link,
-                String eventItems,
-                String action,
-                double revenue,
-                String currency,
-                String refId,
-                String iapData,
-                String iapSignature,
-                String eventAttribute1,
-                String eventAttribute2,
-                String eventAttribute3,
-                String eventAttribute4,
-                String eventAttribute5,
-                boolean shouldBuildData,
-                Date runDate) {
+        protected Add(String link, String data, JSONObject postBody, Date runDate) {
             this.link = link;
-            this.eventItems = eventItems;
-            this.action = action;
-            this.revenue = revenue;
-            this.currency = currency;
-            this.refId = refId;
-            this.iapData = iapData;
-            this.iapSignature = iapSignature;
-            this.eventAttribute1 = eventAttribute1;
-            this.eventAttribute2 = eventAttribute2;
-            this.eventAttribute3 = eventAttribute3;
-            this.eventAttribute4 = eventAttribute4;
-            this.eventAttribute5 = eventAttribute5;
-            this.shouldBuildData = shouldBuildData;
+            this.data = data;
+            this.postBody = postBody;
             this.runDate = runDate;
         }
 
@@ -127,52 +103,20 @@ public class MATEventQueue {
                 JSONObject jsonEvent = new JSONObject();
                 try {
                     jsonEvent.put("link", link);
-                    if (eventItems != null) {
-                        jsonEvent.put("event_items", eventItems);
-                    }
-                    jsonEvent.put("action", action);
-                    jsonEvent.put("revenue", revenue);
-                    if (currency == null) {
-                        currency = MATConstants.DEFAULT_CURRENCY_CODE;
-                    }
-                    jsonEvent.put("currency", currency);
-                    if (refId != null) {
-                        jsonEvent.put("ref_id", refId);
-                    }
-                    if (eventAttribute1 != null) {
-                        jsonEvent.put("event_attribute1", eventAttribute1);
-                    }
-                    if (eventAttribute2 != null) {
-                        jsonEvent.put("event_attribute2", eventAttribute2);
-                    }
-                    if (eventAttribute3 != null) {
-                        jsonEvent.put("event_attribute3", eventAttribute3);
-                    }
-                    if (eventAttribute4 != null) {
-                        jsonEvent.put("event_attribute4", eventAttribute4);
-                    }
-                    if (eventAttribute5 != null) {
-                        jsonEvent.put("event_attribute5", eventAttribute5);
-                    }
-                    if (iapData != null) {
-                        jsonEvent.put("iap_data", iapData);
-                    }
-                    if (iapSignature != null) {
-                        jsonEvent.put("iap_signature", iapSignature);
-                    }
-                    jsonEvent.put("should_build_data", shouldBuildData);
+                    jsonEvent.put("data", data);
+                    jsonEvent.put("post_body", postBody);
                     jsonEvent.put("run_date", runDate.getTime());
                 } catch (JSONException e) {
-                    // Return if we can't create JSONObject
+                    Log.w(MATConstants.TAG, "Failed creating event for queueing");
+                    e.printStackTrace();
                     return;
                 }
-                SharedPreferences.Editor editor = eventQueue.edit();
                 int count = getQueueSize() + 1;
                 setQueueSize(count);
                 String eventIndex = Integer.toString(count);
-                editor.putString(eventIndex, jsonEvent.toString());
-                editor.commit();
+                setQueueItemForKey( jsonEvent, eventIndex );
             } catch (InterruptedException e) {
+                Log.w(MATConstants.TAG, "Interrupted adding event to queue");
                 e.printStackTrace();
             } finally {
                 queueAvailable.release();
@@ -197,59 +141,19 @@ public class MATEventQueue {
                 // Iterate through events and do postbacks for each, using GetLink
                 for (; index <= size; index++) {
                     String key = Integer.toString(index);
-                    String eventJson = eventQueue.getString(key, null);
+                    String eventJson = getKeyFromQueue( key );
 
                     if (eventJson != null) {
                         String link = null;
-                        String eventItems = null;
-                        String action = null;
-                        double revenue = 0;
-                        String currency = null;
-                        String refId = null;
-                        String iapData = null;
-                        String iapSignature = null;
-                        String eventAttribute1 = null;
-                        String eventAttribute2 = null;
-                        String eventAttribute3 = null;
-                        String eventAttribute4 = null;
-                        String eventAttribute5 = null;
-                        boolean shouldBuildData = false;
+                        String data = null;
+                        JSONObject postBody = null;
                         long runDate = 0;
                         try {
                             // De-serialize the stored string from the queue to get URL and json values
                             JSONObject event = new JSONObject(eventJson);
                             link = event.getString("link");
-                            if (event.has("event_items")) {
-                                eventItems = event.getString("event_items");
-                            }
-                            action = event.getString("action");
-                            revenue = event.getDouble("revenue");
-                            currency = event.getString("currency");
-                            if (event.has("ref_id")) {
-                                refId = event.getString("ref_id");
-                            }
-                            if (event.has("iap_data")) {
-                                iapData = event.getString("iap_data");
-                            }
-                            if (event.has("iap_signature")) {
-                                iapSignature = event.getString("iap_signature");
-                            }
-                            if (event.has("event_attribute1")) {
-                                eventAttribute1 = event.getString("event_attribute1");
-                            }
-                            if (event.has("event_attribute2")) {
-                                eventAttribute2 = event.getString("event_attribute2");
-                            }
-                            if (event.has("event_attribute3")) {
-                                eventAttribute3 = event.getString("event_attribute3");
-                            }
-                            if (event.has("event_attribute4")) {
-                                eventAttribute4 = event.getString("event_attribute4");
-                            }
-                            if (event.has("event_attribute5")) {
-                                eventAttribute5 = event.getString("event_attribute5");
-                            }
-                            shouldBuildData = event.getBoolean("should_build_data");
+                            data = event.getString("data");
+                            postBody = event.getJSONObject("post_body");
                             runDate = event.getLong("run_date");
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -268,14 +172,77 @@ public class MATEventQueue {
                             }
                         }
 
-                        // Remove request from queue and execute
-                        removeKeyFromQueue(key);
-
                         if (mat != null) {
-                            mat.makeRequest(link, eventItems, action, revenue, currency, refId, iapData, iapSignature,
-                                    eventAttribute1, eventAttribute2, eventAttribute3, eventAttribute4, eventAttribute5, shouldBuildData);
+                            boolean success = mat.makeRequest(link, data, postBody);
+
+                            if (success) {
+                                removeKeyFromQueue(key);
+                                retryTimeout = 0; // reset retry timeout after success
+                            } else {
+                                // repeat this call
+                                index--;
+                                // update retry parameter
+                                // maybe try a regex parse instead...
+                                final String paramString = "&sdk_retry_attempt=";
+                                int retryStart = link.indexOf( paramString );
+                                if( retryStart > 0 ) {
+                                    // find the longest substring that legally parses as an int
+                                    int attempt = -1;
+                                    int parseStart = retryStart + paramString.length();
+                                    int parseEnd = parseStart + 1;
+                                    while( true ) {
+                                        String attemptString = null;
+                                        try {
+                                            attemptString = link.substring( parseStart, parseEnd );
+                                        } catch (StringIndexOutOfBoundsException e) {
+                                            break; // use last successfully parsed value
+                                        }
+                                        try {
+                                            attempt = Integer.parseInt( attemptString );
+                                            parseEnd++;
+                                        } catch (NumberFormatException e) {
+                                            break; // use last successfully parsed value
+                                        }
+                                    }
+                                    attempt++;
+                                    // 'attempt' will always be at least 0 here
+                                    link = link.replaceFirst( paramString + "\\d+", paramString + attempt );
+
+                                    // save updated link back to queue
+                                    try {
+                                        JSONObject event = new JSONObject(eventJson);
+                                        event.put("link", link);
+                                        setQueueItemForKey( event, key );
+                                    } catch (JSONException e) {
+                                        // error saving modified retry parameter, ignore
+                                        e.printStackTrace();
+                                    }
+                                }
+                                // choose new retry timeout, in seconds
+                                if( retryTimeout == 0 ) {
+                                    retryTimeout = 30;
+                                } else if( retryTimeout <= 30 ) {
+                                    retryTimeout = 90;
+                                } else if( retryTimeout <= 90 ) {
+                                    retryTimeout = 10*60;
+                                } else if( retryTimeout <= 10*60 ) {
+                                    retryTimeout = 60*60;
+                                } else if( retryTimeout <= 60*60 ) {
+                                    retryTimeout = 6*60*60;
+                                } else {
+                                    retryTimeout = 24*60*60;
+                                }
+                                // randomize and convert to milliseconds
+                                double timeoutMs = (1 + 0.1*Math.random())*retryTimeout*1000.;
+                                // sleep this thread for awhile
+                                try {
+                                    Thread.sleep( (long)timeoutMs );
+                                } catch (InterruptedException e) {
+                                }
+                            }
                         } else {
                             Log.d(MATConstants.TAG, "Dropping queued request because no MAT object was found");
+                            removeKeyFromQueue(key);
                         }
                     } else {
                         // eventJson null, queued event value was lost somehow
@@ -291,5 +258,4 @@ public class MATEventQueue {
         }
         
     }
-
 }

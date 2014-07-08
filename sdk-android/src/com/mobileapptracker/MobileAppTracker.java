@@ -1,53 +1,25 @@
 package com.mobileapptracker;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
-import android.graphics.Point;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.WindowManager;
-import android.webkit.WebView;
 
 /**
  * @author tony@hasoffers.com
@@ -57,95 +29,36 @@ public class MobileAppTracker {
     public static final int GENDER_MALE = 0;
     public static final int GENDER_FEMALE = 1;
     
-    private static final Uri ATTRIBUTION_ID_CONTENT_URI = Uri.parse("content://com.facebook.katana.provider.AttributionIdProvider");
-    private static final String ATTRIBUTION_ID_COLUMN_NAME = "aid";
-    private static final String IV = "heF9BATUfWuISyO8";
+    private final String IV = "heF9BATUfWuISyO8";
     
-    // The fields to encrypt in http request
-    private static final List<String> ENCRYPT_LIST = Arrays.asList(
-            "ir",
-            "d",
-            "db",
-            "dm",
-            "ma",
-            "ov",
-            "cc",
-            "l",
-            "an",
-            "pn",
-            "av",
-            "dc",
-            "ad",
-            "android_id_md5",
-            "android_id_sha1",
-            "android_id_sha256",
-            "r",
-            "c",
-            "id",
-            "ua",
-            "tpid",
-            "ar",
-            "ti",
-            "age",
-            "gender",
-            "latitude",
-            "longitude",
-            "altitude",
-            "connection_type",
-            "mobile_country_code",
-            "mobile_network_code",
-            "screen_density",
-            "screen_layout_size",
-            "android_purchase_status",
-            "referral_source",
-            "referral_url",
-            "google_aid",
-            "app_ad_tracking",
-            "facebook_user_id",
-            "google_user_id",
-            "twitter_user_id",
-            "attribute_sub1",
-            "attribute_sub2",
-            "attribute_sub3",
-            "attribute_sub4",
-            "attribute_sub5",
-            "user_name",
-            "user_email");
-
     // Interface for reading platform response to tracking calls
     protected MATResponse matResponse;
     // Interface for making url requests
-    private UrlRequester urlRequester;
+    private MATUrlRequester urlRequester;
+    // Encryptor for url
+    private Encryption encryption;
     // Interface for testing URL requests
     protected MATTestRequest matRequest; // note: this has no setter - must subclass to set
 
     // Whether connectivity receiver is registered or not
     protected boolean isRegistered;
-    // Whether to allow duplicate installs from this device
-    private boolean allowDups;
-    // Whether to collect device ID
-    private boolean collectDeviceId;
-    // Whether to collect MAC address
-    private boolean collectMacAddress;
     // Whether to show debug output
     private boolean debugMode;
-    // Whether device had app installed prior to SDK integration or not
-    private boolean existingUser;
+    // Whether preloaded attribution applies or not
+    private boolean preLoaded;
     // Whether variables were initialized correctly
-    private boolean initialized;
-    // Whether to make a post conversion call, only for updating install referrer
-    private boolean postConversion;
+    protected boolean initialized;
 
     // Connectivity receiver
     protected BroadcastReceiver networkStateReceiver;
-    // Table of fields to pass in http request
-    private ConcurrentHashMap<String, String> paramTable;
+    // Parameters container
+    protected Parameters params;
     // The context passed into the constructor
     protected Context mContext;
-    // Local Encryption object
-    private Encryption encryption;
-    // Thread pool for running the GetLink Runnables
-    private ScheduledExecutorService pool;
+    // Thread pool for running the request Runnables
+    private ExecutorService pool;
+    // Thread pool for public method execution
+    protected ExecutorService pubQueue;
 
     // Queue interface object for storing events that were not fired
     protected MATEventQueue eventQueue;
@@ -164,47 +77,35 @@ public class MobileAppTracker {
     }
 
     /**
-     * Instantiates a new MobileAppTracker singleton.
+     * Initializes a MobileAppTracker.
      * @param context the application context
      * @param advertiserId the MAT advertiser ID for the app
-     * @param key the MAT advertiser key for the app
-     * @param collectDeviceId whether to collect device ID
-     * @param collectMacAddress whether to collect MAC address
+     * @param conversionKey the MAT advertiser key for the app
      */
-    public static void init(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
+    public static void init(Context context, final String advertiserId, final String conversionKey) {
         mat = new MobileAppTracker();
-        mat.initAll(context, advertiserId, key, collectDeviceId, collectMacAddress);
+        mat.mContext = context.getApplicationContext();
+        mat.pubQueue = Executors.newSingleThreadExecutor();
+        
+        mat.pubQueue.execute(new Runnable() { public void run() { 
+            mat.initAll(advertiserId, conversionKey);
+        }});
     }
-
-    /**
-     * Instantiates a new MobileAppTracker with device ID/MAC address collection by default.
-     * @param context the application context
-     * @param advertiserId the MAT advertiser ID for the app
-     * @param key the MAT advertiser key for the app
-     */
-    public static void init(Context context, String advertiserId, String key) {
-        init(context, advertiserId, key, true, true);
-    }
-
     
     /**
      * Private initialization function for MobileAppTracker.
-     * @param context the application context
      * @param advertiserId the MAT advertiser ID for the app
-     * @param key the MAT advertiser key for the app
-     * @param collectDeviceId whether to collect device ID
-     * @param collectMacAddress whether to collect MAC address
+     * @param conversionKey the MAT conversion key for the app
      */
-    protected void initAll(Context context, String advertiserId, String key, boolean collectDeviceId, boolean collectMacAddress) {
-        initLocalVariables(context, key, collectDeviceId, collectMacAddress);
-        initialized = populateRequestParamTable(context, advertiserId);
-
-        eventQueue = new MATEventQueue(context, mat);
+    protected void initAll(String advertiserId, String conversionKey) {
+        Parameters.init(mContext, advertiserId, conversionKey);
+        params = Parameters.getInstance();
         
+        initLocalVariables(conversionKey);
+
+        eventQueue = new MATEventQueue(mContext, mat);
         // Dump any existing requests in queue on start
-        if (initialized) {
-            dumpQueue();
-        }
+        dumpQueue();
 
         // Set up connectivity listener so we dump the queue when re-connected to Internet
         networkStateReceiver = new BroadcastReceiver() {
@@ -218,214 +119,33 @@ public class MobileAppTracker {
 
         if (isRegistered) {
             // Unregister receiver in case one is still previously registered
-            context.getApplicationContext().unregisterReceiver(networkStateReceiver);
+            try {
+                mContext.unregisterReceiver(networkStateReceiver);
+            } catch (java.lang.IllegalArgumentException e) {
+            }
             isRegistered = false;
         }
 
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        context.getApplicationContext().registerReceiver(networkStateReceiver, filter);
+        mContext.registerReceiver(networkStateReceiver, filter);
         isRegistered = true;
+
+        initialized = true;
     }
     
     /**
      * Initialize class variables
-     * @param context the application context
-     * @param key the advertiser key
-     * @param collectDeviceId whether to collect device ID
-     * @param collectMacAddress whether to collect MAC address
-     * @return
+     * @param key the conversion key
      */
-    private void initLocalVariables(Context context, String key, boolean collectDeviceId, boolean collectMacAddress) {
-        mContext = context.getApplicationContext();
-        pool = Executors.newSingleThreadScheduledExecutor();
-        urlRequester = new UrlRequester();
-        encryption = new Encryption(key.trim(), MobileAppTracker.IV);
-
-        isRegistered = false;
-        allowDups = false;
-        debugMode = false;
-        existingUser = false;
+    private void initLocalVariables(String key) {
+        pool = Executors.newSingleThreadExecutor();
+        urlRequester = new MATUrlRequester();
+        encryption = new Encryption(key.trim(), IV);
+        
         initialized = false;
-        postConversion = false;
-
-        this.collectDeviceId = collectDeviceId;
-        this.collectMacAddress = collectMacAddress;
-    }
-
-    /**
-     * Helper to populate the device params to send
-     * @param context the application Context
-     * @param advertiserId the advertiser id in MAT
-     * @return whether params were successfully collected or not
-     */
-    @SuppressWarnings("deprecation")
-    @SuppressLint("NewApi")
-    private boolean populateRequestParamTable(Context context, String advertiserId) {
-        paramTable = new ConcurrentHashMap<String, String>();
-
-        boolean hasDeviceIdPermission = (context.checkCallingOrSelfPermission(MATConstants.DEVICE_ID_PERMISSION) == PackageManager.PERMISSION_GRANTED);
-        boolean hasMacAddressPermission = (context.checkCallingOrSelfPermission(MATConstants.MAC_ADDRESS_PERMISSION) == PackageManager.PERMISSION_GRANTED);
-
-        try {
-            // Strip the whitespace from advertiser id
-            setAdvertiserId(advertiserId.trim());
-            setAction("conversion");
-
-            // Get app package information
-            String packageName = context.getPackageName();
-            setPackageName(packageName);
-
-            // Get app name
-            PackageManager pm = context.getPackageManager();
-            try {
-                ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
-                setAppName(pm.getApplicationLabel(ai).toString());
-
-                // Get last modified date of app file as install date
-                String appFile = pm.getApplicationInfo(packageName, 0).sourceDir;
-                long insdate = new File(appFile).lastModified();
-                Date installDate = new Date(insdate);
-                SimpleDateFormat sdfDate = new SimpleDateFormat(MATConstants.DATE_FORMAT, Locale.US);
-                sdfDate.setTimeZone(TimeZone.getTimeZone("UTC"));
-                setInstallDate(sdfDate.format(installDate));
-            } catch (NameNotFoundException e) {
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "ApplicationInfo not found");
-                }
-            }
-            // Get app version
-            try {
-                PackageInfo pi = pm.getPackageInfo(packageName, 0);
-                setAppVersion(pi.versionCode);
-            } catch (NameNotFoundException e) {
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "App version not found");
-                }
-                setAppVersion(0);
-            }
-
-            // Get generic device information
-            setDeviceModel(android.os.Build.MODEL);
-            setDeviceBrand(android.os.Build.MANUFACTURER);
-            setOsVersion(android.os.Build.VERSION.RELEASE);
-            // Screen density
-            float density = context.getResources().getDisplayMetrics().density;
-            setScreenDensity(Float.toString(density));
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            int width;
-            int height;
-            // Screen layout size
-            if (android.os.Build.VERSION.SDK_INT >= 13) {
-                Point size = new Point();
-                wm.getDefaultDisplay().getSize(size);
-                width = size.x;
-                height = size.y;
-            } else {
-                width = wm.getDefaultDisplay().getWidth();
-                height = wm.getDefaultDisplay().getHeight();
-            }
-            setScreenSize(Integer.toString(width) + "x" + Integer.toString(height));
-
-            // Set the device connection type, WIFI or mobile
-            ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (mWifi.isConnected()) {
-                setConnectionType("WIFI");
-            } else {
-                setConnectionType("mobile");
-            }
-
-            // Network and locale info
-            setLanguage(Locale.getDefault().getDisplayLanguage(Locale.US));
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (tm != null) {
-                if (tm.getNetworkCountryIso() != null) {
-                    setCountryCode(tm.getNetworkCountryIso());
-                } else if (collectDeviceId && hasDeviceIdPermission) {
-                    if (tm.getSimCountryIso() != null) {
-                        setCountryCode(tm.getSimCountryIso());
-                    }
-                }
-                setDeviceCarrier(tm.getNetworkOperatorName());
-
-                // Set Mobile Country Code and Mobile Network Code
-                String networkOperator = tm.getNetworkOperator();
-                if (networkOperator != null) {
-                    try {
-                        String mcc = networkOperator.substring(0, 3);
-                        String mnc = networkOperator.substring(3);
-                        setMCC(mcc);
-                        setMNC(mnc);
-                    } catch (IndexOutOfBoundsException e) {
-                        if (debugMode) {
-                            // networkOperator is unreliable for CDMA devices
-                            Log.d(MATConstants.TAG, "MCC/MNC not found");
-                        }
-                    }
-                }
-            } else {
-                setCountryCode(Locale.getDefault().getCountry());
-            }
-
-            // execute Runnable on UI thread to set user agent
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new GetUserAgent(context));
-
-            // Default params
-            setLimitAdTrackingEnabled(false);
-            setCurrencyCode(MATConstants.DEFAULT_CURRENCY_CODE);
-
-            // Get the device identifiers
-            populateDeviceIdentifiers(context, hasDeviceIdPermission, hasMacAddressPermission);
-
-            return true;
-        } catch (Exception e) {
-            if (debugMode) {
-                Log.d(MATConstants.TAG, "MobileAppTracker initialization failed");
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
-
-    /**
-     * Helper to get device identifiers
-     * @param context the application Context
-     * @param hasDeviceIdPermission whether app has READ_PHONE_STATE permission
-     * @param hasMacAddressPermission whether app has ACCESS_WIFI_STATE permission
-     * @return
-     */
-    private void populateDeviceIdentifiers(Context context, boolean hasDeviceIdPermission, boolean hasMacAddressPermission) {
-        // Set the MAT ID, from existing or generate a new UUID
-        String matId = getStringFromSharedPreferences(context, MATConstants.PREFS_MAT_ID, "mat_id");
-        if (matId.length() == 0) {
-            // generate MAT ID once and save in shared preferences
-            matId = UUID.randomUUID().toString();
-            saveToSharedPreferences(context, MATConstants.PREFS_MAT_ID, "mat_id", matId);
-        }
-        setMatId(matId);
-        
-        // Set ANDROID ID
-        setAndroidId(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID));
-        
-        // Only collect device id if READ_PHONE_STATE permission exists
-        if (collectDeviceId && hasDeviceIdPermission) {
-            String deviceId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-            setDeviceId(deviceId);
-        }
-        
-        // Only collect MAC address if ACCESS_WIFI_STATE permission exists
-        if (collectMacAddress && hasMacAddressPermission) {
-            WifiManager wifiMan = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            if (wifiMan != null) {
-                WifiInfo wifiInfo = wifiMan.getConnectionInfo();
-                if (wifiInfo != null) {
-                    if (wifiInfo.getMacAddress() != null) {
-                        setMacAddress(wifiInfo.getMacAddress());
-                    }
-                }
-            }
-        }
+        isRegistered = false;
+        debugMode = false;
+        preLoaded = false;
     }
 
     /**
@@ -433,30 +153,14 @@ public class MobileAppTracker {
      * @param context the app context to check connectivity from
      * @return whether Internet connection exists
      */
-    public boolean isOnline(Context context) {
+    public static boolean isOnline(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    protected void addEventToQueue(String link, String eventItems, String action, double revenue, String currency, String refId, String inAppPurchaseData,
-            String inAppSignature, String eventAttribute1, String eventAttribute2, String eventAttribute3, String eventAttribute4, String eventAttribute5, boolean shouldBuildData, Date runDate) {
-        pool.execute(eventQueue.new Add(
-                link,
-                eventItems,
-                action,
-                revenue,
-                currency,
-                refId,
-                inAppPurchaseData,
-                inAppSignature,
-                eventAttribute1,
-                eventAttribute2,
-                eventAttribute3,
-                eventAttribute4,
-                eventAttribute5,
-                shouldBuildData,
-                runDate));
+    protected void addEventToQueue(String link, String data, JSONObject postBody, Date runDate) {
+        pool.execute(eventQueue.new Add(link, data, postBody, runDate));
     }
 
     protected void dumpQueue() {
@@ -464,265 +168,158 @@ public class MobileAppTracker {
         
         pool.execute(eventQueue.new Dump());
     }
-
+    
     /**
-     * Insert referring app info into target app's content provider. Redirects user to target app's download url if doRedirect is true.
-     * @param publisherAdvertiserId the advertiser id of the publishing app (referring app)
-     * @param targetPackageName the target package name being referred to
-     * @param publisherId (optional) the publisher id for referral
-     * @param campaignId (optional) the campaign id for referral
-     * @param doRedirect whether to automatically redirect user to target app's url or not
-     * @return download url to target app
+     * Main session measurement function; this function should be called at every app open.
      */
-    public String setTracking(
-                              String publisherAdvertiserId,
-                              String targetPackageName,
-                              String publisherId,
-                              String campaignId,
-                              boolean doRedirect
-                             ) {
-        // Track a click with the app-to-app parameters and get a tracking ID back
-        String trackingId = "";
-        String redirectUrl = "";
-
-        StringBuilder url = new StringBuilder("https://").append(MATConstants.MAT_DOMAIN).append("/serve?action=click&sdk=android");
-        url.append("&publisher_advertiser_id=").append(publisherAdvertiserId);
-        url.append("&package_name=").append(targetPackageName);
-        if (publisherId != null) {
-            url.append("&publisher_id=").append(publisherId);
-        }
-        if (campaignId != null) {
-            url.append("&campaign_id=").append(campaignId);
-        }
-        url.append("&response_format=json");
-
-        JSONObject response = urlRequester.requestUrl(url.toString(), null);
-        if (response != null) {
-            try {
-                trackingId = response.getString("tracking_id");
-                redirectUrl = response.getString("url");
-            } catch (JSONException e) {
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "Unable to get tracking ID or redirect url from app-to-app tracking");
-                }
-                return "";
-            }
-        }
-
-        ContentValues values = new ContentValues();
-        values.put(MATProvider.PUBLISHER_PACKAGE_NAME, getPackageName());
-        values.put(MATProvider.TRACKING_ID, trackingId);
-
-        Uri CONTENT_URI = Uri.parse("content://" + targetPackageName + "/referrer_apps");
-        mContext.getContentResolver().insert(CONTENT_URI, values);
-
-        // If doRedirect is true, take user to the url returned by the server
-        if (doRedirect) {
-            try {
-                Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(redirectUrl));
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(i);
-            } catch (ActivityNotFoundException e) {
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "Unable to start activity to open " + redirectUrl);
-                }
-            }
-        }
-
-        return redirectUrl;
+    public void measureSession() {
+        pubQueue.execute(new Runnable() { public void run() {
+            measure("session", null, 0, getCurrencyCode(), getRefId(), null, null, false);
+        }});
     }
 
     /**
-     * Main tracking session function; this function should be called at every app open.
-     * @return 1 on request sent and -1 on failure
-     */
-    public int trackSession() {
-        return track("session", null, getRevenue(), getCurrencyCode(), getRefId(), null, null);
-    }
-
-    /**
-     * trackSession call that bypasses already-sent check
+     * measureSession call that bypasses already-sent check
      * and with post_conversion=1 for updating referrer value of existing MAT install
      */
-    void trackSessionWithReferrer() {
-        postConversion = true;
-        track("session", null, 0, null, null, null, null);
-        postConversion = false;
+    void measureInstallWithReferrer() {
+        measure("install", null, 0, null, null, null, null, true);
     }
 
     /**
-     * Tracking event function, track purchase events with a special purchase status parameter.
-     * @param event event name or event ID in MAT system
-     * @param purchaseStatus the status of the purchase: 0 for success, 1 for fail, 2 for refund
-     * @param revenue revenue amount tied to the action
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     * @param inAppPurchaseData the receipt data from Google Play
-     * @param inAppSignature the receipt signature from Google Play
-     * @return 1 on request sent and -1 on failure
+     * Event measurement function, by event name.
+     * @param eventName event name in MAT system
      */
-    public int trackPurchase(
-                             String event, 
-                             int purchaseStatus,
-                             double revenue,
-                             String currency,
-                             String refId,
-                             String inAppPurchaseData,
-                             String inAppSignature
-                            ) {
-        setPurchaseStatus(purchaseStatus);
-        return track(event, null, revenue, currency, refId, inAppPurchaseData, inAppSignature);
-    }
-
-    /**
-     * Tracking event function, track events by event ID or name.
-     * @param event event name or event ID in MAT system
-     * @return 1 on request sent and -1 on failure.
-     */
-    public int trackAction(String event) {
-        return track(event, null, 0, getCurrencyCode(), null, null, null);
-    }
-
-    /**
-     * Tracking event function, track events by event ID or name, and event item.
-     * @param event event name or event ID in MAT system
-     * @param eventItem event item to post to server.
-     * @return 1 on request sent and -1 on failure.
-     */
-    public int trackAction(String event, MATEventItem eventItem) {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(eventItem.toJSON());
-        return track(event, jsonArray.toString(), 0, getCurrencyCode(), null, null, null);
+    public void measureAction(String eventName) {
+        measureAction(eventName, null, 0, getCurrencyCode(), null, null, null);
     }
     
     /**
-     * Tracking event function, track events by event ID or name, event item, revenue, currency, and advertiser ref ID.
-     * @param event event name or event ID in MAT system
-     * @param eventItem event item to post to server.
-     * @param revenue revenue amount tied to the action
+     * Event measurement function, by event name, revenue and currency.
+     * @param eventName event name in MAT system
+     * @param revenue revenue amount tied to the event
+     * @param currency currency code for the revenue amount
+     */
+    public void measureAction(String eventName, double revenue, String currency) {
+        measureAction(eventName, null, revenue, currency, null, null, null);
+    }
+    
+    /**
+     * Event measurement function, by event name, revenue, currency, and advertiser ref ID.
+     * @param eventName event name in MAT system
+     * @param revenue revenue amount tied to the event
      * @param currency currency code for the revenue amount
      * @param refId the advertiser ref ID to associate with the event
-     * @return 1 on request sent and -1 on failure.
      */
-    public int trackAction(String event, MATEventItem eventItem, double revenue, String currency, String refId) {
-        return trackAction(event, eventItem, revenue, currency, refId, null, null);
+    public void measureAction(String eventName, double revenue, String currency, String refId) {
+        measureAction(eventName, null, revenue, currency, refId, null, null);
     }
-
+    
     /**
-     * Tracking event function, track events by event ID or name, event item, and
-     *  in-app purchase data and signature for purchase verification.
-     * @param event event name or event ID in MAT system
-     * @param eventItem event item to post to server.
-     * @param inAppPurchaseData the receipt data from Google Play
-     * @param inAppSignature the receipt signature from Google Play
-     * @return 1 on request sent and -1 on failure.
-     */
-    public int trackAction(String event, MATEventItem eventItem, double revenue, String currency, String refId, String inAppPurchaseData, String inAppSignature) {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(eventItem.toJSON());
-        return track(event, jsonArray.toString(), revenue, currency, refId, inAppPurchaseData, inAppSignature);
-    }
-
-    /**
-     * Tracking event function, track events by event ID or name, and a list of event items.
-     * @param event event name or event ID in MAT system
-     * @param list List of event items to post to server.
-     * @return 1 on request sent and -1 on failure.
-     */
-    public int trackAction(String event, List<MATEventItem> list) {
-        return trackAction(event, list, 0, getCurrencyCode(), null, null, null);
-    }
-
-    /**
-     * Tracking event function, track events by event ID or name, a list of event items,
+     * Event measurement function, by event name, event items,
      *  revenue, currency, and advertiser ref ID.
-     * @param event event name or event ID in MAT system
-     * @param list List of event items to post to server.
-     * @param revenue revenue amount tied to the action
+     * @param eventName event name in MAT system
+     * @param eventItems List of event items to associate with event
+     * @param revenue revenue amount tied to the event
      * @param currency currency code for the revenue amount
      * @param refId the advertiser ref ID to associate with the event
-     * @return 1 on request sent and -1 on failure.
      */
-    public int trackAction(String event, List<MATEventItem> list, double revenue, String currency, String refId) {
-        return trackAction(event, list, revenue, currency, refId, null, null);
+    public void measureAction(String eventName, List<MATEventItem> eventItems, double revenue, String currency, String refId) {
+        measureAction(eventName, eventItems, revenue, currency, refId, null, null);
     }
-
+    
     /**
-     * Tracking event function, track events by event ID or name, a list of event items,
-     *  and in-app purchase data and signature for purchase verification.
-     * @param event event name or event ID in MAT system
-     * @param list List of event items to post to server.
-     * @param revenue revenue amount tied to the action
+     * Event measurement function
+     * @param eventName event name in MAT system
+     * @param eventItems List of event items to associate with event
+     * @param revenue revenue amount tied to the event
      * @param currency currency code for the revenue amount
      * @param refId the advertiser ref ID to associate with the event
-     * @param inAppPurchaseData the receipt data from Google Play
-     * @param inAppSignature the receipt signature from Google Play
-     * @return 1 on request sent and -1 on failure.
+     * @param purchaseData the receipt data from Google Play
+     * @param purchaseSignature the receipt signature from Google Play
      */
-    public int trackAction(String event, List<MATEventItem> list, double revenue, String currency, String refId, String inAppPurchaseData, String inAppSignature) {
+    public void measureAction(final String eventName, final List<MATEventItem> eventItems, final double revenue,
+            final String currency, final String refId, final String purchaseData, final String purchaseSignature) {
         // Create a JSONArray of event items
-        JSONArray jsonArray = new JSONArray();
-        for (int i = 0; i < list.size(); i++) {
-            jsonArray.put(list.get(i).toJSON());
+        final JSONArray jsonArray = new JSONArray();
+        if (eventItems != null) {
+            for (int i = 0; i < eventItems.size(); i++) {
+                jsonArray.put(eventItems.get(i).toJSON());
+            }
         }
-        return track(event, jsonArray.toString(), revenue, currency, refId, inAppPurchaseData, inAppSignature);
-    }
 
+        pubQueue.execute(new Runnable() { public void run() { 
+            measure(eventName, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature, false);
+        }});
+    }
+    
     /**
-     * Tracking event function, track events by event ID or name, revenue.
-     * @param event event name or event ID in MAT system
-     * @param revenue revenue amount tied to the action
-     * @return 1 on request sent and -1 on failure.
+     * Event measurement function, by event ID.
+     * @param eventId event ID in MAT system
      */
-    public int trackAction(String event, double revenue) {
-        return trackAction(event, revenue, getCurrencyCode(), null);
+    public void measureAction(int eventId) {
+        measureAction(eventId, null, 0, getCurrencyCode(), null, null, null);
     }
-
+    
     /**
-     * Tracking event function, track events by event ID or name, revenue and currency.
-     * @param event event name or event ID in MAT system
-     * @param revenue revenue amount tied to the action
+     * Event measurement function, by event ID, revenue and currency.
+     * @param eventId event ID in MAT system
+     * @param revenue revenue amount tied to the event
      * @param currency currency code for the revenue amount
-     * @return 1 on request sent and -1 on failure.
      */
-    public int trackAction(String event, double revenue, String currency) {
-        return trackAction(event, revenue, currency, null);
+    public void measureAction(int eventId, double revenue, String currency) {
+        measureAction(eventId, null, revenue, currency, null, null, null);
     }
-
+    
     /**
-     * Tracking event function, track events by event ID or name, revenue, currency, and advertiser ref ID.
-     * @param event event name or event ID in MAT system
-     * @param revenue revenue amount tied to the action
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     * @return 1 on request sent and -1 on failure.
-     */
-    public int trackAction(String event, double revenue, String currency, String refId) {
-        return track(event, null, revenue, currency, refId, null, null);
-    }
-
-    /**
-     * Tracking event function, track events by event ID or name, revenue, currency,
-     * advertiser ref ID, and in-app purchase data and signature for purchase verification.
-     * @param event event name or event ID in MAT system
-     * @param revenue revenue amount tied to the action
+     * Event measurement function, by event ID, revenue, currency, and advertiser ref ID.
+     * @param eventId event ID in MAT system
+     * @param revenue revenue amount tied to the event
      * @param currency currency code for the revenue amount
      * @param refId the advertiser ref ID to associate with the event
-     * @param inAppPurchaseData the receipt data from Google Play
-     * @param inAppSignature the receipt signature from Google Play
-     * @return 1 on request sent and -1 on failure.
      */
-    public int trackAction(
-                           String event,
-                           double revenue,
-                           String currency,
-                           String refId,
-                           String inAppPurchaseData,
-                           String inAppSignature
-                          ) {
-        return track(event, null, revenue, currency, refId, inAppPurchaseData, inAppSignature);
+    public void measureAction(int eventId, double revenue, String currency, String refId) {
+        measureAction(eventId, null, revenue, currency, refId, null, null);
     }
+    
+    /**
+     * Event measurement function, by event ID, event items,
+     *  revenue, currency, and advertiser ref ID.
+     * @param eventId event ID in MAT system
+     * @param eventItems List of event items to associate with event
+     * @param revenue revenue amount tied to the event
+     * @param currency currency code for the revenue amount
+     * @param refId the advertiser ref ID to associate with the event
+     */
+    public void measureAction(int eventId, List<MATEventItem> eventItems, double revenue, String currency, String refId) {
+        measureAction(eventId, eventItems, revenue, currency, refId, null, null);
+    }
+    
+    /**
+     * Event measurement function
+     * @param eventId event ID in MAT system
+     * @param eventItems List of event items to associate with event
+     * @param revenue revenue amount tied to the event
+     * @param currency currency code for the revenue amount
+     * @param refId the advertiser ref ID to associate with the event
+     * @param purchaseData the receipt data from Google Play
+     * @param purchaseSignature the receipt signature from Google Play
+     */
+    public void measureAction(final int eventId, final List<MATEventItem> eventItems, final double revenue,
+            final String currency, final String refId, final String purchaseData, final String purchaseSignature) {
+        // Create a JSONArray of event items
+        final JSONArray jsonArray = new JSONArray();
+        if (eventItems != null) {
+            for (int i = 0; i < eventItems.size(); i++) {
+                jsonArray.put(eventItems.get(i).toJSON());
+            }
+        }
 
+        pubQueue.execute(new Runnable() { public void run() { 
+            measure(eventId, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature, false);
+        }});
+    }
+    
     /**
      * Method calls a new action event based on class member settings.
      * @param event event name or event ID in MAT system
@@ -732,345 +329,119 @@ public class MobileAppTracker {
      * @param refId the advertiser ref ID to associate with the event
      * @param inAppPurchaseData the receipt data from Google Play
      * @param inAppSignature the receipt signature from Google Play
-     * @return 1 on request sent and -1 on failure.
      */
-    private synchronized int track(
-                                   String event,
-                                   String eventItems,
+    private synchronized void measure(
+                                   Object event,
+                                   JSONArray eventItems,
                                    double revenue,
                                    String currency,
                                    String refId,
                                    String inAppPurchaseData,
-                                   String inAppSignature
+                                   String inAppSignature,
+                                   boolean postConversion
                                   ) {
-        if (!initialized) return -1;
-
+        if (!initialized) return;
+        
         dumpQueue();
-
-        setAction("conversion"); // Default to conversion
+        
+        params.setAction("conversion"); // Default to conversion
         Date runDate = new Date();
-        if (containsChar(event)) { // check if eventid contains a character
-            if (event.equals("close")) return -1; // Don't send close events anymore
-            else if (event.equals("open") || event.equals("install") || 
-                     event.equals("update") || event.equals("session")) {
-                setAction("session");
+        if (event instanceof String) {
+            if (event.equals("close")) {
+                return; // Don't send close events
+            } else if (event.equals("open") || event.equals("install") || 
+                    event.equals("update") || event.equals("session")) {
+                // For post_conversion call, send action=install
+                if (postConversion) {
+                    params.setAction("install");
+                } else {
+                    params.setAction("session");
+                }
                 runDate = new Date(runDate.getTime() + MATConstants.DELAY);
+            } else {
+                params.setEventName((String)event);
             }
-            else setEventName(event);
+        } else if (event instanceof Integer) {
+            params.setEventId(Integer.toString((Integer)event));
         } else {
-            setEventId(event);
+            Log.d(MATConstants.TAG, "Received invalid event name or id value, not measuring event");
+            return;
         }
-
-        String link = buildLink();
-        if (link == null) {
-            if (debugMode) {
-                Log.d(MATConstants.TAG, "Error constructing url for tracking call");
-            }
-            return -1;
+        
+        params.setRevenue(Double.toString(revenue));
+        if (revenue > 0) {
+            params.setIsPayingUser(Integer.toString(1));
         }
-
-        addEventToQueue(link, eventItems, getAction(), revenue, currency, refId, inAppPurchaseData, inAppSignature, 
-                getEventAttribute1(), getEventAttribute2(), getEventAttribute3(), getEventAttribute4(), getEventAttribute5(), true, runDate);
+        
+        params.setCurrencyCode(currency);
+        params.setRefId(refId);
+        
+        String link = MATUrlBuilder.buildLink(debugMode, preLoaded, postConversion);
+        String data = MATUrlBuilder.buildDataUnencrypted();
+        JSONObject postBody = MATUrlBuilder.buildBody(eventItems, inAppPurchaseData, inAppSignature);
+        
+        if (matRequest != null) {
+            matRequest.constructedRequest(link, data, postBody);
+        }
+        
+        addEventToQueue(link, data, postBody, runDate);
         dumpQueue();
-
+        
+        if (matResponse != null) {
+            matResponse.enqueuedActionWithRefId(refId);
+        }
+        
         // Clear the parameters that should be reset between events
-        setEventId(null);
-        setEventName(null);
-        setRevenue(0);
-        setCurrencyCode(MATConstants.DEFAULT_CURRENCY_CODE);
-        setRefId(null);
-        setEventAttribute1(null);
-        setEventAttribute2(null);
-        setEventAttribute3(null);
-        setEventAttribute4(null);
-        setEventAttribute5(null);
-
-        return 1;
+        params.resetAfterRequest();
+        
+        return;
     }
     
-    /**
-     * Builds a new link string based on class member values.
-     * @return encrypted URL string based on class settings.
-     */
-    private String buildLink() {
-        StringBuilder link = new StringBuilder("https://").append(getAdvertiserId()).append(".");
-        if (debugMode) {
-            link.append(MATConstants.MAT_DOMAIN_DEBUG);
-        } else {
-            link.append(MATConstants.MAT_DOMAIN);
-        }
-        link.append("/serve?s=android&ver=").append(MATConstants.SDK_VERSION);
-        
-        // Append SDK plugin name if exists
-        String pluginName = getPluginName();
-        if (pluginName != null) {
-            link.append("&sdk_plugin=").append(pluginName);
-        }
-
-        link.append("&pn=").append(getPackageName());
-        for (String key: paramTable.keySet()) {
-            // Append fields from paramTable that don't need to be encrypted
-            if (!ENCRYPT_LIST.contains(key)) {
-                link.append("&").append(key).append("=").append(paramTable.get(key));
-            }
-        }
-
-        // If allow duplicates on, skip duplicate check logic
-        if (allowDups) {
-            link.append("&skip_dup=1");
-        }
-
-        // If logging on, use debug mode
-        if (debugMode) {
-            link.append("&debug=1");
-        }
-
-        if (postConversion) {
-            link.append("&post_conversion=1");
-        }
-
-        if (existingUser) {
-            link.append("&existing_user=1");
-        }
-
-        // Append app-to-app tracking id if exists
-        try {
-            Uri allTitles = Uri.parse("content://" + getPackageName() + "/referrer_apps");
-            Cursor c = mContext.getContentResolver().query(allTitles, null, null, null, "publisher_package_name desc");
-            // Append tracking ID from content provider if exists
-            if (c != null && c.moveToFirst()) {
-                String trackingId = c.getString(c.getColumnIndex(MATProvider.TRACKING_ID));
-                // UTF-8 encode the tracking ID
-                try {
-                    trackingId = URLEncoder.encode(trackingId, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                
-                // Add to paramTable for data encrypting
-                paramTable.put("ti", trackingId);
-                c.close();
-            }
-        } catch (Exception e) {
-            if (debugMode) {
-                Log.d(MATConstants.TAG, "Error reading app-to-app values");
-                e.printStackTrace();
-            }
-        }
-        return link.toString();
-    }
 
     /**
-     * Builds encrypted data in conversion link based on class member values.
-     * @param origLink the base URL to append data to
-     * @param action the event action (install/update/open/conversion)
-     * @param revenue revenue associated with event
-     * @param currency currency code for event
-     * @param refId the advertiser ref ID to associate with the event
-     * @return encrypted URL string based on class settings.
-     */
-    private String buildData(String origLink, String action, double revenue, String currency, String refId,
-            String attribute1, String attribute2, String attribute3, String attribute4, String attribute5) {
-        StringBuilder link = new StringBuilder(origLink);
-
-        setRevenue(revenue);
-        if (currency != null) {
-            setCurrencyCode(currency);
-        }
-        setRefId(refId);
-        setEventAttribute1(attribute1);
-        setEventAttribute2(attribute2);
-        setEventAttribute3(attribute3);
-        setEventAttribute4(attribute4);
-        setEventAttribute5(attribute5);
-
-        // Try to update referrer value if we don't have one
-        if (getInstallReferrer() == null || getInstallReferrer().length() == 0) {
-            String referrer = getStringFromSharedPreferences(mContext, MATConstants.PREFS_REFERRER, "referrer");
-            setInstallReferrer(referrer);
-        }
-
-        // Append install log id if we have it stored
-        if (getInstallLogId().length() > 0) {
-            link.append("&install_log_id=" + getInstallLogId());
-        } else if (getUpdateLogId().length() > 0) {
-            link.append("&update_log_id=" + getUpdateLogId());
-        }
-        
-        // Append open log IDs if we have them
-        if (getOpenLogId().length() > 0) {
-            link.append("&open_log_id=" + getOpenLogId());
-        }
-        if (getLastOpenLogId().length() > 0) {
-            link.append("&last_open_log_id=" + getLastOpenLogId());
-        }
-
-        // Append Facebook mobile cookie value if exists
-        try {
-            String facebookCookie = getAttributionId(mContext.getContentResolver());
-            if (facebookCookie != null) {
-                link.append("&fb_cookie_id=").append(facebookCookie);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Check if there is a Facebook re-engagement intent saved in SharedPreferences
-        String intent = getStringFromSharedPreferences(mContext, MATConstants.PREFS_FACEBOOK_INTENT, "action");
-        if (intent.length() != 0) {
-            try {
-                intent = URLEncoder.encode(intent, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            // Append Facebook re-engagement intent to url as "source"
-            link.append("&source=").append(intent);
-            // Clear the fb intent
-            SharedPreferences.Editor editor = mContext.getSharedPreferences(MATConstants.PREFS_FACEBOOK_INTENT, Context.MODE_PRIVATE).edit();
-            editor.remove("action");
-            editor.commit();
-        }
-
-        // Construct the data string from field names in encryptList and encrypt it
-        StringBuilder data = new StringBuilder();
-        for (String encrypt: ENCRYPT_LIST) {
-            if (paramTable.get(encrypt) != null) {
-                data.append("&").append(encrypt).append("=").append(paramTable.get(encrypt));
-            }
-        }
-
-        SimpleDateFormat sdfDate = new SimpleDateFormat(MATConstants.DATE_FORMAT, Locale.US);
-        Date now = new Date();
-        String currentTime = sdfDate.format(now);
-        try {
-            currentTime = URLEncoder.encode(currentTime, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        data.append("&sd=").append(currentTime);
-
-        if (matRequest != null) {
-            matRequest.paramsToBeEncrypted(data.toString());
-        }
-
-        try {
-            data = new StringBuilder(Encryption.bytesToHex(encryption.encrypt(data.toString())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        link.append("&da=").append(data.toString());
-
-        return link.toString();
-    }
-
-
-    /**
-     *  Runnable for creating a WebView and getting the device user agent
-     */
-    private class GetUserAgent implements Runnable {
-        private final WeakReference<Context> weakContext;
-
-        public GetUserAgent(Context context) {
-            weakContext = new WeakReference<Context>(context);
-        }
-
-        public void run() {
-            try {
-                // Create WebView to set user agent, then destroy WebView
-                WebView wv = new WebView(weakContext.get());
-                String userAgent = wv.getSettings().getUserAgentString();
-                wv.destroy();
-                setUserAgent(userAgent);
-            } catch (Exception e) {
-                if (debugMode) {
-                    Log.d(MATConstants.TAG, "Could not get user agent");
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /*
      * Helper function for making single request and displaying response
+     * @return true if request was sent successfully and should be removed from queue
      */
-    protected void makeRequest(
-            String link,
-            String eventItems,
-            String action,
-            double revenue,
-            String currency,
-            String refId,
-            String iapData,
-            String iapSignature,
-            String eventAttribute1,
-            String eventAttribute2,
-            String eventAttribute3,
-            String eventAttribute4,
-            String eventAttribute5,
-            boolean shouldBuildData) {
-
-        if (shouldBuildData) {
-            link = buildData(link, action, revenue, currency, refId, eventAttribute1, eventAttribute2, eventAttribute3, eventAttribute4, eventAttribute5);
-        }
-
-        // Construct JSONObject from eventItems and iapData/iapSignature
-        JSONObject postData = new JSONObject();
-        try {
-            if (eventItems != null) {
-                // Add event items under key "data"
-                JSONArray eventItemsJson = new JSONArray(eventItems);
-                postData.put("data", eventItemsJson);
+    protected boolean makeRequest(String link, String data, JSONObject postBody) {
+        if (debugMode) Log.d(MATConstants.TAG, "Sending event to server...");
+        
+        String encData = MATUrlBuilder.updateAndEncryptData(data, encryption);
+        String fullLink = link + "&data=" + encData;
+        
+        JSONObject response = urlRequester.requestUrl(fullLink, postBody, debugMode);
+        
+        // The only way we get null from MATUrlRequester is if *our server* returned HTTP 400.
+        // In that case, we should not retry this request.
+        if (response == null) {
+            if( matResponse != null ) {
+                // null isn't the most useful error message, but at least it's a notification
+                matResponse.didFailWithError(response);
             }
-
-            if (iapData != null) {
-                postData.put("store_iap_data", iapData);
-            }
-
-            if (iapSignature != null) {
-                postData.put("store_iap_signature", iapSignature);
-            }
-        } catch (JSONException e) {
-            if (debugMode) Log.d(MATConstants.TAG, "Could not build JSON for event items or verification values");
-            e.printStackTrace();
+            return true; // request went through, don't retry
         }
-
-        // Callback to request verification (testing) interface
-        if( matRequest != null ) {
-            matRequest.constructedRequest( link, postData );
-        }
-
-        if (debugMode) {
-            Log.d(MATConstants.TAG, "Sending " + action + " event to server...");
-        }
-
-        JSONObject response = urlRequester.requestUrl(link, postData);
-
-        // if reponse is null, it was a bad request
-        if (response == null) return;
         
         // if response is empty, it should be requeued
-        try {
-            if (response.getString("success") == null) {
-                addEventToQueue(link, eventItems, action, revenue, currency, refId, iapData, iapSignature,
-                        eventAttribute1, eventAttribute2, eventAttribute3, eventAttribute4, eventAttribute5, false, new Date());
-                if (debugMode) Log.d(MATConstants.TAG, "Request failed: track will be queued");
-                return;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
+        if (!response.has("success")) {
+            if (debugMode) Log.d(MATConstants.TAG, "Request failed, event will remain in queue");
+            return false; // request failed to reach our server, retry
         }
 
         // notify matResponse of success or failure
         if (matResponse != null) {
+            boolean success = false;
             try {
                 if (response.getString("success").equals("true")) {
-                    matResponse.didSucceedWithData(response);
-                } else {
-                    matResponse.didFailWithError(response);
+                    success = true;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                return false; // request failed to reach our server, retry
+            }
+
+            if (success) {
+                matResponse.didSucceedWithData(response);
+            } else {
+                matResponse.didFailWithError(response);
             }
         }
 
@@ -1080,9 +451,9 @@ public class MobileAppTracker {
             if (eventType.equals("open")) {
                 String logId = response.getString("log_id");
                 if (getOpenLogId() == null) {
-                    setOpenLogId(logId);
+                    params.setOpenLogId(logId);
                 }
-                setLastOpenLogId(logId);
+                params.setLastOpenLogId(logId);
             }
         } catch (JSONException e) {
         }
@@ -1122,18 +493,41 @@ public class MobileAppTracker {
                 }
             }
         }
+        
+        return true; // request went through, don't retry
+    }
+
+    private void waitForParams() {
+        Date maxWait = null;
+        
+        while (params == null) {
+            // put this code inside the loop so it won't run at all if params != null
+            if (maxWait == null) {
+                maxWait = new Date(new Date().getTime() + 1000);
+            }
+            if (maxWait.before(new Date())) {
+                Log.w(MATConstants.TAG, "after waiting 1 s, params is still null -- will probably lead to NullPointerException");
+                break;
+            }
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     /******************
      * Public Getters *
      ******************/
-
+    
     /**
      * Gets the action of the event
      * @return install/update/conversion
      */
     public String getAction() {
-        return paramTable.get("ac");
+        waitForParams();
+        return params.getAction();
     }
 
     /**
@@ -1141,7 +535,8 @@ public class MobileAppTracker {
      * @return MAT advertiser ID
      */
     public String getAdvertiserId() {
-        return paramTable.get("adv");
+        waitForParams();
+        return params.getAdvertiserId();
     }
 
     /**
@@ -1149,10 +544,8 @@ public class MobileAppTracker {
      * @return age
      */
     public int getAge() {
-        if (paramTable.get("age") == null) {
-            return 0;
-        }
-        return Integer.parseInt(paramTable.get("age"));
+        waitForParams();
+        return Integer.parseInt(params.getAge());
     }
 
     /**
@@ -1160,42 +553,18 @@ public class MobileAppTracker {
      * @return device altitude
      */
     public double getAltitude() {
-        if (paramTable.get("altitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("altitude"));
+        waitForParams();
+        return Double.parseDouble(params.getAltitude());
     }
 
     /**
-     * Gets the ANDROID_ID of the device
-     * @return ANDROID_ID
+     * Get whether the user has app-level ad tracking enabled or not.
+     * @return app-level ad tracking enabled or not
      */
-    public String getAndroidId() {
-        return paramTable.get("ad");
-    }
-
-    /**
-     * Gets the MD5 hash of the ANDROID_ID of the device
-     * @return ANDROID_ID MD5 hash
-     */
-    public String getAndroidIdMd5() {
-        return paramTable.get("android_id_md5");
-    }
-
-    /**
-     * Gets the SHA-1 hash of the ANDROID_ID of the device
-     * @return ANDROID_HD SHA-1 hash
-     */
-    public String getAndroidIdSha1() {
-        return paramTable.get("android_id_sha1");
-    }
-    
-    /**
-     * Gets the SHA-256 hash of the ANDROID_ID of the device
-     * @return ANDROID_HD SHA-256 hash
-     */
-    public String getAndroidIdSha256() {
-        return paramTable.get("android_id_sha256");
+    public boolean getAppAdTrackingEnabled() {
+        waitForParams();
+        int adTrackingEnabled = Integer.parseInt(params.getAppAdTrackingEnabled());
+        return (adTrackingEnabled == 1);
     }
 
     /**
@@ -1203,7 +572,8 @@ public class MobileAppTracker {
      * @return app name
      */
     public String getAppName() {
-        return paramTable.get("an");
+        waitForParams();
+        return params.getAppName();
     }
 
     /**
@@ -1211,10 +581,8 @@ public class MobileAppTracker {
      * @return app version
      */
     public int getAppVersion() {
-        if (paramTable.get("av") == null) {
-            return 0;
-        }
-        return Integer.parseInt(paramTable.get("av"));
+        waitForParams();
+        return Integer.parseInt(params.getAppVersion());
     }
 
     /**
@@ -1222,7 +590,8 @@ public class MobileAppTracker {
      * @return whether device is connected by WIFI or mobile data connection
      */
     public String getConnectionType() {
-        return paramTable.get("connection_type");
+        waitForParams();
+        return params.getConnectionType();
     }
 
     /**
@@ -1230,31 +599,8 @@ public class MobileAppTracker {
      * @return ISO 639-1 country code
      */
     public String getCountryCode() {
-        return paramTable.get("cc");
-    }
-
-    /**
-     * Gets the device brand/manufacturer (HTC, Apple, etc)
-     * @return device brand/manufacturer name
-     */
-    public String getDeviceBrand() {
-        return paramTable.get("db");
-    }
-
-    /**
-     * Gets the Device ID, also known as IMEI/MEID, if any
-     * @return device IMEI/MEID
-     */
-    public String getDeviceId() {
-        return paramTable.get("d");
-    }
-
-    /**
-     * Gets the device model name
-     * @return device model name
-     */
-    public String getDeviceModel() {
-        return paramTable.get("dm");
+        waitForParams();
+        return params.getCountryCode();
     }
 
     /**
@@ -1262,7 +608,26 @@ public class MobileAppTracker {
      * @return ISO 4217 currency code
      */
     public String getCurrencyCode() {
-        return paramTable.get("c");
+        waitForParams();
+        return params.getCurrencyCode();
+    }
+
+    /**
+     * Gets the device brand/manufacturer (HTC, Apple, etc)
+     * @return device brand/manufacturer name
+     */
+    public String getDeviceBrand() {
+        waitForParams();
+        return params.getDeviceBrand();
+    }
+
+    /**
+     * Gets the device model name
+     * @return device model name
+     */
+    public String getDeviceModel() {
+        waitForParams();
+        return params.getDeviceModel();
     }
 
     /**
@@ -1270,27 +635,53 @@ public class MobileAppTracker {
      * @return mobile device carrier/service provider name
      */
     public String getDeviceCarrier() {
-        return paramTable.get("dc");
+        waitForParams();
+        return params.getDeviceCarrier();
     }
 
+    /**
+     * Get the first event attribute for the current action.
+     * @return event attribute 1
+     */
     public String getEventAttribute1() {
-        return paramTable.get("attribute_sub1");
+        waitForParams();
+        return params.getEventAttribute1();
     }
 
+    /**
+     * Get the second event attribute for the current action.
+     * @return event attribute 2
+     */
     public String getEventAttribute2() {
-        return paramTable.get("attribute_sub2");
+        waitForParams();
+        return params.getEventAttribute2();
     }
 
+    /**
+     * Get the third event attribute for the current action.
+     * @return event attribute 3
+     */
     public String getEventAttribute3() {
-        return paramTable.get("attribute_sub3");
+        waitForParams();
+        return params.getEventAttribute3();
     }
 
+    /**
+     * Get the fourth event attribute for the current action.
+     * @return event attribute 4
+     */
     public String getEventAttribute4() {
-        return paramTable.get("attribute_sub4");
+        waitForParams();
+        return params.getEventAttribute4();
     }
 
+    /**
+     * Get the fifth event attribute for the current action.
+     * @return event attribute 5
+     */
     public String getEventAttribute5() {
-        return paramTable.get("attribute_sub5");
+        waitForParams();
+        return params.getEventAttribute5();
     }
 
     /**
@@ -1298,7 +689,8 @@ public class MobileAppTracker {
      * @return event ID in MAT
      */
     public String getEventId() {
-        return paramTable.get("ei");
+        waitForParams();
+        return params.getEventId();
     }
 
     /**
@@ -1306,7 +698,8 @@ public class MobileAppTracker {
      * @return event name in MAT
      */
     public String getEventName() {
-        return paramTable.get("en");
+        waitForParams();
+        return params.getEventName();
     }
 
     /**
@@ -1314,7 +707,9 @@ public class MobileAppTracker {
      * @return whether user existed prior to install
      */
     public boolean getExistingUser() {
-        return existingUser;
+        waitForParams();
+        int intExisting = Integer.parseInt(params.getExistingUser());
+        return (intExisting == 1);
     }
 
     /**
@@ -1322,17 +717,17 @@ public class MobileAppTracker {
      * @return Facebook user ID
      */
     public String getFacebookUserId() {
-        return paramTable.get("facebook_user_id");
+        waitForParams();
+        return params.getFacebookUserId();
     }
+
     /**
      * Gets the user gender set.
      * @return gender 0 for male, 1 for female
      */
     public int getGender() {
-        if (paramTable.get("gender") == null) {
-            return 0;
-        }
-        return Integer.parseInt(paramTable.get("gender"));
+        waitForParams();
+        return Integer.parseInt(params.getGender());
     }
 
     /**
@@ -1340,7 +735,18 @@ public class MobileAppTracker {
      * @return Google advertising ID
      */
     public String getGoogleAdvertisingId() {
-        return paramTable.get("google_aid");
+        waitForParams();
+        return params.getGoogleAdvertisingId();
+    }
+
+    /**
+     * Gets whether use of the Google Play Services Advertising ID is limited by user request.
+     * @return whether tracking is limited
+     */
+    public boolean getGoogleAdTrackingLimited() {
+        waitForParams();
+        int intLimited = Integer.parseInt(params.getGoogleAdTrackingLimited());
+        return intLimited == 0? false : true;
     }
 
     /**
@@ -1348,15 +754,17 @@ public class MobileAppTracker {
      * @return Google user ID
      */
     public String getGoogleUserId() {
-        return paramTable.get("google_user_id");
+        waitForParams();
+        return params.getGoogleUserId();
     }
 
     /**
      * Gets the date of app install
-     * @return date that app was installed
+     * @return date that app was installed, epoch seconds
      */
-    public String getInstallDate() {
-        return paramTable.get("id");
+    public long getInstallDate() {
+        waitForParams();
+        return Long.parseLong(params.getInstallDate());
     }
 
     /**
@@ -1364,8 +772,8 @@ public class MobileAppTracker {
      * @return MAT install log ID
      */
     public String getInstallLogId() {
-        // Get log id from SharedPreferences
-        return getStringFromSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_INSTALL, MATConstants.PREFS_LOG_ID_KEY);
+        waitForParams();
+        return params.getInstallLogId();
     }
 
     /**
@@ -1373,7 +781,18 @@ public class MobileAppTracker {
      * @return Play INSTALL_REFERRER
      */
     public String getInstallReferrer() {
-        return paramTable.get("ir");
+        waitForParams();
+        return params.getInstallReferrer();
+    }
+
+    /**
+     * Gets whether the user is revenue-generating or not
+     * @return true if the user has produced revenue, false if not
+     */
+    public boolean getIsPayingUser() {
+        waitForParams();
+        String isPayingUser = params.getIsPayingUser();
+        return isPayingUser.equals("1");
     }
 
     /**
@@ -1381,7 +800,8 @@ public class MobileAppTracker {
      * @return device language
      */
     public String getLanguage() {
-        return paramTable.get("l");
+        waitForParams();
+        return params.getLanguage();
     }
 
     /**
@@ -1389,8 +809,8 @@ public class MobileAppTracker {
      * @return most recent MAT open log ID
      */
     public String getLastOpenLogId() {
-        // Get log id from SharedPreferences
-        return getStringFromSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_LAST_OPEN, MATConstants.PREFS_LOG_ID_KEY);
+        waitForParams();
+        return params.getLastOpenLogId();
     }
 
     /**
@@ -1398,19 +818,8 @@ public class MobileAppTracker {
      * @return device latitude
      */
     public double getLatitude() {
-        if (paramTable.get("latitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("latitude"));
-    }
-
-    /**
-     * Get whether the user has limit ad tracking enabled or not.
-     * @return limit ad tracking enabled or not
-     */
-    public boolean getLimitAdTrackingEnabled() {
-        int isLATEnabled = Integer.parseInt(paramTable.get("app_ad_tracking"));
-        return (isLATEnabled == 0);
+        waitForParams();
+        return Double.parseDouble(params.getLatitude());
     }
 
     /**
@@ -1418,18 +827,8 @@ public class MobileAppTracker {
      * @return device longitude
      */
     public double getLongitude() {
-        if (paramTable.get("longitude") == null) {
-            return 0;
-        }
-        return Double.parseDouble(paramTable.get("longitude"));
-    }
-
-    /**
-     * Gets the MAC address of device
-     * @return device MAC address
-     */
-    public String getMacAddress() {
-        return paramTable.get("ma");
+        waitForParams();
+        return Double.parseDouble(params.getLongitude());
     }
 
     /**
@@ -1437,7 +836,8 @@ public class MobileAppTracker {
      * @return MAT ID
      */
     public String getMatId() {
-        return paramTable.get("mi");
+        waitForParams();
+        return params.getMatId();
     }
 
     /**
@@ -1445,7 +845,8 @@ public class MobileAppTracker {
      * @return mobile country code associated with the carrier
      */
     public String getMCC() {
-        return paramTable.get("mobile_country_code");
+        waitForParams();
+        return params.getMCC();
     }
 
     /**
@@ -1453,7 +854,8 @@ public class MobileAppTracker {
      * @return mobile network code associated with the carrier
      */
     public String getMNC() {
-        return paramTable.get("mobile_network_code");
+        waitForParams();
+        return params.getMNC();
     }
 
     /**
@@ -1461,8 +863,8 @@ public class MobileAppTracker {
      * @return first MAT open log ID
      */
     public String getOpenLogId() {
-        // Get log id from SharedPreferences
-        return getStringFromSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_OPEN, MATConstants.PREFS_LOG_ID_KEY);
+        waitForParams();
+        return params.getOpenLogId();
     }
 
     /**
@@ -1470,7 +872,8 @@ public class MobileAppTracker {
      * @return Android OS version
      */
     public String getOsVersion() {
-        return paramTable.get("ov");
+        waitForParams();
+        return params.getOsVersion();
     }
 
     
@@ -1479,7 +882,8 @@ public class MobileAppTracker {
      * @return package name of app
      */
     public String getPackageName() {
-        return paramTable.get("pn");
+        waitForParams();
+        return params.getPackageName();
     }
 
     /**
@@ -1487,7 +891,8 @@ public class MobileAppTracker {
      * @return name of MAT plugin
      */
     public String getPluginName() {
-        return paramTable.get("sdk_plugin");
+        waitForParams();
+        return params.getPluginName();
     }
 
     /**
@@ -1495,7 +900,8 @@ public class MobileAppTracker {
      * @return source package name that caused open via StartActivityForResult
      */
     public String getReferralSource() {
-        return paramTable.get("referral_source");
+        waitForParams();
+        return params.getReferralSource();
     }
 
     /**
@@ -1503,7 +909,8 @@ public class MobileAppTracker {
      * @return full url of app scheme that caused open
      */
     public String getReferralUrl() {
-        return paramTable.get("referral_url");
+        waitForParams();
+        return params.getReferralUrl();
     }
 
     /**
@@ -1511,7 +918,8 @@ public class MobileAppTracker {
      * @return advertiser ref ID set by SDK
      */
     public String getRefId() {
-        return paramTable.get("ar");
+        waitForParams();
+        return params.getRefId();
     }
 
     /**
@@ -1519,10 +927,8 @@ public class MobileAppTracker {
      * @return revenue amount
      */
     public Double getRevenue() {
-        if (paramTable.get("r") == null) {
-            return Double.valueOf(0);
-        }
-        return Double.parseDouble(paramTable.get("r"));
+        waitForParams();
+        return Double.parseDouble(params.getRevenue());
     }
 
     /**
@@ -1530,15 +936,26 @@ public class MobileAppTracker {
      * @return 0.75/1.0/1.5/2.0/3.0/4.0 for ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi
      */
     public String getScreenDensity() {
-        return paramTable.get("screen_density");
+        waitForParams();
+        return params.getScreenDensity();
     }
 
     /**
-     * Gets the screen size of the device
-     * @return widthxheight
+     * Gets the screen height of the device in pixels
+     * @return height
      */
-    public String getScreenSize() {
-        return paramTable.get("screen_layout_size");
+    public String getScreenHeight() {
+        waitForParams();
+        return params.getScreenHeight();
+    }
+
+    /**
+     * Gets the screen width of the device in pixels
+     * @return width
+     */
+    public String getScreenWidth() {
+        waitForParams();
+        return params.getScreenWidth();
     }
 
     /**
@@ -1546,7 +963,8 @@ public class MobileAppTracker {
      * @return MAT SDK version
      */
     public String getSDKVersion() {
-        return MATConstants.SDK_VERSION;
+        waitForParams();
+        return params.getSdkVersion();
     }
 
     /**
@@ -1554,7 +972,8 @@ public class MobileAppTracker {
      * @return site ID in MAT
      */
     public String getSiteId() {
-        return paramTable.get("si");
+        waitForParams();
+        return params.getSiteId();
     }
 
     /**
@@ -1562,15 +981,17 @@ public class MobileAppTracker {
      * @return TRUSTe ID
      */
     public String getTRUSTeId() {
-        return paramTable.get("tpid");
+        waitForParams();
+        return params.getTRUSTeId();
     }
 
     /**
      * Gets the Twitter user ID previously set.
      * @return Twitter user ID
      */
-    public String getTwitterUserID() {
-        return paramTable.get("twitter_user_id");
+    public String getTwitterUserId() {
+        waitForParams();
+        return params.getTwitterUserId();
     }
 
     /**
@@ -1578,8 +999,8 @@ public class MobileAppTracker {
      * @return MAT update log ID
      */
     public String getUpdateLogId() {
-        // Get log id from SharedPreferences
-        return getStringFromSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_UPDATE, MATConstants.PREFS_LOG_ID_KEY);
+        waitForParams();
+        return params.getUpdateLogId();
     }
 
     /**
@@ -1587,7 +1008,8 @@ public class MobileAppTracker {
      * @return device user agent
      */
     public String getUserAgent() {
-        return paramTable.get("ua");
+        waitForParams();
+        return params.getUserAgent();
     }
 
     /**
@@ -1595,13 +1017,8 @@ public class MobileAppTracker {
      * @return custom user email
      */
     public String getUserEmail() {
-        String userEmail = paramTable.get("user_email");
-        try {
-            URLDecoder.decode(userEmail, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return userEmail;
+        waitForParams();
+        return params.getUserEmail();
     }
 
     /**
@@ -1609,7 +1026,8 @@ public class MobileAppTracker {
      * @return custom user id
      */
     public String getUserId() {
-        return paramTable.get("ui");
+        waitForParams();
+        return params.getUserId();
     }
 
     /**
@@ -1617,135 +1035,392 @@ public class MobileAppTracker {
      * @return custom user name
      */
     public String getUserName() {
-        return paramTable.get("user_name");
+        waitForParams();
+        return params.getUserName();
     }
 
     /******************
      * Public Setters *
      ******************/
 
+
+    /**
+     * Sets the preloaded app's advertiser sub ad
+     * @param subAd Preloaded advertiser sub ad
+     */
+    public void setAdvertiserSubAd(final String subAd) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubAd(subAd);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's advertiser sub adgroup
+     * @param subAdgroup Preloaded advertiser sub adgroup
+     */
+    public void setAdvertiserSubAdgroup(final String subAdgroup) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubAdgroup(subAdgroup);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's advertiser sub campaign
+     * @param subCampaign Preloaded advertiser sub campaign
+     */
+    public void setAdvertiserSubCampaign(final String subCampaign) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubCampaign(subCampaign);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's advertiser sub keyword
+     * @param subKeyword Preloaded advertiser sub keyword
+     */
+    public void setAdvertiserSubKeyword(final String subKeyword) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubKeyword(subKeyword);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's advertiser sub publisher
+     * @param subPublisher Preloaded advertiser sub publisher
+     */
+    public void setAdvertiserSubPublisher(final String subPublisher) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubPublisher(subPublisher);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's advertiser sub site
+     * @param subSite Preloaded advertiser sub site
+     */
+    public void setAdvertiserSubSite(final String subSite) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserSubSite(subSite);
+        }});
+    }
+
+    
     /**
      * Sets the user's age.
      * @param age User age to track in MAT
      */
-    public void setAge(int age) {
-        putInParamTable("age", Integer.toString(age));
+    public void setAge(final int age) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setAge(Integer.toString(age));
+        }});
     }
 
     /**
      * Sets the device altitude.
      * @param altitude device altitude
      */
-    public void setAltitude(double altitude) {
-        putInParamTable("altitude", Double.toString(altitude));
+    public void setAltitude(final double altitude) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setAltitude(Double.toString(altitude));
+        }});
     }
 
     /**
-     * Sets whether app was previously installed prior to version with MAT SDK
-     * @param existing true if this user already had the app installed prior to updating to MAT version
+     * Sets the ANDROID ID
+     * @param androidId ANDROID_ID
      */
-    public void setExistingUser(boolean existing) {
-        existingUser = existing;
+    public void setAndroidId(final String androidId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAndroidId(androidId);
+        }});
+    }
+    /**
+     * Sets whether app-level ad tracking is enabled.
+     * @param adTrackingEnabled true if user has opted out of ad tracking at the app-level, false if not
+     */
+    public void setAppAdTrackingEnabled(final boolean adTrackingEnabled) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (adTrackingEnabled) {
+                params.setAppAdTrackingEnabled(Integer.toString(1));
+            } else {
+                params.setAppAdTrackingEnabled(Integer.toString(0));
+            }
+        }});
     }
 
     /**
      * Sets the ISO 4217 currency code.
      * @param currency_code the currency code
      */
-    public void setCurrencyCode(String currency_code) {
-        if (currency_code == null || currency_code.equals("")) {
-            setCurrencyCode(MATConstants.DEFAULT_CURRENCY_CODE);
-        } else {
-            putInParamTable("c", currency_code);
-        }
+    public void setCurrencyCode(final String currency_code) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (currency_code == null || currency_code.equals("")) {
+                params.setCurrencyCode(MATConstants.DEFAULT_CURRENCY_CODE);
+            } else {
+                params.setCurrencyCode(currency_code);
+            }
+        }});
     }
 
-    public void setEventAttribute1(String value) {
-        setEventAttribute(1, value);
+    /**
+     * Sets the device IMEI/MEID
+     * @param deviceId device IMEI/MEID
+     */
+    public void setDeviceId(final String deviceId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setDeviceId(deviceId);
+        }});
     }
 
-    public void setEventAttribute2(String value) {
-        setEventAttribute(2, value);
+    /**
+     * Sets the content type associated with an app event.
+     * @param contentType the content type
+     */
+    public void setEventContentType(final String contentType) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventContentType(contentType);
+        }});
     }
 
-    public void setEventAttribute3(String value) {
-        setEventAttribute(3, value);
+    /**
+     * Sets the content ID associated with an app event.
+     * @param contentId the content ID
+     */
+    public void setEventContentId(final String contentId) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventContentId(contentId);
+        }});
     }
 
-    public void setEventAttribute4(String value) {
-        setEventAttribute(4, value);
+    /**
+     * Sets the level associated with an app event.
+     * @param level the level
+     */
+    public void setEventLevel(final int level) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventLevel(Integer.toString(level));
+        }});
     }
 
-    public void setEventAttribute5(String value) {
-        setEventAttribute(5, value);
+    /**
+     * Sets the quantity associated with an app event.
+     * @param quantity the quantity
+     */
+    public void setEventQuantity(final int quantity) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventQuantity(Integer.toString(quantity));
+        }});
+    }
+
+    /**
+     * Sets the search string associated with an app event.
+     * @param searchString the search string
+     */
+    public void setEventSearchString(final String searchString) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventSearchString(searchString);
+        }});
+    }
+
+    /**
+     * Sets the rating associated with an app event.
+     * @param rating the rating
+     */
+    public void setEventRating(final float rating) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventRating(Float.toString(rating));
+        }});
+    }
+
+    /**
+     * Sets the first date associated with an app event.
+     * @param date the date
+     */
+    public void setEventDate1(final Date date) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventDate1(Long.toString(date.getTime()/1000)); // convert ms to s
+        }});
+    }
+
+    /**
+     * Sets the second date associated with an app event.
+     * @param date the date
+     */
+    public void setEventDate2(final Date date) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventDate2(Long.toString(date.getTime()/1000)); // convert ms to s
+        }});
+    }
+
+    /**
+     * Sets the first attribute associated with an app event.
+     * @param value the attribute
+     */
+    public void setEventAttribute1(final String value) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventAttribute1(value);
+        }});
+    }
+
+    /**
+     * Sets the second attribute associated with an app event.
+     * @param value the attribute
+     */
+    public void setEventAttribute2(final String value) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventAttribute2(value);
+        }});
+    }
+
+    /**
+     * Sets the third attribute associated with an app event.
+     * @param value the attribute
+     */
+    public void setEventAttribute3(final String value) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventAttribute3(value);
+        }});
+    }
+
+    /**
+     * Sets the fourth attribute associated with an app event.
+     * @param value the attribute
+     */
+    public void setEventAttribute4(final String value) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventAttribute4(value);
+        }});
+    }
+
+    /**
+     * Sets the fifth attribute associated with an app event.
+     * @param value the attribute
+     */
+    public void setEventAttribute5(final String value) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setEventAttribute5(value);
+        }});
+    }
+
+    /**
+     * Sets whether app was previously installed prior to version with MAT SDK
+     * @param existing true if this user already had the app installed prior to updating to MAT version
+     */
+    public void setExistingUser(final boolean existing) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (existing) {
+                params.setExistingUser(Integer.toString(1));
+            } else {
+                params.setExistingUser(Integer.toString(0));
+            }
+        }});
     }
 
     /**
      * Sets the user ID to associate with Facebook
      * @param fb_user_id
      */
-    public void setFacebookUserId(String fb_user_id) {
-        putInParamTable("facebook_user_id", fb_user_id);
+    public void setFacebookUserId(final String fb_user_id) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setFacebookUserId(fb_user_id);
+        }});
     }
 
     /**
      * Sets the user gender.
      * @param gender use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE
      */
-    public void setGender(int gender) {
-        putInParamTable("gender", Integer.toString(gender));
+    public void setGender(final int gender) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setGender(Integer.toString(gender));
+        }});
     }
 
     /**
      * Sets the Google Play Services Advertising ID
      * @param adId Google Play advertising ID
+     * @param isLATEnabled whether user has requested to limit use of the Google ad ID
      */
-    public void setGoogleAdvertisingId(String adId) {
-        putInParamTable("google_aid", adId);
+    public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
+        final int intLimit = isLATEnabled? 1 : 0;
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setGoogleAdvertisingId(adId);
+            params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
+        }});
     }
 
     /**
      * Sets the user ID to associate with Google
      * @param google_user_id
      */
-    public void setGoogleUserId(String google_user_id) {
-        putInParamTable("google_user_id", google_user_id);
+    public void setGoogleUserId(final String google_user_id) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setGoogleUserId(google_user_id);
+        }});
     }
 
     /**
      * Overrides the Google Play INSTALL_REFERRER received
      * @param referrer Your custom referrer value
      */
-    public void setInstallReferrer(String referrer) {
-        putInParamTable("ir", referrer);
+    public void setInstallReferrer(final String referrer) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setInstallReferrer(referrer);
+        }});
+    }
+
+    /**
+     * Sets whether the user is revenue-generating or not
+     * @param isPayingUser true if the user has produced revenue, false if not
+     */
+    public void setIsPayingUser(final boolean isPayingUser) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (isPayingUser) {
+                params.setIsPayingUser(Integer.toString(1));
+            } else {
+                params.setIsPayingUser(Integer.toString(0));
+            }
+        }});
     }
 
     /**
      * Sets the device latitude.
      * @param latitude the device latitude
      */
-    public void setLatitude(double latitude) {
-        putInParamTable("latitude", Double.toString(latitude));
+    public void setLatitude(final double latitude) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setLatitude(Double.toString(latitude));
+        }});
     }
 
     /**
-     * Sets whether the app user has chosen to limit ad tracking.
-     * @param isLATEnabled true if user has opted out of ad tracking, false if not (default)
+     * Sets the device location.
+     * @param location the device location
      */
-    public void setLimitAdTrackingEnabled(boolean isLATEnabled) {
-        if (isLATEnabled) {
-            putInParamTable("app_ad_tracking", Integer.toString(0));
-        } else {
-            putInParamTable("app_ad_tracking", Integer.toString(1));
-        }
+    public void setLocation(final Location location) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setLocation(location);
+        }});
     }
-
+    
     /**
      * Sets the device longitude.
      * @param longitude the device longitude
      */
-    public void setLongitude(double longitude) {
-        putInParamTable("longitude", Double.toString(longitude));
+    public void setLongitude(final double longitude) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setLongitude(Double.toString(longitude));
+        }});
+    }
+
+    /**
+     * Sets the device MAC address.
+     * @param macAddress device MAC address
+     */
+    public void setMacAddress(final String macAddress) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setMacAddress(macAddress);
+        }});
     }
 
     /**
@@ -1757,201 +1432,250 @@ public class MobileAppTracker {
     }
 
     /**
+     * Sets the preloaded app's offer ID
+     * @param offerId Preloaded offer ID
+     */
+    public void setOfferId(final String offerId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setOfferId(offerId);
+        }});
+    }
+
+    /**
      * Sets the app package name
      * @param package_name App package name
      */
-    public void setPackageName(String package_name) {
-        if (package_name == null || package_name.equals("")) {
-            setPackageName(mContext.getPackageName());
-        } else {
-            putInParamTable("pn", package_name);
-        }
+    public void setPackageName(final String package_name) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (package_name == null || package_name.equals("")) {
+                params.setPackageName(mContext.getPackageName());
+            } else {
+                params.setPackageName(package_name);
+            }
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher ID
+     * @param publisherId Preloaded publisher ID
+     */
+    public void setPublisherId(final String publisherId) {
+        // Publisher ID is required for preloaded attribution
+        preLoaded = true;
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherId(publisherId);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher reference ID
+     * @param publisherRefId Preloaded publisher reference ID
+     */
+    public void setPublisherReferenceId(final String publisherRefId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherReferenceId(publisherRefId);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub ad
+     * @param subAd Preloaded publisher sub ad
+     */
+    public void setPublisherSubAd(final String subAd) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubAd(subAd);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub adgroup
+     * @param subAdgroup Preloaded publisher sub adgroup
+     */
+    public void setPublisherSubAdgroup(final String subAdgroup) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubAdgroup(subAdgroup);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub campaign
+     * @param subCampaign Preloaded publisher sub campaign
+     */
+    public void setPublisherSubCampaign(final String subCampaign) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubCampaign(subCampaign);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub keyword
+     * @param subKeyword Preloaded publisher sub keyword
+     */
+    public void setPublisherSubKeyword(final String subKeyword) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubKeyword(subKeyword);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub publisher
+     * @param subPublisher Preloaded publisher sub publisher
+     */
+    public void setPublisherSubPublisher(final String subPublisher) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubPublisher(subPublisher);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub site
+     * @param subSite Preloaded publisher sub site
+     */
+    public void setPublisherSubSite(final String subSite) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSubSite(subSite);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub1
+     * @param sub1 Preloaded publisher sub1 value
+     */
+    public void setPublisherSub1(final String sub1) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSub1(sub1);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub2
+     * @param sub2 Preloaded publisher sub2 value
+     */
+    public void setPublisherSub2(final String sub2) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSub2(sub2);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub3
+     * @param sub3 Preloaded publisher sub3 value
+     */
+    public void setPublisherSub3(final String sub3) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSub3(sub3);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub4
+     * @param sub4 Preloaded publisher sub4 value
+     */
+    public void setPublisherSub4(final String sub4) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSub4(sub4);
+        }});
+    }
+    
+    /**
+     * Sets the preloaded app's publisher sub5
+     * @param sub5 Preloaded publisher sub5 value
+     */
+    public void setPublisherSub5(final String sub5) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPublisherSub5(sub5);
+        }});
     }
 
     /**
      * Get referral sources from Activity
      * @param act Activity to get referring package name and url scheme from
      */
-    public void setReferralSources(Activity act) {
-        // Set source package
-        setReferralSource(act.getCallingPackage());
-        // Set source url query
-        Intent intent = act.getIntent();
-        if (intent != null) {
-            Uri uri = intent.getData();
-            if (uri != null) {
-                String referralUrl = uri.toString();
-                setReferralUrl(referralUrl);
+    public void setReferralSources(final Activity act) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            // Set source package
+            params.setReferralSource(act.getCallingPackage());
+            // Set source url query
+            Intent intent = act.getIntent();
+            if (intent != null) {
+                Uri uri = intent.getData();
+                if (uri != null) {
+                    params.setReferralUrl(uri.toString());
+                }
             }
-        }
+        }});
     }
 
     /**
      * Sets the MAT site ID to specify which app to attribute to
      * @param site_id MAT site ID to attribute to
      */
-    public void setSiteId(String site_id) {
-        putInParamTable("si", site_id);
+    public void setSiteId(final String site_id) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setSiteId(site_id);
+        }});
     }
 
     /**
      * Sets the TRUSTe ID, should generate via their SDK
      * @param tpid TRUSTe ID
      */
-    public void setTRUSTeId(String tpid) {
-        putInParamTable("tpid", tpid);
+    public void setTRUSTeId(final String tpid) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setTRUSTeId(tpid);
+        }});
     }
 
     /**
      * Sets the user ID to associate with Twitter
      * @param twitter_user_id
      */
-    public void setTwitterUserId(String twitter_user_id) {
-        putInParamTable("twitter_user_id", twitter_user_id);
+    public void setTwitterUserId(final String twitter_user_id) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setTwitterUserId(twitter_user_id);
+        }});
     }
 
     /**
      * Sets the custom user email.
      * @param user_email
      */
-    public void setUserEmail(String user_email) {
-        putInParamTable("user_email", user_email);
+    public void setUserEmail(final String user_email) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setUserEmail(user_email);
+        }});
     }
 
     /**
      * Sets the custom user ID.
      * @param user_id the new user id
      */
-    public void setUserId(String user_id) {
-        putInParamTable("ui", user_id);
+    public void setUserId(final String user_id) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setUserId(user_id);
+        }});
     }
 
     /**
      * Sets the custom user name.
      * @param user_name
      */
-    public void setUserName(String user_name) {
-        putInParamTable("user_name", user_name);
-    }
-
-    /*******************
-     * Private Setters *
-     *******************/
-
-    private void setAdvertiserId(String advertiserId) {
-        putInParamTable("adv", advertiserId);
-    }
-
-    private void setAction(String action) {
-        putInParamTable("ac", action);
-    }
-
-    private void setAndroidId(String android_id) {
-        putInParamTable("ad", android_id);
-    }
-
-    private void setAndroidIdMd5(String android_id_md5) {
-        putInParamTable("android_id_md5", android_id_md5);
-    }
-
-    private void setAndroidIdSha1(String android_id_sha1) {
-        putInParamTable("android_id_sha1", android_id_sha1);
-    }
-
-    private void setAndroidIdSha256(String android_id_sha256) {
-        putInParamTable("android_id_sha256", android_id_sha256);
-    }
-
-    private void setAppName(String app_name) {
-        putInParamTable("an", app_name);
-    }
-
-    private void setAppVersion(int app_version) {
-        putInParamTable("av", Integer.toString(app_version));
-    }
-
-    private void setConnectionType(String connection_type) {
-        putInParamTable("connection_type", connection_type);
-    }
-
-    private void setCountryCode(String country_code) {
-        putInParamTable("cc", country_code);
-    }
-
-    private void setDeviceBrand(String device_brand) {
-        putInParamTable("db", device_brand);
-    }
-
-    private void setDeviceCarrier(String carrier) {
-        putInParamTable("dc", carrier);
-    }
-
-    private void setDeviceId(String device_id) {
-        putInParamTable("d", device_id);
-    }
-
-    private void setDeviceModel(String device_model) {
-        putInParamTable("dm", device_model);
-    }
-
-    private void setEventAttribute(int number, String value) {
-        putInParamTable("attribute_sub" + number, value);
-    }
-
-    private void setEventId(String event_id) {
-        putInParamTable("ei", event_id);
-    }
-
-    private void setEventName(String event_name) {
-        putInParamTable("en", event_name);
-    }
-
-    private void setInstallDate(String install_date) {
-        putInParamTable("id", install_date);
-    }
-
-    private void setLanguage(String language) {
-        putInParamTable("l", language);
-    }
-
-    private void setLastOpenLogId(String logId) {
-        // Store log id in SharedPreferences
-        saveToSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_LAST_OPEN, MATConstants.PREFS_LOG_ID_KEY, logId);
-    }
-
-    private void setMacAddress(String mac_address) {
-        putInParamTable("ma", mac_address);
-    }
-
-    private void setMatId(String mat_id) {
-        putInParamTable("mi", mat_id);
-    }
-
-    private void setMCC(String mcc) {
-        putInParamTable("mobile_country_code", mcc);
-    }
-
-    private void setMNC(String mnc) {
-        putInParamTable("mobile_network_code", mnc);
-    }
-
-    private void setOpenLogId(String logId) {
-        // Store log id in SharedPreferences
-        saveToSharedPreferences(mContext, MATConstants.PREFS_LOG_ID_OPEN, MATConstants.PREFS_LOG_ID_KEY, logId);
-    }
-
-    private void setOsVersion(String os_version) {
-        putInParamTable("ov", os_version);
+    public void setUserName(final String user_name) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            params.setUserName(user_name);
+        }});
     }
 
     /**
      * Set the name of plugin used, if any
      * @param plugin_name
      */
-    public void setPluginName(String plugin_name) {
+    public void setPluginName(final String plugin_name) {
         // Validate plugin name
         if (Arrays.asList(MATConstants.PLUGIN_NAMES).contains(plugin_name)) {
-            putInParamTable("sdk_plugin", plugin_name);
+            pubQueue.execute(new Runnable() { public void run() { 
+                params.setPluginName(plugin_name);
+            }});
         } else {
             if (debugMode) {
                 throw new IllegalArgumentException("Plugin name not acceptable");
@@ -1959,135 +1683,27 @@ public class MobileAppTracker {
         }
     }
 
-    private void setPurchaseStatus(int purchaseStatus) {
-        putInParamTable("android_purchase_status", Integer.toString(purchaseStatus));
-    }
-
-    private void setReferralSource(String referralPackage) {
-        putInParamTable("referral_source", referralPackage);
-    }
-
-    private void setReferralUrl(String referralUrl) {
-        putInParamTable("referral_url", referralUrl);
-    }
-
-    private void setRefId(String ref_id) {
-        putInParamTable("ar", ref_id);
-    }
-
-    private void setRevenue(double revenue) {
-        putInParamTable("r", Double.toString(revenue));
-    }
-
-    private void setScreenDensity(String density) {
-        putInParamTable("screen_density", density);
-    }
-
-    private void setScreenSize(String screensize) {
-        putInParamTable("screen_layout_size", screensize);
-    }
-
-    private void setUserAgent(String user_agent) {
-        putInParamTable("ua", user_agent);
-    }
-
-    /**
-     * Helper method to UTF-8 encode and null-check before putting value in param table.
-     * @param key the key
-     * @param value the value
-     */
-    private void putInParamTable(String key, String value) {
-        if (key != null && value != null) {
-            if (value.equals("")) {
-                paramTable.remove(key);
-            } else {
-                try {
-                    value = URLEncoder.encode(value, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                paramTable.put(key, value);
-            }
-        } else if (key != null && value == null) {
-            paramTable.remove(key);
-        }
-    }
-
-    /**
-     * Enable sending ANDROID_ID as MD5 hash in request - removes raw ANDROID_ID
-     */
-    public void setUseAndroidIdMd5() {
-        setAndroidIdMd5(Encryption.md5(Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID)));
-        setAndroidId("");
-    }
-
-    /**
-     * Enable sending ANDROID_ID as SHA-1 hash in request - removes raw ANDROID_ID
-     */
-    public void setUseAndroidIdSha1() {
-        setAndroidIdSha1(Encryption.sha1(Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID)));
-        setAndroidId("");
-    }
-
-    /**
-     * Enable sending ANDROID_ID as SHA-256 hash in request - removes raw ANDROID_ID
-     */
-    public void setUseAndroidIdSha256() {
-        setAndroidIdSha256(Encryption.sha256(Secure.getString(mContext.getContentResolver(), Secure.ANDROID_ID)));
-        setAndroidId("");
-    }
-
     /**
      * Enables acceptance of duplicate installs from this device.
      * @param allow whether to allow duplicate installs from device
      */
-    public void setAllowDuplicates(boolean allow) {
-        allowDups = allow;
+    public void setAllowDuplicates(final boolean allow) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            if (allow) {
+                params.setAllowDuplicates(Integer.toString(1));
+            } else {
+                params.setAllowDuplicates(Integer.toString(0));
+            }
+        }});
     }
 
     /**
      * Turns debug mode on or off, under tag "MobileAppTracker".
      * @param debug whether to enable debug output
      */
-    public void setDebugMode(boolean debug) {
-        debugMode = debug;
-    }
-
-    private void saveToSharedPreferences(Context context, String prefsName, String prefsKey, String prefsValue) {
-        context.getSharedPreferences(prefsName, Context.MODE_PRIVATE).edit().putString(prefsKey, prefsValue).commit();
-    }
-
-    private String getStringFromSharedPreferences(Context context, String prefsName, String prefsKey) {
-        return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE).getString(prefsKey, "");
-    }
-
-    /**
-     * Facebook's code for retrieving Facebook cookie value
-     * @param contentResolver app's ContentResolver to access to FB ContentProvider
-     * @return Facebook cookie id, or null if not there
-     */
-    protected String getAttributionId(ContentResolver contentResolver) {
-        String [] projection = {ATTRIBUTION_ID_COLUMN_NAME};
-        Cursor c = contentResolver.query(ATTRIBUTION_ID_CONTENT_URI, projection, null, null, null);
-        if (c == null || !c.moveToFirst()) {
-            return null;
-        }
-        String attributionId = c.getString(c.getColumnIndex(ATTRIBUTION_ID_COLUMN_NAME));
-        c.close();
-        return attributionId;
-    }
-
-    /**
-     * Helper method for whether String contains a char.
-     * @param s the string
-     * @return whether given String contains a char
-     */
-    private static boolean containsChar(final String s) {
-        for (char c: s.toCharArray()) {
-            if (Character.isLetter(c)) {
-                return true;
-            }
-        }
-        return false;
+    public void setDebugMode(final boolean debug) {
+        pubQueue.execute(new Runnable() { public void run() { 
+            debugMode = debug;
+        }});
     }
 }

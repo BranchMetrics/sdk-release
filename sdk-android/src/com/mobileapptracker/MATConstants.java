@@ -23,6 +23,10 @@ class MATConstants {
     static final String PREFS_NAME = "mat_queue";
     // SharedPreferences filename for previously seen app version
     static final String PREFS_VERSION = "mat_app_version";
+    // SharedPreferences filename for revenue-generating users
+    static final String PREFS_IS_PAYING_USER = "mat_is_paying_user";
+    // SharedPreferences filename for user IDs
+    static final String PREFS_USER_IDS = "mat_user_ids";
     
     // Device ID permission
     static final String DEVICE_ID_PERMISSION = "android.permission.READ_PHONE_STATE";
@@ -34,12 +38,8 @@ class MATConstants {
     // Server domain for debug
     static final String MAT_DOMAIN_DEBUG = "debug.engine.mobileapptracking.com";
     
-    // Date format for sending event date
-    static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    // Date format for checking opens date
-    static final String DATE_ONLY_FORMAT = "MM-dd-yyyy";
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.0.3";
+    static final String SDK_VERSION = "3.3";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued
