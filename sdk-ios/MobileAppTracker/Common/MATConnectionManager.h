@@ -24,38 +24,36 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
     NetworkStatus status_;
     BOOL dumpingQueue_, _shouldDebug, _shouldAllowDuplicates;
     NSUInteger dumpTriesFailures_;
+    
+    NSOperationQueue *queueQueue;
 }
-+ (MATConnectionManager*)sharedManager;
-+ (void)destroyManager;
 
 @property (nonatomic, assign) NetworkStatus status;
 @property (nonatomic, assign) BOOL shouldDebug;
 @property (nonatomic, assign) BOOL shouldAllowDuplicates;
 @property (nonatomic, assign) id<MATConnectionManagerDelegate> delegate;
 
-- (void)beginUrlRequest:(NSString *)trackingLink andPOSTData:(NSString*)postData withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
+@property (nonatomic, readonly) MATRequestsQueue * requestsQueue;
+
+- (void)enqueueUrlRequest:(NSString *)trackingLink
+              andPOSTData:(NSString*)postData
+                  runDate:(NSDate*)date;
 
 - (void)beginRequestGetTrackingId:(NSString *)trackingLink
                withDelegateTarget:(id)target
               withSuccessSelector:(SEL)selectorSuccess
               withFailureSelector:(SEL)selectorFailure
-                     withArgument:(NSMutableDictionary *)dict
-                     withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
-
-- (void)beginRequestGetInstallLogId:(NSString *)trackingLink
-                 withDelegateTarget:(id)target
-                withSuccessSelector:(SEL)selectorSuccess
-                withFailureSelector:(SEL)selectorFailure
-                       withArgument:(NSMutableDictionary *)dict
-                       withDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
+                     withArgument:(NSMutableDictionary *)dict;
 
 @end
 
 
 @protocol MATConnectionManagerDelegate <NSObject>
 
-@optional
+@required
 - (void)connectionManager:(MATConnectionManager *)manager didSucceedWithData:(NSData *)data;
 - (void)connectionManager:(MATConnectionManager *)manager didFailWithError:(NSError *)error;
+
+-(BOOL) isiAdAttribution;
 
 @end

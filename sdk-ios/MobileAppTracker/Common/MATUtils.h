@@ -13,6 +13,7 @@
 #import <objc/runtime.h>
 
 @protocol MATConnectionManagerDelegate;
+@class MATConnectionManager;
 
 @interface MATUtils : NSObject
 
@@ -24,53 +25,28 @@ extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 + (NSString *)getUUID;
 
 + (NSString *)bundleId;
++ (NSDate *)installDate;
 
 + (BOOL)isNetworkReachable;
 
-+ (void)setShouldDebug:(BOOL)yesorno;
-
-+ (void)startTrackingSessionForTargetBundleId:(NSString*)targetBundleId
-                            publisherBundleId:(NSString*)publisherBundleId
-                                 advertiserId:(NSString*)advertiserId
-                                   campaignId:(NSString*)campaignId
-                                  publisherId:(NSString*)publisherId
-                                     redirect:(BOOL)shouldRedirect
-                           connectionDelegate:(id<MATConnectionManagerDelegate>)matDelegate;
-
-+ (void)sendRequestGetInstallLogIdWithLink:(NSString *)link
-                                    params:(NSMutableDictionary*)params
-                        connectionDelegate:(id<MATConnectionManagerDelegate>)connectionDelegate;
-
-+ (void)stopTrackingSession;
-+ (BOOL)isTrackingSessionStartedForTargetApplication:(NSString*)targetPackageName;
-
-+ (NSString*)getPublisherBundleId;
-+ (NSString*)getSessionDateTime;
-+ (NSString*)getAdvertiserId;
-+ (NSString*)getCampaignId;
-
 + (NSString*)getStringForKey:(NSString*)key fromPasteBoard:(NSString *)pasteBoardName;
-+ (NSString*)getTrackingId;
 
 + (id)userDefaultValueforKey:(NSString *)key;
 + (void)setUserDefaultValue:(id)value forKey:(NSString* )key;
++ (void)synchronizeUserDefaults;
 
-+ (NSString *)formattedCurrentDateTime;
 + (BOOL)checkJailBreak;
-
-+ (void)storeToPasteBoardTrackingId:(NSMutableDictionary *)params;
-+ (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error;
 
 + (NSDateFormatter *)sharedDateFormatter;
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime;
 
-+ (void)handleInstallLogId:(NSMutableDictionary *)params;
-+ (void)failedToRequestInstallLogId:(NSMutableDictionary *)params withError:(NSError *)error;
-
 + (float)getNumericiOSVersion:(NSString *)iOSVersion;
 + (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL;
 
-+ (NSString *)serverDomainName;
++ (NSString *)jsonSerialize:(id)object;
+
++ (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag;
+
 
 #pragma mark -
 

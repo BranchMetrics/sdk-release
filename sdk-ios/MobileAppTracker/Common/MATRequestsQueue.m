@@ -7,6 +7,7 @@
 //
 
 #import "MATRequestsQueue.h"
+#import "MATUtils.h"
 
 NSString * const MAT_REQUEST_QUEUE_FOLDER = @"queue";
 NSString * const XML_FILE_NAME = @"queue_parts_descs.xml";
@@ -22,15 +23,8 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 @property (nonatomic, retain) NSMutableArray * queueParts;
 @property (nonatomic, retain) NSString *pathStorageDir, *pathStorageFile, *pathOld;
 
-- (MATRequestsQueuePart*)getLastPart;
-- (MATRequestsQueuePart*)getFirstPart;
-- (MATRequestsQueuePart*)addNewPart;
-- (BOOL)removePart:(MATRequestsQueuePart*)part;
-- (NSUInteger)getSmallestPartFreeIndex;
-
-- (void)fixForiCloud;
-
 @end
+
 
 @implementation MATRequestsQueue
 
@@ -99,95 +93,113 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     return self;
 }
 
-- (void)dealloc
+-(NSString*) description
 {
-    [queueParts_ release], queueParts_ = nil;
-    [pathOld release], pathOld = nil;
-    [pathStorageDir release], pathStorageDir = nil;
-    [pathStorageFile release], pathStorageFile = nil;
-
-    [super dealloc];
+    return [NSString stringWithFormat:@"queue with %lu items, %lu parts", (unsigned long)[queueParts_ count], (unsigned long)[self queuedRequestsCount]];
 }
 
 #pragma mark - Queue Helper Methods
 
 - (MATRequestsQueuePart*)getLastPart
 {
-    // if queue parts exist then return the last queue part
-    return [queueParts_ count] > 0 ? [queueParts_ lastObject] : nil;
+    @synchronized( queueParts_ ) {
+        // if queue parts exist then return the last queue part
+        return [queueParts_ count] > 0 ? [queueParts_ lastObject] : nil;
+    }
 }
 
 - (MATRequestsQueuePart*)getFirstPart
 {
-    // if queue parts exist then return the first queue part
-    return [queueParts_ count] > 0 ? [queueParts_ objectAtIndex:0] : nil;
+    @synchronized( queueParts_ ) {
+        // if queue parts exist then return the first queue part
+        return [queueParts_ count] > 0 ? [queueParts_ objectAtIndex:0] : nil;
+    }
 }
 
 - (MATRequestsQueuePart*)addNewPart
 {
     DLog(@"MATReqQue: addNewPart: pathStorageDir = %@", self.pathStorageDir);
     
-    MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:[self getSmallestPartFreeIndex] parentFolder:self.pathStorageDir];
-    [queueParts_ addObject:part];
-    
-    return part;
+    @synchronized( queueParts_ ) {
+        MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:[self getSmallestPartFreeIndex] parentFolder:self.pathStorageDir];
+        [queueParts_ addObject:part];
+
+        return part;
+    }
 }
 
 - (BOOL)removePart:(MATRequestsQueuePart*)part
 {
-    if (!part) { return NO; }
+    if (!part) return NO;
     
     DLog(@"MATReqQue: removePart: partToRemove = %@", part.filePathName);
     
-    [[NSFileManager defaultManager] removeItemAtPath:part.filePathName error:nil];
-    [queueParts_ removeObject:part];
+    @synchronized( queueParts_ ) {
+        [[NSFileManager defaultManager] removeItemAtPath:part.filePathName error:nil];
+        [queueParts_ removeObject:part];
+    }
 
     return YES;
 }
 
 - (NSUInteger)getSmallestPartFreeIndex
 {
-    NSUInteger indexFree = 0;
-    for (MATRequestsQueuePart * part in queueParts_)
-    {
-        if (part.index == indexFree)
-        {
-            ++indexFree;
-        }
-        else
-        {
-            break;
-        }
+    @synchronized( queueParts_ ) {
+        NSUInteger indexFree = 0;
+        for (MATRequestsQueuePart * part in queueParts_)
+            if (part.index == indexFree)
+                ++indexFree;
+            else
+                break;
+        
+        return indexFree;
     }
-    
-    return indexFree;
 }
 
 - (void)push:(NSDictionary*)object
 {
-    @synchronized(self)
-    {
-        MATRequestsQueuePart * lastPart = [self getLastPart];
-        if (!lastPart || lastPart.requestsLimitReached)
-        {
-            lastPart = [self addNewPart];
-        }
+    MATRequestsQueuePart * lastPart = [self getLastPart];
+    if (!lastPart || lastPart.requestsLimitReached)
+        lastPart = [self addNewPart];
+
 #if DEBUG_LOG
-        NSLog(@"MATReqQue: push: %@", object);
-        BOOL pushSuccessful =
+    NSLog(@"MATReqQue: push: %@", object);
+    BOOL pushSuccessful =
 #endif
-        [lastPart push:object];
+    [lastPart push:object];
         
 #if DEBUG_LOG
-        NSLog(@"MATReqQue: push: successful = %d", pushSuccessful);
+    NSLog(@"MATReqQue: push: successful = %d", pushSuccessful);
         
-        NSString* content = [NSString stringWithContentsOfFile:lastPart.filePathName
-                                                      encoding:NSUTF8StringEncoding
-                                                         error:NULL];
-        NSLog(@"MATReqQue: push: path = %@", lastPart.filePathName);
-        NSLog(@"MATReqQue: push: content = %@", content);
+    NSString* content = [NSString stringWithContentsOfFile:lastPart.filePathName
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:NULL];
+    NSLog(@"MATReqQue: push: path = %@", lastPart.filePathName);
+    NSLog(@"MATReqQue: push: content = %@", content);
 #endif
-    }
+}
+
+- (void)pushToHead:(NSDictionary*)object
+{
+    MATRequestsQueuePart * lastPart = [self getLastPart];
+    if (!lastPart || lastPart.requestsLimitReached)
+        lastPart = [self addNewPart];
+
+#if DEBUG_LOG
+    NSLog(@"MATReqQue: pushToHead: %@", object);
+    BOOL pushSuccessful =
+#endif
+    [lastPart pushToHead:object];
+        
+#if DEBUG_LOG
+    NSLog(@"MATReqQue: pushToHead: successful = %d", pushSuccessful);
+        
+    NSString* content = [NSString stringWithContentsOfFile:lastPart.filePathName
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:NULL];
+    NSLog(@"MATReqQue: pushToHead: path = %@", lastPart.filePathName);
+    NSLog(@"MATReqQue: pushToHead: content = %@", content);
+#endif
 }
 
 - (NSDictionary*)pop
@@ -196,18 +208,13 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 
     DLog(@"MATReqQue: pop: start");
     
-    @synchronized(self)
+    MATRequestsQueuePart * firstPart = [self getFirstPart];
+    if (firstPart)
     {
-        MATRequestsQueuePart * firstPart = [self getFirstPart];
-        if (firstPart)
-        {
-            object = [firstPart pop];
-            DLog(@"MATReqQue: pop: pass1: %@,\nfirstPart isEmpty = %d", object, firstPart.empty);
-            if (firstPart.empty)
-            {
-                [self removePart:firstPart];
-            }
-        }
+        object = [firstPart pop];
+        DLog(@"MATReqQue: pop: pass1: %@,\nfirstPart isEmpty = %d", object, firstPart.empty);
+        if (firstPart.empty)
+            [self removePart:firstPart];
     }
     
     DLog(@"MATReqQue: pop: end: %@", object);
@@ -223,16 +230,16 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     
     NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_PARTS];
     
-    for (MATRequestsQueuePart *part in queueParts_)
-    {
-        /// If part is modified save it to file
-        if (part.isModified)
+    @synchronized( queueParts_ ) {
+        for (MATRequestsQueuePart *part in queueParts_)
         {
-            [part save];
+            /// If part is modified save it to file
+            if (part.isModified)
+                [part save];
+            
+            /// Store its information
+            [strDescr appendFormat:@"<%@ %@=\"%ld\" %@=\"%lu\"></%@>", XML_NODE_PART, XML_NODE_ATTRIBUTE_INDEX, (long)part.index, XML_NODE_ATTRIBUTE_REQUESTS, (unsigned long)part.queuedRequestsCount, XML_NODE_PART];
         }
-        
-        /// Store it's information
-        [strDescr appendFormat:@"<%@ %@=\"%d\" %@=\"%d\"></%@>", XML_NODE_PART, XML_NODE_ATTRIBUTE_INDEX, part.index, XML_NODE_ATTRIBUTE_REQUESTS, part.queuedRequestsCount, XML_NODE_PART];
     }
     
     [strDescr appendFormat:@"</%@>", XML_NODE_PARTS];
@@ -251,9 +258,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 #endif
     
     if (error)
-    {
         DLog(@"MATReqQue: save: error = %@", [error localizedDescription]);
-    }
 }
 
 - (BOOL)load
@@ -262,31 +267,31 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     
     BOOL result = NO;
     
-    [queueParts_ removeAllObjects];
+    @synchronized( queueParts_ ) {
+        [queueParts_ removeAllObjects];
     
-    /// Load parts desciptor file
-    
-    NSData * descsData = [NSData dataWithContentsOfFile:self.pathStorageFile];
-    if (descsData)
-    {
-#if DEBUG_LOG
-        NSString *fileContents = [[NSString alloc] initWithData:descsData encoding:NSUTF8StringEncoding];
-        NSLog(@"MATReqQue: load: fileContents = %@", fileContents);
-        [fileContents release], fileContents = nil;
-#endif
-        NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:descsData];
-        [xmlParser setDelegate:self];
-        [xmlParser parse];
-        [xmlParser release]; xmlParser = nil;
+        /// Load parts desciptor file
         
-        result = YES;
-    }
-
-    /// Load first part from file
-    [[self getFirstPart] load];
+        NSData * descsData = [NSData dataWithContentsOfFile:self.pathStorageFile];
+        if (descsData)
+        {
+#if DEBUG_LOG
+            NSString *fileContents = [[NSString alloc] initWithData:descsData encoding:NSUTF8StringEncoding];
+            NSLog(@"MATReqQue: load: fileContents = %@", fileContents);
+#endif
+            NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:descsData];
+            [xmlParser setDelegate:self];
+            [xmlParser parse];
+            
+            result = YES;
+        }
     
-    /// Load last part from file
-    [[self getLastPart] load];
+        /// Load first part from file
+        [[self getFirstPart] load];
+    
+        /// Load last part from file
+        [[self getLastPart] load];
+    }
     
     return result;
 }
@@ -302,13 +307,15 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         NSUInteger requests = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_REQUESTS] intValue];
         
         DLog(@"MATReqQue: parser: pathStorageDir = %@", self.pathStorageDir);
-        DLog(@"MATReqQue: parser: index          = %d", storedIndex);
-        DLog(@"MATReqQue: parser: request Count  = %d", requests);
+        DLog(@"MATReqQue: parser: index          = %lu", (unsigned long)storedIndex);
+        DLog(@"MATReqQue: parser: request Count  = %lu", (unsigned long)requests);
         
         MATRequestsQueuePart * part = [MATRequestsQueuePart partWithIndex:storedIndex parentFolder:self.pathStorageDir];
         part.queuedRequestsCount = requests;
         part.shouldLoadOnRequest = YES;
-        [queueParts_ addObject:part];
+        @synchronized( queueParts_ ) {
+            [queueParts_ addObject:part];
+        }
     }
 }
 
@@ -320,10 +327,10 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 // -- for iOS v5.0   and below : Moves file to Library/Caches
 - (void)fixForiCloud
 {
-    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD]);
+    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue]);
     
     // This fix is needed only once and never again.
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:KEY_MAT_FIXED_FOR_ICLOUD])
+    if(![[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue])
     {
         NSString *queueStorageFolder = self.pathStorageDir;
         
@@ -368,7 +375,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         {
             DLog(@"MATReqQue: fixForCloud: set key KEY_MAT_FIXED_FOR_ICLOUD = YES");
             // Set a flag to note that the do-not-back-to-iCloud change was successful.
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:KEY_MAT_FIXED_FOR_ICLOUD];
+            [MATUtils setUserDefaultValue:@TRUE forKey:KEY_MAT_FIXED_FOR_ICLOUD];
         }
     }
 }
