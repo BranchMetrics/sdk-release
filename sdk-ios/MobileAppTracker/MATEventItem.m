@@ -15,7 +15,7 @@
 
 + (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity
 {
-    return [MATEventItem eventItemWithName:name unitPrice:unitPrice quantity:quantity revenue:0 attribute1:nil attribute2:nil attribute3:nil attribute4:nil attribute5:nil];
+    return [MATEventItem eventItemWithName:name unitPrice:unitPrice quantity:quantity revenue:(unitPrice * quantity) attribute1:nil attribute2:nil attribute3:nil attribute4:nil attribute5:nil];
 }
 
 + (MATEventItem *)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue

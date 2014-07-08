@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "MATSettings.h"
 #import "MATConnectionManager.h"
+#import "MATRegionMonitor.h"
 
 @protocol MobileAppTrackerDelegate;
 
@@ -20,6 +21,8 @@
 @property (nonatomic, retain) MATSettings *parameters;
 
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;
+
+@property (nonatomic, readonly) MATRegionMonitor *regionMonitor;
 
 - (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
 
@@ -67,7 +70,6 @@
                             receipt:(NSData *)receipt;
 
 - (void)trackSession;
-- (void)trackSessionWithReferenceId:(NSString *)refId;
 
 - (void)setTracking:(NSString*)targetAppPackageName
        advertiserId:(NSString*)targetAppAdvertiserId

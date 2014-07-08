@@ -85,7 +85,7 @@
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     waitFor( 0.1 ); // let it initialize
-    [mat performSelector:@selector(trackInstallPostConversionWithReferenceId:) withObject:nil];
+    [mat performSelector:@selector(trackInstallPostConversion)];
 #pragma clang diagnostic pop
     
     waitFor( 6. );
@@ -111,9 +111,9 @@
     static NSString* const eventName = @"testEventName";
     [MobileAppTracker measureAction:eventName];
     waitFor( 6. );
-    XCTAssertTrue( callSuccess, @"trackAction should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
 }
 
 
@@ -122,9 +122,9 @@
     static NSString* const eventName = @"testEventName";
     [MobileAppTracker measureAction:eventName];
     waitFor( 2. );
-    XCTAssertTrue( callSuccess, @"trackAction should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
 
     callSuccess = FALSE;
     [MobileAppTracker setAllowDuplicateRequests:NO];
@@ -132,9 +132,9 @@
 
     [MobileAppTracker measureAction:eventName];
     waitFor( 2. );
-    XCTAssertFalse( callSuccess, @"trackAction duplicate should not have succeeded" );
-    XCTAssertTrue( callFailed, @"trackAction duplicate should not have succeeded" );
-    XCTAssertTrue( callFailedDuplicate, @"trackAction duplicate should not have succeeded" );
+    XCTAssertFalse( callSuccess, @"measureAction duplicate should not have succeeded" );
+    XCTAssertTrue( callFailed, @"measureAction duplicate should not have succeeded" );
+    XCTAssertTrue( callFailedDuplicate, @"measureAction duplicate should not have succeeded" );
 }
 
 
@@ -155,9 +155,9 @@
                        currencyCode:currencyCode];
     waitFor( 1. );
 
-    XCTAssertTrue( callSuccess, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction with items should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction with items should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureAction with items should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureAction with items should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureAction with items should have succeeded" );
 }
 
 
@@ -167,17 +167,17 @@
 
     [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
     waitFor( 5. );
-    XCTAssertTrue( callSuccess, @"trackAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction with revenue should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
 
     callSuccess = FALSE;
     
     [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
     waitFor( 5. );
-    XCTAssertTrue( callSuccess, @"trackAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackAction with revenue should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
 }
 
 

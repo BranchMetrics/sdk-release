@@ -26,8 +26,7 @@
     MATRequestsQueue *requestsQueue;
 
     MATTestParams *params;
-    MATTestParams *queryString;
-    MATTestParams *queryString2;
+    MATTestParams *params2;
 }
 @end
 
@@ -55,7 +54,6 @@
     successMessages = [NSMutableArray array];
     
     params = [MATTestParams new];
-    queryString = [MATTestParams new];
 }
 
 - (void)tearDown
@@ -129,7 +127,7 @@
 -(void) testOfflineFailureQueuedRetried
 {
     [self takeOffline];
-    [MobileAppTracker measureSession];
+    [MobileAppTracker measureAction:@"registration"];
     
     waitFor( 6. );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -137,9 +135,12 @@
  	[[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"dequeuing call should have succeeded" );
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"sdk_retry_attempt", [@0 stringValue] );
     [self checkAndClearExpectedQueueSize:0];
     
     waitFor( 5. ); // wait for server response
+    XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
 }
 
 
@@ -213,20 +214,19 @@
     XCTAssertFalse( callFailed, @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"session call should not have been attempted after 1 sec" );
     XCTAssertTrue( requestsQueue.queuedRequestsCount == 0, @"expected no queued requests, but found %lu", (unsigned long)requestsQueue.queuedRequestsCount );
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
 
-    waitFor( 10. );
+    waitFor( 6. );
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
-    XCTAssertTrue( [params isEqualToParams:queryString], @"set parameters %@, sent %@", params, queryString );
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
     [self checkAndClearExpectedQueueSize:0];
 }
 
 -(void) testSessionQueueOrder
 {
-    queryString2 = [MATTestParams new];
+    params2 = [MATTestParams new];
 
     [MobileAppTracker setDebugMode:TRUE];
     [MobileAppTracker measureSession];
@@ -242,51 +242,10 @@
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
 
-    XCTAssertTrue( [queryString checkDefaultValues], @"default value check failed: %@", queryString );
-    XCTAssertTrue( [queryString2 checkDefaultValues], @"default value check failed: %@", queryString2 );
-    XCTAssertTrue( [queryString checkKey:@"action" isEqualToValue:EVENT_SESSION], @"first call should be \"session\"" );
-    XCTAssertTrue( [queryString2 checkKey:@"action" isEqualToValue:EVENT_CONVERSION], @"second call should be \"conversion\"" );
-}
-
-
-#pragma mark - iAd attribution override
-
--(void) testiAdAttributionOverrideTrue
-{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    MATSettings *settings = [mat performSelector:@selector(parameters)];
-#pragma clang diagnostic pop
-
-    settings.iadAttribution = @FALSE;
-    [MobileAppTracker measureSession];
-    waitFor( 1. );
-    ASSERT_KEY_VALUE( @"iad_attribution", [@(FALSE) stringValue] );
-    
-    settings.iadAttribution = @TRUE;
-    waitFor( 5. );
-    XCTAssertTrue( [queryString checkKey:@"iad_attribution" isEqualToValue:[@(TRUE) stringValue]],
-                   @"should have set iad_attribution to true" );
-}
-
-
--(void) testiAdAttributionOverrideFalse
-{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    MATSettings *settings = [mat performSelector:@selector(parameters)];
-#pragma clang diagnostic pop
-    
-    settings.iadAttribution = @FALSE;
-    [MobileAppTracker measureSession];
-    waitFor( 1. );
-    ASSERT_KEY_VALUE( @"iad_attribution", [@(FALSE) stringValue] );
-    
-    waitFor( 5. );
-    XCTAssertTrue( [queryString checkKey:@"iad_attribution" isEqualToValue:[@(FALSE) stringValue]],
-                  @"should have set iad_attribution to true" );
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    XCTAssertTrue( [params2 checkDefaultValues], @"default value check failed: %@", params2 );
+    XCTAssertTrue( [params checkKey:@"action" isEqualToValue:EVENT_SESSION], @"first call should be \"session\"" );
+    XCTAssertTrue( [params2 checkKey:@"action" isEqualToValue:EVENT_CONVERSION], @"second call should be \"conversion\"" );
 }
 
 
@@ -341,23 +300,16 @@
 
 #pragma mark - MAT delegate
 
-// secret functions to test server URLs
--(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
-{
-    XCTAssertTrue( [params extractParamsString:paramsPlaintext], @"couldn't extract unencrypted params: %@", paramsPlaintext );
-    XCTAssertTrue( [params extractParamsString:paramsEncrypted], @"couldn't extract encypted params: %@", paramsEncrypted );
-}
-
 -(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    MATTestParams *qs = queryString;
-    if( queryString2 && ![qs isEmpty] )
-        qs = queryString2;
+    MATTestParams *p = params;
+    if( params2 && ![p isEmpty] )
+        p = params2;
     
-    XCTAssertTrue( [qs extractParamsString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
+    XCTAssertTrue( [p extractParamsString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
     if( postData ) {
         XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
-        XCTAssertTrue( [qs extractParamsJSON:postData], @"couldn't extract POST JSON %@", postData );
+        XCTAssertTrue( [p extractParamsJSON:postData], @"couldn't extract POST JSON %@", postData );
     }
 }
 

@@ -15,11 +15,10 @@
 #import "MATUtils.h"
 #import "NSString+MATURLEncoding.m"
 #import "MATAppToAppTracker.h"
-#import "MATEncrypter.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 
-#define USE_IAD_ATTRIBTION FALSE
+#define USE_IAD_ATTRIBUTION TRUE
 #if USE_IAD_ATTRIBUTION
 #import <AdSupport/AdSupport.h>
 #endif
@@ -48,6 +47,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     BOOL debugMode;
     
     MATAppToAppTracker *appToAppTracker;
+    MATRegionMonitor *regionMonitor;
 }
 
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
@@ -58,7 +58,6 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 @property (nonatomic, retain) NSDictionary *doNotEncryptDict;
 
 @end
-
 
 @implementation MATTracker
 
@@ -84,15 +83,24 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         _shouldUseCookieTracking = NO; // by default do not use cookie tracking
         [self setShouldAutoDetectJailbroken:YES];
         [self setShouldAutoGenerateAppleVendorIdentifier:YES];
-        
         // the user can turn these off before calling a method which will
         // remove the keys. turning them back on will regenerate the keys.
+
+        [self checkIadAttribution:nil];
     }
     return self;
 }
 
 
 #pragma mark - Public Methods
+
+-(MATRegionMonitor*)regionMonitor
+{
+    if( !regionMonitor )
+        regionMonitor = [MATRegionMonitor new];
+    return regionMonitor;
+}
+
 
 - (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
@@ -154,6 +162,39 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 
 #pragma mark - iAd methods
+
+-(void) checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
+{
+#if USE_IAD_ATTRIBUTION
+    if( [UIApplication sharedApplication] && [ADClient class] && self.parameters.iadAttribution == nil ) {
+        // for devices >= 7.1
+        ADClient *adClient = [ADClient sharedClient];
+
+#ifdef __IPHONE_8_0 // if MAT is built in Xcode 6
+        if( [adClient respondsToSelector:@selector(lookupAdConversionDetails:)] ) {
+            // device is iOS 8.0
+            [[ADClient sharedClient] lookupAdConversionDetails:^(NSDate *appPurchaseDate, NSDate *iAdImpressionDate) {
+                BOOL iAdOriginatedInstallation = (iAdImpressionDate != nil);
+                [MATUtils setUserDefaultValue:@(iAdOriginatedInstallation) forKey:KEY_IAD_ATTRIBUTION];
+                self.parameters.iadAttribution = @(iAdOriginatedInstallation);
+                self.parameters.iadImpressionDate = iAdImpressionDate;
+                if( attributionBlock )
+                    attributionBlock( iAdOriginatedInstallation );
+            }];
+        }
+        else
+#endif
+            // device is iOS 7.1
+            [adClient determineAppInstallationAttributionWithCompletionHandler:^(BOOL appInstallationWasAttributedToiAd) {
+                [MATUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:KEY_IAD_ATTRIBUTION];
+                self.parameters.iadAttribution = @(appInstallationWasAttributedToiAd);
+                if( attributionBlock )
+                    attributionBlock( appInstallationWasAttributedToiAd );
+            }];
+    }
+#endif
+}
+
 
 - (void)displayiAdInView:(UIView*)view
 {
@@ -354,11 +395,11 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                        postConversion:NO];
 }
 
--(void) trackInstallPostConversionWithReferenceId:(NSString*)refId
+-(void) trackInstallPostConversion
 {
     [self trackActionForEventIdOrName:EVENT_INSTALL
                            eventItems:nil
-                          referenceId:refId
+                          referenceId:nil
                         revenueAmount:0
                          currencyCode:nil
                      transactionState:IGNORE_IOS_PURCHASE_STATUS
@@ -425,24 +466,12 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 - (void)trackSession
 {
-    [self trackSessionWithReferenceId:nil];
-}
-
-- (void)trackSessionWithReferenceId:(NSString *)refId
-{
-    [self trackActionForEventIdOrName:EVENT_SESSION referenceId:refId];
+    [self trackActionForEventIdOrName:EVENT_SESSION];
     
-#if USE_IAD_ATTRIBUTION
-    if( [ADClient class] && self.parameters.iadAttribution == nil ) {
-        // for devices >= 7.1
-        [[ADClient sharedClient] determineAppInstallationAttributionWithCompletionHandler:^(BOOL appInstallationWasAttributedToiAd) {
-            [MATUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:KEY_IAD_ATTRIBUTION];
-            self.parameters.iadAttribution = @(appInstallationWasAttributedToiAd);
-            if( appInstallationWasAttributedToiAd )
-                [self trackInstallPostConversionWithReferenceId:refId];
-        }];
-    }
-#endif
+    [self checkIadAttribution:^(BOOL iadAttributed) {
+        if( iadAttributed )
+            [self trackInstallPostConversion];
+    }];
 }
 
 
@@ -629,11 +658,11 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     //----------------------------
     [self.parameters loadFacebookCookieId];
     
-    NSSet * ignoreParams = [NSSet setWithObjects:KEY_REDIRECT_URL, KEY_KEY, nil];
-    NSString * trackingLink = [self.parameters urlStringForReferenceId:refId
-                                                             debugMode:debugMode
-                                                          ignoreParams:ignoreParams
-                                                       encryptionLevel:NORMALLY_ENCRYPTED];
+    NSString *trackingLink, *encryptParams;
+    [self.parameters urlStringForReferenceId:refId
+                                   debugMode:debugMode
+                                trackingLink:&trackingLink
+                               encryptParams:&encryptParams];
     
     DRLog(@"MAT sendRequestWithEventItems: %@", trackingLink);
     
@@ -658,6 +687,10 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     
     if(receipt)
         [postDict setValue:receipt forKey:KEY_STORE_RECEIPT];
+
+    // on first open, send install receipt
+    if( self.parameters.openLogId == nil )
+        [postDict setValue:self.parameters.installReceipt forKey:KEY_INSTALL_RECEIPT];
     
     NSString *strPost = nil;
     
@@ -668,11 +701,13 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     }
     
     NSDate *runDate = [NSDate date];
+#if USE_IAD_ATTRIBUTION
     if( [self.parameters.actionName isEqualToString:EVENT_SESSION] )
-        runDate = [runDate dateByAddingTimeInterval:5.];
-    
+        runDate = [runDate dateByAddingTimeInterval:15.];
+#endif
+
     // fire the event tracking request
-    [self.connectionManager enqueueUrlRequest:trackingLink andPOSTData:strPost runDate:runDate];
+    [self.connectionManager enqueueUrlRequest:trackingLink encryptParams:encryptParams andPOSTData:strPost runDate:runDate];
 
     if( [self.delegate respondsToSelector:@selector(mobileAppTrackerEnqueuedActionWithReferenceId:)] )
         [self.delegate mobileAppTrackerEnqueuedActionWithReferenceId:refId];
@@ -762,9 +797,19 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 }
 
 
+-(NSString*) encryptionKey
+{
+    return self.parameters.conversionKey;
+}
+
 -(BOOL) isiAdAttribution
 {
     return [self.parameters.iadAttribution boolValue];
+}
+
+-(NSString*) userAgent
+{
+    return self.parameters.userAgent;
 }
 
 

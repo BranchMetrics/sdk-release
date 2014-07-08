@@ -210,6 +210,10 @@ NSString * const XML_NODE_REQUEST = @"Request";
             NSString *urlValue = [request valueForKey:KEY_URL];
             NSString *encodedUrl = [urlValue MATgtm_stringBySanitizingAndEscapingForXML];
             
+            NSString *encrypt = [request valueForKey:KEY_DATA];
+            NSString *encodedEncrypt = [encrypt MATgtm_stringBySanitizingAndEscapingForXML];
+            encodedEncrypt = encodedEncrypt ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_DATA, encodedEncrypt] : STRING_EMPTY;
+            
             NSString *jsonValue = [request valueForKey:KEY_JSON];
             NSString *encodedJson = [jsonValue MATgtm_stringBySanitizingAndEscapingForXML];
             encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
@@ -219,7 +223,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
             encodedDate = encodedDate ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_RUN_DATE, encodedDate] : STRING_EMPTY;
             
             // serialize the request
-            [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedJson, encodedDate, XML_NODE_REQUEST];
+            [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedEncrypt, encodedJson, encodedDate, XML_NODE_REQUEST];
         }
     }
     

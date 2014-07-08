@@ -70,38 +70,6 @@ static NSDateFormatter *dateFormatter = nil;
 }
 
 
-+ (NSString*)generateUserAgentString
-{
-    if( [UIApplication sharedApplication] == nil ) {
-        // occurs during testing
-        return @"no-agent";
-    }
-    
-    // perform this code on the main thread, since it creates a UIWebView.
-    __block NSString *userAgent = STRING_EMPTY;
-    
-    void(^block)(void)=  ^{
-        UIWebView* webView = [[UIWebView alloc] init];
-        userAgent = [[webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] copy];
-    };
- 
-    // Make sure that the dispatch_sync call does not get dead-locked when called on the main thread
-    // Ref: http://stackoverflow.com/questions/5225130/grand-central-dispatch-gcd-vs-performselector-need-a-better-explanation/5226271#5226271
-    if([NSThread isMainThread])
-    {
-        // execute the code on the current (main) thread
-        block();
-    }
-    else
-    {
-        // synchronously execute the code on the main thread
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-    
-    return userAgent;
-}
-
-
 + (NSString*)generateFBCookieIdString
 {
     NSString * attributionID = nil;

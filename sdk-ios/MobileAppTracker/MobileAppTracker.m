@@ -52,6 +52,13 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
++ (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].regionMonitor.delegate = delegate;
+    }];
+}
+
 + (void)setDebugMode:(BOOL)yesorno
 {
     [opQueue addOperationWithBlock:^{
@@ -234,6 +241,76 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
++(void) setRegionName:(NSString*)regionName // private method
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.regionName = regionName;
+    }];
+}
+
++(void) setLocationAuthorizationStatus:(NSInteger)authStatus // private method
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.locationAuthorizationStatus = @(authStatus);
+    }];
+}
+
++ (void)setEventContentType:(NSString*)contentType
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventContentType = contentType;
+    }];
+}
+
++ (void)setEventContentId:(NSString*)contentId
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventContentId = contentId;
+    }];
+}
+
++ (void)setEventLevel:(NSInteger)level
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventLevel = @(level);
+    }];
+}
+
++ (void)setEventQuantity:(NSInteger)quantity
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventQuantity = @(quantity);
+    }];
+}
+
++ (void)setEventSearchString:(NSString*)searchString
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventSearchString = searchString;
+    }];
+}
+
++ (void)setEventRating:(CGFloat)rating
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventRating = @(rating);
+    }];
+}
+
++ (void)setEventDate1:(NSDate*)date
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventDate1 = date;
+    }];
+}
+
++ (void)setEventDate2:(NSDate*)date
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.eventDate2 = date;
+    }];
+}
+
 + (void)setEventAttribute1:(NSString*)value
 {
     [opQueue addOperationWithBlock:^{
@@ -276,6 +353,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+
 + (NSString*)matId
 {
     return [self sharedManager].parameters.matId;
@@ -315,13 +393,6 @@ static NSOperationQueue *opQueue = nil;
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] trackSession];
-    }];
-}
-
-+ (void)measureSessionWithReferenceId:(NSString *)refId
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackSessionWithReferenceId:refId];
     }];
 }
 
@@ -482,6 +553,16 @@ static NSOperationQueue *opQueue = nil;
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
+    }];
+}
+
++ (void)startMonitoringForBeaconRegion:(NSUUID*)UUID
+                                nameId:(NSString*)nameId
+                               majorId:(NSUInteger)majorId
+                               minorId:(NSUInteger)minorId
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
     }];
 }
 

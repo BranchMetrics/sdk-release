@@ -17,6 +17,8 @@
 
 @property (nonatomic, assign) BOOL postConversion; // KEY_POST_CONVERSION
 
+@property (nonatomic, copy) NSString *installReceipt;
+
 @property (nonatomic, copy) NSDate *installDate; // KEY_INSDATE
 @property (nonatomic, copy) NSString *sessionDate; // KEY_SESSION_DATETIME
 @property (nonatomic, copy) NSDate *systemDate; // KEY_SYSTEM_DATE
@@ -57,6 +59,7 @@
 @property (nonatomic, copy) NSNumber *ifaTracking; // KEY_IOS_AD_TRACKING
 
 @property (nonatomic, copy) NSNumber *iadAttribution; // KEY_IAD_ATTRIBUTION
+@property (nonatomic, copy) NSDate *iadImpressionDate; // KEY_IAD_IMPRESSION_DATE
 
 @property (nonatomic, copy) NSNumber *appAdTracking; // KEY_APP_AD_TRACKING
 
@@ -79,8 +82,12 @@
 @property (nonatomic, copy) NSString *trusteTPID; // KEY_TRUSTE_TPID
 
 @property (nonatomic, copy) NSString *deviceModel; // KEY_DEVICE_MODEL
+@property (nonatomic, copy) NSNumber *deviceCpuType; // KEY_DEVICE_CPUTYPE
+@property (nonatomic, copy) NSNumber *deviceCpuSubtype; // KEY_DEVICE_CPUSUBTYPE
 @property (nonatomic, copy) NSString *deviceCarrier; // KEY_DEVICE_CARRIER
 @property (nonatomic, copy) NSString *deviceBrand; // KEY_DEVICE_BRAND
+@property (nonatomic, copy) NSString *screenSize; // KEY_SCREEN_SIZE
+@property (nonatomic, copy) NSNumber *screenDensity; // KEY_SCREEN_DENSITY
 @property (nonatomic, copy) NSString *mobileCountryCode; // KEY_CARRIER_COUNTRY_CODE
 @property (nonatomic, copy) NSString *mobileCountryCodeISO; // KEY_CARRIER_COUNTRY_CODE_ISO
 @property (nonatomic, copy) NSString *mobileNetworkCode; // KEY_CARRIER_NETWORK_CODE
@@ -89,6 +96,14 @@
 @property (nonatomic, copy) NSString *language; // KEY_LANGUAGE
 @property (nonatomic, copy) NSString *userAgent; // KEY_CONVERSION_USER_AGENT
 
+@property (nonatomic, copy) NSString *eventContentType; // KEY_EVENT_CONTENT_TYPE
+@property (nonatomic, copy) NSString *eventContentId; // KEY_EVENT_CONTENT_ID
+@property (nonatomic, copy) NSNumber *eventLevel; // KEY_EVENT_LEVEL
+@property (nonatomic, copy) NSNumber *eventQuantity; // KEY_EVENT_QUANTITY
+@property (nonatomic, copy) NSString *eventSearchString; // KEY_EVENT_SEARCH_STRING
+@property (nonatomic, copy) NSNumber *eventRating; // KEY_EVENT_RATING
+@property (nonatomic, copy) NSDate *eventDate1; // KEY_EVENT_DATE1
+@property (nonatomic, copy) NSDate *eventDate2; // KEY_EVENT_DATE2
 @property (nonatomic, copy) NSString *eventAttribute1; // KEY_EVENT_ATTRIBUTE_SUB1
 @property (nonatomic, copy) NSString *eventAttribute2; // KEY_EVENT_ATTRIBUTE_SUB2
 @property (nonatomic, copy) NSString *eventAttribute3; // KEY_EVENT_ATTRIBUTE_SUB3
@@ -97,7 +112,8 @@
 
 @property (nonatomic, copy) NSString *pluginName; // KEY_SDK_PLUGIN
 
-@property (nonatomic, copy) NSDictionary *doNotEncryptDict;
+@property (nonatomic, copy) NSString *regionName; // KEY_GEOFENCE_NAME
+@property (nonatomic, copy) NSNumber *locationAuthorizationStatus; // KEY_LOCATION_AUTH_STATUS
 
 @property (nonatomic, assign) id <MATSettingsDelegate> delegate;
 
@@ -107,14 +123,14 @@
 
 -(void) resetBeforeTrackAction;
 
--(NSString*) urlStringForDebugMode:(BOOL)debugMode
-                      ignoreParams:(NSSet*)ignoreParams
-                   encryptionLevel:(NSString*)encryptionLevel;
+-(void) urlStringForDebugMode:(BOOL)debugMode
+                      trackingLink:(NSString**)trackingLink
+                     encryptParams:(NSString**)encryptParams;
 
--(NSString*) urlStringForReferenceId:(NSString*)referenceId
+-(void) urlStringForReferenceId:(NSString*)referenceId
                            debugMode:(BOOL)debugMode
-                        ignoreParams:(NSSet*)ignoreParams
-                     encryptionLevel:(NSString*)encryptionLevel;
+                        trackingLink:(NSString**)trackingLink
+                       encryptParams:(NSString**)encryptParams;
 
 -(void) resetAfterRequest;
 

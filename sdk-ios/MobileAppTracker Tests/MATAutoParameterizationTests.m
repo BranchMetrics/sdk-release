@@ -58,8 +58,8 @@
     NSUUID *newIfv = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifv", [newIfv UUIDString] );
@@ -69,8 +69,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:nil]];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifv", @"00000000-0000-0000-0000-000000000000" );
@@ -80,8 +80,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:nil];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -91,8 +91,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@""]];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -102,8 +102,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -113,8 +113,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"0000000000000000000000000000000000000000000000000000000000000000000000"]];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -124,8 +124,8 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifv", @"00000000-0000-0000-0000-000000000000" );
@@ -140,8 +140,8 @@
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
     [MobileAppTracker setShouldAutoGenerateAppleVendorIdentifier:NO];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -156,8 +156,8 @@
     NSUUID *newIfa = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleAdvertisingIdentifier:newIfa advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifa", [newIfa UUIDString] );
@@ -168,8 +168,8 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:nil]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifa", @"00000000-0000-0000-0000-000000000000" );
@@ -180,8 +180,8 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:nil
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -192,8 +192,8 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@""]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -204,8 +204,8 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -216,8 +216,8 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureSession];
-    waitFor( 0.1 );
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( 3. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"ios_ifa", @"00000000-0000-0000-0000-000000000000" );
@@ -227,14 +227,9 @@
 #pragma mark - MAT delegate
 
 // secret functions to test server URLs
--(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
-{
-    XCTAssertTrue( [params extractParamsString:paramsPlaintext], @"couldn't extract unencrypted params: %@", paramsPlaintext );
-    XCTAssertTrue( [params extractParamsString:paramsEncrypted], @"couldn't extract encypted params: %@", paramsEncrypted );
-}
-
 -(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
+    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
         XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
 }

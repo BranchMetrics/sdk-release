@@ -56,6 +56,8 @@ static NSString* const testKey = @"fakeMatKey";
     
     NSString *actualOutput = [MATUtils jsonSerialize:dict1];
     
+    // TODO: this is a fragile (bad) test, because it's order- and spacing-dependent
+    // instead, use something like the MATTestParams checkDataItems: method
     NSString *expectedOutput = @"{\"data\":[{\"quantity\":1,\"unit_price\":2.99,\"attribute_sub5\":\"attr5\",\"attribute_sub3\":\"attr3\",\"revenue\":2.99,\"attribute_sub1\":\"attr1\",\"attribute_sub4\":\"attr4\",\"item\":\"item1\",\"attribute_sub2\":\"attr2\"}]}";
 
     //NSLog(@"expected %@, actual: %@", expectedOutput, actualOutput);

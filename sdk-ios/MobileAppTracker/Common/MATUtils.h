@@ -19,7 +19,6 @@
 
 extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
-+ (NSString*)generateUserAgentString;
 + (NSString*)generateFBCookieIdString;
 
 + (NSString *)getUUID;

@@ -6,14 +6,17 @@
 //  Copyright (c) 2013 HasOffers. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "MATTestParams.h"
 #import "MATTests.h"
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATUtils.h"
+#import "MATKeyStrings.h"
 #import "MATEncrypter.h"
 
 static NSString* const kDataItemKey = @"testBodyDataItems";
 static NSString* const kReceiptItemKey = @"testBodyReceipt";
+static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
 
 @interface MATTestParams ()
 
@@ -78,7 +81,7 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
             NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
             return [self extractParamsString:[decryptedString stringByRemovingPercentEncoding]];
         }
-
+        
         NSString *unencodedValue = keyValue[1];
         if( ![unencodedValue isEqualToString:@""] )
             unencodedValue = [unencodedValue stringByRemovingPercentEncoding];
@@ -101,8 +104,8 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
         return FALSE;
     else {
         if( [data isKindOfClass:[NSDictionary class]] ) {
-            if( data[@"data"] != nil ) {
-                NSArray *items = data[@"data"];
+            if( data[KEY_DATA] != nil ) {
+                NSArray *items = data[KEY_DATA];
                 if( [items isKindOfClass:[NSArray class]] ) {
                     if( _params == nil )
                         _params = [NSMutableDictionary dictionary];
@@ -118,10 +121,15 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
                 else
                     return FALSE;
             }
-            if( data[@"store_receipt"] != nil ) {
+            if( data[KEY_STORE_RECEIPT] != nil ) {
                 if( _params == nil )
                     _params = [NSMutableDictionary dictionary];
-                _params[kReceiptItemKey] = data[@"store_receipt"];
+                _params[kReceiptItemKey] = data[KEY_STORE_RECEIPT];
+            }
+            if( data[KEY_INSTALL_RECEIPT] != nil ) {
+                if( _params == nil )
+                    _params = [NSMutableDictionary dictionary];
+                _params[kAppleReceiptItemKey] = data[KEY_INSTALL_RECEIPT];
             }
         }
         else
@@ -161,15 +169,15 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 	{
 		return nil;
 	}
-	
+    
 	char keyBytes[keyLength + 1];
 	bzero(keyBytes, sizeof(keyBytes));
 	[mykey getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
-	
+    
 	size_t numBytesEncrypted = 0;
 	size_t encryptedLength = [str length] + kCCBlockSizeAES128;
 	char encryptedBytes[encryptedLength +1];
-	
+    
     CCCryptorStatus result = CCCrypt(kCCDecrypt,
 									 kCCAlgorithmAES128 ,
 									 kCCOptionECBMode | kCCOptionPKCS7Padding,
@@ -181,14 +189,13 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 									 encryptedBytes,
 									 encryptedLength,
 									 &numBytesEncrypted);
-	
+    
     
 	if(result == kCCSuccess)
 		return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
     
 	return nil;
 }
-
 
 
 #pragma mark - Value assertions
@@ -243,13 +250,18 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
     [self checkKeyHasValue:@"language"] &&
     [self checkKeyHasValue:@"system_date"] &&
     [self checkKeyHasValue:@"device_brand"] &&
+    [self checkKeyHasValue:@"device_cpu_type"] &&
+    [self checkKeyHasValue:@"device_cpu_subtype"] &&
     [self checkKeyHasValue:@"device_model"] &&
     [self checkKeyHasValue:@"os_version"] &&
     [self checkKeyHasValue:@"insdate"] &&
     [self checkKey:@"os_jailbroke" isEqualToValue:@"0"];
+    CGSize size = [[UIScreen mainScreen] bounds].size;
+    [self checkKey:@"screen_size" isEqualToValue:[NSString stringWithFormat:@"%.fx%.f", size.width, size.height]];
+    [self checkKey:@"screen_density" isEqualToValue:[@([[UIScreen mainScreen] scale]) stringValue]];
     
     if( !retval )
-        NSLog( @"device values failed: %d %d %d %d %d %d %d %d %d", [self checkKeyHasValue:@"conversion_user_agent"], [self checkKeyHasValue:@"country_code"], [self checkKeyHasValue:@"language"], [self checkKeyHasValue:@"system_date"], [self checkKeyHasValue:@"device_brand"], [self checkKeyHasValue:@"device_model"], [self checkKeyHasValue:@"os_version"], [self checkKeyHasValue:@"insdate"], [self checkKey:@"os_jailbroke" isEqualToValue:@"0"] );
+        NSLog( @"device values failed: %d %d %d %d %d %d %d %d %d %d %d", [self checkKeyHasValue:@"conversion_user_agent"], [self checkKeyHasValue:@"country_code"], [self checkKeyHasValue:@"language"], [self checkKeyHasValue:@"system_date"], [self checkKeyHasValue:@"device_brand"], [self checkKeyHasValue:@"device_cpu_type"], [self checkKeyHasValue:@"device_cpu_subtype"], [self checkKeyHasValue:@"device_model"], [self checkKeyHasValue:@"os_version"], [self checkKeyHasValue:@"insdate"], [self checkKey:@"os_jailbroke" isEqualToValue:@"0"] );
     
     NSString *sysDateString = [self valueForKey:@"system_date"];
     if( sysDateString ) {
@@ -296,6 +308,11 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
             NSLog( @"prices must match: sent %f got %@", item.unitPrice, foundItem[@"unit_price"] );
             return FALSE;
         }
+        testString = [NSString stringWithFormat:@"%f", item.revenue];
+        if( ![foundItem[@"revenue"] isEqualToString:testString] ) {
+            NSLog( @"revenues must match: sent %f got %@", item.revenue, foundItem[@"revenue"] );
+            return FALSE;
+        }
     }
     
     return TRUE;
@@ -309,6 +326,11 @@ static NSString* const kReceiptItemKey = @"testBodyReceipt";
 -(BOOL) checkReceiptEquals:(NSData*)receiptValue
 {
     return [_params[kReceiptItemKey] isEqualToString:[MATUtils MATbase64EncodedStringFromData:receiptValue]];
+}
+
+-(BOOL) checkAppleReceiptEquals:(NSData*)receiptValue
+{
+    return [_params[kAppleReceiptItemKey] isEqualToString:[MATUtils MATbase64EncodedStringFromData:receiptValue]];
 }
 
 @end

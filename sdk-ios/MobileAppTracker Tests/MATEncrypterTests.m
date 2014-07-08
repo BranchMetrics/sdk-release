@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MATEncrypter.h"
+#import "MATSettings.h"
 #import "MATTests.h"
 
 @interface MATEncrypterTests : XCTestCase
@@ -58,7 +59,7 @@
     decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
     expectedOutput = inputStr;
     XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
-
+    
     inputStr = @"돔스돔타돔돔";
     encryptedStr = [MATEncrypter encryptString:inputStr withKey:key];
     decryptedData = [MATEncrypterTests decodeHexData:[MATEncrypterTests aesDecrypt:key data:[MATEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
@@ -135,6 +136,17 @@
     decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
     expectedOutput = @"";
     XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+}
+
+
+-(void) testNoEncryptTransaction
+{
+    MATSettings *settings = [MATSettings new];
+    NSString *trackingLink, *encryptedParams;
+    [settings urlStringForDebugMode:FALSE
+                       trackingLink:&trackingLink
+                      encryptParams:&encryptedParams];
+    XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
 }
 
 

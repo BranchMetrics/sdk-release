@@ -31,5 +31,6 @@
 -(BOOL) checkDataItems:(NSArray*)items;
 -(BOOL) checkNoDataItems;
 -(BOOL) checkReceiptEquals:(NSData*)receiptValue;
+-(BOOL) checkAppleReceiptEquals:(NSData*)receiptValue;
 
 @end

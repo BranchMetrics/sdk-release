@@ -47,9 +47,9 @@
 -(void) testAutodetectJailbroken
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackSession];
+    [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 0.1 );
+    waitFor( 3. );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( KEY_OS_JAILBROKE, @"0" );
 }
@@ -58,9 +58,9 @@
 {
     [mat setShouldAutoDetectJailbroken:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackSession];
+    [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 0.1 );
+    waitFor( 3. );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( KEY_OS_JAILBROKE );
 }
@@ -69,9 +69,9 @@
 -(void) testAutogenerateIFV
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackSession];
+    [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 0.1 );
+    waitFor( 3. );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
 }
@@ -80,11 +80,54 @@
 {
     [mat setShouldAutoGenerateAppleVendorIdentifier:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackSession];
+    [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 0.1 );
+    waitFor( 3. );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( KEY_IOS_IFV );
+}
+
+
+-(void) testSendInstallReceipt
+{
+    static NSString* const eventName = @"fakeEventName";
+    NSData *receiptData = [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    mat.parameters.openLogId = nil; // coerce receipt data into being sent again
+    
+    [mat trackActionForEventIdOrName:@"fakeEventName"];
+    waitFor( 1. );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    XCTAssertTrue( [params checkKeyHasValue:@"testAppleReceipt"], @"no Apple receipt sent" );
+    XCTAssertTrue( [params checkAppleReceiptEquals:receiptData], @"Apple receipt value mismatch" );
+}
+
+
+-(void) testStoreUserIds
+{
+    static NSString *const testEmail = @"testemail";
+    static NSString *const testId = @"testid";
+    static NSString *const testName = @"testname";
+    
+    [MATUtils setUserDefaultValue:testEmail forKey:KEY_USER_EMAIL];
+    [MATUtils setUserDefaultValue:testId forKey:KEY_USER_ID];
+    [MATUtils setUserDefaultValue:testName forKey:KEY_USER_NAME];
+    
+    mat = [MATTracker new];
+    mat.delegate = self;
+    mat.parameters.delegate = self;
+
+    [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
+    [mat trackActionForEventIdOrName:@"fakeEventName"];
+    waitFor( 1. );
+
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( KEY_USER_EMAIL, testEmail );
+    ASSERT_KEY_VALUE( KEY_USER_ID, testId );
+    ASSERT_KEY_VALUE( KEY_USER_NAME, testName );
 }
 
 
@@ -111,20 +154,11 @@
  */
 
 // secret functions to test server URLs
--(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
-{
-    XCTAssertTrue( [params extractParamsString:paramsPlaintext], @"couldn't extract unencrypted params: %@", paramsPlaintext );
-    XCTAssertTrue( [params extractParamsString:paramsEncrypted], @"couldn't extract encypted params: %@", paramsEncrypted );
-}
-
 -(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    XCTAssertTrue( [queryString extractParamsString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
-    if( postData ) {
+    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
+    if( postData )
         XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
-        XCTAssertTrue( [queryString extractParamsJSON:postData], @"couldn't extract POST JSON %@", postData );
-    }
-    //NSLog( @"%@", trackingUrl );
 }
 
 @end

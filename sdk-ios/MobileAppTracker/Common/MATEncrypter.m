@@ -41,7 +41,7 @@
 {
 	NSInteger keyLength = [mykey length];
 	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
-	{		
+	{
 		return nil;
 	}
 	
@@ -53,15 +53,15 @@
 	size_t encryptedLength = [data length] + kCCBlockSizeAES128;
 	char encryptedBytes[encryptedLength +1];
 	
-    CCCryptorStatus result = CCCrypt(kCCEncrypt, 
-									 kCCAlgorithmAES128 , 
+    CCCryptorStatus result = CCCrypt(kCCEncrypt,
+									 kCCAlgorithmAES128 ,
 									 kCCOptionECBMode | kCCOptionPKCS7Padding,
-									 keyBytes, 
-									 keyLength, 
+									 keyBytes,
+									 keyLength,
 									 NULL,
 									 [data bytes],
 									 [data length],
-									 encryptedBytes, 
+									 encryptedBytes,
 									 encryptedLength,
 									 &numBytesEncrypted);
     

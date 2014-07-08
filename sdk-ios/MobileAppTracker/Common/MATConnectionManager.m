@@ -9,8 +9,7 @@
 #import "MATConnectionManager.h"
 #import "MATKeyStrings.h"
 #import "MATUtils.h"
-
-static const NSUInteger MAX_QUEUE_DUMP_TRIES_FAILURES       =   5;
+#import "MATEncrypter.h"
 
 int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
@@ -70,7 +69,6 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 @synthesize dumpingQueue = dumpingQueue_;
 @synthesize dumpTriesFailures = dumpTriesFailures_;
 @synthesize shouldDebug = _shouldDebug;
-@synthesize shouldAllowDuplicates = _shouldAllowDuplicates;
 @synthesize delegate = _delegate;
 
 - (id)init
@@ -186,30 +184,10 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 }
 
 
-- (void)beginUrlRequest:(NSString *)trackingLink withPOSTData:(NSString*)postData
+- (void)beginUrlRequest:(NSString *)trackingLink encryptParams:(NSString*)encryptParams withPOSTData:(NSString*)postData
 {
-    // if iad_attribution=0, overwrite with current status
-    NSString *searchString = [NSString stringWithFormat:@"%@=0", KEY_IAD_ATTRIBUTION];
-    if( [trackingLink rangeOfString:searchString].location != NSNotFound &&
-        [self.delegate isiAdAttribution] )
-    {
-        NSString *replaceString = [NSString stringWithFormat:@"%@=1", KEY_IAD_ATTRIBUTION];
-        trackingLink = [trackingLink stringByReplacingOccurrencesOfString:searchString withString:replaceString];
-    }
+    trackingLink = [self updateTrackingLink:trackingLink encryptParams:encryptParams];
     
-    if (self.shouldDebug)
-        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
-
-    if (self.shouldAllowDuplicates)
-        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
-    
-    // Append json format to the url
-    trackingLink = [trackingLink stringByAppendingFormat:@"&%@=%@", KEY_RESPONSE_FORMAT, KEY_JSON];
-    
-#if DEBUG
-    trackingLink = [trackingLink stringByAppendingString:@"&bypass_throttling=1"];
-#endif
-
 #if DEBUG_REQUEST_LOG
     NSRange range = [trackingLink rangeOfString:[NSString stringWithFormat:@"&%@=", KEY_DATA]];
     range.length = [trackingLink length] - range.location;
@@ -219,12 +197,14 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 #endif
     DLLog(@"MATConnManager: beginUrlRequest: URL trackingLink = %@", trackingLink);
     
+#if DEBUG
     // for testing, attempt informing the delegate's delegate of the trackingLink
     if( [self.delegate respondsToSelector:@selector(delegate)] ) {
         id ddelegate = [self.delegate performSelector:@selector(delegate)];
         if( [ddelegate respondsToSelector:@selector(_matSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
             [ddelegate performSelector:@selector(_matSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:trackingLink withObject:postData];
     }
+#endif
     
     NSURL * url = [NSURL URLWithString:trackingLink];
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
@@ -250,6 +230,48 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
     [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     [connection start];
 }
+
+
+-(NSString*) updateTrackingLink:(NSString*)trackingLink encryptParams:(NSString*)encryptParams
+{
+    if( encryptParams != nil ) {
+        // if iad_attribution, append/overwrite current status
+        NSString *searchString = [NSString stringWithFormat:@"%@=0", KEY_IAD_ATTRIBUTION];
+        if( [encryptParams rangeOfString:searchString].location != NSNotFound &&
+           [self.delegate isiAdAttribution] )
+        {
+            NSString *replaceString = [NSString stringWithFormat:@"%@=1", KEY_IAD_ATTRIBUTION];
+            encryptParams = [encryptParams stringByReplacingOccurrencesOfString:searchString withString:replaceString];
+        }
+        else if( [self.delegate isiAdAttribution] )
+            encryptParams = [encryptParams stringByAppendingFormat:@"&%@=1", KEY_IAD_ATTRIBUTION];
+        
+        // append user agent, if not present
+        searchString = [NSString stringWithFormat:@"%@=", KEY_CONVERSION_USER_AGENT];
+        if( [encryptParams rangeOfString:searchString].location == NSNotFound )
+            encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", KEY_CONVERSION_USER_AGENT, [self.delegate userAgent]];
+
+        // encrypt params and append
+        NSString* encryptedData = [MATEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
+        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=%@", KEY_DATA, encryptedData];
+    }
+    
+    // append other params
+    if (self.shouldDebug && [trackingLink rangeOfString:[NSString stringWithFormat:@"&%@=", KEY_DEBUG]].location == NSNotFound)
+        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_DEBUG];
+    
+    if (self.shouldAllowDuplicates && [trackingLink rangeOfString:[NSString stringWithFormat:@"&%@=", KEY_SKIP_DUP]].location == NSNotFound)
+        trackingLink = [trackingLink stringByAppendingFormat:@"&%@=1", KEY_SKIP_DUP];
+
+#if DEBUG
+    NSString *searchString = @"&bypass_throttling=1";
+    if( [trackingLink rangeOfString:searchString].location == NSNotFound )
+        trackingLink = [trackingLink stringByAppendingString:searchString];
+#endif
+    
+    return trackingLink;
+}
+
 
 #pragma mark - Request Queue Helper Methods
 
@@ -283,14 +305,13 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
         {
             // if stored runDate is later than now, block until that time
             NSDate *runDate = dict[KEY_RUN_DATE];
-            if( [runDate isKindOfClass:[NSDate class]] &&
-                [runDate timeIntervalSinceNow] < 60. ) // sanity check: don't block more than 60 seconds
-            {
+            if( [runDate isKindOfClass:[NSDate class]] ) {
                 [NSThread sleepUntilDate:runDate];
             }
             
             // fire web request
             [self beginUrlRequest:[dict valueForKey:KEY_URL]
+                    encryptParams:[dict valueForKey:KEY_DATA]
                      withPOSTData:[dict valueForKey:KEY_JSON]];
             
             // store request queue to file
@@ -310,11 +331,69 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 }
 
 
-- (void)pushUrlRequestToHead:(NSString*)trackingLink POSTData:(NSString*)postData
+-(NSDate*) nextRetryDateForAttempt:(NSInteger)attempt
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        srand48( time( 0 ) );
+    });
+    
+    NSTimeInterval delay;
+    switch( attempt ) {
+        case 0:
+            delay = 0.;
+            break;
+        case 1:
+            delay = 30.;
+            break;
+        case 2:
+            delay = 90.;
+            break;
+        case 3:
+            delay = 10.*60.;
+            break;
+        case 4:
+            delay = 60.*60;
+            break;
+        case 5:
+            delay = 6.*60.*60.;
+            break;
+        case 6:
+        default:
+            delay = 24.*60.*60.;
+    }
+    
+    return [NSDate dateWithTimeIntervalSinceNow:(1 + 0.1*drand48())*delay];
+}
+
+
+- (void)pushUrlRequestToHead:(NSString*)trackingLink
+                    POSTData:(NSString*)postData
+{
+    // update retry attempt count
+    NSInteger retryCount = 0;
+    NSString *searchString = [NSString stringWithFormat:@"&%@=", KEY_RETRY_COUNT];
+    NSRange searchResult = [trackingLink rangeOfString:searchString];
+    if( searchResult.location == NSNotFound ) {
+        trackingLink = [trackingLink stringByAppendingFormat:@"%@0", searchString];
+    }
+    else {
+        // parse number, increment it, replace it
+        NSString *countString = [trackingLink substringFromIndex:searchResult.location + searchResult.length];
+        retryCount = [countString integerValue];
+        NSUInteger valueLength = MAX(1, (int)(log10(retryCount)+1)); // count digits
+        retryCount++;
+        trackingLink = [NSString stringWithFormat:@"%@%ld%@",
+                        [trackingLink substringToIndex:searchResult.location + searchResult.length],
+                        (long)retryCount,
+                        [trackingLink substringFromIndex:searchResult.location + searchResult.length + valueLength]];
+    }
+    
     // note that postData might be nil
-    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSDate date], KEY_RUN_DATE,
-                           trackingLink, KEY_URL, postData, KEY_JSON, nil];
+    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                           [self nextRetryDateForAttempt:retryCount], KEY_RUN_DATE,
+                           trackingLink, KEY_URL,
+                           postData, KEY_JSON, nil];
     DLLog(@"MATConnManager: pushing to head %@", dict);
 
     [queueQueue addOperationWithBlock:^{
@@ -330,12 +409,19 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 }
 
 - (void)enqueueUrlRequest:(NSString*)trackingLink
+            encryptParams:(NSString*)encryptParams
               andPOSTData:(NSString*)postData
                   runDate:(NSDate*)runDate
 {
+    // add retry attempt count, if not present
+    NSString *searchString = [NSString stringWithFormat:@"&%@=", KEY_RETRY_COUNT];
+    if( [trackingLink rangeOfString:searchString].location == NSNotFound ) {
+        trackingLink = [trackingLink stringByAppendingFormat:@"%@0", searchString];
+    }
+
     // note that postData might be nil
     NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:runDate, KEY_RUN_DATE,
-                           trackingLink, KEY_URL, postData, KEY_JSON, nil];
+                           trackingLink, KEY_URL, encryptParams, KEY_DATA, postData, KEY_JSON, nil];
     DLLog(@"MATConnManager: enqueuing %@", dict);
 
     [queueQueue addOperationWithBlock:^{
@@ -370,15 +456,6 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
     }
     else
     {
-        if (self.dumpingQueue)
-        {
-            self.dumpTriesFailures = self.dumpTriesFailures + 1;
-            if (self.dumpTriesFailures > MAX_QUEUE_DUMP_TRIES_FAILURES)
-            {
-                [self stopQueueDump];
-            }
-        }
-        
         DLLog(@"MATConnManager: connection:didFailWithError: error = %@", error);
         DLLog(@"MATConnManager: connection:didFailWithError: failed url = %@", connection.url.absoluteString);
         
@@ -437,18 +514,6 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
         }
         // for all other calls, assume the server/connection is broken and will be fixed later
         else {
-            // if the queue is already being dumped
-            if (self.dumpingQueue)
-            {
-                // stop the queue dumping if the max number of attempts have already been made
-                self.dumpTriesFailures = self.dumpTriesFailures + 1;
-                if (self.dumpTriesFailures > MAX_QUEUE_DUMP_TRIES_FAILURES)
-                {
-                    [self stopQueueDump];
-                }
-            }
-            
-            // Store to queue, so that the request may be fired when internet becomes available.
             [self pushUrlRequestToHead:connection.url.absoluteString POSTData:connection.postData];
         }
     }

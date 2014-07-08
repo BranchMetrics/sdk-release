@@ -22,8 +22,7 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
     MATRequestsQueue * requestsQueue_;
     MATReachability * reachability_;
     NetworkStatus status_;
-    BOOL dumpingQueue_, _shouldDebug, _shouldAllowDuplicates;
-    NSUInteger dumpTriesFailures_;
+    BOOL dumpingQueue_, _shouldDebug;
     
     NSOperationQueue *queueQueue;
 }
@@ -35,11 +34,12 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 
 @property (nonatomic, readonly) MATRequestsQueue * requestsQueue;
 
-- (void)enqueueUrlRequest:(NSString *)trackingLink
+- (void)enqueueUrlRequest:(NSString*)trackingLink
+            encryptParams:(NSString*)encryptParams
               andPOSTData:(NSString*)postData
-                  runDate:(NSDate*)date;
+                  runDate:(NSDate*)runDate;
 
-- (void)beginRequestGetTrackingId:(NSString *)trackingLink
+- (void)beginRequestGetTrackingId:(NSString*)trackingLink
                withDelegateTarget:(id)target
               withSuccessSelector:(SEL)selectorSuccess
               withFailureSelector:(SEL)selectorFailure
@@ -54,6 +54,8 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 - (void)connectionManager:(MATConnectionManager *)manager didSucceedWithData:(NSData *)data;
 - (void)connectionManager:(MATConnectionManager *)manager didFailWithError:(NSError *)error;
 
+-(NSString*) encryptionKey;
 -(BOOL) isiAdAttribution;
+-(NSString*) userAgent;
 
 @end
