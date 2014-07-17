@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <CoreLocation/CoreLocation.h>
 
 #import "MATEventItem.h"
+
+#ifdef MAT_USE_LOCATION
+#import <CoreLocation/CoreLocation.h>
+#endif
 
 #define MATVERSION @"3.3"
 
@@ -38,7 +41,9 @@ typedef enum {
 
 
 @protocol MobileAppTrackerDelegate;
+#ifdef MAT_USE_LOCATION
 @protocol MobileAppTrackerRegionDelegate;
+#endif
 
 /*!
  MobileAppTracker provides the methods to send events and actions to the
@@ -67,14 +72,14 @@ typedef enum {
  */
 + (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate;
 
-
+#ifdef MAT_USE_LOCATION
 /** @name MAT SDK Region Delegate */
 /*!
  [MobileAppTrackerRegionDelegate](MobileAppTrackerRegionDelegate) : A delegate used by the MobileAppTracker
  to post geofencing boundary notifications.
  */
 + (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate;
-
+#endif
 
 #pragma mark - Debug And Test
 
@@ -577,6 +582,7 @@ typedef enum {
 + (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;
 
 
+#ifdef MAT_USE_LOCATION
 #pragma mark - Region Monitoring
 
 /** @name Region monitoring */
@@ -598,6 +604,7 @@ typedef enum {
                                 nameId:(NSString*)nameId
                                majorId:(NSUInteger)majorId
                                minorId:(NSUInteger)minorId;
+#endif
 
 @end
 
@@ -651,6 +658,7 @@ typedef enum {
 @end
 
 
+#ifdef MAT_USE_LOCATION
 #pragma mark - MobileAppTrackerRegionDelegate
 
 /** @name MobileAppTrackerRegionDelegate */
@@ -676,3 +684,4 @@ typedef enum {
 - (void)mobileAppTrackerDidExitRegion:(CLRegion*)region;
 
 @end
+#endif

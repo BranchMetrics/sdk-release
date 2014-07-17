@@ -17,6 +17,7 @@
 @end
 
 
+#ifdef MAT_USE_LOCATION
 @interface MATRegionMonitor() <CLLocationManagerDelegate>
 {
     CLLocationManager *locationManager;
@@ -27,12 +28,14 @@
 #endif
 }
 @end
+#endif
 
 
 @implementation MATRegionMonitor
 
 -(void) startLocationManager
 {
+#ifdef MAT_USE_LOCATION
     if( [CLLocationManager isMonitoringAvailableForClass:[CLBeaconRegion class]] ) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             // This must be on the main thread. I have no idea why.
@@ -46,6 +49,7 @@
     if( delegateRespondsToAuthStatus )
         [self.delegate performSelector:@selector(mobileAppTrackerChangedAuthStatusTo:) withObject:@(kCLAuthorizationStatusNotDetermined)];
 #endif
+#endif
 }
 
 -(void) addBeaconRegion:(NSUUID*)UUID
@@ -53,6 +57,7 @@
                 majorId:(NSUInteger)majorId
                 minorId:(NSUInteger)minorId
 {
+#if MAT_USE_LOCATION
     if( !locationManager ) {
         [self startLocationManager];
     }
@@ -77,8 +82,10 @@
         [self printRegions];
 #endif
     }];
+#endif // mat_use_location
 }
 
+#if MAT_USE_LOCATION
 -(void) setDelegate:(id<MobileAppTrackerRegionDelegate>)delegate
 {
     _delegate = delegate;
@@ -186,5 +193,6 @@
     NSLog( @"ranging beacons failed for %@", region.identifier );
 }
 #endif
+#endif // mat_use_location
 
 @end
