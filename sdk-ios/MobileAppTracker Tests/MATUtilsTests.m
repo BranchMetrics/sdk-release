@@ -36,7 +36,7 @@ static NSString* const testKey = @"fakeMatKey";
 }
 
 
--(void) clearTestDefaults
+- (void)clearTestDefaults
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:nil forKey:testKey];
@@ -66,7 +66,7 @@ static NSString* const testKey = @"fakeMatKey";
 }
 
 
--(void) testNewKeyRead
+- (void)testNewKeyRead
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *oldMatId = [defaults valueForKey:@"_MAT_mat_id"];
@@ -86,7 +86,7 @@ static NSString* const testKey = @"fakeMatKey";
 }
 
 
--(void) testNewKeyStored
+- (void)testNewKeyStored
 {
     static NSString* const testValue = @"fakeValue";
  
@@ -99,7 +99,7 @@ static NSString* const testKey = @"fakeMatKey";
 }
 
 
--(void) testOldKeyRead
+- (void)testOldKeyRead
 {
     static NSString* const testValue = @"fakeValue";
 
@@ -114,7 +114,7 @@ static NSString* const testKey = @"fakeMatKey";
 }
 
 
--(void) testNewKeyReadPreferentially
+- (void)testNewKeyReadPreferentially
 {
     static NSString* const testValueOld = @"fakeValue1";
     static NSString* const testValueNew = @"fakeValue2";

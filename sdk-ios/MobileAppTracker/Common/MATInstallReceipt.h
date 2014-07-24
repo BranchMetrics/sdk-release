@@ -10,6 +10,6 @@
 
 @interface MATInstallReceipt : NSObject
 
-+(NSData*) installReceipt;
++ (NSData*)installReceipt;
 
 @end

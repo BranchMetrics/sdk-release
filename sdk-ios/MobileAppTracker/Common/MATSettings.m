@@ -42,7 +42,7 @@ static NSSet * ignoreParams;
 
 #pragma mark - Initialization
 
--(id) init
+- (id)init
 {
     self = [super init];
     if( self ) {
@@ -146,7 +146,7 @@ static NSSet * ignoreParams;
     self.facebookCookieId = [MATUtils generateFBCookieIdString];
 }
 
--(void) userAgentString:(NSString*)userAgent
+- (void)userAgentString:(NSString*)userAgent
 {
     self.userAgent = userAgent;
     uaCollector = nil; // free memory
@@ -154,19 +154,19 @@ static NSSet * ignoreParams;
 
 #pragma mark - Overridden setters
 
--(void) setUserEmail:(NSString *)userEmail
+- (void)setUserEmail:(NSString *)userEmail
 {
     _userEmail = [userEmail copy];
     [MATUtils setUserDefaultValue:_userEmail forKey:KEY_USER_EMAIL];
 }
 
--(void) setUserId:(NSString *)userId
+- (void)setUserId:(NSString *)userId
 {
     _userId = [userId copy];
     [MATUtils setUserDefaultValue:_userId forKey:KEY_USER_ID];
 }
 
--(void) setUserName:(NSString *)userName
+- (void)setUserName:(NSString *)userName
 {
     _userName = [userName copy];
     [MATUtils setUserDefaultValue:_userName forKey:KEY_USER_NAME];
@@ -175,7 +175,7 @@ static NSSet * ignoreParams;
 
 #pragma mark - Action requests
 
--(NSString*) domainName:(BOOL)debug
+- (NSString*)domainName:(BOOL)debug
 {
     if(self.staging)
         return SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
@@ -185,34 +185,34 @@ static NSSet * ignoreParams;
 }
 
 
--(void) resetBeforeTrackAction
+- (void)resetBeforeTrackAction
 {
     self.actionName = nil;
 }
 
 
--(void) urlStringForDebugMode:(BOOL)debugMode
+- (void)urlStringForDebugMode:(BOOL)debugMode
+                         isId:(BOOL)isId
                  trackingLink:(NSString**)trackingLink
                 encryptParams:(NSString**)encryptParams
 {
     return [self urlStringForReferenceId:nil
                                debugMode:debugMode
+                                    isId:isId
                             trackingLink:trackingLink
                            encryptParams:encryptParams];
 }
 
--(void) urlStringForReferenceId:(NSString*)referenceId
+- (void)urlStringForReferenceId:(NSString*)referenceId
                       debugMode:(BOOL)debugMode
+                           isId:(BOOL)isId
                    trackingLink:(NSString**)trackingLink
                   encryptParams:(NSString**)encryptParams
 {
     // determine correct event name and action name
     NSString *eventNameOrId = nil;
-    BOOL isId = NO;
     
-    if( [self.actionName rangeOfCharacterFromSet:[NSCharacterSet letterCharacterSet]].location == NSNotFound ) {
-        // if no characters, it's an ID
-        isId = YES;
+    if( isId ) {
         eventNameOrId = [self.actionName copy];
         self.actionName = EVENT_CONVERSION;
     }
@@ -344,6 +344,9 @@ static NSSet * ignoreParams;
     
     DLLog(@"MAT urlStringForServerUrl: key = %@, data to be encrypted: %@", encryptKey, encryptedParams);
     
+    if( [_delegate respondsToSelector:@selector(_matURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
+        [_delegate _matURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
+    
     *trackingLink = [NSString stringWithFormat:@"https://%@.%@/%@?%@&",
                      self.advertiserId,
                      [self domainName:debugMode],
@@ -352,7 +355,7 @@ static NSSet * ignoreParams;
     *encryptParams = encryptedParams;
 }
 
--(void) addValue:(id)value
+- (void)addValue:(id)value
           forKey:(NSString*)key
  encryptedParams:(NSMutableString*)encryptedParams
  plaintextParams:(NSMutableString*)plaintextParams
@@ -382,7 +385,7 @@ static NSSet * ignoreParams;
     }
 }
 
--(void) resetAfterRequest
+- (void)resetAfterRequest
 {
     self.currencyCode = self.defaultCurrencyCode;
     
@@ -401,7 +404,7 @@ static NSSet * ignoreParams;
     self.eventAttribute4 = nil;
     self.eventAttribute5 = nil;
     
-    self.postConversion = FALSE;
+    self.postConversion = NO;
     
     self.revenue = nil;
     self.transactionState = nil;

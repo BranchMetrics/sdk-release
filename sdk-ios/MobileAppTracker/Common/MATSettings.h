@@ -117,27 +117,29 @@
 
 @property (nonatomic, assign) id <MATSettingsDelegate> delegate;
 
--(void) loadFacebookCookieId;
+- (void)loadFacebookCookieId;
 
--(NSString*) domainName:(BOOL)debug;
+- (NSString*)domainName:(BOOL)debug;
 
--(void) resetBeforeTrackAction;
+- (void)resetBeforeTrackAction;
 
--(void) urlStringForDebugMode:(BOOL)debugMode
+- (void)urlStringForDebugMode:(BOOL)debugMode
+                         isId:(BOOL)isId
                       trackingLink:(NSString**)trackingLink
                      encryptParams:(NSString**)encryptParams;
 
--(void) urlStringForReferenceId:(NSString*)referenceId
+- (void)urlStringForReferenceId:(NSString*)referenceId
                            debugMode:(BOOL)debugMode
+                           isId:(BOOL)isId
                         trackingLink:(NSString**)trackingLink
                        encryptParams:(NSString**)encryptParams;
 
--(void) resetAfterRequest;
+- (void)resetAfterRequest;
 
 @end
 
 
 @protocol MATSettingsDelegate <NSObject>
 @optional
--(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsToBeEncrypted withPlaintextParams:(NSString*)plaintextParams;
+- (void)_matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsToBeEncrypted withPlaintextParams:(NSString*)plaintextParams;
 @end

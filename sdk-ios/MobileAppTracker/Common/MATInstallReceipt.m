@@ -11,7 +11,7 @@
 
 @implementation MATInstallReceipt
 
-+(NSData*) installReceipt
++ (NSData*)installReceipt
 {
 #if TESTING
     return [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];

@@ -11,6 +11,8 @@
 #import "MATConnectionManager.h"
 #import "MATRegionMonitor.h"
 
+FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
+
 @protocol MobileAppTrackerDelegate;
 
 
@@ -31,37 +33,37 @@
 - (void)displayiAdInView:(UIView*)view;
 - (void)removeiAd;
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName;
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                         referenceId:(NSString *)refId;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
                    transactionState:(NSInteger)transactionState;
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
@@ -83,7 +85,7 @@
 - (void)setDebugMode:(BOOL)newDebugMode;
 - (void)setAllowDuplicateRequests:(BOOL)allowDuplicates;
 - (void)setEventAttributeN:(NSUInteger)number toValue:(NSString*)value;
--(void) setPayingUser:(BOOL)isPayingUser;
--(BOOL) isiAdAttribution;
+- (void)setPayingUser:(BOOL)isPayingUser;
+- (BOOL)isiAdAttribution;
 
 @end

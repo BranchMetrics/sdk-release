@@ -30,6 +30,11 @@ static const int MAT_CONVERSION_KEY_LENGTH = 32;
 
 static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
+#if USE_IAD_ATTRIBUTION
+const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 15.;
+#else
+const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
+#endif
 
 @interface MATEventItem(PrivateMethods)
 
@@ -72,7 +77,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         self.parameters = [MATSettings new];
         
 #if DEBUG_STAGING
-        self.parameters.staging = TRUE;
+        self.parameters.staging = YES;
 #endif
         
         // fire up the shared connection manager
@@ -94,7 +99,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - Public Methods
 
--(MATRegionMonitor*)regionMonitor
+- (MATRegionMonitor*)regionMonitor
 {
     if( !regionMonitor )
         regionMonitor = [MATRegionMonitor new];
@@ -163,7 +168,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 #pragma mark - iAd methods
 
--(void) checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
+- (void)checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
 {
 #if USE_IAD_ATTRIBUTION
     if( [UIApplication sharedApplication] && [ADClient class] && self.parameters.iadAttribution == nil ) {
@@ -270,7 +275,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 #pragma mark -
 #pragma mark Track Action Methods
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
 {
     [self trackActionForEventIdOrName:eventIdOrName
                            eventItems:nil
@@ -279,7 +284,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:nil];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
 {
@@ -291,7 +296,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:currencyCode];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                         referenceId:(NSString *)refId
 {
     [self trackActionForEventIdOrName:eventIdOrName
@@ -301,7 +306,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:nil];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
@@ -314,7 +319,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:currencyCode];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
 {
     [self trackActionForEventIdOrName:eventIdOrName
@@ -324,7 +329,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:nil];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                       revenueAmount:(float)revenueAmount
                        currencyCode:(NSString *)currencyCode
@@ -336,7 +341,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:currencyCode];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
 {
@@ -347,7 +352,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                          currencyCode:nil];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
@@ -361,7 +366,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                      transactionState:IGNORE_IOS_PURCHASE_STATUS];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
@@ -377,7 +382,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                               receipt:nil];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
@@ -395,7 +400,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                        postConversion:NO];
 }
 
--(void) trackInstallPostConversion
+- (void)trackInstallPostConversion
 {
     [self trackActionForEventIdOrName:EVENT_INSTALL
                            eventItems:nil
@@ -407,7 +412,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                        postConversion:YES];
 }
 
-- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
+- (void)trackActionForEventIdOrName:(id)eventIdOrName
                          eventItems:(NSArray *)eventItems
                         referenceId:(NSString *)refId
                       revenueAmount:(float)revenueAmount
@@ -416,6 +421,8 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
                             receipt:(NSData *)receipt
                      postConversion:(BOOL)postConversion
 {
+    BOOL isId = [eventIdOrName isKindOfClass:[NSNumber class]];
+    
     if(!self.isTrackerStarted) {
         [self notifyDelegateFailureWithErrorCode:MATTrackingWithoutInitializing
                                              key:KEY_ERROR_MAT_INVALID_PARAMETERS
@@ -425,7 +432,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     
     // 05152013: Now MAT has dropped support for "close" events,
     // so we ignore the "close" event and return an error message using the delegate.
-    if([[eventIdOrName lowercaseString] isEqualToString:EVENT_CLOSE]) {
+    if(!isId && [[eventIdOrName lowercaseString] isEqualToString:EVENT_CLOSE]) {
         [self notifyDelegateFailureWithErrorCode:MATInvalidEventClose
                                              key:KEY_ERROR_MAT_CLOSE_EVENT
                                          message:@"MAT does not support tracking of \"close\" event."];
@@ -436,7 +443,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     
     self.parameters.revenue = @(revenueAmount);
     if( revenueAmount > 0 )
-        [self setPayingUser:TRUE];
+        [self setPayingUser:YES];
     
     // temporary override of currency in params
     if (currencyCode.length > 0)
@@ -456,7 +463,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
         strReceipt = [MATUtils MATbase64EncodedStringFromData:receipt];
     
     // fire the tracking request
-    [self sendRequestWithEventItems:eventItems receipt:strReceipt referenceId:refId];
+    [self sendRequestWithEventItems:eventItems isId:isId receipt:strReceipt referenceId:refId];
     
     [self.parameters resetAfterRequest];
 }
@@ -485,7 +492,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     }
 }
 
--(void) notifyDelegateFailureWithErrorCode:(MATErrorCode)errorCode key:(NSString*)errorKey message:(NSString*)errorMessage
+- (void)notifyDelegateFailureWithErrorCode:(MATErrorCode)errorCode key:(NSString*)errorKey message:(NSString*)errorMessage
 {
     if ([self.delegate respondsToSelector:@selector(mobileAppTrackerDidFailWithError:)]) {
         NSDictionary *errorDetails = @{NSLocalizedFailureReasonErrorKey: errorKey,
@@ -611,7 +618,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 }
 
 
--(void) setPayingUser:(BOOL)isPayingUser
+- (void)setPayingUser:(BOOL)isPayingUser
 {
     self.parameters.payingUser = @(isPayingUser);
     [MATUtils setUserDefaultValue:@(isPayingUser) forKey:KEY_IS_PAYING_USER];
@@ -651,7 +658,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
 
 
 // Includes the eventItems and referenceId and fires the tracking request
--(void)sendRequestWithEventItems:(NSArray *)eventItems receipt:(NSString *)receipt referenceId:(NSString*)refId
+- (void)sendRequestWithEventItems:(NSArray *)eventItems isId:(BOOL)isId receipt:(NSString *)receipt referenceId:(NSString*)refId
 {
     //----------------------------
     // Always look for a facebook cookie because it could change often.
@@ -661,6 +668,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     NSString *trackingLink, *encryptParams;
     [self.parameters urlStringForReferenceId:refId
                                    debugMode:debugMode
+                                        isId:isId
                                 trackingLink:&trackingLink
                                encryptParams:&encryptParams];
     
@@ -671,10 +679,10 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     // if present then serialize the eventItems
     if([eventItems count] > 0)
     {
-        BOOL areEventsLegit = TRUE;
+        BOOL areEventsLegit = YES;
         for( id item in eventItems )
             if( ![item isMemberOfClass:[MATEventItem class]] )
-                areEventsLegit = FALSE;
+                areEventsLegit = NO;
         
         if( areEventsLegit ) {
             // Convert the array of MATEventItem objects to an array of equivalent dictionary representations.
@@ -703,7 +711,7 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     NSDate *runDate = [NSDate date];
 #if USE_IAD_ATTRIBUTION
     if( [self.parameters.actionName isEqualToString:EVENT_SESSION] )
-        runDate = [runDate dateByAddingTimeInterval:15.];
+        runDate = [runDate dateByAddingTimeInterval:MAT_SESSION_QUEUING_DELAY];
 #endif
 
     // fire the event tracking request
@@ -796,21 +804,19 @@ static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
     }
 }
 
-
--(NSString*) encryptionKey
+- (NSString*)encryptionKey
 {
     return self.parameters.conversionKey;
 }
 
--(BOOL) isiAdAttribution
+- (BOOL)isiAdAttribution
 {
     return [self.parameters.iadAttribution boolValue];
 }
 
--(NSString*) userAgent
+- (NSString*)userAgent
 {
     return self.parameters.userAgent;
 }
-
 
 @end

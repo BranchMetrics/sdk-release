@@ -17,7 +17,7 @@
 
 @property (nonatomic, weak) id <MobileAppTrackerRegionDelegate> delegate;
 
--(void) addBeaconRegion:(NSUUID*)UUID
+- (void)addBeaconRegion:(NSUUID*)UUID
                  nameId:(NSString*)nameId
                 majorId:(NSUInteger)majorId
                 minorId:(NSUInteger)minorId;

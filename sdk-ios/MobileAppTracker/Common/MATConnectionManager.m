@@ -138,7 +138,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 {
     DLog(@"MATConnManager: handleNetworkChange: notice = %@", notice);
     DLog(@"MATConnManager: handleNetworkChange: reachability status = %d", self.reachability.currentReachabilityStatus);
-	
+    
     self.status = [self.reachability currentReachabilityStatus];
     
     [self dumpQueue];
@@ -232,7 +232,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 }
 
 
--(NSString*) updateTrackingLink:(NSString*)trackingLink encryptParams:(NSString*)encryptParams
+- (NSString*)updateTrackingLink:(NSString*)trackingLink encryptParams:(NSString*)encryptParams
 {
     if( encryptParams != nil ) {
         // if iad_attribution, append/overwrite current status
@@ -275,7 +275,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
 #pragma mark - Request Queue Helper Methods
 
--(void)dumpQueue
+- (void)dumpQueue
 {
     if( dumpingQueue_ ) return;
     if (NotReachable == self.status) return;
@@ -331,7 +331,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 }
 
 
--(NSDate*) nextRetryDateForAttempt:(NSInteger)attempt
+- (NSDate*)nextRetryDateForAttempt:(NSInteger)attempt
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -439,7 +439,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
 #pragma mark - NSURLConnection Delegate Methods
 
--(void)connection:(MNSURLConnection *)connection didFailWithError:(NSError *)error
+- (void)connection:(MNSURLConnection *)connection didFailWithError:(NSError *)error
 {
     // do not requeue failed request to fetch tracking id for app to app tracking
     if(connection.isAppToApp)
@@ -469,7 +469,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
     }
 }
 
--(void)connection:(MNSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)connection:(MNSURLConnection *)connection didReceiveData:(NSData *)data
 {
 #if DEBUG_REQUEST_LOG
     NSString *dataString = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
@@ -485,7 +485,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 #endif
 }
 
--(void)connection:(MNSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+- (void)connection:(MNSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
 #if DEBUG_REQUEST_LOG
     NSHTTPURLResponse* httpResponse1 = (NSHTTPURLResponse*)response;

@@ -10,7 +10,7 @@
 
 @implementation MATUserAgentCollector
 
--(id) initWithDelegate:(id <MATUserAgentDelegate>)newDelegate
+- (id)initWithDelegate:(id <MATUserAgentDelegate>)newDelegate
 {
     self = [super init];
     if( self ) {
@@ -31,7 +31,7 @@
     return self;
 }
 
--(BOOL)            webView:(UIWebView *)wv
+- (BOOL)           webView:(UIWebView *)wv
 shouldStartLoadWithRequest:(NSURLRequest *)request
             navigationType:(UIWebViewNavigationType)navigationType
 {

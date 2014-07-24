@@ -44,51 +44,51 @@
 }
 
 
--(void) testAutodetectJailbroken
+- (void)testAutodetectJailbroken
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 3. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( KEY_OS_JAILBROKE, @"0" );
 }
 
--(void) testNotAutodetectJailbroken
+- (void)testNotAutodetectJailbroken
 {
     [mat setShouldAutoDetectJailbroken:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 3. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( KEY_OS_JAILBROKE );
 }
 
 
--(void) testAutogenerateIFV
+- (void)testAutogenerateIFV
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 3. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
 }
 
--(void) testNotAutogenerateIFV
+- (void)testNotAutogenerateIFV
 {
     [mat setShouldAutoGenerateAppleVendorIdentifier:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [mat trackActionForEventIdOrName:@"registration"];
     
-    waitFor( 3. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( KEY_IOS_IFV );
 }
 
 
--(void) testSendInstallReceipt
+- (void)testSendInstallReceipt
 {
     static NSString* const eventName = @"fakeEventName";
     NSData *receiptData = [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];
@@ -106,7 +106,7 @@
 }
 
 
--(void) testStoreUserIds
+- (void)testStoreUserIds
 {
     static NSString *const testEmail = @"testemail";
     static NSString *const testId = @"testid";
@@ -134,27 +134,29 @@
 #pragma mark - MAT delegate
 
 /*
--(void) mobileAppTrackerDidSucceedWithData:(NSData *)data
+- (void)mobileAppTrackerDidSucceedWithData:(NSData *)data
 {
     //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
-    callSuccess = TRUE;
+    callSuccess = YES;
+    callFailed = NO;
 }
 
--(void) mobileAppTrackerDidFailWithError:(NSError *)error
+- (void)mobileAppTrackerDidFailWithError:(NSError *)error
 {
-    callFailed = TRUE;
+    callFailed = YES;
+    callSuccess = NO;
     
     NSString *serverString = [error localizedDescription];
     
     if( [serverString rangeOfString:@"Duplicate request detected."].location != NSNotFound )
-        callFailedDuplicate = TRUE;
+        callFailedDuplicate = YES;
     else
         NSLog( @"test received failure with %@\n", error );
 }
  */
 
 // secret functions to test server URLs
--(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
+- (void)_matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
     XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )

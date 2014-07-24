@@ -125,7 +125,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return YES;
 }
 
--(BOOL) pushToHead:(NSDictionary*)requestData
+- (BOOL)pushToHead:(NSDictionary*)requestData
 {
     DLog(@"MATReqQuePart: pushToHead: %@", requestData);
     
@@ -143,7 +143,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
 - (NSDictionary*)pop
 {
     NSDictionary * requestData = nil;
-	
+    
     DLog(@"MATReqQuePart: pop: filePath      = %@", self.filePathName);
     DLog(@"MATReqQuePart: pop: requestsCnt   = %lu", (unsigned long)self.requests.count);
     DLog(@"MATReqQuePart: pop: loadedReqCnt  = %lu", (unsigned long)self.loadedRequestsCount);
@@ -199,7 +199,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return self.loaded;
 }
 
--(NSString*) serialize
+- (NSString*)serialize
 {
     NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_QUEUEPART];
     
@@ -258,7 +258,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     self.modified = NO;
 }
 
--(NSString*) description
+- (NSString*)description
 {
     return [self serialize];
 }
@@ -267,7 +267,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
 - (NSString*)generateFileName
 {
     self.fileName = [NSString stringWithFormat:@"queue_part_%ld.xml", (long)self.index];
-	
+    
     DLog(@"MATReqQuePart: generateFileName: dir  = %@", self.parentFolder);
     DLog(@"MATReqQuePart: generateFileName: file = %@", self.fileName);
     

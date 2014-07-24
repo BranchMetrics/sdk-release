@@ -16,7 +16,7 @@ static NSOperationQueue *opQueue = nil;
 
 @implementation MobileAppTracker
 
-+(void) initialize
++ (void)initialize
 {
     opQueue = [NSOperationQueue new];
     opQueue.maxConcurrentOperationCount = 1;
@@ -241,14 +241,14 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+(void) setRegionName:(NSString*)regionName // private method
++ (void)setRegionName:(NSString*)regionName // private method
 {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].parameters.regionName = regionName;
     }];
 }
 
-+(void) setLocationAuthorizationStatus:(NSInteger)authStatus // private method
++ (void)setLocationAuthorizationStatus:(NSInteger)authStatus // private method
 {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].parameters.locationAuthorizationStatus = @(authStatus);
@@ -346,7 +346,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+(void) setPayingUser:(BOOL)isPayingUser
++ (void)setPayingUser:(BOOL)isPayingUser
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] setPayingUser:isPayingUser];
@@ -379,7 +379,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void) removeiAd
++ (void)removeiAd
 {
     [opQueue addOperationWithBlock:^{
         MATTracker *mat = [self sharedManager];
@@ -396,87 +396,87 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName];
+        [[self sharedManager] trackActionForEventIdOrName:eventName];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
           referenceId:(NSString *)refId
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                               referenceId:refId];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                             revenueAmount:revenueAmount
                                              currencyCode:currencyCode];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
           referenceId:(NSString *)refId
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                               referenceId:refId
                                             revenueAmount:revenueAmount
                                              currencyCode:currencyCode];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                                eventItems:eventItems];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
           referenceId:(NSString *)refId
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                                eventItems:eventItems
                                               referenceId:refId];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                                eventItems:eventItems
                                             revenueAmount:revenueAmount
                                              currencyCode:currencyCode];
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
           referenceId:(NSString *)refId
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                                eventItems:eventItems
                                               referenceId:refId
                                             revenueAmount:revenueAmount
@@ -484,7 +484,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
           referenceId:(NSString *)refId
         revenueAmount:(float)revenueAmount
@@ -492,7 +492,7 @@ static NSOperationQueue *opQueue = nil;
      transactionState:(NSInteger)transactionState
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
                                                eventItems:eventItems
                                               referenceId:refId
                                             revenueAmount:revenueAmount
@@ -501,7 +501,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)measureAction:(NSString *)eventIdOrName
++ (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
           referenceId:(NSString *)refId
         revenueAmount:(float)revenueAmount
@@ -510,7 +510,131 @@ static NSOperationQueue *opQueue = nil;
               receipt:(NSData *)receipt
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventIdOrName
+        [[self sharedManager] trackActionForEventIdOrName:eventName
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode
+                                         transactionState:transactionState
+                                                  receipt:receipt];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                     referenceId:(NSString *)refId
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                              referenceId:refId];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                     referenceId:(NSString *)refId
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                               eventItems:eventItems];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+                     referenceId:(NSString *)refId
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                               eventItems:eventItems
+                                              referenceId:refId];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                               eventItems:eventItems
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+                     referenceId:(NSString *)refId
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+                     referenceId:(NSString *)refId
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+                transactionState:(NSInteger)transactionState
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
+                                               eventItems:eventItems
+                                              referenceId:refId
+                                            revenueAmount:revenueAmount
+                                             currencyCode:currencyCode
+                                         transactionState:transactionState];
+    }];
+}
+
++ (void)measureActionWithEventId:(NSInteger)eventId
+                      eventItems:(NSArray *)eventItems
+                     referenceId:(NSString *)refId
+                   revenueAmount:(float)revenueAmount
+                    currencyCode:(NSString *)currencyCode
+                transactionState:(NSInteger)transactionState
+                         receipt:(NSData *)receipt
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
                                                eventItems:eventItems
                                               referenceId:refId
                                             revenueAmount:revenueAmount

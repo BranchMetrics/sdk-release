@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
+#import "MATTracker.h"
 
 @interface MATServerTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -28,9 +29,9 @@
     
     [super setUp];
     
-    callSuccess = FALSE;
-    callFailed = FALSE;
-    callFailedDuplicate = FALSE;
+    callSuccess = NO;
+    callFailed = NO;
+    callFailedDuplicate = NO;
 
     [MobileAppTracker setAllowDuplicateRequests:YES];
     [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
@@ -50,36 +51,17 @@
 }
 
 
--(void) testInstall
+- (void)testInstall
 {
     [MobileAppTracker measureSession];
-    waitFor( 6. );
+    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
     XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
 }
 
 
--(void) testInstallDuplicate
-{
-    [MobileAppTracker measureAction:@"something"];
-    waitFor( 10. );
-    XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
-
-    callSuccess = FALSE;
-    [MobileAppTracker setAllowDuplicateRequests:NO];
-
-    [MobileAppTracker measureAction:@"something"];
-    waitFor( 10. );
-    XCTAssertFalse( callSuccess, @"measureSession duplicate should not have succeeded" );
-    XCTAssertTrue( callFailed, @"measureSession duplicate should not have succeeded" );
-    XCTAssertTrue( callFailedDuplicate, @"measureSession duplicate should not have succeeded" );
-}
-
-
--(void) testInstallPostConversion
+- (void)testInstallPostConversion
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -88,57 +70,56 @@
     [mat performSelector:@selector(trackInstallPostConversion)];
 #pragma clang diagnostic pop
     
-    waitFor( 6. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( callSuccess, @"trackInstallPostConversion should have succeeded" );
     XCTAssertFalse( callFailed, @"trackInstallPostConversion should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"trackInstallPostConversion should have succeeded" );
 }
 
 
--(void) testUpdate
+- (void)testUpdate
 {
     [MobileAppTracker setExistingUser:YES];
     [MobileAppTracker measureSession];
-    waitFor( 7. );
+    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( callSuccess, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailed, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
 }
 
 
--(void) testActionNameEvent
+- (void)testActionNameEvent
 {
     static NSString* const eventName = @"testEventName";
     [MobileAppTracker measureAction:eventName];
-    waitFor( 6. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
     XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
 }
 
 
--(void) testActionNameEventDuplicate
+- (void)testActionNameEventDuplicate
 {
     static NSString* const eventName = @"testEventName";
     [MobileAppTracker measureAction:eventName];
-    waitFor( 2. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
     XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
 
-    callSuccess = FALSE;
     [MobileAppTracker setAllowDuplicateRequests:NO];
     waitFor( 5. );
 
     [MobileAppTracker measureAction:eventName];
-    waitFor( 2. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callSuccess, @"measureAction duplicate should not have succeeded" );
     XCTAssertTrue( callFailed, @"measureAction duplicate should not have succeeded" );
     XCTAssertTrue( callFailedDuplicate, @"measureAction duplicate should not have succeeded" );
 }
 
 
--(void) testActionNameIdItemsRevenue
+- (void)testActionNameIdItemsRevenue
 {
     static NSString* const eventName = @"testEventName";
     static NSString* const itemName = @"testItemName";
@@ -161,7 +142,7 @@
 }
 
 
--(void) testPurchaseDuplicates
+- (void)testPurchaseDuplicates
 {
     [MobileAppTracker setAllowDuplicateRequests:NO];
 
@@ -171,7 +152,7 @@
     XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
 
-    callSuccess = FALSE;
+    callSuccess = NO;
     
     [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
     waitFor( 5. );
@@ -184,31 +165,33 @@
 
 #pragma mark - MAT delegate
 
--(void) mobileAppTrackerDidSucceedWithData:(NSData *)data
+- (void)mobileAppTrackerDidSucceedWithData:(NSData *)data
 {
-    //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
-    callSuccess = TRUE;
+    NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
+    callSuccess = YES;
+    callFailed = NO;
 }
 
--(void) mobileAppTrackerDidFailWithError:(NSError *)error
+- (void)mobileAppTrackerDidFailWithError:(NSError *)error
 {
-    callFailed = TRUE;
+    callFailed = YES;
+    callSuccess = NO;
     
     NSString *serverString = [error localizedDescription];
     
     if( [serverString rangeOfString:@"Duplicate request detected."].location != NSNotFound )
-        callFailedDuplicate = TRUE;
+        callFailedDuplicate = YES;
     else
         NSLog( @"test received failure with %@\n", error );
 }
 
 // secret functions to test server URLs
--(void) _matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
+- (void)_matURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
 {
     //NSLog( @"plaintext params %@, encrypted params %@\n", paramsPlaintext, paramsEncrypted );
 }
 
--(void) _matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
+- (void)_matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
     //NSLog( @"requesting with url %@ and post data %@\n", trackingUrl, postData );
 }

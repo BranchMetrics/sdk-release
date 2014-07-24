@@ -44,7 +44,7 @@
 }
 
 
--(void) checkAndClearExpectedQueueSize:(NSInteger)queueSize
+- (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize
 {
     XCTAssertTrue( requestsQueue.queuedRequestsCount == queueSize, @"expected %d queued requests, found %d",
                   (int)queueSize, (unsigned int)requestsQueue.queuedRequestsCount );
@@ -66,7 +66,7 @@
  receive HTTP 500, failed request should be at the top of the queue (try with another request in the queue behind it)
  */
 
--(void) test00000QueueFlush // run this test first to clear out queue and pending requests
+- (void)test00000QueueFlush // run this test first to clear out queue and pending requests
 {
     while( [requestsQueue pop] );
     [tracker.connectionManager stopQueueDump];
@@ -74,9 +74,9 @@
 }
 
 
--(void) test400DontRetry
+- (void)test400DontRetry
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request&headers%5BX-MAT-Responder%5D=someserver"
                                    encryptParams:nil
                                      andPOSTData:nil
@@ -87,9 +87,9 @@
 }
 
 /* engine automatically returns headers now, I think
--(void) test400NoHeaderRetry
+- (void)test400NoHeaderRetry
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request"
                                    encryptParams:nil
                                      andPOSTData:nil
@@ -101,9 +101,9 @@
  */
 
 
--(void) test500Retry
+- (void)test500Retry
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                                    encryptParams:nil
                                      andPOSTData:nil
@@ -114,9 +114,9 @@
 }
 
 
--(void) test500RetryCount
+- (void)test500RetryCount
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                                    encryptParams:nil
                                      andPOSTData:nil
@@ -138,9 +138,9 @@
 }
 
 
--(void) test500RetryOrder
+- (void)test500RetryOrder
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                                    encryptParams:nil
                                      andPOSTData:nil
@@ -166,9 +166,9 @@
 }
 
 
--(void) test500RetryTwice
+- (void)test500RetryTwice
 {
-    [tracker setDebugMode:TRUE];
+    [tracker setDebugMode:YES];
     [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Bad%20Request"
                                    encryptParams:nil
                                      andPOSTData:nil

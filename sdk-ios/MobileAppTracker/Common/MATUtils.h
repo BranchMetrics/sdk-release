@@ -17,7 +17,7 @@
 
 @interface MATUtils : NSObject
 
-extern const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
+FOUNDATION_EXPORT const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (NSString*)generateFBCookieIdString;
 

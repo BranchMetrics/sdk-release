@@ -12,8 +12,8 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface MobileAppTracker (PrivateMethods)
-+(void) setRegionName:(NSString*)regionName;
-+(void) setLocationAuthorizationStatus:(NSInteger)authStatus;
++ (void)setRegionName:(NSString*)regionName;
++ (void)setLocationAuthorizationStatus:(NSInteger)authStatus;
 @end
 
 
@@ -33,7 +33,7 @@
 
 @implementation MATRegionMonitor
 
--(void) startLocationManager
+- (void)startLocationManager
 {
 #ifdef MAT_USE_LOCATION
     if( [CLLocationManager isMonitoringAvailableForClass:[CLBeaconRegion class]] ) {
@@ -52,7 +52,7 @@
 #endif
 }
 
--(void) addBeaconRegion:(NSUUID*)UUID
+- (void)addBeaconRegion:(NSUUID*)UUID
                  nameId:(NSString*)nameId
                 majorId:(NSUInteger)majorId
                 minorId:(NSUInteger)minorId
@@ -86,7 +86,7 @@
 }
 
 #if MAT_USE_LOCATION
--(void) setDelegate:(id<MobileAppTrackerRegionDelegate>)delegate
+- (void)setDelegate:(id<MobileAppTrackerRegionDelegate>)delegate
 {
     _delegate = delegate;
 
@@ -98,14 +98,14 @@
 }
 
 #if DEBUG_REGION
--(void) printRegions
+- (void)printRegions
 {
     for( CLRegion *region in locationManager.monitoredRegions )
         NSLog( @"monitoring region %@", region.identifier );
 }
 #endif
 
--(void) measureEventForRegion:(CLRegion*)region
+- (void)measureEventForRegion:(CLRegion*)region
 {
     [MobileAppTracker setRegionName:region.identifier];
     [MobileAppTracker measureAction:EVENT_GEOFENCE];
@@ -114,7 +114,7 @@
 
 #pragma mark - Location manager delegate
 
--(void) locationManager:(CLLocationManager*)lm didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+- (void)locationManager:(CLLocationManager*)lm didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     [MobileAppTracker setLocationAuthorizationStatus:status];
 #if DEBUG_REGION
@@ -125,23 +125,23 @@
 }
 
 #if DEBUG_REGION
--(void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     NSLog( @"location manager did fail with error %@", error );
 }
 
--(void) locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
+- (void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
 {
     NSLog( @"did start monitoring for region %@", region.identifier );
 }
 
--(void) locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
+- (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
 {
     NSLog( @"monitoring did fail for region %@", region.identifier );
 }
 #endif
 
--(void) locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
+- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
 {
 #if DEBUG_REGION
     NSLog( @"did enter region %@", region.identifier );
@@ -151,7 +151,7 @@
     [self measureEventForRegion:region];
 }
 
--(void) locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
+- (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
 {
 #if DEBUG_REGION
     NSLog( @"did exit region %@", region.identifier );
@@ -161,7 +161,7 @@
     [self.delegate mobileAppTrackerDidExitRegion:region];
 }
 
--(void) locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
+- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
 {
     static CLRegionState prevState = CLRegionStateUnknown;
 
@@ -181,14 +181,14 @@
 }
 
 #if DEBUG_REGION
--(void) locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region
+- (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region
 {
     if( delegateRespondsToRanging ) {
         [self.delegate performSelector:@selector(mobileAppTrackerDidRangeBeacons:inRegion:) withObject:beacons withObject:region];
     }
 }
 
--(void) locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
+- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
 {
     NSLog( @"ranging beacons failed for %@", region.identifier );
 }

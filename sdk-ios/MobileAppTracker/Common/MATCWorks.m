@@ -34,9 +34,9 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
 //private utility functions
 @interface MATCWorks (Private)
 
-+ (NSString *) MAT_getMD5:(NSString *) str;
-+ (NSMutableDictionary *) MAT_getDictFromPasteBoard:(id)pboard;
-+ (void) MAT_setDict:(id)dict forPasteboard:(id)pboard;
++ (NSString *)MAT_getMD5:(NSString *) str;
++ (NSMutableDictionary *)MAT_getDictFromPasteBoard:(id)pboard;
++ (void)MAT_setDict:(id)dict forPasteboard:(id)pboard;
 
 @end
 
@@ -47,25 +47,25 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  it is used to hash the appid and network name before storing to the pasteboard.
  */
 
-+ (NSString *) MAT_getMD5:(NSString *)str
++ (NSString *)MAT_getMD5:(NSString *)str
 {
-	const char *cStr = [str UTF8String];
-	unsigned char result[16];
-	CC_MD5( cStr, (unsigned int)strlen(cStr), result );
-	return [NSString stringWithFormat:
-			@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-			result[0], result[1], result[2], result[3],
-			result[4], result[5], result[6], result[7],
-			result[8], result[9], result[10], result[11],
-			result[12], result[13], result[14], result[15]
-			];
+    const char *cStr = [str UTF8String];
+    unsigned char result[16];
+    CC_MD5( cStr, (unsigned int)strlen(cStr), result );
+    return [NSString stringWithFormat:
+            @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+            result[0], result[1], result[2], result[3],
+            result[4], result[5], result[6], result[7],
+            result[8], result[9], result[10], result[11],
+            result[12], result[13], result[14], result[15]
+            ];
 }
 
 /*
  Private method to get the existing dictionary for a given pasteboard.
  returns nil if the dictionary is not present.
  */
-+ (NSMutableDictionary*) MAT_getDictFromPasteboard:(id)pboard
++ (NSMutableDictionary*)MAT_getDictFromPasteboard:(id)pboard
 {
     id item = [pboard dataForPasteboardType:kConversionWorksDomain];
 
@@ -82,9 +82,9 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  Private method to set the dictionary for the given pasteboard. It overrides the existing dictionary if any
  */
 
-+ (void) MAT_setDict:(id)dict forPasteboard:(id)pboard
++ (void)MAT_setDict:(id)dict forPasteboard:(id)pboard
 {
-	[pboard setData:[NSKeyedArchiver archivedDataWithRootObject:dict] forPasteboardType:kConversionWorksDomain];
+    [pboard setData:[NSKeyedArchiver archivedDataWithRootObject:dict] forPasteboardType:kConversionWorksDomain];
 }
 
 /*
@@ -99,46 +99,46 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
         pasteboard for all the clicks generated for this app.
     !!
  */
-+ (NSDictionary*) MAT_getClicks:(NSString*) appID
++ (NSDictionary*)MAT_getClicks:(NSString*) appID
 {
-	if([appID length] == 0)
-	{
-		return nil;
-	}
-	else
-	{
-		NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self MAT_getMD5:appID]];
+    if([appID length] == 0)
+    {
+        return nil;
+    }
+    else
+    {
+        NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self MAT_getMD5:appID]];
 
-		UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
+        UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
 
-		NSMutableDictionary * clicksDict = [[NSMutableDictionary alloc] init];
-		if(convPB != nil)
-		{
-			NSMutableDictionary * dict = [self MAT_getDictFromPasteboard:convPB];
+        NSMutableDictionary * clicksDict = [[NSMutableDictionary alloc] init];
+        if(convPB != nil)
+        {
+            NSMutableDictionary * dict = [self MAT_getDictFromPasteboard:convPB];
 
-			//get all the clicks
-			for(NSString *key in dict)
-			{
-				if([key hasPrefix:@"c"])
-				{
-					NSString * value = (NSString *)[dict objectForKey:key];
-					if(value != nil)
-					{
-						[clicksDict setObject:value forKey:key];
-					}
-				}
-			}
-			[dict removeObjectsForKeys:[clicksDict allKeys]];
-			//not removing the pasteboard because if there is a re-install event the pasteboard will be invalid
-			[self MAT_setDict:dict forPasteboard:convPB];
+            //get all the clicks
+            for(NSString *key in dict)
+            {
+                if([key hasPrefix:@"c"])
+                {
+                    NSString * value = (NSString *)[dict objectForKey:key];
+                    if(value != nil)
+                    {
+                        [clicksDict setObject:value forKey:key];
+                    }
+                }
+            }
+            [dict removeObjectsForKeys:[clicksDict allKeys]];
+            //not removing the pasteboard because if there is a re-install event the pasteboard will be invalid
+            [self MAT_setDict:dict forPasteboard:convPB];
 
-			return clicksDict;
-		}
-		else
-		{
-			return nil;
-		}
-	}
+            return clicksDict;
+        }
+        else
+        {
+            return nil;
+        }
+    }
 }
 
 /*
@@ -148,49 +148,49 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  and timestamp. After returning the dictionary this method clears the existing pasteboard 
  for all the impressions generate for this app.
  */
-+ (NSDictionary*) MAT_getImpressions:(NSString*) appID
++ (NSDictionary*)MAT_getImpressions:(NSString*) appID
 {
-	if([appID length] == 0)
-	{
-		return nil;
-	}
-	else
-	{
-		NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self MAT_getMD5:appID]];
+    if([appID length] == 0)
+    {
+        return nil;
+    }
+    else
+    {
+        NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self MAT_getMD5:appID]];
 
-		UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
+        UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
 
-		NSMutableDictionary * impressionsDict = [[NSMutableDictionary alloc] init];
-		if(convPB != nil)
-		{
+        NSMutableDictionary * impressionsDict = [[NSMutableDictionary alloc] init];
+        if(convPB != nil)
+        {
 
-			NSMutableDictionary * dict = [self MAT_getDictFromPasteboard:convPB];
+            NSMutableDictionary * dict = [self MAT_getDictFromPasteboard:convPB];
 
-			//get all the impressions
-			for(NSString *key in dict)
-			{
-				if([key hasPrefix:@"i"])
-				{
-					NSString * value = (NSString *)[dict objectForKey:key];
-					if(value != nil)
-					{
-						[impressionsDict setObject:value forKey:key];
-					}
-				}
-			}
+            //get all the impressions
+            for(NSString *key in dict)
+            {
+                if([key hasPrefix:@"i"])
+                {
+                    NSString * value = (NSString *)[dict objectForKey:key];
+                    if(value != nil)
+                    {
+                        [impressionsDict setObject:value forKey:key];
+                    }
+                }
+            }
 
-			//remove all the impressions from the dict
-			[dict removeObjectsForKeys:[impressionsDict allKeys]];
+            //remove all the impressions from the dict
+            [dict removeObjectsForKeys:[impressionsDict allKeys]];
 
-			//not removi ng the pasteboard because if there is a re-install event the pasteboard will be invalid
-			[self MAT_setDict:dict forPasteboard:convPB];
+            //not removi ng the pasteboard because if there is a re-install event the pasteboard will be invalid
+            [self MAT_setDict:dict forPasteboard:convPB];
 
-			return impressionsDict;
-		}
-		else
-		{
-			return nil;
-		}
-	}
+            return impressionsDict;
+        }
+        else
+        {
+            return nil;
+        }
+    }
 }
 @end

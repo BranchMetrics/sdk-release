@@ -9,10 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "MATKeyStrings.h"
 
-extern NSString* const kTestAdvertiserId;
-extern NSString* const kTestConversionKey;
-extern NSString* const kTestBundleId;
-
+FOUNDATION_EXPORT NSString* const kTestAdvertiserId;
+FOUNDATION_EXPORT NSString* const kTestConversionKey;
+FOUNDATION_EXPORT NSString* const kTestBundleId;
+FOUNDATION_EXPORT const NSTimeInterval MAT_TEST_NETWORK_REQUEST_DURATION;
 
 void waitFor( NSTimeInterval duration );
 

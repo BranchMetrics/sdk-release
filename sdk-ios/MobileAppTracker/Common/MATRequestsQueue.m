@@ -93,7 +93,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     return self;
 }
 
--(NSString*) description
+- (NSString*)description
 {
     return [NSString stringWithFormat:@"queue with %lu items, %lu parts", (unsigned long)[queueParts_ count], (unsigned long)[self queuedRequestsCount]];
 }

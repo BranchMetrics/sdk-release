@@ -139,11 +139,12 @@
 }
 
 
--(void) testNoEncryptTransaction
+- (void)testNoEncryptTransaction
 {
     MATSettings *settings = [MATSettings new];
     NSString *trackingLink, *encryptedParams;
-    [settings urlStringForDebugMode:FALSE
+    [settings urlStringForDebugMode:NO
+                               isId:NO
                        trackingLink:&trackingLink
                       encryptParams:&encryptedParams];
     XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
@@ -166,37 +167,37 @@
 
 + (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
 {
-	long keyLength = [mykey length];
-	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
-	{
-		return nil;
-	}
-	
-	char keyBytes[keyLength + 1];
-	bzero(keyBytes, sizeof(keyBytes));
-	[mykey getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
-	
-	size_t numBytesEncrypted = 0;
-	size_t encryptedLength = [str length] + kCCBlockSizeAES128;
-	char encryptedBytes[encryptedLength +1];
-	
+    long keyLength = [mykey length];
+    if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
+    {
+        return nil;
+    }
+    
+    char keyBytes[keyLength + 1];
+    bzero(keyBytes, sizeof(keyBytes));
+    [mykey getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
+    
+    size_t numBytesEncrypted = 0;
+    size_t encryptedLength = [str length] + kCCBlockSizeAES128;
+    char encryptedBytes[encryptedLength +1];
+    
     CCCryptorStatus result = CCCrypt(kCCDecrypt,
-									 kCCAlgorithmAES128 ,
-									 kCCOptionECBMode | kCCOptionPKCS7Padding,
-									 keyBytes,
-									 keyLength,
-									 NULL,
-									 [str bytes],
-									 [str length],
-									 encryptedBytes,
-									 encryptedLength,
-									 &numBytesEncrypted);
-	
+                                     kCCAlgorithmAES128 ,
+                                     kCCOptionECBMode | kCCOptionPKCS7Padding,
+                                     keyBytes,
+                                     keyLength,
+                                     NULL,
+                                     [str bytes],
+                                     [str length],
+                                     encryptedBytes,
+                                     encryptedLength,
+                                     &numBytesEncrypted);
     
-	if(result == kCCSuccess)
-		return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
     
-	return nil;
+    if(result == kCCSuccess)
+        return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
+    
+    return nil;
 }
 
 @end

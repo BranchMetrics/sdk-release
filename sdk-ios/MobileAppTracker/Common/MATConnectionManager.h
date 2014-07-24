@@ -54,8 +54,8 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 - (void)connectionManager:(MATConnectionManager *)manager didSucceedWithData:(NSData *)data;
 - (void)connectionManager:(MATConnectionManager *)manager didFailWithError:(NSError *)error;
 
--(NSString*) encryptionKey;
--(BOOL) isiAdAttribution;
--(NSString*) userAgent;
+- (NSString*)encryptionKey;
+- (BOOL)isiAdAttribution;
+- (NSString*)userAgent;
 
 @end

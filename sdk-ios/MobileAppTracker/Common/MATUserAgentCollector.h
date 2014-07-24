@@ -12,7 +12,7 @@
 @protocol MATUserAgentDelegate <NSObject>
 @required
 
--(void) userAgentString:(NSString*)userAgent;
+- (void)userAgentString:(NSString*)userAgent;
 
 @end
 
@@ -23,6 +23,6 @@
     id <MATUserAgentDelegate> delegate;
 }
 
--(id) initWithDelegate:(id <MATUserAgentDelegate>)newDelegate;
+- (id)initWithDelegate:(id <MATUserAgentDelegate>)newDelegate;
 
 @end

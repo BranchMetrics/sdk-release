@@ -16,21 +16,21 @@
 
 @interface MATTestParams : NSObject
 
--(BOOL) isEqualToParams:(MATTestParams*)other;
--(BOOL) isEmpty;
+- (BOOL)isEqualToParams:(MATTestParams*)other;
+- (BOOL)isEmpty;
 
--(BOOL) extractParamsString:(NSString*)string;
--(BOOL) extractParamsJSON:(NSString*)json;
+- (BOOL)extractParamsString:(NSString*)string;
+- (BOOL)extractParamsJSON:(NSString*)json;
 
--(NSString*) valueForKey:(NSString*)key;
+- (NSString*)valueForKey:(NSString*)key;
 
--(BOOL) checkIsEmpty;
--(BOOL) checkKeyHasValue:(NSString*)key;
--(BOOL) checkKey:(NSString*)key isEqualToValue:(NSString*)value;
--(BOOL) checkDefaultValues;
--(BOOL) checkDataItems:(NSArray*)items;
--(BOOL) checkNoDataItems;
--(BOOL) checkReceiptEquals:(NSData*)receiptValue;
--(BOOL) checkAppleReceiptEquals:(NSData*)receiptValue;
+- (BOOL)checkIsEmpty;
+- (BOOL)checkKeyHasValue:(NSString*)key;
+- (BOOL)checkKey:(NSString*)key isEqualToValue:(NSString*)value;
+- (BOOL)checkDefaultValues;
+- (BOOL)checkDataItems:(NSArray*)items;
+- (BOOL)checkNoDataItems;
+- (BOOL)checkReceiptEquals:(NSData*)receiptValue;
+- (BOOL)checkAppleReceiptEquals:(NSData*)receiptValue;
 
 @end
