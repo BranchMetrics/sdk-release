@@ -133,7 +133,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     
-     [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
+     [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"dequeuing call should have succeeded" );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -173,7 +173,7 @@
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
     XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
-     [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
+     [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
     waitFor( 5. );
     XCTAssertFalse( callFailed, @"dequeuing call should not have failed" );
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
@@ -191,7 +191,7 @@
     waitFor( 0.1 );
     
     XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
-     [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification object:nil];
+     [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
     waitFor( 10. );
 
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );

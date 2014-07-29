@@ -55,7 +55,7 @@
 #import "MATReachability.h"
 
 
-NSString *kReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
+NSString *kMATReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
 
 
 #pragma mark - Supporting functions
@@ -91,7 +91,7 @@ static void MATReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRe
 
     MATReachability* noteObject = (__bridge MATReachability *)info;
     // Post a notification to notify the client that the network reachability changed.
-    [[NSNotificationCenter defaultCenter] postNotificationName: kReachabilityChangedNotification object: noteObject];
+    [[NSNotificationCenter defaultCenter] postNotificationName: kMATReachabilityChangedNotification object: noteObject];
 }
 
 

@@ -617,45 +617,58 @@ char *MATNewBase64Encode(
     return outputBuffer;
 }
 
-//
-// dataFromBase64String:
-//
-// Creates an NSData object containing the base64 decoded representation of
-// the base64 string 'aString'
-//
-// Parameters:
-//    aString - the base64 string to decode
-//
-// returns the autoreleased NSData representation of the base64 string
-//
-+ (NSData *)MATdataFromBase64String:(NSString *)aString
+/*!
+ Creates an NSData object containing the Base64 decoded representation of
+ the Base64 string 'encodedString'. Uses the NSData Base64 methods when available.
+ @param encodedString the Base64 string to decode
+ @return the autoreleased NSData representation of the base64 string
+ */
++ (NSData *)MATdataFromBase64String:(NSString *)encodedString
 {
-    NSData *data = [aString dataUsingEncoding:NSASCIIStringEncoding];
-    size_t outputLength;
-    void *outputBuffer = MATNewBase64Decode([data bytes], [data length], &outputLength);
-    NSData *result = [NSData dataWithBytes:outputBuffer length:outputLength];
-    free(outputBuffer);
-    return result;
+    NSData *decodedData = nil;
+    
+    if([NSData instancesRespondToSelector:@selector(initWithBase64EncodedString:options:)])
+    {
+        decodedData = [[NSData alloc] initWithBase64EncodedString:encodedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    }
+    else
+    {
+        NSData *encodedData = [encodedString dataUsingEncoding:NSASCIIStringEncoding];
+        size_t outputLength;
+        void *outputBuffer = MATNewBase64Decode([encodedData bytes], [encodedData length], &outputLength);
+        decodedData = [NSData dataWithBytes:outputBuffer length:outputLength];
+        free(outputBuffer);
+    }
+    
+    return decodedData;
 }
 
-//
-// base64EncodedString
-//
-// Creates an NSString object that contains the base 64 encoding of the
-// receiver's data. Lines are broken at 64 characters long.
-//
-// returns an autoreleased NSString being the base 64 representation of the
-//    receiver.
-//
+/*!
+ Creates an NSString object that contains the Base64 encoding of the
+ receiver's data. Lines are broken at 64 characters long. Uses the NSData Base64 methods when available.
+ @param data NSData to be Base64 encoded
+ @return an autoreleased NSString being the Base64 representation of the receiver
+ */
 + (NSString *)MATbase64EncodedStringFromData:(NSData *)data
 {
-    size_t outputLength = 0;
-    char *outputBuffer = MATNewBase64Encode([data bytes], [data length], false, &outputLength);
-    NSString *result = [[NSString alloc] initWithBytes:outputBuffer
-                                                length:outputLength
-                                              encoding:NSASCIIStringEncoding];
-    free(outputBuffer);
-    return result;
+    // Get NSString from NSData object in Base64
+    NSString *encodedString = nil;
+    
+    if([NSData instancesRespondToSelector:@selector(base64EncodedStringWithOptions:)])
+    {
+        encodedString = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    }
+    else
+    {
+        size_t outputLength = 0;
+        char *outputBuffer = MATNewBase64Encode([data bytes], [data length], false, &outputLength);
+        encodedString = [[NSString alloc] initWithBytes:outputBuffer
+                                                 length:outputLength
+                                               encoding:NSASCIIStringEncoding];
+        free(outputBuffer);
+    }
+    
+    return encodedString;
 }
 
 @end

@@ -239,6 +239,7 @@ static NSSet * ignoreParams;
     
     // part of the url that needs encryption
     NSMutableString* encryptedParams = [NSMutableString stringWithCapacity:512];
+    
     if( self.staging && ![ignoreParams containsObject:KEY_STAGING] )
         [nonEncryptedParams appendFormat:@"%@=1", KEY_STAGING];
     
@@ -247,11 +248,10 @@ static NSSet * ignoreParams;
 
     // convert properties to keys, format, and append to URL
     [self addValue:self.actionName forKey:KEY_ACTION encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    if( isId )
-        [self addValue:eventNameOrId forKey:KEY_SITE_EVENT_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    else
-        [self addValue:eventNameOrId forKey:KEY_SITE_EVENT_NAME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
+    NSString *keySiteEvent = isId ? KEY_SITE_EVENT_ID : KEY_SITE_EVENT_NAME;
+    [self addValue:eventNameOrId forKey:keySiteEvent encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+
     [self addValue:referenceId forKey:KEY_REF_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.installDate forKey:KEY_INSDATE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.sessionDate forKey:KEY_SESSION_DATETIME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -373,15 +373,18 @@ static NSSet * ignoreParams;
     else
         return;
 
-    if( [key isEqualToString:KEY_PACKAGE_NAME] ) {
+    if( [key isEqualToString:KEY_PACKAGE_NAME] )
+    {
         [plaintextParams appendFormat:@"&%@=%@", key, useString];
         [encryptedParams appendFormat:@"&%@=%@", key, useString];
     }
-    else {
-        if( [doNotEncryptSet containsObject:key] )
-            [plaintextParams appendFormat:@"&%@=%@", key, useString];
-        else
-            [encryptedParams appendFormat:@"&%@=%@", key, useString];
+    else if( [doNotEncryptSet containsObject:key] )
+    {
+        [plaintextParams appendFormat:@"&%@=%@", key, useString];
+    }
+    else
+    {
+        [encryptedParams appendFormat:@"&%@=%@", key, useString];
     }
 }
 

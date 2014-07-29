@@ -91,7 +91,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
         /// Initialize Reachability
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleNetworkChange:)
-                                                     name:kReachabilityChangedNotification
+                                                     name:kMATReachabilityChangedNotification
                                                    object:nil];
         
         // When the app becomes active, fire the requests stored in the request queue.
@@ -117,7 +117,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 {
     // Note: Being a Singleton class, dealloc should never get called, but just here for clarity.
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kMATReachabilityChangedNotification object:nil];
     
     // stop observing app-did-become-active notifications
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
