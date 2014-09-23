@@ -32,7 +32,13 @@ public class Tracker extends BroadcastReceiver {
                     // Post conversion install to update referrer
                     MobileAppTracker mat = MobileAppTracker.getInstance();
                     if (mat != null) {
-                        mat.measureInstallWithReferrer();
+                        mat.gotReferrer = true;
+                        if (mat.gotGaid && !mat.notifiedPool) {
+                            synchronized (mat.pool) {
+                                mat.pool.notifyAll();
+                                mat.notifiedPool = true;
+                            }
+                        }
                     }
                 }
             }

@@ -48,7 +48,15 @@ public class MobileAppTracker {
     private boolean preLoaded;
     // Whether variables were initialized correctly
     protected boolean initialized;
-
+    // Whether Google Advertising ID was received
+    protected boolean gotGaid;
+    // Whether INSTALL_REFERRER was received
+    protected boolean gotReferrer;
+    // If this is the first session of the app lifecycle, wait for the GAID and referrer
+    protected boolean firstSession;
+    // Whether we've already notified the pool to stop waiting
+    protected boolean notifiedPool;
+    
     // Connectivity receiver
     protected BroadcastReceiver networkStateReceiver;
     // Parameters container
@@ -56,7 +64,7 @@ public class MobileAppTracker {
     // The context passed into the constructor
     protected Context mContext;
     // Thread pool for running the request Runnables
-    private ExecutorService pool;
+    protected ExecutorService pool;
     // Thread pool for public method execution
     protected ExecutorService pubQueue;
 
@@ -103,7 +111,7 @@ public class MobileAppTracker {
         
         initLocalVariables(conversionKey);
 
-        eventQueue = new MATEventQueue(mContext, mat);
+        eventQueue = new MATEventQueue(mContext, this);
         // Dump any existing requests in queue on start
         dumpQueue();
 
@@ -142,6 +150,7 @@ public class MobileAppTracker {
         urlRequester = new MATUrlRequester();
         encryption = new Encryption(key.trim(), IV);
         
+        firstSession = true;
         initialized = false;
         isRegistered = false;
         debugMode = false;
@@ -159,8 +168,8 @@ public class MobileAppTracker {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    protected void addEventToQueue(String link, String data, JSONObject postBody, Date runDate) {
-        pool.execute(eventQueue.new Add(link, data, postBody, runDate));
+    protected void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
+        pool.execute(eventQueue.new Add(link, data, postBody, firstSession));
     }
 
     protected void dumpQueue() {
@@ -174,24 +183,19 @@ public class MobileAppTracker {
      */
     public void measureSession() {
         pubQueue.execute(new Runnable() { public void run() {
+            notifiedPool = false;
             measure("session", null, 0, getCurrencyCode(), getRefId(), null, null, false);
         }});
-    }
-
-    /**
-     * measureSession call that bypasses already-sent check
-     * and with post_conversion=1 for updating referrer value of existing MAT install
-     */
-    void measureInstallWithReferrer() {
-        measure("install", null, 0, null, null, null, null, true);
     }
 
     /**
      * Event measurement function, by event name.
      * @param eventName event name in MAT system
      */
-    public void measureAction(String eventName) {
-        measureAction(eventName, null, 0, getCurrencyCode(), null, null, null);
+    public void measureAction(final String eventName) {
+        pubQueue.execute(new Runnable() { public void run() {
+            measure(eventName, null, 0, getCurrencyCode(), null, null, null, false);
+        }});
     }
     
     /**
@@ -257,8 +261,10 @@ public class MobileAppTracker {
      * Event measurement function, by event ID.
      * @param eventId event ID in MAT system
      */
-    public void measureAction(int eventId) {
-        measureAction(eventId, null, 0, getCurrencyCode(), null, null, null);
+    public void measureAction(final int eventId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            measure(eventId, null, 0, getCurrencyCode(), null, null, null, false);
+        }});
     }
     
     /**
@@ -384,7 +390,9 @@ public class MobileAppTracker {
             matRequest.constructedRequest(link, data, postBody);
         }
         
-        addEventToQueue(link, data, postBody, runDate);
+        addEventToQueue(link, data, postBody, firstSession);
+        // Mark firstSession false
+        firstSession = false;
         dumpQueue();
         
         if (matResponse != null) {
@@ -450,7 +458,7 @@ public class MobileAppTracker {
             String eventType = response.getString("site_event_type");
             if (eventType.equals("open")) {
                 String logId = response.getString("log_id");
-                if (getOpenLogId() == null) {
+                if (getOpenLogId().equals("")) {
                     params.setOpenLogId(logId);
                 }
                 params.setLastOpenLogId(logId);
@@ -1043,6 +1051,15 @@ public class MobileAppTracker {
      * Public Setters *
      ******************/
 
+    /**
+     * Sets the MAT advertiser ID
+     * @param advertiserId MAT advertiser ID
+     */
+    public void setAdvertiserId(final String advertiserId) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAdvertiserId(advertiserId);
+        }});
+    }
 
     /**
      * Sets the preloaded app's advertiser sub ad
@@ -1346,6 +1363,13 @@ public class MobileAppTracker {
         pubQueue.execute(new Runnable() { public void run() { 
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
+            gotGaid = true;
+            if (gotReferrer && !notifiedPool) {
+                synchronized (pool) {
+                    pool.notifyAll();
+                    notifiedPool = true;
+                }
+            }
         }});
     }
 

@@ -71,7 +71,7 @@ class MATUrlRequester {
         } else {
             // Put JSON as entity for HttpPost
             try {
-                StringEntity se = new StringEntity(json.toString());
+                StringEntity se = new StringEntity(json.toString(), "UTF-8");
                 se.setContentType("application/json");
                 
                 HttpPost request = new HttpPost(url);

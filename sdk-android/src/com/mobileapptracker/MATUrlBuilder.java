@@ -184,6 +184,10 @@ class MATUrlBuilder {
             if (referrer != null && !data.contains("&install_referrer=")) {
                 safeAppend(updatedData, "install_referrer", referrer);
             }
+            String userAgent = params.getUserAgent();
+            if (userAgent != null && !data.contains("&conversion_user_agent=")) {
+                safeAppend(updatedData, "conversion_user_agent", userAgent);
+            }
         }
         // Add system date of original request
         if (!data.contains("&system_date=")) {
@@ -197,7 +201,7 @@ class MATUrlBuilder {
         } catch (Exception e) {
             e.printStackTrace();
         }
-                
+        
         return updatedDataStr;
 }
     

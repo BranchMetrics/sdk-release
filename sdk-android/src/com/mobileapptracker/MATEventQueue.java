@@ -1,6 +1,5 @@
 package com.mobileapptracker;
 
-import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 import org.json.JSONException;
@@ -79,19 +78,19 @@ public class MATEventQueue {
         private String link = null;
         private String data = null;
         private JSONObject postBody = null;
-        private Date runDate = null;
+        private boolean firstSession = false;
         
         /**
          * Saves an event to the queue.
          * @param link URL of the event postback
          * @param postBody the body of the POST request
-         * @param runDate datetime for request to be made
+         * @param firstSession whether event should wait for GAID/referrer to be received
          */
-        protected Add(String link, String data, JSONObject postBody, Date runDate) {
+        protected Add(String link, String data, JSONObject postBody, boolean firstSession) {
             this.link = link;
             this.data = data;
             this.postBody = postBody;
-            this.runDate = runDate;
+            this.firstSession = firstSession;
         }
 
         public void run() {
@@ -105,7 +104,7 @@ public class MATEventQueue {
                     jsonEvent.put("link", link);
                     jsonEvent.put("data", data);
                     jsonEvent.put("post_body", postBody);
-                    jsonEvent.put("run_date", runDate.getTime());
+                    jsonEvent.put("first_session", firstSession);
                 } catch (JSONException e) {
                     Log.w(MATConstants.TAG, "Failed creating event for queueing");
                     e.printStackTrace();
@@ -114,7 +113,7 @@ public class MATEventQueue {
                 int count = getQueueSize() + 1;
                 setQueueSize(count);
                 String eventIndex = Integer.toString(count);
-                setQueueItemForKey( jsonEvent, eventIndex );
+                setQueueItemForKey(jsonEvent, eventIndex);
             } catch (InterruptedException e) {
                 Log.w(MATConstants.TAG, "Interrupted adding event to queue");
                 e.printStackTrace();
@@ -141,37 +140,34 @@ public class MATEventQueue {
                 // Iterate through events and do postbacks for each, using GetLink
                 for (; index <= size; index++) {
                     String key = Integer.toString(index);
-                    String eventJson = getKeyFromQueue( key );
+                    String eventJson = getKeyFromQueue(key);
 
                     if (eventJson != null) {
                         String link = null;
                         String data = null;
                         JSONObject postBody = null;
-                        long runDate = 0;
+                        boolean firstSession = false;
                         try {
                             // De-serialize the stored string from the queue to get URL and json values
                             JSONObject event = new JSONObject(eventJson);
                             link = event.getString("link");
                             data = event.getString("data");
                             postBody = event.getJSONObject("post_body");
-                            runDate = event.getLong("run_date");
+                            firstSession = event.getBoolean("first_session");
                         } catch (JSONException e) {
                             e.printStackTrace();
                             // Can't rebuild saved request, remove from queue and return
                             removeKeyFromQueue(key);
                             return;
                         }
-
-                        // sleep until this action's scheduled run date
-                        Date scheduledDate = new Date(runDate);
-                        Date now = new Date();
-                        if (scheduledDate.after(now)) {
-                            try {
-                                Thread.sleep(scheduledDate.getTime() - now.getTime());
-                            } catch (InterruptedException e) {
+                        
+                        // For first session, try to wait for Google AID and install referrer before sending
+                        if (firstSession) {
+                            synchronized(mat.pool) {
+                                mat.pool.wait(MATConstants.DELAY);
                             }
                         }
-
+                        
                         if (mat != null) {
                             boolean success = mat.makeRequest(link, data, postBody);
 

@@ -39,15 +39,15 @@ class MATConstants {
     static final String MAT_DOMAIN_DEBUG = "debug.engine.mobileapptracking.com";
     
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.3";
+    static final String SDK_VERSION = "3.4";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued
     static final int MAX_DUMP_SIZE = 50;
     // Set a network timeout time of 60s
     static final int TIMEOUT = 60000;
-    // Request delay time of 5s
-    static final long DELAY = 5000;
+    // Request delay time of 60s
+    static final long DELAY = 60000;
     
     // Default currency code is USD
     static final String DEFAULT_CURRENCY_CODE = "USD";
