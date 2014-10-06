@@ -104,8 +104,8 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
         return FALSE;
     else {
         if( [data isKindOfClass:[NSDictionary class]] ) {
-            if( data[KEY_DATA] != nil ) {
-                NSArray *items = data[KEY_DATA];
+            if( data[MAT_KEY_DATA] != nil ) {
+                NSArray *items = data[MAT_KEY_DATA];
                 if( [items isKindOfClass:[NSArray class]] ) {
                     if( _params == nil )
                         _params = [NSMutableDictionary dictionary];
@@ -121,15 +121,15 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
                 else
                     return FALSE;
             }
-            if( data[KEY_STORE_RECEIPT] != nil ) {
+            if( data[MAT_KEY_STORE_RECEIPT] != nil ) {
                 if( _params == nil )
                     _params = [NSMutableDictionary dictionary];
-                _params[kReceiptItemKey] = data[KEY_STORE_RECEIPT];
+                _params[kReceiptItemKey] = data[MAT_KEY_STORE_RECEIPT];
             }
-            if( data[KEY_INSTALL_RECEIPT] != nil ) {
+            if( data[MAT_KEY_INSTALL_RECEIPT] != nil ) {
                 if( _params == nil )
                     _params = [NSMutableDictionary dictionary];
-                _params[kAppleReceiptItemKey] = data[KEY_INSTALL_RECEIPT];
+                _params[kAppleReceiptItemKey] = data[MAT_KEY_INSTALL_RECEIPT];
             }
         }
         else

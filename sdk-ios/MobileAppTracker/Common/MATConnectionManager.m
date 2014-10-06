@@ -137,7 +137,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 - (void)handleNetworkChange:(NSNotification *)notice
 {
     DLog(@"MATConnManager: handleNetworkChange: notice = %@", notice);
-    DLog(@"MATConnManager: handleNetworkChange: reachability status = %d", self.reachability.currentReachabilityStatus);
+    DLog(@"MATConnManager: handleNetworkChange: reachability status = %ld", (long)self.reachability.currentReachabilityStatus);
     
     self.status = [self.reachability currentReachabilityStatus];
     
@@ -277,10 +277,12 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
 - (void)dumpQueue
 {
+    DLog(@"MATConnManager: dumpQueue is already dumping queue = %d", dumpingQueue_);
+    
     if( dumpingQueue_ ) return;
     if (NotReachable == self.status) return;
 
-    DLLog( @"MATConnManager: dumping queue %@", self.requestsQueue );
+    DLLog(@"MATConnManager: dumpQueue %@", self.requestsQueue );
     
     dumpingQueue_ = YES;
     dumpTriesFailures_ = 0;
@@ -309,6 +311,8 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
                 [NSThread sleepUntilDate:runDate];
             }
             
+            DLLog(@"MATConnManager: dumpNextFromQueue calling beginUrlRequest: %@", [NSDate date]);
+            
             // fire web request
             [self beginUrlRequest:[dict valueForKey:KEY_URL]
                     encryptParams:[dict valueForKey:KEY_DATA]
@@ -327,6 +331,8 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 
 - (void)stopQueueDump
 {
+    DLLog(@"MATConnManager: stopQueueDump");
+    
     dumpingQueue_ = NO;
 }
 
@@ -394,13 +400,15 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
                            [self nextRetryDateForAttempt:retryCount], KEY_RUN_DATE,
                            trackingLink, KEY_URL,
                            postData, KEY_JSON, nil];
-    DLLog(@"MATConnManager: pushing to head %@", dict);
+
+    DLLog(@"MATConnManager: pushUrlRequestToHead %@", dict);
 
     [queueQueue addOperationWithBlock:^{
         [self.requestsQueue pushToHead:dict];
         [self.requestsQueue save];
     }];
-
+    
+    DLog(@"MATConnManager: pushUrlRequestToHead calling dumpQueue");
     // without this delay, we might dump before the queue is updated (race condition)
     // without running on a particular queue, the current runloop might stop during the delay
     dispatch_async( dispatch_get_main_queue(), ^{
@@ -418,11 +426,13 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
     if( [trackingLink rangeOfString:searchString].location == NSNotFound ) {
         trackingLink = [trackingLink stringByAppendingFormat:@"%@0", searchString];
     }
+    
+    DLLog(@"MATConnManager: enqueueUrlRequest: trackingLink  = %@", trackingLink);
 
     // note that postData might be nil
     NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:runDate, KEY_RUN_DATE,
                            trackingLink, KEY_URL, encryptParams, KEY_DATA, postData, KEY_JSON, nil];
-    DLLog(@"MATConnManager: enqueuing %@", dict);
+    DLLog(@"MATConnManager: enqueueUrlRequest: enqueuing dict = %@", dict);
 
     [queueQueue addOperationWithBlock:^{
         [self.requestsQueue push:dict];
@@ -532,11 +542,10 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 #endif
     
     DLog(@"MATConnManager: didFinishLoading 2: connectionManager = %@", self);
-    DLog(@"isLogId request = %d", connection.isInstallLogId);
     DLog(@"delegateTarget  = %@", NSStringFromClass(connection.delegateTarget));
     DLog(@"successSEL      = %@, responds = %d", NSStringFromSelector(connection.delegateSuccessSelector), [connection.delegateTarget respondsToSelector:connection.delegateSuccessSelector]);
     DLog(@"arg             = %@", connection.delegateArgument);
-    DLog(@"call delegate   = %d", (connection.isAppToApp || connection.isInstallLogId)
+    DLog(@"call delegate   = %d", (connection.isAppToApp)
                                     && connection.delegateTarget
                                     && connection.delegateSuccessSelector
                                     && [connection.delegateTarget respondsToSelector:connection.delegateSuccessSelector]);
@@ -559,7 +568,7 @@ int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
 #pragma clang diagnostic pop
     }
 
-    DLog(@"MATConnManager: calling delegate success callback: %d", (!connection.isAppToApp && !connection.isInstallLogId && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)]));
+    DLog(@"MATConnManager: calling delegate success callback: %d", (!connection.isAppToApp && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)]));
     
     if(!connection.isAppToApp && [self.delegate respondsToSelector:@selector(connectionManager:didSucceedWithData:)])
     {

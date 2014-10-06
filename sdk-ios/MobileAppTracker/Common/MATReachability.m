@@ -55,7 +55,7 @@
 #import "MATReachability.h"
 
 
-NSString *kMATReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
+NSString *kMATReachabilityChangedNotification = @"kMATNetworkReachabilityChangedNotification";
 
 
 #pragma mark - Supporting functions

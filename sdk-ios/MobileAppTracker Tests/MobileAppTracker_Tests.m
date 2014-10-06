@@ -10,10 +10,8 @@
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
-#import "MATRequestsQueue.h"
-#import "MATConnectionManager.h"
-#import "MATTracker.h"
-#import "MATKeyStrings.h"
+#import "../MobileAppTracker/Common/MATTracker.h"
+#import "../MobileAppTracker/Common/MATKeyStrings.h"
 
 @interface MobileAppTracker_Tests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -60,7 +58,7 @@
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
 }
 
 - (void)testUpdate
@@ -70,8 +68,8 @@
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
-    ASSERT_KEY_VALUE( @"existing_user", [@TRUE stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_EXISTING_USER, [@TRUE stringValue] );
 }
 
 
@@ -86,8 +84,8 @@
     
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_INSTALL );
-    ASSERT_KEY_VALUE( @"post_conversion", @"1" );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_INSTALL );
+    ASSERT_KEY_VALUE( MAT_KEY_POST_CONVERSION, @"1" );
 }
 
 
@@ -101,9 +99,9 @@
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
-    ASSERT_KEY_VALUE( @"referral_url", openUrl );
-    ASSERT_KEY_VALUE( @"referral_source", sourceApplication );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_REFERRAL_URL, openUrl );
+    ASSERT_KEY_VALUE( MAT_KEY_REFERRAL_SOURCE, sourceApplication );
 }
 
 
@@ -116,8 +114,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -130,8 +128,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_id", strEventId );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_ID, strEventId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
@@ -142,8 +140,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -157,9 +155,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_id", strEventId );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_ID, strEventId );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
@@ -173,10 +171,10 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -197,11 +195,11 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_id", strEventId );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_ID, strEventId );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
@@ -220,8 +218,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_id", strEventId );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_ID, strEventId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
 }
@@ -254,9 +252,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -279,10 +277,10 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
@@ -308,12 +306,12 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -343,13 +341,13 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_id", strEventId );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_ID, strEventId );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
-    ASSERT_KEY_VALUE( @"ios_purchase_status", expectedTransactionState );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_PURCHASE_STATUS, expectedTransactionState );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
@@ -379,13 +377,13 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
     XCTAssertTrue( [params checkDataItems:items], @"event items not equal" );
-    ASSERT_KEY_VALUE( @"advertiser_ref_id", referenceId );
-    ASSERT_KEY_VALUE( @"ios_purchase_status", expectedTransactionState );
+    ASSERT_KEY_VALUE( MAT_KEY_REF_ID, referenceId );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_PURCHASE_STATUS, expectedTransactionState );
     XCTAssertTrue( [params checkReceiptEquals:receiptData], @"receipt data not equal" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
@@ -398,8 +396,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -410,8 +408,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -420,11 +418,11 @@
 
 - (void)testInstallActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_INSTALL];
+    [MobileAppTracker measureAction:MAT_EVENT_INSTALL];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
@@ -432,11 +430,11 @@
 
 - (void)testUpdateActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_UPDATE];
+    [MobileAppTracker measureAction:MAT_EVENT_UPDATE];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
@@ -444,10 +442,10 @@
 
 - (void)testCloseActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_CLOSE];
+    [MobileAppTracker measureAction:MAT_EVENT_CLOSE];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
-    XCTAssertTrue( [params checkIsEmpty], @"'%@' action should be ignored", EVENT_CLOSE );
+    XCTAssertTrue( [params checkIsEmpty], @"'%@' action should be ignored", MAT_EVENT_CLOSE );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
@@ -455,11 +453,11 @@
 
 - (void)testOpenActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_OPEN];
+    [MobileAppTracker measureAction:MAT_EVENT_OPEN];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION);
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION);
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
@@ -467,11 +465,11 @@
 
 - (void)testSessionActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_SESSION];
+    [MobileAppTracker measureAction:MAT_EVENT_SESSION];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION);
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION);
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
@@ -480,12 +478,12 @@
 // "click" events are treated the same as arbitrary event names
 - (void)testClickActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_CLICK];
+    [MobileAppTracker measureAction:MAT_EVENT_CLICK];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", EVENT_CLICK );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, MAT_EVENT_CLICK );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -493,12 +491,12 @@
 // "conversion" events are treated the same as arbitrary event names
 - (void)testConversionActionEvent
 {
-    [MobileAppTracker measureAction:EVENT_CONVERSION];
+    [MobileAppTracker measureAction:MAT_EVENT_CONVERSION];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, MAT_EVENT_CONVERSION );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -512,8 +510,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
@@ -530,10 +528,10 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
-    ASSERT_KEY_VALUE( @"revenue", expectedRevenue );
-    ASSERT_KEY_VALUE( @"currency_code", currencyCode );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
 }
 
 
@@ -544,8 +542,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName1 );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName1 );
 
     params = [MATTestParams new];
     
@@ -554,8 +552,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName2 );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_CONVERSION );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName2 );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 

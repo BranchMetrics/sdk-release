@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MATConnectionManager.h"
+#import "MATEventQueue.h"
 
 @interface MATAppToAppTracker : NSObject
 
-@property (nonatomic, assign) id <MATConnectionManagerDelegate> delegate;
+@property (nonatomic, weak) id <MATEventQueueDelegate> delegate;
 
 - (void)startTrackingSessionForTargetBundleId:(NSString*)targetBundleId
                             publisherBundleId:(NSString*)publisherBundleId
@@ -19,8 +19,7 @@
                                    campaignId:(NSString*)campaignId
                                   publisherId:(NSString*)publisherId
                                      redirect:(BOOL)shouldRedirect
-                                   domainName:(NSString*)domainName
-                            connectionManager:(MATConnectionManager*)connectionManager;
+                                   domainName:(NSString*)domainName;
 
 + (NSString*)getPublisherBundleId;
 + (NSString*)getSessionDateTime;

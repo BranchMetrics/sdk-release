@@ -37,7 +37,7 @@ static NSSet * ignoreParams;
 #pragma mark - initialize
 
 + (void)initialize {
-    ignoreParams = [NSSet setWithObjects:KEY_REDIRECT_URL, KEY_KEY, nil];
+    ignoreParams = [NSSet setWithObjects:MAT_KEY_REDIRECT_URL, MAT_KEY_KEY, nil];
 }
 
 #pragma mark - Initialization
@@ -50,14 +50,14 @@ static NSSet * ignoreParams;
         uaCollector = [[MATUserAgentCollector alloc] initWithDelegate:self];
 
         // MAT ID
-         if([MATUtils userDefaultValueforKey:KEY_MAT_ID])
+         if([MATUtils userDefaultValueforKey:MAT_KEY_MAT_ID])
          {
-             self.matId = [MATUtils userDefaultValueforKey:KEY_MAT_ID];
+             self.matId = [MATUtils userDefaultValueforKey:MAT_KEY_MAT_ID];
          }
          else
          {
              NSString *uuid = [MATUtils getUUID];
-             [MATUtils setUserDefaultValue:uuid forKey:KEY_MAT_ID];
+             [MATUtils setUserDefaultValue:uuid forKey:MAT_KEY_MAT_ID];
              self.matId = uuid;
          }
         
@@ -66,17 +66,17 @@ static NSSet * ignoreParams;
         self.installReceipt = [MATUtils MATbase64EncodedStringFromData:receiptData];
 
         // load saved values
-        self.installLogId = [MATUtils userDefaultValueforKey:KEY_MAT_INSTALL_LOG_ID];
+        self.installLogId = [MATUtils userDefaultValueforKey:MAT_KEY_MAT_INSTALL_LOG_ID];
         if( !self.installLogId )
-            self.updateLogId = [MATUtils userDefaultValueforKey:KEY_MAT_UPDATE_LOG_ID];
-        self.openLogId = [MATUtils userDefaultValueforKey:KEY_OPEN_LOG_ID];
-        self.lastOpenLogId = [MATUtils userDefaultValueforKey:KEY_LAST_OPEN_LOG_ID];
+            self.updateLogId = [MATUtils userDefaultValueforKey:MAT_KEY_MAT_UPDATE_LOG_ID];
+        self.openLogId = [MATUtils userDefaultValueforKey:MAT_KEY_OPEN_LOG_ID];
+        self.lastOpenLogId = [MATUtils userDefaultValueforKey:MAT_KEY_LAST_OPEN_LOG_ID];
         
-        self.iadAttribution = [MATUtils userDefaultValueforKey:KEY_IAD_ATTRIBUTION];
+        self.iadAttribution = [MATUtils userDefaultValueforKey:MAT_KEY_IAD_ATTRIBUTION];
         
-        self.userEmail = [MATUtils userDefaultValueforKey:KEY_USER_EMAIL];
-        self.userId = [MATUtils userDefaultValueforKey:KEY_USER_ID];
-        self.userName = [MATUtils userDefaultValueforKey:KEY_USER_NAME];
+        self.userEmail = [MATUtils userDefaultValueforKey:MAT_KEY_USER_EMAIL];
+        self.userId = [MATUtils userDefaultValueforKey:MAT_KEY_USER_ID];
+        self.userName = [MATUtils userDefaultValueforKey:MAT_KEY_USER_NAME];
         
         // hardware specs
         struct utsname systemInfo;
@@ -129,14 +129,14 @@ static NSSet * ignoreParams;
         [self loadFacebookCookieId];
         
         // default to USD for currency code
-        self.defaultCurrencyCode = KEY_CURRENCY_USD;
+        self.defaultCurrencyCode = MAT_KEY_CURRENCY_USD;
         
-        self.payingUser = [MATUtils userDefaultValueforKey:KEY_IS_PAYING_USER];
+        self.payingUser = [MATUtils userDefaultValueforKey:MAT_KEY_IS_PAYING_USER];
 
-        doNotEncryptSet = [NSSet setWithObjects:KEY_ADVERTISER_ID, KEY_SITE_ID, KEY_ACTION,
-                           KEY_SITE_EVENT_ID, KEY_SDK, KEY_VER, KEY_SITE_EVENT_NAME,
-                           KEY_REFERRAL_URL, KEY_REFERRAL_SOURCE, KEY_TRACKING_ID, KEY_PACKAGE_NAME,
-                           KEY_TRANSACTION_ID, KEY_RESPONSE_FORMAT, nil];
+        doNotEncryptSet = [NSSet setWithObjects:MAT_KEY_ADVERTISER_ID, MAT_KEY_SITE_ID, MAT_KEY_ACTION,
+                           MAT_KEY_SITE_EVENT_ID, MAT_KEY_SDK, MAT_KEY_VER, MAT_KEY_SITE_EVENT_NAME,
+                           MAT_KEY_REFERRAL_URL, MAT_KEY_REFERRAL_SOURCE, MAT_KEY_TRACKING_ID, MAT_KEY_PACKAGE_NAME,
+                           MAT_KEY_TRANSACTION_ID, MAT_KEY_RESPONSE_FORMAT, nil];
     }
     return self;
 }
@@ -157,31 +157,31 @@ static NSSet * ignoreParams;
 - (void)setUserEmail:(NSString *)userEmail
 {
     _userEmail = [userEmail copy];
-    [MATUtils setUserDefaultValue:_userEmail forKey:KEY_USER_EMAIL];
+    [MATUtils setUserDefaultValue:_userEmail forKey:MAT_KEY_USER_EMAIL];
 }
 
 - (void)setUserId:(NSString *)userId
 {
     _userId = [userId copy];
-    [MATUtils setUserDefaultValue:_userId forKey:KEY_USER_ID];
+    [MATUtils setUserDefaultValue:_userId forKey:MAT_KEY_USER_ID];
 }
 
 - (void)setUserName:(NSString *)userName
 {
     _userName = [userName copy];
-    [MATUtils setUserDefaultValue:_userName forKey:KEY_USER_NAME];
+    [MATUtils setUserDefaultValue:_userName forKey:MAT_KEY_USER_NAME];
 }
 
 
 #pragma mark - Action requests
 
-- (NSString*)domainName:(BOOL)debug
+- (NSString*)domainName
 {
     if(self.staging)
-        return SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
+        return MAT_SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
     else
         // on prod, use a different server domain name when debug mode is enabled
-        return debug ? SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : SERVER_DOMAIN_REGULAR_TRACKING_PROD;
+        return [self.debugMode boolValue] ? MAT_SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : MAT_SERVER_DOMAIN_REGULAR_TRACKING_PROD;
 }
 
 
@@ -191,47 +191,44 @@ static NSSet * ignoreParams;
 }
 
 
-- (void)urlStringForDebugMode:(BOOL)debugMode
-                         isId:(BOOL)isId
-                 trackingLink:(NSString**)trackingLink
-                encryptParams:(NSString**)encryptParams
+- (void)urlStringForTrackingLink:(NSString**)trackingLink
+                   encryptParams:(NSString**)encryptParams
+                            isId:(BOOL)isId
 {
     return [self urlStringForReferenceId:nil
-                               debugMode:debugMode
-                                    isId:isId
                             trackingLink:trackingLink
-                           encryptParams:encryptParams];
+                           encryptParams:encryptParams
+                                    isId:isId];
 }
 
 - (void)urlStringForReferenceId:(NSString*)referenceId
-                      debugMode:(BOOL)debugMode
-                           isId:(BOOL)isId
                    trackingLink:(NSString**)trackingLink
                   encryptParams:(NSString**)encryptParams
+                           isId:(BOOL)isId
 {
     // determine correct event name and action name
     NSString *eventNameOrId = nil;
     
     if( isId ) {
         eventNameOrId = [self.actionName copy];
-        self.actionName = EVENT_CONVERSION;
+        self.actionName = MAT_EVENT_CONVERSION;
     }
-    else if( self.postConversion && [self.actionName isEqualToString:EVENT_INSTALL] ) {
+    else if( self.postConversion && [self.actionName isEqualToString:MAT_EVENT_INSTALL] ) {
         // don't modify action name
     }
-    else if( [self.actionName isEqualToString:EVENT_GEOFENCE] ) {
+    else if( [self.actionName isEqualToString:MAT_EVENT_GEOFENCE] ) {
         // don't modify action name
     }
-    else if( [[self.actionName lowercaseString] isEqualToString:EVENT_INSTALL] ||
-             [[self.actionName lowercaseString] isEqualToString:EVENT_UPDATE] ||
-             [[self.actionName lowercaseString] isEqualToString:EVENT_OPEN] ||
-             [[self.actionName lowercaseString] isEqualToString:EVENT_SESSION] ) {
-        self.actionName = EVENT_SESSION;
+    else if( [[self.actionName lowercaseString] isEqualToString:MAT_EVENT_INSTALL] ||
+             [[self.actionName lowercaseString] isEqualToString:MAT_EVENT_UPDATE] ||
+             [[self.actionName lowercaseString] isEqualToString:MAT_EVENT_OPEN] ||
+             [[self.actionName lowercaseString] isEqualToString:MAT_EVENT_SESSION] ) {
+        self.actionName = MAT_EVENT_SESSION;
     }
     else {
         // it's a conversion
         eventNameOrId = [self.actionName copy];
-        self.actionName = EVENT_CONVERSION;
+        self.actionName = MAT_EVENT_CONVERSION;
     }
 
     // part of the url that does not need encryption
@@ -240,117 +237,123 @@ static NSSet * ignoreParams;
     // part of the url that needs encryption
     NSMutableString* encryptedParams = [NSMutableString stringWithCapacity:512];
     
-    if( self.staging && ![ignoreParams containsObject:KEY_STAGING] )
-        [nonEncryptedParams appendFormat:@"%@=1", KEY_STAGING];
+    if( self.staging && ![ignoreParams containsObject:MAT_KEY_STAGING] )
+        [nonEncryptedParams appendFormat:@"%@=1", MAT_KEY_STAGING];
     
-    if( self.postConversion && ![ignoreParams containsObject:KEY_POST_CONVERSION] )
-        [nonEncryptedParams appendFormat:@"&%@=1", KEY_POST_CONVERSION];
+    if( self.postConversion && ![ignoreParams containsObject:MAT_KEY_POST_CONVERSION] )
+        [nonEncryptedParams appendFormat:@"&%@=1", MAT_KEY_POST_CONVERSION];
 
+     NSString *keySiteEvent = isId ? MAT_KEY_SITE_EVENT_ID : MAT_KEY_SITE_EVENT_NAME;
+    
     // convert properties to keys, format, and append to URL
-    [self addValue:self.actionName forKey:KEY_ACTION encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.actionName                  forKey:MAT_KEY_ACTION                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:eventNameOrId                    forKey:keySiteEvent                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:referenceId                      forKey:MAT_KEY_REF_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.installDate                 forKey:MAT_KEY_INSDATE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.sessionDate                 forKey:MAT_KEY_SESSION_DATETIME         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.systemDate                  forKey:MAT_KEY_SYSTEM_DATE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.referralUrl                 forKey:MAT_KEY_REFERRAL_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.referralSource              forKey:MAT_KEY_REFERRAL_SOURCE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.redirectUrl                 forKey:MAT_KEY_REDIRECT_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.installLogId                forKey:MAT_KEY_INSTALL_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.updateLogId                 forKey:MAT_KEY_UPDATE_LOG_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.openLogId                   forKey:MAT_KEY_OPEN_LOG_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.lastOpenLogId               forKey:MAT_KEY_LAST_OPEN_LOG_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.currencyCode                forKey:MAT_KEY_CURRENCY_CODE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.revenue                     forKey:MAT_KEY_REVENUE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.transactionState            forKey:MAT_KEY_IOS_PURCHASE_STATUS      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.jailbroken                  forKey:MAT_KEY_OS_JAILBROKE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.siteId                      forKey:MAT_KEY_SITE_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.packageName                 forKey:MAT_KEY_PACKAGE_NAME             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appName                     forKey:MAT_KEY_APP_NAME                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appVersion                  forKey:MAT_KEY_APP_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.advertiserId                forKey:MAT_KEY_ADVERTISER_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.conversionKey               forKey:MAT_KEY_KEY                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.trackingId                  forKey:MAT_KEY_TRACKING_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.matId                       forKey:MAT_KEY_MAT_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.facebookCookieId            forKey:MAT_KEY_FB_COOKIE_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifv                         forKey:MAT_KEY_IOS_IFV                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifa                         forKey:MAT_KEY_IOS_IFA                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifaTracking                 forKey:MAT_KEY_IOS_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.iadAttribution              forKey:MAT_KEY_IAD_ATTRIBUTION          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.iadImpressionDate           forKey:MAT_KEY_IAD_IMPRESSION_DATE      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appAdTracking               forKey:MAT_KEY_APP_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.payingUser                  forKey:MAT_KEY_IS_PAYING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.existingUser                forKey:MAT_KEY_EXISTING_USER            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmail                   forKey:MAT_KEY_USER_EMAIL               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userId                      forKey:MAT_KEY_USER_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userName                    forKey:MAT_KEY_USER_NAME                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.facebookUserId              forKey:MAT_KEY_FACEBOOK_USER_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.twitterUserId               forKey:MAT_KEY_TWITTER_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.googleUserId                forKey:MAT_KEY_GOOGLE_USER_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.age                         forKey:MAT_KEY_AGE                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.gender                      forKey:MAT_KEY_GENDER                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.latitude                    forKey:MAT_KEY_LATITUDE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.longitude                   forKey:MAT_KEY_LONGITUDE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.altitude                    forKey:MAT_KEY_ALTITUDE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.trusteTPID                  forKey:MAT_KEY_TRUSTE_TPID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceModel                 forKey:MAT_KEY_DEVICE_MODEL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCpuType               forKey:MAT_KEY_DEVICE_CPUTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCpuSubtype            forKey:MAT_KEY_DEVICE_CPUSUBTYPE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCarrier               forKey:MAT_KEY_DEVICE_CARRIER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceBrand                 forKey:MAT_KEY_DEVICE_BRAND             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.screenDensity               forKey:MAT_KEY_SCREEN_DENSITY           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.screenSize                  forKey:MAT_KEY_SCREEN_SIZE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileCountryCode           forKey:MAT_KEY_CARRIER_COUNTRY_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileCountryCodeISO        forKey:MAT_KEY_CARRIER_COUNTRY_CODE_ISO encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileNetworkCode           forKey:MAT_KEY_CARRIER_NETWORK_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.countryCode                 forKey:MAT_KEY_COUNTRY_CODE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.osVersion                   forKey:MAT_KEY_OS_VERSION               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.language                    forKey:MAT_KEY_LANGUAGE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userAgent                   forKey:MAT_KEY_CONVERSION_USER_AGENT    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@"ios"                           forKey:MAT_KEY_SDK                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:MATVERSION                       forKey:MAT_KEY_VER                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.pluginName                  forKey:MAT_KEY_SDK_PLUGIN               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.regionName                  forKey:MAT_KEY_GEOFENCE_NAME            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.locationAuthorizationStatus forKey:MAT_KEY_LOCATION_AUTH_STATUS     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
-    NSString *keySiteEvent = isId ? KEY_SITE_EVENT_ID : KEY_SITE_EVENT_NAME;
-    [self addValue:eventNameOrId forKey:keySiteEvent encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-
-    [self addValue:referenceId forKey:KEY_REF_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.installDate forKey:KEY_INSDATE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.sessionDate forKey:KEY_SESSION_DATETIME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.systemDate forKey:KEY_SYSTEM_DATE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.referralUrl forKey:KEY_REFERRAL_URL encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.referralSource forKey:KEY_REFERRAL_SOURCE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.redirectUrl forKey:KEY_REDIRECT_URL encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.installLogId forKey:KEY_INSTALL_LOG_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.updateLogId forKey:KEY_UPDATE_LOG_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.openLogId forKey:KEY_OPEN_LOG_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.lastOpenLogId forKey:KEY_LAST_OPEN_LOG_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.currencyCode forKey:KEY_CURRENCY encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.revenue forKey:KEY_REVENUE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.transactionState forKey:KEY_IOS_PURCHASE_STATUS encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.jailbroken forKey:KEY_OS_JAILBROKE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.siteId forKey:KEY_SITE_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.packageName forKey:KEY_PACKAGE_NAME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appName forKey:KEY_APP_NAME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appVersion forKey:KEY_APP_VERSION encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.advertiserId forKey:KEY_ADVERTISER_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.conversionKey forKey:KEY_KEY encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.trackingId forKey:KEY_TRACKING_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.matId forKey:KEY_MAT_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.facebookCookieId forKey:KEY_FB_COOKIE_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifv forKey:KEY_IOS_IFV encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifa forKey:KEY_IOS_IFA encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifaTracking forKey:KEY_IOS_AD_TRACKING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.iadAttribution forKey:KEY_IAD_ATTRIBUTION encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.iadImpressionDate forKey:KEY_IAD_IMPRESSION_DATE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appAdTracking forKey:KEY_APP_AD_TRACKING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.payingUser forKey:KEY_IS_PAYING_USER encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.existingUser forKey:KEY_EXISTING_USER encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userEmail forKey:KEY_USER_EMAIL encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userId forKey:KEY_USER_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userName forKey:KEY_USER_NAME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.facebookUserId forKey:KEY_FACEBOOK_USER_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.twitterUserId forKey:KEY_TWITTER_USER_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.googleUserId forKey:KEY_GOOGLE_USER_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.age forKey:KEY_AGE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.gender forKey:KEY_GENDER encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.latitude forKey:KEY_LATITUDE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.longitude forKey:KEY_LONGITUDE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.altitude forKey:KEY_ALTITUDE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.trusteTPID forKey:KEY_TRUSTE_TPID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceModel forKey:KEY_DEVICE_MODEL encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCpuType forKey:KEY_DEVICE_CPUTYPE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCpuSubtype forKey:KEY_DEVICE_CPUSUBTYPE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCarrier forKey:KEY_DEVICE_CARRIER encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceBrand forKey:KEY_DEVICE_BRAND encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.screenDensity forKey:KEY_SCREEN_DENSITY encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.screenSize forKey:KEY_SCREEN_SIZE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileCountryCode forKey:KEY_CARRIER_COUNTRY_CODE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileCountryCodeISO forKey:KEY_CARRIER_COUNTRY_CODE_ISO encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileNetworkCode forKey:KEY_CARRIER_NETWORK_CODE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.countryCode forKey:KEY_COUNTRY_CODE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.osVersion forKey:KEY_OS_VERSION encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.language forKey:KEY_LANGUAGE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userAgent forKey:KEY_CONVERSION_USER_AGENT encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@"ios" forKey:KEY_SDK encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:MATVERSION forKey:KEY_VER encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.pluginName forKey:KEY_SDK_PLUGIN encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.regionName forKey:KEY_GEOFENCE_NAME encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.locationAuthorizationStatus forKey:KEY_LOCATION_AUTH_STATUS encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    
-    [self addValue:self.eventContentType forKey:KEY_EVENT_CONTENT_TYPE encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventContentId forKey:KEY_EVENT_CONTENT_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventLevel forKey:KEY_EVENT_LEVEL encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventQuantity forKey:KEY_EVENT_QUANTITY encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventSearchString forKey:KEY_EVENT_SEARCH_STRING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventRating forKey:KEY_EVENT_RATING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventDate1 forKey:KEY_EVENT_DATE1 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventDate2 forKey:KEY_EVENT_DATE2 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventAttribute1 forKey:KEY_EVENT_ATTRIBUTE_SUB1 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventAttribute2 forKey:KEY_EVENT_ATTRIBUTE_SUB2 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventAttribute3 forKey:KEY_EVENT_ATTRIBUTE_SUB3 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventAttribute4 forKey:KEY_EVENT_ATTRIBUTE_SUB4 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.eventAttribute5 forKey:KEY_EVENT_ATTRIBUTE_SUB5 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventContentType            forKey:MAT_KEY_EVENT_CONTENT_TYPE       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventContentId              forKey:MAT_KEY_EVENT_CONTENT_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventLevel                  forKey:MAT_KEY_EVENT_LEVEL              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventQuantity               forKey:MAT_KEY_EVENT_QUANTITY           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventSearchString           forKey:MAT_KEY_EVENT_SEARCH_STRING      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventRating                 forKey:MAT_KEY_EVENT_RATING             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventDate1                  forKey:MAT_KEY_EVENT_DATE1              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventDate2                  forKey:MAT_KEY_EVENT_DATE2              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventAttribute1             forKey:MAT_KEY_EVENT_ATTRIBUTE_SUB1     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventAttribute2             forKey:MAT_KEY_EVENT_ATTRIBUTE_SUB2     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventAttribute3             forKey:MAT_KEY_EVENT_ATTRIBUTE_SUB3     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventAttribute4             forKey:MAT_KEY_EVENT_ATTRIBUTE_SUB4     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.eventAttribute5             forKey:MAT_KEY_EVENT_ATTRIBUTE_SUB5 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     // Note: it's possible for a cworks key to duplicate a built-in key (say, "sdk").
     // If that happened, the constructed URL would have two of the same parameter (e.g.,
     // "...sdk=ios&sdk=cworksvalue..."), though one might be encrypted and one not.
     for( NSString *key in [self.cworksClick allKeys] )
-        [self addValue:self.cworksClick[key] forKey:key encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.cworksClick[key]        forKey:key                              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     for( NSString *key in [self.cworksImpression allKeys] )
-        [self addValue:self.cworksImpression[key] forKey:key encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.cworksImpression[key]   forKey:key                              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 
-    [self addValue:[[NSUUID UUID] UUIDString] forKey:KEY_TRANSACTION_ID encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[NSUUID UUID] UUIDString]       forKey:MAT_KEY_TRANSACTION_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 
-    [self addValue:KEY_JSON forKey:KEY_RESPONSE_FORMAT encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:MAT_KEY_JSON                     forKey:MAT_KEY_RESPONSE_FORMAT          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    if( [self.debugMode boolValue] )
+        [self addValue:@(TRUE)                      forKey:MAT_KEY_DEBUG                    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    if( [self.allowDuplicates boolValue] )
+        [self addValue:@(TRUE)                      forKey:MAT_KEY_SKIP_DUP                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#if DEBUG
+    [self addValue:@(TRUE)                          forKey:MAT_KEY_BYPASS_THROTTLING        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#endif
     
-    DLLog(@"MAT urlStringForServerUrl: key = %@, data to be encrypted: %@", encryptKey, encryptedParams);
+    DLLog(@"MAT urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
     
     if( [_delegate respondsToSelector:@selector(_matURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [_delegate _matURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
     
-    *trackingLink = [NSString stringWithFormat:@"https://%@.%@/%@?%@&",
+    *trackingLink = [NSString stringWithFormat:@"https://%@.%@/%@?%@",
                      self.advertiserId,
-                     [self domainName:debugMode],
-                     SERVER_PATH_TRACKING_ENGINE,
+                     [self domainName],
+                     MAT_SERVER_PATH_TRACKING_ENGINE,
                      nonEncryptedParams];
     *encryptParams = encryptedParams;
 }
@@ -373,7 +376,7 @@ static NSSet * ignoreParams;
     else
         return;
 
-    if( [key isEqualToString:KEY_PACKAGE_NAME] )
+    if( [key isEqualToString:MAT_KEY_PACKAGE_NAME] || [key isEqualToString:MAT_KEY_DEBUG] )
     {
         [plaintextParams appendFormat:@"&%@=%@", key, useString];
         [encryptedParams appendFormat:@"&%@=%@", key, useString];

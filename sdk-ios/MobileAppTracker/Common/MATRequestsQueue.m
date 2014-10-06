@@ -57,7 +57,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     {
         self.queueParts = [NSMutableArray array];
         
-        float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+        float systemVersion = [MATUtils numericiOSSystemVersion];
         
         NSSearchPathDirectory folderType = systemVersion < MAT_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
         NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
@@ -91,6 +91,19 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     }
     
     return self;
+}
+
+- (void)closedown
+{
+    if ([[NSFileManager defaultManager] fileExistsAtPath:self.pathStorageFile])
+    {
+        // delete the legacy queue storage file
+        [[NSFileManager defaultManager] removeItemAtPath:self.pathStorageFile error:nil];
+    }
+    
+    // Note: We do not remove the legacy "queue" folder,
+    // being a generic folder name, the client app may
+    // be using "queue" folder for some other purpose.
 }
 
 - (NSString*)description
@@ -244,6 +257,8 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     
     [strDescr appendFormat:@"</%@>", XML_NODE_PARTS];
     
+    DLog(@"MATReqQue: save: strDescr = %@", strDescr);
+    
     NSError * error = nil;
     [strDescr writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
 
@@ -327,16 +342,16 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 // -- for iOS v5.0   and below : Moves file to Library/Caches
 - (void)fixForiCloud
 {
-    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue]);
+    DLog(@"MATReqQue: fixForCloud: is already fixed = %d", [[MATUtils userDefaultValueforKey:MAT_KEY_MAT_FIXED_FOR_ICLOUD] boolValue]);
     
     // This fix is needed only once and never again.
-    if(![[MATUtils userDefaultValueforKey:KEY_MAT_FIXED_FOR_ICLOUD] boolValue])
+    if(![[MATUtils userDefaultValueforKey:MAT_KEY_MAT_FIXED_FOR_ICLOUD] boolValue])
     {
         NSString *queueStorageFolder = self.pathStorageDir;
         
         NSError *error = nil;
         
-        float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+        float systemVersion = [MATUtils numericiOSSystemVersion];
         
         DLog(@"MATReqQue: fixForCloud: systemVersion = %f", systemVersion);
         
@@ -375,10 +390,22 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         {
             DLog(@"MATReqQue: fixForCloud: set key KEY_MAT_FIXED_FOR_ICLOUD = YES");
             // Set a flag to note that the do-not-back-to-iCloud change was successful.
-            [MATUtils setUserDefaultValue:@TRUE forKey:KEY_MAT_FIXED_FOR_ICLOUD];
+            [MATUtils setUserDefaultValue:@TRUE forKey:MAT_KEY_MAT_FIXED_FOR_ICLOUD];
         }
     }
 }
 
++ (BOOL)exists
+{
+    float systemVersion = [MATUtils numericiOSSystemVersion];
+    
+    NSSearchPathDirectory folderType = systemVersion < MAT_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
+    NSString *baseFolder = [paths objectAtIndex:0];
+    NSString *pathDir = [baseFolder stringByAppendingPathComponent:MAT_REQUEST_QUEUE_FOLDER];
+    NSString *pathFile = [pathDir stringByAppendingPathComponent:XML_FILE_NAME];
+    
+    return [[NSFileManager defaultManager] fileExistsAtPath:pathFile];
+}
 
 @end

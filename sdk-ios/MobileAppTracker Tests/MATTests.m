@@ -7,8 +7,6 @@
 //
 
 #import "MATTests.h"
-#import "MATRequestsQueue.h"
-#import "MATConnectionManager.h"
 
 NSString* const kTestAdvertiserId = @"877";
 NSString* const kTestConversionKey = @"8c14d6bbe466b65211e781d62e301eec";
@@ -24,19 +22,20 @@ void waitFor( NSTimeInterval duration )
     while( [stopDate timeIntervalSinceNow] > 0 );
 }
 
-
 void emptyRequestQueue()
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    MATConnectionManager *cm = [mat performSelector:@selector(connectionManager)];
-    MATRequestsQueue *requestsQueue = [cm performSelector:@selector(requestsQueue)];
-    while( [requestsQueue pop] ); // clear queue
-    [cm performSelector:@selector(stopQueueDump)];
-#pragma clang diagnostic pop
+    [MATEventQueue drain];
 }
 
+void networkOffline()
+{
+    [MATEventQueue setNetworkReachability:NO];
+}
+
+void networkOnline()
+{
+    [MATEventQueue setNetworkReachability:YES];
+}
 
 int char2hex(unsigned char c) {
     switch (c) {
@@ -50,8 +49,3 @@ int char2hex(unsigned char c) {
             return 0xFF;
     }
 }
-
-
-@implementation MATTests
-
-@end

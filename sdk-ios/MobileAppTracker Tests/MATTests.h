@@ -7,7 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MATKeyStrings.h"
+#import "../MobileAppTracker/Common/MATEventQueue.h"
+#import "../MobileAppTracker/Common/MATKeyStrings.h"
+
+@import MobileCoreServices;
 
 FOUNDATION_EXPORT NSString* const kTestAdvertiserId;
 FOUNDATION_EXPORT NSString* const kTestConversionKey;
@@ -17,10 +20,7 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_TEST_NETWORK_REQUEST_DURATION;
 void waitFor( NSTimeInterval duration );
 
 void emptyRequestQueue();
+void networkOffline();
+void networkOnline();
 
 int char2hex(unsigned char c);
-
-
-@interface MATTests : NSObject
-
-@end

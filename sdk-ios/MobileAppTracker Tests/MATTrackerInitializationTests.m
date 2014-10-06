@@ -7,10 +7,11 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTracker.h"
-#import "MATSettings.h"
 #import "MATTests.h"
 #import "MATTestParams.h"
+#import "../MobileAppTracker/Common/MATSettings.h"
+#import "../MobileAppTracker/Common/MATTracker.h"
+#import "../MobileAppTracker/Common/MATUtils.h"
 
 @interface MATTrackerInitializationTests : XCTestCase <MobileAppTrackerDelegate, MATSettingsDelegate>
 {
@@ -51,7 +52,7 @@
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_OS_JAILBROKE, @"0" );
+    ASSERT_KEY_VALUE( MAT_KEY_OS_JAILBROKE, @"0" );
 }
 
 - (void)testNotAutodetectJailbroken
@@ -62,7 +63,7 @@
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_OS_JAILBROKE );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_OS_JAILBROKE );
 }
 
 
@@ -73,7 +74,7 @@
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
 }
 
 - (void)testNotAutogenerateIFV
@@ -84,7 +85,7 @@
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_IOS_IFV );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_IOS_IFV );
 }
 
 
@@ -100,7 +101,7 @@
     waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"site_event_name", eventName );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, eventName );
     XCTAssertTrue( [params checkKeyHasValue:@"testAppleReceipt"], @"no Apple receipt sent" );
     XCTAssertTrue( [params checkAppleReceiptEquals:receiptData], @"Apple receipt value mismatch" );
 }
@@ -112,9 +113,9 @@
     static NSString *const testId = @"testid";
     static NSString *const testName = @"testname";
     
-    [MATUtils setUserDefaultValue:testEmail forKey:KEY_USER_EMAIL];
-    [MATUtils setUserDefaultValue:testId forKey:KEY_USER_ID];
-    [MATUtils setUserDefaultValue:testName forKey:KEY_USER_NAME];
+    [MATUtils setUserDefaultValue:testEmail forKey:MAT_KEY_USER_EMAIL];
+    [MATUtils setUserDefaultValue:testId forKey:MAT_KEY_USER_ID];
+    [MATUtils setUserDefaultValue:testName forKey:MAT_KEY_USER_NAME];
     
     mat = [MATTracker new];
     mat.delegate = self;
@@ -125,9 +126,9 @@
     waitFor( 1. );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_USER_EMAIL, testEmail );
-    ASSERT_KEY_VALUE( KEY_USER_ID, testId );
-    ASSERT_KEY_VALUE( KEY_USER_NAME, testName );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL, testEmail );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_ID, testId );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME, testName );
 }
 
 

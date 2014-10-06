@@ -10,11 +10,11 @@
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
-#import "MATConnectionManager.h"
-#import "MATRequestsQueue.h"
-#import "MATReachability.h"
-#import "MATSettings.h"
-#import "MATTracker.h"
+#import "../MobileAppTracker/Common/MATEventQueue.h"
+#import "../MobileAppTracker/Common/MATReachability.h"
+#import "../MobileAppTracker/Common/MATRequestsQueue.h"
+#import "../MobileAppTracker/Common/MATSettings.h"
+#import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATQueueTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -22,10 +22,9 @@
     BOOL callFailed;
     
     NSMutableArray *successMessages;
-
-    MATConnectionManager *connectionManager;
-    MATRequestsQueue *requestsQueue;
-
+    
+    MATEventQueue *eventQueue;
+    
     MATTestParams *params;
     MATTestParams *params2;
 }
@@ -43,14 +42,9 @@
     [MobileAppTracker setDebugMode:YES];
     [MobileAppTracker setAllowDuplicateRequests:YES];
     
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
-    connectionManager = [mat performSelector:@selector(connectionManager)];
-    requestsQueue = [connectionManager performSelector:@selector(requestsQueue)];
-    while( [requestsQueue pop] ); // clear queue
-    [connectionManager performSelector:@selector(stopQueueDump)];
-#pragma clang diagnostic pop
+    eventQueue = [MATEventQueue sharedInstance];
+    
+    emptyRequestQueue();
     
     successMessages = [NSMutableArray array];
     
@@ -59,66 +53,42 @@
 
 - (void)tearDown
 {
-    [self putOnline];
+    networkOnline();
 
-    while( [requestsQueue pop] ); // clear queue
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    [connectionManager performSelector:@selector(stopQueueDump)];
-#pragma clang diagnostic pop
-
+    // drain the event queue
+    emptyRequestQueue();
+    
     [super tearDown];
 }
 
-
-- (void)takeOffline
-{
-    connectionManager.status = NotReachable;
-}
-
-- (void)putOnline
-{
-    connectionManager.status = ReachableViaWiFi;
-}
-
-
 - (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize
 {
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == queueSize, @"expected %d queued requests, found %d",
-                   (int)queueSize, (unsigned int)requestsQueue.queuedRequestsCount );
+    NSLog(@"checkAndClearExpectedQueueSize: cur queue size = %d", (unsigned int)[MATEventQueue queueSize]);
     
-    NSInteger count = 0;
-    while( [requestsQueue pop] ) count++;
-    XCTAssertTrue( count == queueSize, @"expected to pop %d queue items, found %d", (int)queueSize, (int)count );
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    [connectionManager performSelector:@selector(stopQueueDump)];
-#pragma clang diagnostic pop
+    XCTAssertTrue( [MATEventQueue queueSize] == queueSize, @"expected %d queued requests, found %d", (int)queueSize, (unsigned int)[MATEventQueue queueSize] );
+    
+    emptyRequestQueue();
+    
+    NSUInteger count = 0;
+    XCTAssertTrue( [MATEventQueue queueSize] == count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)[MATEventQueue queueSize] );
 }
 
 
 #pragma mark - Automatic queueing
+
 - (void)testAAAAAQueueFlush // run this test first to clear out queue and pending requests
 {
     emptyRequestQueue();
-    waitFor( 30. );
-    [self checkAndClearExpectedQueueSize:0];
-
-    [self takeOffline];
-    waitFor( 1. );
-    XCTAssertTrue( connectionManager.status == NotReachable );
 }
-
 
 - (void)testOfflineFailureQueued
 {
-    [self takeOffline];
-    XCTAssertTrue( connectionManager.status == NotReachable, @"connection status should be not reachable" );
+    networkOffline();
+    XCTAssertTrue( ![MATEventQueue networkReachability], @"connection status should be not reachable" );
     [MobileAppTracker measureSession];
     
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertTrue( connectionManager.status == NotReachable, @"connection status should be not reachable" );
+    XCTAssertTrue( ![MATEventQueue networkReachability], @"connection status should be not reachable" );
     
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     XCTAssertFalse( callSuccess, @"offline call should not have received a success notification" );
@@ -127,27 +97,25 @@
 
 - (void)testOfflineFailureQueuedRetried
 {
-    [self takeOffline];
+    networkOffline();
     [MobileAppTracker measureAction:@"registration"];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     
-     [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
-    waitFor( 0.1 );
+    [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION ); // wait for server response
     XCTAssertFalse( callFailed, @"dequeuing call should have succeeded" );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_retry_attempt", [@0 stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_RETRY_COUNT, [@0 stringValue] );
     [self checkAndClearExpectedQueueSize:0];
     
-    waitFor( 5. ); // wait for server response
-    XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
+    XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded, actual value = %d", (unsigned int)[successMessages count] );
 }
-
 
 - (void)testEnqueue2
 {
-    [self takeOffline];
+    networkOffline();
     [MobileAppTracker measureSession];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -162,7 +130,7 @@
 {
     [MobileAppTracker setDebugMode:NO];
     
-    [self takeOffline];
+    networkOffline();
     [MobileAppTracker measureSession];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
 
@@ -172,7 +140,7 @@
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
+    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected 2 queued requests" );
      [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
     waitFor( 5. );
     XCTAssertFalse( callFailed, @"dequeuing call should not have failed" );
@@ -185,15 +153,16 @@
 {
     [MobileAppTracker setDebugMode:YES];
 
-    [self takeOffline];
+    networkOffline();
     [MobileAppTracker measureAction:@"event1"];
     [MobileAppTracker measureAction:@"event2"];
-    waitFor( 0.1 );
+    waitFor( 1. );
     
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected 2 queued requests" );
-     [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
-    waitFor( 10. );
-
+    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected 2 queued requests" );
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kMATReachabilityChangedNotification object:nil];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION + MAT_TEST_NETWORK_REQUEST_DURATION );
+    
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
     XCTAssertTrue( [successMessages count] == 2, @"both calls should have succeeded, but %lu did", (unsigned long)[successMessages count] );
@@ -202,32 +171,35 @@
         NSData *data = successMessages[i];
         NSDictionary *jso = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
         NSString *expectedEvent = [NSString stringWithFormat:@"event%d", (int)i + 1];
-        XCTAssertTrue( [jso[@"get"][@"site_event_name"] isEqualToString:expectedEvent],
+        XCTAssertTrue( [jso[@"get"][MAT_KEY_SITE_EVENT_NAME] isEqualToString:expectedEvent],
                        @"expected event name '%@', got '%@'", expectedEvent, jso[@"get"][@"site_event_name"] );
     }
 }
 
-
 - (void)testSessionQueue
 {
+    networkOnline();
+    
     [MobileAppTracker setDebugMode:YES];
     [MobileAppTracker measureSession];
     waitFor( 1. );
     XCTAssertFalse( callFailed, @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"session call should not have been attempted after 1 sec" );
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 0, @"expected no queued requests, but found %lu", (unsigned long)requestsQueue.queuedRequestsCount );
-
-    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
+    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected 1 queued request, but found %lu", (unsigned long)[MATEventQueue queueSize] );
+    
+    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION);
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"action", EVENT_SESSION );
+    ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_SESSION );
     [self checkAndClearExpectedQueueSize:0];
 }
 
 - (void)testSessionQueueOrder
 {
+    networkOnline();
+    
     params2 = [MATTestParams new];
 
     [MobileAppTracker setDebugMode:YES];
@@ -237,7 +209,7 @@
 
     XCTAssertFalse( callFailed, @"no calls should have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"no calls should have been attempted after 1 sec" );
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 1, @"expected 1 queued requests, but found %lu", (unsigned long)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected 2 queued requests, but found %lu", (unsigned long)[MATEventQueue queueSize] );
 
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"session call should not have failed" );
@@ -246,8 +218,8 @@
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params2 checkDefaultValues], @"default value check failed: %@", params2 );
-    XCTAssertTrue( [params checkKey:@"action" isEqualToValue:EVENT_SESSION], @"first call should be \"session\"" );
-    XCTAssertTrue( [params2 checkKey:@"action" isEqualToValue:EVENT_CONVERSION], @"second call should be \"conversion\"" );
+    XCTAssertTrue( [params checkKey:MAT_KEY_ACTION isEqualToValue:MAT_EVENT_SESSION], @"first call should be \"session\"" );
+    XCTAssertTrue( [params2 checkKey:MAT_KEY_ACTION isEqualToValue:MAT_EVENT_CONVERSION], @"second call should be \"conversion\"" );
 }
 
 
@@ -258,7 +230,7 @@
     static NSString* const testUrl = @"fakeUrl";
     static NSString* const testPostData = @"someTestJson";
     NSDate *testDate = [NSDate date];
-    NSDictionary *item = @{KEY_URL: testUrl, KEY_JSON: testPostData, KEY_RUN_DATE: testDate};
+    NSDictionary *item = @{MAT_KEY_URL: testUrl, MAT_KEY_JSON: testPostData, MAT_KEY_RUN_DATE: testDate};
     
     MATRequestsQueue *queue = [MATRequestsQueue new];
     [queue push:item];
@@ -289,14 +261,14 @@
 - (void)mobileAppTrackerDidSucceedWithData:(NSData *)data
 {
     [successMessages addObject:data];
-    //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
+//    NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
 }
 
 - (void)mobileAppTrackerDidFailWithError:(NSError *)error
 {
-    NSLog( @"test received failure with %@\n", error );
+//    NSLog( @"test received failure with %@\n", error );
     callFailed = YES;
     callSuccess = NO;
 }

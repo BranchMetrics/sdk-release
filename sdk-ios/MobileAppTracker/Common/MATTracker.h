@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MATSettings.h"
-#import "MATConnectionManager.h"
 #import "MATRegionMonitor.h"
 
 FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
@@ -19,7 +19,6 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 @interface MATTracker : NSObject
 
 @property (nonatomic, assign) id <MobileAppTrackerDelegate> delegate;
-@property (nonatomic, retain) MATConnectionManager *connectionManager;
 @property (nonatomic, retain) MATSettings *parameters;
 
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;

@@ -6,20 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		4F58A7D715C8B47C00C8D2D9 /* Documentation */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 4F58A7DA15C8B47C00C8D2D9 /* Build configuration list for PBXAggregateTarget "Documentation" */;
-			buildPhases = (
-				4F58A7DC15C8B49B00C8D2D9 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = Documentation;
-			productName = Documentation;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		42108BFA186250DB005BDB32 /* MATQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BF9186250DB005BDB32 /* MATQueueTests.m */; };
 		42108BFE1862518F005BDB32 /* MATServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BFD1862518F005BDB32 /* MATServerTests.m */; };
@@ -31,7 +17,6 @@
 		4260CBCC196B41CF0084FE12 /* MATEncrypterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCB196B41CF0084FE12 /* MATEncrypterTests.m */; };
 		4260CBCF196B69DF0084FE12 /* MATEncrypter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4260CBCD196B69DF0084FE12 /* MATEncrypter.h */; };
 		4260CBD0196B69DF0084FE12 /* MATEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCE196B69DF0084FE12 /* MATEncrypter.m */; };
-		426AE382188F385B00A0E0E2 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 426AE381188F385B00A0E0E2 /* iAd.framework */; };
 		4284981818E1ECE6008E8FF0 /* MATInstallReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 4212224418E0BCBE001F263E /* MATInstallReceipt.m */; };
 		428F084C18C13E5900B1AC24 /* MATTrackerInitializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084B18C13E5900B1AC24 /* MATTrackerInitializationTests.m */; };
 		428F084F18C13F1900B1AC24 /* MATTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* MATTracker.h */; };
@@ -45,23 +30,18 @@
 		42CBBD34188093DB00187A4A /* MATSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD32188093DB00187A4A /* MATSettings.m */; };
 		42CD4180191156BC003D0293 /* MATRegionMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CD417E191156BC003D0293 /* MATRegionMonitor.h */; };
 		42CD4181191156BC003D0293 /* MATRegionMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CD417F191156BC003D0293 /* MATRegionMonitor.m */; };
+		42D52292199A8A9E00FC5F8F /* MATEventQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 42D52290199A8A9E00FC5F8F /* MATEventQueue.h */; };
+		42D52293199A8A9E00FC5F8F /* MATEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 42D52291199A8A9E00FC5F8F /* MATEventQueue.m */; };
 		42DD9C8B1863A719005CA6F9 /* MATAutoParameterizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42DD9C8A1863A719005CA6F9 /* MATAutoParameterizationTests.m */; };
 		42EAA5421860F4B800041A8D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA5411860F4B800041A8D /* XCTest.framework */; };
 		42EAA5431860F4B900041A8D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18515C700D300BEEC38 /* Foundation.framework */; };
-		42EAA5441860F4B900041A8D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B3437316E55A1900FF81A2 /* UIKit.framework */; };
 		42EAA54A1860F4B900041A8D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42EAA5481860F4B900041A8D /* InfoPlist.strings */; };
 		42EAA54C1860F4B900041A8D /* MobileAppTracker_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */; };
 		42EAA5531860FD4A00041A8D /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */; };
-		42EAA5551860FD7D00041A8D /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA5541860FD7D00041A8D /* AdSupport.framework */; };
-		42EAA5571860FDF700041A8D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA5561860FDF700041A8D /* CoreTelephony.framework */; };
-		42EAA5591860FDFF00041A8D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA5581860FDFF00041A8D /* SystemConfiguration.framework */; };
-		42EAA55B1860FE0700041A8D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA55A1860FE0700041A8D /* MobileCoreServices.framework */; };
 		42FFE859191D16AE00ACF2E2 /* MATUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */; };
 		42FFE85A191D16AE00ACF2E2 /* MATUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 42FFE858191D16AE00ACF2E2 /* MATUserAgentCollector.m */; };
 		4FDFA18615C700D300BEEC38 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18515C700D300BEEC38 /* Foundation.framework */; };
 		4FDFA18C15C700D300BEEC38 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
-		4FDFA1AE15C7029A00BEEC38 /* MATConnectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19815C7029A00BEEC38 /* MATConnectionManager.h */; };
-		4FDFA1AF15C7029A00BEEC38 /* MATConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19915C7029A00BEEC38 /* MATConnectionManager.m */; };
 		4FDFA1B215C7029A00BEEC38 /* MATKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19C15C7029A00BEEC38 /* MATKeyStrings.h */; };
 		4FDFA1B315C7029A00BEEC38 /* MATKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* MATKeyStrings.m */; };
 		4FDFA1B615C7029A00BEEC38 /* NSString+MATURLEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* NSString+MATURLEncoding.h */; };
@@ -78,13 +58,11 @@
 		4FDFA21F15C7079A00BEEC38 /* MATReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* MATReachability.m */; };
 		F8001A56197F3C76002303D6 /* MATTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* MATTracker.m */; };
 		F8001A57197F3D91002303D6 /* MATKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* MATKeyStrings.m */; };
-		F8001A58197F3EB2002303D6 /* MATConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19915C7029A00BEEC38 /* MATConnectionManager.m */; };
 		F8001A59197F3EB8002303D6 /* MATReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* MATReachability.m */; };
 		F8001A5A197F3EC0002303D6 /* MATSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD32188093DB00187A4A /* MATSettings.m */; };
 		F8001A5B197F3ED1002303D6 /* MATRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */; };
 		F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */; };
 		F8A2EA8416445D3E0023FCE1 /* MATCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */; };
-		F8B3437416E55A1900FF81A2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B3437316E55A1900FF81A2 /* UIKit.framework */; };
 		F8BAC7F1189333BB001A25FC /* MATUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */; };
 		F8BAC7F3189335B0001A25FC /* MATEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */; };
 /* End PBXBuildFile section */
@@ -112,7 +90,6 @@
 		4260CBCB196B41CF0084FE12 /* MATEncrypterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEncrypterTests.m; sourceTree = "<group>"; };
 		4260CBCD196B69DF0084FE12 /* MATEncrypter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEncrypter.h; sourceTree = "<group>"; };
 		4260CBCE196B69DF0084FE12 /* MATEncrypter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEncrypter.m; sourceTree = "<group>"; };
-		426AE381188F385B00A0E0E2 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		428F084B18C13E5900B1AC24 /* MATTrackerInitializationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTrackerInitializationTests.m; sourceTree = "<group>"; };
 		428F084D18C13F1900B1AC24 /* MATTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTracker.h; sourceTree = "<group>"; };
 		428F084E18C13F1900B1AC24 /* MATTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTracker.m; sourceTree = "<group>"; };
@@ -125,6 +102,8 @@
 		42CBBD32188093DB00187A4A /* MATSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATSettings.m; sourceTree = "<group>"; };
 		42CD417E191156BC003D0293 /* MATRegionMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MATRegionMonitor.h; path = ../MATRegionMonitor.h; sourceTree = "<group>"; };
 		42CD417F191156BC003D0293 /* MATRegionMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MATRegionMonitor.m; path = ../MATRegionMonitor.m; sourceTree = "<group>"; };
+		42D52290199A8A9E00FC5F8F /* MATEventQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEventQueue.h; sourceTree = "<group>"; };
+		42D52291199A8A9E00FC5F8F /* MATEventQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventQueue.m; sourceTree = "<group>"; };
 		42DD9C8A1863A719005CA6F9 /* MATAutoParameterizationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATAutoParameterizationTests.m; sourceTree = "<group>"; };
 		42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MobileAppTracker Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		42EAA5411860F4B800041A8D /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -132,13 +111,8 @@
 		42EAA5491860F4B900041A8D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileAppTracker_Tests.m; sourceTree = "<group>"; };
 		42EAA54D1860F4B900041A8D /* MobileAppTracker Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MobileAppTracker Tests-Prefix.pch"; sourceTree = "<group>"; };
-		42EAA5541860FD7D00041A8D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
-		42EAA5561860FDF700041A8D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
-		42EAA5581860FDFF00041A8D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		42EAA55A1860FE0700041A8D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUserAgentCollector.h; sourceTree = "<group>"; };
 		42FFE858191D16AE00ACF2E2 /* MATUserAgentCollector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUserAgentCollector.m; sourceTree = "<group>"; };
-		4F5DAB1315C9873900E68DBB /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDFA18515C700D300BEEC38 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4FDFA18915C700D300BEEC38 /* MobileAppTracker-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MobileAppTracker-Info.plist"; sourceTree = "<group>"; };
@@ -160,9 +134,9 @@
 		4FDFA21615C7032400BEEC38 /* MobileAppTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MobileAppTracker.m; sourceTree = "<group>"; };
 		4FDFA21C15C7079A00BEEC38 /* MATReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATReachability.h; sourceTree = "<group>"; };
 		4FDFA21D15C7079A00BEEC38 /* MATReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATReachability.m; sourceTree = "<group>"; };
+		F8492D66198C1A850058A259 /* MATUtils_TestPrivateMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUtils_TestPrivateMethods.h; sourceTree = "<group>"; };
 		F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATCWorks.h; sourceTree = "<group>"; };
 		F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATCWorks.m; sourceTree = "<group>"; };
-		F8B3437316E55A1900FF81A2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUtilsTests.m; sourceTree = "<group>"; };
 		F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventItemTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -172,14 +146,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				426AE382188F385B00A0E0E2 /* iAd.framework in Frameworks */,
-				42EAA55B1860FE0700041A8D /* MobileCoreServices.framework in Frameworks */,
-				42EAA5591860FDFF00041A8D /* SystemConfiguration.framework in Frameworks */,
-				42EAA5571860FDF700041A8D /* CoreTelephony.framework in Frameworks */,
-				42EAA5551860FD7D00041A8D /* AdSupport.framework in Frameworks */,
 				42EAA5421860F4B800041A8D /* XCTest.framework in Frameworks */,
 				42EAA5531860FD4A00041A8D /* MobileAppTracker.framework in Frameworks */,
-				42EAA5441860F4B900041A8D /* UIKit.framework in Frameworks */,
 				42EAA5431860F4B900041A8D /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -188,7 +156,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8B3437416E55A1900FF81A2 /* UIKit.framework in Frameworks */,
 				4FDFA18615C700D300BEEC38 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -196,23 +163,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		42D52294199A8AC600FC5F8F /* legacy queueing */ = {
+			isa = PBXGroup;
+			children = (
+				4FDFA19815C7029A00BEEC38 /* MATConnectionManager.h */,
+				4FDFA19915C7029A00BEEC38 /* MATConnectionManager.m */,
+				4FDFA1A615C7029A00BEEC38 /* MATRequestsQueue.h */,
+				4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */,
+				4FDFA1A815C7029A00BEEC38 /* MATRequestsQueuePart.h */,
+				4FDFA1A915C7029A00BEEC38 /* MATRequestsQueuePart.m */,
+			);
+			name = "legacy queueing";
+			sourceTree = "<group>";
+		};
 		42EAA5451860F4B900041A8D /* MobileAppTracker Tests */ = {
 			isa = PBXGroup;
 			children = (
+				42DD9C8A1863A719005CA6F9 /* MATAutoParameterizationTests.m */,
+				4260CBCB196B41CF0084FE12 /* MATEncrypterTests.m */,
 				F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */,
-				42108C00186251EE005BDB32 /* MATTests.h */,
-				42108C01186251EE005BDB32 /* MATTests.m */,
+				428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */,
+				42108C03186277AB005BDB32 /* MATParametersTests.m */,
+				42108BF9186250DB005BDB32 /* MATQueueTests.m */,
+				42108BFD1862518F005BDB32 /* MATServerTests.m */,
 				42108C05186356E0005BDB32 /* MATTestParams.h */,
 				42108C06186356E0005BDB32 /* MATTestParams.m */,
-				4260CBCB196B41CF0084FE12 /* MATEncrypterTests.m */,
-				42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */,
-				42108BF9186250DB005BDB32 /* MATQueueTests.m */,
-				42108C03186277AB005BDB32 /* MATParametersTests.m */,
-				42DD9C8A1863A719005CA6F9 /* MATAutoParameterizationTests.m */,
-				42108BFD1862518F005BDB32 /* MATServerTests.m */,
-				F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */,
+				42108C00186251EE005BDB32 /* MATTests.h */,
+				42108C01186251EE005BDB32 /* MATTests.m */,
 				428F084B18C13E5900B1AC24 /* MATTrackerInitializationTests.m */,
-				428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */,
+				F8492D66198C1A850058A259 /* MATUtils_TestPrivateMethods.h */,
+				F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */,
+				42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */,
 				42EAA5461860F4B900041A8D /* Supporting Files */,
 			);
 			path = "MobileAppTracker Tests";
@@ -250,12 +231,6 @@
 		4FDFA18415C700D300BEEC38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				426AE381188F385B00A0E0E2 /* iAd.framework */,
-				42EAA55A1860FE0700041A8D /* MobileCoreServices.framework */,
-				42EAA5581860FDFF00041A8D /* SystemConfiguration.framework */,
-				42EAA5561860FDF700041A8D /* CoreTelephony.framework */,
-				42EAA5541860FD7D00041A8D /* AdSupport.framework */,
-				F8B3437316E55A1900FF81A2 /* UIKit.framework */,
 				4FDFA18515C700D300BEEC38 /* Foundation.framework */,
 				42EAA5411860F4B800041A8D /* XCTest.framework */,
 			);
@@ -278,7 +253,6 @@
 		4FDFA18815C700D300BEEC38 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4F5DAB1315C9873900E68DBB /* AppledocSettings.plist */,
 				4FDFA18915C700D300BEEC38 /* MobileAppTracker-Info.plist */,
 				4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */,
 				4FDFA18D15C700D300BEEC38 /* MobileAppTracker-Prefix.pch */,
@@ -289,16 +263,14 @@
 		4FDFA19715C7014A00BEEC38 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				428F084D18C13F1900B1AC24 /* MATTracker.h */,
-				428F084E18C13F1900B1AC24 /* MATTracker.m */,
 				42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */,
 				42C1E2B818C012B100C5789C /* MATAppToAppTracker.m */,
-				4FDFA19815C7029A00BEEC38 /* MATConnectionManager.h */,
-				4FDFA19915C7029A00BEEC38 /* MATConnectionManager.m */,
 				F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */,
 				F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */,
 				4260CBCD196B69DF0084FE12 /* MATEncrypter.h */,
 				4260CBCE196B69DF0084FE12 /* MATEncrypter.m */,
+				42D52290199A8A9E00FC5F8F /* MATEventQueue.h */,
+				42D52291199A8A9E00FC5F8F /* MATEventQueue.m */,
 				4212224318E0BCBD001F263E /* MATInstallReceipt.h */,
 				4212224418E0BCBE001F263E /* MATInstallReceipt.m */,
 				4FDFA19C15C7029A00BEEC38 /* MATKeyStrings.h */,
@@ -307,18 +279,17 @@
 				4FDFA21D15C7079A00BEEC38 /* MATReachability.m */,
 				42CD417E191156BC003D0293 /* MATRegionMonitor.h */,
 				42CD417F191156BC003D0293 /* MATRegionMonitor.m */,
-				4FDFA1A615C7029A00BEEC38 /* MATRequestsQueue.h */,
-				4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */,
-				4FDFA1A815C7029A00BEEC38 /* MATRequestsQueuePart.h */,
-				4FDFA1A915C7029A00BEEC38 /* MATRequestsQueuePart.m */,
 				42CBBD31188093DB00187A4A /* MATSettings.h */,
 				42CBBD32188093DB00187A4A /* MATSettings.m */,
+				428F084D18C13F1900B1AC24 /* MATTracker.h */,
+				428F084E18C13F1900B1AC24 /* MATTracker.m */,
 				42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */,
 				42FFE858191D16AE00ACF2E2 /* MATUserAgentCollector.m */,
 				4FDFA1AC15C7029A00BEEC38 /* MATUtils.h */,
 				4FDFA1AD15C7029A00BEEC38 /* MATUtils.m */,
 				4FDFA1A015C7029A00BEEC38 /* NSString+MATURLEncoding.h */,
 				4FDFA1A115C7029A00BEEC38 /* NSString+MATURLEncoding.m */,
+				42D52294199A8AC600FC5F8F /* legacy queueing */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -333,7 +304,6 @@
 				42CBBD33188093DB00187A4A /* MATSettings.h in Headers */,
 				4FDFA21915C7032400BEEC38 /* MobileAppTracker.h in Headers */,
 				42CBBD271880893F00187A4A /* MATEventItem.h in Headers */,
-				4FDFA1AE15C7029A00BEEC38 /* MATConnectionManager.h in Headers */,
 				4260CBCF196B69DF0084FE12 /* MATEncrypter.h in Headers */,
 				42FFE859191D16AE00ACF2E2 /* MATUserAgentCollector.h in Headers */,
 				4FDFA1B215C7029A00BEEC38 /* MATKeyStrings.h in Headers */,
@@ -344,6 +314,7 @@
 				4FDFA1BC15C7029A00BEEC38 /* MATRequestsQueue.h in Headers */,
 				4FDFA1BE15C7029A00BEEC38 /* MATRequestsQueuePart.h in Headers */,
 				4FDFA1C215C7029A00BEEC38 /* MATUtils.h in Headers */,
+				42D52292199A8A9E00FC5F8F /* MATEventQueue.h in Headers */,
 				4212224518E0BCBE001F263E /* MATInstallReceipt.h in Headers */,
 				4FDFA21E15C7079A00BEEC38 /* MATReachability.h in Headers */,
 				F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */,
@@ -399,8 +370,8 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = MAT;
-				LastUpgradeCheck = 0510;
-				ORGANIZATIONNAME = HasOffers;
+				LastUpgradeCheck = 0600;
+				ORGANIZATIONNAME = TUNE;
 				TargetAttributes = {
 					42EAA53F1860F4B800041A8D = {
 						TestTargetID = 4FDFA18115C700D300BEEC38;
@@ -420,7 +391,6 @@
 			projectRoot = "";
 			targets = (
 				4FDFA18115C700D300BEEC38 /* MobileAppTracker */,
-				4F58A7D715C8B47C00C8D2D9 /* Documentation */,
 				42EAA53F1860F4B800041A8D /* MobileAppTracker Tests */,
 			);
 		};
@@ -446,19 +416,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F58A7DC15C8B49B00C8D2D9 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/appledoc ./MobileAppTracker/AppledocSettings.plist ./MobileAppTracker/MobileAppTracker.h";
-		};
 		4FDFA17A15C700D300BEEC38 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -523,7 +480,6 @@
 				4260CBCC196B41CF0084FE12 /* MATEncrypterTests.m in Sources */,
 				42108C07186356E0005BDB32 /* MATTestParams.m in Sources */,
 				F8001A57197F3D91002303D6 /* MATKeyStrings.m in Sources */,
-				F8001A58197F3EB2002303D6 /* MATConnectionManager.m in Sources */,
 				F8001A59197F3EB8002303D6 /* MATReachability.m in Sources */,
 				42EAA54C1860F4B900041A8D /* MobileAppTracker_Tests.m in Sources */,
 			);
@@ -534,10 +490,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				42CBBD281880893F00187A4A /* MATEventItem.m in Sources */,
-				4FDFA1AF15C7029A00BEEC38 /* MATConnectionManager.m in Sources */,
 				42CBBD34188093DB00187A4A /* MATSettings.m in Sources */,
 				4FDFA1B315C7029A00BEEC38 /* MATKeyStrings.m in Sources */,
 				42C1E2BA18C012B200C5789C /* MATAppToAppTracker.m in Sources */,
+				42D52293199A8A9E00FC5F8F /* MATEventQueue.m in Sources */,
 				4FDFA1B715C7029A00BEEC38 /* NSString+MATURLEncoding.m in Sources */,
 				4260CBD0196B69DF0084FE12 /* MATEncrypter.m in Sources */,
 				4FDFA1BD15C7029A00BEEC38 /* MATRequestsQueue.m in Sources */,
@@ -596,6 +552,8 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEFINES_MODULE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -604,7 +562,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MobileAppTracker Tests/MobileAppTracker Tests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
 					"TESTING=1",
 				);
@@ -633,6 +590,8 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEFINES_MODULE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -641,7 +600,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MobileAppTracker Tests/MobileAppTracker Tests-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TESTING=1",
+					"DEBUG=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -654,38 +616,22 @@
 			};
 			name = Release;
 		};
-		4F58A7D815C8B47C00C8D2D9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_VERSION = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		4F58A7D915C8B47C00C8D2D9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_VERSION = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		4FDFA18E15C700D300BEEC38 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEFINES_MODULE = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
+					"DEBUG=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -693,6 +639,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				MODULEMAP_FILE = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = MATSDKTestApp;
 				SDKROOT = iphoneos;
@@ -706,15 +653,22 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEFINES_MODULE = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"RELEASE=1",
+				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				MODULEMAP_FILE = "";
 				PRODUCT_NAME = MATSDKTestApp;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = "non-global";
@@ -726,7 +680,11 @@
 		4FDFA19115C700D300BEEC38 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -739,7 +697,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MobileAppTracker/MobileAppTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
 					"CUSTOM_LOG=0",
 					"DEBUG_STAGING=0",
@@ -756,7 +713,7 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "MobileAppTracker/MobileAppTracker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
@@ -772,7 +729,11 @@
 		4FDFA19215C700D300BEEC38 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -785,7 +746,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MobileAppTracker/MobileAppTracker-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_VERSION = "";
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
@@ -794,7 +755,7 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = "MobileAppTracker/MobileAppTracker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
@@ -807,6 +768,123 @@
 			};
 			name = Release;
 		};
+		F8C5D2D119AE9FAA00CB7C6C /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEFINES_MODULE = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TESTING=1",
+					"DEBUG=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = MATSDKTestApp;
+				SDKROOT = iphoneos;
+				STRIP_STYLE = "non-global";
+				VALID_ARCHS = "i386 armv7 armv7s arm64";
+			};
+			name = Testing;
+		};
+		F8C5D2D219AE9FAA00CB7C6C /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MobileAppTracker/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CUSTOM_LOG=0",
+					"DEBUG_STAGING=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_JAILBREAK_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				INFOPLIST_FILE = "MobileAppTracker/MobileAppTracker-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
+				VALID_ARCHS = "i386 x86_64 armv7 armv7s arm64";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Testing;
+		};
+		F8C5D2D319AE9FAA00CB7C6C /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEFINES_MODULE = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MobileAppTracker Tests/MobileAppTracker Tests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "MobileAppTracker Tests/MobileAppTracker Tests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "x86_64 armv7 armv7s";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Testing;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -814,16 +892,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42EAA5501860F4B900041A8D /* Debug */,
+				F8C5D2D319AE9FAA00CB7C6C /* Testing */,
 				42EAA5511860F4B900041A8D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F58A7DA15C8B47C00C8D2D9 /* Build configuration list for PBXAggregateTarget "Documentation" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F58A7D815C8B47C00C8D2D9 /* Debug */,
-				4F58A7D915C8B47C00C8D2D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -832,6 +902,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FDFA18E15C700D300BEEC38 /* Debug */,
+				F8C5D2D119AE9FAA00CB7C6C /* Testing */,
 				4FDFA18F15C700D300BEEC38 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -841,6 +912,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FDFA19115C700D300BEEC38 /* Debug */,
+				F8C5D2D219AE9FAA00CB7C6C /* Testing */,
 				4FDFA19215C700D300BEEC38 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

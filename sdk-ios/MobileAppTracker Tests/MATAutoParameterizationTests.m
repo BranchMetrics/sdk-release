@@ -45,6 +45,8 @@
 
 - (void)commonSetup
 {
+    networkOnline();
+    
     [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     MobileAppTracker.delegate = self;
 }
@@ -62,7 +64,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifv", [newIfv UUIDString] );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFV, [newIfv UUIDString] );
 }
 
 - (void)testIFVNil
@@ -73,7 +75,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifv", @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFV, @"00000000-0000-0000-0000-000000000000" );
 }
 
 - (void)testIFVTrueNil
@@ -128,7 +130,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifv", @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFV, @"00000000-0000-0000-0000-000000000000" );
 }
 
 - (void)testNoAutoGenerateIFV
@@ -160,7 +162,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifa", [newIfa UUIDString] );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFA, [newIfa UUIDString] );
 }
 
 - (void)testIFANil
@@ -172,7 +174,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifa", @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFA, @"00000000-0000-0000-0000-000000000000" );
 }
 
 - (void)testIFATrueNil
@@ -220,7 +222,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"ios_ifa", @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( MAT_KEY_IOS_IFA, @"00000000-0000-0000-0000-000000000000" );
 }
 
 

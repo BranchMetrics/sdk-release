@@ -7,9 +7,9 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATEncrypter.h"
-#import "MATSettings.h"
 #import "MATTests.h"
+#import "../MobileAppTracker/Common/MATEncrypter.h"
+#import "../MobileAppTracker/Common/MATSettings.h"
 
 @interface MATEncrypterTests : XCTestCase
 
@@ -143,10 +143,9 @@
 {
     MATSettings *settings = [MATSettings new];
     NSString *trackingLink, *encryptedParams;
-    [settings urlStringForDebugMode:NO
-                               isId:NO
-                       trackingLink:&trackingLink
-                      encryptParams:&encryptedParams];
+    [settings urlStringForTrackingLink:&trackingLink
+                         encryptParams:&encryptedParams
+                                  isId:NO];
     XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
 }
 

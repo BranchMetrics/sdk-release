@@ -27,4 +27,14 @@
 - (void)save;
 - (BOOL)load;
 
+/*!
+ Last method to be called after which MATRequestQueue instance is never to be accessed or created. This method deletes the queue storage file from disk.
+ */
+- (void)closedown;
+
+/*!
+ Checks if the legacy queuing file exists.
+ */
++ (BOOL)exists;
+
 @end

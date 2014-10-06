@@ -207,27 +207,29 @@ NSString * const XML_NODE_REQUEST = @"Request";
         for (NSDictionary * request in self.requests)
         {
             // clean up the text to make it compliant with XML
-            NSString *urlValue = [request valueForKey:KEY_URL];
+            NSString *urlValue = [request valueForKey:MAT_KEY_URL];
             NSString *encodedUrl = [urlValue MATgtm_stringBySanitizingAndEscapingForXML];
             
-            NSString *encrypt = [request valueForKey:KEY_DATA];
+            NSString *encrypt = [request valueForKey:MAT_KEY_DATA];
             NSString *encodedEncrypt = [encrypt MATgtm_stringBySanitizingAndEscapingForXML];
-            encodedEncrypt = encodedEncrypt ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_DATA, encodedEncrypt] : STRING_EMPTY;
+            encodedEncrypt = encodedEncrypt ? [NSString stringWithFormat:@" %@=\"%@\"", MAT_KEY_DATA, encodedEncrypt] : MAT_STRING_EMPTY;
             
-            NSString *jsonValue = [request valueForKey:KEY_JSON];
+            NSString *jsonValue = [request valueForKey:MAT_KEY_JSON];
             NSString *encodedJson = [jsonValue MATgtm_stringBySanitizingAndEscapingForXML];
-            encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_JSON, encodedJson] : STRING_EMPTY;
+            encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", MAT_KEY_JSON, encodedJson] : MAT_STRING_EMPTY;
             
-            NSDate *runDate = [request valueForKey:KEY_RUN_DATE];
+            NSDate *runDate = [request valueForKey:MAT_KEY_RUN_DATE];
             NSString *encodedDate = [runDate description];
-            encodedDate = encodedDate ? [NSString stringWithFormat:@" %@=\"%@\"", KEY_RUN_DATE, encodedDate] : STRING_EMPTY;
+            encodedDate = encodedDate ? [NSString stringWithFormat:@" %@=\"%@\"", MAT_KEY_RUN_DATE, encodedDate] : MAT_STRING_EMPTY;
             
             // serialize the request
-            [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@%@></%@>", XML_NODE_REQUEST, KEY_URL, encodedUrl, encodedEncrypt, encodedJson, encodedDate, XML_NODE_REQUEST];
+            [strDescr appendFormat:@"<%@ %@=\"%@\"%@%@%@></%@>", XML_NODE_REQUEST, MAT_KEY_URL, encodedUrl, encodedEncrypt, encodedJson, encodedDate, XML_NODE_REQUEST];
         }
     }
     
     [strDescr appendFormat:@"</%@>", XML_NODE_QUEUEPART];
+    
+    DLog(@"MATRequestsQueuePart serialize output = %@", strDescr);
     
     return strDescr;
 }

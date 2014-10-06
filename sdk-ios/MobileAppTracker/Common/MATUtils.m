@@ -8,10 +8,10 @@
 
 #import "MATUtils.h"
 #import "MATKeyStrings.h"
-#import "MATConnectionManager.h"
-#import "../MobileAppTracker.h"
-#import "MATConnectionManager.h"
+#import "MATReachability.h"
 #import "MATSettings.h"
+
+#import "../MobileAppTracker.h"
 
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <MobileCoreServices/UTType.h>
@@ -29,21 +29,6 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
 
 
 @implementation MATUtils
-
-static NSDateFormatter *dateFormatter = nil;
-
-+ (NSDateFormatter *)sharedDateFormatter
-{
-    if (!dateFormatter) {
-        dateFormatter = [[NSDateFormatter alloc] init];
-        NSLocale * usLocale = [[NSLocale alloc] initWithLocaleIdentifier:DEFAULT_LOCALE_IDENTIFIER];
-        [dateFormatter setLocale:usLocale];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:DEFAULT_TIMEZONE]];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    }
-    
-    return dateFormatter;
-}
 
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime
 {
@@ -90,7 +75,7 @@ static NSDateFormatter *dateFormatter = nil;
     CFRelease(theUUID);
     NSString *returnString = [(__bridge NSString*)string copy];
     CFRelease(string);
-
+    
     return returnString;
 }
 
@@ -146,9 +131,9 @@ static NSDateFormatter *dateFormatter = nil;
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *newKey = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_KEY_PREFIX, key];
-
+    
     id value = [defaults valueForKey:newKey];
-
+    
     // return value for new key if exists, else return value for old key
     if( value ) return value;
     return [defaults valueForKey:key];
@@ -263,14 +248,17 @@ static NSDateFormatter *dateFormatter = nil;
 
 + (BOOL)isNetworkReachable
 {
-    DLog(@"MATUtils: isNetworkReachable: status = %d", [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus]);
+    DLog(@"MATUtils: isNetworkReachable: status = %ld", (long)[[MATReachability reachabilityForInternetConnection] currentReachabilityStatus]);
     return NotReachable != [[MATReachability reachabilityForInternetConnection] currentReachabilityStatus];
 }
 
 
-// Gets the float value equivalent of the iOS system version string x.y.z.
-// Note: This method assumes that the individual sub-version components -- y or z -- have values between 0..9.
-+ (float)getNumericiOSVersion:(NSString *)iOSVersion
+/*!
+ Converts an iOS version string x.y.z to its equivalent float representation.
+
+ Note: This method assumes that the individual sub-version components -- y or z -- have values between 0..9.
+*/
++ (float)numericiOSVersion:(NSString *)iOSVersion
 {
     NSArray *arr = [iOSVersion componentsSeparatedByString:@"."];
     
@@ -286,6 +274,14 @@ static NSDateFormatter *dateFormatter = nil;
     return version;
 }
 
+/*!
+ Numeric representation of the iOS system version string x.y.z.
+*/
++ (float)numericiOSSystemVersion
+{
+    return [MATUtils numericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+}
+
 // Refer: http://developer.apple.com/library/ios/#qa/qa1719/_index.html#//apple_ref/doc/uid/DTS40011342
 // How do I prevent files from being backed up to iCloud and iTunes?
 //
@@ -299,7 +295,7 @@ static NSDateFormatter *dateFormatter = nil;
     
     if([[NSFileManager defaultManager] fileExistsAtPath: [URL path]])
     {
-        float systemVersion = [MATUtils getNumericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+        float systemVersion = [MATUtils numericiOSSystemVersion];
         
         if(systemVersion == MAT_IOS_VERSION_501)
         {
@@ -314,7 +310,7 @@ static NSDateFormatter *dateFormatter = nil;
         else if(systemVersion > MAT_IOS_VERSION_501)
         {
             NSError *error = nil;
-            success = [URL setResourceValue:[NSNumber numberWithBool:YES]
+            success = [URL setResourceValue:@(YES)
                                      forKey:NSURLIsExcludedFromBackupKey
                                       error:&error];
 #if DEBUG_LOG
@@ -332,7 +328,7 @@ static NSDateFormatter *dateFormatter = nil;
 + (NSString *)jsonSerialize:(id)object
 {
     NSString *output = nil;
-
+    
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object
                                                        options:0
@@ -633,11 +629,7 @@ char *MATNewBase64Encode(
     }
     else
     {
-        NSData *encodedData = [encodedString dataUsingEncoding:NSASCIIStringEncoding];
-        size_t outputLength;
-        void *outputBuffer = MATNewBase64Decode([encodedData bytes], [encodedData length], &outputLength);
-        decodedData = [NSData dataWithBytes:outputBuffer length:outputLength];
-        free(outputBuffer);
+        decodedData = [self MatCustomBase64Decode:encodedString];
     }
     
     return decodedData;
@@ -660,13 +652,31 @@ char *MATNewBase64Encode(
     }
     else
     {
-        size_t outputLength = 0;
-        char *outputBuffer = MATNewBase64Encode([data bytes], [data length], false, &outputLength);
-        encodedString = [[NSString alloc] initWithBytes:outputBuffer
-                                                 length:outputLength
-                                               encoding:NSASCIIStringEncoding];
-        free(outputBuffer);
+        encodedString = [self MatCustomBase64Encode:data];
     }
+    
+    return encodedString;
+}
+
++ (NSData *)MatCustomBase64Decode:(NSString *)encodedString
+{
+    NSData *encodedData = [encodedString dataUsingEncoding:NSASCIIStringEncoding];
+    size_t outputLength;
+    void *outputBuffer = MATNewBase64Decode([encodedData bytes], [encodedData length], &outputLength);
+    NSData *decodedData = [NSData dataWithBytes:outputBuffer length:outputLength];
+    free(outputBuffer);
+    
+    return decodedData;
+}
+
++ (NSString *)MatCustomBase64Encode:(NSData *)data
+{
+    size_t outputLength = 0;
+    char *outputBuffer = MATNewBase64Encode([data bytes], [data length], false, &outputLength);
+    NSString *encodedString = [[NSString alloc] initWithBytes:outputBuffer
+                                                       length:outputLength
+                                                     encoding:NSASCIIStringEncoding];
+    free(outputBuffer);
     
     return encodedString;
 }

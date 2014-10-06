@@ -11,8 +11,8 @@
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
-#import "MATKeyStrings.h"
-#import "MATSettings.h" // move to new test class for internal params
+#import "../MobileAppTracker/Common/MATKeyStrings.h"
+#import "../MobileAppTracker/Common/MATSettings.h" // move to new test class for internal params
 
 @interface MATParametersTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -33,6 +33,8 @@
     params = [MATTestParams new];
 
     emptyRequestQueue();
+    
+    networkOnline();
 }
 
 - (void)tearDown
@@ -60,7 +62,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"age", expectedAge );
+    ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
 
 - (void)testAgeYoung
@@ -73,7 +75,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"age", expectedAge );
+    ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
 
 - (void)testAgeOld
@@ -86,7 +88,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"age", expectedAge );
+    ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
 
 - (void)testAgeZero
@@ -99,7 +101,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"age", expectedAge );
+    ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
 
 - (void)testAgeNegative
@@ -112,7 +114,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"age", expectedAge );
+    ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
 
 
@@ -128,7 +130,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 - (void)testGenderFemale
@@ -141,7 +143,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 - (void)testGenderMaleBackwardCompatible
@@ -154,7 +156,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 - (void)testGenderFemaleBackwardCompatible
@@ -167,7 +169,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 - (void)testGenderLarge
@@ -180,7 +182,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 - (void)testGenderNegative
@@ -193,7 +195,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"gender", expectedGender );
+    ASSERT_KEY_VALUE( MAT_KEY_GENDER, expectedGender );
 }
 
 
@@ -211,8 +213,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongZero
@@ -227,8 +229,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongSmall
@@ -243,8 +245,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongVerySmall
@@ -259,8 +261,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongOneSmall
@@ -275,8 +277,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongLarge
@@ -291,8 +293,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongVeryLarge
@@ -307,8 +309,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
 }
 
 - (void)testLatLongAltValid
@@ -325,9 +327,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
-    ASSERT_KEY_VALUE( @"altitude", expectedAlt );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_ALTITUDE, expectedAlt );
 }
 
 - (void)testLatLongAltZero
@@ -344,9 +346,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
-    ASSERT_KEY_VALUE( @"altitude", expectedAlt );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_ALTITUDE, expectedAlt );
 }
 
 - (void)testLatLongAltVeryLarge
@@ -363,9 +365,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
-    ASSERT_KEY_VALUE( @"altitude", expectedAlt );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_ALTITUDE, expectedAlt );
 }
 
 - (void)testLatLongAltVerySmall
@@ -382,9 +384,9 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"latitude", expectedLat );
-    ASSERT_KEY_VALUE( @"longitude", expectedLon );
-    ASSERT_KEY_VALUE( @"altitude", expectedAlt );
+    ASSERT_KEY_VALUE( MAT_KEY_LATITUDE, expectedLat );
+    ASSERT_KEY_VALUE( MAT_KEY_LONGITUDE, expectedLon );
+    ASSERT_KEY_VALUE( MAT_KEY_ALTITUDE, expectedAlt );
 }
 
 
@@ -399,7 +401,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"currency_code", currency );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currency );
 }
 
 - (void)testCurrencyCodeDefault
@@ -409,7 +411,7 @@
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     // fails because we have no real way to reset sharedManager
-    //ASSERT_KEY_VALUE( @"currency_code", @"USD" );
+    //ASSERT_KEY_VALUE( KEY_CURRENCY_CODE, @"USD" );
 }
 
 - (void)testCurrencyCodeEmpty
@@ -421,7 +423,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"currency_code", currency );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currency );
 }
 
 - (void)testCurrencyCodeNil
@@ -443,7 +445,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"currency_code", currency );
+    ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currency );
 }
 
 
@@ -458,7 +460,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"package_name", package );
+    ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
 }
 
 - (void)testPackageNameEmpty
@@ -470,7 +472,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"package_name", package );
+    ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
 }
 
 - (void)testPackageNil
@@ -483,16 +485,40 @@
     XCTAssertFalse( [params checkKeyHasValue:@"package_name"], @"should not have set package name" );
 }
 
-- (void)testPackageNameLong
+- (void)testPackageName256
 {
-    static NSString* const package = @"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    
+    [MobileAppTracker setPackageName:package];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
+}
+
+- (void)testPackageName257
+{
+    static NSString* const package = @"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    
+    [MobileAppTracker setPackageName:package];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
+}
+
+- (void)testPackageName1000
+{
+    static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     [MobileAppTracker setPackageName:package];
     [MobileAppTracker measureAction:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"package_name", package );
+    ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
 }
 
 #pragma mark - Event parameters
@@ -506,7 +532,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_CONTENT_TYPE, contentType );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_CONTENT_TYPE, contentType );
 }
 
 - (void)testContentId
@@ -518,7 +544,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_CONTENT_ID, contentId );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_CONTENT_ID, contentId );
 }
 
 - (void)testLevel
@@ -530,7 +556,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_LEVEL, [@(level) stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_LEVEL, [@(level) stringValue] );
 }
 
 - (void)testQuantity
@@ -542,7 +568,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_QUANTITY, [@(quantity) stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_QUANTITY, [@(quantity) stringValue] );
 }
 
 - (void)testSearchString
@@ -554,7 +580,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_SEARCH_STRING, searchString );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_SEARCH_STRING, searchString );
 }
 
 - (void)testRating
@@ -566,7 +592,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_RATING, [@(rating) stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_RATING, [@(rating) stringValue] );
 }
 
 - (void)testDates
@@ -582,8 +608,8 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_DATE1, date1String );
-    ASSERT_KEY_VALUE( KEY_EVENT_DATE2, date2String );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_DATE1, date1String );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_DATE2, date2String );
 }
 
 
@@ -606,11 +632,11 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"attribute_sub1", attr1 );
-    ASSERT_KEY_VALUE( @"attribute_sub2", attr2 );
-    ASSERT_KEY_VALUE( @"attribute_sub3", attr3 );
-    ASSERT_KEY_VALUE( @"attribute_sub4", attr4 );
-    ASSERT_KEY_VALUE( @"attribute_sub5", attr5 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr1 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr2 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr3 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr4 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr5 );
 }
 
 - (void)testEventAttributesEmpty
@@ -626,11 +652,11 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"attribute_sub1", attr );
-    ASSERT_KEY_VALUE( @"attribute_sub2", attr );
-    ASSERT_KEY_VALUE( @"attribute_sub3", attr );
-    ASSERT_KEY_VALUE( @"attribute_sub4", attr );
-    ASSERT_KEY_VALUE( @"attribute_sub5", attr );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr );
 }
 
 - (void)testEventAttributesNil
@@ -644,11 +670,11 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( @"attribute_sub1" );
-    ASSERT_NO_VALUE_FOR_KEY( @"attribute_sub2" );
-    ASSERT_NO_VALUE_FOR_KEY( @"attribute_sub3" );
-    ASSERT_NO_VALUE_FOR_KEY( @"attribute_sub4" );
-    ASSERT_NO_VALUE_FOR_KEY( @"attribute_sub5" );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB1 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB2 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB3 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB4 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB5 );
     
 }
 
@@ -669,11 +695,11 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"attribute_sub1", attr1 );
-    ASSERT_KEY_VALUE( @"attribute_sub2", attr2 );
-    ASSERT_KEY_VALUE( @"attribute_sub3", attr3 );
-    ASSERT_KEY_VALUE( @"attribute_sub4", attr4 );
-    ASSERT_KEY_VALUE( @"attribute_sub5", attr5 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr1 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr2 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr3 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr4 );
+    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr5 );
 }
 
 - (void)testEventAttributesCleared
@@ -693,22 +719,22 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( KEY_EVENT_ATTRIBUTE_SUB1, attr1 );
-    ASSERT_KEY_VALUE( KEY_EVENT_ATTRIBUTE_SUB2, attr2 );
-    ASSERT_KEY_VALUE( KEY_EVENT_ATTRIBUTE_SUB3, attr3 );
-    ASSERT_KEY_VALUE( KEY_EVENT_ATTRIBUTE_SUB4, attr4 );
-    ASSERT_KEY_VALUE( KEY_EVENT_ATTRIBUTE_SUB5, attr5 );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB1, attr1 );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB2, attr2 );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB3, attr3 );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB4, attr4 );
+    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB5, attr5 );
     
     params = [MATTestParams new];
     [MobileAppTracker measureAction:@"search"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_EVENT_ATTRIBUTE_SUB1 );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_EVENT_ATTRIBUTE_SUB2 );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_EVENT_ATTRIBUTE_SUB3 );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_EVENT_ATTRIBUTE_SUB4 );
-    ASSERT_NO_VALUE_FOR_KEY( KEY_EVENT_ATTRIBUTE_SUB5 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB1 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB2 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB3 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB4 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB5 );
 }
 
 
@@ -723,7 +749,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"sdk_plugin"], @"should have no value for sdk_plugin" );
+    XCTAssertFalse( [params checkKeyHasValue:MAT_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
 - (void)testPluginNameEmpty
@@ -735,7 +761,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"sdk_plugin"], @"should have no value for sdk_plugin" );
+    XCTAssertFalse( [params checkKeyHasValue:MAT_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
 - (void)testPluginNameNil
@@ -745,7 +771,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"sdk_plugin"], @"should have no value for sdk_plugin" );
+    XCTAssertFalse( [params checkKeyHasValue:MAT_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
 - (void)testPluginNameAir
@@ -757,7 +783,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNameAirUppercase
@@ -769,7 +795,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"sdk_plugin"], @"should have no value for sdk_plugin" );
+    XCTAssertFalse( [params checkKeyHasValue:MAT_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
 - (void)testPluginNameCocos
@@ -781,7 +807,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNameMarmalade
@@ -793,7 +819,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNamePhoneGap
@@ -805,7 +831,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNameTitanium
@@ -817,7 +843,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNameUnity
@@ -829,7 +855,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 - (void)testPluginNameXamarin
@@ -841,7 +867,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"sdk_plugin", plugin );
+    ASSERT_KEY_VALUE( MAT_KEY_SDK_PLUGIN, plugin );
 }
 
 
@@ -856,7 +882,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"site_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_ID, ID );
 }
 
 - (void)testTrusteTPID
@@ -868,7 +894,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"site_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_SITE_ID, ID );
 }
 
 - (void)testExistingUser
@@ -878,7 +904,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"existing_user", [@TRUE stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_EXISTING_USER, [@TRUE stringValue] );
 }
 
 - (void)testUserEmail
@@ -890,7 +916,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"user_email", EMAIL_ID );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL, EMAIL_ID );
 }
 
 - (void)testUserId
@@ -902,7 +928,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"user_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_ID, ID );
 }
 
 - (void)testUserName
@@ -914,7 +940,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"user_name", USER_NAME );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME, USER_NAME );
 }
 
 - (void)testFacebookUserId
@@ -926,7 +952,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"facebook_user_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_FACEBOOK_USER_ID, ID );
 }
 
 - (void)testTwitterUserId
@@ -938,7 +964,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"twitter_user_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_TWITTER_USER_ID, ID );
 }
 
 - (void)testGoogleUserId
@@ -950,7 +976,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"google_user_id", ID );
+    ASSERT_KEY_VALUE( MAT_KEY_GOOGLE_USER_ID, ID );
 }
 
 - (void)testPayingUser
@@ -960,7 +986,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"is_paying_user", [@TRUE stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_IS_PAYING_USER, [@TRUE stringValue] );
     XCTAssertTrue( [MobileAppTracker isPayingUser], @"should be a paying user" );
 }
 
@@ -971,7 +997,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"is_paying_user", [@TRUE stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_IS_PAYING_USER, [@TRUE stringValue] );
     XCTAssertTrue( [MobileAppTracker isPayingUser], @"should be a paying user" );
 }
 
@@ -982,7 +1008,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"is_paying_user", [@FALSE stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_IS_PAYING_USER, [@FALSE stringValue] );
     XCTAssertFalse( [MobileAppTracker isPayingUser], @"should not be a paying user" );
 }
 
@@ -1004,7 +1030,7 @@
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"iad_attribution", [@(TRUE) stringValue] );
+    ASSERT_KEY_VALUE( MAT_KEY_IAD_ATTRIBUTION, [@(TRUE) stringValue] );
 }
 
 

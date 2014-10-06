@@ -12,9 +12,6 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
-@protocol MATConnectionManagerDelegate;
-@class MATConnectionManager;
-
 @interface MATUtils : NSObject
 
 FOUNDATION_EXPORT const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
@@ -36,10 +33,11 @@ FOUNDATION_EXPORT const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (BOOL)checkJailBreak;
 
-+ (NSDateFormatter *)sharedDateFormatter;
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime;
 
-+ (float)getNumericiOSVersion:(NSString *)iOSVersion;
++ (float)numericiOSVersion:(NSString *)iOSVersion;
++ (float)numericiOSSystemVersion;
+
 + (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL;
 
 + (NSString *)jsonSerialize:(id)object;

@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
-#import "MATTracker.h"
+#import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATServerTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -134,7 +134,7 @@
                          eventItems:items
                       revenueAmount:revenue
                        currencyCode:currencyCode];
-    waitFor( 1. );
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
 
     XCTAssertTrue( callSuccess, @"measureAction with items should have succeeded" );
     XCTAssertFalse( callFailed, @"measureAction with items should have succeeded" );
@@ -167,7 +167,7 @@
 
 - (void)mobileAppTrackerDidSucceedWithData:(NSData *)data
 {
-    NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
+    //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
 }

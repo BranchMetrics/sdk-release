@@ -13,8 +13,6 @@
 #import "MATRequestsQueue.h"
 #import "MATReachability.h"
 
-FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
-
 @protocol MATConnectionManagerDelegate;
 
 @interface MATConnectionManager : NSObject<NSURLConnectionDelegate>

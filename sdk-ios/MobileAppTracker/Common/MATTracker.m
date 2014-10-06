@@ -7,11 +7,12 @@
 //
 
 #import "MATTracker.h"
-#import "MobileAppTracker.h"
+#import "../MobileAppTracker.h"
 
 #import <UIKit/UIKit.h>
 
 #import "MATCWorks.h"
+#import "MATEventQueue.h"
 #import "MATUtils.h"
 #import "NSString+MATURLEncoding.m"
 #import "MATAppToAppTracker.h"
@@ -26,15 +27,18 @@
 #import <iAd/iAd.h>
 
 
-static const int MAT_CONVERSION_KEY_LENGTH = 32;
+static const int MAT_CONVERSION_KEY_LENGTH      = 32;
 
-static const int IGNORE_IOS_PURCHASE_STATUS = -192837465;
+static const int IGNORE_IOS_PURCHASE_STATUS     = -192837465;
 
 #if USE_IAD_ATTRIBUTION
-const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 15.;
+const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 15.;
 #else
-const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
+const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 0.;
 #endif
+
+const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
+const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 
 @interface MATEventItem(PrivateMethods)
 
@@ -45,7 +49,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 @end
 
 
-@interface MATTracker() <MATConnectionManagerDelegate, ADBannerViewDelegate>
+@interface MATTracker() <MATEventQueueDelegate, ADBannerViewDelegate>
 {
     ADBannerView *iAd;
     
@@ -80,9 +84,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
         self.parameters.staging = YES;
 #endif
         
-        // fire up the shared connection manager
-        self.connectionManager = [MATConnectionManager new];
-        self.connectionManager.delegate = self;
+        [MATEventQueue setDelegate:self];
         
         // !!! very important to init some parms here
         _shouldUseCookieTracking = NO; // by default do not use cookie tracking
@@ -117,21 +119,21 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     if(0 == aid_.length)
     {
         [self notifyDelegateFailureWithErrorCode:MATNoAdvertiserIDProvided
-                                             key:KEY_ERROR_MAT_ADVERTISER_ID_MISSING
+                                             key:MAT_KEY_ERROR_MAT_ADVERTISER_ID_MISSING
                                          message:@"No MAT Advertiser Id provided."];
         return;
     }
     if(0 == key_.length)
     {
         [self notifyDelegateFailureWithErrorCode:MATNoConversionKeyProvided
-                                             key:KEY_ERROR_MAT_CONVERSION_KEY_MISSING
+                                             key:MAT_KEY_ERROR_MAT_CONVERSION_KEY_MISSING
                                          message:@"No MAT Conversion Key provided."];
         return;
     }
     if(MAT_CONVERSION_KEY_LENGTH != key_.length)
     {
         [self notifyDelegateFailureWithErrorCode:MATInvalidConversionKey
-                                             key:KEY_ERROR_MAT_CONVERSION_KEY_INVALID
+                                             key:MAT_KEY_ERROR_MAT_CONVERSION_KEY_INVALID
                                          message:[NSString stringWithFormat:@"Invalid MAT Conversion Key provided, length = %lu. Expected key length = %d", (unsigned long)key_.length, MAT_CONVERSION_KEY_LENGTH]];
         return;
     }
@@ -180,7 +182,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
             // device is iOS 8.0
             [[ADClient sharedClient] lookupAdConversionDetails:^(NSDate *appPurchaseDate, NSDate *iAdImpressionDate) {
                 BOOL iAdOriginatedInstallation = (iAdImpressionDate != nil);
-                [MATUtils setUserDefaultValue:@(iAdOriginatedInstallation) forKey:KEY_IAD_ATTRIBUTION];
+                [MATUtils setUserDefaultValue:@(iAdOriginatedInstallation) forKey:MAT_KEY_IAD_ATTRIBUTION];
                 self.parameters.iadAttribution = @(iAdOriginatedInstallation);
                 self.parameters.iadImpressionDate = iAdImpressionDate;
                 if( attributionBlock )
@@ -191,7 +193,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 #endif
             // device is iOS 7.1
             [adClient determineAppInstallationAttributionWithCompletionHandler:^(BOOL appInstallationWasAttributedToiAd) {
-                [MATUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:KEY_IAD_ATTRIBUTION];
+                [MATUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:MAT_KEY_IAD_ATTRIBUTION];
                 self.parameters.iadAttribution = @(appInstallationWasAttributedToiAd);
                 if( attributionBlock )
                     attributionBlock( appInstallationWasAttributedToiAd );
@@ -402,7 +404,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 
 - (void)trackInstallPostConversion
 {
-    [self trackActionForEventIdOrName:EVENT_INSTALL
+    [self trackActionForEventIdOrName:MAT_EVENT_INSTALL
                            eventItems:nil
                           referenceId:nil
                         revenueAmount:0
@@ -425,17 +427,19 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     
     if(!self.isTrackerStarted) {
         [self notifyDelegateFailureWithErrorCode:MATTrackingWithoutInitializing
-                                             key:KEY_ERROR_MAT_INVALID_PARAMETERS
+                                             key:MAT_KEY_ERROR_MAT_INVALID_PARAMETERS
                                          message:@"Invalid MAT Advertiser Id or MAT Conversion Key passed in."];
+        
         return;
     }
     
     // 05152013: Now MAT has dropped support for "close" events,
     // so we ignore the "close" event and return an error message using the delegate.
-    if(!isId && [[eventIdOrName lowercaseString] isEqualToString:EVENT_CLOSE]) {
+    if(!isId && [[eventIdOrName lowercaseString] isEqualToString:MAT_EVENT_CLOSE]) {
         [self notifyDelegateFailureWithErrorCode:MATInvalidEventClose
-                                             key:KEY_ERROR_MAT_CLOSE_EVENT
+                                             key:MAT_KEY_ERROR_MAT_CLOSE_EVENT
                                          message:@"MAT does not support tracking of \"close\" event."];
+        
         return;
     }
     
@@ -473,7 +477,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 
 - (void)trackSession
 {
-    [self trackActionForEventIdOrName:EVENT_SESSION];
+    [self trackActionForEventIdOrName:MAT_EVENT_SESSION];
     
     [self checkIadAttribution:^(BOOL iadAttributed) {
         if( iadAttributed )
@@ -495,10 +499,10 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 - (void)notifyDelegateFailureWithErrorCode:(MATErrorCode)errorCode key:(NSString*)errorKey message:(NSString*)errorMessage
 {
     if ([self.delegate respondsToSelector:@selector(mobileAppTrackerDidFailWithError:)]) {
-        NSDictionary *errorDetails = @{NSLocalizedFailureReasonErrorKey: errorKey,
-                                       NSLocalizedDescriptionKey: errorMessage};
-        NSError *error = [NSError errorWithDomain:KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:errorCode userInfo:errorDetails];
-        
+        NSDictionary *errorDetails = @{NSLocalizedFailureReasonErrorKey: errorKey ?: @"",
+                                              NSLocalizedDescriptionKey: errorMessage ?: @""};
+        NSError *error = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:errorCode userInfo:errorDetails];
+    
         [self.delegate mobileAppTrackerDidFailWithError:error];
     }
 }
@@ -521,8 +525,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
                                                 campaignId:offerId
                                                publisherId:publisherId
                                                   redirect:shouldRedirect
-                                                domainName:[self.parameters domainName:debugMode]
-                                         connectionManager:self.connectionManager];
+                                                domainName:[self.parameters domainName]];
 }
 
 
@@ -544,7 +547,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     if( shouldAutoGenerate ) {
         if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
             NSString *uuidStr = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-            if (uuidStr && ![uuidStr isEqualToString:KEY_GUID_EMPTY]) {
+            if (uuidStr && ![uuidStr isEqualToString:MAT_KEY_GUID_EMPTY]) {
                 self.parameters.ifv = uuidStr;
             }
         }
@@ -560,7 +563,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     DLog(@"MAT: setDebugMode = %d", newDebugMode);
     
     debugMode = newDebugMode;
-    self.connectionManager.shouldDebug = newDebugMode;
+    self.parameters.debugMode = @(newDebugMode);
     
     // show an alert if the debug mode is enabled
     if(newDebugMode && [UIApplication sharedApplication]) {
@@ -575,14 +578,14 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     }
 }
 
-- (void)setAllowDuplicateRequests:(BOOL)allowDuplicates
+- (void)setAllowDuplicateRequests:(BOOL)newAllowDuplicates
 {
-    DLog(@"MAT: setAllowDuplicateRequests = %d", allowDuplicates);
+    DLog(@"MAT: setAllowDuplicateRequests = %d", newAllowDuplicates);
     
-    self.connectionManager.shouldAllowDuplicates = allowDuplicates;
+    self.parameters.allowDuplicates = @(newAllowDuplicates);
     
     // show an alert if the allow duplicate requests   enabled
-    if(allowDuplicates && [UIApplication sharedApplication]) {
+    if(newAllowDuplicates && [UIApplication sharedApplication]) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [[[UIAlertView alloc] initWithTitle:@"Warning"
                                         message:@"Allow Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!!"
@@ -621,7 +624,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
 - (void)setPayingUser:(BOOL)isPayingUser
 {
     self.parameters.payingUser = @(isPayingUser);
-    [MATUtils setUserDefaultValue:@(isPayingUser) forKey:KEY_IS_PAYING_USER];
+    [MATUtils setUserDefaultValue:@(isPayingUser) forKey:MAT_KEY_IS_PAYING_USER];
 }
 
 
@@ -667,10 +670,9 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     
     NSString *trackingLink, *encryptParams;
     [self.parameters urlStringForReferenceId:refId
-                                   debugMode:debugMode
-                                        isId:isId
                                 trackingLink:&trackingLink
-                               encryptParams:&encryptParams];
+                               encryptParams:&encryptParams
+                                        isId:isId];
     
     DRLog(@"MAT sendRequestWithEventItems: %@", trackingLink);
     
@@ -689,16 +691,16 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
             NSArray *arrDictEventItems = [MATEventItem dictionaryArrayForEventItems:eventItems];
             
             DLog(@"MAT sendRequestWithEventItems: %@", arrDictEventItems);
-            [postDict setValue:arrDictEventItems forKey:KEY_DATA];
+            [postDict setValue:arrDictEventItems forKey:MAT_KEY_DATA];
         }
     }
     
     if(receipt)
-        [postDict setValue:receipt forKey:KEY_STORE_RECEIPT];
+        [postDict setValue:receipt forKey:MAT_KEY_STORE_RECEIPT];
 
     // on first open, send install receipt
     if( self.parameters.openLogId == nil )
-        [postDict setValue:self.parameters.installReceipt forKey:KEY_INSTALL_RECEIPT];
+        [postDict setValue:self.parameters.installReceipt forKey:MAT_KEY_INSTALL_RECEIPT];
     
     NSString *strPost = nil;
     
@@ -710,12 +712,12 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     
     NSDate *runDate = [NSDate date];
 #if USE_IAD_ATTRIBUTION
-    if( [self.parameters.actionName isEqualToString:EVENT_SESSION] )
+    if( [self.parameters.actionName isEqualToString:MAT_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:MAT_SESSION_QUEUING_DELAY];
 #endif
 
     // fire the event tracking request
-    [self.connectionManager enqueueUrlRequest:trackingLink encryptParams:encryptParams andPOSTData:strPost runDate:runDate];
+    [MATEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
 
     if( [self.delegate respondsToSelector:@selector(mobileAppTrackerEnqueuedActionWithReferenceId:)] )
         [self.delegate mobileAppTrackerEnqueuedActionWithReferenceId:refId];
@@ -732,7 +734,7 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     
     if([dict count] > 0)
     {
-        *key = [NSString stringWithFormat:@"cworks_click[%@]", [[dict allKeys] objectAtIndex:0]];
+        *key = [NSString stringWithFormat:@"%@[%@]", MAT_KEY_CWORKS_CLICK, [[dict allKeys] objectAtIndex:0]];
         *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
     }
 }
@@ -744,33 +746,32 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     
     if([dict count] > 0)
     {
-        *key = [NSString stringWithFormat:@"cworks_impression[%@]", [[dict allKeys] objectAtIndex:0]];
+        *key = [NSString stringWithFormat:@"%@[%@]", MAT_KEY_CWORKS_IMPRESSION, [[dict allKeys] objectAtIndex:0]];
         *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
     }
 }
 
 #pragma mark -
-#pragma mark MATConnectionManagerDelegate protocol methods
+#pragma mark MATEventQueueDelegate protocol methods
 
-- (void)connectionManager:(MATConnectionManager *)manager didSucceedWithData:(NSData *)data
+- (void)queueRequestDidSucceedWithData:(NSData *)data
 {
     NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    DLog(@"MAT: didSucceedWithData: = %@", strData);
     
-    if(!strData || [strData rangeOfString:@"\"success\":true"].location == NSNotFound)
+    if(!strData || [strData rangeOfString:[NSString stringWithFormat:@"\"%@\":true", MAT_KEY_SUCCESS]].location == NSNotFound)
     {
         [self notifyDelegateFailureWithErrorCode:MATServerErrorResponse
-                                             key:KEY_ERROR_MAT_SERVER_ERROR
+                                             key:MAT_KEY_ERROR_MAT_SERVER_ERROR
                                          message:strData];
         return;
     }
     
     // if the server response contains an open_log_id, then store it for future use
-    if([strData rangeOfString:@"\"site_event_type\":\"open\""].location != NSNotFound &&
-       [strData rangeOfString:@"\"log_id\":\""].location != NSNotFound)
+    if([strData rangeOfString:[NSString stringWithFormat:@"\"%@\":\"%@\"", MAT_KEY_SITE_EVENT_TYPE, MAT_EVENT_OPEN]].location != NSNotFound &&
+       [strData rangeOfString:[NSString stringWithFormat:@"\"%@\":\"", MAT_KEY_LOG_ID]].location != NSNotFound)
     {
         // regex to find the value of log_id json key
-        NSString *pattern = @"(?<=\"log_id\":\")([\\w\\d\\-]+)\"";
+        NSString *pattern = [NSString stringWithFormat:@"(?<=\"%@\":\")([\\w\\d\\-]+)\"", MAT_KEY_LOG_ID];
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
                                                                                options:NSRegularExpressionCaseInsensitive
                                                                                  error:nil];
@@ -782,21 +783,21 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
             NSString *log_id = [strData substringWithRange:[match rangeAtIndex:1]];
             
             // store open_log_id if there is no other
-            if( ![MATUtils userDefaultValueforKey:KEY_OPEN_LOG_ID] ) {
+            if( ![MATUtils userDefaultValueforKey:MAT_KEY_OPEN_LOG_ID] ) {
                 self.parameters.openLogId = log_id;
-                [MATUtils setUserDefaultValue:log_id forKey:KEY_OPEN_LOG_ID];
+                [MATUtils setUserDefaultValue:log_id forKey:MAT_KEY_OPEN_LOG_ID];
             }
             
             // store last_open_log_id
             self.parameters.lastOpenLogId = log_id;
-            [MATUtils setUserDefaultValue:log_id forKey:KEY_LAST_OPEN_LOG_ID];
+            [MATUtils setUserDefaultValue:log_id forKey:MAT_KEY_LAST_OPEN_LOG_ID];
         }
     }
     
     [self notifyDelegateSuccessMessage:strData];
 }
 
-- (void)connectionManager:(MATConnectionManager *)manager didFailWithError:(NSError *)error
+- (void)queueRequestDidFailWithError:(NSError *)error
 {
     if([self.delegate respondsToSelector:@selector(mobileAppTrackerDidFailWithError:)])
     {
@@ -804,18 +805,41 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY = 0.;
     }
 }
 
+/*!
+ Waits for MAT initialization for max duration of MAX_WAIT_TIME_FOR_INIT second(s)
+ in increments of TIME_STEP_FOR_INIT_WAIT second(s).
+ */
+- (void)waitForInit
+{
+    NSDate *maxWait = nil;
+    
+    while( !_trackerStarted ) {
+        if( maxWait == nil )
+            maxWait = [NSDate dateWithTimeIntervalSinceNow:MAX_WAIT_TIME_FOR_INIT];
+        if( [maxWait timeIntervalSinceNow] < 0 ) { // is this right? time is hard
+            NSLog( @"MobileAppTracker: timeout waiting for initialization" );
+            return;
+        }
+        
+        [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow:TIME_STEP_FOR_INIT_WAIT]];
+    }
+}
+
 - (NSString*)encryptionKey
 {
+    [self waitForInit];
     return self.parameters.conversionKey;
 }
 
 - (BOOL)isiAdAttribution
 {
+    [self waitForInit];
     return [self.parameters.iadAttribution boolValue];
 }
 
 - (NSString*)userAgent
 {
+    [self waitForInit];
     return self.parameters.userAgent;
 }
 

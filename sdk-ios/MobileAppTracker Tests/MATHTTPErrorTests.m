@@ -8,17 +8,12 @@
 
 #import <XCTest/XCTest.h>
 #import "MATTests.h"
-#import "MATTracker.h"
-
-@interface MATConnectionManager (Privates)
-- (void)dumpQueue;
-- (void)stopQueueDump;
-@end
+#import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATHTTPErrorTests : XCTestCase
 {
     MATTracker *tracker;
-    MATRequestsQueue *requestsQueue;
+    MATEventQueue *eventQueue;
 }
 @end
 
@@ -29,36 +24,25 @@
     [super setUp];
 
     tracker = [MATTracker new];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    requestsQueue = [tracker.connectionManager performSelector:@selector(requestsQueue)];
-#pragma clang diagnostic pop
+    
+    eventQueue = [MATEventQueue sharedInstance];
 }
 
 - (void)tearDown
 {
-    while( [requestsQueue pop] );
-    [tracker.connectionManager stopQueueDump];
+    emptyRequestQueue();
 
     [super tearDown];
 }
 
-
 - (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize
 {
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == queueSize, @"expected %d queued requests, found %d",
-                  (int)queueSize, (unsigned int)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [MATEventQueue queueSize] == queueSize, @"expected %d queued requests, found %d", (int)queueSize, (unsigned int)[MATEventQueue queueSize] );
     
-    NSMutableArray *requests = [NSMutableArray new];
-    NSDictionary *request = nil;
-    while( (request = [requestsQueue pop]) )
-        [requests addObject:request];
-
-    XCTAssertTrue( [requests count] == queueSize, @"expected to pop %d queue items, found %d", (int)queueSize, (int)[requests count] );
-    if( [requests count] != queueSize )
-        NSLog( @"found requests %@", requests );
+    emptyRequestQueue();
     
-    [tracker.connectionManager stopQueueDump];
+    NSUInteger count = 0;
+    XCTAssertTrue( [MATEventQueue queueSize] == count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)[MATEventQueue queueSize] );
 }
 
 /*
@@ -68,19 +52,21 @@
 
 - (void)test00000QueueFlush // run this test first to clear out queue and pending requests
 {
-    while( [requestsQueue pop] );
-    [tracker.connectionManager stopQueueDump];
+    emptyRequestQueue();
+    
     waitFor( 30. );
 }
 
 
 - (void)test400DontRetry
 {
+    networkOnline();
+    
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request&headers%5BX-MAT-Responder%5D=someserver"
-                                   encryptParams:nil
-                                     andPOSTData:nil
-                                         runDate:[NSDate date]];
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request&headers%5BX-MAT-Responder%5D=someserver"
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:0];
@@ -90,9 +76,9 @@
 - (void)test400NoHeaderRetry
 {
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request"
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request"
                                    encryptParams:nil
-                                     andPOSTData:nil
+                                     postData:nil
                                          runDate:[NSDate date]];
     waitFor( 10. );
     
@@ -103,11 +89,13 @@
 
 - (void)test500Retry
 {
+    networkOnline();
+    
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                                   encryptParams:nil
-                                     andPOSTData:nil
-                                         runDate:[NSDate date]];
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:1];
@@ -116,69 +104,66 @@
 
 - (void)test500RetryCount
 {
+    networkOnline();
+    
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                                   encryptParams:nil
-                                     andPOSTData:nil
-                                         runDate:[NSDate date]];
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
 
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 1, @"expected %d queued requests, found %d",
-                   1, (unsigned int)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected %d queued requests, found %d",
+                   1, (unsigned int)[MATEventQueue queueSize] );
 
-    NSMutableArray *requests = [NSMutableArray new];
-    NSDictionary *request = nil;
-    while( (request = [requestsQueue pop]) )
-        [requests addObject:request];
+    NSMutableArray *requests = [MATEventQueue events];
 
     XCTAssertTrue( [requests count] == 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
-    XCTAssertTrue( [requests[0][@"url"] rangeOfString:@"&sdk_retry_attempt=1&"].location != NSNotFound, @"should have incremented retry count" );
-
-    [tracker.connectionManager stopQueueDump];
+    
+    NSString *strUrl = requests[0][@"url"];
+    NSString *searchString = [NSString stringWithFormat:@"&%@=1", MAT_KEY_RETRY_COUNT];
+    
+    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
 }
 
 
 - (void)test500RetryOrder
 {
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                                    encryptParams:nil
-                                     andPOSTData:nil
+                                     postData:nil
                                          runDate:[NSDate date]];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
                                    encryptParams:nil
-                                     andPOSTData:nil
+                                     postData:nil
                                          runDate:[NSDate date]];
     waitFor( 10. );
     
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 2, @"expected %d queued requests, found %d",
-                   2, (unsigned int)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected %d queued requests, found %d",
+                   2, (unsigned int)[MATEventQueue queueSize] );
     
-    NSMutableArray *requests = [NSMutableArray new];
-    NSDictionary *request = nil;
-    while( (request = [requestsQueue pop]) )
-        [requests addObject:request];
+    NSMutableArray *requests = [MATEventQueue events];
     
-    XCTAssertTrue( [requests count] == 2, @"expected to pop %d queue items, found %d", 2, (int)[requests count] );
+    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected to pop %d queue items, found %d", 2, (int)[MATEventQueue queueSize] );
     XCTAssertTrue( [requests[0][@"url"] rangeOfString:@"yourmom"].location == NSNotFound, @"first call in queue should not have yourmom" );
     XCTAssertTrue( [requests[1][@"url"] rangeOfString:@"yourmom"].location != NSNotFound, @"second call in queue should have yourmom" );
-    [tracker.connectionManager stopQueueDump];
 }
 
 
 - (void)test500RetryTwice
 {
     [tracker setDebugMode:YES];
-    [tracker.connectionManager enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Bad%20Request"
-                                   encryptParams:nil
-                                     andPOSTData:nil
-                                         runDate:[NSDate date]];
+    [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Bad%"
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
 
-    XCTAssertTrue( requestsQueue.queuedRequestsCount == 1, @"expected %d queued requests, found %d",
-                   1, (unsigned int)requestsQueue.queuedRequestsCount );
+    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected %d queued requests, found %d",
+                  1, (unsigned int)[MATEventQueue queueSize] );
 
-    [tracker.connectionManager dumpQueue];
+    [MATEventQueue dumpQueue];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:1];
