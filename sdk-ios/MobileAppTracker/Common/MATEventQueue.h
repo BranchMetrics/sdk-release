@@ -10,7 +10,6 @@
 
 FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 
-
 @protocol MATEventQueueDelegate;
 
 /*!
@@ -37,6 +36,8 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 + (void)dumpQueue;
 + (BOOL)networkReachability;
 + (void)setNetworkReachability:(BOOL)enable;
++ (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code;
++ (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt;
 #endif
 
 @end

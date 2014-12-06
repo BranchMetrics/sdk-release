@@ -300,10 +300,10 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
             
             result = YES;
         }
-    
+        
         /// Load first part from file
         [[self getFirstPart] load];
-    
+        
         /// Load last part from file
         [[self getLastPart] load];
     }

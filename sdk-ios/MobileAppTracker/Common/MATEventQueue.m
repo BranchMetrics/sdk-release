@@ -51,6 +51,8 @@ static NSString* const MAT_LEGACY_REQUEST_QUEUE_FOLDER  = @"queue";
 #if TESTING
 @property (nonatomic, readonly) NSMutableArray *events;
 @property (nonatomic, assign) BOOL networkReachable;
+@property (nonatomic, assign) BOOL forceError;
+@property (nonatomic, assign) NSInteger forcedErrorCode;
 
 -(void) saveQueue;
 -(void) dumpQueue;
@@ -250,11 +252,11 @@ static MATEventQueue *sharedQueue = nil;
                          [*trackingLink substringToIndex:searchResult.location + searchResult.length],
                          (long)retryCount,
                          [*trackingLink substringFromIndex:searchResult.location + searchResult.length + valueLength]];
-        *sendDate = [*sendDate dateByAddingTimeInterval:[self retryDelayForAttempt:retryCount]];
+        *sendDate = [*sendDate dateByAddingTimeInterval:[[self class] retryDelayForAttempt:retryCount]];
     }
 }
 
-- (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt
++ (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -370,7 +372,17 @@ static MATEventQueue *sharedQueue = nil;
         
         NSHTTPURLResponse *urlResp = nil;
         NSError *error = nil;
-        NSData *data = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&urlResp error:&error];
+        NSData *data = nil;
+        
+#if TESTING
+        // when testing network errors, skip request and force error response
+        if(self.forceError)
+        {
+            error = [NSError errorWithDomain:@"MATTest" code:self.forcedErrorCode userInfo:nil];
+        }
+        else
+#endif
+        data = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&urlResp error:&error];
         
         if( error != nil ) {
             
@@ -381,6 +393,7 @@ static MATEventQueue *sharedQueue = nil;
             
             urlResp = nil; // set response to nil and make sure that the request is retried
         }
+
         
         NSInteger code = [urlResp statusCode];
         NSDictionary *headers = [urlResp allHeaderFields];
@@ -546,6 +559,12 @@ static MATEventQueue *sharedQueue = nil;
 + (void)setNetworkReachability:(BOOL)enable
 {
     sharedQueue.networkReachable = enable;
+}
+
++ (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code
+{
+    sharedQueue.forceError = isError;
+    sharedQueue.forcedErrorCode = isError ? code : 0;
 }
 
 #endif

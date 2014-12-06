@@ -16,6 +16,8 @@ static NSOperationQueue *opQueue = nil;
 
 @implementation MobileAppTracker
 
+#pragma mark - Private Initialization Methods
+
 + (void)initialize
 {
     opQueue = [NSOperationQueue new];
@@ -35,10 +37,28 @@ static NSOperationQueue *opQueue = nil;
     return sharedManager;
 }
 
+#pragma mark - Init Method
+
 + (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
+    }];
+}
+
+#pragma mark - Debugging Helper Methods
+
++ (void)setDebugMode:(BOOL)yesorno
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setDebugMode:yesorno];
+    }];
+}
+
++ (void)setAllowDuplicateRequests:(BOOL)yesorno
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setAllowDuplicateRequests:yesorno];
     }];
 }
 
@@ -52,24 +72,12 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+#pragma mark - Setter Methods
+
 + (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate
 {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].regionMonitor.delegate = delegate;
-    }];
-}
-
-+ (void)setDebugMode:(BOOL)yesorno
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setDebugMode:yesorno];
-    }];
-}
-
-+ (void)setAllowDuplicateRequests:(BOOL)yesorno
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setAllowDuplicateRequests:yesorno];
     }];
 }
 
@@ -353,6 +361,15 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
++ (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].fbLogging = logging;
+        [self sharedManager].fbLimitUsage = limit;
+    }];
+}
+
+#pragma mark - Getter Methods
 
 + (NSString*)matId
 {
@@ -368,6 +385,10 @@ static NSOperationQueue *opQueue = nil;
 {
     return [[self sharedManager].parameters.payingUser boolValue];
 }
+
+#if USE_IAD
+
+#pragma mark - iAd Display Methods
 
 + (void)displayiAdInView:(UIView*)view
 {
@@ -388,6 +409,10 @@ static NSOperationQueue *opQueue = nil;
         }];
     }];
 }
+
+#endif
+
+#pragma mark - Measure Methods
 
 + (void)measureSession
 {
@@ -643,6 +668,8 @@ static NSOperationQueue *opQueue = nil;
                                                   receipt:receipt];
     }];
 }
+
+#pragma mark - Other Methods
 
 + (void)setUseCookieTracking:(BOOL)yesorno
 {

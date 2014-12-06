@@ -22,6 +22,8 @@
 		428F084F18C13F1900B1AC24 /* MATTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* MATTracker.h */; };
 		428F085018C13F1900B1AC24 /* MATTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* MATTracker.m */; };
 		428F085918C166DC00B1AC24 /* MATHTTPErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */; };
+		42BA465E19E5D3F00076249D /* MATFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 42BA465C19E5D3F00076249D /* MATFBBridge.h */; };
+		42BA465F19E5D3F00076249D /* MATFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 42BA465D19E5D3F00076249D /* MATFBBridge.m */; };
 		42C1E2B918C012B200C5789C /* MATAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */; };
 		42C1E2BA18C012B200C5789C /* MATAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 42C1E2B818C012B100C5789C /* MATAppToAppTracker.m */; };
 		42CBBD271880893F00187A4A /* MATEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CBBD251880893F00187A4A /* MATEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -94,6 +96,8 @@
 		428F084D18C13F1900B1AC24 /* MATTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTracker.h; sourceTree = "<group>"; };
 		428F084E18C13F1900B1AC24 /* MATTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTracker.m; sourceTree = "<group>"; };
 		428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATHTTPErrorTests.m; sourceTree = "<group>"; };
+		42BA465C19E5D3F00076249D /* MATFBBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATFBBridge.h; sourceTree = "<group>"; };
+		42BA465D19E5D3F00076249D /* MATFBBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATFBBridge.m; sourceTree = "<group>"; };
 		42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATAppToAppTracker.h; sourceTree = "<group>"; };
 		42C1E2B818C012B100C5789C /* MATAppToAppTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATAppToAppTracker.m; sourceTree = "<group>"; };
 		42CBBD251880893F00187A4A /* MATEventItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEventItem.h; sourceTree = "<group>"; };
@@ -271,6 +275,8 @@
 				4260CBCE196B69DF0084FE12 /* MATEncrypter.m */,
 				42D52290199A8A9E00FC5F8F /* MATEventQueue.h */,
 				42D52291199A8A9E00FC5F8F /* MATEventQueue.m */,
+				42BA465C19E5D3F00076249D /* MATFBBridge.h */,
+				42BA465D19E5D3F00076249D /* MATFBBridge.m */,
 				4212224318E0BCBD001F263E /* MATInstallReceipt.h */,
 				4212224418E0BCBE001F263E /* MATInstallReceipt.m */,
 				4FDFA19C15C7029A00BEEC38 /* MATKeyStrings.h */,
@@ -315,6 +321,7 @@
 				4FDFA1BE15C7029A00BEEC38 /* MATRequestsQueuePart.h in Headers */,
 				4FDFA1C215C7029A00BEEC38 /* MATUtils.h in Headers */,
 				42D52292199A8A9E00FC5F8F /* MATEventQueue.h in Headers */,
+				42BA465E19E5D3F00076249D /* MATFBBridge.h in Headers */,
 				4212224518E0BCBE001F263E /* MATInstallReceipt.h in Headers */,
 				4FDFA21E15C7079A00BEEC38 /* MATReachability.h in Headers */,
 				F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */,
@@ -500,6 +507,7 @@
 				4FDFA1BF15C7029A00BEEC38 /* MATRequestsQueuePart.m in Sources */,
 				42FFE85A191D16AE00ACF2E2 /* MATUserAgentCollector.m in Sources */,
 				4FDFA1C315C7029A00BEEC38 /* MATUtils.m in Sources */,
+				42BA465F19E5D3F00076249D /* MATFBBridge.m in Sources */,
 				4FDFA21A15C7032400BEEC38 /* MobileAppTracker.m in Sources */,
 				42CD4181191156BC003D0293 /* MATRegionMonitor.m in Sources */,
 				428F085018C13F1900B1AC24 /* MATTracker.m in Sources */,
@@ -545,6 +553,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -583,6 +592,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -623,6 +633,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEFINES_MODULE = YES;
@@ -655,6 +666,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEFINES_MODULE = YES;
@@ -686,6 +698,7 @@
 				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -700,9 +713,9 @@
 					"$(inherited)",
 					"CUSTOM_LOG=0",
 					"DEBUG_STAGING=0",
-					"DEBUG_REQUEST_LOG=0",
 					"DEBUG_LOG=0",
 					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
 					"DEBUG_JAILBREAK_LOG=0",
 				);
 				GCC_VERSION = "";
@@ -735,6 +748,7 @@
 				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -775,6 +789,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEFINES_MODULE = YES;
@@ -810,6 +825,7 @@
 				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -856,6 +872,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;

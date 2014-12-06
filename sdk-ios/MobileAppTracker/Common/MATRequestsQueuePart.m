@@ -10,7 +10,9 @@
 #import "MATKeyStrings.h"
 #import "NSString+MATURLEncoding.h"
 
-const NSUInteger REQUESTS_MAX_COUNT_IN_PART         =  50;
+const NSUInteger REQUESTS_MAX_COUNT_IN_PART =  50;
+
+const NSUInteger MAX_LEGACY_QUEUE_PART_XML_SIZE = 51200; // 50 KB
 
 NSString * const XML_NODE_QUEUEPART = @"QueuePart";
 NSString * const XML_NODE_REQUEST = @"Request";
@@ -187,9 +189,20 @@ NSString * const XML_NODE_REQUEST = @"Request";
         
         if (fileData)
         {
-            NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:fileData];
-            [xmlParser setDelegate:self];
-            [xmlParser parse];
+            // ignore the legacy queue xml file if it's too big to parse,
+            // so that the NSXMLParser does not run out of memory
+            if(fileData.length < MAX_LEGACY_QUEUE_PART_XML_SIZE)
+            {
+                NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:fileData];
+                [xmlParser setDelegate:self];
+                [xmlParser parse];
+            }
+#if DEBUG_LOG
+            else
+            {
+                DLog(@"ignore xml file, too big to parse = %d", (int)fileData.length);
+            }
+#endif
             
             self.loaded = YES;
             self.shouldLoadOnRequest = NO;

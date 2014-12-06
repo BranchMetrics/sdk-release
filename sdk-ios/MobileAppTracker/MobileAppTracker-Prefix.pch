@@ -29,4 +29,6 @@
         #define CLog(...)
     #endif
 
+    #define USE_IAD TRUE
+
 #endif

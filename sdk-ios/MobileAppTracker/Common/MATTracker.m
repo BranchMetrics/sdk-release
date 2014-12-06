@@ -16,22 +16,19 @@
 #import "MATUtils.h"
 #import "NSString+MATURLEncoding.m"
 #import "MATAppToAppTracker.h"
+#import "MATFBBridge.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 
-#define USE_IAD_ATTRIBUTION TRUE
-#if USE_IAD_ATTRIBUTION
-#import <AdSupport/AdSupport.h>
-#endif
-
+#if USE_IAD
 #import <iAd/iAd.h>
-
+#endif
 
 static const int MAT_CONVERSION_KEY_LENGTH      = 32;
 
 static const int IGNORE_IOS_PURCHASE_STATUS     = -192837465;
 
-#if USE_IAD_ATTRIBUTION
+#if USE_IAD
 const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 15.;
 #else
 const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 0.;
@@ -39,6 +36,8 @@ const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 0.;
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
 const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
+
+const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 
 @interface MATEventItem(PrivateMethods)
 
@@ -49,10 +48,15 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 @end
 
 
-@interface MATTracker() <MATEventQueueDelegate, ADBannerViewDelegate>
+@interface MATTracker() <MATEventQueueDelegate
+#if USE_IAD
+, ADBannerViewDelegate
+#endif
+>
 {
+#if USE_IAD
     ADBannerView *iAd;
-    
+#endif
     BOOL debugMode;
     
     MATAppToAppTracker *appToAppTracker;
@@ -93,7 +97,9 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
         // the user can turn these off before calling a method which will
         // remove the keys. turning them back on will regenerate the keys.
 
+#if USE_IAD
         [self checkIadAttribution:nil];
+#endif
     }
     return self;
 }
@@ -152,6 +158,14 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication
 {
     // include the params -- referring app and url -- in the next tracking request
+    
+    // 07-Nov-2014: limit the referral url length,
+    // so that the NSXMLParser does not run out of memory
+    if(urlString.length > MAX_REFERRAL_URL_LENGTH)
+    {
+        urlString = [urlString substringToIndex:MAX_REFERRAL_URL_LENGTH];
+    }
+    
     self.parameters.referralUrl = urlString;
     self.parameters.referralSource = sourceApplication;
 }
@@ -168,11 +182,13 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 }
 
 
+#if USE_IAD
+
 #pragma mark - iAd methods
 
 - (void)checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
 {
-#if USE_IAD_ATTRIBUTION
+#if USE_IAD
     if( [UIApplication sharedApplication] && [ADClient class] && self.parameters.iadAttribution == nil ) {
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
@@ -272,6 +288,8 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
     if( [_delegate respondsToSelector:@selector(mobileAppTrackerFailedToReceiveiAdWithError:)] )
         [_delegate mobileAppTrackerFailedToReceiveiAdWithError:error];
 }
+
+#endif
 
 
 #pragma mark -
@@ -479,10 +497,12 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 {
     [self trackActionForEventIdOrName:MAT_EVENT_SESSION];
     
+#if USE_IAD
     [self checkIadAttribution:^(BOOL iadAttributed) {
         if( iadAttributed )
             [self trackInstallPostConversion];
     }];
+#endif
 }
 
 
@@ -668,7 +688,14 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
     //----------------------------
     [self.parameters loadFacebookCookieId];
     
+    if(self.fbLogging)
+    {
+        [MATFBBridge sendCurrentEvent:self.parameters limitEventAndDataUsage:self.fbLimitUsage];
+    }
+    
     NSString *trackingLink, *encryptParams;
+    
+    // NOTE: urlStringForReferenceId: changes self.parameters.actionName to "conversion"
     [self.parameters urlStringForReferenceId:refId
                                 trackingLink:&trackingLink
                                encryptParams:&encryptParams
@@ -697,7 +724,7 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
     
     if(receipt)
         [postDict setValue:receipt forKey:MAT_KEY_STORE_RECEIPT];
-
+    
     // on first open, send install receipt
     if( self.parameters.openLogId == nil )
         [postDict setValue:self.parameters.installReceipt forKey:MAT_KEY_INSTALL_RECEIPT];
@@ -711,14 +738,14 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
     }
     
     NSDate *runDate = [NSDate date];
-#if USE_IAD_ATTRIBUTION
+#if USE_IAD
     if( [self.parameters.actionName isEqualToString:MAT_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:MAT_SESSION_QUEUING_DELAY];
 #endif
-
+    
     // fire the event tracking request
     [MATEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
-
+    
     if( [self.delegate respondsToSelector:@selector(mobileAppTrackerEnqueuedActionWithReferenceId:)] )
         [self.delegate mobileAppTrackerEnqueuedActionWithReferenceId:refId];
 }
@@ -817,7 +844,7 @@ const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
         if( maxWait == nil )
             maxWait = [NSDate dateWithTimeIntervalSinceNow:MAX_WAIT_TIME_FOR_INIT];
         if( [maxWait timeIntervalSinceNow] < 0 ) { // is this right? time is hard
-            NSLog( @"MobileAppTracker: timeout waiting for initialization" );
+            NSLog( @"MobileAppTracker timeout waiting for initialization" );
             return;
         }
         

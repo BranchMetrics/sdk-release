@@ -148,6 +148,20 @@ NSString * const MAT_EVENT_CONVERSION                   = @"conversion";
 NSString * const MAT_EVENT_SESSION                      = @"session";
 NSString * const MAT_EVENT_GEOFENCE                     = @"geofence";
 
+NSString * const MAT_EVENT_ACHIEVEMENT_UNLOCKED         = @"achievement_unlocked";
+NSString * const MAT_EVENT_ADD_TO_CART                  = @"add_to_cart";
+NSString * const MAT_EVENT_ADD_TO_WISHLIST              = @"add_to_wishlist";
+NSString * const MAT_EVENT_ADDED_PAYMENT_INFO           = @"added_payment_info";
+NSString * const MAT_EVENT_CHECKOUT_INITIATED           = @"checkout_initiated";
+NSString * const MAT_EVENT_CONTENT_VIEW                 = @"content_view";
+NSString * const MAT_EVENT_LEVEL_ACHIEVED               = @"level_achieved";
+NSString * const MAT_EVENT_PURCHASE                     = @"purchase";
+NSString * const MAT_EVENT_RATED                        = @"rated";
+NSString * const MAT_EVENT_REGISTRATION                 = @"registration";
+NSString * const MAT_EVENT_SEARCH                       = @"search";
+NSString * const MAT_EVENT_SPENT_CREDITS                = @"spent_credits";
+NSString * const MAT_EVENT_TUTORIAL_COMPLETE            = @"tutorial_complete";
+
 NSString * const MAT_HTTP_METHOD_POST                   = @"POST";
 NSString * const MAT_HTTP_CONTENT_LENGTH                = @"content-length";
 NSString * const MAT_HTTP_CONTENT_TYPE                  = @"content-type";

@@ -58,6 +58,8 @@
     // drain the event queue
     emptyRequestQueue();
     
+    [MATEventQueue setForceNetworkError:NO code:0];
+    
     [super tearDown];
 }
 
@@ -71,6 +73,25 @@
     
     NSUInteger count = 0;
     XCTAssertTrue( [MATEventQueue queueSize] == count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)[MATEventQueue queueSize] );
+}
+
+- (NSUInteger)countOccurrencesOfSubstring:(NSString *)searchString inString:(NSString *)mainString
+{
+    NSUInteger count = 0, length = [mainString length];
+    NSRange range = NSMakeRange(0, length);
+    
+    while(range.location != NSNotFound)
+    {
+        range = [mainString rangeOfString:searchString options:0 range:range];
+        
+        if(range.location != NSNotFound)
+        {
+            range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
+            count++;
+        }
+    }
+    
+    return count;
 }
 
 
@@ -222,6 +243,107 @@
     XCTAssertTrue( [params2 checkKey:MAT_KEY_ACTION isEqualToValue:MAT_EVENT_CONVERSION], @"second call should be \"conversion\"" );
 }
 
+- (void)testNoDuplicateParamsInRetriedRequest
+{
+    networkOnline();
+    
+    [MATEventQueue setForceNetworkError:YES code:500];
+    
+    [MobileAppTracker setDebugMode:YES];
+    [MobileAppTracker measureSession];
+    
+    waitFor( 1. );
+    
+    NSMutableArray *requests = [MATEventQueue events];
+    NSString *strUrl = requests[0][@"url"];
+    
+    NSString *searchString = [NSString stringWithFormat:@"&%@=%@", MAT_KEY_RESPONSE_FORMAT, MAT_KEY_JSON];
+    
+    NSUInteger count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
+    
+    XCTAssertTrue( count == 1, @"duplicate param should not exist in original request url" );
+    
+    ////////////
+    
+    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION);
+    
+    requests = [MATEventQueue events];
+    strUrl = requests[0][@"url"];
+    searchString = [NSString stringWithFormat:@"&%@=%@", MAT_KEY_RESPONSE_FORMAT, MAT_KEY_JSON];
+    
+    count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
+    
+    XCTAssertTrue( count == 1, @"duplicate params should not exist in retried request url" );
+    
+    ////////////
+    
+    NSInteger retry = 1;
+    NSTimeInterval retryDelay = [MATEventQueue retryDelayForAttempt:retry];
+    
+    waitFor( retryDelay + MAT_TEST_NETWORK_REQUEST_DURATION);
+    
+    requests = [MATEventQueue events];
+    strUrl = requests[0][@"url"];
+    searchString = [NSString stringWithFormat:@"&%@=%@", MAT_KEY_RESPONSE_FORMAT, MAT_KEY_JSON];
+    
+    count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
+    
+    XCTAssertTrue( count == 1, @"duplicate params should not exist in retried request url" );
+}
+
+- (void)testRetryCount
+{
+    networkOnline();
+    
+    [MATEventQueue setForceNetworkError:YES code:500];
+    
+    [MobileAppTracker setDebugMode:YES];
+    [MobileAppTracker measureSession];
+    
+    waitFor( 1. );
+    XCTAssertFalse( callFailed, @"session call should not have been attempted after 1 sec" );
+    XCTAssertFalse( callSuccess, @"session call should not have been attempted after 1 sec" );
+    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected 1 queued request, but found %lu", (unsigned long)[MATEventQueue queueSize] );
+    
+    NSMutableArray *requests = [MATEventQueue events];
+    NSString *strUrl = requests[0][@"url"];
+    NSString *searchString = [NSString stringWithFormat:@"&%@=0", MAT_KEY_RETRY_COUNT];
+    
+    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should not have incremented retry count" );
+    
+    ////////////
+    
+    waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION);
+    XCTAssertTrue( callFailed, @"session call should have failed" );
+    XCTAssertFalse( callSuccess, @"session call should not have succeeded" );
+    
+    XCTAssertEqual( [MATEventQueue queueSize], 1, @"expected %d queued requests, found %d", 1, (unsigned int)[MATEventQueue queueSize] );
+    
+    requests = [MATEventQueue events];
+    
+    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
+    
+    strUrl = requests[0][@"url"];
+    searchString = [NSString stringWithFormat:@"&%@=1", MAT_KEY_RETRY_COUNT];
+    
+    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
+    
+    ////////////
+    
+    NSInteger retry = 1;
+    NSTimeInterval retryDelay = [MATEventQueue retryDelayForAttempt:retry];
+    
+    waitFor( retryDelay + MAT_TEST_NETWORK_REQUEST_DURATION);
+    
+    requests = [MATEventQueue events];
+    
+    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
+    
+    strUrl = requests[0][@"url"];
+    searchString = [NSString stringWithFormat:@"&%@=2", MAT_KEY_RETRY_COUNT];
+    
+    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
+}
 
 #pragma mark - Requests queue behaviors
 

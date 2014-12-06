@@ -77,9 +77,9 @@
 {
     [tracker setDebugMode:YES];
     [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request"
-                                   encryptParams:nil
-                                     postData:nil
-                                         runDate:[NSDate date]];
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:1];
@@ -113,12 +113,12 @@
                              runDate:[NSDate date]];
     waitFor( 10. );
 
-    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected %d queued requests, found %d",
+    XCTAssertEqual( [MATEventQueue queueSize], 1, @"expected %d queued requests, found %d",
                    1, (unsigned int)[MATEventQueue queueSize] );
 
     NSMutableArray *requests = [MATEventQueue events];
 
-    XCTAssertTrue( [requests count] == 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
+    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
     
     NSString *strUrl = requests[0][@"url"];
     NSString *searchString = [NSString stringWithFormat:@"&%@=1", MAT_KEY_RETRY_COUNT];
@@ -131,21 +131,21 @@
 {
     [tracker setDebugMode:YES];
     [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                                   encryptParams:nil
-                                     postData:nil
-                                         runDate:[NSDate date]];
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     [MATEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
-                                   encryptParams:nil
-                                     postData:nil
-                                         runDate:[NSDate date]];
+                       encryptParams:nil
+                            postData:nil
+                             runDate:[NSDate date]];
     waitFor( 10. );
     
-    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected %d queued requests, found %d",
+    XCTAssertEqual( [MATEventQueue queueSize], 2, @"expected %d queued requests, found %d",
                    2, (unsigned int)[MATEventQueue queueSize] );
     
     NSMutableArray *requests = [MATEventQueue events];
     
-    XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected to pop %d queue items, found %d", 2, (int)[MATEventQueue queueSize] );
+    XCTAssertEqual( [MATEventQueue queueSize], 2, @"expected to pop %d queue items, found %d", 2, (int)[MATEventQueue queueSize] );
     XCTAssertTrue( [requests[0][@"url"] rangeOfString:@"yourmom"].location == NSNotFound, @"first call in queue should not have yourmom" );
     XCTAssertTrue( [requests[1][@"url"] rangeOfString:@"yourmom"].location != NSNotFound, @"second call in queue should have yourmom" );
 }
@@ -159,10 +159,12 @@
                             postData:nil
                              runDate:[NSDate date]];
     waitFor( 10. );
+    
+    int expected = (unsigned int)[MATEventQueue queueSize];
+    int actual = 1;
 
-    XCTAssertTrue( [MATEventQueue queueSize] == 1, @"expected %d queued requests, found %d",
-                  1, (unsigned int)[MATEventQueue queueSize] );
-
+    XCTAssertEqual( expected, actual, @"expected %d queued requests, found %d", expected, actual );
+    
     [MATEventQueue dumpQueue];
     waitFor( 10. );
     

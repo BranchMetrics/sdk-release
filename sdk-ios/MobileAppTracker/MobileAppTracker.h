@@ -15,7 +15,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-#define MATVERSION @"3.5.2"
+#define MATVERSION @"3.6"
 
 
 #pragma mark - enumerated types
@@ -358,6 +358,13 @@ typedef NS_ENUM(NSInteger, MATGender)
  */
 + (void)setEventAttribute5:(NSString*)value;
 
+/*!
+ * Set whether the MAT events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
+ * @param logging Whether to send MAT events to FB as well
+ * @param limit Whether data such as that generated through FBAppEvents and sent to Facebook should be restricted from being used for other than analytics and conversions.  Defaults to NO.  This value is stored on the device and persists across app launches.
+ */
++ (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit;
+
 
 #pragma mark - Data Getters
 
@@ -382,6 +389,8 @@ typedef NS_ENUM(NSInteger, MATGender)
 + (BOOL)isPayingUser;
 
 
+#if USE_IAD
+
 #pragma mark - Show iAd advertising
 
 /** @name iAd advertising */
@@ -398,6 +407,7 @@ typedef NS_ENUM(NSInteger, MATGender)
  */
 + (void)removeiAd;
 
+#endif
 
 #pragma mark - Measuring Sessions
 

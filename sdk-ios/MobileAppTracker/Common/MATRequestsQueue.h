@@ -28,7 +28,7 @@
 - (BOOL)load;
 
 /*!
- Last method to be called after which MATRequestQueue instance is never to be accessed or created. This method deletes the queue storage file from disk.
+ Last method to be called after which MATRequestsQueue instance is never to be accessed or created. This method deletes the queue storage file from disk.
  */
 - (void)closedown;
 

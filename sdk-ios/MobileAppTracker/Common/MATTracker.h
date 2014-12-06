@@ -13,6 +13,7 @@
 
 FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 
+
 @protocol MobileAppTrackerDelegate;
 
 
@@ -23,14 +24,21 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;
 
+@property (nonatomic, assign) BOOL fbLogging;
+@property (nonatomic, assign) BOOL fbLimitUsage;
+
 @property (nonatomic, readonly) MATRegionMonitor *regionMonitor;
 
 - (void)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;
 
+#if USE_IAD
+
 - (void)displayiAdInView:(UIView*)view;
 - (void)removeiAd;
+
+#endif
 
 - (void)trackActionForEventIdOrName:(id)eventIdOrName;
 - (void)trackActionForEventIdOrName:(id)eventIdOrName
