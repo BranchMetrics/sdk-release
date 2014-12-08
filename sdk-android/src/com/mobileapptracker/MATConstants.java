@@ -28,10 +28,8 @@ class MATConstants {
     // SharedPreferences filename for user IDs
     static final String PREFS_USER_IDS = "mat_user_ids";
     
-    // Device ID permission
-    static final String DEVICE_ID_PERMISSION = "android.permission.READ_PHONE_STATE";
-    // MAC Address permission
-    static final String MAC_ADDRESS_PERMISSION = "android.permission.ACCESS_WIFI_STATE";
+    // GET_ACCOUNTS permission
+    static final String PERMISSION_GET_ACCOUNTS = "android.permission.GET_ACCOUNTS";
     
     // Server domain
     static final String MAT_DOMAIN = "engine.mobileapptracking.com";
@@ -39,7 +37,7 @@ class MATConstants {
     static final String MAT_DOMAIN_DEBUG = "debug.engine.mobileapptracking.com";
     
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.4";
+    static final String SDK_VERSION = "3.6.1";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued

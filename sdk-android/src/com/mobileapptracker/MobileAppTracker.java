@@ -2,7 +2,9 @@ package com.mobileapptracker;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,16 +12,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
+import android.util.Patterns;
 
 /**
  * @author tony@hasoffers.com
@@ -56,6 +62,8 @@ public class MobileAppTracker {
     protected boolean firstSession;
     // Whether we've already notified the pool to stop waiting
     protected boolean notifiedPool;
+    // Whether we're invoking FB event logging
+    protected boolean fbLogging;
     
     // Connectivity receiver
     protected BroadcastReceiver networkStateReceiver;
@@ -95,9 +103,7 @@ public class MobileAppTracker {
         mat.mContext = context.getApplicationContext();
         mat.pubQueue = Executors.newSingleThreadExecutor();
         
-        mat.pubQueue.execute(new Runnable() { public void run() { 
-            mat.initAll(advertiserId, conversionKey);
-        }});
+        mat.initAll(advertiserId, conversionKey);
     }
     
     /**
@@ -155,6 +161,19 @@ public class MobileAppTracker {
         isRegistered = false;
         debugMode = false;
         preLoaded = false;
+        fbLogging = false;
+    }
+    
+    /**
+     * Whether to log MAT events in the FB SDK as well
+     * @param context Activity context
+     * @param logging Whether to send MAT events to FB as well
+     */
+    public void setFBEventLogging(Context context, boolean logging) {
+        fbLogging = logging;
+        if (logging) {
+            MATFBBridge.startLogger(context);
+        }
     }
 
     /**
@@ -353,6 +372,9 @@ public class MobileAppTracker {
         params.setAction("conversion"); // Default to conversion
         Date runDate = new Date();
         if (event instanceof String) {
+            if (fbLogging) {
+                MATFBBridge.logEvent((String)event, revenue, currency, refId);
+            }
             if (event.equals("close")) {
                 return; // Don't send close events
             } else if (event.equals("open") || event.equals("install") || 
@@ -384,7 +406,7 @@ public class MobileAppTracker {
         
         String link = MATUrlBuilder.buildLink(debugMode, preLoaded, postConversion);
         String data = MATUrlBuilder.buildDataUnencrypted();
-        JSONObject postBody = MATUrlBuilder.buildBody(eventItems, inAppPurchaseData, inAppSignature);
+        JSONObject postBody = MATUrlBuilder.buildBody(eventItems, inAppPurchaseData, inAppSignature, params.getUserEmails());
         
         if (matRequest != null) {
             matRequest.constructedRequest(link, data, postBody);
@@ -466,63 +488,7 @@ public class MobileAppTracker {
         } catch (JSONException e) {
         }
         
-        // Output server response and accepted/rejected status for debug mode
-        if (debugMode) {
-            Log.d(MATConstants.TAG, "Server response: " + response.toString());
-            if (response.length() > 0) {
-                try {
-                    // Read whether event was accepted or rejected
-                    if (response.has("log_action") && !response.getString("log_action").equals("null")) {
-                        JSONObject logAction = response.getJSONObject("log_action");
-                        if (logAction.has("conversion")) {
-                            JSONObject conversion = logAction.getJSONObject("conversion");
-                            if (conversion.has("status")) {
-                                String status = conversion.getString("status");
-                                if (status.equals("rejected")) {
-                                    String statusCode = conversion.getString("status_code");
-                                    Log.d(MATConstants.TAG, "Event was rejected by server: status code " + statusCode);
-                                } else {
-                                    Log.d(MATConstants.TAG, "Event was accepted by server");
-                                }
-                            }
-                        }
-                    } else {
-                        if (response.has("options")) {
-                            JSONObject options = response.getJSONObject("options");
-                            if (options.has("conversion_status")) {
-                                String conversionStatus = options.getString("conversion_status");
-                                Log.d(MATConstants.TAG, "Event was " + conversionStatus + " by server");
-                            }
-                        }
-                    }
-                } catch (JSONException e) {
-                    Log.d(MATConstants.TAG, "Server response status could not be parsed");
-                    e.printStackTrace();
-                }
-            }
-        }
-        
         return true; // request went through, don't retry
-    }
-
-    private void waitForParams() {
-        Date maxWait = null;
-        
-        while (params == null) {
-            // put this code inside the loop so it won't run at all if params != null
-            if (maxWait == null) {
-                maxWait = new Date(new Date().getTime() + 1000);
-            }
-            if (maxWait.before(new Date())) {
-                Log.w(MATConstants.TAG, "after waiting 1 s, params is still null -- will probably lead to NullPointerException");
-                break;
-            }
-
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-            }
-        }
     }
 
     /******************
@@ -534,7 +500,6 @@ public class MobileAppTracker {
      * @return install/update/conversion
      */
     public String getAction() {
-        waitForParams();
         return params.getAction();
     }
 
@@ -543,7 +508,6 @@ public class MobileAppTracker {
      * @return MAT advertiser ID
      */
     public String getAdvertiserId() {
-        waitForParams();
         return params.getAdvertiserId();
     }
 
@@ -552,7 +516,6 @@ public class MobileAppTracker {
      * @return age
      */
     public int getAge() {
-        waitForParams();
         return Integer.parseInt(params.getAge());
     }
 
@@ -561,7 +524,6 @@ public class MobileAppTracker {
      * @return device altitude
      */
     public double getAltitude() {
-        waitForParams();
         return Double.parseDouble(params.getAltitude());
     }
 
@@ -570,7 +532,6 @@ public class MobileAppTracker {
      * @return app-level ad tracking enabled or not
      */
     public boolean getAppAdTrackingEnabled() {
-        waitForParams();
         int adTrackingEnabled = Integer.parseInt(params.getAppAdTrackingEnabled());
         return (adTrackingEnabled == 1);
     }
@@ -580,7 +541,6 @@ public class MobileAppTracker {
      * @return app name
      */
     public String getAppName() {
-        waitForParams();
         return params.getAppName();
     }
 
@@ -589,7 +549,6 @@ public class MobileAppTracker {
      * @return app version
      */
     public int getAppVersion() {
-        waitForParams();
         return Integer.parseInt(params.getAppVersion());
     }
 
@@ -598,7 +557,6 @@ public class MobileAppTracker {
      * @return whether device is connected by WIFI or mobile data connection
      */
     public String getConnectionType() {
-        waitForParams();
         return params.getConnectionType();
     }
 
@@ -607,7 +565,6 @@ public class MobileAppTracker {
      * @return ISO 639-1 country code
      */
     public String getCountryCode() {
-        waitForParams();
         return params.getCountryCode();
     }
 
@@ -616,7 +573,6 @@ public class MobileAppTracker {
      * @return ISO 4217 currency code
      */
     public String getCurrencyCode() {
-        waitForParams();
         return params.getCurrencyCode();
     }
 
@@ -625,7 +581,6 @@ public class MobileAppTracker {
      * @return device brand/manufacturer name
      */
     public String getDeviceBrand() {
-        waitForParams();
         return params.getDeviceBrand();
     }
 
@@ -634,7 +589,6 @@ public class MobileAppTracker {
      * @return device model name
      */
     public String getDeviceModel() {
-        waitForParams();
         return params.getDeviceModel();
     }
 
@@ -643,7 +597,6 @@ public class MobileAppTracker {
      * @return mobile device carrier/service provider name
      */
     public String getDeviceCarrier() {
-        waitForParams();
         return params.getDeviceCarrier();
     }
 
@@ -652,7 +605,6 @@ public class MobileAppTracker {
      * @return event attribute 1
      */
     public String getEventAttribute1() {
-        waitForParams();
         return params.getEventAttribute1();
     }
 
@@ -661,7 +613,6 @@ public class MobileAppTracker {
      * @return event attribute 2
      */
     public String getEventAttribute2() {
-        waitForParams();
         return params.getEventAttribute2();
     }
 
@@ -670,7 +621,6 @@ public class MobileAppTracker {
      * @return event attribute 3
      */
     public String getEventAttribute3() {
-        waitForParams();
         return params.getEventAttribute3();
     }
 
@@ -679,7 +629,6 @@ public class MobileAppTracker {
      * @return event attribute 4
      */
     public String getEventAttribute4() {
-        waitForParams();
         return params.getEventAttribute4();
     }
 
@@ -688,7 +637,6 @@ public class MobileAppTracker {
      * @return event attribute 5
      */
     public String getEventAttribute5() {
-        waitForParams();
         return params.getEventAttribute5();
     }
 
@@ -697,7 +645,6 @@ public class MobileAppTracker {
      * @return event ID in MAT
      */
     public String getEventId() {
-        waitForParams();
         return params.getEventId();
     }
 
@@ -706,7 +653,6 @@ public class MobileAppTracker {
      * @return event name in MAT
      */
     public String getEventName() {
-        waitForParams();
         return params.getEventName();
     }
 
@@ -715,7 +661,6 @@ public class MobileAppTracker {
      * @return whether user existed prior to install
      */
     public boolean getExistingUser() {
-        waitForParams();
         int intExisting = Integer.parseInt(params.getExistingUser());
         return (intExisting == 1);
     }
@@ -725,7 +670,6 @@ public class MobileAppTracker {
      * @return Facebook user ID
      */
     public String getFacebookUserId() {
-        waitForParams();
         return params.getFacebookUserId();
     }
 
@@ -734,7 +678,6 @@ public class MobileAppTracker {
      * @return gender 0 for male, 1 for female
      */
     public int getGender() {
-        waitForParams();
         return Integer.parseInt(params.getGender());
     }
 
@@ -743,7 +686,6 @@ public class MobileAppTracker {
      * @return Google advertising ID
      */
     public String getGoogleAdvertisingId() {
-        waitForParams();
         return params.getGoogleAdvertisingId();
     }
 
@@ -752,7 +694,6 @@ public class MobileAppTracker {
      * @return whether tracking is limited
      */
     public boolean getGoogleAdTrackingLimited() {
-        waitForParams();
         int intLimited = Integer.parseInt(params.getGoogleAdTrackingLimited());
         return intLimited == 0? false : true;
     }
@@ -762,7 +703,6 @@ public class MobileAppTracker {
      * @return Google user ID
      */
     public String getGoogleUserId() {
-        waitForParams();
         return params.getGoogleUserId();
     }
 
@@ -771,7 +711,6 @@ public class MobileAppTracker {
      * @return date that app was installed, epoch seconds
      */
     public long getInstallDate() {
-        waitForParams();
         return Long.parseLong(params.getInstallDate());
     }
 
@@ -780,7 +719,6 @@ public class MobileAppTracker {
      * @return MAT install log ID
      */
     public String getInstallLogId() {
-        waitForParams();
         return params.getInstallLogId();
     }
 
@@ -789,7 +727,6 @@ public class MobileAppTracker {
      * @return Play INSTALL_REFERRER
      */
     public String getInstallReferrer() {
-        waitForParams();
         return params.getInstallReferrer();
     }
 
@@ -798,7 +735,6 @@ public class MobileAppTracker {
      * @return true if the user has produced revenue, false if not
      */
     public boolean getIsPayingUser() {
-        waitForParams();
         String isPayingUser = params.getIsPayingUser();
         return isPayingUser.equals("1");
     }
@@ -808,7 +744,6 @@ public class MobileAppTracker {
      * @return device language
      */
     public String getLanguage() {
-        waitForParams();
         return params.getLanguage();
     }
 
@@ -817,7 +752,6 @@ public class MobileAppTracker {
      * @return most recent MAT open log ID
      */
     public String getLastOpenLogId() {
-        waitForParams();
         return params.getLastOpenLogId();
     }
 
@@ -826,7 +760,6 @@ public class MobileAppTracker {
      * @return device latitude
      */
     public double getLatitude() {
-        waitForParams();
         return Double.parseDouble(params.getLatitude());
     }
 
@@ -835,7 +768,6 @@ public class MobileAppTracker {
      * @return device longitude
      */
     public double getLongitude() {
-        waitForParams();
         return Double.parseDouble(params.getLongitude());
     }
 
@@ -844,7 +776,6 @@ public class MobileAppTracker {
      * @return MAT ID
      */
     public String getMatId() {
-        waitForParams();
         return params.getMatId();
     }
 
@@ -853,7 +784,6 @@ public class MobileAppTracker {
      * @return mobile country code associated with the carrier
      */
     public String getMCC() {
-        waitForParams();
         return params.getMCC();
     }
 
@@ -862,7 +792,6 @@ public class MobileAppTracker {
      * @return mobile network code associated with the carrier
      */
     public String getMNC() {
-        waitForParams();
         return params.getMNC();
     }
 
@@ -871,7 +800,6 @@ public class MobileAppTracker {
      * @return first MAT open log ID
      */
     public String getOpenLogId() {
-        waitForParams();
         return params.getOpenLogId();
     }
 
@@ -880,7 +808,6 @@ public class MobileAppTracker {
      * @return Android OS version
      */
     public String getOsVersion() {
-        waitForParams();
         return params.getOsVersion();
     }
 
@@ -890,7 +817,6 @@ public class MobileAppTracker {
      * @return package name of app
      */
     public String getPackageName() {
-        waitForParams();
         return params.getPackageName();
     }
 
@@ -899,7 +825,6 @@ public class MobileAppTracker {
      * @return name of MAT plugin
      */
     public String getPluginName() {
-        waitForParams();
         return params.getPluginName();
     }
 
@@ -908,7 +833,6 @@ public class MobileAppTracker {
      * @return source package name that caused open via StartActivityForResult
      */
     public String getReferralSource() {
-        waitForParams();
         return params.getReferralSource();
     }
 
@@ -917,7 +841,6 @@ public class MobileAppTracker {
      * @return full url of app scheme that caused open
      */
     public String getReferralUrl() {
-        waitForParams();
         return params.getReferralUrl();
     }
 
@@ -926,7 +849,6 @@ public class MobileAppTracker {
      * @return advertiser ref ID set by SDK
      */
     public String getRefId() {
-        waitForParams();
         return params.getRefId();
     }
 
@@ -935,7 +857,6 @@ public class MobileAppTracker {
      * @return revenue amount
      */
     public Double getRevenue() {
-        waitForParams();
         return Double.parseDouble(params.getRevenue());
     }
 
@@ -944,7 +865,6 @@ public class MobileAppTracker {
      * @return 0.75/1.0/1.5/2.0/3.0/4.0 for ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi
      */
     public String getScreenDensity() {
-        waitForParams();
         return params.getScreenDensity();
     }
 
@@ -953,7 +873,6 @@ public class MobileAppTracker {
      * @return height
      */
     public String getScreenHeight() {
-        waitForParams();
         return params.getScreenHeight();
     }
 
@@ -962,7 +881,6 @@ public class MobileAppTracker {
      * @return width
      */
     public String getScreenWidth() {
-        waitForParams();
         return params.getScreenWidth();
     }
 
@@ -971,7 +889,6 @@ public class MobileAppTracker {
      * @return MAT SDK version
      */
     public String getSDKVersion() {
-        waitForParams();
         return params.getSdkVersion();
     }
 
@@ -980,7 +897,6 @@ public class MobileAppTracker {
      * @return site ID in MAT
      */
     public String getSiteId() {
-        waitForParams();
         return params.getSiteId();
     }
 
@@ -989,7 +905,6 @@ public class MobileAppTracker {
      * @return TRUSTe ID
      */
     public String getTRUSTeId() {
-        waitForParams();
         return params.getTRUSTeId();
     }
 
@@ -998,7 +913,6 @@ public class MobileAppTracker {
      * @return Twitter user ID
      */
     public String getTwitterUserId() {
-        waitForParams();
         return params.getTwitterUserId();
     }
 
@@ -1007,7 +921,6 @@ public class MobileAppTracker {
      * @return MAT update log ID
      */
     public String getUpdateLogId() {
-        waitForParams();
         return params.getUpdateLogId();
     }
 
@@ -1016,7 +929,6 @@ public class MobileAppTracker {
      * @return device user agent
      */
     public String getUserAgent() {
-        waitForParams();
         return params.getUserAgent();
     }
 
@@ -1025,7 +937,6 @@ public class MobileAppTracker {
      * @return custom user email
      */
     public String getUserEmail() {
-        waitForParams();
         return params.getUserEmail();
     }
 
@@ -1034,7 +945,6 @@ public class MobileAppTracker {
      * @return custom user id
      */
     public String getUserId() {
-        waitForParams();
         return params.getUserId();
     }
 
@@ -1043,7 +953,6 @@ public class MobileAppTracker {
      * @return custom user name
      */
     public String getUserName() {
-        waitForParams();
         return params.getUserName();
     }
 
@@ -1151,6 +1060,37 @@ public class MobileAppTracker {
             params.setAndroidId(androidId);
         }});
     }
+    
+    /**
+     * Sets the ANDROID ID MD5 hash
+     * @param androidIdMd5 ANDROID_ID MD5 hash
+     */
+    public void setAndroidIdMd5(final String androidIdMd5) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAndroidIdMd5(androidIdMd5);
+        }});
+    }
+    
+    /**
+     * Sets the ANDROID ID SHA-1 hash
+     * @param androidIdSha1 ANDROID_ID SHA-1 hash
+     */
+    public void setAndroidIdSha1(final String androidIdSha1) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAndroidIdSha1(androidIdSha1);
+        }});
+    }
+    
+    /**
+     * Sets the ANDROID ID SHA-256 hash
+     * @param androidIdSha256 ANDROID_ID SHA-256 hash
+     */
+    public void setAndroidIdSha256(final String androidIdSha256) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setAndroidIdSha256(androidIdSha256);
+        }});
+    }
+    
     /**
      * Sets whether app-level ad tracking is enabled.
      * @param adTrackingEnabled true if user has opted out of ad tracking at the app-level, false if not
@@ -1726,8 +1666,38 @@ public class MobileAppTracker {
      * @param debug whether to enable debug output
      */
     public void setDebugMode(final boolean debug) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            debugMode = debug;
+        debugMode = debug;
+    }
+    
+    /**
+     * Enables or disables primary Gmail address collection
+     * Requires GET_ACCOUNTS permission
+     * @param collectEmail whether to collect device email address
+     */
+    public void setEmailCollection(final boolean collectEmail) {
+        pubQueue.execute(new Runnable() { public void run() {
+            boolean accountPermission = (mContext.checkCallingOrSelfPermission(MATConstants.PERMISSION_GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED);
+            if (collectEmail && accountPermission) {
+                // Set primary Gmail address as user email
+                Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
+                if (accounts.length > 0) {
+                    params.setUserEmail(accounts[0].name);
+                }
+                
+                // Store the rest of email addresses
+                HashMap<String, String> emailMap = new HashMap<String, String>();
+                accounts = AccountManager.get(mContext).getAccounts();
+                for (Account account : accounts) {
+                    if (Patterns.EMAIL_ADDRESS.matcher(account.name).matches()) {
+                        emailMap.put(account.name, account.type);
+                    }
+                }
+                Set<String> emailKeys = emailMap.keySet();
+                String[] emailArr = emailKeys.toArray(new String[emailKeys.size()]);
+                params.setUserEmails(emailArr);
+            } else {
+                params.setUserEmail(null);
+            }
         }});
     }
 }

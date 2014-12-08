@@ -23,6 +23,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -89,17 +90,29 @@ class MATUrlRequester {
                 if (debugMode) {
                     Log.d(MATConstants.TAG, "Request completed with status " + statusLine.getStatusCode());
                 }
+                
+                // Parse response as JSON
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                StringBuilder builder = new StringBuilder();
+                for (String line = null; (line = reader.readLine()) != null;) {
+                    builder.append(line).append("\n");
+                }
+                reader.close();
+                
+                // Try to parse response and print
+                JSONObject responseJson = new JSONObject();
+                try {
+                    JSONTokener tokener = new JSONTokener(builder.toString());
+                    responseJson = new JSONObject(tokener);
+                    if (debugMode) {
+                        logResponse(responseJson);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
                 if (statusLine.getStatusCode() >= 200 && statusLine.getStatusCode() <= 299) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    StringBuilder builder = new StringBuilder();
-                    for (String line = null; (line = reader.readLine()) != null;) {
-                        builder.append(line).append("\n");
-                    }
-                    reader.close();
-                    if (builder.length() > 0) {
-                        JSONTokener tokener = new JSONTokener(builder.toString());
-                        return new JSONObject(tokener);
-                    }
+                    return responseJson;
                 }
                 // for HTTP 400, if it's from our server, drop the request and don't retry
                 else if (statusLine.getStatusCode() == 400 && matResponderHeader != null) {
@@ -114,5 +127,47 @@ class MATUrlRequester {
             }
         }
         return new JSONObject(); // marks this request for retry
+    }
+    
+    // Helper to log request success/failure/errors
+    private void logResponse(JSONObject response) {
+        // Output server response and accepted/rejected status for debug mode
+        Log.d(MATConstants.TAG, "Server response: " + response);
+        if (response.length() > 0) {
+            try {
+                // Output if any errors occurred
+                if (response.has("errors") && response.getJSONArray("errors").length() != 0) {
+                    String errorMsg = response.getJSONArray("errors").getString(0);
+                    Log.d(MATConstants.TAG, "Event was rejected by server with error: " + errorMsg);
+                } else if (response.has("log_action") && !response.getString("log_action").equals("null") && !response.getString("log_action").equals("false")) {
+                    // Read whether event was accepted or rejected from log_action if exists
+                    JSONObject logAction = response.getJSONObject("log_action");
+                    if (logAction.has("conversion")) {
+                        JSONObject conversion = logAction.getJSONObject("conversion");
+                        if (conversion.has("status")) {
+                            String status = conversion.getString("status");
+                            if (status.equals("rejected")) {
+                                String statusCode = conversion.getString("status_code");
+                                Log.d(MATConstants.TAG, "Event was rejected by server: status code " + statusCode);
+                            } else {
+                                Log.d(MATConstants.TAG, "Event was accepted by server");
+                            }
+                        }
+                    }
+                } else {
+                    // Read whether event was accepted or rejected from options if exists
+                    if (response.has("options")) {
+                        JSONObject options = response.getJSONObject("options");
+                        if (options.has("conversion_status")) {
+                            String conversionStatus = options.getString("conversion_status");
+                            Log.d(MATConstants.TAG, "Event was " + conversionStatus + " by server");
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                Log.d(MATConstants.TAG, "Server response status could not be parsed");
+                e.printStackTrace();
+            }
+        }
     }
 }

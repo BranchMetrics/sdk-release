@@ -101,6 +101,9 @@ class MATUrlBuilder {
         safeAppend(link, "age", params.getAge());
         safeAppend(link, "altitude", params.getAltitude());
         safeAppend(link, "android_id", params.getAndroidId());
+        safeAppend(link, "android_id_md5", params.getAndroidIdMd5());
+        safeAppend(link, "android_id_sha1", params.getAndroidIdSha1());
+        safeAppend(link, "android_id_sha256", params.getAndroidIdSha256());
         safeAppend(link, "app_ad_tracking", params.getAppAdTrackingEnabled());
         safeAppend(link, "app_name", params.getAppName());
         safeAppend(link, "app_version", params.getAppVersion());
@@ -209,7 +212,7 @@ class MATUrlBuilder {
      * Builds JSONObject for body of POST request
      * @return appropriately parameterized object
      */
-    public static synchronized JSONObject buildBody(JSONArray eventItems, String iapData, String iapSignature) {
+    public static synchronized JSONObject buildBody(JSONArray eventItems, String iapData, String iapSignature, JSONArray emails) {
         JSONObject postData = new JSONObject();
 
         try {
@@ -222,8 +225,11 @@ class MATUrlBuilder {
             if (iapSignature != null) {
                 postData.put("store_iap_signature", iapSignature);
             }
+            if (emails != null) {
+                postData.put("user_emails", emails);
+            }
         } catch (JSONException e) {
-            Log.d(MATConstants.TAG, "Could not build JSON for event items or verification values");
+            Log.d(MATConstants.TAG, "Could not build JSON body of request");
             e.printStackTrace();
         }
         

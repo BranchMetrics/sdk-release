@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -288,6 +291,30 @@ public class Parameters {
     }
     public synchronized void setAndroidId(String androidId) {
         mAndroidId = androidId;
+    }
+    
+    private String mAndroidIdMd5 = null;
+    public synchronized String getAndroidIdMd5() {
+        return mAndroidIdMd5;
+    }
+    public synchronized void setAndroidIdMd5(String androidIdMd5) {
+        mAndroidIdMd5 = androidIdMd5;
+    }
+    
+    private String mAndroidIdSha1 = null;
+    public synchronized String getAndroidIdSha1() {
+        return mAndroidIdSha1;
+    }
+    public synchronized void setAndroidIdSha1(String androidIdSha1) {
+        mAndroidIdSha1 = androidIdSha1;
+    }
+    
+    private String mAndroidIdSha256 = null;
+    public synchronized String getAndroidIdSha256() {
+        return mAndroidIdSha256;
+    }
+    public synchronized void setAndroidIdSha256(String androidIdSha256) {
+        mAndroidIdSha256 = androidIdSha256;
     }
     
     private String mAppAdTracking = null;
@@ -809,6 +836,18 @@ public class Parameters {
     }
     public synchronized void setUserEmail(String user_email) {
         saveToSharedPreferences(MATConstants.PREFS_USER_IDS, "user_email", user_email);
+    }
+    
+    private JSONArray mUserEmails = null;
+    public synchronized JSONArray getUserEmails() {
+        return mUserEmails;
+    }
+    public synchronized void setUserEmails(String[] emails) {
+        try {
+            mUserEmails = new JSONArray(emails);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized String getUserId() {
