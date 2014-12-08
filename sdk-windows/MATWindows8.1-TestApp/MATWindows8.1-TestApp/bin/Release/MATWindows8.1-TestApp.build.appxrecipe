@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Machine>DP-SDKCI01-DEV</Machine>
+    <WindowsUser>johng</WindowsUser>
+    <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
+    <SolutionConfiguration>Release|AnyCPU</SolutionConfiguration>
+    <PackageArchitecture>neutral</PackageArchitecture>
+    <PackageIdentityName>com.hasofferstestapp</PackageIdentityName>
+    <IntermediateOutputPath>C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\obj\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppXManifest Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\AppxManifest.xml">
+      <PackagePath>AppxManifest.xml</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppXManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\MATWindows81TestApp.exe">
+      <PackagePath>MATWindows81TestApp.exe</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-SDK\MATWindows8.1-SDK\bin\Release\MATWindows81SDK.dll">
+      <PackagePath>MATWindows81SDK.dll</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\packages\Newtonsoft.Json.6.0.1\lib\netcore45\Newtonsoft.Json.dll">
+      <PackagePath>Newtonsoft.Json.dll</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\Assets\Logo.scale-100.png">
+      <PackagePath>Assets\Logo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\Assets\SmallLogo.scale-100.png">
+      <PackagePath>Assets\SmallLogo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\Assets\SplashScreen.scale-100.png">
+      <PackagePath>Assets\SplashScreen.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\Assets\StoreLogo.scale-100.png">
+      <PackagePath>Assets\StoreLogo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\App.xbf">
+      <PackagePath>App.xbf</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\MainPage.xbf">
+      <PackagePath>MainPage.xbf</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\MATWindows81TestApp.xr.xml">
+      <PackagePath>MATWindows81TestApp.xr.xml</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Documents\GitHub\sdk\sdk-windows\MATWindows8.1-TestApp\MATWindows8.1-TestApp\bin\Release\resources.pri">
+      <PackagePath>resources.pri</PackagePath>
+    </AppxPackagedFile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+</Project>

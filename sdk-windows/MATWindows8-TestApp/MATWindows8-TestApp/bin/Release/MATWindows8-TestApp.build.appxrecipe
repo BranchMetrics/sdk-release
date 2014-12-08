@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Machine>DP-SDKCI01-DEV</Machine>
+    <WindowsUser>johng</WindowsUser>
+    <SolutionConfiguration>Release|AnyCPU</SolutionConfiguration>
+    <PackageArchitecture>neutral</PackageArchitecture>
+    <PackageIdentityName>com.hasofferstestapp</PackageIdentityName>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppXManifest Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\AppxManifest.xml">
+      <PackagePath>AppxManifest.xml</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppXManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\MATWindows8TestApp.exe">
+      <PackagePath>MATWindows8TestApp.exe</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-SDK\MATWindows8-SDK\bin\Release\MATWindows8SDK.dll">
+      <PackagePath>MATWindows8SDK.dll</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-SDK\MATWindows8-SDK\bin\Release\Newtonsoft.Json.dll">
+      <PackagePath>Newtonsoft.Json.dll</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\Assets\Logo.png">
+      <PackagePath>Assets\Logo.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\Assets\SmallLogo.png">
+      <PackagePath>Assets\SmallLogo.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\Assets\SplashScreen.png">
+      <PackagePath>Assets\SplashScreen.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\Assets\StoreLogo.png">
+      <PackagePath>Assets\StoreLogo.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\App.xaml">
+      <PackagePath>App.xaml</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\Common\StandardStyles.xaml">
+      <PackagePath>Common\StandardStyles.xaml</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\MainPage.xaml">
+      <PackagePath>MainPage.xaml</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\johng\Dev\forks\sdk\sdk-windows\MATWindows8-TestApp\MATWindows8-TestApp\bin\Release\resources.pri">
+      <PackagePath>resources.pri</PackagePath>
+    </AppxPackagedFile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+</Project>
