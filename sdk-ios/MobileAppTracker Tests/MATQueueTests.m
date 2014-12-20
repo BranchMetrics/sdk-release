@@ -383,14 +383,14 @@
 - (void)mobileAppTrackerDidSucceedWithData:(NSData *)data
 {
     [successMessages addObject:data];
-//    NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
+    //NSLog( @"MATQueueTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
 }
 
 - (void)mobileAppTrackerDidFailWithError:(NSError *)error
 {
-//    NSLog( @"test received failure with %@\n", error );
+    //NSLog( @"MATQueueTests: test received failure with %@\n", error );
     callFailed = YES;
     callSuccess = NO;
 }

@@ -53,7 +53,7 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
 
 @implementation MATFBBridge
 
-+ (void)sendCurrentEvent:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit
++ (void)sendEvent:(NSString *)name parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit
 {
     Class FBSettings = NSClassFromString( @"FBSettings" );
     SEL selLimitMethod = @selector(setLimitEventUsage:);
@@ -80,16 +80,17 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
     // map between MAT params and FB params:
     // https://developers.facebook.com/docs/ios/app-events
     
-    SEL selMethod;
+    SEL selMethod = nil;
     
-    NSString *fbEventName = parameters.actionName;
+    NSString *fbEventName = name;
+    NSString *curr = parameters.currencyCode;
     double valueToSum = parameters.revenue.doubleValue;
     
-    NSString *eventNameLower = [parameters.actionName lowercaseString];
+    NSString *eventNameLower = [name lowercaseString];
     
     if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_SESSION].location) {
-        selMethod = @selector(activateApp);
         fbEventName = MAT_FBAppEventNameActivatedApp;
+        selMethod = @selector(activateApp);
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_REGISTRATION].location) {
         fbEventName = MAT_FBAppEventNameCompletedRegistration;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_CONTENT_VIEW].location) {
@@ -110,8 +111,8 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_ADDED_PAYMENT_INFO].location) {
         fbEventName = MAT_FBAppEventNameAddedPaymentInfo;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_PURCHASE].location) {
-        selMethod = @selector(logPurchase:currency:parameters:);
         fbEventName = MAT_FBAppEventNamePurchased;
+        selMethod = @selector(logPurchase:currency:parameters:);
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_LEVEL_ACHIEVED].location) {
         fbEventName = MAT_FBAppEventNameAchievedLevel;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_ACHIEVEMENT_UNLOCKED].location) {
@@ -140,43 +141,45 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
     
     dict[MAT_TUNE_SOURCE_SDK] = @"TUNE-MAT";
     
-    
-    if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_SESSION].location && [FBAppEvents respondsToSelector:selMethod])
+    if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_SESSION].location
+        && [FBAppEvents respondsToSelector:selMethod])
     {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [FBAppEvents performSelector:selMethod];
-#pragma clang diagnostic pop
-    }
-    else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_PURCHASE].location && [FBAppEvents respondsToSelector:selMethod])
-    {
-        double purchaseAmount = parameters.revenue.doubleValue;
-        NSString *curr = parameters.currencyCode;
-        
-        // use NSInvocation since performSelector only allows 2 params and the params must have type 'id'
         NSMethodSignature* signature = [FBAppEvents methodSignatureForSelector:selMethod];
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
         [invocation setTarget:FBAppEvents];
-        [invocation setSelector:selMethod ];
-        [invocation setArgument:&purchaseAmount atIndex:2];
+        [invocation setSelector:selMethod];
+    }
+    else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_PURCHASE].location
+             && [FBAppEvents respondsToSelector:selMethod])
+    {
+        NSMethodSignature* signature = [FBAppEvents methodSignatureForSelector:selMethod];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:FBAppEvents];
+        [invocation setSelector:selMethod];
+        [invocation setArgument:&valueToSum atIndex:2];
         [invocation setArgument:&curr atIndex:3];
         [invocation setArgument:&dict atIndex:4];
         [invocation invoke];
     }
     else
     {
-        selMethod = @selector(logEvent:);
+        selMethod = @selector(logEvent:valueToSum:parameters:);
+        
         if( ![FBAppEvents respondsToSelector:selMethod] ) {
-            DLog( @"MATFBBridge no event method in fbsdk" );
+            DLog(@"MATFBBridge no %@ method in fbsdk", NSStringFromSelector(selMethod));
             return;
         }
         
-        DLog(@"MATFBBridge logging event %@", parameters.actionName);
+        DLog(@"MATFBBridge logging event %@", fbEventName);
         
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [FBAppEvents performSelector:selMethod withObject:parameters.actionName withObject:dict];
-#pragma clang diagnostic pop
+        NSMethodSignature* signature = [FBAppEvents methodSignatureForSelector:selMethod];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:FBAppEvents];
+        [invocation setSelector:selMethod];
+        [invocation setArgument:&fbEventName atIndex:2];
+        [invocation setArgument:&valueToSum atIndex:3];
+        [invocation setArgument:&dict atIndex:4];
+        [invocation invoke];
     }
 }
 

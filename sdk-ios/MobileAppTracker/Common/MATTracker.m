@@ -690,7 +690,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     
     if(self.fbLogging)
     {
-        [MATFBBridge sendCurrentEvent:self.parameters limitEventAndDataUsage:self.fbLimitUsage];
+        // copy the original event name for use in the async call to MATFBBridge.sendEvent
+        // and avoid a race condition if self.parameters.actionName value is changed
+        NSString *originalEventName = self.parameters.actionName;
+        
+        // call the Facebook event logging methods on main thread to make sure FBSession threading requirements are met
+        dispatch_async( dispatch_get_main_queue(), ^{
+            [MATFBBridge sendEvent:originalEventName parameters:self.parameters limitEventAndDataUsage:self.fbLimitUsage];
+        });
     }
     
     NSString *trackingLink, *encryptParams;
@@ -738,6 +745,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     }
     
     NSDate *runDate = [NSDate date];
+    
 #if USE_IAD
     if( [self.parameters.actionName isEqualToString:MAT_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:MAT_SESSION_QUEUING_DELAY];

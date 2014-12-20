@@ -31,6 +31,7 @@
 @end
 
 static NSSet * ignoreParams;
+static CTTelephonyNetworkInfo *netInfo;
 
 @implementation MATSettings
 
@@ -38,6 +39,8 @@ static NSSet * ignoreParams;
 
 + (void)initialize {
     ignoreParams = [NSSet setWithObjects:MAT_KEY_REDIRECT_URL, MAT_KEY_KEY, nil];
+    
+    netInfo = [CTTelephonyNetworkInfo new];
 }
 
 #pragma mark - Initialization
@@ -117,7 +120,7 @@ static NSSet * ignoreParams;
         self.screenSize = [NSString stringWithFormat:@"%.fx%.f", screenSize.width, screenSize.height];
         self.screenDensity = @([[UIScreen mainScreen] scale]);
         
-        CTCarrier *carrier = [[CTTelephonyNetworkInfo new] subscriberCellularProvider];
+        CTCarrier *carrier = [netInfo subscriberCellularProvider];
         self.deviceCarrier = [carrier carrierName];
         self.mobileCountryCode = [carrier mobileCountryCode];
         self.mobileCountryCodeISO = [carrier isoCountryCode];

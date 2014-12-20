@@ -79,10 +79,7 @@ static MATEventQueue *sharedQueue = nil;
 
 + (void)initialize
 {
-    static dispatch_once_t onceToken;
-    dispatch_once( &onceToken, ^{
-        sharedQueue = [MATEventQueue new];
-    });
+    sharedQueue = [MATEventQueue new];
 }
 
 - (id)init
@@ -374,6 +371,8 @@ static MATEventQueue *sharedQueue = nil;
         NSError *error = nil;
         NSData *data = nil;
         
+        NSInteger code = 0;
+        
 #if TESTING
         // when testing network errors, skip request and force error response
         if(self.forceError)
@@ -386,7 +385,7 @@ static MATEventQueue *sharedQueue = nil;
         
         if( error != nil ) {
             
-            DLLog("MatEventQueue: dumpQueue: error code = %d", (int)error.code);
+            DLLog(@"MatEventQueue: dumpQueue: error code = %d", (int)error.code);
             
             if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] )
                 [_delegate queueRequestDidFailWithError:error];
@@ -394,8 +393,15 @@ static MATEventQueue *sharedQueue = nil;
             urlResp = nil; // set response to nil and make sure that the request is retried
         }
 
-        
-        NSInteger code = [urlResp statusCode];
+#if TESTING
+        // when testing network errors, use forced error code
+        if(self.forceError)
+        {
+            code = self.forcedErrorCode;
+        }
+        else
+#endif
+        code = [urlResp statusCode];
         NSDictionary *headers = [urlResp allHeaderFields];
         NSDictionary *newFirstItem = nil;
         
@@ -421,8 +427,9 @@ static MATEventQueue *sharedQueue = nil;
         else {
             // update retry parameters
             NSDate *newSendDate = [NSDate date];
+            
             [self appendOrIncrementRetryCount:&trackingLink sendDate:&newSendDate];
-
+            
             NSMutableDictionary *newRequest = [NSMutableDictionary dictionaryWithDictionary:request];
             newRequest[MAT_KEY_URL] = trackingLink;
             newRequest[MAT_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);

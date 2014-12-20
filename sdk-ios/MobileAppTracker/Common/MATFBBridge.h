@@ -12,6 +12,6 @@
 
 @interface MATFBBridge : NSObject
 
-+ (void)sendCurrentEvent:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit;
++ (void)sendEvent:(NSString *)name parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit;
 
 @end

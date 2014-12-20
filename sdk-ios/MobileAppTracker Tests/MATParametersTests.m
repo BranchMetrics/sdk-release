@@ -13,6 +13,7 @@
 #import "MATTestParams.h"
 #import "../MobileAppTracker/Common/MATKeyStrings.h"
 #import "../MobileAppTracker/Common/MATSettings.h" // move to new test class for internal params
+#import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATParametersTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -1023,7 +1024,7 @@
     id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     MATSettings *sharedParams = [mat performSelector:@selector(parameters)];
 #pragma clang diagnostic pop
-
+    
     sharedParams.iadAttribution = @(TRUE);
 
     [MobileAppTracker measureAction:@"registration"];
@@ -1042,15 +1043,17 @@
     MATSettings *settings = [mat performSelector:@selector(parameters)];
 #pragma clang diagnostic pop
     
+    double iAdCallbackDelay = 2.;
+    
     settings.iadAttribution = nil;
     [MobileAppTracker measureSession];
-    waitFor( 2. );
+    waitFor( iAdCallbackDelay );
     
     settings.iadAttribution = @TRUE;
-    waitFor( 15. );
-
+    waitFor( MAT_SESSION_QUEUING_DELAY - iAdCallbackDelay + MAT_TEST_NETWORK_REQUEST_DURATION );
+    
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertTrue( [params checkKey:@"iad_attribution" isEqualToValue:[@(TRUE) stringValue]],
+    XCTAssertTrue( [params checkKey:MAT_KEY_IAD_ATTRIBUTION isEqualToValue:[@(TRUE) stringValue]],
                    @"should have set iad_attribution to true" );
 }
 
