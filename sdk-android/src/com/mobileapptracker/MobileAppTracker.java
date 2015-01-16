@@ -19,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -26,6 +27,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 import android.util.Patterns;
+import android.widget.Toast;
 
 /**
  * @author tony@hasoffers.com
@@ -37,6 +39,7 @@ public class MobileAppTracker {
     
     private final String IV = "heF9BATUfWuISyO8";
     
+    private MATDeferredDplinkr dplinkr;
     // Interface for reading platform response to tracking calls
     protected MATResponse matResponse;
     // Interface for making url requests
@@ -58,6 +61,8 @@ public class MobileAppTracker {
     protected boolean gotGaid;
     // Whether INSTALL_REFERRER was received
     protected boolean gotReferrer;
+    // If this is the first app install, try to find deferred deeplink
+    protected boolean firstInstall;
     // If this is the first session of the app lifecycle, wait for the GAID and referrer
     protected boolean firstSession;
     // Whether we've already notified the pool to stop waiting
@@ -116,6 +121,13 @@ public class MobileAppTracker {
         params = Parameters.getInstance();
         
         initLocalVariables(conversionKey);
+        
+        // Dplinkr init
+        MATDeferredDplinkr.initialize();
+        dplinkr = MATDeferredDplinkr.getInstance();
+        dplinkr.setAdvertiserId(advertiserId);
+        dplinkr.setConversionKey(conversionKey);
+        dplinkr.setPackageName(params.getPackageName());
 
         eventQueue = new MATEventQueue(mContext, this);
         // Dump any existing requests in queue on start
@@ -156,6 +168,7 @@ public class MobileAppTracker {
         urlRequester = new MATUrlRequester();
         encryption = new Encryption(key.trim(), IV);
         
+        firstInstall = false;
         firstSession = true;
         initialized = false;
         isRegistered = false;
@@ -169,7 +182,7 @@ public class MobileAppTracker {
      * @param context Activity context
      * @param logging Whether to send MAT events to FB as well
      */
-    public void setFBEventLogging(Context context, boolean logging) {
+    public void setFacebookEventLogging(Context context, boolean logging) {
         fbLogging = logging;
         if (logging) {
             MATFBBridge.startLogger(context);
@@ -201,6 +214,13 @@ public class MobileAppTracker {
      * Main session measurement function; this function should be called at every app open.
      */
     public void measureSession() {
+        // If no SharedPreferences value for install exists, set it and mark firstInstall true
+        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_INSTALL, Context.MODE_PRIVATE);
+        if (!installed.contains(MATConstants.PREFS_INSTALL_KEY)) {
+            installed.edit().putBoolean(MATConstants.PREFS_INSTALL_KEY, true).commit();
+            firstInstall = true;
+        }
+
         pubQueue.execute(new Runnable() { public void run() {
             notifiedPool = false;
             measure("session", null, 0, getCurrencyCode(), getRefId(), null, null, false);
@@ -1056,6 +1076,7 @@ public class MobileAppTracker {
      * @param androidId ANDROID_ID
      */
     public void setAndroidId(final String androidId) {
+        dplinkr.setAndroidId(androidId);
         pubQueue.execute(new Runnable() { public void run() {
             params.setAndroidId(androidId);
         }});
@@ -1300,6 +1321,8 @@ public class MobileAppTracker {
      */
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled? 1 : 0;
+        
+        dplinkr.setGoogleAdvertisingId(adId, intLimit);
         pubQueue.execute(new Runnable() { public void run() { 
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
@@ -1407,14 +1430,15 @@ public class MobileAppTracker {
 
     /**
      * Sets the app package name
-     * @param package_name App package name
+     * @param packageName App package name
      */
-    public void setPackageName(final String package_name) {
+    public void setPackageName(final String packageName) {
+        dplinkr.setPackageName(packageName);
         pubQueue.execute(new Runnable() { public void run() { 
-            if (package_name == null || package_name.equals("")) {
+            if (packageName == null || packageName.equals("")) {
                 params.setPackageName(mContext.getPackageName());
             } else {
-                params.setPackageName(package_name);
+                params.setPackageName(packageName);
             }
         }});
     }
@@ -1659,6 +1683,9 @@ public class MobileAppTracker {
                 params.setAllowDuplicates(Integer.toString(0));
             }
         }});
+        if (allow) {
+            Toast.makeText(mContext, "MAT Allow Duplicate Requests Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -1667,6 +1694,9 @@ public class MobileAppTracker {
      */
     public void setDebugMode(final boolean debug) {
         debugMode = debug;
+        if (debug) {
+            Toast.makeText(mContext, "MAT Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+        }
     }
     
     /**
@@ -1699,5 +1729,24 @@ public class MobileAppTracker {
                 params.setUserEmail(null);
             }
         }});
+    }
+    
+    /**
+     * Look for and open a deferred deeplink if exists
+     */
+    public void checkForDeferredDeeplink() {
+        checkForDeferredDeeplink(MATDeferredDplinkr.TIMEOUT);
+    }
+    
+    /**
+     * Look for and open a deferred deeplink if exists
+     * @param timeout maximum timeout to wait for deeplink in ms
+     */
+    public void checkForDeferredDeeplink(int timeout) {
+        if (firstInstall) {
+            // Try to set user agent here after User Agent thread completed
+            dplinkr.setUserAgent(params.getUserAgent());
+            dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
+        }
     }
 }

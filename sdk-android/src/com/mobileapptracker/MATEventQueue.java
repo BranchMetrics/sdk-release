@@ -23,7 +23,7 @@ public class MATEventQueue {
     private static long retryTimeout = 0;
     
     public MATEventQueue(Context context, MobileAppTracker mat) {
-        eventQueue = context.getSharedPreferences(MATConstants.PREFS_NAME, Context.MODE_PRIVATE);
+        eventQueue = context.getSharedPreferences(MATConstants.PREFS_QUEUE, Context.MODE_PRIVATE);
         queueAvailable = new Semaphore(1, true);
         this.mat = mat;
     }

@@ -1,6 +1,7 @@
 package com.mobileapptracker;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -156,7 +157,7 @@ class MATFBBridge {
                 double valueToSum = revenue;
                 Parameters matParams = Parameters.getInstance();
                 
-                String eventNameLower = eventName.toLowerCase();
+                String eventNameLower = eventName.toLowerCase(Locale.US);
                 if (eventNameLower.contains("session")) {
                     // Don't send activation twice on first init
                     if (justActivated) {
@@ -207,7 +208,8 @@ class MATFBBridge {
                 addBundleValue(bundle, EVENT_PARAM_SEARCH_STRING, matParams.getEventSearchString());
                 addBundleValue(bundle, EVENT_PARAM_NUM_ITEMS, matParams.getEventQuantity());
                 addBundleValue(bundle, EVENT_PARAM_LEVEL, matParams.getEventLevel());
-                addBundleValue(bundle, EVENT_PARAM_SOURCE_APPLICATION, matParams.getReferralSource());
+                addBundleValue(bundle, "tune_referral_source", matParams.getReferralSource());
+                addBundleValue(bundle, "tune_source_sdk", "TUNE-MAT");
                 
                 Object[] args = new Object[3];
                 args[0] = fbEventName;

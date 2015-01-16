@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.net.Uri;
 import android.util.Log;
 
 class MATUrlRequester {
@@ -48,6 +49,55 @@ class MATUrlRequester {
         ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
         
         client = new DefaultHttpClient(ccm, params);
+    }
+    
+    public String requestDeeplink(MATDeferredDplinkr dplinkr, int timeout) {
+        // Set up HttpClient with deeplink timeout
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, timeout);
+        HttpClient dplinkrClient = new DefaultHttpClient(params);
+        
+        // Construct deeplink endpoint url
+        String deeplink = "";
+        Uri.Builder uri = new Uri.Builder();
+        uri.scheme("https")
+           .authority(dplinkr.getAdvertiserId() + "." + MATConstants.DEEPLINK_DOMAIN)
+           .appendPath("v1")
+           .appendPath("link.txt")
+           .appendQueryParameter("platform", "android")
+           .appendQueryParameter("advertiser_id", dplinkr.getAdvertiserId())
+           .appendQueryParameter("ver", MATConstants.SDK_VERSION)
+           .appendQueryParameter("package_name", dplinkr.getPackageName())
+           .appendQueryParameter("ad_id", ((dplinkr.getGoogleAdvertisingId() != null) ? dplinkr.getGoogleAdvertisingId() : dplinkr.getAndroidId()))
+           .appendQueryParameter("user_agent", dplinkr.getUserAgent());
+        
+        if (dplinkr.getGoogleAdvertisingId() != null) {
+            uri.appendQueryParameter("google_ad_tracking_disabled", Integer.toString(dplinkr.getGoogleAdTrackingLimited()));
+        }
+        
+        try {
+            HttpGet get = new HttpGet(uri.build().toString());
+            // Set MAT conversion key in request header
+            get.setHeader("X-MAT-Key", dplinkr.getConversionKey());
+            HttpResponse response = dplinkrClient.execute(get);
+            if (response != null) {
+                StatusLine statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == 200) {
+                    // Parse response as text
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                    StringBuilder builder = new StringBuilder();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        builder.append(line);
+                    }
+                    reader.close();
+                    
+                    deeplink = builder.toString();
+                }
+            }
+        } catch (Exception e) {
+        }
+        return deeplink;
     }
     
     /**

@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -843,10 +842,9 @@ public class Parameters {
         return mUserEmails;
     }
     public synchronized void setUserEmails(String[] emails) {
-        try {
-            mUserEmails = new JSONArray(emails);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        mUserEmails = new JSONArray();
+        for (int i = 0; i < emails.length; i++) {
+            mUserEmails.put(emails[i]);
         }
     }
 
