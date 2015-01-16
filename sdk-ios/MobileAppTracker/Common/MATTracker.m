@@ -17,6 +17,7 @@
 #import "NSString+MATURLEncoding.m"
 #import "MATAppToAppTracker.h"
 #import "MATFBBridge.h"
+#import "MATUserAgentCollector.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 
@@ -87,7 +88,10 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 #if DEBUG_STAGING
         self.parameters.staging = YES;
 #endif
-        
+
+        // initiate collection of user agent string
+        [MATUserAgentCollector startCollection];
+
         [MATEventQueue setDelegate:self];
         
         // !!! very important to init some parms here
@@ -870,12 +874,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 {
     [self waitForInit];
     return [self.parameters.iadAttribution boolValue];
-}
-
-- (NSString*)userAgent
-{
-    [self waitForInit];
-    return self.parameters.userAgent;
 }
 
 @end

@@ -15,7 +15,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-#define MATVERSION @"3.6.1"
+#define MATVERSION @"3.7"
 
 
 #pragma mark - enumerated types
@@ -105,6 +105,22 @@ typedef NS_ENUM(NSInteger, MATGender)
  @param yesorno defaults to NO.
  */
 + (void)setAllowDuplicateRequests:(BOOL)yesorno;
+
+
+#pragma mark - Behavior Flags
+/** @name Behavior Flags */
+
+/*!
+ Check for a deferred deeplink entry point upon app installation.
+ This is safe to call at every app launch, since the function does nothing
+ unless this is the first launch.
+ 
+ The timeout parameter should be set in keeping with the normal first-launch
+ time and user experience of your app.
+ 
+ @param timeout If the deeplink value is not received within this timeout duration, then the deeplink will not be opened.
+ */
++ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout;
 
 
 #pragma mark - Data Setters

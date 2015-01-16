@@ -9,20 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@protocol MATUserAgentDelegate <NSObject>
-@required
+@interface MATUserAgentCollector : NSObject
 
-- (void)userAgentString:(NSString*)userAgent;
-
-@end
-
-
-@interface MATUserAgentCollector : NSObject <UIWebViewDelegate>
-{
-    UIWebView *webView;
-    id <MATUserAgentDelegate> delegate;
-}
-
-- (id)initWithDelegate:(id <MATUserAgentDelegate>)newDelegate;
++(void) startCollection;
++(NSString*) userAgent;
 
 @end

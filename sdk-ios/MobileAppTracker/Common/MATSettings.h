@@ -96,7 +96,6 @@
 @property (nonatomic, copy) NSString *countryCode;                  // KEY_COUNTRY_CODE
 @property (nonatomic, copy) NSString *osVersion;                    // KEY_OS_VERSION
 @property (nonatomic, copy) NSString *language;                     // KEY_LANGUAGE
-@property (nonatomic, copy) NSString *userAgent;                    // KEY_CONVERSION_USER_AGENT
 
 @property (nonatomic, copy) NSString *eventContentType;             // KEY_EVENT_CONTENT_TYPE
 @property (nonatomic, copy) NSString *eventContentId;               // KEY_EVENT_CONTENT_ID

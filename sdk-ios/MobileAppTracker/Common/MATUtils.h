@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "../MobileAppTracker.h"
 #import <sys/xattr.h>
 #import <dlfcn.h>
 #import <objc/runtime.h>
+
+#import "../MobileAppTracker.h"
 
 @interface MATUtils : NSObject
 
@@ -46,17 +47,6 @@ FOUNDATION_EXPORT const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 
 #pragma mark -
-
-void *MATNewBase64Decode(
-                         const char *inputBuffer,
-                         size_t length,
-                         size_t *outputLength);
-
-char *MATNewBase64Encode(
-                         const void *buffer,
-                         size_t length,
-                         bool separateLines,
-                         size_t *outputLength);
 
 + (NSData *)MATdataFromBase64String:(NSString *)aString;
 + (NSString *)MATbase64EncodedStringFromData:(NSData *)data;

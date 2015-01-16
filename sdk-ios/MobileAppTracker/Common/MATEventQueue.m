@@ -14,6 +14,7 @@
 #import "MATReachability.h"
 #import "MATRequestsQueue.h"
 #import "MATUtils.h"
+#import "MATUserAgentCollector.h"
 
 
 int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL          = 60;
@@ -22,6 +23,7 @@ static NSString* const MAT_REQUEST_QUEUE_FOLDER         = @"MATqueue";
 static NSString* const MAT_REQUEST_QUEUE_FILENAME       = @"events.json";
 static NSString* const MAT_LEGACY_REQUEST_QUEUE_FOLDER  = @"queue";
 
+static const NSInteger MAT_REQUEST_400_ERROR_CODE       = 1302;
 
 #pragma mark - Private variables
 
@@ -309,7 +311,7 @@ static MATEventQueue *sharedQueue = nil;
         // append user agent, if not present
         NSString *searchString = [NSString stringWithFormat:@"%@=", MAT_KEY_CONVERSION_USER_AGENT];
         if( [encryptParams rangeOfString:searchString].location == NSNotFound )
-            encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", MAT_KEY_CONVERSION_USER_AGENT, [self.delegate userAgent]];
+            encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", MAT_KEY_CONVERSION_USER_AGENT, [MATUserAgentCollector userAgent]];
         
         // encrypt params and append
         NSString* encryptedData = [MATEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
@@ -337,7 +339,6 @@ static MATEventQueue *sharedQueue = nil;
         // sleep until fire date
         NSDate *runDate = [NSDate dateWithTimeIntervalSince1970:[request[MAT_KEY_RUN_DATE] doubleValue]];
         if( [runDate isKindOfClass:[NSDate class]] ) {
-            
             [NSThread sleepUntilDate:runDate];
         }
         
@@ -356,8 +357,8 @@ static MATEventQueue *sharedQueue = nil;
                 [ddelegate performSelector:@selector(_matSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postData];
         }
 #endif
-        
-        NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullRequestString]
+        NSURL *reqUrl = [NSURL URLWithString:fullRequestString];
+        NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:reqUrl
                                                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                           timeoutInterval:MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL];
         
@@ -414,11 +415,18 @@ static MATEventQueue *sharedQueue = nil;
         // for HTTP 400, if it's from our server, drop the request and don't retry
         else if( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
             if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] ) {
+                
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+                userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
+                userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from MAT server";
+                userInfo[NSURLErrorKey] = reqUrl;
+                
+                // use setValue:forKey: to handle nil error object
+                [userInfo setValue:error forKey:NSUnderlyingErrorKey];
+                
                 NSError *e = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER
-                                                 code:1302
-                                             userInfo:@{NSLocalizedFailureReasonErrorKey: @"Bad Request",
-                                                        NSLocalizedDescriptionKey: @"HTTP 400/Bad Request received from MAT server"}
-                              ];
+                                                 code:MAT_REQUEST_400_ERROR_CODE
+                                             userInfo:userInfo];
                 [_delegate queueRequestDidFailWithError:e];
             }
             // leave newFirstItem nil to delete

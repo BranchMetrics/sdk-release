@@ -22,6 +22,8 @@
 		428F084F18C13F1900B1AC24 /* MATTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* MATTracker.h */; };
 		428F085018C13F1900B1AC24 /* MATTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* MATTracker.m */; };
 		428F085918C166DC00B1AC24 /* MATHTTPErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */; };
+		429857F81A41E2B5008539A6 /* MATDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 429857F61A41E2B5008539A6 /* MATDeferredDplinkr.h */; };
+		429857F91A41E2B5008539A6 /* MATDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 429857F71A41E2B5008539A6 /* MATDeferredDplinkr.m */; };
 		42BA465E19E5D3F00076249D /* MATFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 42BA465C19E5D3F00076249D /* MATFBBridge.h */; };
 		42BA465F19E5D3F00076249D /* MATFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 42BA465D19E5D3F00076249D /* MATFBBridge.m */; };
 		42C1E2B918C012B200C5789C /* MATAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */; };
@@ -96,6 +98,8 @@
 		428F084D18C13F1900B1AC24 /* MATTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTracker.h; sourceTree = "<group>"; };
 		428F084E18C13F1900B1AC24 /* MATTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTracker.m; sourceTree = "<group>"; };
 		428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATHTTPErrorTests.m; sourceTree = "<group>"; };
+		429857F61A41E2B5008539A6 /* MATDeferredDplinkr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATDeferredDplinkr.h; sourceTree = "<group>"; };
+		429857F71A41E2B5008539A6 /* MATDeferredDplinkr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATDeferredDplinkr.m; sourceTree = "<group>"; };
 		42BA465C19E5D3F00076249D /* MATFBBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATFBBridge.h; sourceTree = "<group>"; };
 		42BA465D19E5D3F00076249D /* MATFBBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATFBBridge.m; sourceTree = "<group>"; };
 		42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATAppToAppTracker.h; sourceTree = "<group>"; };
@@ -271,6 +275,8 @@
 				42C1E2B818C012B100C5789C /* MATAppToAppTracker.m */,
 				F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */,
 				F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */,
+				429857F61A41E2B5008539A6 /* MATDeferredDplinkr.h */,
+				429857F71A41E2B5008539A6 /* MATDeferredDplinkr.m */,
 				4260CBCD196B69DF0084FE12 /* MATEncrypter.h */,
 				4260CBCE196B69DF0084FE12 /* MATEncrypter.m */,
 				42D52290199A8A9E00FC5F8F /* MATEventQueue.h */,
@@ -307,6 +313,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429857F81A41E2B5008539A6 /* MATDeferredDplinkr.h in Headers */,
 				42CBBD33188093DB00187A4A /* MATSettings.h in Headers */,
 				4FDFA21915C7032400BEEC38 /* MobileAppTracker.h in Headers */,
 				42CBBD271880893F00187A4A /* MATEventItem.h in Headers */,
@@ -502,6 +509,7 @@
 				42C1E2BA18C012B200C5789C /* MATAppToAppTracker.m in Sources */,
 				42D52293199A8A9E00FC5F8F /* MATEventQueue.m in Sources */,
 				4FDFA1B715C7029A00BEEC38 /* NSString+MATURLEncoding.m in Sources */,
+				429857F91A41E2B5008539A6 /* MATDeferredDplinkr.m in Sources */,
 				4260CBD0196B69DF0084FE12 /* MATEncrypter.m in Sources */,
 				4FDFA1BD15C7029A00BEEC38 /* MATRequestsQueue.m in Sources */,
 				4FDFA1BF15C7029A00BEEC38 /* MATRequestsQueuePart.m in Sources */,

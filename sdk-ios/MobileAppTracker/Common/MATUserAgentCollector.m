@@ -8,34 +8,51 @@
 
 #import "MATUserAgentCollector.h"
 
+@interface MATUserAgentCollector() <UIWebViewDelegate>
+
+@property (nonatomic, assign) BOOL hasStarted;
+@property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic, copy) NSString *userAgent;
+
+@end
+
+
+static MATUserAgentCollector *collector;
+
+
 @implementation MATUserAgentCollector
 
-- (id)initWithDelegate:(id <MATUserAgentDelegate>)newDelegate
++(void) initialize
 {
-    self = [super init];
-    if( self ) {
-        delegate = newDelegate;
-        
-        if( [UIApplication sharedApplication] == nil ) {
-            // happens during testing -- add delay to check reliability
-            [(NSObject*)delegate performSelector:@selector(userAgentString:) withObject:@"no-agent" afterDelay:2.5];
-            return nil;
-        }
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            webView = [UIWebView new];
-            webView.delegate = self;
-            [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://fakesite"]]];
-        }];
-    }
-    return self;
+    collector = [MATUserAgentCollector new];
 }
+
++(void) startCollection
+{
+    @synchronized( collector ) {
+        if( collector.hasStarted == NO && [UIApplication sharedApplication] != nil ) {
+            collector.hasStarted = YES;
+
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                collector.webView = [UIWebView new];
+                collector.webView.delegate = collector;
+                [collector.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://fakesite"]]];
+            }];
+        }
+    }
+}
+
++(NSString*) userAgent
+{
+    return collector.userAgent;
+}
+
 
 - (BOOL)           webView:(UIWebView *)wv
 shouldStartLoadWithRequest:(NSURLRequest *)request
             navigationType:(UIWebViewNavigationType)navigationType
 {
-    [delegate userAgentString:[request valueForHTTPHeaderField:@"User-Agent"]];
+    collector.userAgent = [request valueForHTTPHeaderField:@"User-Agent"];
 
     return NO;
 }

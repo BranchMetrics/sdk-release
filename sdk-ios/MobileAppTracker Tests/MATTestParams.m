@@ -9,10 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "MATTestParams.h"
 #import "MATTests.h"
-#import <MobileAppTracker/MobileAppTracker.h>
-#import "MATUtils.h"
-#import "MATKeyStrings.h"
-#import "MATEncrypter.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
+#import "../MobileAppTracker/Common/MATUtils.h"
+#import "../MobileAppTracker/Common/MATKeyStrings.h"
+#import "../MobileAppTracker/Common/MATEncrypter.h"
 
 static NSString* const kDataItemKey = @"testBodyDataItems";
 static NSString* const kReceiptItemKey = @"testBodyReceipt";

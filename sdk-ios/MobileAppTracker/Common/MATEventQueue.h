@@ -68,9 +68,4 @@ FOUNDATION_EXPORT int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 - (BOOL)isiAdAttribution;
 
-/*!
- Web user-agent string to be provided by the delegate.
- */
-- (NSString*)userAgent;
-
 @end

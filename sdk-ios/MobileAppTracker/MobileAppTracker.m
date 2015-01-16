@@ -8,6 +8,7 @@
 
 #import "MobileAppTracker.h"
 #import "Common/MATTracker.h"
+#import "Common/MATDeferredDplinkr.h"
 
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
 
@@ -41,6 +42,7 @@ static NSOperationQueue *opQueue = nil;
 
 + (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
+    [MATDeferredDplinkr setAdvertiserId:aid conversionKey:key];
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] startTrackerWithMATAdvertiserId:aid MATConversionKey:key];
     }];
@@ -72,6 +74,13 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+#pragma mark - Behavior Flags
+
++ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout
+{
+    [MATDeferredDplinkr checkForDeferredDeeplinkWithTimeout:timeout];
+}
+
 #pragma mark - Setter Methods
 
 + (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate
@@ -91,6 +100,7 @@ static NSOperationQueue *opQueue = nil;
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
+    [MATDeferredDplinkr setIFA:[appleAdvertisingIdentifier UUIDString] trackingEnabled:adTrackingEnabled];
     [opQueue addOperationWithBlock:^{
         [self sharedManager].parameters.ifa = [appleAdvertisingIdentifier UUIDString];
         [self sharedManager].parameters.ifaTracking = @(adTrackingEnabled);
@@ -121,6 +131,7 @@ static NSOperationQueue *opQueue = nil;
 
 + (void)setPackageName:(NSString *)packageName
 {
+    [MATDeferredDplinkr setPackageName:packageName];
     [opQueue addOperationWithBlock:^{
         [self sharedManager].parameters.packageName = packageName;
     }];

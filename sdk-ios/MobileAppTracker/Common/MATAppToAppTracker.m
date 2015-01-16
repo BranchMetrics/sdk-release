@@ -17,6 +17,9 @@ static NSString * const PASTEBOARD_NAME_TRACKING_COOKIE = @"com.hasoffers.matsdk
 
 static NSString * const MAT_APP_TO_APP_TRACKING_STATUS = @"MAT_APP_TO_APP_TRACKING_STATUS";
 
+static const NSInteger MAT_APP_TO_APP_REQUEST_FAILED_ERROR_CODE = 1401;
+static const NSInteger MAT_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
+
 @interface MATAppToAppTracker()
 {
     MATReachability *reachability;
@@ -95,7 +98,7 @@ static NSString * const MAT_APP_TO_APP_TRACKING_STATUS = @"MAT_APP_TO_APP_TRACKI
     [errorDetails setValue:@"Failed to start app-to-app tracking." forKey:NSLocalizedDescriptionKey];
     [errorDetails setValue:error forKey:NSUnderlyingErrorKey];
     
-    NSError *errorForUser = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1301 userInfo:errorDetails];
+    NSError *errorForUser = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:MAT_APP_TO_APP_REQUEST_FAILED_ERROR_CODE userInfo:errorDetails];
     if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] )
         [_delegate queueRequestDidFailWithError:errorForUser];
 }
@@ -155,7 +158,7 @@ static NSString * const MAT_APP_TO_APP_TRACKING_STATUS = @"MAT_APP_TO_APP_TRACKI
         [errorDetails setValue:MAT_KEY_ERROR_MAT_APP_TO_APP_FAILURE forKey:NSLocalizedFailureReasonErrorKey];
         [errorDetails setValue:@"Failed to start app-to-app tracking." forKey:NSLocalizedDescriptionKey];
         
-        NSError *error = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:1302 userInfo:errorDetails];
+        NSError *error = [NSError errorWithDomain:MAT_KEY_ERROR_DOMAIN_MOBILEAPPTRACKER code:MAT_APP_TO_APP_RESPONSE_ERROR_CODE userInfo:errorDetails];
         if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] )
             [_delegate queueRequestDidFailWithError:error];
     }
