@@ -3,3 +3,5 @@
 _ReSharper.*
 obj/
 Debug/
+test_app/bin/
+test_app/Bin/

@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MATPhone8-SDK", "sdk\MATPhone8-SDK.csproj", "{0BF78316-CFED-4755-93DC-06682BFD2F2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MATPhone8-TestApp", "test_app\MATPhone8-TestApp.csproj", "{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM = Debug|ARM
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|ARM = Release|ARM
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|ARM.ActiveCfg = Debug|ARM
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|ARM.Build.0 = Debug|ARM
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|x86.ActiveCfg = Debug|x86
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Debug|x86.Build.0 = Debug|x86
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|ARM.ActiveCfg = Release|ARM
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|ARM.Build.0 = Release|ARM
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|x86.ActiveCfg = Release|x86
+		{0BF78316-CFED-4755-93DC-06682BFD2F2A}.Release|x86.Build.0 = Release|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|ARM.ActiveCfg = Debug|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|ARM.Build.0 = Debug|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|ARM.Deploy.0 = Debug|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|x86.ActiveCfg = Debug|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|x86.Build.0 = Debug|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Debug|x86.Deploy.0 = Debug|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|ARM.ActiveCfg = Release|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|ARM.Build.0 = Release|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|ARM.Deploy.0 = Release|ARM
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|x86.ActiveCfg = Release|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|x86.Build.0 = Release|x86
+		{07C72A8D-D4EF-4EA2-A317-E39F2B95DC92}.Release|x86.Deploy.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
