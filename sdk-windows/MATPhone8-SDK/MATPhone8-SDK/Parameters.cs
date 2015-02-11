@@ -36,7 +36,11 @@ namespace MobileAppTracking
             this.ExistingUser = false;
             this.AppAdTracking = true;
             this.Gender = MATGender.NONE;
-
+            
+            //get WAID throught Reflection if wp8 App run on wp8.1 OS
+            var type = Type.GetType("Windows.System.UserProfile.AdvertisingManager, Windows, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null, ContentType=WindowsRuntime");
+            this.WindowsAid = type != null ? (string) type.GetProperty("AdvertisingId").GetValue(null, null) : null;
+            
             XElement app = XDocument.Load("WMAppManifest.xml").Root.Element("App");
             this.AppName = GetValue(app, "Title");
             this.AppVersion = GetValue(app, "Version");
