@@ -17,7 +17,7 @@ class MATUrlBuilder {
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    public static String buildLink(boolean debugMode, boolean preLoaded, boolean postConversion) {
+    public static String buildLink(boolean debugMode, boolean preLoaded) {
         params = Parameters.getInstance();
         
         StringBuilder link = new StringBuilder("https://").append(params.getAdvertiserId()).append(".");
@@ -78,10 +78,6 @@ class MATUrlBuilder {
         // If logging on, use debug mode
         if (debugMode) {
             link.append("&debug=1");
-        }
-
-        if (postConversion) {
-            link.append("&post_conversion=1");
         }
         
         return link.toString();
@@ -152,6 +148,7 @@ class MATUrlBuilder {
         safeAppend(link, "sdk_plugin", params.getPluginName());
         safeAppend(link, "android_purchase_status", params.getPurchaseStatus());
         safeAppend(link, "advertiser_ref_id", params.getRefId());
+        safeAppend(link, "referrer_delay", params.getReferrerDelay());
         safeAppend(link, "revenue", params.getRevenue());
         safeAppend(link, "screen_density", params.getScreenDensity());
         safeAppend(link, "screen_layout_size", params.getScreenWidth() + "x" + params.getScreenHeight());

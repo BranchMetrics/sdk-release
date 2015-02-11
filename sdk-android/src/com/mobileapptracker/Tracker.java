@@ -9,7 +9,7 @@ import android.util.Log;
 
 /*
  * Please add this to your AndroidManifest.xml file.
- *  <receiver android:name="com.mobileapptracker.Tracker" android:exported="true">
+ *  <receiver android:name="com.mobileapptracker.Tracker">
         <intent-filter>
             <action android:name="com.android.vending.INSTALL_REFERRER" />
         </intent-filter>
@@ -29,10 +29,10 @@ public class Tracker extends BroadcastReceiver {
                     // Save the referrer value in SharedPreferences
                     context.getSharedPreferences(MATConstants.PREFS_REFERRER, Context.MODE_PRIVATE).edit().putString("referrer", referrer).commit();
                     
-                    // Post conversion install to update referrer
+                    // Notify threadpool waiting for referrer and GAID
                     MobileAppTracker mat = MobileAppTracker.getInstance();
                     if (mat != null) {
-                        mat.gotReferrer = true;
+                        mat.setInstallReferrer(referrer);
                         if (mat.gotGaid && !mat.notifiedPool) {
                             synchronized (mat.pool) {
                                 mat.pool.notifyAll();

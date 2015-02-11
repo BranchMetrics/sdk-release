@@ -41,7 +41,7 @@ class MATConstants {
     static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
     
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.7";
+    static final String SDK_VERSION = "3.7.1";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued

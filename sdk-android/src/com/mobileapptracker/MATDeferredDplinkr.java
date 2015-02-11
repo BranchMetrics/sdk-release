@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 
 class MATDeferredDplinkr {
-    public static final int TIMEOUT = 250;
-    
     private String advertiserId;
     private String conversionKey;
     private String packageName;
@@ -88,24 +86,29 @@ class MATDeferredDplinkr {
         return dplinkr.androidId;
     }
     
-    public void checkForDeferredDeeplink(Context context, MATUrlRequester urlRequester, int timeout) {
+    public String checkForDeferredDeeplink(Context context, MATUrlRequester urlRequester, int timeout) {
+        String deeplink = "";
         // If advertiser ID, conversion key, or package name were not set, return
         if (dplinkr.advertiserId == null || dplinkr.conversionKey == null || dplinkr.packageName == null) {
-            return;
+            return deeplink;
         }
 
         // If no device identifiers collected, return
         if (dplinkr.googleAdvertisingId == null && dplinkr.androidId == null) {
-            return;
+            return deeplink;
         }
 
-        // Query for deeplink url
-        String deeplink = urlRequester.requestDeeplink(dplinkr, timeout);
-        if (deeplink.length() != 0) {
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(deeplink));
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+        // Query for deeplink url and open
+        try {
+            deeplink = urlRequester.requestDeeplink(dplinkr, timeout);
+            if (deeplink.length() != 0) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(deeplink));
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(i);
+            }
+        } catch (Exception e) {
         }
+        return deeplink;
     }
 }

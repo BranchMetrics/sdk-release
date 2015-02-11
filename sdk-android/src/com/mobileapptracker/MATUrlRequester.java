@@ -189,7 +189,10 @@ class MATUrlRequester {
                 if (response.has("errors") && response.getJSONArray("errors").length() != 0) {
                     String errorMsg = response.getJSONArray("errors").getString(0);
                     Log.d(MATConstants.TAG, "Event was rejected by server with error: " + errorMsg);
-                } else if (response.has("log_action") && !response.getString("log_action").equals("null") && !response.getString("log_action").equals("false")) {
+                } else if (response.has("log_action") && 
+                           !response.getString("log_action").equals("null") && 
+                           !response.getString("log_action").equals("false") &&
+                           !response.getString("log_action").equals("true")) {
                     // Read whether event was accepted or rejected from log_action if exists
                     JSONObject logAction = response.getJSONObject("log_action");
                     if (logAction.has("conversion")) {

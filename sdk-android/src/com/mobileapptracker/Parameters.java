@@ -190,6 +190,8 @@ public class Parameters {
                 wv.destroy();
                 setUserAgent(userAgent);
             } catch (Exception e) {
+            } catch (VerifyError e) {
+                // Some device vendors have their own WebView implementation which crashes on our init
             }
         }
     }
@@ -738,6 +740,14 @@ public class Parameters {
     }
     public synchronized void setReferralUrl(String referralUrl) {
         mReferralUrl = referralUrl;
+    }
+
+    private String mReferrerDelay = null;
+    public synchronized String getReferrerDelay() {
+        return mReferrerDelay;
+    }
+    public synchronized void setReferrerDelay(long referrerDelay) {
+        mReferrerDelay = Long.toString(referrerDelay);
     }
 
     private String mRefId = null;

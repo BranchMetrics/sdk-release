@@ -61,6 +61,10 @@ public class MobileAppTracker {
     protected boolean gotGaid;
     // Whether INSTALL_REFERRER was received
     protected boolean gotReferrer;
+    // Time that MAT was initialized
+    protected long initTime;
+    // Time that MAT received referrer
+    protected long referrerTime;
     // If this is the first app install, try to find deferred deeplink
     protected boolean firstInstall;
     // If this is the first session of the app lifecycle, wait for the GAID and referrer
@@ -168,6 +172,7 @@ public class MobileAppTracker {
         urlRequester = new MATUrlRequester();
         encryption = new Encryption(key.trim(), IV);
         
+        initTime = System.currentTimeMillis();
         firstInstall = false;
         firstSession = true;
         initialized = false;
@@ -223,7 +228,7 @@ public class MobileAppTracker {
 
         pubQueue.execute(new Runnable() { public void run() {
             notifiedPool = false;
-            measure("session", null, 0, getCurrencyCode(), getRefId(), null, null, false);
+            measure("session", null, 0, getCurrencyCode(), getRefId(), null, null);
         }});
     }
 
@@ -233,7 +238,7 @@ public class MobileAppTracker {
      */
     public void measureAction(final String eventName) {
         pubQueue.execute(new Runnable() { public void run() {
-            measure(eventName, null, 0, getCurrencyCode(), null, null, null, false);
+            measure(eventName, null, 0, getCurrencyCode(), null, null, null);
         }});
     }
     
@@ -292,7 +297,7 @@ public class MobileAppTracker {
         }
 
         pubQueue.execute(new Runnable() { public void run() { 
-            measure(eventName, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature, false);
+            measure(eventName, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature);
         }});
     }
     
@@ -302,7 +307,7 @@ public class MobileAppTracker {
      */
     public void measureAction(final int eventId) {
         pubQueue.execute(new Runnable() { public void run() {
-            measure(eventId, null, 0, getCurrencyCode(), null, null, null, false);
+            measure(eventId, null, 0, getCurrencyCode(), null, null, null);
         }});
     }
     
@@ -361,7 +366,7 @@ public class MobileAppTracker {
         }
 
         pubQueue.execute(new Runnable() { public void run() { 
-            measure(eventId, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature, false);
+            measure(eventId, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature);
         }});
     }
     
@@ -382,8 +387,7 @@ public class MobileAppTracker {
                                    String currency,
                                    String refId,
                                    String inAppPurchaseData,
-                                   String inAppSignature,
-                                   boolean postConversion
+                                   String inAppSignature
                                   ) {
         if (!initialized) return;
         
@@ -399,12 +403,8 @@ public class MobileAppTracker {
                 return; // Don't send close events
             } else if (event.equals("open") || event.equals("install") || 
                     event.equals("update") || event.equals("session")) {
-                // For post_conversion call, send action=install
-                if (postConversion) {
-                    params.setAction("install");
-                } else {
-                    params.setAction("session");
-                }
+                params.setAction("session");
+                
                 runDate = new Date(runDate.getTime() + MATConstants.DELAY);
             } else {
                 params.setEventName((String)event);
@@ -424,7 +424,7 @@ public class MobileAppTracker {
         params.setCurrencyCode(currency);
         params.setRefId(refId);
         
-        String link = MATUrlBuilder.buildLink(debugMode, preLoaded, postConversion);
+        String link = MATUrlBuilder.buildLink(debugMode, preLoaded);
         String data = MATUrlBuilder.buildDataUnencrypted();
         JSONObject postBody = MATUrlBuilder.buildBody(eventItems, inAppPurchaseData, inAppSignature, params.getUserEmails());
         
@@ -1309,7 +1309,7 @@ public class MobileAppTracker {
      * @param gender use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE
      */
     public void setGender(final int gender) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             params.setGender(Integer.toString(gender));
         }});
     }
@@ -1323,7 +1323,7 @@ public class MobileAppTracker {
         final int intLimit = isLATEnabled? 1 : 0;
         
         dplinkr.setGoogleAdvertisingId(adId, intLimit);
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
             gotGaid = true;
@@ -1341,7 +1341,7 @@ public class MobileAppTracker {
      * @param google_user_id
      */
     public void setGoogleUserId(final String google_user_id) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             params.setGoogleUserId(google_user_id);
         }});
     }
@@ -1351,7 +1351,13 @@ public class MobileAppTracker {
      * @param referrer Your custom referrer value
      */
     public void setInstallReferrer(final String referrer) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        // Record when referrer was received
+        gotReferrer = true;
+        referrerTime = System.currentTimeMillis();
+        if (params != null) {
+            params.setReferrerDelay(referrerTime - initTime);
+        }
+        pubQueue.execute(new Runnable() { public void run() {
             params.setInstallReferrer(referrer);
         }});
     }
@@ -1361,7 +1367,7 @@ public class MobileAppTracker {
      * @param isPayingUser true if the user has produced revenue, false if not
      */
     public void setIsPayingUser(final boolean isPayingUser) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             if (isPayingUser) {
                 params.setIsPayingUser(Integer.toString(1));
             } else {
@@ -1375,7 +1381,7 @@ public class MobileAppTracker {
      * @param latitude the device latitude
      */
     public void setLatitude(final double latitude) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             params.setLatitude(Double.toString(latitude));
         }});
     }
@@ -1395,7 +1401,7 @@ public class MobileAppTracker {
      * @param longitude the device longitude
      */
     public void setLongitude(final double longitude) {
-        pubQueue.execute(new Runnable() { public void run() { 
+        pubQueue.execute(new Runnable() { public void run() {
             params.setLongitude(Double.toString(longitude));
         }});
     }
@@ -1733,20 +1739,76 @@ public class MobileAppTracker {
     
     /**
      * Look for and open a deferred deeplink if exists
+     * @param timeout maximum timeout to wait for deeplink in ms
+     * @return deferred deeplink url
      */
-    public void checkForDeferredDeeplink() {
-        checkForDeferredDeeplink(MATDeferredDplinkr.TIMEOUT);
+    public String checkForDeferredDeeplink(int timeout) {
+        if (firstInstall) {
+            // If installed from Google Play, look for deeplink in referrer
+            if (params.getInstaller() != null && params.getInstaller().equals("com.android.vending")) {
+                return checkReferrerForDeferredDeeplink(timeout);
+            } else { // If installed from non-Google Play, use dplinkr
+                // Try to set user agent here after User Agent thread completed
+                dplinkr.setUserAgent(params.getUserAgent());
+                return dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
+            }
+        }
+        return "";
     }
     
     /**
-     * Look for and open a deferred deeplink if exists
-     * @param timeout maximum timeout to wait for deeplink in ms
+     * Helper function to check Google Play INSTALL_REFERRER for deeplink
+     * @param timeout maximum timeout to wait for referrer in ms
      */
-    public void checkForDeferredDeeplink(int timeout) {
-        if (firstInstall) {
-            // Try to set user agent here after User Agent thread completed
-            dplinkr.setUserAgent(params.getUserAgent());
-            dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
+    private String checkReferrerForDeferredDeeplink(int timeout) {
+        String deeplink = "";
+        // Start timing for timeout
+        long startTime = System.currentTimeMillis();
+
+        // Wait up to timeout length for referrer to get populated
+        while (!gotReferrer) {
+            // We've exceeded timeout, stop waiting
+            if ((System.currentTimeMillis() - startTime) > timeout) {
+                break;
+            }
+
+            // Check again in 50ms
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
+        // Read referrer for deeplink
+        if (gotReferrer) {
+            String referrer = params.getInstallReferrer();
+            try {
+                // If no mat_deeplink in referrer, return
+                int deeplinkStart = referrer.indexOf("mat_deeplink=");
+                if (deeplinkStart == -1) {
+                    return deeplink;
+                }
+
+                deeplinkStart += 13;
+                int deeplinkEnd = referrer.indexOf("&", deeplinkStart);
+                if (deeplinkEnd == -1) {
+                    deeplink = referrer.substring(deeplinkStart);
+                } else {
+                    deeplink = referrer.substring(deeplinkStart, deeplinkEnd);
+                }
+
+                // Open deeplink
+                if (deeplink.length() != 0) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(deeplink));
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return deeplink;
     }
 }
