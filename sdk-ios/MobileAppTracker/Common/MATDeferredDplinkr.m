@@ -17,6 +17,7 @@
 @property (nonatomic, strong) NSOperationQueue *deeplinkOpQueue;
 @property (nonatomic, copy) NSString *advertiserId;
 @property (nonatomic, copy) NSString *conversionKey;
+@property (nonatomic, assign) id<MobileAppTrackerDelegate> delegate;
 @property (nonatomic, copy) NSString *bundleId;
 @property (nonatomic, copy) NSString *ifa;
 @property (nonatomic, assign) BOOL adTrackingEnabled;
@@ -47,6 +48,11 @@ static MATDeferredDplinkr *dplinkr;
 {
     dplinkr.advertiserId = advertiserId;
     dplinkr.conversionKey = conversionKey;
+}
+
++ (void)setDelegate:(id<MobileAppTrackerDelegate>)matDelegate
+{
+    dplinkr.delegate = matDelegate;
 }
 
 + (void)setPackageName:(NSString*)packageName
@@ -104,11 +110,17 @@ static MATDeferredDplinkr *dplinkr;
                 __block NSURL *deeplink = [NSURL URLWithString:link];
                 if( deeplink ) {
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        
                         // let the AppDelegate handle
                         [[[UIApplication sharedApplication] delegate] application:[UIApplication sharedApplication]
                                                                           openURL:deeplink
                                                                 sourceApplication:[MATUtils bundleId]
                                                                        annotation:nil];
+                        
+                        if ([dplinkr.delegate respondsToSelector:@selector(mobileAppTrackerDidReceiveDeeplink:)])
+                        {
+                            [dplinkr.delegate mobileAppTrackerDidReceiveDeeplink:deeplink.absoluteString];
+                        }
                     }];
                 }
                 else DLog( @"response was not a valid URL: %@", link );

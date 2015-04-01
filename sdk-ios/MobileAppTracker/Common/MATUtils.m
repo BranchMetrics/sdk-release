@@ -386,7 +386,7 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
     // if iOS 7+
     if([data respondsToSelector:@selector(base64EncodedStringWithOptions:)])
     {
-        encodedString = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+        encodedString = [data base64EncodedStringWithOptions:0];
     }
     else
     {
@@ -395,5 +395,75 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
     
     return encodedString;
 }
+
++ (NSString *)hashMd5:(NSString *)input
+{
+    NSMutableString *strHash = nil;
+    
+    if(input)
+    {
+        const char *cStr = [input UTF8String];
+        unsigned char hash[CC_MD5_DIGEST_LENGTH];
+        
+        if ( CC_MD5( cStr, (unsigned int)strlen(cStr), hash ) )
+        {
+            strHash = [NSMutableString string];
+            
+            for (int i = 0; i < CC_MD5_DIGEST_LENGTH; ++i)
+            {
+                [strHash appendFormat:@"%02x", hash[i]];
+            }
+        }
+    }
+    
+    return strHash;
+}
+
++ (NSString *)hashSha1:(NSString *)input
+{
+    NSMutableString *strHash = nil;
+    
+    if(input)
+    {
+        const char *cStr = [input UTF8String];
+        unsigned char hash[CC_SHA1_DIGEST_LENGTH];
+        
+        if ( CC_SHA1( cStr, (unsigned int)strlen(cStr), hash ) )
+        {
+            strHash = [NSMutableString string];
+            
+            for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; ++i)
+            {
+                [strHash appendFormat:@"%02x", hash[i]];
+            }
+        }
+    }
+    
+    return strHash;
+}
+
++ (NSString *)hashSha256:(NSString *)input
+{
+    NSMutableString *strHash = nil;
+    
+    if(input)
+    {
+        const char *cStr = [input UTF8String];
+        unsigned char hash[CC_SHA256_DIGEST_LENGTH];
+        
+        if ( CC_SHA256( cStr, (unsigned int)strlen(cStr), hash ) )
+        {
+            strHash = [NSMutableString string];
+            
+            for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; ++i)
+            {
+                [strHash appendFormat:@"%02x", hash[i]];
+            }
+        }
+    }
+    
+    return strHash;
+}
+
 
 @end

@@ -8,9 +8,9 @@
 
 #import <XCTest/XCTest.h>
 #import <AdSupport/AdSupport.h>
-#import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
 
 @interface MATAutoParameterizationTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -41,7 +41,6 @@
 
     emptyRequestQueue();
 }
-
 
 - (void)commonSetup
 {

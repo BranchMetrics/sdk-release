@@ -8,9 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MobileAppTrackerDelegate;
+
 @interface MATDeferredDplinkr : NSObject
 
 + (void)setAdvertiserId:(NSString*)advertiserId conversionKey:(NSString*)conversionKey;
+
++ (void)setDelegate:(id<MobileAppTrackerDelegate>)delegate;
 
 + (void)setPackageName:(NSString*)packageName;
 

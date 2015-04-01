@@ -86,7 +86,6 @@
 }
  */
 
-
 - (void)test500Retry
 {
     networkOnline();
@@ -100,7 +99,6 @@
     
     [self checkAndClearExpectedQueueSize:1];
 }
-
 
 - (void)test500RetryCount
 {
@@ -126,7 +124,6 @@
     XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
 }
 
-
 - (void)test500RetryOrder
 {
     [tracker setDebugMode:YES];
@@ -149,7 +146,6 @@
     XCTAssertTrue( [requests[0][@"url"] rangeOfString:@"yourmom"].location == NSNotFound, @"first call in queue should not have yourmom" );
     XCTAssertTrue( [requests[1][@"url"] rangeOfString:@"yourmom"].location != NSNotFound, @"second call in queue should have yourmom" );
 }
-
 
 - (void)test500RetryTwice
 {

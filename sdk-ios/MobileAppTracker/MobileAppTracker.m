@@ -66,6 +66,7 @@ static NSOperationQueue *opQueue = nil;
 
 + (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate
 {
+    [MATDeferredDplinkr setDelegate:delegate];
     [opQueue addOperationWithBlock:^{
         [self sharedManager].delegate = delegate;
 #if DEBUG
@@ -183,6 +184,13 @@ static NSOperationQueue *opQueue = nil;
 {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].parameters.userName = userName;
+    }];
+}
+
++ (void)setPhoneNumber:(NSString *)phoneNumber
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].parameters.phoneNumber = phoneNumber;
     }];
 }
 

@@ -15,7 +15,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-#define MATVERSION @"3.7"
+#define MATVERSION @"3.8.1"
 
 
 #pragma mark - enumerated types
@@ -197,7 +197,7 @@ typedef NS_ENUM(NSInteger, MATGender)
 + (void)setTRUSTeId:(NSString *)tpid;
 
 /*!
- Sets the user's email address.
+ Sets the MD5, SHA-1 and SHA-256 hash representations of the user's email address.
  @param userEmail The user's email address.
  */
 + (void)setUserEmail:(NSString *)userEmail;
@@ -209,10 +209,16 @@ typedef NS_ENUM(NSInteger, MATGender)
 + (void)setUserId:(NSString *)userId;
 
 /*!
- Sets the user's name.
+ Sets the MD5, SHA-1 and SHA-256 hash representations of the user's name.
  @param userName The user's name.
  */
 + (void)setUserName:(NSString *)userName;
+
+/*!
+ Sets the MD5, SHA-1 and SHA-256 hash representations of the user's phone number.
+ @param phoneNumber The user's phone number.
+ */
++ (void)setPhoneNumber:(NSString *)phoneNumber;
 
 /*!
  Set user's Facebook ID.
@@ -716,8 +722,8 @@ typedef NS_ENUM(NSInteger, MATGender)
 /*!
  Record the URL and Source when an application is opened via a URL scheme.
  This typically occurs during OAUTH or when an app exits and is returned
- to via a URL. The data will be sent to the HasOffers server so that a
- Re-Engagement can be recorded.
+ to via a URL. The data will be sent to the HasOffers server when the next
+ measureXXX method is called so that a Re-Engagement can be recorded.
  @param urlString the url string used to open your app.
  @param sourceApplication the source used to open your app. For example, mobile safari.
  */
@@ -780,6 +786,12 @@ typedef NS_ENUM(NSInteger, MATGender)
  @param error Error object returned by the MobileAppTracker.
  */
 - (void)mobileAppTrackerDidFailWithError:(NSError *)error;
+
+/*!
+ Delegate method called when a deferred deeplink becomes available.
+ @param deeplink String representation of the deeplink url.
+ */
+- (void)mobileAppTrackerDidReceiveDeeplink:(NSString *)deeplink;
 
 /*!
  Delegate method called when an iAd is displayed and its parent view is faded in.

@@ -8,9 +8,9 @@
 
 #import <XCTest/XCTest.h>
 #import <AdSupport/AdSupport.h>
-#import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATKeyStrings.h"
 #import "../MobileAppTracker/Common/MATSettings.h" // move to new test class for internal params
 #import "../MobileAppTracker/Common/MATTracker.h"
@@ -911,37 +911,256 @@
 - (void)testUserEmail
 {
     static NSString* const EMAIL_ID = @"tempUserEmail@tempUserCompany.com";
+    static NSString* const EMAIL_ID_MD5 = @"d76acab60fbd9bf136f79dafb6e79a3b";
+    static NSString* const EMAIL_ID_SHA1 = @"e6c76b523cee03fd0dfea0d769a40d1a798dd522";
+    static NSString* const EMAIL_ID_SHA256 = @"f2bcbd4dd2b172c1dad72b0ff850e2295b01392ceab45491e97fc9e093b42d30";
     
     [MobileAppTracker setUserEmail:EMAIL_ID];
     [MobileAppTracker measureAction:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL, EMAIL_ID );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_MD5, EMAIL_ID_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_SHA1, EMAIL_ID_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_SHA256, EMAIL_ID_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL );
 }
 
-- (void)testUserId
+- (void)testUserEmailEmpty
 {
-    static NSString* const ID = @"testId";
+    NSString* const USER_EMAIL = MAT_STRING_EMPTY; // empty
+    static NSString* const USER_EMAIL_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
+    static NSString* const USER_EMAIL_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
+    static NSString* const USER_EMAIL_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
-    [MobileAppTracker setUserId:ID];
+    [MobileAppTracker setUserEmail:USER_EMAIL];
     [MobileAppTracker measureAction:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_USER_ID, ID );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_MD5, USER_EMAIL_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_SHA1, USER_EMAIL_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_EMAIL_SHA256, USER_EMAIL_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL );
+}
+
+- (void)testUserEmailNil
+{
+    static NSString* const USER_EMAIL = nil;
+    
+    [MobileAppTracker setUserEmail:USER_EMAIL];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL_MD5 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL_SHA1 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_EMAIL );
+}
+
+- (void)testUserId
+{
+    static NSString* const USER_ID = @"testId";
+    
+    [MobileAppTracker setUserId:USER_ID];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_ID, USER_ID );
 }
 
 - (void)testUserName
 {
     static NSString* const USER_NAME = @"testName";
+    static NSString* const USER_NAME_MD5 = @"f0f7b7b21cfd4f60934753232a0049f6";
+    static NSString* const USER_NAME_SHA1 = @"0025dd9f850ce7889cf3e79e64328d0c4957751a";
+    static NSString* const USER_NAME_SHA256 = @"4278d90b65ee634b960c9e026e4295f8f4fd8d3f29785548552afdc71ef4b495";
     
     [MobileAppTracker setUserName:USER_NAME];
     [MobileAppTracker measureAction:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME, USER_NAME );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_MD5, USER_NAME_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_SHA1, USER_NAME_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME );
+}
+
+- (void)testUserNameEmpty
+{
+    NSString* const USER_NAME = MAT_STRING_EMPTY; // empty
+    static NSString* const USER_NAME_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
+    static NSString* const USER_NAME_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
+    static NSString* const USER_NAME_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    
+    [MobileAppTracker setUserName:USER_NAME];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_MD5, USER_NAME_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_SHA1, USER_NAME_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME );
+}
+
+- (void)testUserNameNil
+{
+    static NSString* const USER_NAME = nil;
+    
+    [MobileAppTracker setUserName:USER_NAME];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME_MD5 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME_SHA1 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_NAME );
+}
+
+- (void)testPhoneNumber
+{
+    static NSString* const USER_PHONE = @"1234567890";
+    static NSString* const USER_PHONE_MD5 = @"e807f1fcf82d132f9bb018ca6738a19f";
+    static NSString* const USER_PHONE_SHA1 = @"01b307acba4f54f55aafc33bb06bbbf6ca803e9a";
+    static NSString* const USER_PHONE_SHA256 = @"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646";
+    
+    [MobileAppTracker setPhoneNumber:USER_PHONE];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_SHA1, USER_PHONE_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE );
+}
+
+- (void)testPhoneNumberEmpty
+{
+    NSString* const USER_PHONE = MAT_STRING_EMPTY; // empty
+    static NSString* const USER_PHONE_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
+    static NSString* const USER_PHONE_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
+    static NSString* const USER_PHONE_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    
+    [MobileAppTracker setPhoneNumber:USER_PHONE];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_SHA1, USER_PHONE_SHA1 );
+    ASSERT_KEY_VALUE( MAT_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE );
+}
+
+- (void)testPhoneNumberNil
+{
+    static NSString* const USER_PHONE = nil;
+    
+    [MobileAppTracker setPhoneNumber:USER_PHONE];
+    [MobileAppTracker measureAction:@"registration"];
+    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE_MD5 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE_SHA1 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_USER_PHONE );
+}
+
+- (void)testPhoneNumberNonEnglishCharacters
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
+    MATSettings *sharedParams = [mat performSelector:@selector(parameters)];
+#pragma clang diagnostic pop
+    
+    NSString* expected = nil;
+    NSString *input = nil;
+    NSString *actual = nil;
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"1234567890"; // normal English
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"+123-456.7890"; // English with symbols
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"637c0f48d8b173fff8cad875f8f9fc53"; // MD5 hash of "0033111223355"
+    input = @"00 33 1 11 22 33 55"; // English numbers with spaces
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"637c0f48d8b173fff8cad875f8f9fc53"; // MD5 hash of "0033111223355"
+    input = @"00-33-1-11-22-33-55"; // English numbers with hyphens
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"१२३४५६७८९०"; // Devanagari
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"+१२३.४५६.७८९०"; // Devanagari with symbols
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"١٢٣٤٥٦٧٨٩٠"; // Arabic
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"(١٢٣)٤٥٦-٧.٨.٩ ٠"; // Arabic with symbols
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"၁၂-၃၄-၅၆၇.၈၉ ၀"; // Burmese with symbols
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"１２３４５６７８９０"; // Full-width characters
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
+    
+    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
+    input = @"(１２３)４５６-７８９０"; // Full-width characters with symbols
+    [MobileAppTracker setPhoneNumber:input];
+    waitFor(0.1);
+    actual = sharedParams.phoneNumberMd5;
+    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
 }
 
 - (void)testFacebookUserId

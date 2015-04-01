@@ -45,6 +45,10 @@ FOUNDATION_EXPORT const float MAT_IOS_VERSION_501; // float equivalent of 5.0.1
 
 + (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag;
 
++ (NSString *)hashMd5:(NSString *)input;
++ (NSString *)hashSha1:(NSString *)input;
++ (NSString *)hashSha256:(NSString *)input;
+
 
 #pragma mark -
 

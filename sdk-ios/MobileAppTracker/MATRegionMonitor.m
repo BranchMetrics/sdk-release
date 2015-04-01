@@ -108,7 +108,7 @@
 - (void)measureEventForRegion:(CLRegion*)region
 {
     [MobileAppTracker setRegionName:region.identifier];
-    [MobileAppTracker measureAction:EVENT_GEOFENCE];
+    [MobileAppTracker measureAction:MAT_EVENT_GEOFENCE];
     [self.delegate mobileAppTrackerDidEnterRegion:region];
 }
 

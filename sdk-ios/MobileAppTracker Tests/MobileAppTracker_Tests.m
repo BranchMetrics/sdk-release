@@ -7,9 +7,9 @@
 //
 
 #import <XCTest/XCTest.h>
-#import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
 #import "../MobileAppTracker/Common/MATKeyStrings.h"
 
@@ -43,7 +43,6 @@
     emptyRequestQueue();
 }
 
-
 - (void)testInitialization
 {
     XCTAssertTrue( TRUE );
@@ -72,7 +71,6 @@
     ASSERT_KEY_VALUE( MAT_KEY_EXISTING_USER, [@TRUE stringValue] );
 }
 
-
 - (void)testInstallPostConversion
 {
 #pragma clang diagnostic push
@@ -87,7 +85,6 @@
     ASSERT_KEY_VALUE( MAT_KEY_ACTION, MAT_EVENT_INSTALL );
     ASSERT_KEY_VALUE( MAT_KEY_POST_CONVERSION, @"1" );
 }
-
 
 - (void)testURLOpen
 {
@@ -203,7 +200,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
- - (void)testActionEventIdItems
+- (void)testActionEventIdItems
 {
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
@@ -427,7 +424,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-
 - (void)testUpdateActionEvent
 {
     [MobileAppTracker measureAction:MAT_EVENT_UPDATE];
@@ -439,7 +435,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-
 - (void)testCloseActionEvent
 {
     [MobileAppTracker measureAction:MAT_EVENT_CLOSE];
@@ -449,7 +444,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
-
 
 - (void)testOpenActionEvent
 {
@@ -462,7 +456,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-
 - (void)testSessionActionEvent
 {
     [MobileAppTracker measureAction:MAT_EVENT_SESSION];
@@ -473,7 +466,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
-
 
 // "click" events are treated the same as arbitrary event names
 - (void)testClickActionEvent
@@ -486,7 +478,6 @@
     ASSERT_KEY_VALUE( MAT_KEY_SITE_EVENT_NAME, MAT_EVENT_CLICK );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
-
 
 // "conversion" events are treated the same as arbitrary event names
 - (void)testConversionActionEvent
@@ -515,7 +506,6 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-
 // "purchase" events are treated the same as arbitrary event names
 - (void)testPurchaseActionEvent
 {
@@ -533,7 +523,6 @@
     ASSERT_KEY_VALUE( MAT_KEY_REVENUE, expectedRevenue );
     ASSERT_KEY_VALUE( MAT_KEY_CURRENCY_CODE, currencyCode );
 }
-
 
 - (void)testTwoEvents
 {
