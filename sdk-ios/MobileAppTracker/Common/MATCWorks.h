@@ -35,6 +35,8 @@
 { 
 }
 
++ (NSString *)MAT_getMD5:(NSString *) str;
+
 + (NSDictionary*) MAT_getClicks:(NSString*) appID;
 + (NSDictionary*) MAT_getImpressions:(NSString*) appID;
 

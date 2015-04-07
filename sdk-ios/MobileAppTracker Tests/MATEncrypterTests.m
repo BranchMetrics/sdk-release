@@ -138,7 +138,6 @@
     XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
 }
 
-
 - (void)testNoEncryptTransaction
 {
     MATSettings *settings = [MATSettings new];
@@ -148,7 +147,6 @@
                                   isId:NO];
     XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
 }
-
 
 + (NSData *)decodeHexData:(NSData *)input {
     

@@ -56,7 +56,7 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
 + (void)sendEvent:(NSString *)name parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit
 {
     Class FBSettings = NSClassFromString( @"FBSettings" );
-    SEL selLimitMethod = @selector(setLimitEventUsage:);
+    SEL selLimitMethod = @selector(setLimitEventAndDataUsage:);
     
     if([FBSettings class] && [FBSettings respondsToSelector:selLimitMethod])
     {

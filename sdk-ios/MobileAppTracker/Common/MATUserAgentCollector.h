@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface MATUserAgentCollector : NSObject
+@interface MATUserAgentCollector : NSObject 
 
 +(void) startCollection;
 +(NSString*) userAgent;

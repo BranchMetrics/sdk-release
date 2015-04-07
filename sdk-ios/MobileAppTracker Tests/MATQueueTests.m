@@ -7,9 +7,9 @@
 //
 
 #import <XCTest/XCTest.h>
-#import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
 #import "MATTestParams.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATEventQueue.h"
 #import "../MobileAppTracker/Common/MATReachability.h"
 #import "../MobileAppTracker/Common/MATRequestsQueue.h"

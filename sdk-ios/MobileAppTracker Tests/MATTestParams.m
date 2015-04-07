@@ -32,14 +32,12 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return [_params description];
 }
 
-
 - (id)copy
 {
     id new = [[self class] new];
     ((MATTestParams*)new).params = [self.params mutableCopy];
     return new;
 }
-
 
 - (BOOL)isEqualToParams:(MATTestParams*)other
 {
@@ -54,7 +52,6 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     
     return TRUE;
 }
-
 
 - (BOOL)isEmpty
 {
@@ -139,7 +136,6 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return TRUE;
 }
 
-
 - (NSString*)valueForKey:(NSString*)key
 {
     return _params[key];
@@ -204,7 +200,6 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
 {
     return (_params == nil);
 }
-
 
 - (BOOL)checkKeyHasValue:(NSString*)key
 {

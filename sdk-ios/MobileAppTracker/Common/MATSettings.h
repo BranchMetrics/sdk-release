@@ -69,8 +69,18 @@
 
 @property (nonatomic, copy) NSNumber *existingUser;                 // KEY_EXISTING_USER
 @property (nonatomic, copy) NSString *userEmail;                    // KEY_USER_EMAIL
+@property (nonatomic, copy) NSString *userEmailMd5;                 // KEY_USER_EMAIL_MD5
+@property (nonatomic, copy) NSString *userEmailSha1;                // KEY_USER_EMAIL_SHA1
+@property (nonatomic, copy) NSString *userEmailSha256;              // KEY_USER_EMAIL_SHA256
 @property (nonatomic, copy) NSString *userId;                       // KEY_USER_ID
 @property (nonatomic, copy) NSString *userName;                     // KEY_USER_NAME
+@property (nonatomic, copy) NSString *userNameMd5;                  // KEY_USER_NAME_MD5
+@property (nonatomic, copy) NSString *userNameSha1;                 // KEY_USER_NAME_SHA1
+@property (nonatomic, copy) NSString *userNameSha256;               // KEY_USER_NAME_SHA256
+@property (nonatomic, copy) NSString *phoneNumber;                  // KEY_USER_PHONE
+@property (nonatomic, copy) NSString *phoneNumberMd5;               // KEY_USER_PHONE_MD5
+@property (nonatomic, copy) NSString *phoneNumberSha1;              // KEY_USER_PHONE_SHA1
+@property (nonatomic, copy) NSString *phoneNumberSha256;            // KEY_USER_PHONE_SHA256
 @property (nonatomic, copy) NSString *facebookUserId;               // KEY_FACEBOOK_USER_ID
 @property (nonatomic, copy) NSString *twitterUserId;                // KEY_TWITTER_USER_ID
 @property (nonatomic, copy) NSString *googleUserId;                 // KEY_GOOGLE_USER_ID

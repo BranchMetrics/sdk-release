@@ -72,9 +72,16 @@ static CTTelephonyNetworkInfo *netInfo;
         
         self.iadAttribution = [MATUtils userDefaultValueforKey:MAT_KEY_IAD_ATTRIBUTION];
         
-        self.userEmail = [MATUtils userDefaultValueforKey:MAT_KEY_USER_EMAIL];
+        self.userEmailMd5 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_EMAIL_MD5];
+        self.userEmailSha1 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_EMAIL_SHA1];
+        self.userEmailSha256 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_EMAIL_SHA256];
         self.userId = [MATUtils userDefaultValueforKey:MAT_KEY_USER_ID];
-        self.userName = [MATUtils userDefaultValueforKey:MAT_KEY_USER_NAME];
+        self.userNameMd5 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_NAME_MD5];
+        self.userNameSha1 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_NAME_SHA1];
+        self.userNameSha256 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_NAME_SHA256];
+        self.phoneNumberMd5 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_PHONE_MD5];
+        self.phoneNumberSha1 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_PHONE_SHA1];
+        self.phoneNumberSha256 = [MATUtils userDefaultValueforKey:MAT_KEY_USER_PHONE_SHA256];
         
         // hardware specs
         struct utsname systemInfo;
@@ -161,12 +168,19 @@ static CTTelephonyNetworkInfo *netInfo;
     self.facebookCookieId = [MATUtils generateFBCookieIdString];
 }
 
+
 #pragma mark - Overridden setters
 
 - (void)setUserEmail:(NSString *)userEmail
 {
     _userEmail = [userEmail copy];
-    [MATUtils setUserDefaultValue:_userEmail forKey:MAT_KEY_USER_EMAIL];
+    _userEmailMd5 = [MATUtils hashMd5:userEmail];
+    _userEmailSha1 = [MATUtils hashSha1:userEmail];
+    _userEmailSha256 = [MATUtils hashSha256:userEmail];
+    
+    [MATUtils setUserDefaultValue:_userEmailMd5 forKey:MAT_KEY_USER_EMAIL_MD5];
+    [MATUtils setUserDefaultValue:_userEmailSha1 forKey:MAT_KEY_USER_EMAIL_SHA1];
+    [MATUtils setUserDefaultValue:_userEmailSha256 forKey:MAT_KEY_USER_EMAIL_SHA256];
 }
 
 - (void)setUserId:(NSString *)userId
@@ -178,7 +192,68 @@ static CTTelephonyNetworkInfo *netInfo;
 - (void)setUserName:(NSString *)userName
 {
     _userName = [userName copy];
-    [MATUtils setUserDefaultValue:_userName forKey:MAT_KEY_USER_NAME];
+    _userNameMd5 = [MATUtils hashMd5:userName];
+    _userNameSha1 = [MATUtils hashSha1:userName];
+    _userNameSha256 = [MATUtils hashSha256:userName];
+    
+    [MATUtils setUserDefaultValue:_userNameMd5 forKey:MAT_KEY_USER_NAME_MD5];
+    [MATUtils setUserDefaultValue:_userNameSha1 forKey:MAT_KEY_USER_NAME_SHA1];
+    [MATUtils setUserDefaultValue:_userNameSha256 forKey:MAT_KEY_USER_NAME_SHA256];
+}
+
+- (void)setPhoneNumber:(NSString *)userPhone
+{
+    if(userPhone)
+    {
+        // character set containing English decimal digits
+        NSCharacterSet *charsetEngNum = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
+        BOOL containsNonEnglishDigits = NO;
+        
+        // remove non-numeric characters
+        NSCharacterSet *charset = [NSCharacterSet decimalDigitCharacterSet];
+        NSMutableString *cleanPhone = [NSMutableString string];
+        for (int i = 0; i < userPhone.length; ++i)
+        {
+            unichar nextChar = [userPhone characterAtIndex:i];
+            if([charset characterIsMember:nextChar])
+            {
+                // if this digit character is not an English decimal digit
+                if(!containsNonEnglishDigits && ![charsetEngNum characterIsMember:nextChar])
+                {
+                    containsNonEnglishDigits = YES;
+                }
+                
+                // only include decimal digit characters
+                [cleanPhone appendString:[NSString stringWithCharacters:&nextChar length:1]];
+            }
+        }
+        _phoneNumber = [cleanPhone copy];
+        
+        // if the phone number string includes non-English digits
+        if(containsNonEnglishDigits)
+        {
+            // convert to English digits
+            NSNumberFormatter *Formatter = [[NSNumberFormatter alloc] init];
+            NSLocale *locale = [NSLocale localeWithLocaleIdentifier:@"EN"];
+            [Formatter setLocale:locale];
+            NSNumber *newNum = [Formatter numberFromString:_phoneNumber];
+            if (newNum) {
+                _phoneNumber = [newNum stringValue];
+            }
+        }
+    }
+    else
+    {
+        _phoneNumber = nil;
+    }
+    
+    _phoneNumberMd5 = [MATUtils hashMd5:_phoneNumber];
+    _phoneNumberSha1 = [MATUtils hashSha1:_phoneNumber];
+    _phoneNumberSha256 = [MATUtils hashSha256:_phoneNumber];
+    
+    [MATUtils setUserDefaultValue:_phoneNumberMd5 forKey:MAT_KEY_USER_PHONE_MD5];
+    [MATUtils setUserDefaultValue:_phoneNumberSha1 forKey:MAT_KEY_USER_PHONE_SHA1];
+    [MATUtils setUserDefaultValue:_phoneNumberSha256 forKey:MAT_KEY_USER_PHONE_SHA256];
 }
 
 
@@ -330,9 +405,16 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:self.trusteTPID                   forKey:MAT_KEY_TRUSTE_TPID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.twitterUserId                forKey:MAT_KEY_TWITTER_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.updateLogId                  forKey:MAT_KEY_UPDATE_LOG_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userEmail                    forKey:MAT_KEY_USER_EMAIL               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailMd5                 forKey:MAT_KEY_USER_EMAIL_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailSha1                forKey:MAT_KEY_USER_EMAIL_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailSha256              forKey:MAT_KEY_USER_EMAIL_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.userId                       forKey:MAT_KEY_USER_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userName                     forKey:MAT_KEY_USER_NAME                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameMd5                  forKey:MAT_KEY_USER_NAME_MD5            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameSha1                 forKey:MAT_KEY_USER_NAME_SHA1           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameSha256               forKey:MAT_KEY_USER_NAME_SHA256         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberMd5               forKey:MAT_KEY_USER_PHONE_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberSha1              forKey:MAT_KEY_USER_PHONE_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberSha256            forKey:MAT_KEY_USER_PHONE_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:MATVERSION                        forKey:MAT_KEY_VER                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     NSString *userAgent = [MATUserAgentCollector userAgent];

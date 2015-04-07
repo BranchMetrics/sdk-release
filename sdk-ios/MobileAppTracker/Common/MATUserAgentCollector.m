@@ -47,13 +47,15 @@ static MATUserAgentCollector *collector;
     return collector.userAgent;
 }
 
-
 - (BOOL)           webView:(UIWebView *)wv
 shouldStartLoadWithRequest:(NSURLRequest *)request
             navigationType:(UIWebViewNavigationType)navigationType
 {
-    collector.userAgent = [request valueForHTTPHeaderField:@"User-Agent"];
-
+    NSString *agent = [request valueForHTTPHeaderField:@"User-Agent"];
+    
+    // in some rare cases when the user-agent string contains null garbage values, return nil
+    collector.userAgent = [agent hasPrefix:@"(null)"] ? nil : agent;
+    
     return NO;
 }
 

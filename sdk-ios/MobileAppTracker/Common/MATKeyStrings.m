@@ -97,6 +97,18 @@ NSString * const MAT_KEY_URL                            = @"url";
 NSString * const MAT_KEY_USER_EMAIL                     = @"user_email";
 NSString * const MAT_KEY_USER_ID                        = @"user_id";
 NSString * const MAT_KEY_USER_NAME                      = @"user_name";
+NSString * const MAT_KEY_USER_PHONE                     = @"user_phone";
+
+NSString * const MAT_KEY_USER_NAME_MD5                  = @"user_name_md5";
+NSString * const MAT_KEY_USER_NAME_SHA1                 = @"user_name_sha1";
+NSString * const MAT_KEY_USER_NAME_SHA256               = @"user_name_sha256";
+NSString * const MAT_KEY_USER_EMAIL_MD5                 = @"user_email_md5";
+NSString * const MAT_KEY_USER_EMAIL_SHA1                = @"user_email_sha1";
+NSString * const MAT_KEY_USER_EMAIL_SHA256              = @"user_email_sha256";
+NSString * const MAT_KEY_USER_PHONE_MD5                 = @"user_phone_md5";
+NSString * const MAT_KEY_USER_PHONE_SHA1                = @"user_phone_sha1";
+NSString * const MAT_KEY_USER_PHONE_SHA256              = @"user_phone_sha256";
+
 NSString * const MAT_KEY_VER                            = @"ver";
 NSString * const MAT_KEY_XML                            = @"xml";
 

@@ -11,6 +11,8 @@
 #import "../MobileAppTracker/Common/MATSettings.h"
 #import "../MobileAppTracker/Common/MATUtils.h"
 
+#import "../MobileAppTracker/Common/MATCWorks.h"
+
 @interface MATUtilsTests : XCTestCase
 
 @end
@@ -36,7 +38,6 @@ static NSString* const testKey = @"fakeMatKey";
     [super tearDown];
 }
 
-
 - (void)clearTestDefaults
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -44,7 +45,6 @@ static NSString* const testKey = @"fakeMatKey";
     [defaults setObject:nil forKey:expectedKey];
     [defaults synchronize];
 }
-
 
 - (void)testJsonSerialize
 {
@@ -66,7 +66,6 @@ static NSString* const testKey = @"fakeMatKey";
     XCTAssertTrue([expectedOutput isEqualToString:actualOutput], @"JSON Serialization failed: expected %@, actual: %@", expectedOutput, actualOutput);
 }
 
-
 - (void)testNewKeyRead
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -86,7 +85,6 @@ static NSString* const testKey = @"fakeMatKey";
     [defaults setValue:oldMatId forKey:@"_MAT_mat_id"];
 }
 
-
 - (void)testNewKeyStored
 {
     static NSString* const testValue = @"fakeValue";
@@ -98,7 +96,6 @@ static NSString* const testKey = @"fakeMatKey";
     NSString *readValue = [[NSUserDefaults standardUserDefaults] valueForKey:expectedKey];
     XCTAssertTrue( [testValue isEqualToString:readValue], @"stored %@, read %@", testValue, readValue );
 }
-
 
 - (void)testOldKeyRead
 {
@@ -114,7 +111,6 @@ static NSString* const testKey = @"fakeMatKey";
     XCTAssertTrue( [testValue isEqualToString:readValue], @"stored %@, read %@", testValue, readValue );
 }
 
-
 - (void)testNewKeyReadPreferentially
 {
     static NSString* const testValueOld = @"fakeValue1";
@@ -129,6 +125,36 @@ static NSString* const testKey = @"fakeMatKey";
     // assert that new-style key is read by MATUtils
     NSString *readValue = [MATUtils userDefaultValueforKey:testKey];
     XCTAssertTrue( [testValueNew isEqualToString:readValue], @"stored %@, read %@", testValueNew, readValue );
+}
+
+- (void)testHashMd5
+{
+    static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
+    static NSString* const expected = @"a346e5dc2a8d22f2733af9740c5a8756";
+    
+    NSString *actual = [MATUtils hashMd5:input];
+    
+    XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
+}
+
+- (void)testHashSha1
+{
+    static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
+    static NSString* const expected = @"310fd0f3e8716db8bb44f474b5fe4bc2336ad967";
+    
+    NSString *actual = [MATUtils hashSha1:input];
+    
+    XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
+}
+
+- (void)testHashSha256
+{
+    static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
+    static NSString* const expected = @"36e75466833deaf7fbce4780ed813707a83c261876d2a7f08115d5cb6842b0c4";
+    
+    NSString *actual = [MATUtils hashSha256:input];
+    
+    XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
 }
 
 @end

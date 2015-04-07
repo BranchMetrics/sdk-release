@@ -7,8 +7,8 @@
 //
 
 #import <XCTest/XCTest.h>
-#import <MobileAppTracker/MobileAppTracker.h>
 #import "MATTests.h"
+#import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATServerTests : XCTestCase <MobileAppTrackerDelegate>
@@ -50,7 +50,6 @@
     emptyRequestQueue();
 }
 
-
 - (void)testInstall
 {
     [MobileAppTracker measureSession];
@@ -59,7 +58,6 @@
     XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
 }
-
 
 - (void)testInstallPostConversion
 {
@@ -76,7 +74,6 @@
     XCTAssertFalse( callFailedDuplicate, @"trackInstallPostConversion should have succeeded" );
 }
 
-
 - (void)testUpdate
 {
     [MobileAppTracker setExistingUser:YES];
@@ -87,7 +84,6 @@
     XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
 }
 
-
 - (void)testActionNameEvent
 {
     static NSString* const eventName = @"testEventName";
@@ -97,7 +93,6 @@
     XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
 }
-
 
 - (void)testActionNameEventDuplicate
 {
@@ -117,7 +112,6 @@
     XCTAssertTrue( callFailed, @"measureAction duplicate should not have succeeded" );
     XCTAssertTrue( callFailedDuplicate, @"measureAction duplicate should not have succeeded" );
 }
-
 
 - (void)testActionNameIdItemsRevenue
 {
@@ -141,7 +135,6 @@
     XCTAssertFalse( callFailedDuplicate, @"measureAction with items should have succeeded" );
 }
 
-
 - (void)testPurchaseDuplicates
 {
     [MobileAppTracker setAllowDuplicateRequests:NO];
@@ -160,7 +153,6 @@
     XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
 }
-
 
 
 #pragma mark - MAT delegate
