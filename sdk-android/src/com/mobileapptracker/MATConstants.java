@@ -1,34 +1,31 @@
 package com.mobileapptracker;
 
 class MATConstants {
-    // SharedPreferences filename for referrer
-    static final String PREFS_REFERRER = "mat_referrer";
-    // SharedPreferences filename for Facebook re-engagement intent
-    static final String PREFS_FACEBOOK_INTENT = "mat_fb_intent";
-    // SharedPreferences filename for a MAT install
-    static final String PREFS_INSTALL = "mat_install";
-    // Key for PREFS_INSTALL
-    static final String PREFS_INSTALL_KEY = "installed";
-    // SharedPreferences filename for install log ID
-    static final String PREFS_LOG_ID_INSTALL = "mat_log_id_install";
-    // SharedPreferences filename for update log ID
-    static final String PREFS_LOG_ID_UPDATE = "mat_log_id_update";
-    // SharedPreferences filename for update log ID
-    static final String PREFS_LOG_ID_OPEN = "mat_log_id_open";
-    // SharedPreferences filename for update log ID
-    static final String PREFS_LOG_ID_LAST_OPEN = "mat_log_id_last_open";
-    // Key for PREFS_LOG_ID_INSTALL, PREFS_LOG_ID_UPDATE, PREFS_LOG_ID_OPEN
-    static final String PREFS_LOG_ID_KEY = "logId";
-    // SharedPreferences filename for MAT ID
-    static final String PREFS_MAT_ID = "mat_id";
+    // SharedPreferences filename for MAT
+    static final String PREFS_MAT = "com.mobileapptracking";
     // SharedPreferences filename for queued events
     static final String PREFS_QUEUE = "mat_queue";
-    // SharedPreferences filename for previously seen app version
-    static final String PREFS_VERSION = "mat_app_version";
-    // SharedPreferences filename for revenue-generating users
-    static final String PREFS_IS_PAYING_USER = "mat_is_paying_user";
-    // SharedPreferences filename for user IDs
-    static final String PREFS_USER_IDS = "mat_user_ids";
+    
+    // Key for install referrer
+    static final String KEY_REFERRER = "mat_referrer";
+    // Key for install status
+    static final String KEY_INSTALL = "mat_installed";
+    // Key for open log id
+    static final String KEY_LOG_ID = "mat_log_id_open";
+    // Key for last open log id
+    static final String KEY_LAST_LOG_ID = "mat_log_id_last_open";
+    // Key for MAT ID
+    static final String KEY_MAT_ID = "mat_id";
+    // Key for paying user
+    static final String KEY_PAYING_USER = "mat_is_paying_user";
+    // Key for phone number
+    static final String KEY_PHONE_NUMBER = "mat_phone_number";
+    // Key for user email
+    static final String KEY_USER_EMAIL = "mat_user_email";
+    // Key for user ID
+    static final String KEY_USER_ID = "mat_user_id";
+    // Key for user name
+    static final String KEY_USER_NAME = "mat_user_name";
     
     // GET_ACCOUNTS permission
     static final String PERMISSION_GET_ACCOUNTS = "android.permission.GET_ACCOUNTS";
@@ -41,7 +38,7 @@ class MATConstants {
     static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
     
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.7.1";
+    static final String SDK_VERSION = "3.9";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued

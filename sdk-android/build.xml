@@ -127,7 +127,9 @@
                     -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*,!code/allocation/variable
                     
                     -keepparameternames
-
+                    
+                    -keepattributes Signature
+                    
                     -keep public class com.mobileapptracker.* {
                         public protected *;
                     }

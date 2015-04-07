@@ -116,29 +116,40 @@ class MATFBBridge {
     private static Object logger;
     private static boolean justActivated = false;
     
-    public static void startLogger(Context context) {
+    public static void startLogger(Context context, boolean limitEventAndDataUsage) {
         try {
-            Class<?>[] methodParams = new Class[1];
-            methodParams[0] = Context.class;
+            Class<?>[] activateMethodParams = new Class[1];
+            activateMethodParams[0] = Context.class;
+            
+            Class<?>[] limitMethodParams = new Class[2];
+            limitMethodParams[0] = Context.class;
+            limitMethodParams[1] = boolean.class;
             
             // Call the FB AppEventsLogger's activateApp method with Context
-            Method method = Class.forName("com.facebook.AppEventsLogger").getMethod("activateApp", methodParams);
-            Object[] args = new Object[1];
-            args[0] = context;
-            method.invoke(null, args);
+            Method activateMethod = Class.forName("com.facebook.AppEventsLogger").getMethod("activateApp", activateMethodParams);
+            Object[] activateArgs = new Object[1];
+            activateArgs[0] = context;
+            activateMethod.invoke(null, activateArgs);
             
             justActivated = true;
             
+            // Call FB Setting's setLimitEventAndDataUsage method with Context and limitEvent setting
+            Method limitMethod = Class.forName("com.facebook.Settings").getMethod("setLimitEventAndDataUsage", limitMethodParams);
+            Object[] limitArgs = new Object[2];
+            limitArgs[0] = context;
+            limitArgs[1] = limitEventAndDataUsage;
+            limitMethod.invoke(null, limitArgs);
+            
             // Call the AppEventsLogger's newLogger method with same Context
-            method = Class.forName("com.facebook.AppEventsLogger").getMethod("newLogger", methodParams);
-            logger = method.invoke(null, args);
+            Method loggerMethod = Class.forName("com.facebook.AppEventsLogger").getMethod("newLogger", activateMethodParams);
+            logger = loggerMethod.invoke(null, activateArgs);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
     // Sends event to FB SDK's logEvent
-    public static void logEvent(String eventName, double revenue, String currency, String refId) {
+    public static void logEvent(MATEvent event) {
         if (logger != null) {
             try {
                 Class<?>[] methodParams = new Class[3];
@@ -153,11 +164,11 @@ class MATFBBridge {
                  *  Based on recommended event names from
                  *  https://developers.mobileapptracking.com/app-events-sdk/
                  */
-                String fbEventName = eventName;
-                double valueToSum = revenue;
-                Parameters matParams = Parameters.getInstance();
+                String fbEventName = event.getEventName();
+                double valueToSum = event.getRevenue();
+                MATParameters matParams = MATParameters.getInstance();
                 
-                String eventNameLower = eventName.toLowerCase(Locale.US);
+                String eventNameLower = event.getEventName().toLowerCase(Locale.US);
                 if (eventNameLower.contains("session")) {
                     // Don't send activation twice on first init
                     if (justActivated) {
@@ -173,7 +184,7 @@ class MATFBBridge {
                 } else if (eventNameLower.contains("rated")) {
                     fbEventName = EVENT_NAME_RATED;
                     try {
-                        valueToSum = Double.parseDouble(matParams.getEventRating());
+                        valueToSum = event.getRating();
                     } catch (Exception e) {
                     }
                 } else if (eventNameLower.contains("tutorial_complete")) {
@@ -195,19 +206,19 @@ class MATFBBridge {
                 } else if (eventNameLower.contains("spent_credits")) {
                     fbEventName = EVENT_NAME_SPENT_CREDITS;
                     try {
-                        valueToSum = Double.parseDouble(matParams.getEventQuantity());
+                        valueToSum = event.getQuantity();
                     } catch (Exception e) {
                     }
                 }
                 
                 // Construct Bundle of FB params from MAT params
                 Bundle bundle = new Bundle();
-                addBundleValue(bundle, EVENT_PARAM_CURRENCY, currency);
-                addBundleValue(bundle, EVENT_PARAM_CONTENT_ID, matParams.getEventContentId());
-                addBundleValue(bundle, EVENT_PARAM_CONTENT_TYPE, matParams.getEventContentType());
-                addBundleValue(bundle, EVENT_PARAM_SEARCH_STRING, matParams.getEventSearchString());
-                addBundleValue(bundle, EVENT_PARAM_NUM_ITEMS, matParams.getEventQuantity());
-                addBundleValue(bundle, EVENT_PARAM_LEVEL, matParams.getEventLevel());
+                addBundleValue(bundle, EVENT_PARAM_CURRENCY, event.getCurrencyCode());
+                addBundleValue(bundle, EVENT_PARAM_CONTENT_ID, event.getContentId());
+                addBundleValue(bundle, EVENT_PARAM_CONTENT_TYPE, event.getContentType());
+                addBundleValue(bundle, EVENT_PARAM_SEARCH_STRING, event.getSearchString());
+                addBundleValue(bundle, EVENT_PARAM_NUM_ITEMS, Integer.toString(event.getQuantity()));
+                addBundleValue(bundle, EVENT_PARAM_LEVEL, Integer.toString(event.getLevel()));
                 addBundleValue(bundle, "tune_referral_source", matParams.getReferralSource());
                 addBundleValue(bundle, "tune_source_sdk", "TUNE-MAT");
                 

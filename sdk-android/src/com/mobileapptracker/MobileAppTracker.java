@@ -3,7 +3,6 @@ package com.mobileapptracker;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +24,8 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
@@ -39,54 +40,59 @@ public class MobileAppTracker {
     
     private final String IV = "heF9BATUfWuISyO8";
     
+    // Connectivity receiver
+    protected BroadcastReceiver networkStateReceiver;
+    // The context passed into the constructor
+    protected Context mContext;
+    // Thread pool for public method execution
+    protected ExecutorService pubQueue;
+    // Queue interface object for storing events that were not fired
+    protected MATEventQueue eventQueue;
+    // Parameters container
+    protected MATParameters params;
+    // Interface for testing URL requests
+    protected MATTestRequest matRequest; // note: this has no setter - must subclass to set
+    // Whether variables were initialized correctly
+    protected boolean initialized;
+    // Whether connectivity receiver is registered or not
+    protected boolean isRegistered;
+    
+    // Deferred deeplink helper class
     private MATDeferredDplinkr dplinkr;
-    // Interface for reading platform response to tracking calls
-    protected MATResponse matResponse;
+    // Preloaded apps data values to send
+    private MATPreloadData mPreloadData;
     // Interface for making url requests
     private MATUrlRequester urlRequester;
     // Encryptor for url
-    private Encryption encryption;
-    // Interface for testing URL requests
-    protected MATTestRequest matRequest; // note: this has no setter - must subclass to set
-
-    // Whether connectivity receiver is registered or not
-    protected boolean isRegistered;
+    private MATEncryption encryption;
+    // Interface for reading platform response to tracking calls
+    private MATResponse matResponse;
+    
     // Whether to show debug output
     private boolean debugMode;
-    // Whether preloaded attribution applies or not
-    private boolean preLoaded;
-    // Whether variables were initialized correctly
-    protected boolean initialized;
-    // Whether Google Advertising ID was received
-    protected boolean gotGaid;
-    // Whether INSTALL_REFERRER was received
-    protected boolean gotReferrer;
-    // Time that MAT was initialized
-    protected long initTime;
-    // Time that MAT received referrer
-    protected long referrerTime;
+    // Whether to open deferred deeplinks
+    private boolean deferredDplink;
+    // Max timeout to wait for deferred deeplink
+    private int deferredDplinkTimeout;
     // If this is the first app install, try to find deferred deeplink
-    protected boolean firstInstall;
+    private boolean firstInstall;
     // If this is the first session of the app lifecycle, wait for the GAID and referrer
-    protected boolean firstSession;
-    // Whether we've already notified the pool to stop waiting
-    protected boolean notifiedPool;
+    private boolean firstSession;
     // Whether we're invoking FB event logging
-    protected boolean fbLogging;
+    private boolean fbLogging;
+    // Time that MAT was initialized
+    private long initTime;
+    // Time that MAT received referrer
+    private long referrerTime;
     
-    // Connectivity receiver
-    protected BroadcastReceiver networkStateReceiver;
-    // Parameters container
-    protected Parameters params;
-    // The context passed into the constructor
-    protected Context mContext;
+    // Whether Google Advertising ID was received
+    boolean gotGaid;
+    // Whether INSTALL_REFERRER was received
+    boolean gotReferrer;
+    // Whether we've already notified the pool to stop waiting
+    boolean notifiedPool;
     // Thread pool for running the request Runnables
-    protected ExecutorService pool;
-    // Thread pool for public method execution
-    protected ExecutorService pubQueue;
-
-    // Queue interface object for storing events that were not fired
-    protected MATEventQueue eventQueue;
+    ExecutorService pool;
     
     private static volatile MobileAppTracker mat = null;
 
@@ -100,19 +106,108 @@ public class MobileAppTracker {
     public static synchronized MobileAppTracker getInstance() {
         return mat;
     }
+    
+    /* Init options */
+    /**
+     * Enables MAT with acceptance of duplicate installs from this device
+     * @param allowDups whether to allow duplicate installs from device
+     * @return MobileAppTracker with allow duplicates set
+     */
+    public MobileAppTracker withAllowDuplicates(boolean allowDups) {
+        mat.setAllowDuplicates(allowDups);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with debug output under tag "MobileAppTracker"
+     * @param debugMode whether to enable debug output
+     * @return MobileAppTracker with debug mode set
+     */
+    public MobileAppTracker withDebugMode(boolean debugMode) {
+        mat.setDebugMode(debugMode);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with deferred deeplinks
+     * @param enableDeferredDeeplink whether to enable opening deferred deeplinks
+     * @param timeout max timeout in ms to wait for deeplink
+     * @return MobileAppTracker with deferred deeplinks
+     */
+    public MobileAppTracker withDeferredDeeplink(boolean enableDeferredDeeplink, int timeout) {
+        mat.setDeferredDeeplink(enableDeferredDeeplink, timeout);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with primary Gmail collection
+     * Requires GET_ACCOUNTS permission
+     * @param collectEmail whether to collect device email address
+     * @return MobileAppTracker with email collection
+     */
+    public MobileAppTracker withEmailCollection(boolean collectEmail) {
+        mat.setEmailCollection(collectEmail);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with Facebook event logging, passing MAT events to FB
+     * @param logging whether to enable FB logging
+     * @param context Activity context
+     * @param limitEventAndDataUsage whether FB event logging is limited for ad targeting
+     * @return MobileAppTracker with Facebook event logging
+     */
+    public MobileAppTracker withFacebookEventLogging(boolean logging, Context context, boolean limitEventAndDataUsage) {
+        mat.setFacebookEventLogging(logging, context, limitEventAndDataUsage);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with a MAT response listener
+     * @param response listener for server response
+     * @return MobileAppTracker with response listener
+     */
+    public MobileAppTracker withListener(MATResponse response) {
+        mat.setMATResponse(response);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with a custom package name
+     * @param packageName custom package name to pass
+     * @return MobileAppTracker with custom package name
+     */
+    public MobileAppTracker withPackageName(String packageName) {
+        mat.setPackageName(packageName);
+        return mat;
+    }
+    
+    /**
+     * Enables MAT with a custom site ID
+     * @param siteId custom site ID to pass
+     * @return MobileAppTracker with custom site ID
+     */
+    public MobileAppTracker withSiteId(String siteId) {
+        mat.setSiteId(siteId);
+        return mat;
+    }
 
     /**
      * Initializes a MobileAppTracker.
      * @param context the application context
      * @param advertiserId the MAT advertiser ID for the app
      * @param conversionKey the MAT advertiser key for the app
+     * @return MobileAppTracker instance with initialized values
      */
-    public static void init(Context context, final String advertiserId, final String conversionKey) {
-        mat = new MobileAppTracker();
-        mat.mContext = context.getApplicationContext();
-        mat.pubQueue = Executors.newSingleThreadExecutor();
-        
-        mat.initAll(advertiserId, conversionKey);
+    public static synchronized MobileAppTracker init(Context context, final String advertiserId, final String conversionKey) {
+        if (mat == null) {
+            mat = new MobileAppTracker();
+            mat.mContext = context.getApplicationContext();
+            mat.pubQueue = Executors.newSingleThreadExecutor();
+            
+            mat.initAll(advertiserId, conversionKey);
+        }
+        return mat;
     }
     
     /**
@@ -121,17 +216,12 @@ public class MobileAppTracker {
      * @param conversionKey the MAT conversion key for the app
      */
     protected void initAll(String advertiserId, String conversionKey) {
-        Parameters.init(mContext, advertiserId, conversionKey);
-        params = Parameters.getInstance();
+        // Dplinkr init
+        dplinkr = MATDeferredDplinkr.initialize(advertiserId, conversionKey, mContext.getPackageName());
+        
+        params = MATParameters.init(this, mContext, advertiserId, conversionKey);
         
         initLocalVariables(conversionKey);
-        
-        // Dplinkr init
-        MATDeferredDplinkr.initialize();
-        dplinkr = MATDeferredDplinkr.getInstance();
-        dplinkr.setAdvertiserId(advertiserId);
-        dplinkr.setConversionKey(conversionKey);
-        dplinkr.setPackageName(params.getPackageName());
 
         eventQueue = new MATEventQueue(mContext, this);
         // Dump any existing requests in queue on start
@@ -170,28 +260,16 @@ public class MobileAppTracker {
     private void initLocalVariables(String key) {
         pool = Executors.newSingleThreadExecutor();
         urlRequester = new MATUrlRequester();
-        encryption = new Encryption(key.trim(), IV);
+        encryption = new MATEncryption(key.trim(), IV);
         
         initTime = System.currentTimeMillis();
+        gotReferrer = !(mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).getString(MATConstants.KEY_REFERRER, "").equals(""));
         firstInstall = false;
         firstSession = true;
         initialized = false;
         isRegistered = false;
         debugMode = false;
-        preLoaded = false;
         fbLogging = false;
-    }
-    
-    /**
-     * Whether to log MAT events in the FB SDK as well
-     * @param context Activity context
-     * @param logging Whether to send MAT events to FB as well
-     */
-    public void setFacebookEventLogging(Context context, boolean logging) {
-        fbLogging = logging;
-        if (logging) {
-            MATFBBridge.startLogger(context);
-        }
     }
 
     /**
@@ -216,217 +294,82 @@ public class MobileAppTracker {
     }
     
     /**
-     * Main session measurement function; this function should be called at every app open.
+     * Main session measurement function; this function should be called in onResume().
      */
     public void measureSession() {
         // If no SharedPreferences value for install exists, set it and mark firstInstall true
-        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_INSTALL, Context.MODE_PRIVATE);
-        if (!installed.contains(MATConstants.PREFS_INSTALL_KEY)) {
-            installed.edit().putBoolean(MATConstants.PREFS_INSTALL_KEY, true).commit();
+        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE);
+        if (!installed.contains(MATConstants.KEY_INSTALL)) {
+            installed.edit().putBoolean(MATConstants.KEY_INSTALL, true).commit();
             firstInstall = true;
         }
 
+        notifiedPool = false;
+        measureEvent(new MATEvent("session"));
+    }
+    
+    /**
+     * Event measurement function that measures an event for the given eventName.
+     * @param eventName event name in MAT system
+     */
+    public void measureEvent(String eventName) {
+        measureEvent(new MATEvent(eventName));
+    }
+    
+    /**
+     * Event measurement function that measures an event for the given eventId.
+     * @param eventId event ID in MAT system
+     */
+    public void measureEvent(int eventId) {
+        measureEvent(new MATEvent(eventId));
+    }
+    
+    /**
+     * Event measurement function that measures an event based on MATEventData values.
+     * Create a MATEventData to pass in with:</br>
+     * <pre>new MATEventData.Builder(eventName).build()</pre>
+     * @param eventData custom data to associate with the event
+     */
+    public void measureEvent(final MATEvent eventData) {
         pubQueue.execute(new Runnable() { public void run() {
-            notifiedPool = false;
-            measure("session", null, 0, getCurrencyCode(), getRefId(), null, null);
-        }});
-    }
-
-    /**
-     * Event measurement function, by event name.
-     * @param eventName event name in MAT system
-     */
-    public void measureAction(final String eventName) {
-        pubQueue.execute(new Runnable() { public void run() {
-            measure(eventName, null, 0, getCurrencyCode(), null, null, null);
+            measure(eventData);
         }});
     }
     
-    /**
-     * Event measurement function, by event name, revenue and currency.
-     * @param eventName event name in MAT system
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     */
-    public void measureAction(String eventName, double revenue, String currency) {
-        measureAction(eventName, null, revenue, currency, null, null, null);
-    }
-    
-    /**
-     * Event measurement function, by event name, revenue, currency, and advertiser ref ID.
-     * @param eventName event name in MAT system
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     */
-    public void measureAction(String eventName, double revenue, String currency, String refId) {
-        measureAction(eventName, null, revenue, currency, refId, null, null);
-    }
-    
-    /**
-     * Event measurement function, by event name, event items,
-     *  revenue, currency, and advertiser ref ID.
-     * @param eventName event name in MAT system
-     * @param eventItems List of event items to associate with event
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     */
-    public void measureAction(String eventName, List<MATEventItem> eventItems, double revenue, String currency, String refId) {
-        measureAction(eventName, eventItems, revenue, currency, refId, null, null);
-    }
-    
-    /**
-     * Event measurement function
-     * @param eventName event name in MAT system
-     * @param eventItems List of event items to associate with event
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     * @param purchaseData the receipt data from Google Play
-     * @param purchaseSignature the receipt signature from Google Play
-     */
-    public void measureAction(final String eventName, final List<MATEventItem> eventItems, final double revenue,
-            final String currency, final String refId, final String purchaseData, final String purchaseSignature) {
-        // Create a JSONArray of event items
-        final JSONArray jsonArray = new JSONArray();
-        if (eventItems != null) {
-            for (int i = 0; i < eventItems.size(); i++) {
-                jsonArray.put(eventItems.get(i).toJSON());
-            }
-        }
-
-        pubQueue.execute(new Runnable() { public void run() { 
-            measure(eventName, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature);
-        }});
-    }
-    
-    /**
-     * Event measurement function, by event ID.
-     * @param eventId event ID in MAT system
-     */
-    public void measureAction(final int eventId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            measure(eventId, null, 0, getCurrencyCode(), null, null, null);
-        }});
-    }
-    
-    /**
-     * Event measurement function, by event ID, revenue and currency.
-     * @param eventId event ID in MAT system
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     */
-    public void measureAction(int eventId, double revenue, String currency) {
-        measureAction(eventId, null, revenue, currency, null, null, null);
-    }
-    
-    /**
-     * Event measurement function, by event ID, revenue, currency, and advertiser ref ID.
-     * @param eventId event ID in MAT system
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     */
-    public void measureAction(int eventId, double revenue, String currency, String refId) {
-        measureAction(eventId, null, revenue, currency, refId, null, null);
-    }
-    
-    /**
-     * Event measurement function, by event ID, event items,
-     *  revenue, currency, and advertiser ref ID.
-     * @param eventId event ID in MAT system
-     * @param eventItems List of event items to associate with event
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     */
-    public void measureAction(int eventId, List<MATEventItem> eventItems, double revenue, String currency, String refId) {
-        measureAction(eventId, eventItems, revenue, currency, refId, null, null);
-    }
-    
-    /**
-     * Event measurement function
-     * @param eventId event ID in MAT system
-     * @param eventItems List of event items to associate with event
-     * @param revenue revenue amount tied to the event
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     * @param purchaseData the receipt data from Google Play
-     * @param purchaseSignature the receipt signature from Google Play
-     */
-    public void measureAction(final int eventId, final List<MATEventItem> eventItems, final double revenue,
-            final String currency, final String refId, final String purchaseData, final String purchaseSignature) {
-        // Create a JSONArray of event items
-        final JSONArray jsonArray = new JSONArray();
-        if (eventItems != null) {
-            for (int i = 0; i < eventItems.size(); i++) {
-                jsonArray.put(eventItems.get(i).toJSON());
-            }
-        }
-
-        pubQueue.execute(new Runnable() { public void run() { 
-            measure(eventId, jsonArray, revenue, currency, refId, purchaseData, purchaseSignature);
-        }});
-    }
-    
-    /**
-     * Method calls a new action event based on class member settings.
-     * @param event event name or event ID in MAT system
-     * @param eventItems MATEventItem json data to post to the server
-     * @param revenue revenue amount tied to the action
-     * @param currency currency code for the revenue amount
-     * @param refId the advertiser ref ID to associate with the event
-     * @param inAppPurchaseData the receipt data from Google Play
-     * @param inAppSignature the receipt signature from Google Play
-     */
-    private synchronized void measure(
-                                   Object event,
-                                   JSONArray eventItems,
-                                   double revenue,
-                                   String currency,
-                                   String refId,
-                                   String inAppPurchaseData,
-                                   String inAppSignature
-                                  ) {
+    private synchronized void measure(MATEvent eventData) {
         if (!initialized) return;
         
         dumpQueue();
         
         params.setAction("conversion"); // Default to conversion
         Date runDate = new Date();
-        if (event instanceof String) {
+        if (eventData.getEventName() != null) {
+            String eventName = eventData.getEventName();
             if (fbLogging) {
-                MATFBBridge.logEvent((String)event, revenue, currency, refId);
+                MATFBBridge.logEvent(eventData);
             }
-            if (event.equals("close")) {
+            if (eventName.equals("close")) {
                 return; // Don't send close events
-            } else if (event.equals("open") || event.equals("install") || 
-                    event.equals("update") || event.equals("session")) {
+            } else if (eventName.equals("open") || eventName.equals("install") || 
+                       eventName.equals("update") || eventName.equals("session")) {
                 params.setAction("session");
-                
                 runDate = new Date(runDate.getTime() + MATConstants.DELAY);
-            } else {
-                params.setEventName((String)event);
             }
-        } else if (event instanceof Integer) {
-            params.setEventId(Integer.toString((Integer)event));
-        } else {
-            Log.d(MATConstants.TAG, "Received invalid event name or id value, not measuring event");
-            return;
         }
         
-        params.setRevenue(Double.toString(revenue));
-        if (revenue > 0) {
+        if (eventData.getRevenue() > 0) {
             params.setIsPayingUser(Integer.toString(1));
         }
         
-        params.setCurrencyCode(currency);
-        params.setRefId(refId);
-        
-        String link = MATUrlBuilder.buildLink(debugMode, preLoaded);
-        String data = MATUrlBuilder.buildDataUnencrypted();
-        JSONObject postBody = MATUrlBuilder.buildBody(eventItems, inAppPurchaseData, inAppSignature, params.getUserEmails());
+        String link = MATUrlBuilder.buildLink(eventData, mPreloadData, debugMode);
+        String data = MATUrlBuilder.buildDataUnencrypted(eventData);
+        JSONArray eventItemsJson = new JSONArray();
+        if (eventData.getEventItems() != null) {
+            for (int i = 0; i < eventData.getEventItems().size(); i++) {
+                eventItemsJson.put(eventData.getEventItems().get(i).toJSON());
+            }
+        }
+        JSONObject postBody = MATUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
         
         if (matRequest != null) {
             matRequest.constructedRequest(link, data, postBody);
@@ -438,15 +381,11 @@ public class MobileAppTracker {
         dumpQueue();
         
         if (matResponse != null) {
-            matResponse.enqueuedActionWithRefId(refId);
+            matResponse.enqueuedActionWithRefId(eventData.getRefId());
         }
-        
-        // Clear the parameters that should be reset between events
-        params.resetAfterRequest();
         
         return;
     }
-    
 
     /**
      * Helper function for making single request and displaying response
@@ -621,62 +560,6 @@ public class MobileAppTracker {
     }
 
     /**
-     * Get the first event attribute for the current action.
-     * @return event attribute 1
-     */
-    public String getEventAttribute1() {
-        return params.getEventAttribute1();
-    }
-
-    /**
-     * Get the second event attribute for the current action.
-     * @return event attribute 2
-     */
-    public String getEventAttribute2() {
-        return params.getEventAttribute2();
-    }
-
-    /**
-     * Get the third event attribute for the current action.
-     * @return event attribute 3
-     */
-    public String getEventAttribute3() {
-        return params.getEventAttribute3();
-    }
-
-    /**
-     * Get the fourth event attribute for the current action.
-     * @return event attribute 4
-     */
-    public String getEventAttribute4() {
-        return params.getEventAttribute4();
-    }
-
-    /**
-     * Get the fifth event attribute for the current action.
-     * @return event attribute 5
-     */
-    public String getEventAttribute5() {
-        return params.getEventAttribute5();
-    }
-
-    /**
-     * Gets the last event id set.
-     * @return event ID in MAT
-     */
-    public String getEventId() {
-        return params.getEventId();
-    }
-
-    /**
-     * Gets the last event name set.
-     * @return event name in MAT
-     */
-    public String getEventName() {
-        return params.getEventName();
-    }
-
-    /**
      * Gets value previously set of existing user or not.
      * @return whether user existed prior to install
      */
@@ -732,14 +615,6 @@ public class MobileAppTracker {
      */
     public long getInstallDate() {
         return Long.parseLong(params.getInstallDate());
-    }
-
-    /**
-     * Gets the MAT install log ID
-     * @return MAT install log ID
-     */
-    public String getInstallLogId() {
-        return params.getInstallLogId();
     }
 
     /**
@@ -937,14 +812,6 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the MAT update log ID
-     * @return MAT update log ID
-     */
-    public String getUpdateLogId() {
-        return params.getUpdateLogId();
-    }
-
-    /**
      * Gets the device browser user agent
      * @return device user agent
      */
@@ -991,67 +858,6 @@ public class MobileAppTracker {
     }
 
     /**
-     * Sets the preloaded app's advertiser sub ad
-     * @param subAd Preloaded advertiser sub ad
-     */
-    public void setAdvertiserSubAd(final String subAd) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubAd(subAd);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's advertiser sub adgroup
-     * @param subAdgroup Preloaded advertiser sub adgroup
-     */
-    public void setAdvertiserSubAdgroup(final String subAdgroup) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubAdgroup(subAdgroup);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's advertiser sub campaign
-     * @param subCampaign Preloaded advertiser sub campaign
-     */
-    public void setAdvertiserSubCampaign(final String subCampaign) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubCampaign(subCampaign);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's advertiser sub keyword
-     * @param subKeyword Preloaded advertiser sub keyword
-     */
-    public void setAdvertiserSubKeyword(final String subKeyword) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubKeyword(subKeyword);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's advertiser sub publisher
-     * @param subPublisher Preloaded advertiser sub publisher
-     */
-    public void setAdvertiserSubPublisher(final String subPublisher) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubPublisher(subPublisher);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's advertiser sub site
-     * @param subSite Preloaded advertiser sub site
-     */
-    public void setAdvertiserSubSite(final String subSite) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserSubSite(subSite);
-        }});
-    }
-
-    
-    /**
      * Sets the user's age.
      * @param age User age to track in MAT
      */
@@ -1077,9 +883,13 @@ public class MobileAppTracker {
      */
     public void setAndroidId(final String androidId) {
         dplinkr.setAndroidId(androidId);
-        pubQueue.execute(new Runnable() { public void run() {
+        if (params != null) {
             params.setAndroidId(androidId);
-        }});
+        }
+        
+        if (deferredDplink) {
+            checkForDeferredDeeplink(deferredDplinkTimeout);
+        }
     }
     
     /**
@@ -1151,136 +961,6 @@ public class MobileAppTracker {
     }
 
     /**
-     * Sets the content type associated with an app event.
-     * @param contentType the content type
-     */
-    public void setEventContentType(final String contentType) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventContentType(contentType);
-        }});
-    }
-
-    /**
-     * Sets the content ID associated with an app event.
-     * @param contentId the content ID
-     */
-    public void setEventContentId(final String contentId) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventContentId(contentId);
-        }});
-    }
-
-    /**
-     * Sets the level associated with an app event.
-     * @param level the level
-     */
-    public void setEventLevel(final int level) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventLevel(Integer.toString(level));
-        }});
-    }
-
-    /**
-     * Sets the quantity associated with an app event.
-     * @param quantity the quantity
-     */
-    public void setEventQuantity(final int quantity) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventQuantity(Integer.toString(quantity));
-        }});
-    }
-
-    /**
-     * Sets the search string associated with an app event.
-     * @param searchString the search string
-     */
-    public void setEventSearchString(final String searchString) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventSearchString(searchString);
-        }});
-    }
-
-    /**
-     * Sets the rating associated with an app event.
-     * @param rating the rating
-     */
-    public void setEventRating(final float rating) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventRating(Float.toString(rating));
-        }});
-    }
-
-    /**
-     * Sets the first date associated with an app event.
-     * @param date the date
-     */
-    public void setEventDate1(final Date date) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventDate1(Long.toString(date.getTime()/1000)); // convert ms to s
-        }});
-    }
-
-    /**
-     * Sets the second date associated with an app event.
-     * @param date the date
-     */
-    public void setEventDate2(final Date date) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventDate2(Long.toString(date.getTime()/1000)); // convert ms to s
-        }});
-    }
-
-    /**
-     * Sets the first attribute associated with an app event.
-     * @param value the attribute
-     */
-    public void setEventAttribute1(final String value) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventAttribute1(value);
-        }});
-    }
-
-    /**
-     * Sets the second attribute associated with an app event.
-     * @param value the attribute
-     */
-    public void setEventAttribute2(final String value) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventAttribute2(value);
-        }});
-    }
-
-    /**
-     * Sets the third attribute associated with an app event.
-     * @param value the attribute
-     */
-    public void setEventAttribute3(final String value) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventAttribute3(value);
-        }});
-    }
-
-    /**
-     * Sets the fourth attribute associated with an app event.
-     * @param value the attribute
-     */
-    public void setEventAttribute4(final String value) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventAttribute4(value);
-        }});
-    }
-
-    /**
-     * Sets the fifth attribute associated with an app event.
-     * @param value the attribute
-     */
-    public void setEventAttribute5(final String value) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setEventAttribute5(value);
-        }});
-    }
-
-    /**
      * Sets whether app was previously installed prior to version with MAT SDK
      * @param existing true if this user already had the app installed prior to updating to MAT version
      */
@@ -1323,17 +1003,21 @@ public class MobileAppTracker {
         final int intLimit = isLATEnabled? 1 : 0;
         
         dplinkr.setGoogleAdvertisingId(adId, intLimit);
-        pubQueue.execute(new Runnable() { public void run() {
+        if (params != null) {
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
-            gotGaid = true;
-            if (gotReferrer && !notifiedPool) {
-                synchronized (pool) {
-                    pool.notifyAll();
-                    notifiedPool = true;
-                }
+        }
+        gotGaid = true;
+        if (gotReferrer && !notifiedPool) {
+            synchronized (pool) {
+                pool.notifyAll();
+                notifiedPool = true;
             }
-        }});
+        }
+        
+        if (deferredDplink) {
+            checkForDeferredDeeplink(deferredDplinkTimeout);
+        }
     }
 
     /**
@@ -1422,16 +1106,7 @@ public class MobileAppTracker {
      */
     public void setMATResponse(MATResponse response) {
         matResponse = response;
-    }
-
-    /**
-     * Sets the preloaded app's offer ID
-     * @param offerId Preloaded offer ID
-     */
-    public void setOfferId(final String offerId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setOfferId(offerId);
-        }});
+        dplinkr.setDelegate(response);
     }
 
     /**
@@ -1450,135 +1125,29 @@ public class MobileAppTracker {
     }
     
     /**
-     * Sets the preloaded app's publisher ID
-     * @param publisherId Preloaded publisher ID
+     * Sets the device phone number
+     * @param phoneNumber Phone number
      */
-    public void setPublisherId(final String publisherId) {
-        // Publisher ID is required for preloaded attribution
-        preLoaded = true;
+    public void setPhoneNumber(final String phoneNumber) {
         pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherId(publisherId);
+            // Regex remove all non-digits from phoneNumber
+            String phoneNumberDigits = phoneNumber.replaceAll("\\D+", "");
+            // Convert to digits from foreign characters if needed
+            StringBuilder digitsBuilder = new StringBuilder();
+            for (int i = 0; i < phoneNumberDigits.length(); i++) {
+                int numberParsed = Integer.parseInt(String.valueOf(phoneNumberDigits.charAt(i)));
+                digitsBuilder.append(numberParsed);
+            }
+            params.setPhoneNumber(digitsBuilder.toString());
         }});
     }
     
     /**
-     * Sets the preloaded app's publisher reference ID
-     * @param publisherRefId Preloaded publisher reference ID
+     * Sets publisher information for device preloaded apps
+     * @param preloadData Preload app attribution data
      */
-    public void setPublisherReferenceId(final String publisherRefId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherReferenceId(publisherRefId);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub ad
-     * @param subAd Preloaded publisher sub ad
-     */
-    public void setPublisherSubAd(final String subAd) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubAd(subAd);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub adgroup
-     * @param subAdgroup Preloaded publisher sub adgroup
-     */
-    public void setPublisherSubAdgroup(final String subAdgroup) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubAdgroup(subAdgroup);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub campaign
-     * @param subCampaign Preloaded publisher sub campaign
-     */
-    public void setPublisherSubCampaign(final String subCampaign) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubCampaign(subCampaign);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub keyword
-     * @param subKeyword Preloaded publisher sub keyword
-     */
-    public void setPublisherSubKeyword(final String subKeyword) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubKeyword(subKeyword);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub publisher
-     * @param subPublisher Preloaded publisher sub publisher
-     */
-    public void setPublisherSubPublisher(final String subPublisher) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubPublisher(subPublisher);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub site
-     * @param subSite Preloaded publisher sub site
-     */
-    public void setPublisherSubSite(final String subSite) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSubSite(subSite);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub1
-     * @param sub1 Preloaded publisher sub1 value
-     */
-    public void setPublisherSub1(final String sub1) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSub1(sub1);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub2
-     * @param sub2 Preloaded publisher sub2 value
-     */
-    public void setPublisherSub2(final String sub2) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSub2(sub2);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub3
-     * @param sub3 Preloaded publisher sub3 value
-     */
-    public void setPublisherSub3(final String sub3) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSub3(sub3);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub4
-     * @param sub4 Preloaded publisher sub4 value
-     */
-    public void setPublisherSub4(final String sub4) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSub4(sub4);
-        }});
-    }
-    
-    /**
-     * Sets the preloaded app's publisher sub5
-     * @param sub5 Preloaded publisher sub5 value
-     */
-    public void setPublisherSub5(final String sub5) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPublisherSub5(sub5);
-        }});
+    public void setPreloadedApp(MATPreloadData preloadData) {
+        mPreloadData = preloadData;
     }
 
     /**
@@ -1602,11 +1171,11 @@ public class MobileAppTracker {
 
     /**
      * Sets the MAT site ID to specify which app to attribute to
-     * @param site_id MAT site ID to attribute to
+     * @param siteId MAT site ID to attribute to
      */
-    public void setSiteId(final String site_id) {
+    public void setSiteId(final String siteId) {
         pubQueue.execute(new Runnable() { public void run() { 
-            params.setSiteId(site_id);
+            params.setSiteId(siteId);
         }});
     }
 
@@ -1632,31 +1201,31 @@ public class MobileAppTracker {
 
     /**
      * Sets the custom user email.
-     * @param user_email
+     * @param userEmail the user email
      */
-    public void setUserEmail(final String user_email) {
-        pubQueue.execute(new Runnable() { public void run() { 
-            params.setUserEmail(user_email);
+    public void setUserEmail(final String userEmail) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setUserEmail(userEmail);
         }});
     }
 
     /**
      * Sets the custom user ID.
-     * @param user_id the new user id
+     * @param userId the user id
      */
-    public void setUserId(final String user_id) {
+    public void setUserId(final String userId) {
         pubQueue.execute(new Runnable() { public void run() { 
-            params.setUserId(user_id);
+            params.setUserId(userId);
         }});
     }
 
     /**
      * Sets the custom user name.
-     * @param user_name
+     * @param userName the username
      */
-    public void setUserName(final String user_name) {
+    public void setUserName(final String userName) {
         pubQueue.execute(new Runnable() { public void run() { 
-            params.setUserName(user_name);
+            params.setUserName(userName);
         }});
     }
 
@@ -1690,7 +1259,12 @@ public class MobileAppTracker {
             }
         }});
         if (allow) {
-            Toast.makeText(mContext, "MAT Allow Duplicate Requests Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(mContext, "MAT Allow Duplicate Requests Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 
@@ -1698,11 +1272,26 @@ public class MobileAppTracker {
      * Turns debug mode on or off, under tag "MobileAppTracker".
      * @param debug whether to enable debug output
      */
-    public void setDebugMode(final boolean debug) {
+    public void setDebugMode(boolean debug) {
         debugMode = debug;
         if (debug) {
-            Toast.makeText(mContext, "MAT Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(mContext, "MAT Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+                }
+            });
         }
+    }
+    
+    /**
+     * Enables or disables opening deferred deeplinks
+     * @param enableDeferredDeeplink whether to open deferred deeplinks
+     * @param timeout maximum timeout to wait for deeplink in ms
+     */
+    public void setDeferredDeeplink(boolean enableDeferredDeeplink, int timeout) {
+        deferredDplink = enableDeferredDeeplink;
+        deferredDplinkTimeout = timeout;
     }
     
     /**
@@ -1738,11 +1327,24 @@ public class MobileAppTracker {
     }
     
     /**
-     * Look for and open a deferred deeplink if exists
+     * Whether to log MAT events in the FB SDK as well
+     * @param logging Whether to send MAT events to FB as well
+     * @param context Activity context
+     * @param limitEventAndDataUsage Whether user opted out of ads targeting
+     */
+    public void setFacebookEventLogging(boolean logging, Context context, boolean limitEventAndDataUsage) {
+        fbLogging = logging;
+        if (logging) {
+            MATFBBridge.startLogger(context, limitEventAndDataUsage);
+        }
+    }
+    
+    /**
+     * Helper function to open a deferred deeplink if exists
      * @param timeout maximum timeout to wait for deeplink in ms
      * @return deferred deeplink url
      */
-    public String checkForDeferredDeeplink(int timeout) {
+    private String checkForDeferredDeeplink(int timeout) {
         if (firstInstall) {
             // If installed from Google Play, look for deeplink in referrer
             if (params.getInstaller() != null && params.getInstaller().equals("com.android.vending")) {
@@ -1800,6 +1402,9 @@ public class MobileAppTracker {
 
                 // Open deeplink
                 if (deeplink.length() != 0) {
+                    if (matResponse != null) {
+                        matResponse.didReceiveDeeplink(deeplink);
+                    }
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(deeplink));
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
