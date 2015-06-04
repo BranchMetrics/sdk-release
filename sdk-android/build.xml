@@ -130,7 +130,7 @@
                     
                     -keepattributes Signature
                     
-                    -keep public class com.mobileapptracker.* {
+                    -keep public class com.mobileapptracker.** {
                         public protected *;
                     }
                     

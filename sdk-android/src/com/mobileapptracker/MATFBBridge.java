@@ -82,7 +82,6 @@ class MATFBBridge {
      * See ISO-4217 for specific values.  One reference for these is <http://en.wikipedia.org/wiki/ISO_4217>.
      */
     public static final String EVENT_PARAM_CURRENCY = "fb_currency";
-
     
     /**
      * Parameter key used to specify a generic content type/family for the logged event, e.g. "music", "photo",

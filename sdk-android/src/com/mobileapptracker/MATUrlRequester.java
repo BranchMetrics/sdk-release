@@ -1,28 +1,14 @@
 package com.mobileapptracker;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -31,31 +17,8 @@ import android.net.Uri;
 import android.util.Log;
 
 class MATUrlRequester {
-    // HTTP client for firing requests
-    private HttpClient client;
-    
-    public MATUrlRequester() {
-        // Set up HttpClient
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-        registry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-        HttpConnectionParams.setSocketBufferSize(params, 8192);
-        HttpConnectionParams.setConnectionTimeout(params, MATConstants.TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, MATConstants.TIMEOUT);
-        
-        ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
-        
-        client = new DefaultHttpClient(ccm, params);
-    }
-    
     public String requestDeeplink(MATDeferredDplinkr dplinkr, int timeout) {
-        // Set up HttpClient with deeplink timeout
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, timeout);
-        HttpClient dplinkrClient = new DefaultHttpClient(params);
+        InputStream is = null;
         
         // Construct deeplink endpoint url
         String deeplink = "";
@@ -76,26 +39,32 @@ class MATUrlRequester {
         }
         
         try {
-            HttpGet get = new HttpGet(uri.build().toString());
+            URL myurl = new URL(uri.build().toString());
+            HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
+            conn.setReadTimeout(timeout);
+            conn.setConnectTimeout(timeout);
             // Set MAT conversion key in request header
-            get.setHeader("X-MAT-Key", dplinkr.getConversionKey());
-            HttpResponse response = dplinkrClient.execute(get);
-            if (response != null) {
-                StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == 200) {
-                    // Parse response as text
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    StringBuilder builder = new StringBuilder();
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
-                    }
-                    reader.close();
-                    
-                    deeplink = builder.toString();
-                }
+            conn.setRequestProperty("X-MAT-Key", dplinkr.getConversionKey());
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            
+            conn.connect();
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                is = conn.getInputStream();
+            } else {
+                is = conn.getErrorStream();
             }
+            
+            deeplink = readStream(is);
         } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return deeplink;
     }
@@ -103,86 +72,108 @@ class MATUrlRequester {
     /**
      * Does an HTTP request to the given url, GET or POST based on whether json was passed or not
      * @param url the url to hit
-     * @param json JSONObject with event item and iap verification json, if not null or empty then will POST to url
+     * @param json JSONObject with event item and IAP verification json, if not null or empty then will POST to url
      * @return JSONObject of the server response, null if request failed
      */
-    public JSONObject requestUrl(String url, JSONObject json, boolean debugMode) {
-        HttpResponse response = null;
+    protected static JSONObject requestUrl(String url, JSONObject json, boolean debugMode) {
+        InputStream is = null;
         
-        // If no JSON passed, do HttpGet
-        if (json == null || json.length() == 0) {
+        try {
+            URL myurl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
+            conn.setReadTimeout(MATConstants.TIMEOUT);
+            conn.setConnectTimeout(MATConstants.TIMEOUT);
+            conn.setDoInput(true);
+            
+            // If no JSON passed, do HttpGet
+            if (json == null || json.length() == 0) {
+                conn.setRequestMethod("GET");
+            } else {
+                // Put JSON as entity for HttpPost
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestMethod("POST");
+                
+                OutputStream os = conn.getOutputStream();
+                os.write(json.toString().getBytes("UTF-8"));
+                os.close();
+            }
+            
+            conn.connect();
+            int responseCode = conn.getResponseCode();
+            if (debugMode) {
+                Log.d(MATConstants.TAG, "Request completed with status " + responseCode);
+            }
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                is = conn.getInputStream();
+            } else {
+                is = conn.getErrorStream();
+            }
+            
+            String responseAsString = readStream(is);
+            if (debugMode) {
+                // Output server response
+                Log.d(MATConstants.TAG, "Server response: " + responseAsString);
+            }
+            // Try to parse response and print
+            JSONObject responseJson = new JSONObject();
             try {
-                response = client.execute(new HttpGet(url));
-            } catch (Exception e) {
+                JSONTokener tokener = new JSONTokener(responseAsString);
+                responseJson = new JSONObject(tokener);
                 if (debugMode) {
-                    Log.d(MATConstants.TAG, "Request error with URL " + url);
+                    logResponse(responseJson);
                 }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
-            // Put JSON as entity for HttpPost
-            try {
-                StringEntity se = new StringEntity(json.toString(), "UTF-8");
-                se.setContentType("application/json");
-                
-                HttpPost request = new HttpPost(url);
-                request.setEntity(se);
-                response = client.execute(request);
-            } catch (Exception e) {
-                e.printStackTrace();
+            
+            String matResponderHeader = conn.getHeaderField("X-MAT-Responder");
+            if (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE) {
+                return responseJson;
             }
-        }
-        
-        if (response != null) {
-            try {
-                StatusLine statusLine = response.getStatusLine();
-                Header matResponderHeader = response.getFirstHeader("X-MAT-Responder");
+            // for HTTP 400, if it's from our server, drop the request and don't retry
+            else if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST && matResponderHeader != null) {
                 if (debugMode) {
-                    Log.d(MATConstants.TAG, "Request completed with status " + statusLine.getStatusCode());
+                    Log.d(MATConstants.TAG, "Request received 400 error from MAT server, won't be retried");
                 }
-                
-                // Parse response as JSON
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                StringBuilder builder = new StringBuilder();
-                for (String line = null; (line = reader.readLine()) != null;) {
-                    builder.append(line).append("\n");
-                }
-                reader.close();
-                
-                // Try to parse response and print
-                JSONObject responseJson = new JSONObject();
+                return null; // don't retry
+            }
+            // for all other codes, assume the server/connection is broken and will be fixed later
+        } catch (Exception e) {
+            if (debugMode) {
+                Log.d(MATConstants.TAG, "Request error with URL " + url);
+            }
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
                 try {
-                    JSONTokener tokener = new JSONTokener(builder.toString());
-                    responseJson = new JSONObject(tokener);
-                    if (debugMode) {
-                        logResponse(responseJson);
-                    }
-                } catch (Exception e) {
+                    is.close();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
-                if (statusLine.getStatusCode() >= 200 && statusLine.getStatusCode() <= 299) {
-                    return responseJson;
-                }
-                // for HTTP 400, if it's from our server, drop the request and don't retry
-                else if (statusLine.getStatusCode() == 400 && matResponderHeader != null) {
-                    if (debugMode) {
-                        Log.d(MATConstants.TAG, "Request received 400 error from MAT server, won't be retried");
-                    }
-                    return null; // don't retry
-                }
-                // for all other codes, assume the server/connection is broken and will be fixed later
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
+        
         return new JSONObject(); // marks this request for retry
     }
     
+    // Reads an InputStream and converts it to a String.
+    private static String readStream(InputStream stream) throws IOException, UnsupportedEncodingException {
+        if (stream != null) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            StringBuilder builder = new StringBuilder();
+            for (String line = null; (line = reader.readLine()) != null;) {
+                builder.append(line).append("\n");
+            }
+            reader.close();
+            return builder.toString();
+        }
+        return "";
+    }
+    
     // Helper to log request success/failure/errors
-    private void logResponse(JSONObject response) {
-        // Output server response and accepted/rejected status for debug mode
-        Log.d(MATConstants.TAG, "Server response: " + response);
+    private static void logResponse(JSONObject response) {
         if (response.length() > 0) {
             try {
                 // Output if any errors occurred

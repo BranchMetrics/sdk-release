@@ -51,6 +51,7 @@ class MATUrlBuilder {
             link.append("&attr_set=1");
             safeAppend(link, "publisher_id", preloaded.publisherId);
             safeAppend(link, "offer_id", preloaded.offerId);
+            safeAppend(link, "agency_id", preloaded.agencyId);
             safeAppend(link, "publisher_ref_id", preloaded.publisherReferenceId);
             safeAppend(link, "publisher_sub_publisher", preloaded.publisherSubPublisher);
             safeAppend(link, "publisher_sub_site", preloaded.publisherSubSite);
@@ -188,6 +189,9 @@ class MATUrlBuilder {
         safeAppend(link, "search_string", eventData.getSearchString());
         safeAppend(link, "advertiser_ref_id", eventData.getRefId());
         safeAppend(link, "revenue", Double.toString(eventData.getRevenue()));
+        if (eventData.getDeviceForm() != null) {
+            safeAppend(link, "device_form", eventData.getDeviceForm());
+        }
         
         return link.toString();
     }
@@ -220,6 +224,10 @@ class MATUrlBuilder {
             String userAgent = params.getUserAgent();
             if (userAgent != null && !data.contains("&conversion_user_agent=")) {
                 safeAppend(updatedData, "conversion_user_agent", userAgent);
+            }
+            String fbUserId = params.getFacebookUserId();
+            if (fbUserId != null && !data.contains("&facebook_user_id=")) {
+                safeAppend(updatedData, "facebook_user_id", fbUserId);
             }
         }
         // Add system date of original request

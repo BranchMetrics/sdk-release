@@ -1,9 +1,32 @@
 package com.mobileapptracker;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class MATEvent {
+public class MATEvent implements Serializable {
+    private static final long serialVersionUID = -7616393848331704848L;
+    
+    public static final String DEVICE_FORM_WEARABLE = "wearable";
+    
+    public static final String REGISTRATION = "registration";
+    public static final String LOGIN = "login";
+    public static final String ADD_TO_WISHLIST = "add_to_wishlist";
+    public static final String ADD_TO_CART = "add_to_cart";
+    public static final String ADDED_PAYMENT_INFO = "added_payment_info";
+    public static final String RESERVATION = "reservation";
+    public static final String CHECKOUT_INITIATED = "checkout_initiated";
+    public static final String PURCHASE = "purchase";
+    public static final String SEARCH = "search";
+    public static final String CONTENT_VIEW = "content_view";
+    public static final String TUTORIAL_COMPLETE = "tutorial_complete";
+    public static final String LEVEL_ACHIEVED = "level_achieved";
+    public static final String ACHIEVEMENT_UNLOCKED = "achievement_unlocked";
+    public static final String SPENT_CREDITS = "spent_credits";
+    public static final String INVITE = "invite";
+    public static final String RATED = "rated";
+    public static final String SHARE = "share";
+    
     private String eventName;
     private int eventId;
     private double revenue;
@@ -27,6 +50,8 @@ public class MATEvent {
     private String attribute4;
     private String attribute5;
     
+    private String deviceForm;
+    
     /**
      * Initialize MATEventData with an event name
      * @param eventName Event name in MAT system
@@ -46,7 +71,7 @@ public class MATEvent {
     /**
      * Set a revenue amount to associate with event
      * @param revenue Revenue associated with the event
-     * @return MATEventData with updated revenue amount
+     * @return MATEvent with updated revenue amount
      */
     public MATEvent withRevenue(double revenue) {
         this.revenue = revenue;
@@ -56,7 +81,7 @@ public class MATEvent {
     /**
      * Set a currency code to associate with event
      * @param currencyCode Currency code
-     * @return MATEventData with updated currency code
+     * @return MATEvent with updated currency code
      */
     public MATEvent withCurrencyCode(String currencyCode) {
         this.currencyCode = currencyCode;
@@ -66,7 +91,7 @@ public class MATEvent {
     /**
      * Set an advertiser ref ID to associate with event
      * @param refId Advertiser ref ID
-     * @return MATEventData with updated ref ID
+     * @return MATEvent with updated ref ID
      */
     public MATEvent withAdvertiserRefId(String refId) {
         this.refId = refId;
@@ -76,7 +101,7 @@ public class MATEvent {
     /**
      * Set event items to associate with event
      * @param items List of event items
-     * @return MATEventData with updated event items
+     * @return MATEvent with updated event items
      */
     public MATEvent withEventItems(List<MATEventItem> items) {
         this.eventItems = items;
@@ -87,7 +112,7 @@ public class MATEvent {
      * Set Google Play receipt to associate with event for purchase validation
      * @param receiptData Google Play receipt data
      * @param receiptSignature Google Play receipt signature
-     * @return MATEventData with updated receipt
+     * @return MATEvent with updated receipt
      */
     public MATEvent withReceipt(String receiptData, String receiptSignature) {
         this.receiptData = receiptData;
@@ -98,7 +123,7 @@ public class MATEvent {
     /**
      * Set content type to associate with event
      * @param contentType Content type
-     * @return MATEventData with updated content type
+     * @return MATEvent with updated content type
      */
     public MATEvent withContentType(String contentType) {
         this.contentType = contentType;
@@ -108,7 +133,7 @@ public class MATEvent {
     /**
      * Set content id to associate with event
      * @param contentId Content id 
-     * @return MATEventData with updated content id
+     * @return MATEvent with updated content id
      */
     public MATEvent withContentId(String contentId) {
         this.contentId = contentId;
@@ -118,7 +143,7 @@ public class MATEvent {
     /**
      * Set level to associate with event
      * @param level Level (progress in game)
-     * @return MATEventData with updated level 
+     * @return MATEvent with updated level 
      */
     public MATEvent withLevel(int level) {
         this.level = level;
@@ -128,7 +153,7 @@ public class MATEvent {
     /**
      * Set quantity to associate with event
      * @param quantity Quantity
-     * @return MATEventData with updated quantity
+     * @return MATEvent with updated quantity
      */
     public MATEvent withQuantity(int quantity) {
         this.quantity = quantity;
@@ -138,7 +163,7 @@ public class MATEvent {
     /**
      * Set search string to associate with event
      * @param searchString Search string used
-     * @return MATEventData with updated search string
+     * @return MATEvent with updated search string
      */
     public MATEvent withSearchString(String searchString) {
         this.searchString = searchString;
@@ -148,7 +173,7 @@ public class MATEvent {
     /**
      * Set rating to associate with event
      * @param rating Rating given
-     * @return MATEventData with updated rating
+     * @return MATEvent with updated rating
      */
     public MATEvent withRating(double rating) {
         this.rating = rating;
@@ -158,7 +183,7 @@ public class MATEvent {
     /**
      * Set first date/start date to associate with event
      * @param date1 First date or start date
-     * @return MATEventData with updated date1
+     * @return MATEvent with updated date1
      */
     public MATEvent withDate1(Date date1) {
         this.date1 = date1;
@@ -168,7 +193,7 @@ public class MATEvent {
     /**
      * Set second date/end date to associate with event
      * @param date2 Second date or end date
-     * @return MATEventData with updated date2
+     * @return MATEvent with updated date2
      */
     public MATEvent withDate2(Date date2) {
         this.date2 = date2;
@@ -178,7 +203,7 @@ public class MATEvent {
     /**
      * Set custom attribute to associate with event
      * @param attribute1 Custom attribute
-     * @return MATEventData with updated attribute1
+     * @return MATEvent with updated attribute1
      */
     public MATEvent withAttribute1(String attribute1) {
         this.attribute1 = attribute1;
@@ -188,7 +213,7 @@ public class MATEvent {
     /**
      * Set custom attribute to associate with event
      * @param attribute2 Custom attribute
-     * @return MATEventData with updated attribute2
+     * @return MATEvent with updated attribute2
      */
     public MATEvent withAttribute2(String attribute2) {
         this.attribute2 = attribute2;
@@ -198,7 +223,7 @@ public class MATEvent {
     /**
      * Set custom attribute to associate with event
      * @param attribute3 Custom attribute
-     * @return MATEventData with updated attribute3
+     * @return MATEvent with updated attribute3
      */
     public MATEvent withAttribute3(String attribute3) {
         this.attribute3 = attribute3;
@@ -208,7 +233,7 @@ public class MATEvent {
     /**
      * Set custom attribute to associate with event
      * @param attribute4 Custom attribute
-     * @return MATEventData with updated attribute4
+     * @return MATEvent with updated attribute4
      */
     public MATEvent withAttribute4(String attribute4) {
         this.attribute4 = attribute4;
@@ -218,10 +243,20 @@ public class MATEvent {
     /**
      * Set custom attribute to associate with event
      * @param attribute5 Custom attribute
-     * @return MATEventData with updated attribute5
+     * @return MATEvent with updated attribute5
      */
     public MATEvent withAttribute5(String attribute5) {
         this.attribute5 = attribute5;
+        return this;
+    }
+    
+    /**
+     * Set device form (phone/tablet/wearable)
+     * @param deviceForm Type of device
+     * @return MATEvent with updated device form
+     */
+    public MATEvent withDeviceForm(String deviceForm) {
+        this.deviceForm = deviceForm;
         return this;
     }
     
@@ -307,5 +342,9 @@ public class MATEvent {
 
     public String getAttribute5() {
         return attribute5;
+    }
+    
+    public String getDeviceForm() {
+        return deviceForm;
     }
 }

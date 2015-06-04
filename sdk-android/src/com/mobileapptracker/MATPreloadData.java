@@ -3,6 +3,7 @@ package com.mobileapptracker;
 public class MATPreloadData {
     public String publisherId;
     public String offerId;
+    public String agencyId;
     public String publisherReferenceId;
     public String publisherSub1;
     public String publisherSub2;
@@ -28,6 +29,11 @@ public class MATPreloadData {
     
     public MATPreloadData withOfferId(String offerId) {
         this.offerId = offerId;
+        return this;
+    }
+    
+    public MATPreloadData withAgencyId(String agencyId) {
+        this.agencyId = agencyId;
         return this;
     }
     

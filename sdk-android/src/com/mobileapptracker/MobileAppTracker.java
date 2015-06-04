@@ -106,91 +106,6 @@ public class MobileAppTracker {
     public static synchronized MobileAppTracker getInstance() {
         return mat;
     }
-    
-    /* Init options */
-    /**
-     * Enables MAT with acceptance of duplicate installs from this device
-     * @param allowDups whether to allow duplicate installs from device
-     * @return MobileAppTracker with allow duplicates set
-     */
-    public MobileAppTracker withAllowDuplicates(boolean allowDups) {
-        mat.setAllowDuplicates(allowDups);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with debug output under tag "MobileAppTracker"
-     * @param debugMode whether to enable debug output
-     * @return MobileAppTracker with debug mode set
-     */
-    public MobileAppTracker withDebugMode(boolean debugMode) {
-        mat.setDebugMode(debugMode);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with deferred deeplinks
-     * @param enableDeferredDeeplink whether to enable opening deferred deeplinks
-     * @param timeout max timeout in ms to wait for deeplink
-     * @return MobileAppTracker with deferred deeplinks
-     */
-    public MobileAppTracker withDeferredDeeplink(boolean enableDeferredDeeplink, int timeout) {
-        mat.setDeferredDeeplink(enableDeferredDeeplink, timeout);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with primary Gmail collection
-     * Requires GET_ACCOUNTS permission
-     * @param collectEmail whether to collect device email address
-     * @return MobileAppTracker with email collection
-     */
-    public MobileAppTracker withEmailCollection(boolean collectEmail) {
-        mat.setEmailCollection(collectEmail);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with Facebook event logging, passing MAT events to FB
-     * @param logging whether to enable FB logging
-     * @param context Activity context
-     * @param limitEventAndDataUsage whether FB event logging is limited for ad targeting
-     * @return MobileAppTracker with Facebook event logging
-     */
-    public MobileAppTracker withFacebookEventLogging(boolean logging, Context context, boolean limitEventAndDataUsage) {
-        mat.setFacebookEventLogging(logging, context, limitEventAndDataUsage);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with a MAT response listener
-     * @param response listener for server response
-     * @return MobileAppTracker with response listener
-     */
-    public MobileAppTracker withListener(MATResponse response) {
-        mat.setMATResponse(response);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with a custom package name
-     * @param packageName custom package name to pass
-     * @return MobileAppTracker with custom package name
-     */
-    public MobileAppTracker withPackageName(String packageName) {
-        mat.setPackageName(packageName);
-        return mat;
-    }
-    
-    /**
-     * Enables MAT with a custom site ID
-     * @param siteId custom site ID to pass
-     * @return MobileAppTracker with custom site ID
-     */
-    public MobileAppTracker withSiteId(String siteId) {
-        mat.setSiteId(siteId);
-        return mat;
-    }
 
     /**
      * Initializes a MobileAppTracker.
@@ -397,12 +312,12 @@ public class MobileAppTracker {
         String encData = MATUrlBuilder.updateAndEncryptData(data, encryption);
         String fullLink = link + "&data=" + encData;
         
-        JSONObject response = urlRequester.requestUrl(fullLink, postBody, debugMode);
+        JSONObject response = MATUrlRequester.requestUrl(fullLink, postBody, debugMode);
         
         // The only way we get null from MATUrlRequester is if *our server* returned HTTP 400.
         // In that case, we should not retry this request.
         if (response == null) {
-            if( matResponse != null ) {
+            if (matResponse != null) {
                 // null isn't the most useful error message, but at least it's a notification
                 matResponse.didFailWithError(response);
             }
@@ -949,6 +864,16 @@ public class MobileAppTracker {
             }
         }});
     }
+    
+    /**
+     * Sets the device brand, or manufacturer
+     * @param deviceBrand device brand
+     */
+    public void setDeviceBrand(final String deviceBrand) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setDeviceBrand(deviceBrand);
+        }});
+    }
 
     /**
      * Sets the device IMEI/MEID
@@ -957,6 +882,16 @@ public class MobileAppTracker {
     public void setDeviceId(final String deviceId) {
         pubQueue.execute(new Runnable() { public void run() {
             params.setDeviceId(deviceId);
+        }});
+    }
+    
+    /**
+     * Sets the device model
+     * @param deviceModel device model
+     */
+    public void setDeviceModel(final String deviceModel) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setDeviceModel(deviceModel);
         }});
     }
 
@@ -1107,6 +1042,16 @@ public class MobileAppTracker {
     public void setMATResponse(MATResponse response) {
         matResponse = response;
         dplinkr.setDelegate(response);
+    }
+    
+    /**
+     * Sets the device OS version
+     * @param osVersion device OS version
+     */
+    public void setOsVersion(final String osVersion) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setOsVersion(osVersion);
+        }});
     }
 
     /**
@@ -1346,14 +1291,9 @@ public class MobileAppTracker {
      */
     private String checkForDeferredDeeplink(int timeout) {
         if (firstInstall) {
-            // If installed from Google Play, look for deeplink in referrer
-            if (params.getInstaller() != null && params.getInstaller().equals("com.android.vending")) {
-                return checkReferrerForDeferredDeeplink(timeout);
-            } else { // If installed from non-Google Play, use dplinkr
-                // Try to set user agent here after User Agent thread completed
-                dplinkr.setUserAgent(params.getUserAgent());
-                return dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
-            }
+            // Try to set user agent here after User Agent thread completed
+            dplinkr.setUserAgent(params.getUserAgent());
+            return dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
         }
         return "";
     }
@@ -1362,6 +1302,8 @@ public class MobileAppTracker {
      * Helper function to check Google Play INSTALL_REFERRER for deeplink
      * @param timeout maximum timeout to wait for referrer in ms
      */
+    /*
+    // Removed due to Chrome issue with passing referrer through intent: https://code.google.com/p/chromium/issues/detail?id=459711
     private String checkReferrerForDeferredDeeplink(int timeout) {
         String deeplink = "";
         // Start timing for timeout
@@ -1415,5 +1357,5 @@ public class MobileAppTracker {
             }
         }
         return deeplink;
-    }
+    }*/
 }
