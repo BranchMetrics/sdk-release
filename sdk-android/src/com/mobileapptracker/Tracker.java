@@ -27,7 +27,7 @@ public class Tracker extends BroadcastReceiver {
                     Log.d(MATConstants.TAG, "MAT received referrer " + referrer);
                     
                     // Save the referrer value in SharedPreferences
-                    context.getSharedPreferences(MATConstants.PREFS_REFERRER, Context.MODE_PRIVATE).edit().putString("referrer", referrer).commit();
+                    context.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).edit().putString(MATConstants.KEY_REFERRER, referrer).commit();
                     
                     // Notify threadpool waiting for referrer and GAID
                     MobileAppTracker mat = MobileAppTracker.getInstance();

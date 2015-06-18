@@ -5,42 +5,58 @@ import java.util.HashMap;
 import org.json.JSONObject;
 
 public class MATEventItem {
-    public String itemname = null;
-    public int quantity = 0;
-    public double unitPrice = 0;
-    public double revenue = 0;
-    public String attribute_sub1 = null;
-    public String attribute_sub2 = null;
-    public String attribute_sub3 = null;
-    public String attribute_sub4 = null;
-    public String attribute_sub5 = null;
+    public String itemname;
+    public int quantity;
+    public double unitPrice;
+    public double revenue;
+    public String attribute_sub1;
+    public String attribute_sub2;
+    public String attribute_sub3;
+    public String attribute_sub4;
+    public String attribute_sub5;
     
-    public MATEventItem(String itemname, int quantity, double unitPrice, double revenue) {
+    public MATEventItem(String itemname) {
         this.itemname = itemname;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.revenue = revenue;
     }
     
-    public MATEventItem(String itemname, String att1, String att2, String att3, String att4, String att5) {
-        this.itemname = itemname;
-        this.attribute_sub1 = att1;
-        this.attribute_sub2 = att2;
-        this.attribute_sub3 = att3;
-        this.attribute_sub4 = att4;
-        this.attribute_sub5 = att5;
+    public MATEventItem withQuantity(int quantity) {
+        this.quantity = quantity;
+        return this;
     }
     
-    public MATEventItem(String itemname, int quantity, double unitPrice, double revenue, String att1, String att2, String att3, String att4, String att5) {
-        this.itemname = itemname;
-        this.quantity = quantity;
+    public MATEventItem withUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
+        return this;
+    }
+    
+    public MATEventItem withRevenue(double revenue) {
         this.revenue = revenue;
-        this.attribute_sub1 = att1;
-        this.attribute_sub2 = att2;
-        this.attribute_sub3 = att3;
-        this.attribute_sub4 = att4;
-        this.attribute_sub5 = att5;
+        return this;
+    }
+    
+    public MATEventItem withAttribute1(String attribute) {
+        this.attribute_sub1 = attribute;
+        return this;
+    }
+    
+    public MATEventItem withAttribute2(String attribute) {
+        this.attribute_sub2 = attribute;
+        return this;
+    }
+    
+    public MATEventItem withAttribute3(String attribute) {
+        this.attribute_sub3 = attribute;
+        return this;
+    }
+    
+    public MATEventItem withAttribute4(String attribute) {
+        this.attribute_sub4 = attribute;
+        return this;
+    }
+    
+    public MATEventItem withAttribute5(String attribute) {
+        this.attribute_sub5 = attribute;
+        return this;
     }
     
     public JSONObject toJSON() {
@@ -51,7 +67,9 @@ public class MATEventItem {
         }
         mapValues.put("quantity", Integer.toString(this.quantity));
         mapValues.put("unit_price", Double.toString(this.unitPrice));
-        mapValues.put("revenue", Double.toString(this.revenue));
+        if (this.revenue != 0) {
+            mapValues.put("revenue", Double.toString(this.revenue));
+        }
         if (this.attribute_sub1 != null) {
             mapValues.put("attribute_sub1", this.attribute_sub1);
         }

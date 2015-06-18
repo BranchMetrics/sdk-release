@@ -12,13 +12,13 @@ import org.json.JSONObject;
 import android.util.Log;
 
 class MATUrlBuilder {
-    private static Parameters params;
+    private static MATParameters params;
     /**
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    public static String buildLink(boolean debugMode, boolean preLoaded) {
-        params = Parameters.getInstance();
+    public static String buildLink(MATEvent eventData, MATPreloadData preloaded, boolean debugMode) {
+        params = MATParameters.getInstance();
         
         StringBuilder link = new StringBuilder("https://").append(params.getAdvertiserId()).append(".");
         if (debugMode) {
@@ -33,38 +33,44 @@ class MATUrlBuilder {
         safeAppend(link, "sdk", "android");
         safeAppend(link, "action", params.getAction());
         safeAppend(link, "advertiser_id", params.getAdvertiserId());
-        safeAppend(link, "site_event_id", params.getEventId());
-        safeAppend(link, "site_event_name", params.getEventName());
         safeAppend(link, "package_name", params.getPackageName());
         safeAppend(link, "referral_source", params.getReferralSource());
         safeAppend(link, "referral_url", params.getReferralUrl());
         safeAppend(link, "site_id", params.getSiteId());
         safeAppend(link, "tracking_id", params.getTrackingId());
+        
+        if (eventData.getEventId() != 0) {
+            safeAppend(link, "site_event_id", Integer.toString(eventData.getEventId()));
+        }
+        if (!params.getAction().equals("session")) {
+            safeAppend(link, "site_event_name", eventData.getEventName());
+        }
 
         // Append preloaded params, must have attr_set=1 in order to attribute
-        if (preLoaded) {
+        if (preloaded != null) {
             link.append("&attr_set=1");
+            safeAppend(link, "publisher_id", preloaded.publisherId);
+            safeAppend(link, "offer_id", preloaded.offerId);
+            safeAppend(link, "agency_id", preloaded.agencyId);
+            safeAppend(link, "publisher_ref_id", preloaded.publisherReferenceId);
+            safeAppend(link, "publisher_sub_publisher", preloaded.publisherSubPublisher);
+            safeAppend(link, "publisher_sub_site", preloaded.publisherSubSite);
+            safeAppend(link, "publisher_sub_campaign", preloaded.publisherSubCampaign);
+            safeAppend(link, "publisher_sub_adgroup", preloaded.publisherSubAdgroup);
+            safeAppend(link, "publisher_sub_ad", preloaded.publisherSubAd);
+            safeAppend(link, "publisher_sub_keyword", preloaded.publisherSubKeyword);
+            safeAppend(link, "advertiser_sub_publisher", preloaded.advertiserSubPublisher);
+            safeAppend(link, "advertiser_sub_site", preloaded.advertiserSubSite);
+            safeAppend(link, "advertiser_sub_campaign", preloaded.advertiserSubCampaign);
+            safeAppend(link, "advertiser_sub_adgroup", preloaded.advertiserSubAdgroup);
+            safeAppend(link, "advertiser_sub_ad", preloaded.advertiserSubAd);
+            safeAppend(link, "advertiser_sub_keyword", preloaded.advertiserSubKeyword);
+            safeAppend(link, "publisher_sub1", preloaded.publisherSub1);
+            safeAppend(link, "publisher_sub2", preloaded.publisherSub2);
+            safeAppend(link, "publisher_sub3", preloaded.publisherSub3);
+            safeAppend(link, "publisher_sub4", preloaded.publisherSub4);
+            safeAppend(link, "publisher_sub5", preloaded.publisherSub5);
         }
-        safeAppend(link, "publisher_id", params.getPublisherId());
-        safeAppend(link, "offer_id", params.getOfferId());
-        safeAppend(link, "publisher_ref_id", params.getPublisherReferenceId());
-        safeAppend(link, "publisher_sub_publisher", params.getPublisherSubPublisher());
-        safeAppend(link, "publisher_sub_site", params.getPublisherSubSite());
-        safeAppend(link, "publisher_sub_campaign", params.getPublisherSubCampaign());
-        safeAppend(link, "publisher_sub_adgroup", params.getPublisherSubAdgroup());
-        safeAppend(link, "publisher_sub_ad", params.getPublisherSubAd());
-        safeAppend(link, "publisher_sub_keyword", params.getPublisherSubKeyword());
-        safeAppend(link, "advertiser_sub_publisher", params.getAdvertiserSubPublisher());
-        safeAppend(link, "advertiser_sub_site", params.getAdvertiserSubSite());
-        safeAppend(link, "advertiser_sub_campaign", params.getAdvertiserSubCampaign());
-        safeAppend(link, "advertiser_sub_adgroup", params.getAdvertiserSubAdgroup());
-        safeAppend(link, "advertiser_sub_ad", params.getAdvertiserSubAd());
-        safeAppend(link, "advertiser_sub_keyword", params.getAdvertiserSubKeyword());
-        safeAppend(link, "publisher_sub1", params.getPublisherSub1());
-        safeAppend(link, "publisher_sub2", params.getPublisherSub2());
-        safeAppend(link, "publisher_sub3", params.getPublisherSub3());
-        safeAppend(link, "publisher_sub4", params.getPublisherSub4());
-        safeAppend(link, "publisher_sub5", params.getPublisherSub5());
 
         // If allow duplicates on, skip duplicate check logic
         String allowDups = params.getAllowDuplicates();
@@ -88,8 +94,8 @@ class MATUrlBuilder {
      * Builds data in conversion link based on class member values, to be encrypted.
      * @return URL-encoded string based on class settings.
      */
-    public static synchronized String buildDataUnencrypted() {
-        params = Parameters.getInstance();
+    public static synchronized String buildDataUnencrypted(MATEvent eventData) {
+        params = MATParameters.getInstance();
 
         StringBuilder link = new StringBuilder();
 
@@ -103,27 +109,14 @@ class MATUrlBuilder {
         safeAppend(link, "app_ad_tracking", params.getAppAdTrackingEnabled());
         safeAppend(link, "app_name", params.getAppName());
         safeAppend(link, "app_version", params.getAppVersion());
+        safeAppend(link, "app_version_name", params.getAppVersionName());
         safeAppend(link, "country_code", params.getCountryCode());
-        safeAppend(link, "currency_code", params.getCurrencyCode());
         safeAppend(link, "device_brand", params.getDeviceBrand());
         safeAppend(link, "device_carrier", params.getDeviceCarrier());
         safeAppend(link, "device_cpu_type", params.getDeviceCpuType());
         safeAppend(link, "device_cpu_subtype", params.getDeviceCpuSubtype());
         safeAppend(link, "device_model", params.getDeviceModel());
         safeAppend(link, "device_id", params.getDeviceId());
-        safeAppend(link, "attribute_sub1", params.getEventAttribute1());
-        safeAppend(link, "attribute_sub2", params.getEventAttribute2());
-        safeAppend(link, "attribute_sub3", params.getEventAttribute3());
-        safeAppend(link, "attribute_sub4", params.getEventAttribute4());
-        safeAppend(link, "attribute_sub5", params.getEventAttribute5());
-        safeAppend(link, "content_id", params.getEventContentId());
-        safeAppend(link, "content_type", params.getEventContentType());
-        safeAppend(link, "date1", params.getEventDate1());
-        safeAppend(link, "date2", params.getEventDate2());
-        safeAppend(link, "level", params.getEventLevel());
-        safeAppend(link, "quantity", params.getEventQuantity());
-        safeAppend(link, "rating", params.getEventRating());
-        safeAppend(link, "search_string", params.getEventSearchString());
         safeAppend(link, "existing_user", params.getExistingUser());
         safeAppend(link, "facebook_user_id", params.getFacebookUserId());
         safeAppend(link, "gender", params.getGender());
@@ -132,7 +125,6 @@ class MATUrlBuilder {
         safeAppend(link, "google_user_id", params.getGoogleUserId());
         safeAppend(link, "insdate", params.getInstallDate());
         safeAppend(link, "installer", params.getInstaller());
-        safeAppend(link, "install_log_id", params.getInstallLogId());
         safeAppend(link, "install_referrer", params.getInstallReferrer());
         safeAppend(link, "is_paying_user", params.getIsPayingUser());
         safeAppend(link, "language", params.getLanguage());
@@ -147,19 +139,59 @@ class MATUrlBuilder {
         safeAppend(link, "os_version", params.getOsVersion());
         safeAppend(link, "sdk_plugin", params.getPluginName());
         safeAppend(link, "android_purchase_status", params.getPurchaseStatus());
-        safeAppend(link, "advertiser_ref_id", params.getRefId());
         safeAppend(link, "referrer_delay", params.getReferrerDelay());
-        safeAppend(link, "revenue", params.getRevenue());
         safeAppend(link, "screen_density", params.getScreenDensity());
         safeAppend(link, "screen_layout_size", params.getScreenWidth() + "x" + params.getScreenHeight());
         safeAppend(link, "sdk_version", params.getSdkVersion());
         safeAppend(link, "truste_tpid", params.getTRUSTeId());
         safeAppend(link, "twitter_user_id", params.getTwitterUserId());
-        safeAppend(link, "update_log_id", params.getUpdateLogId());
         safeAppend(link, "conversion_user_agent", params.getUserAgent());
-        safeAppend(link, "user_email", params.getUserEmail());
+        safeAppend(link, "user_email_md5", params.getUserEmailMd5());
+        safeAppend(link, "user_email_sha1", params.getUserEmailSha1());
+        safeAppend(link, "user_email_sha256", params.getUserEmailSha256());
         safeAppend(link, "user_id", params.getUserId());
-        safeAppend(link, "user_name", params.getUserName());
+        safeAppend(link, "user_name_md5", params.getUserNameMd5());
+        safeAppend(link, "user_name_sha1", params.getUserNameSha1());
+        safeAppend(link, "user_name_sha256", params.getUserNameSha256());
+        safeAppend(link, "user_phone_md5", params.getPhoneNumberMd5());
+        safeAppend(link, "user_phone_sha1", params.getPhoneNumberSha1());
+        safeAppend(link, "user_phone_sha256", params.getPhoneNumberSha256());
+        
+        // Append event-level params
+        safeAppend(link, "attribute_sub1", eventData.getAttribute1());
+        safeAppend(link, "attribute_sub2", eventData.getAttribute2());
+        safeAppend(link, "attribute_sub3", eventData.getAttribute3());
+        safeAppend(link, "attribute_sub4", eventData.getAttribute4());
+        safeAppend(link, "attribute_sub5", eventData.getAttribute5());
+        safeAppend(link, "content_id", eventData.getContentId());
+        safeAppend(link, "content_type", eventData.getContentType());
+        // Event-level currency overrides MAT class-level
+        if (eventData.getCurrencyCode() != null) {
+            safeAppend(link, "currency_code", eventData.getCurrencyCode());
+        } else {
+            safeAppend(link, "currency_code", params.getCurrencyCode());
+        }
+        if (eventData.getDate1() != null) {
+            safeAppend(link, "date1", Long.toString(eventData.getDate1().getTime()/1000));
+        }
+        if (eventData.getDate2() != null) {
+            safeAppend(link, "date2", Long.toString(eventData.getDate2().getTime()/1000));
+        }
+        if (eventData.getLevel() != 0) {
+            safeAppend(link, "level", Integer.toString(eventData.getLevel()));
+        }
+        if (eventData.getQuantity() != 0) {
+            safeAppend(link, "quantity", Integer.toString(eventData.getQuantity()));
+        }
+        if (eventData.getRating() != 0) {
+            safeAppend(link, "rating", Double.toString(eventData.getRating()));
+        }
+        safeAppend(link, "search_string", eventData.getSearchString());
+        safeAppend(link, "advertiser_ref_id", eventData.getRefId());
+        safeAppend(link, "revenue", Double.toString(eventData.getRevenue()));
+        if (eventData.getDeviceForm() != null) {
+            safeAppend(link, "device_form", eventData.getDeviceForm());
+        }
         
         return link.toString();
     }
@@ -169,15 +201,20 @@ class MATUrlBuilder {
      * Update the Google Ad ID and install referrer, if present, and encrypts the data string.
      * @return encrypted string
      */
-    public static synchronized String updateAndEncryptData(String data, Encryption encryption) {
+    public static synchronized String updateAndEncryptData(String data, MATEncryption encryption) {
         StringBuilder updatedData = new StringBuilder(data);
         
-        params = Parameters.getInstance();
+        params = MATParameters.getInstance();
         if (params != null) {
             String gaid = params.getGoogleAdvertisingId();
             if (gaid != null && !data.contains("&google_aid=")) {
                 safeAppend(updatedData, "google_aid", gaid);
                 safeAppend(updatedData, "google_ad_tracking_disabled", params.getGoogleAdTrackingLimited());
+            }
+            
+            String androidId = params.getAndroidId();
+            if (androidId != null && !data.contains("&android_id=")) {
+                safeAppend(updatedData, "android_id", androidId);
             }
             
             String referrer = params.getInstallReferrer();
@@ -188,6 +225,10 @@ class MATUrlBuilder {
             if (userAgent != null && !data.contains("&conversion_user_agent=")) {
                 safeAppend(updatedData, "conversion_user_agent", userAgent);
             }
+            String fbUserId = params.getFacebookUserId();
+            if (fbUserId != null && !data.contains("&facebook_user_id=")) {
+                safeAppend(updatedData, "facebook_user_id", fbUserId);
+            }
         }
         // Add system date of original request
         if (!data.contains("&system_date=")) {
@@ -197,7 +238,7 @@ class MATUrlBuilder {
         
         String updatedDataStr = updatedData.toString();
         try {
-            updatedDataStr = Encryption.bytesToHex(encryption.encrypt(updatedDataStr));
+            updatedDataStr = MATEncryption.bytesToHex(encryption.encrypt(updatedDataStr));
         } catch (Exception e) {
             e.printStackTrace();
         }

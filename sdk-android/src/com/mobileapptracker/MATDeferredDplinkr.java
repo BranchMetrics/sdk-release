@@ -12,6 +12,7 @@ class MATDeferredDplinkr {
     private int isLATEnabled;
     private String androidId;
     private String userAgent;
+    private MATResponse delegate;
     
     private static volatile MATDeferredDplinkr dplinkr;
     
@@ -23,10 +24,15 @@ class MATDeferredDplinkr {
         isLATEnabled = 0;
         androidId = null;
         userAgent = null;
+        delegate = null;
     }
     
-    public static void initialize() {
+    public static synchronized MATDeferredDplinkr initialize(String advertiserId, String conversionKey, String packageName) {
         dplinkr = new MATDeferredDplinkr();
+        dplinkr.advertiserId = advertiserId;
+        dplinkr.conversionKey = conversionKey;
+        dplinkr.packageName = packageName;
+        return dplinkr;
     }
     
     public static synchronized MATDeferredDplinkr getInstance() {
@@ -86,6 +92,14 @@ class MATDeferredDplinkr {
         return dplinkr.androidId;
     }
     
+    public void setDelegate(MATResponse response) {
+        dplinkr.delegate = response;
+    }
+    
+    public MATResponse getDelegate() {
+        return dplinkr.delegate;
+    }
+    
     public String checkForDeferredDeeplink(Context context, MATUrlRequester urlRequester, int timeout) {
         String deeplink = "";
         // If advertiser ID, conversion key, or package name were not set, return
@@ -102,6 +116,10 @@ class MATDeferredDplinkr {
         try {
             deeplink = urlRequester.requestDeeplink(dplinkr, timeout);
             if (deeplink.length() != 0) {
+                // Notify delegate of deeplink url
+                if (delegate != null) {
+                    delegate.didReceiveDeeplink(deeplink);
+                }
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(deeplink));
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
