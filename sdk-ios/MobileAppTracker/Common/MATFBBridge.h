@@ -7,11 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MATEvent_internal.h"
 #import "MATSettings.h"
 
 
 @interface MATFBBridge : NSObject
 
-+ (void)sendEvent:(NSString *)name parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit;
++ (void)sendEvent:(MATEvent *)event parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit;
 
 @end

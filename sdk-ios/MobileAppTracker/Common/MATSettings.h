@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MATEvent_internal.h"
 #import "MATKeyStrings.h"
+#import "MATPreloadData.h"
 
 @protocol MATSettingsDelegate;
 
@@ -16,8 +18,6 @@
 @property (nonatomic, assign) BOOL staging;                         // KEY_STAGING
 @property (nonatomic, copy) NSNumber *debugMode;                    // KEY_DEBUG
 @property (nonatomic, copy) NSNumber *allowDuplicates;              // KEY_SKIP_DUP
-
-@property (nonatomic, assign) BOOL postConversion;                  // KEY_POST_CONVERSION
 
 @property (nonatomic, copy) NSString *installReceipt;
 
@@ -34,15 +34,7 @@
 @property (nonatomic, copy) NSString *openLogId;                    // KEY_OPEN_LOG_ID
 @property (nonatomic, copy) NSString *lastOpenLogId;                // KEY_LAST_OPEN_LOG_ID
 
-@property (nonatomic, copy) NSString *actionName;                   // KEY_ACTION, KEY_SITE_EVENT_ID, KEY_SITE_EVENT_NAME
-
 @property (nonatomic, copy) NSString *currencyCode;                 // KEY_CURRENCY_CODE
-@property (nonatomic, copy) NSNumber *revenue;                      // KEY_REVENUE
-@property (nonatomic, copy) NSNumber *transactionState;             // KEY_IOS_PURCHASE_STATUS
-@property (nonatomic, copy) NSString *defaultCurrencyCode;
-
-@property (nonatomic, strong) NSDictionary *cworksClick;            // key, value pair
-@property (nonatomic, strong) NSDictionary *cworksImpression;       // key, value pair
 
 @property (nonatomic, copy) NSNumber *jailbroken;                   // KEY_OS_JAILBROKE
 
@@ -66,6 +58,8 @@
 @property (nonatomic, copy) NSNumber *appAdTracking;                // KEY_APP_AD_TRACKING
 
 @property (nonatomic, copy) NSNumber *payingUser;                   // KEY_IS_PAYING_USER
+
+@property (nonatomic, strong) MATPreloadData *preloadData;          // KEY_PRELOAD_DATA
 
 @property (nonatomic, copy) NSNumber *existingUser;                 // KEY_EXISTING_USER
 @property (nonatomic, copy) NSString *userEmail;                    // KEY_USER_EMAIL
@@ -107,24 +101,10 @@
 @property (nonatomic, copy) NSString *osVersion;                    // KEY_OS_VERSION
 @property (nonatomic, copy) NSString *language;                     // KEY_LANGUAGE
 
-@property (nonatomic, copy) NSString *eventContentType;             // KEY_EVENT_CONTENT_TYPE
-@property (nonatomic, copy) NSString *eventContentId;               // KEY_EVENT_CONTENT_ID
-@property (nonatomic, copy) NSNumber *eventLevel;                   // KEY_EVENT_LEVEL
-@property (nonatomic, copy) NSNumber *eventQuantity;                // KEY_EVENT_QUANTITY
-@property (nonatomic, copy) NSString *eventSearchString;            // KEY_EVENT_SEARCH_STRING
-@property (nonatomic, copy) NSNumber *eventRating;                  // KEY_EVENT_RATING
-@property (nonatomic, copy) NSDate *eventDate1;                     // KEY_EVENT_DATE1
-@property (nonatomic, copy) NSDate *eventDate2;                     // KEY_EVENT_DATE2
-@property (nonatomic, copy) NSString *eventAttribute1;              // KEY_EVENT_ATTRIBUTE_SUB1
-@property (nonatomic, copy) NSString *eventAttribute2;              // KEY_EVENT_ATTRIBUTE_SUB2
-@property (nonatomic, copy) NSString *eventAttribute3;              // KEY_EVENT_ATTRIBUTE_SUB3
-@property (nonatomic, copy) NSString *eventAttribute4;              // KEY_EVENT_ATTRIBUTE_SUB4
-@property (nonatomic, copy) NSString *eventAttribute5;              // KEY_EVENT_ATTRIBUTE_SUB5
-
 @property (nonatomic, copy) NSString *pluginName;                   // KEY_SDK_PLUGIN
 
-@property (nonatomic, copy) NSString *regionName;                   // KEY_GEOFENCE_NAME
 @property (nonatomic, copy) NSNumber *locationAuthorizationStatus;  // KEY_LOCATION_AUTH_STATUS
+@property (nonatomic, copy) NSNumber *bluetoothState;               // KEY_BLUETOOTH_STATE
 
 @property (nonatomic, assign) id <MATSettingsDelegate> delegate;
 
@@ -132,18 +112,9 @@
 
 - (NSString*)domainName;
 
-- (void)resetBeforeTrackAction;
-
-- (void)urlStringForTrackingLink:(NSString**)trackingLink
-                   encryptParams:(NSString**)encryptParams
-                            isId:(BOOL)isId;
-
-- (void)urlStringForReferenceId:(NSString*)referenceId
-                   trackingLink:(NSString**)trackingLink
-                  encryptParams:(NSString**)encryptParams
-                           isId:(BOOL)isId;
-
-- (void)resetAfterRequest;
+- (void)urlStringForEvent:(MATEvent *)event
+             trackingLink:(NSString**)trackingLink
+            encryptParams:(NSString**)encryptParams;
 
 @end
 

@@ -7,10 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "../MobileAppTracker/Common/MATEventQueue.h"
 #import "../MobileAppTracker/Common/MATKeyStrings.h"
-
-@import MobileCoreServices;
 
 FOUNDATION_EXPORT NSString* const kTestAdvertiserId;
 FOUNDATION_EXPORT NSString* const kTestConversionKey;

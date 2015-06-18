@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		42108BFA186250DB005BDB32 /* MATQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BF9186250DB005BDB32 /* MATQueueTests.m */; };
 		42108BFE1862518F005BDB32 /* MATServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BFD1862518F005BDB32 /* MATServerTests.m */; };
-		42108C02186251EE005BDB32 /* MATTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C01186251EE005BDB32 /* MATTests.m */; };
+		42108C02186251EE005BDB32 /* MATTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C01186251EE005BDB32 /* MATTestsHelper.m */; };
 		42108C04186277AB005BDB32 /* MATParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C03186277AB005BDB32 /* MATParametersTests.m */; };
 		42108C07186356E0005BDB32 /* MATTestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C06186356E0005BDB32 /* MATTestParams.m */; };
 		4212224518E0BCBE001F263E /* MATInstallReceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = 4212224318E0BCBD001F263E /* MATInstallReceipt.h */; };
@@ -40,11 +40,9 @@
 		42EAA5421860F4B800041A8D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42EAA5411860F4B800041A8D /* XCTest.framework */; };
 		42EAA5431860F4B900041A8D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18515C700D300BEEC38 /* Foundation.framework */; };
 		42EAA54A1860F4B900041A8D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42EAA5481860F4B900041A8D /* InfoPlist.strings */; };
-		42EAA54C1860F4B900041A8D /* MobileAppTracker_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */; };
 		42EAA5531860FD4A00041A8D /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */; };
 		42FFE859191D16AE00ACF2E2 /* MATUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */; };
 		42FFE85A191D16AE00ACF2E2 /* MATUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 42FFE858191D16AE00ACF2E2 /* MATUserAgentCollector.m */; };
-		4FDFA18615C700D300BEEC38 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18515C700D300BEEC38 /* Foundation.framework */; };
 		4FDFA18C15C700D300BEEC38 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
 		4FDFA1B215C7029A00BEEC38 /* MATKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19C15C7029A00BEEC38 /* MATKeyStrings.h */; };
 		4FDFA1B315C7029A00BEEC38 /* MATKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* MATKeyStrings.m */; };
@@ -65,10 +63,22 @@
 		F8001A59197F3EB8002303D6 /* MATReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* MATReachability.m */; };
 		F8001A5A197F3EC0002303D6 /* MATSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD32188093DB00187A4A /* MATSettings.m */; };
 		F8001A5B197F3ED1002303D6 /* MATRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* MATRequestsQueue.m */; };
+		F826E6711AF2F8B000CA0AA8 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F826E6701AF2F8B000CA0AA8 /* MobileCoreServices.framework */; };
+		F82F4B431AF934D100EEE26F /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F82F4B421AF934D100EEE26F /* MATEvent_internal.h */; };
+		F845D4FF1AF2E903009850D3 /* MATEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F845D4FA1AF2E903009850D3 /* MATEventItemTests.m */; };
+		F845D5001AF2E903009850D3 /* MATEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F845D4FB1AF2E903009850D3 /* MATEventTests.m */; };
+		F845D5011AF2E903009850D3 /* MobileAppTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F845D4FC1AF2E903009850D3 /* MobileAppTrackerTests.m */; };
+		F845D5041AF2ED29009850D3 /* MobileAppTracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F845D5031AF2ED29009850D3 /* MobileAppTracker_internal.h */; };
 		F8A2EA8316445D3E0023FCE1 /* MATCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */; };
 		F8A2EA8416445D3E0023FCE1 /* MATCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */; };
 		F8BAC7F1189333BB001A25FC /* MATUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */; };
-		F8BAC7F3189335B0001A25FC /* MATEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */; };
+		F8DFE9281AF2B78B00C43FE3 /* MATEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F8DFE9261AF2B78B00C43FE3 /* MATEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F8DFE9291AF2B78B00C43FE3 /* MATEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F8DFE9271AF2B78B00C43FE3 /* MATEvent.m */; };
+		F8F698CD1AF19BDD00D71CB6 /* MATPreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F698CB1AF19BDD00D71CB6 /* MATPreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F8F698CE1AF19BDD00D71CB6 /* MATPreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F8F698CC1AF19BDD00D71CB6 /* MATPreloadData.m */; };
+		F8F698D01AF19E6C00D71CB6 /* MATPreloadDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8F698CF1AF19E6C00D71CB6 /* MATPreloadDataTests.m */; };
+		F8F6990B1AF1B21B00D71CB6 /* MATStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F699091AF1B21B00D71CB6 /* MATStoreKitDelegate.h */; };
+		F8F6990C1AF1B21B00D71CB6 /* MATStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8F6990A1AF1B21B00D71CB6 /* MATStoreKitDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,8 +94,8 @@
 /* Begin PBXFileReference section */
 		42108BF9186250DB005BDB32 /* MATQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATQueueTests.m; sourceTree = "<group>"; };
 		42108BFD1862518F005BDB32 /* MATServerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATServerTests.m; sourceTree = "<group>"; };
-		42108C00186251EE005BDB32 /* MATTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTests.h; sourceTree = "<group>"; };
-		42108C01186251EE005BDB32 /* MATTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTests.m; sourceTree = "<group>"; };
+		42108C00186251EE005BDB32 /* MATTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTestsHelper.h; sourceTree = "<group>"; };
+		42108C01186251EE005BDB32 /* MATTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTestsHelper.m; sourceTree = "<group>"; };
 		42108C03186277AB005BDB32 /* MATParametersTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATParametersTests.m; sourceTree = "<group>"; };
 		42108C05186356E0005BDB32 /* MATTestParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATTestParams.h; sourceTree = "<group>"; };
 		42108C06186356E0005BDB32 /* MATTestParams.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATTestParams.m; sourceTree = "<group>"; };
@@ -117,7 +127,6 @@
 		42EAA5411860F4B800041A8D /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		42EAA5471860F4B900041A8D /* MobileAppTracker Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MobileAppTracker Tests-Info.plist"; sourceTree = "<group>"; };
 		42EAA5491860F4B900041A8D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileAppTracker_Tests.m; sourceTree = "<group>"; };
 		42EAA54D1860F4B900041A8D /* MobileAppTracker Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MobileAppTracker Tests-Prefix.pch"; sourceTree = "<group>"; };
 		42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUserAgentCollector.h; sourceTree = "<group>"; };
 		42FFE858191D16AE00ACF2E2 /* MATUserAgentCollector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUserAgentCollector.m; sourceTree = "<group>"; };
@@ -142,11 +151,23 @@
 		4FDFA21615C7032400BEEC38 /* MobileAppTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MobileAppTracker.m; sourceTree = "<group>"; };
 		4FDFA21C15C7079A00BEEC38 /* MATReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATReachability.h; sourceTree = "<group>"; };
 		4FDFA21D15C7079A00BEEC38 /* MATReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATReachability.m; sourceTree = "<group>"; };
+		F826E6701AF2F8B000CA0AA8 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		F82F4B421AF934D100EEE26F /* MATEvent_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent_internal.h; sourceTree = "<group>"; };
+		F845D4FA1AF2E903009850D3 /* MATEventItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventItemTests.m; sourceTree = "<group>"; };
+		F845D4FB1AF2E903009850D3 /* MATEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventTests.m; sourceTree = "<group>"; };
+		F845D4FC1AF2E903009850D3 /* MobileAppTrackerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MobileAppTrackerTests.m; sourceTree = "<group>"; };
+		F845D5031AF2ED29009850D3 /* MobileAppTracker_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_internal.h; sourceTree = "<group>"; };
 		F8492D66198C1A850058A259 /* MATUtils_TestPrivateMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATUtils_TestPrivateMethods.h; sourceTree = "<group>"; };
 		F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATCWorks.h; sourceTree = "<group>"; };
 		F8A2EA8216445D3E0023FCE1 /* MATCWorks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATCWorks.m; sourceTree = "<group>"; };
 		F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATUtilsTests.m; sourceTree = "<group>"; };
-		F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventItemTests.m; sourceTree = "<group>"; };
+		F8DFE9261AF2B78B00C43FE3 /* MATEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent.h; sourceTree = "<group>"; };
+		F8DFE9271AF2B78B00C43FE3 /* MATEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEvent.m; sourceTree = "<group>"; };
+		F8F698CB1AF19BDD00D71CB6 /* MATPreloadData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATPreloadData.h; sourceTree = "<group>"; };
+		F8F698CC1AF19BDD00D71CB6 /* MATPreloadData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATPreloadData.m; sourceTree = "<group>"; };
+		F8F698CF1AF19E6C00D71CB6 /* MATPreloadDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATPreloadDataTests.m; sourceTree = "<group>"; };
+		F8F699091AF1B21B00D71CB6 /* MATStoreKitDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATStoreKitDelegate.h; sourceTree = "<group>"; };
+		F8F6990A1AF1B21B00D71CB6 /* MATStoreKitDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATStoreKitDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F826E6711AF2F8B000CA0AA8 /* MobileCoreServices.framework in Frameworks */,
 				42EAA5421860F4B800041A8D /* XCTest.framework in Frameworks */,
 				42EAA5531860FD4A00041A8D /* MobileAppTracker.framework in Frameworks */,
 				42EAA5431860F4B900041A8D /* Foundation.framework in Frameworks */,
@@ -164,7 +186,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FDFA18615C700D300BEEC38 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,19 +210,21 @@
 			children = (
 				42DD9C8A1863A719005CA6F9 /* MATAutoParameterizationTests.m */,
 				4260CBCB196B41CF0084FE12 /* MATEncrypterTests.m */,
-				F8BAC7F2189335B0001A25FC /* MATEventItemTests.m */,
+				F845D4FA1AF2E903009850D3 /* MATEventItemTests.m */,
+				F845D4FB1AF2E903009850D3 /* MATEventTests.m */,
+				F845D4FC1AF2E903009850D3 /* MobileAppTrackerTests.m */,
 				428F085818C166DC00B1AC24 /* MATHTTPErrorTests.m */,
 				42108C03186277AB005BDB32 /* MATParametersTests.m */,
+				F8F698CF1AF19E6C00D71CB6 /* MATPreloadDataTests.m */,
 				42108BF9186250DB005BDB32 /* MATQueueTests.m */,
 				42108BFD1862518F005BDB32 /* MATServerTests.m */,
 				42108C05186356E0005BDB32 /* MATTestParams.h */,
 				42108C06186356E0005BDB32 /* MATTestParams.m */,
-				42108C00186251EE005BDB32 /* MATTests.h */,
-				42108C01186251EE005BDB32 /* MATTests.m */,
+				42108C00186251EE005BDB32 /* MATTestsHelper.h */,
+				42108C01186251EE005BDB32 /* MATTestsHelper.m */,
 				428F084B18C13E5900B1AC24 /* MATTrackerInitializationTests.m */,
 				F8492D66198C1A850058A259 /* MATUtils_TestPrivateMethods.h */,
 				F8BAC7F0189333BB001A25FC /* MATUtilsTests.m */,
-				42EAA54B1860F4B900041A8D /* MobileAppTracker_Tests.m */,
 				42EAA5461860F4B900041A8D /* Supporting Files */,
 			);
 			path = "MobileAppTracker Tests";
@@ -239,6 +262,7 @@
 		4FDFA18415C700D300BEEC38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F826E6701AF2F8B000CA0AA8 /* MobileCoreServices.framework */,
 				4FDFA18515C700D300BEEC38 /* Foundation.framework */,
 				42EAA5411860F4B800041A8D /* XCTest.framework */,
 			);
@@ -250,8 +274,12 @@
 			children = (
 				4FDFA21515C7032400BEEC38 /* MobileAppTracker.h */,
 				4FDFA21615C7032400BEEC38 /* MobileAppTracker.m */,
+				F8DFE9261AF2B78B00C43FE3 /* MATEvent.h */,
+				F8DFE9271AF2B78B00C43FE3 /* MATEvent.m */,
 				42CBBD251880893F00187A4A /* MATEventItem.h */,
 				42CBBD261880893F00187A4A /* MATEventItem.m */,
+				F8F698CB1AF19BDD00D71CB6 /* MATPreloadData.h */,
+				F8F698CC1AF19BDD00D71CB6 /* MATPreloadData.m */,
 				4FDFA19715C7014A00BEEC38 /* Common */,
 				4FDFA18815C700D300BEEC38 /* Supporting Files */,
 			);
@@ -271,6 +299,8 @@
 		4FDFA19715C7014A00BEEC38 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				F845D5031AF2ED29009850D3 /* MobileAppTracker_internal.h */,
+				F82F4B421AF934D100EEE26F /* MATEvent_internal.h */,
 				42C1E2B718C012B100C5789C /* MATAppToAppTracker.h */,
 				42C1E2B818C012B100C5789C /* MATAppToAppTracker.m */,
 				F8A2EA8116445D3E0023FCE1 /* MATCWorks.h */,
@@ -293,6 +323,8 @@
 				42CD417F191156BC003D0293 /* MATRegionMonitor.m */,
 				42CBBD31188093DB00187A4A /* MATSettings.h */,
 				42CBBD32188093DB00187A4A /* MATSettings.m */,
+				F8F699091AF1B21B00D71CB6 /* MATStoreKitDelegate.h */,
+				F8F6990A1AF1B21B00D71CB6 /* MATStoreKitDelegate.m */,
 				428F084D18C13F1900B1AC24 /* MATTracker.h */,
 				428F084E18C13F1900B1AC24 /* MATTracker.m */,
 				42FFE857191D16AE00ACF2E2 /* MATUserAgentCollector.h */,
@@ -313,15 +345,20 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8DFE9281AF2B78B00C43FE3 /* MATEvent.h in Headers */,
+				F82F4B431AF934D100EEE26F /* MATEvent_internal.h in Headers */,
 				429857F81A41E2B5008539A6 /* MATDeferredDplinkr.h in Headers */,
-				42CBBD33188093DB00187A4A /* MATSettings.h in Headers */,
-				4FDFA21915C7032400BEEC38 /* MobileAppTracker.h in Headers */,
+				F8F6990B1AF1B21B00D71CB6 /* MATStoreKitDelegate.h in Headers */,
 				42CBBD271880893F00187A4A /* MATEventItem.h in Headers */,
+				42CBBD33188093DB00187A4A /* MATSettings.h in Headers */,
+				F8F698CD1AF19BDD00D71CB6 /* MATPreloadData.h in Headers */,
+				4FDFA21915C7032400BEEC38 /* MobileAppTracker.h in Headers */,
 				4260CBCF196B69DF0084FE12 /* MATEncrypter.h in Headers */,
 				42FFE859191D16AE00ACF2E2 /* MATUserAgentCollector.h in Headers */,
 				4FDFA1B215C7029A00BEEC38 /* MATKeyStrings.h in Headers */,
 				42C1E2B918C012B200C5789C /* MATAppToAppTracker.h in Headers */,
 				42CD4180191156BC003D0293 /* MATRegionMonitor.h in Headers */,
+				F845D5041AF2ED29009850D3 /* MobileAppTracker_internal.h in Headers */,
 				4FDFA1B615C7029A00BEEC38 /* NSString+MATURLEncoding.h in Headers */,
 				428F084F18C13F1900B1AC24 /* MATTracker.h in Headers */,
 				4FDFA1BC15C7029A00BEEC38 /* MATRequestsQueue.h in Headers */,
@@ -480,22 +517,24 @@
 			files = (
 				F8001A56197F3C76002303D6 /* MATTracker.m in Sources */,
 				4284981818E1ECE6008E8FF0 /* MATInstallReceipt.m in Sources */,
+				F8F698D01AF19E6C00D71CB6 /* MATPreloadDataTests.m in Sources */,
+				F845D4FF1AF2E903009850D3 /* MATEventItemTests.m in Sources */,
 				F8BAC7F1189333BB001A25FC /* MATUtilsTests.m in Sources */,
-				F8BAC7F3189335B0001A25FC /* MATEventItemTests.m in Sources */,
 				42108BFA186250DB005BDB32 /* MATQueueTests.m in Sources */,
 				42108BFE1862518F005BDB32 /* MATServerTests.m in Sources */,
 				F8001A5B197F3ED1002303D6 /* MATRequestsQueue.m in Sources */,
 				F8001A5A197F3EC0002303D6 /* MATSettings.m in Sources */,
 				428F084C18C13E5900B1AC24 /* MATTrackerInitializationTests.m in Sources */,
-				42108C02186251EE005BDB32 /* MATTests.m in Sources */,
+				42108C02186251EE005BDB32 /* MATTestsHelper.m in Sources */,
 				42DD9C8B1863A719005CA6F9 /* MATAutoParameterizationTests.m in Sources */,
+				F845D5001AF2E903009850D3 /* MATEventTests.m in Sources */,
 				42108C04186277AB005BDB32 /* MATParametersTests.m in Sources */,
 				428F085918C166DC00B1AC24 /* MATHTTPErrorTests.m in Sources */,
 				4260CBCC196B41CF0084FE12 /* MATEncrypterTests.m in Sources */,
+				F845D5011AF2E903009850D3 /* MobileAppTrackerTests.m in Sources */,
 				42108C07186356E0005BDB32 /* MATTestParams.m in Sources */,
 				F8001A57197F3D91002303D6 /* MATKeyStrings.m in Sources */,
 				F8001A59197F3EB8002303D6 /* MATReachability.m in Sources */,
-				42EAA54C1860F4B900041A8D /* MobileAppTracker_Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,8 +542,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8DFE9291AF2B78B00C43FE3 /* MATEvent.m in Sources */,
 				42CBBD281880893F00187A4A /* MATEventItem.m in Sources */,
 				42CBBD34188093DB00187A4A /* MATSettings.m in Sources */,
+				F8F6990C1AF1B21B00D71CB6 /* MATStoreKitDelegate.m in Sources */,
 				4FDFA1B315C7029A00BEEC38 /* MATKeyStrings.m in Sources */,
 				42C1E2BA18C012B200C5789C /* MATAppToAppTracker.m in Sources */,
 				42D52293199A8A9E00FC5F8F /* MATEventQueue.m in Sources */,
@@ -520,6 +561,7 @@
 				42CD4181191156BC003D0293 /* MATRegionMonitor.m in Sources */,
 				428F085018C13F1900B1AC24 /* MATTracker.m in Sources */,
 				4212224618E0BCBE001F263E /* MATInstallReceipt.m in Sources */,
+				F8F698CE1AF19BDD00D71CB6 /* MATPreloadData.m in Sources */,
 				4FDFA21F15C7079A00BEEC38 /* MATReachability.m in Sources */,
 				F8A2EA8416445D3E0023FCE1 /* MATCWorks.m in Sources */,
 			);
@@ -570,7 +612,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -609,7 +651,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -660,7 +702,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MODULEMAP_FILE = "";
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = MATSDKTestApp;
+				PRODUCT_NAME = MobileAppTracker;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = "non-global";
 				VALID_ARCHS = "i386 armv7 armv7s arm64";
@@ -689,10 +731,9 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MODULEMAP_FILE = "";
-				PRODUCT_NAME = MATSDKTestApp;
+				PRODUCT_NAME = MobileAppTracker;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = "non-global";
-				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "i386 armv7 armv7s arm64";
 			};
 			name = Release;
@@ -707,6 +748,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEFINES_MODULE = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -757,6 +800,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEFINES_MODULE = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -817,7 +862,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MODULEMAP_FILE = "";
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = MATSDKTestApp;
+				PRODUCT_NAME = MobileAppTracker;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = "non-global";
 				VALID_ARCHS = "i386 armv7 armv7s arm64";
@@ -834,6 +879,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEFINES_MODULE = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -889,7 +936,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

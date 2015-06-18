@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
 
@@ -65,13 +65,13 @@
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     id mat = [[MobileAppTracker class] performSelector:@selector(sharedManager)];
     waitFor( 0.1 ); // let it initialize
-    [mat performSelector:@selector(trackInstallPostConversion)];
+    [mat performSelector:@selector(measureInstallPostConversion)];
 #pragma clang diagnostic pop
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertTrue( callSuccess, @"trackInstallPostConversion should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackInstallPostConversion should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackInstallPostConversion should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureInstallPostConversion should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureInstallPostConversion should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureInstallPostConversion should have succeeded" );
 }
 
 - (void)testUpdate
@@ -79,38 +79,38 @@
     [MobileAppTracker setExistingUser:YES];
     [MobileAppTracker measureSession];
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertTrue( callSuccess, @"trackUpdate should have succeeded" );
-    XCTAssertFalse( callFailed, @"trackUpdate should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
+    XCTAssertTrue( callSuccess, @"update session event should have succeeded" );
+    XCTAssertFalse( callFailed, @"update session event should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"update session event should have succeeded" );
 }
 
 - (void)testActionNameEvent
 {
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker measureAction:eventName];
+    [MobileAppTracker measureEventName:eventName];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureEventName should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureEventName should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureEventName should have succeeded" );
 }
 
 - (void)testActionNameEventDuplicate
 {
     static NSString* const eventName = @"testEventName";
-    [MobileAppTracker measureAction:eventName];
+    [MobileAppTracker measureEventName:eventName];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertTrue( callSuccess, @"measureAction should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureAction should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureAction should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureEventName should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureEventName should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureEventName should have succeeded" );
 
     [MobileAppTracker setAllowDuplicateRequests:NO];
     waitFor( 5. );
 
-    [MobileAppTracker measureAction:eventName];
+    [MobileAppTracker measureEventName:eventName];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    XCTAssertFalse( callSuccess, @"measureAction duplicate should not have succeeded" );
-    XCTAssertTrue( callFailed, @"measureAction duplicate should not have succeeded" );
-    XCTAssertTrue( callFailedDuplicate, @"measureAction duplicate should not have succeeded" );
+    XCTAssertFalse( callSuccess, @"measureEventName duplicate should not have succeeded" );
+    XCTAssertTrue( callFailed, @"measureEventName duplicate should not have succeeded" );
+    XCTAssertTrue( callFailedDuplicate, @"measureEventName duplicate should not have succeeded" );
 }
 
 - (void)testActionNameIdItemsRevenue
@@ -124,34 +124,43 @@
     static CGFloat revenue = 3.14159;
     static NSString* const currencyCode = @"XXX";
     
-    [MobileAppTracker measureAction:eventName
-                         eventItems:items
-                      revenueAmount:revenue
-                       currencyCode:currencyCode];
+    MATEvent *event1 = [MATEvent eventWithName:eventName];
+    event1.eventItems = items;
+    event1.revenue = revenue;
+    event1.currencyCode = currencyCode;
+    [MobileAppTracker measureEvent:event1];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
 
-    XCTAssertTrue( callSuccess, @"measureAction with items should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureAction with items should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureAction with items should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureEvent with items should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureEvent with items should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureEvent with items should have succeeded" );
 }
 
 - (void)testPurchaseDuplicates
 {
     [MobileAppTracker setAllowDuplicateRequests:NO];
 
-    [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
+    MATEvent *event1 = [MATEvent eventWithName:@"purchase"];
+    event1.refId = [[NSUUID UUID] UUIDString];
+    event1.revenue = 1.;
+    event1.currencyCode = @"USD";
+    [MobileAppTracker measureEvent:event1];
     waitFor( 5. );
-    XCTAssertTrue( callSuccess, @"measureAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureEvent with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureEvent with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureEvent with revenue should have succeeded" );
 
     callSuccess = NO;
     
-    [MobileAppTracker measureAction:@"purchase" referenceId:[[NSUUID UUID] UUIDString] revenueAmount:1. currencyCode:@"USD"];
+    MATEvent *event2 = [MATEvent eventWithName:@"purchase"];
+    event2.refId = [[NSUUID UUID] UUIDString];
+    event2.revenue = 1.;
+    event2.currencyCode = @"USD";
+    [MobileAppTracker measureEvent:event2];
     waitFor( 5. );
-    XCTAssertTrue( callSuccess, @"measureAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailed, @"measureAction with revenue should have succeeded" );
-    XCTAssertFalse( callFailedDuplicate, @"measureAction with revenue should have succeeded" );
+    XCTAssertTrue( callSuccess, @"measureEvent with revenue should have succeeded" );
+    XCTAssertFalse( callFailed, @"measureEvent with revenue should have succeeded" );
+    XCTAssertFalse( callFailedDuplicate, @"measureEvent with revenue should have succeeded" );
 }
 
 

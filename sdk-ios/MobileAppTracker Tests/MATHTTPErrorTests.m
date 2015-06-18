@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
 
 @interface MATHTTPErrorTests : XCTestCase

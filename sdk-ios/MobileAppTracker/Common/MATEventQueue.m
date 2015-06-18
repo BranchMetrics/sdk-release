@@ -15,6 +15,7 @@
 #import "MATRequestsQueue.h"
 #import "MATUtils.h"
 #import "MATUserAgentCollector.h"
+#import "NSString+MATURLEncoding.h"
 
 
 int const MAT_NETWORK_REQUEST_TIMEOUT_INTERVAL          = 60;
@@ -311,7 +312,16 @@ static MATEventQueue *sharedQueue = nil;
         // append user agent, if not present
         NSString *searchString = [NSString stringWithFormat:@"%@=", MAT_KEY_CONVERSION_USER_AGENT];
         if( [encryptParams rangeOfString:searchString].location == NSNotFound )
-            encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", MAT_KEY_CONVERSION_USER_AGENT, [MATUserAgentCollector userAgent]];
+        {
+            // url encoded user agent string
+            
+            NSString *encodedUserAgent = [[MATUserAgentCollector userAgent] urlEncodeUsingEncoding:NSUTF8StringEncoding];
+            
+            if(encodedUserAgent)
+            {
+                encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", MAT_KEY_CONVERSION_USER_AGENT, encodedUserAgent];
+            }
+        }
         
         // encrypt params and append
         NSString* encryptedData = [MATEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
@@ -498,7 +508,7 @@ static MATEventQueue *sharedQueue = nil;
             return;
         }
     }
-
+    
     events = [NSMutableArray arrayWithArray:(NSArray*)queue];
 }
 

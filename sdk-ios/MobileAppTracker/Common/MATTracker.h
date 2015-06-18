@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "../Common/MATEvent_internal.h"
+#import "../MATPreloadData.h"
 #import "MATSettings.h"
 #import "MATRegionMonitor.h"
 
@@ -23,6 +25,8 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 @property (nonatomic, retain) MATSettings *parameters;
 
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;
+
+@property (nonatomic, assign) BOOL automateIapMeasurement;
 
 @property (nonatomic, assign) BOOL fbLogging;
 @property (nonatomic, assign) BOOL fbLimitUsage;
@@ -40,45 +44,7 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 
 #endif
 
-- (void)trackActionForEventIdOrName:(id)eventIdOrName;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                        referenceId:(NSString *)refId;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState;
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState
-                            receipt:(NSData *)receipt;
-
-- (void)trackSession;
+- (void)measureEvent:(MATEvent *)event;
 
 - (void)setTracking:(NSString*)targetAppPackageName
        advertiserId:(NSString*)targetAppAdvertiserId
@@ -91,8 +57,8 @@ FOUNDATION_EXPORT const NSTimeInterval MAT_SESSION_QUEUING_DELAY;
 
 - (void)setDebugMode:(BOOL)newDebugMode;
 - (void)setAllowDuplicateRequests:(BOOL)allowDuplicates;
-- (void)setEventAttributeN:(NSUInteger)number toValue:(NSString*)value;
 - (void)setPayingUser:(BOOL)isPayingUser;
+- (void)setPreloadData:(MATPreloadData *)preloadData;
 - (BOOL)isiAdAttribution;
 
 @end

@@ -8,12 +8,18 @@
 
 #import <XCTest/XCTest.h>
 #import <AdSupport/AdSupport.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "MATTestParams.h"
 #import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATKeyStrings.h"
-#import "../MobileAppTracker/Common/MATSettings.h" // move to new test class for internal params
+#import "../MobileAppTracker/Common/MATSettings.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
+
+@interface MobileAppTracker (MATParametersTests)
+
++ (void)setPluginName:(NSString *)pluginName;
+
+@end
 
 @interface MATParametersTests : XCTestCase <MobileAppTrackerDelegate>
 {
@@ -27,12 +33,12 @@
 - (void)setUp
 {
     [super setUp];
-
+    
     [MobileAppTracker initializeWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     [MobileAppTracker setDelegate:self];
     
     params = [MATTestParams new];
-
+    
     emptyRequestQueue();
     
     networkOnline();
@@ -43,10 +49,10 @@
     [MobileAppTracker setCurrencyCode:nil];
     [MobileAppTracker setPackageName:kTestBundleId];
     [MobileAppTracker setPluginName:nil];
-
+    
     emptyRequestQueue();
     waitFor( 10. );
-
+    
     [super tearDown];
 }
 
@@ -56,12 +62,12 @@
 - (void)testAgeValid
 {
     static const NSInteger age = 35;
-    NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
+    NSString *expectedAge = [@(age) stringValue];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-
+    
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( MAT_KEY_AGE, expectedAge );
 }
@@ -69,10 +75,10 @@
 - (void)testAgeYoung
 {
     static const NSInteger age = 6;
-    NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
+    NSString *expectedAge = [@(age) stringValue];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -82,10 +88,10 @@
 - (void)testAgeOld
 {
     static const NSInteger age = 65536;
-    NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
+    NSString *expectedAge = [@(age) stringValue];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -95,10 +101,10 @@
 - (void)testAgeZero
 {
     static const NSInteger age = 0;
-    NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
+    NSString *expectedAge = [@(age) stringValue];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -108,10 +114,10 @@
 - (void)testAgeNegative
 {
     static const NSInteger age = -304;
-    NSString *expectedAge = [NSString stringWithFormat:@"%d", (int)age];
+    NSString *expectedAge = [@(age) stringValue];
     
     [MobileAppTracker setAge:age];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -124,10 +130,10 @@
 - (void)testGenderMale
 {
     static const MATGender gender = MATGenderMale;
-    NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
+    NSString *expectedGender = [@(gender) stringValue];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -137,10 +143,10 @@
 - (void)testGenderFemale
 {
     static const MATGender gender = MATGenderFemale;
-    NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
+    NSString *expectedGender = [@(gender) stringValue];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -153,7 +159,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -166,7 +172,7 @@
     NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)gender];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -176,10 +182,10 @@
 - (void)testGenderLarge
 {
     static const MATGender gender = (MATGender)65536;
-    NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)MAT_GENDER_MALE];
+    NSString *expectedGender = [@(MATGenderMale) stringValue];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -189,10 +195,10 @@
 - (void)testGenderNegative
 {
     static const MATGender gender = (MATGender)-304;
-    NSString *expectedGender = [NSString stringWithFormat:@"%d", (int)MAT_GENDER_MALE];
+    NSString *expectedGender = [@(MATGenderMale) stringValue];
     
     [MobileAppTracker setGender:gender];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -210,7 +216,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -226,7 +232,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -242,7 +248,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -258,7 +264,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -274,7 +280,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -290,7 +296,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -306,7 +312,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -324,7 +330,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -343,7 +349,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -362,7 +368,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -381,7 +387,7 @@
     NSString *expectedAlt = [@(alt) stringValue];
     
     [MobileAppTracker setLatitude:lat longitude:lon altitude:alt];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -398,7 +404,7 @@
     static NSString* const currency = @"CAD";
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -407,7 +413,7 @@
 
 - (void)testCurrencyCodeDefault
 {
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -417,10 +423,10 @@
 
 - (void)testCurrencyCodeEmpty
 {
-    static NSString* const currency = @"";
+    NSString* const currency = MAT_STRING_EMPTY;
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -430,7 +436,7 @@
 - (void)testCurrencyCodeNil
 {
     [MobileAppTracker setCurrencyCode:nil];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -442,7 +448,7 @@
     static NSString* const currency = @"0000000000000000000000000000000000000000000";
     
     [MobileAppTracker setCurrencyCode:currency];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -457,7 +463,7 @@
     static NSString* const package = @"yourMom";
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -466,10 +472,10 @@
 
 - (void)testPackageNameEmpty
 {
-    static NSString* const package = @"";
+    NSString* const package = MAT_STRING_EMPTY;
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -479,7 +485,7 @@
 - (void)testPackageNil
 {
     [MobileAppTracker setPackageName:nil];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -491,7 +497,7 @@
     static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -503,7 +509,7 @@
     static NSString* const package = @"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -513,229 +519,13 @@
 - (void)testPackageName1000
 {
     static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-
+    
     [MobileAppTracker setPackageName:package];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( MAT_KEY_PACKAGE_NAME, package );
-}
-
-#pragma mark - Event parameters
-
-- (void)testContentType
-{
-    static NSString* const contentType = @"atrnoeiarsdneiofphyou";
-    
-    [MobileAppTracker setEventContentType:contentType];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_CONTENT_TYPE, contentType );
-}
-
-- (void)testContentId
-{
-    static NSString* const contentId = @"atrnoeiarsdneiofphyou";
-    
-    [MobileAppTracker setEventContentId:contentId];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_CONTENT_ID, contentId );
-}
-
-- (void)testLevel
-{
-    static const NSInteger level = 13;
-    
-    [MobileAppTracker setEventLevel:level];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_LEVEL, [@(level) stringValue] );
-}
-
-- (void)testQuantity
-{
-    static const NSInteger quantity = 13;
-    
-    [MobileAppTracker setEventQuantity:quantity];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_QUANTITY, [@(quantity) stringValue] );
-}
-
-- (void)testSearchString
-{
-    static NSString* const searchString = @"atrnoeiarsdneiofphyou";
-    
-    [MobileAppTracker setEventSearchString:searchString];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_SEARCH_STRING, searchString );
-}
-
-- (void)testRating
-{
-    static const CGFloat rating = 3.14;
-    
-    [MobileAppTracker setEventRating:rating];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_RATING, [@(rating) stringValue] );
-}
-
-- (void)testDates
-{
-    NSDate *date1 = [NSDate dateWithTimeIntervalSinceNow:234098];
-    NSString *date1String = [NSString stringWithFormat:@"%ld", (long)round( [date1 timeIntervalSince1970] )];
-    NSDate *date2 = [NSDate dateWithTimeIntervalSinceNow:890945.23];
-    NSString *date2String = [NSString stringWithFormat:@"%ld", (long)round( [date2 timeIntervalSince1970] )];
-    
-    [MobileAppTracker setEventDate1:date1];
-    [MobileAppTracker setEventDate2:date2];
-    [MobileAppTracker measureAction:@"purchase"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_DATE1, date1String );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_DATE2, date2String );
-}
-
-
-#pragma mark - Event Attributes
-
-- (void)testEventAttributes
-{
-    static NSString* const attr1 = @"eventAttr1";
-    static NSString* const attr2 = @"eventAttr2";
-    static NSString* const attr3 = @"eventAttr3";
-    static NSString* const attr4 = @"eventAttr4";
-    static NSString* const attr5 = @"eventAttr5";
-    
-    [MobileAppTracker setEventAttribute1:attr1];
-    [MobileAppTracker setEventAttribute2:attr2];
-    [MobileAppTracker setEventAttribute3:attr3];
-    [MobileAppTracker setEventAttribute4:attr4];
-    [MobileAppTracker setEventAttribute5:attr5];
-    [MobileAppTracker measureAction:@"registration"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr1 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr2 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr3 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr4 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr5 );
-}
-
-- (void)testEventAttributesEmpty
-{
-    static NSString* const attr = @"";
-    
-    [MobileAppTracker setEventAttribute1:attr];
-    [MobileAppTracker setEventAttribute2:attr];
-    [MobileAppTracker setEventAttribute3:attr];
-    [MobileAppTracker setEventAttribute4:attr];
-    [MobileAppTracker setEventAttribute5:attr];
-    [MobileAppTracker measureAction:@"registration"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr );
-}
-
-- (void)testEventAttributesNil
-{
-    [MobileAppTracker setEventAttribute1:nil];
-    [MobileAppTracker setEventAttribute2:nil];
-    [MobileAppTracker setEventAttribute3:nil];
-    [MobileAppTracker setEventAttribute4:nil];
-    [MobileAppTracker setEventAttribute5:nil];
-    [MobileAppTracker measureAction:@"registration"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB1 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB2 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB3 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB4 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_ATTRIBUTE_SUB5 );
-    
-}
-
-- (void)testEventAttributesLong
-{
-    static NSString* const attr1 = @"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001";
-    static NSString* const attr2 = @"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002";
-    static NSString* const attr3 = @"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003";
-    static NSString* const attr4 = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004";
-    static NSString* const attr5 = @"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005";
-    
-    [MobileAppTracker setEventAttribute1:attr1];
-    [MobileAppTracker setEventAttribute2:attr2];
-    [MobileAppTracker setEventAttribute3:attr3];
-    [MobileAppTracker setEventAttribute4:attr4];
-    [MobileAppTracker setEventAttribute5:attr5];
-    [MobileAppTracker measureAction:@"registration"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB1, attr1 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB2, attr2 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB3, attr3 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB4, attr4 );
-    ASSERT_KEY_VALUE( MAT_KEY_ATTRIBUTE_SUB5, attr5 );
-}
-
-- (void)testEventAttributesCleared
-{
-    static NSString* const attr1 = @"eventAttr1";
-    static NSString* const attr2 = @"eventAttr2";
-    static NSString* const attr3 = @"eventAttr3";
-    static NSString* const attr4 = @"eventAttr4";
-    static NSString* const attr5 = @"eventAttr5";
-    
-    [MobileAppTracker setEventAttribute1:attr1];
-    [MobileAppTracker setEventAttribute2:attr2];
-    [MobileAppTracker setEventAttribute3:attr3];
-    [MobileAppTracker setEventAttribute4:attr4];
-    [MobileAppTracker setEventAttribute5:attr5];
-    [MobileAppTracker measureAction:@"search"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB1, attr1 );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB2, attr2 );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB3, attr3 );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB4, attr4 );
-    ASSERT_KEY_VALUE( MAT_KEY_EVENT_ATTRIBUTE_SUB5, attr5 );
-    
-    params = [MATTestParams new];
-    [MobileAppTracker measureAction:@"search"];
-    waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB1 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB2 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB3 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB4 );
-    ASSERT_NO_VALUE_FOR_KEY( MAT_KEY_EVENT_ATTRIBUTE_SUB5 );
 }
 
 
@@ -746,7 +536,7 @@
     static NSString* const plugin = @"yourMom";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -755,10 +545,10 @@
 
 - (void)testPluginNameEmpty
 {
-    static NSString* const plugin = @"";
-
+    NSString* const plugin = MAT_STRING_EMPTY;
+    
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -768,7 +558,7 @@
 - (void)testPluginNameNil
 {
     [MobileAppTracker setPluginName:nil];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -780,7 +570,7 @@
     static NSString* const plugin = @"air";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -792,7 +582,7 @@
     static NSString* const plugin = @"AIR";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -804,7 +594,7 @@
     static NSString* const plugin = @"cocos2dx";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -816,7 +606,7 @@
     static NSString* const plugin = @"marmalade";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -828,7 +618,7 @@
     static NSString* const plugin = @"phonegap";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -840,7 +630,7 @@
     static NSString* const plugin = @"titanium";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -852,7 +642,7 @@
     static NSString* const plugin = @"unity";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -864,7 +654,7 @@
     static NSString* const plugin = @"xamarin";
     
     [MobileAppTracker setPluginName:plugin];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -879,7 +669,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setSiteId:ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -891,7 +681,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setTRUSTeId:ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -901,7 +691,7 @@
 - (void)testExistingUser
 {
     [MobileAppTracker setExistingUser:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -916,7 +706,7 @@
     static NSString* const EMAIL_ID_SHA256 = @"f2bcbd4dd2b172c1dad72b0ff850e2295b01392ceab45491e97fc9e093b42d30";
     
     [MobileAppTracker setUserEmail:EMAIL_ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -934,7 +724,7 @@
     static NSString* const USER_EMAIL_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [MobileAppTracker setUserEmail:USER_EMAIL];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -949,7 +739,7 @@
     static NSString* const USER_EMAIL = nil;
     
     [MobileAppTracker setUserEmail:USER_EMAIL];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -964,7 +754,7 @@
     static NSString* const USER_ID = @"testId";
     
     [MobileAppTracker setUserId:USER_ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -979,7 +769,7 @@
     static NSString* const USER_NAME_SHA256 = @"4278d90b65ee634b960c9e026e4295f8f4fd8d3f29785548552afdc71ef4b495";
     
     [MobileAppTracker setUserName:USER_NAME];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -997,7 +787,7 @@
     static NSString* const USER_NAME_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [MobileAppTracker setUserName:USER_NAME];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1012,7 +802,7 @@
     static NSString* const USER_NAME = nil;
     
     [MobileAppTracker setUserName:USER_NAME];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1030,7 +820,7 @@
     static NSString* const USER_PHONE_SHA256 = @"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646";
     
     [MobileAppTracker setPhoneNumber:USER_PHONE];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1048,7 +838,7 @@
     static NSString* const USER_PHONE_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [MobileAppTracker setPhoneNumber:USER_PHONE];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1063,7 +853,7 @@
     static NSString* const USER_PHONE = nil;
     
     [MobileAppTracker setPhoneNumber:USER_PHONE];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1168,7 +958,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setFacebookUserId:ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1180,7 +970,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setTwitterUserId:ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1192,7 +982,7 @@
     static NSString* const ID = @"testId";
     
     [MobileAppTracker setGoogleUserId:ID];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1202,7 +992,7 @@
 - (void)testPayingUser
 {
     [MobileAppTracker setPayingUser:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1213,7 +1003,13 @@
 - (void)testPayingUserAutomatic
 {
     [MobileAppTracker setPayingUser:NO];
-    [MobileAppTracker measureAction:@"testEvent" eventItems:nil referenceId:nil revenueAmount:1. currencyCode:@"USD"];
+    
+    MATEvent *evt = [MATEvent eventWithName:@"testEvent"];
+    evt.revenue = 1.;
+    evt.currencyCode = @"USD";
+    
+    [MobileAppTracker measureEvent:evt];
+    
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1224,7 +1020,7 @@
 - (void)testPayingUserFalse
 {
     [MobileAppTracker setPayingUser:NO];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1245,8 +1041,8 @@
 #pragma clang diagnostic pop
     
     sharedParams.iadAttribution = @(TRUE);
-
-    [MobileAppTracker measureAction:@"registration"];
+    
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -1273,18 +1069,18 @@
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params checkKey:MAT_KEY_IAD_ATTRIBUTION isEqualToValue:[@(TRUE) stringValue]],
-                   @"should have set iad_attribution to true" );
+                  @"should have set iad_attribution to true" );
 }
 
 
-#pragma mark - MAT delegate
+#pragma mark - MobileAppTracker delegate
 
 // secret functions to test server URLs
 - (void)_matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
+    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
-        XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
+        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
 }
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "MobileAppTracker.h"
+#import "Common/MATEvent_internal.h"
 #import "Common/MATTracker.h"
 #import "Common/MATDeferredDplinkr.h"
 
@@ -16,6 +17,7 @@ static NSOperationQueue *opQueue = nil;
 
 
 @implementation MobileAppTracker
+
 
 #pragma mark - Private Initialization Methods
 
@@ -38,6 +40,7 @@ static NSOperationQueue *opQueue = nil;
     return sharedManager;
 }
 
+
 #pragma mark - Init Method
 
 + (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
@@ -48,19 +51,20 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+
 #pragma mark - Debugging Helper Methods
 
-+ (void)setDebugMode:(BOOL)yesorno
++ (void)setDebugMode:(BOOL)enable
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setDebugMode:yesorno];
+        [[self sharedManager] setDebugMode:enable];
     }];
 }
 
-+ (void)setAllowDuplicateRequests:(BOOL)yesorno
++ (void)setAllowDuplicateRequests:(BOOL)allow
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setAllowDuplicateRequests:yesorno];
+        [[self sharedManager] setAllowDuplicateRequests:allow];
     }];
 }
 
@@ -75,12 +79,21 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+
 #pragma mark - Behavior Flags
 
 + (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout
 {
     [MATDeferredDplinkr checkForDeferredDeeplinkWithTimeout:timeout];
 }
+
++ (void)automateIapEventMeasurement:(BOOL)automate
+{
+    [opQueue addOperationWithBlock:^{
+        [self sharedManager].automateIapMeasurement = automate;
+    }];
+}
+
 
 #pragma mark - Setter Methods
 
@@ -118,15 +131,14 @@ static NSOperationQueue *opQueue = nil;
 + (void)setCurrencyCode:(NSString *)currencyCode
 {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.defaultCurrencyCode = currencyCode;
         [self sharedManager].parameters.currencyCode = currencyCode;
     }];
 }
 
-+ (void)setJailbroken:(BOOL)yesorno
++ (void)setJailbroken:(BOOL)jailbroken
 {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.jailbroken = @(yesorno);
+        [self sharedManager].parameters.jailbroken = @(jailbroken);
     }];
 }
 
@@ -138,17 +150,17 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)setShouldAutoDetectJailbroken:(BOOL)yesorno
++ (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoDetectJailbroken:yesorno];
+        [[self sharedManager] setShouldAutoDetectJailbroken:autoDetect];
     }];
 }
 
-+ (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)yesorno
++ (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate
 {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:yesorno];
+        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:autoGenerate];
     }];
 }
 
@@ -268,13 +280,6 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)setRegionName:(NSString*)regionName // private method
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.regionName = regionName;
-    }];
-}
-
 + (void)setLocationAuthorizationStatus:(NSInteger)authStatus // private method
 {
     [opQueue addOperationWithBlock:^{
@@ -282,94 +287,10 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)setEventContentType:(NSString*)contentType
++ (void)setBluetoothState:(NSInteger)bluetoothState // private method
 {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventContentType = contentType;
-    }];
-}
-
-+ (void)setEventContentId:(NSString*)contentId
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventContentId = contentId;
-    }];
-}
-
-+ (void)setEventLevel:(NSInteger)level
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventLevel = @(level);
-    }];
-}
-
-+ (void)setEventQuantity:(NSInteger)quantity
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventQuantity = @(quantity);
-    }];
-}
-
-+ (void)setEventSearchString:(NSString*)searchString
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventSearchString = searchString;
-    }];
-}
-
-+ (void)setEventRating:(CGFloat)rating
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventRating = @(rating);
-    }];
-}
-
-+ (void)setEventDate1:(NSDate*)date
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventDate1 = date;
-    }];
-}
-
-+ (void)setEventDate2:(NSDate*)date
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.eventDate2 = date;
-    }];
-}
-
-+ (void)setEventAttribute1:(NSString*)value
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setEventAttributeN:1 toValue:value];
-    }];
-}
-
-+ (void)setEventAttribute2:(NSString*)value
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setEventAttributeN:2 toValue:value];
-    }];
-}
-
-+ (void)setEventAttribute3:(NSString*)value
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setEventAttributeN:3 toValue:value];
-    }];
-}
-
-+ (void)setEventAttribute4:(NSString*)value
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setEventAttributeN:4 toValue:value];
-    }];
-}
-
-+ (void)setEventAttribute5:(NSString*)value
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setEventAttributeN:5 toValue:value];
+        [self sharedManager].parameters.bluetoothState = @(bluetoothState);
     }];
 }
 
@@ -380,6 +301,13 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
++ (void)setPreloadData:(MATPreloadData *)preloadData
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setPreloadData:preloadData];
+    }];
+}
+
 + (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit
 {
     [opQueue addOperationWithBlock:^{
@@ -387,6 +315,7 @@ static NSOperationQueue *opQueue = nil;
         [self sharedManager].fbLimitUsage = limit;
     }];
 }
+
 
 #pragma mark - Getter Methods
 
@@ -404,6 +333,7 @@ static NSOperationQueue *opQueue = nil;
 {
     return [[self sharedManager].parameters.payingUser boolValue];
 }
+
 
 #if USE_IAD
 
@@ -431,40 +361,56 @@ static NSOperationQueue *opQueue = nil;
 
 #endif
 
+
 #pragma mark - Measure Methods
 
 + (void)measureSession
 {
+    [self measureEventName:MAT_EVENT_SESSION];
+}
+
++ (void)measureEventName:(NSString *)eventName
+{
+    [self measureEvent:[MATEvent eventWithName:eventName]];
+}
+
++ (void)measureEventId:(NSInteger)eventId
+{
+    [self measureEvent:[MATEvent eventWithId:eventId]];
+}
+
++ (void)measureEvent:(MATEvent *)event
+{
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackSession];
+        [[self sharedManager] measureEvent:event];
     }];
 }
 
+#pragma mark - MeasureAction Methods (Deprecated)
+
 + (void)measureAction:(NSString *)eventName
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName];
-    }];
+    [self measureEventName:eventName];
 }
 
 + (void)measureAction:(NSString *)eventName
           referenceId:(NSString *)refId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                              referenceId:refId];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.refId = refId;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
@@ -472,32 +418,32 @@ static NSOperationQueue *opQueue = nil;
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
            eventItems:(NSArray *)eventItems
           referenceId:(NSString *)refId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems
-                                              referenceId:refId];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
@@ -505,12 +451,12 @@ static NSOperationQueue *opQueue = nil;
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
@@ -519,13 +465,13 @@ static NSOperationQueue *opQueue = nil;
         revenueAmount:(float)revenueAmount
          currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
@@ -535,14 +481,14 @@ static NSOperationQueue *opQueue = nil;
          currencyCode:(NSString *)currencyCode
      transactionState:(NSInteger)transactionState
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode
-                                         transactionState:transactionState];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    evt.transactionState = transactionState;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureAction:(NSString *)eventName
@@ -553,42 +499,40 @@ static NSOperationQueue *opQueue = nil;
      transactionState:(NSInteger)transactionState
               receipt:(NSData *)receipt
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:eventName
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode
-                                         transactionState:transactionState
-                                                  receipt:receipt];
-    }];
+    MATEvent *evt = [MATEvent eventWithName:eventName];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    evt.transactionState = transactionState;
+    evt.receipt = receipt;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)];
-    }];
+    [self measureEventId:eventId];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
                      referenceId:(NSString *)refId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                              referenceId:refId];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.refId = refId;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
                    revenueAmount:(float)revenueAmount
                     currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
@@ -596,32 +540,32 @@ static NSOperationQueue *opQueue = nil;
                    revenueAmount:(float)revenueAmount
                     currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
                       eventItems:(NSArray *)eventItems
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.eventItems = eventItems;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
                       eventItems:(NSArray *)eventItems
                      referenceId:(NSString *)refId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems
-                                              referenceId:refId];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.refId = refId;
+    evt.eventItems = eventItems;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
@@ -629,12 +573,12 @@ static NSOperationQueue *opQueue = nil;
                    revenueAmount:(float)revenueAmount
                     currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.eventItems = eventItems;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
@@ -643,13 +587,13 @@ static NSOperationQueue *opQueue = nil;
                    revenueAmount:(float)revenueAmount
                     currencyCode:(NSString *)currencyCode
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
@@ -659,14 +603,14 @@ static NSOperationQueue *opQueue = nil;
                     currencyCode:(NSString *)currencyCode
                 transactionState:(NSInteger)transactionState
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode
-                                         transactionState:transactionState];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    evt.transactionState = transactionState;
+    
+    [self measureEvent:evt];
 }
 
 + (void)measureActionWithEventId:(NSInteger)eventId
@@ -677,23 +621,24 @@ static NSOperationQueue *opQueue = nil;
                 transactionState:(NSInteger)transactionState
                          receipt:(NSData *)receipt
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] trackActionForEventIdOrName:@(eventId)
-                                               eventItems:eventItems
-                                              referenceId:refId
-                                            revenueAmount:revenueAmount
-                                             currencyCode:currencyCode
-                                         transactionState:transactionState
-                                                  receipt:receipt];
-    }];
+    MATEvent *evt = [MATEvent eventWithId:eventId];
+    evt.eventItems = eventItems;
+    evt.refId = refId;
+    evt.revenue = revenueAmount;
+    evt.currencyCode = currencyCode;
+    evt.transactionState = transactionState;
+    evt.receipt = receipt;
+    
+    [self measureEvent:evt];
 }
+
 
 #pragma mark - Other Methods
 
-+ (void)setUseCookieTracking:(BOOL)yesorno
++ (void)setUseCookieTracking:(BOOL)enable
 {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].shouldUseCookieTracking = yesorno;
+        [self sharedManager].shouldUseCookieTracking = enable;
     }];
 }
 

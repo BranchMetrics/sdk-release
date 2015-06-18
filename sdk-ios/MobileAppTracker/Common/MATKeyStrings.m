@@ -1,6 +1,6 @@
 //
 //  MATKeyStrings.m
-//  MobileAppTrackeriOS
+//  MobileAppTracker
 //
 //  Created by Pavel Yurchenko on 7/24/12.
 //  Copyright (c) 2012 Scopic Software. All rights reserved.
@@ -13,6 +13,7 @@ NSString * const MAT_KEY_ADVERTISER_ID                  = @"advertiser_id";
 NSString * const MAT_KEY_APP_AD_TRACKING                = @"app_ad_tracking";
 NSString * const MAT_KEY_APP_NAME                       = @"app_name";
 NSString * const MAT_KEY_APP_VERSION                    = @"app_version";
+NSString * const MAT_KEY_BLUETOOTH_STATE                = @"bluetooth_state";
 NSString * const MAT_KEY_BYPASS_THROTTLING              = @"bypass_throttling";
 NSString * const MAT_KEY_CAMPAIGN_ID                    = @"campaign_id";
 NSString * const MAT_KEY_PUBLISHER_ID                   = @"publisher_id";
@@ -162,20 +163,6 @@ NSString * const MAT_EVENT_CONVERSION                   = @"conversion";
 NSString * const MAT_EVENT_SESSION                      = @"session";
 NSString * const MAT_EVENT_GEOFENCE                     = @"geofence";
 
-NSString * const MAT_EVENT_ACHIEVEMENT_UNLOCKED         = @"achievement_unlocked";
-NSString * const MAT_EVENT_ADD_TO_CART                  = @"add_to_cart";
-NSString * const MAT_EVENT_ADD_TO_WISHLIST              = @"add_to_wishlist";
-NSString * const MAT_EVENT_ADDED_PAYMENT_INFO           = @"added_payment_info";
-NSString * const MAT_EVENT_CHECKOUT_INITIATED           = @"checkout_initiated";
-NSString * const MAT_EVENT_CONTENT_VIEW                 = @"content_view";
-NSString * const MAT_EVENT_LEVEL_ACHIEVED               = @"level_achieved";
-NSString * const MAT_EVENT_PURCHASE                     = @"purchase";
-NSString * const MAT_EVENT_RATED                        = @"rated";
-NSString * const MAT_EVENT_REGISTRATION                 = @"registration";
-NSString * const MAT_EVENT_SEARCH                       = @"search";
-NSString * const MAT_EVENT_SPENT_CREDITS                = @"spent_credits";
-NSString * const MAT_EVENT_TUTORIAL_COMPLETE            = @"tutorial_complete";
-
 NSString * const MAT_HTTP_METHOD_POST                   = @"POST";
 NSString * const MAT_HTTP_CONTENT_LENGTH                = @"content-length";
 NSString * const MAT_HTTP_CONTENT_TYPE                  = @"content-type";
@@ -209,3 +196,25 @@ NSString * const MAT_SERVER_PATH_TRACKING_ENGINE                = @"serve";
 
 NSString * const MAT_SERVER_DOMAIN_DEEPLINK                     = @"deeplink.mobileapptracking.com";
 NSString * const MAT_SERVER_PATH_DEEPLINK                       = @"v1/link.txt";
+
+NSString * const MAT_KEY_ADVERTISER_SUB_PUBLISHER       = @"advertiser_sub_publisher";
+NSString * const MAT_KEY_ADVERTISER_SUB_SITE            = @"advertiser_sub_site";
+NSString * const MAT_KEY_ADVERTISER_SUB_CAMPAIGN        = @"advertiser_sub_campaign";
+NSString * const MAT_KEY_ADVERTISER_SUB_ADGROUP         = @"advertiser_sub_adgroup";
+NSString * const MAT_KEY_ADVERTISER_SUB_AD              = @"advertiser_sub_ad";
+NSString * const MAT_KEY_ADVERTISER_SUB_KEYWORD         = @"advertiser_sub_keyword";
+NSString * const MAT_KEY_AGENCY_ID                      = @"agency_id";
+NSString * const MAT_KEY_OFFER_ID                       = @"offer_id";
+NSString * const MAT_KEY_PRELOAD_DATA                   = @"attr_set";
+NSString * const MAT_KEY_PUBLISHER_REF_ID               = @"publisher_ref_id";
+NSString * const MAT_KEY_PUBLISHER_SUB_PUBLISHER        = @"publisher_sub_publisher";
+NSString * const MAT_KEY_PUBLISHER_SUB_SITE             = @"publisher_sub_site";
+NSString * const MAT_KEY_PUBLISHER_SUB_CAMPAIGN         = @"publisher_sub_campaign";
+NSString * const MAT_KEY_PUBLISHER_SUB_ADGROUP          = @"publisher_sub_adgroup";
+NSString * const MAT_KEY_PUBLISHER_SUB_AD               = @"publisher_sub_ad";
+NSString * const MAT_KEY_PUBLISHER_SUB_KEYWORD          = @"publisher_sub_keyword";
+NSString * const MAT_KEY_PUBLISHER_SUB1                 = @"publisher_sub1";
+NSString * const MAT_KEY_PUBLISHER_SUB2                 = @"publisher_sub2";
+NSString * const MAT_KEY_PUBLISHER_SUB3                 = @"publisher_sub3";
+NSString * const MAT_KEY_PUBLISHER_SUB4                 = @"publisher_sub4";
+NSString * const MAT_KEY_PUBLISHER_SUB5                 = @"publisher_sub5";

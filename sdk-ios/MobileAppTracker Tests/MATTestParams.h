@@ -19,14 +19,19 @@
 - (BOOL)isEqualToParams:(MATTestParams*)other;
 - (BOOL)isEmpty;
 
-- (BOOL)extractParamsString:(NSString*)string;
-- (BOOL)extractParamsJSON:(NSString*)json;
+- (BOOL)extractParamsFromQueryString:(NSString*)string;
+- (BOOL)extractParamsFromJson:(NSString*)json;
 
 - (NSString*)valueForKey:(NSString*)key;
 
 - (BOOL)checkIsEmpty;
 - (BOOL)checkKeyHasValue:(NSString*)key;
 - (BOOL)checkKey:(NSString*)key isEqualToValue:(NSString*)value;
+
+/*!
+ Checks default values for all params except "conversion_user_agent" param.
+ This allows running testcases that are unable to wait for user-agent population which may require ~1 sec on the main thread.
+ */
 - (BOOL)checkDefaultValues;
 - (BOOL)checkDataItems:(NSArray*)items;
 - (BOOL)checkNoDataItems;

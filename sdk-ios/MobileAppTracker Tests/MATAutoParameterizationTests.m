@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <AdSupport/AdSupport.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "MATTestParams.h"
 #import "../MobileAppTracker/MobileAppTracker.h"
 
@@ -59,7 +59,7 @@
     NSUUID *newIfv = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -70,7 +70,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:nil]];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -81,7 +81,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:nil];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -92,7 +92,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@""]];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -103,7 +103,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -114,7 +114,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"0000000000000000000000000000000000000000000000000000000000000000000000"]];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -125,7 +125,7 @@
 {
     [self commonSetup];
     [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -141,7 +141,7 @@
     
     [MobileAppTracker setAppleVendorIdentifier:newIfv];
     [MobileAppTracker setShouldAutoGenerateAppleVendorIdentifier:NO];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -157,7 +157,7 @@
     NSUUID *newIfa = [[NSUUID alloc] initWithUUIDString:@"68753A44-4D6F-1226-9C60-0050E4C00067"];
     
     [MobileAppTracker setAppleAdvertisingIdentifier:newIfa advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -169,7 +169,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:nil]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -181,7 +181,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:nil
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -193,7 +193,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@""]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -205,7 +205,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
@@ -217,7 +217,7 @@
     [self commonSetup];
     [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
                          advertisingTrackingEnabled:YES];
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -230,9 +230,9 @@
 // secret functions to test server URLs
 - (void)_matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
+    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
-        XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
+        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
 }
 
 @end

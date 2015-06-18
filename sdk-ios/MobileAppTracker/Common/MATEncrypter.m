@@ -1,6 +1,6 @@
 //
 //  MATEncrypter.m
-//  MobileAppTrackeriOS
+//  MobileAppTracker
 //
 //  Created by Vu Tran on 1/25/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.

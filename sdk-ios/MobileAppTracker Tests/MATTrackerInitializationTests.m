@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "MATTestParams.h"
 #import "../MobileAppTracker/Common/MATSettings.h"
 #import "../MobileAppTracker/Common/MATTracker.h"
@@ -47,7 +47,9 @@
 - (void)testAutodetectJailbroken
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackActionForEventIdOrName:@"registration"];
+    
+    MATEvent *event = [MATEvent eventWithName:@"registration"];
+    [mat measureEvent:event];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -58,7 +60,8 @@
 {
     [mat setShouldAutoDetectJailbroken:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackActionForEventIdOrName:@"registration"];
+    MATEvent *event = [MATEvent eventWithName:@"registration"];
+    [mat measureEvent:event];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -68,7 +71,8 @@
 - (void)testAutogenerateIFV
 {
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackActionForEventIdOrName:@"registration"];
+    MATEvent *event = [MATEvent eventWithName:@"registration"];
+    [mat measureEvent:event];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -79,7 +83,8 @@
 {
     [mat setShouldAutoGenerateAppleVendorIdentifier:NO];
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackActionForEventIdOrName:@"registration"];
+    MATEvent *event = [MATEvent eventWithName:@"registration"];
+    [mat measureEvent:event];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -94,7 +99,8 @@
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
     mat.parameters.openLogId = nil; // coerce receipt data into being sent again
     
-    [mat trackActionForEventIdOrName:@"fakeEventName"];
+    MATEvent *event = [MATEvent eventWithName:@"fakeEventName"];
+    [mat measureEvent:event];
     waitFor( 1. );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -135,7 +141,8 @@
     mat.parameters.delegate = self;
 
     [mat startTrackerWithMATAdvertiserId:kTestAdvertiserId MATConversionKey:kTestConversionKey];
-    [mat trackActionForEventIdOrName:@"fakeEventName"];
+    MATEvent *event = [MATEvent eventWithName:@"fakeEventName"];
+    [mat measureEvent:event];
     waitFor( 1. );
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -182,9 +189,9 @@
 // secret functions to test server URLs
 - (void)_matSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
 {
-    XCTAssertTrue( [params extractParamsString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
+    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
-        XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
+        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
 }
 
 @end

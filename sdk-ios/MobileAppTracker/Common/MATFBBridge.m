@@ -53,9 +53,10 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
 
 @implementation MATFBBridge
 
-+ (void)sendEvent:(NSString *)name parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit
++ (void)sendEvent:(MATEvent *)event parameters:(MATSettings*)parameters limitEventAndDataUsage:(BOOL)limit
 {
-    Class FBSettings = NSClassFromString( @"FBSettings" );
+    Class FBSettings = NSClassFromString( @"FBSettings" ) ?: NSClassFromString( @"FBSDKSettings" );
+    
     SEL selLimitMethod = @selector(setLimitEventAndDataUsage:);
     
     if([FBSettings class] && [FBSettings respondsToSelector:selLimitMethod])
@@ -69,24 +70,24 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
         [invocation invoke];
     }
     
-    Class FBAppEvents = NSClassFromString( @"FBAppEvents" );
+    Class FBAppEvents = NSClassFromString( @"FBAppEvents" ) ?: NSClassFromString( @"FBSDKAppEvents" );
     if( ![FBAppEvents class] ) {
-        DLog( @"MATFBBridge no FBAppEvents class" );
+        DLog( @"MATFBBridge no FBAppEvents/FBSDKAppEvents class" );
         
         return;
     }
     
     // add event parameter dictionary based on current args;
-    // map between MAT params and FB params:
+    // map between MobileAppTracker params and FB params:
     // https://developers.facebook.com/docs/ios/app-events
     
     SEL selMethod = nil;
     
-    NSString *fbEventName = name;
-    NSString *curr = parameters.currencyCode;
-    double valueToSum = parameters.revenue.doubleValue;
+    NSString *fbEventName = event.eventName;
+    NSString *currency = event.currencyCode ?: parameters.currencyCode;
+    double valueToSum = event.revenue;
     
-    NSString *eventNameLower = [name lowercaseString];
+    NSString *eventNameLower = [event.eventName lowercaseString];
     
     if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_SESSION].location) {
         fbEventName = MAT_FBAppEventNameActivatedApp;
@@ -99,7 +100,7 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
         fbEventName = MAT_FBAppEventNameSearched;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_RATED].location) {
         fbEventName = MAT_FBAppEventNameRated;
-        valueToSum = parameters.eventRating.doubleValue;
+        valueToSum = event.rating;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_TUTORIAL_COMPLETE].location) {
         fbEventName = MAT_FBAppEventNameCompletedTutorial;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_ADD_TO_CART].location) {
@@ -119,23 +120,23 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
         fbEventName = MAT_FBAppEventNameUnlockedAchievement;
     } else if (NSNotFound != [eventNameLower rangeOfString:MAT_EVENT_SPENT_CREDITS].location) {
         fbEventName = MAT_FBAppEventNameSpentCredits;
-        valueToSum = parameters.eventQuantity.doubleValue;
+        valueToSum = event.quantity;
     }
     
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
     
-    if(parameters.currencyCode)
-        dict[MAT_FBAppEventParameterNameCurrency] = parameters.currencyCode;
-    if(parameters.eventContentId)
-        dict[MAT_FBAppEventParameterNameContentID] = parameters.eventContentId;
-    if(parameters.eventContentType)
-        dict[MAT_FBAppEventParameterNameContentType] = parameters.eventContentType;
-    if(parameters.eventSearchString)
-        dict[MAT_FBAppEventParameterNameSearchString] = parameters.eventSearchString;
-    if(parameters.eventQuantity)
-        dict[MAT_FBAppEventParameterNameNumItems] = parameters.eventQuantity;
-    if(parameters.eventLevel)
-        dict[MAT_FBAppEventParameterNameLevel] = parameters.eventLevel;
+    if(currency)
+        dict[MAT_FBAppEventParameterNameCurrency] = currency;
+    if(event.contentId)
+        dict[MAT_FBAppEventParameterNameContentID] = event.contentId;
+    if(event.contentType)
+        dict[MAT_FBAppEventParameterNameContentType] = event.contentType;
+    if(event.searchString)
+        dict[MAT_FBAppEventParameterNameSearchString] = event.searchString;
+    if(0 != event.quantity)
+        dict[MAT_FBAppEventParameterNameNumItems] = @(event.quantity);
+    if(0 != event.level)
+        dict[MAT_FBAppEventParameterNameLevel] = @(event.level);
     if(parameters.referralSource)
         dict[MAT_TUNE_REFERRAL_SOURCE] = parameters.referralSource;
     
@@ -157,7 +158,7 @@ NSString *const MAT_TUNE_SOURCE_SDK                             = @"tune_source_
         [invocation setTarget:FBAppEvents];
         [invocation setSelector:selMethod];
         [invocation setArgument:&valueToSum atIndex:2];
-        [invocation setArgument:&curr atIndex:3];
+        [invocation setArgument:&currency atIndex:3];
         [invocation setArgument:&dict atIndex:4];
         [invocation invoke];
     }

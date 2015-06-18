@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 HasOffers. All rights reserved.
 //
 
-#import <MobileCoreServices/UTType.h>
-
 #import "MATAppToAppTracker.h"
 #import "MATKeyStrings.h"
 #import "MATReachability.h"

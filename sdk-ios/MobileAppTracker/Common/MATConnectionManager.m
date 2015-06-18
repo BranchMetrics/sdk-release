@@ -1,6 +1,6 @@
 //
 //  ConnectionManager.m
-//  MobileAppTrackeriOS
+//  MobileAppTracker
 //
 //  Created by Pavel Yurchenko on 7/21/12.
 //  Copyright (c) 2012 Scopic Software. All rights reserved.

@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
 #import "MATTestParams.h"
 #import "../MobileAppTracker/MobileAppTracker.h"
 #import "../MobileAppTracker/Common/MATEventQueue.h"
@@ -119,7 +119,7 @@
 - (void)testOfflineFailureQueuedRetried
 {
     networkOffline();
-    [MobileAppTracker measureAction:@"registration"];
+    [MobileAppTracker measureEventName:@"registration"];
     
     waitFor( MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -141,7 +141,7 @@
     waitFor( MAT_SESSION_QUEUING_DELAY + MAT_TEST_NETWORK_REQUEST_DURATION );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
-    [MobileAppTracker measureAction:@"yourMomEvent"];
+    [MobileAppTracker measureEventName:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"second offline call should not have received a failure notification" );
     [self checkAndClearExpectedQueueSize:2];
@@ -157,7 +157,7 @@
 
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     
-    [MobileAppTracker measureAction:@"yourMomEvent"];
+    [MobileAppTracker measureEventName:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
 
@@ -175,8 +175,8 @@
     [MobileAppTracker setDebugMode:YES];
 
     networkOffline();
-    [MobileAppTracker measureAction:@"event1"];
-    [MobileAppTracker measureAction:@"event2"];
+    [MobileAppTracker measureEventName:@"event1"];
+    [MobileAppTracker measureEventName:@"event2"];
     waitFor( 1. );
     
     XCTAssertTrue( [MATEventQueue queueSize] == 2, @"expected 2 queued requests" );
@@ -225,7 +225,7 @@
 
     [MobileAppTracker setDebugMode:YES];
     [MobileAppTracker measureSession];
-    [MobileAppTracker measureAction:@"event name"];
+    [MobileAppTracker measureEventName:@"event name"];
     waitFor( 1. );
 
     XCTAssertFalse( callFailed, @"no calls should have been attempted after 1 sec" );
@@ -404,10 +404,10 @@
     if( params2 && ![p isEmpty] )
         p = params2;
     
-    XCTAssertTrue( [p extractParamsString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
+    XCTAssertTrue( [p extractParamsFromQueryString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
     if( postData ) {
-        XCTAssertTrue( [params extractParamsJSON:postData], @"couldn't extract POST JSON: %@", postData );
-        XCTAssertTrue( [p extractParamsJSON:postData], @"couldn't extract POST JSON %@", postData );
+        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
+        XCTAssertTrue( [p extractParamsFromJson:postData], @"couldn't extract POST JSON %@", postData );
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //  MATUtils.m
-//  MobileAppTrackeriOS
+//  MobileAppTracker
 //
 //  Created by Pavel Yurchenko on 7/24/12.
 //  Copyright (c) 2012 Scopic Software. All rights reserved.
@@ -10,11 +10,7 @@
 #import "MATKeyStrings.h"
 #import "MATReachability.h"
 #import "MATSettings.h"
-
-#import "../MobileAppTracker.h"
-
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <MobileCoreServices/UTType.h>
+#import "NSString+MATURLEncoding.h"
 
 #include <CommonCrypto/CommonDigest.h>
 #include <sys/sysctl.h>
@@ -366,7 +362,10 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
     }
     else
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         decodedData = [[NSData alloc] initWithBase64Encoding:encodedString];
+#pragma clang diagnostic pop
     }
     
     return decodedData;
@@ -390,7 +389,10 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
     }
     else
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         encodedString = [data base64Encoding];
+#pragma clang diagnostic pop
     }
     
     return encodedString;
@@ -463,6 +465,39 @@ static NSString* const USER_DEFAULT_KEY_PREFIX = @"_MAT_";
     }
     
     return strHash;
+}
+
++ (void)addUrlQueryParamValue:(id)value
+                       forKey:(NSString*)key
+                  queryParams:(NSMutableString*)params
+{
+    NSString *useString = [self urlEncodeQueryParamValue:value];
+    
+    if(useString)
+    {
+        [params appendFormat:@"&%@=%@", key, useString];
+    }
+}
+
+/*!
+ Converts input object to equivalent string representation for use as value of a url query param.
+ Returns stringValue for NSNumber*, timeIntervalSince1970 stringValue for NSDate*, and url-encoded string for NSString*, nil otherwise.
+ */
++ (NSString *)urlEncodeQueryParamValue:(id)value
+{
+    NSString *useString = nil;
+    
+    if( value != nil )
+    {
+        if( [value isKindOfClass:[NSNumber class]] )
+            useString = [(NSNumber*)value stringValue];
+        else if( [value isKindOfClass:[NSDate class]] )
+            useString = [@((long)round( [value timeIntervalSince1970] )) stringValue];
+        else if( [value isKindOfClass:[NSString class]] )
+            useString = [(NSString*)value urlEncodeUsingEncoding:NSUTF8StringEncoding];
+    }
+    
+    return useString;
 }
 
 

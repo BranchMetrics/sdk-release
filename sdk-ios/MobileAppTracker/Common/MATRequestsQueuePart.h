@@ -1,6 +1,6 @@
 //
 //  MATRequestsQueuePart.h
-//  MobileAppTrackeriOS
+//  MobileAppTracker
 //
 //  Created by Pavel Yurchenko on 7/26/12.
 //  Copyright (c) 2012 Scopic Software. All rights reserved.

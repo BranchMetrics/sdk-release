@@ -7,7 +7,8 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "MATTests.h"
+#import "MATTestsHelper.h"
+#import "../MobileAppTracker/Common/MATEvent_internal.h"
 #import "../MobileAppTracker/Common/MATEncrypter.h"
 #import "../MobileAppTracker/Common/MATSettings.h"
 
@@ -142,9 +143,10 @@
 {
     MATSettings *settings = [MATSettings new];
     NSString *trackingLink, *encryptedParams;
-    [settings urlStringForTrackingLink:&trackingLink
-                         encryptParams:&encryptedParams
-                                  isId:NO];
+    
+    [settings urlStringForEvent:[MATEvent eventWithName:@"event1"]
+                   trackingLink:&trackingLink
+                  encryptParams:&encryptedParams];
     XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
 }
 

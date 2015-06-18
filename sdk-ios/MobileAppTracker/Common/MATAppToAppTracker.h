@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <MobileCoreServices/UTType.h>
 #import "MATEventQueue.h"
 
 @interface MATAppToAppTracker : NSObject

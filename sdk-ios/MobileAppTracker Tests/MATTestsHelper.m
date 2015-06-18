@@ -6,7 +6,8 @@
 //  Copyright (c) 2013 HasOffers. All rights reserved.
 //
 
-#import "MATTests.h"
+#import "MATTestsHelper.h"
+#import "../MobileAppTracker/Common/MATUtils.h"
 
 NSString* const kTestAdvertiserId = @"877";
 NSString* const kTestConversionKey = @"8c14d6bbe466b65211e781d62e301eec";

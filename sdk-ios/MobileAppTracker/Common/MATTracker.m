@@ -17,6 +17,7 @@
 #import "NSString+MATURLEncoding.m"
 #import "MATAppToAppTracker.h"
 #import "MATFBBridge.h"
+#import "MATStoreKitDelegate.h"
 #import "MATUserAgentCollector.h"
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -26,8 +27,6 @@
 #endif
 
 static const int MAT_CONVERSION_KEY_LENGTH      = 32;
-
-static const int IGNORE_IOS_PURCHASE_STATUS     = -192837465;
 
 #if USE_IAD
 const NSTimeInterval MAT_SESSION_QUEUING_DELAY  = 15.;
@@ -296,157 +295,23 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 #endif
 
 
-#pragma mark -
-#pragma mark Track Action Methods
+#pragma mark - Measure Event Methods
 
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
+- (void)measureEvent:(MATEvent *)event
 {
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:nil
-                          referenceId:nil
-                        revenueAmount:0
-                         currencyCode:nil];
+    [self measureEventInternal:event];
 }
 
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
+- (void)measureInstallPostConversion
 {
+    MATEvent *event = [MATEvent eventWithName:MAT_EVENT_INSTALL];
+    event.postConversion = YES;
     
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:nil
-                          referenceId:nil
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode];
+    [self measureEventInternal:event];
 }
 
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                        referenceId:(NSString *)refId
+- (void)measureEventInternal:(MATEvent *)event
 {
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:nil
-                          referenceId:refId
-                        revenueAmount:0
-                         currencyCode:nil];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-{
-    
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:nil
-                          referenceId:refId
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:nil
-                        revenueAmount:0
-                         currencyCode:nil];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:nil
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:refId
-                        revenueAmount:0
-                         currencyCode:nil];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:refId
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode
-                     transactionState:IGNORE_IOS_PURCHASE_STATUS];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:refId
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode
-                     transactionState:transactionState
-                              receipt:nil];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState
-                            receipt:(NSData *)receipt
-{
-    [self trackActionForEventIdOrName:eventIdOrName
-                           eventItems:eventItems
-                          referenceId:refId
-                        revenueAmount:revenueAmount
-                         currencyCode:currencyCode
-                     transactionState:transactionState
-                              receipt:receipt
-                       postConversion:NO];
-}
-
-- (void)trackInstallPostConversion
-{
-    [self trackActionForEventIdOrName:MAT_EVENT_INSTALL
-                           eventItems:nil
-                          referenceId:nil
-                        revenueAmount:0
-                         currencyCode:nil
-                     transactionState:IGNORE_IOS_PURCHASE_STATUS
-                              receipt:nil
-                       postConversion:YES];
-}
-
-- (void)trackActionForEventIdOrName:(id)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState
-                            receipt:(NSData *)receipt
-                     postConversion:(BOOL)postConversion
-{
-    BOOL isId = [eventIdOrName isKindOfClass:[NSNumber class]];
-    
     if(!self.isTrackerStarted) {
         [self notifyDelegateFailureWithErrorCode:MATTrackingWithoutInitializing
                                              key:MAT_KEY_ERROR_MAT_INVALID_PARAMETERS
@@ -457,55 +322,37 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     
     // 05152013: Now MAT has dropped support for "close" events,
     // so we ignore the "close" event and return an error message using the delegate.
-    if(!isId && [[eventIdOrName lowercaseString] isEqualToString:MAT_EVENT_CLOSE]) {
+    if(event.eventName && [[event.eventName lowercaseString] isEqualToString:MAT_EVENT_CLOSE]) {
         [self notifyDelegateFailureWithErrorCode:MATInvalidEventClose
                                              key:MAT_KEY_ERROR_MAT_CLOSE_EVENT
-                                         message:@"MAT does not support tracking of \"close\" event."];
+                                         message:@"MobileAppTracker does not support measurement of \"close\" event."];
         
         return;
     }
     
-    [self.parameters resetBeforeTrackAction];
-    
-    self.parameters.revenue = @(revenueAmount);
-    if( revenueAmount > 0 )
+    if( event.revenue > 0 )
         [self setPayingUser:YES];
     
-    // temporary override of currency in params
-    if (currencyCode.length > 0)
-        self.parameters.currencyCode = currencyCode;
+    self.parameters.systemDate = [NSDate date];
     
-    if(IGNORE_IOS_PURCHASE_STATUS != transactionState)
-        self.parameters.transactionState = @(transactionState);
-    
-    self.parameters.postConversion = postConversion;
-    
-    // set the standard tracking request parameters
-    [self initVariablesForTrackAction:eventIdOrName];
-    
-    // Base64 encode the IAP receipt data
-    NSString *strReceipt = nil;
-    if (receipt.length > 0)
-        strReceipt = [MATUtils MATbase64EncodedStringFromData:receipt];
+    // include CWorks params
+    NSDictionary *dictCworksClick;
+    NSDictionary *dictCworksImpression;
+    [self generateCworksClick:&dictCworksClick impression:&dictCworksImpression];
+    event.cworksClick = dictCworksClick;
+    event.cworksImpression = dictCworksImpression;
     
     // fire the tracking request
-    [self sendRequestWithEventItems:eventItems isId:isId receipt:strReceipt referenceId:refId];
-    
-    [self.parameters resetAfterRequest];
-}
-
-
-#pragma mark - Track Session
-
-- (void)trackSession
-{
-    [self trackActionForEventIdOrName:MAT_EVENT_SESSION];
+    [self sendRequestWithEvent:event];
     
 #if USE_IAD
-    [self checkIadAttribution:^(BOOL iadAttributed) {
-        if( iadAttributed )
-            [self trackInstallPostConversion];
-    }];
+    if( [event.actionName isEqualToString:MAT_EVENT_SESSION] )
+    {
+        [self checkIadAttribution:^(BOOL iadAttributed) {
+            if( iadAttributed )
+                [self measureInstallPostConversion];
+        }];
+    }
 #endif
 }
 
@@ -621,45 +468,38 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     }
 }
 
-- (void)setEventAttributeN:(NSUInteger)number toValue:(NSString*)value
-{
-    switch (number) {
-        case 1:
-            self.parameters.eventAttribute1 = value;
-            break;
-        case 2:
-            self.parameters.eventAttribute2 = value;
-            break;
-        case 3:
-            self.parameters.eventAttribute3 = value;
-            break;
-        case 4:
-            self.parameters.eventAttribute4 = value;
-            break;
-        case 5:
-            self.parameters.eventAttribute5 = value;
-            break;
-        default:
-            break;
-    }
-}
-
-
 - (void)setPayingUser:(BOOL)isPayingUser
 {
     self.parameters.payingUser = @(isPayingUser);
     [MATUtils setUserDefaultValue:@(isPayingUser) forKey:MAT_KEY_IS_PAYING_USER];
 }
 
+-(void)setAutomateIapMeasurement:(BOOL)automate
+{
+    _automateIapMeasurement = automate;
+    
+    if(automate)
+    {
+        // start listening for in-app-purchase transactions
+        [MATStoreKitDelegate startObserver];
+    }
+    else
+    {
+        // stop listening for in-app-purchase transactions
+        [MATStoreKitDelegate stopObserver];
+    }
+}
+
+- (void)setPreloadData:(MATPreloadData *)preloadData
+{
+    self.parameters.preloadData = preloadData;
+}
+
 
 #pragma mark - Private Methods
 
-- (void)initVariablesForTrackAction:(NSString *)eventIdOrName
+- (void)generateCworksClick:(NSDictionary **)cworksClick impression:(NSDictionary **)cworksImpression
 {
-    self.parameters.actionName = eventIdOrName;
-    
-    self.parameters.systemDate = [NSDate date];
-    
     // Note: set CWorks click param
     NSString *cworksClickKey = nil;
     NSNumber *cworksClickValue = nil;
@@ -668,7 +508,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     DLog(@"cworks=%@:%@", cworksClickKey, cworksClickValue);
     if(nil != cworksClickKey && nil != cworksClickValue)
     {
-        self.parameters.cworksClick = @{cworksClickKey: cworksClickValue};
+        *cworksClick = @{cworksClickKey: cworksClickValue};
     }
     
     // Note: set CWorks impression param
@@ -679,13 +519,13 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     DLog(@"cworks imp=%@:%@", cworksImpressionKey, cworksImpressionValue);
     if(nil != cworksImpressionKey && nil != cworksImpressionValue)
     {
-        self.parameters.cworksImpression = @{cworksImpressionKey: cworksImpressionValue};
+        *cworksImpression = @{cworksImpressionKey: cworksImpressionValue};
     }
 }
 
 
 // Includes the eventItems and referenceId and fires the tracking request
-- (void)sendRequestWithEventItems:(NSArray *)eventItems isId:(BOOL)isId receipt:(NSString *)receipt referenceId:(NSString*)refId
+- (void)sendRequestWithEvent:(MATEvent *)event
 {
     //----------------------------
     // Always look for a facebook cookie because it could change often.
@@ -694,47 +534,45 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     
     if(self.fbLogging)
     {
-        // copy the original event name for use in the async call to MATFBBridge.sendEvent
-        // and avoid a race condition if self.parameters.actionName value is changed
-        NSString *originalEventName = self.parameters.actionName;
-        
         // call the Facebook event logging methods on main thread to make sure FBSession threading requirements are met
         dispatch_async( dispatch_get_main_queue(), ^{
-            [MATFBBridge sendEvent:originalEventName parameters:self.parameters limitEventAndDataUsage:self.fbLimitUsage];
+            [MATFBBridge sendEvent:event parameters:self.parameters limitEventAndDataUsage:self.fbLimitUsage];
         });
     }
     
     NSString *trackingLink, *encryptParams;
     
-    // NOTE: urlStringForReferenceId: changes self.parameters.actionName to "conversion"
-    [self.parameters urlStringForReferenceId:refId
-                                trackingLink:&trackingLink
-                               encryptParams:&encryptParams
-                                        isId:isId];
+    [self.parameters urlStringForEvent:event
+                          trackingLink:&trackingLink
+                         encryptParams:&encryptParams];
     
-    DRLog(@"MAT sendRequestWithEventItems: %@", trackingLink);
+    DRLog(@"MobileAppTracker sendRequestWithEvent: %@", trackingLink);
     
     NSMutableDictionary *postDict = [NSMutableDictionary dictionary];
     
     // if present then serialize the eventItems
-    if([eventItems count] > 0)
+    if([event.eventItems count] > 0)
     {
         BOOL areEventsLegit = YES;
-        for( id item in eventItems )
+        for( id item in event.eventItems )
             if( ![item isMemberOfClass:[MATEventItem class]] )
                 areEventsLegit = NO;
         
         if( areEventsLegit ) {
             // Convert the array of MATEventItem objects to an array of equivalent dictionary representations.
-            NSArray *arrDictEventItems = [MATEventItem dictionaryArrayForEventItems:eventItems];
+            NSArray *arrDictEventItems = [MATEventItem dictionaryArrayForEventItems:event.eventItems];
             
-            DLog(@"MAT sendRequestWithEventItems: %@", arrDictEventItems);
+            DLog(@"MobileAppTracker sendRequestWithEvent: %@", arrDictEventItems);
             [postDict setValue:arrDictEventItems forKey:MAT_KEY_DATA];
         }
     }
     
-    if(receipt)
-        [postDict setValue:receipt forKey:MAT_KEY_STORE_RECEIPT];
+    if(event.receipt.length > 0)
+    {
+        // Base64 encode the IAP receipt data
+        NSString *strReceipt = [MATUtils MATbase64EncodedStringFromData:event.receipt];
+        [postDict setValue:strReceipt forKey:MAT_KEY_STORE_RECEIPT];
+    }
     
     // on first open, send install receipt
     if( self.parameters.openLogId == nil )
@@ -751,7 +589,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     NSDate *runDate = [NSDate date];
     
 #if USE_IAD
-    if( [self.parameters.actionName isEqualToString:MAT_EVENT_SESSION] )
+    if( [event.actionName isEqualToString:MAT_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:MAT_SESSION_QUEUING_DELAY];
 #endif
     
@@ -759,12 +597,11 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     [MATEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
     
     if( [self.delegate respondsToSelector:@selector(mobileAppTrackerEnqueuedActionWithReferenceId:)] )
-        [self.delegate mobileAppTrackerEnqueuedActionWithReferenceId:refId];
+        [self.delegate mobileAppTrackerEnqueuedActionWithReferenceId:event.refId];
 }
 
 
-#pragma mark -
-#pragma mark CWorks Method Calls
+#pragma mark - CWorks Method Calls
 
 - (void)fetchCWorksClickKey:(NSString **)key andValue:(NSNumber **)value
 {
@@ -790,8 +627,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     }
 }
 
-#pragma mark -
-#pragma mark MATEventQueueDelegate protocol methods
+#pragma mark - MATEventQueueDelegate protocol methods
 
 - (void)queueRequestDidSucceedWithData:(NSData *)data
 {

@@ -10,6 +10,7 @@
 #import "MATKeyStrings.h"
 #import "MATUtils.h"
 #import "MATUserAgentCollector.h"
+#import "NSString+MATURLEncoding.h"
 
 
 @interface MATDeferredDplinkr()
@@ -80,15 +81,13 @@ static MATDeferredDplinkr *dplinkr;
                                   dplinkr.advertiserId,
                                   MAT_SERVER_DOMAIN_DEEPLINK,
                                   MAT_SERVER_PATH_DEEPLINK];
-    [urlString appendFormat:@"&%@=%@", MAT_KEY_ADVERTISER_ID, dplinkr.advertiserId];
-    [urlString appendFormat:@"&%@=%@", MAT_KEY_VER, MATVERSION];
-    [urlString appendFormat:@"&%@=%@", MAT_KEY_PACKAGE_NAME, dplinkr.bundleId];
-    [urlString appendFormat:@"&%@=%@", MAT_KEY_IOS_IFA_DEEPLINK, dplinkr.ifa];
-    [urlString appendFormat:@"&%@=%@", MAT_KEY_IOS_AD_TRACKING, [@(dplinkr.adTrackingEnabled) stringValue]];
     
-    NSString *userAgent = [MATUserAgentCollector userAgent];
-    if( userAgent )
-        [urlString appendFormat:@"&%@=%@", MAT_KEY_CONVERSION_USER_AGENT, userAgent];
+    [MATUtils addUrlQueryParamValue:dplinkr.advertiserId                forKey:MAT_KEY_ADVERTISER_ID            queryParams:urlString];
+    [MATUtils addUrlQueryParamValue:MATVERSION                          forKey:MAT_KEY_VER                      queryParams:urlString];
+    [MATUtils addUrlQueryParamValue:dplinkr.bundleId                    forKey:MAT_KEY_PACKAGE_NAME             queryParams:urlString];
+    [MATUtils addUrlQueryParamValue:dplinkr.ifa                         forKey:MAT_KEY_IOS_IFA_DEEPLINK         queryParams:urlString];
+    [MATUtils addUrlQueryParamValue:@(dplinkr.adTrackingEnabled)        forKey:MAT_KEY_IOS_AD_TRACKING          queryParams:urlString];
+    [MATUtils addUrlQueryParamValue:[MATUserAgentCollector userAgent]   forKey:MAT_KEY_CONVERSION_USER_AGENT    queryParams:urlString];
     
     DLog( @"deeplink request: %@", urlString );
     
