@@ -1,0 +1,201 @@
+//
+//  TuneEncrypterTests.m
+//  Tune
+//
+//  Created by Harshal Ogale on 1/30/14.
+//  Copyright (c) 2014 Tune. All rights reserved.
+//
+
+#import <XCTest/XCTest.h>
+#import "TuneTestsHelper.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/Common/TuneEncrypter.h"
+#import "../Tune/Common/TuneSettings.h"
+
+@interface TuneEncrypterTests : XCTestCase
+
+@end
+
+@implementation TuneEncrypterTests
+
+- (void)setUp
+{
+    [super setUp];
+    // Put setup code here; it will be run once, before the first test case.
+}
+
+- (void)tearDown
+{
+    // Put teardown code here; it will be run once, after the last test case.
+    [super tearDown];
+}
+
+- (void)testEncryptNonASCII
+{
+    NSString *encryptedStr = nil;
+    NSData *decryptedData = nil;
+    NSString *decryptedStr = nil;
+    NSString *expectedOutput = nil;
+    
+    NSString *inputStr = nil;
+    NSString *key = @"12345678901234567890123456789012";
+    
+    inputStr = @"&app_name=돔스돔타돔돔&revenue=0.12&ios_ifa=12345678-1234-1234-1234-123456789012";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"&revenue=0.12&ios_ifa=12345678-1234-1234-1234-123456789012&app_name=돔스돔타돔돔";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"&revenue=0.12&ios_ifa=12345678-1234-1234-1234-123456789012&app_name=someappname";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"돔스돔타돔돔";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"돔스돔타";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"1234567890돔스돔타돔돔123456789012345678901234567890";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"1234567890x123456789012345678901234567890";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"1234567890돔123456789012345678901234567890";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"돔1234";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"돔12";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"돔";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = @"abc";
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = TUNE_STRING_EMPTY;
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = inputStr;
+    XCTAssertTrue([inputStr isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+    
+    inputStr = nil;
+    encryptedStr = [TuneEncrypter encryptString:inputStr withKey:key];
+    decryptedData = [TuneEncrypterTests decodeHexData:[TuneEncrypterTests aesDecrypt:key data:[TuneEncrypterTests decodeHexData:[encryptedStr dataUsingEncoding:NSUTF8StringEncoding]]]];
+    decryptedStr = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    expectedOutput = TUNE_STRING_EMPTY;
+    XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
+}
+
+- (void)testNoEncryptTransaction
+{
+    TuneSettings *settings = [TuneSettings new];
+    NSString *trackingLink, *encryptedParams;
+    [settings urlStringForEvent:[TuneEvent eventWithName:@"event1"]
+                   trackingLink:&trackingLink
+                  encryptParams:&encryptedParams];
+    XCTAssertTrue( [trackingLink rangeOfString:@"&transaction_id="].location != NSNotFound, @"transaction_id not found in unencrypted params" );
+}
+
++ (NSData *)decodeHexData:(NSData *)input {
+    
+    NSMutableData *resultData = [NSMutableData dataWithLength:([input length]) / 2];
+    
+    const unsigned char *hexBytes = [input bytes];
+    unsigned char *resultBytes = [resultData mutableBytes];
+    
+    for(NSUInteger i = 0; i < [input length] / 2; i++) {
+        resultBytes[i] = (char2hex(hexBytes[i + i]) << 4) | char2hex(hexBytes[i + i + 1]);
+    }
+    
+    return resultData;
+}
+
++ (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
+{
+    long keyLength = [mykey length];
+    if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
+    {
+        return nil;
+    }
+    
+    char keyBytes[keyLength + 1];
+    bzero(keyBytes, sizeof(keyBytes));
+    [mykey getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
+    
+    size_t numBytesEncrypted = 0;
+    size_t encryptedLength = [str length] + kCCBlockSizeAES128;
+    char encryptedBytes[encryptedLength +1];
+    
+    CCCryptorStatus result = CCCrypt(kCCDecrypt,
+                                     kCCAlgorithmAES128 ,
+                                     kCCOptionECBMode | kCCOptionPKCS7Padding,
+                                     keyBytes,
+                                     keyLength,
+                                     NULL,
+                                     [str bytes],
+                                     [str length],
+                                     encryptedBytes,
+                                     encryptedLength,
+                                     &numBytesEncrypted);
+    
+    
+    if(result == kCCSuccess)
+        return [NSData dataWithBytes:encryptedBytes length:numBytesEncrypted];
+    
+    return nil;
+}
+
+@end
