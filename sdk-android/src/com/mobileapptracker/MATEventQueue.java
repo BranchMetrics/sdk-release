@@ -16,16 +16,16 @@ public class MATEventQueue {
     // Binary semaphore for controlling adding to queue/dumping queue
     private Semaphore queueAvailable;
     
-    // Instance of mat to make getLink call on (can't use getInstance during testing)
-    private MobileAppTracker mat;
+    // Instance of tune to make getLink call on (can't use getInstance during testing)
+    private MobileAppTracker tune;
     
     // current retry timeout, in seconds
     private static long retryTimeout = 0;
     
-    public MATEventQueue(Context context, MobileAppTracker mat) {
+    public MATEventQueue(Context context, MobileAppTracker tune) {
         eventQueue = context.getSharedPreferences(MATConstants.PREFS_QUEUE, Context.MODE_PRIVATE);
         queueAvailable = new Semaphore(1, true);
-        this.mat = mat;
+        this.tune = tune;
     }
     
     /**
@@ -61,14 +61,14 @@ public class MATEventQueue {
      * Returns a specific item from the queue, without deleting the item.
      * @return JSONObject of the item
      */
-    protected synchronized String getKeyFromQueue( String key ) {
+    protected synchronized String getKeyFromQueue(String key) {
         return eventQueue.getString(key, null);
     }
     
     /**
      * Sets the values for a particular queue key.
      */
-    protected synchronized void setQueueItemForKey( JSONObject item, String key ) {
+    protected synchronized void setQueueItemForKey(JSONObject item, String key) {
         SharedPreferences.Editor editor = eventQueue.edit();
         editor.putString(key, item.toString());
         editor.commit();
@@ -163,13 +163,13 @@ public class MATEventQueue {
                         
                         // For first session, try to wait for Google AID and install referrer before sending
                         if (firstSession) {
-                            synchronized(mat.pool) {
-                                mat.pool.wait(MATConstants.DELAY);
+                            synchronized(tune.pool) {
+                                tune.pool.wait(MATConstants.DELAY);
                             }
                         }
                         
-                        if (mat != null) {
-                            boolean success = mat.makeRequest(link, data, postBody);
+                        if (tune != null) {
+                            boolean success = tune.makeRequest(link, data, postBody);
 
                             if (success) {
                                 removeKeyFromQueue(key);
@@ -180,21 +180,21 @@ public class MATEventQueue {
                                 // update retry parameter
                                 // maybe try a regex parse instead...
                                 final String paramString = "&sdk_retry_attempt=";
-                                int retryStart = link.indexOf( paramString );
-                                if( retryStart > 0 ) {
+                                int retryStart = link.indexOf(paramString);
+                                if (retryStart > 0) {
                                     // find the longest substring that legally parses as an int
                                     int attempt = -1;
                                     int parseStart = retryStart + paramString.length();
                                     int parseEnd = parseStart + 1;
-                                    while( true ) {
+                                    while (true) {
                                         String attemptString = null;
                                         try {
-                                            attemptString = link.substring( parseStart, parseEnd );
+                                            attemptString = link.substring(parseStart, parseEnd);
                                         } catch (StringIndexOutOfBoundsException e) {
                                             break; // use last successfully parsed value
                                         }
                                         try {
-                                            attempt = Integer.parseInt( attemptString );
+                                            attempt = Integer.parseInt(attemptString);
                                             parseEnd++;
                                         } catch (NumberFormatException e) {
                                             break; // use last successfully parsed value
@@ -202,28 +202,28 @@ public class MATEventQueue {
                                     }
                                     attempt++;
                                     // 'attempt' will always be at least 0 here
-                                    link = link.replaceFirst( paramString + "\\d+", paramString + attempt );
+                                    link = link.replaceFirst(paramString + "\\d+", paramString + attempt);
 
                                     // save updated link back to queue
                                     try {
                                         JSONObject event = new JSONObject(eventJson);
                                         event.put("link", link);
-                                        setQueueItemForKey( event, key );
+                                        setQueueItemForKey(event, key);
                                     } catch (JSONException e) {
                                         // error saving modified retry parameter, ignore
                                         e.printStackTrace();
                                     }
                                 }
                                 // choose new retry timeout, in seconds
-                                if( retryTimeout == 0 ) {
+                                if(retryTimeout == 0) {
                                     retryTimeout = 30;
-                                } else if( retryTimeout <= 30 ) {
+                                } else if(retryTimeout <= 30) {
                                     retryTimeout = 90;
-                                } else if( retryTimeout <= 90 ) {
+                                } else if(retryTimeout <= 90) {
                                     retryTimeout = 10*60;
-                                } else if( retryTimeout <= 10*60 ) {
+                                } else if(retryTimeout <= 10*60) {
                                     retryTimeout = 60*60;
-                                } else if( retryTimeout <= 60*60 ) {
+                                } else if(retryTimeout <= 60*60) {
                                     retryTimeout = 6*60*60;
                                 } else {
                                     retryTimeout = 24*60*60;
@@ -232,7 +232,7 @@ public class MATEventQueue {
                                 double timeoutMs = (1 + 0.1*Math.random())*retryTimeout*1000.;
                                 // sleep this thread for awhile
                                 try {
-                                    Thread.sleep( (long)timeoutMs );
+                                    Thread.sleep((long)timeoutMs);
                                 } catch (InterruptedException e) {
                                 }
                             }

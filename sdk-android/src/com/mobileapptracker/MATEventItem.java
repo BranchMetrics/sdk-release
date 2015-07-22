@@ -89,18 +89,17 @@ public class MATEventItem {
         return new JSONObject(mapValues);
     }
     
-    public String getAttrStringByName(String name)
-    {
-    	if (name.equals("itemname")) return itemname;
-    	if (name.equals("quantity")) return Integer.toString(quantity);
-    	if (name.equals("unitPrice")) return Double.toString(unitPrice);
-    	if (name.equals("revenue")) return Double.toString(revenue);
-    	if (name.equals("attribute_sub1")) return attribute_sub1;
-    	if (name.equals("attribute_sub2")) return attribute_sub2;
-    	if (name.equals("attribute_sub3")) return attribute_sub3;
-    	if (name.equals("attribute_sub4")) return attribute_sub4;
-    	if (name.equals("attribute_sub5")) return attribute_sub5;
-
-    	return null;
+    public String getAttrStringByName(String name) {
+        if (name.equals("itemname")) return itemname;
+        if (name.equals("quantity")) return Integer.toString(quantity);
+        if (name.equals("unitPrice")) return Double.toString(unitPrice);
+        if (name.equals("revenue")) return Double.toString(revenue);
+        if (name.equals("attribute_sub1")) return attribute_sub1;
+        if (name.equals("attribute_sub2")) return attribute_sub2;
+        if (name.equals("attribute_sub3")) return attribute_sub3;
+        if (name.equals("attribute_sub4")) return attribute_sub4;
+        if (name.equals("attribute_sub5")) return attribute_sub5;
+        
+        return null;
     }
 }

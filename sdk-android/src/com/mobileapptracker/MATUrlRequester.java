@@ -1,11 +1,8 @@
 package com.mobileapptracker;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -13,15 +10,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.mobileapptracker.MATDeferredDplinkr;
+import com.mobileapptracker.MATDeferredDplinkr.MATDplink;
+
 import android.net.Uri;
 import android.util.Log;
 
 class MATUrlRequester {
-    public String requestDeeplink(MATDeferredDplinkr dplinkr, int timeout) {
+    public MATDplink requestDeeplink(MATDeferredDplinkr dplinkr, int timeout) {
+        String deeplink = "";
+        boolean timedOut = false;
+        
+        // Log deeplink request start and end time to check for timeout
+        long startTime = System.currentTimeMillis();
+        
         InputStream is = null;
         
         // Construct deeplink endpoint url
-        String deeplink = "";
         Uri.Builder uri = new Uri.Builder();
         uri.scheme("https")
            .authority(dplinkr.getAdvertiserId() + "." + MATConstants.DEEPLINK_DOMAIN)
@@ -41,9 +46,7 @@ class MATUrlRequester {
         try {
             URL myurl = new URL(uri.build().toString());
             HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
-            conn.setReadTimeout(timeout);
-            conn.setConnectTimeout(timeout);
-            // Set MAT conversion key in request header
+            // Set TUNE conversion key in request header
             conn.setRequestProperty("X-MAT-Key", dplinkr.getConversionKey());
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
@@ -55,8 +58,12 @@ class MATUrlRequester {
             } else {
                 is = conn.getErrorStream();
             }
+            long endTime = System.currentTimeMillis();
+            if ((endTime - startTime) > timeout) {
+                timedOut = true;
+            }
             
-            deeplink = readStream(is);
+            deeplink = MATUtils.readStream(is);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -66,7 +73,7 @@ class MATUrlRequester {
                 e.printStackTrace();
             }
         }
-        return deeplink;
+        return dplinkr.new MATDplink(deeplink, timedOut);
     }
     
     /**
@@ -111,7 +118,7 @@ class MATUrlRequester {
                 is = conn.getErrorStream();
             }
             
-            String responseAsString = readStream(is);
+            String responseAsString = MATUtils.readStream(is);
             if (debugMode) {
                 // Output server response
                 Log.d(MATConstants.TAG, "Server response: " + responseAsString);
@@ -156,20 +163,6 @@ class MATUrlRequester {
         }
         
         return new JSONObject(); // marks this request for retry
-    }
-    
-    // Reads an InputStream and converts it to a String.
-    private static String readStream(InputStream stream) throws IOException, UnsupportedEncodingException {
-        if (stream != null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-            StringBuilder builder = new StringBuilder();
-            for (String line = null; (line = reader.readLine()) != null;) {
-                builder.append(line).append("\n");
-            }
-            reader.close();
-            return builder.toString();
-        }
-        return "";
     }
     
     // Helper to log request success/failure/errors

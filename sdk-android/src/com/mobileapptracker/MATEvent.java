@@ -53,16 +53,16 @@ public class MATEvent implements Serializable {
     private String deviceForm;
     
     /**
-     * Initialize MATEventData with an event name
-     * @param eventName Event name in MAT system
+     * Initialize MATEvent with an event name
+     * @param eventName Event name in TUNE system
      */
     public MATEvent(String eventName) {
         this.eventName = eventName;
     }
     
     /**
-     * Initialize MATEventData with an event ID
-     * @param eventId Event ID in MAT system
+     * Initialize MATEvent with an event ID
+     * @param eventId Event ID in TUNE system
      */
     public MATEvent(int eventId) {
         this.eventId = eventId;

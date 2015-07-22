@@ -9,5 +9,5 @@ public interface MATResponse {
     
     public abstract void didFailWithError(JSONObject error);
     
-    public abstract void didReceiveDeeplink(String deeplink);
+    public abstract void didReceiveDeeplink(String deeplink, boolean timeout);
 }

@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -31,19 +32,19 @@ import android.webkit.WebView;
 public class MATParameters {
     // Application context
     private Context mContext;
-    // MAT SDK instance
-    private MobileAppTracker mMat;
+    // Tune SDK instance
+    private MobileAppTracker mTune;
 
     private static MATParameters INSTANCE = null;
 
     public MATParameters() {
     }
     
-    public static MATParameters init(MobileAppTracker mat, Context context, String advertiserId, String conversionKey) {
+    public static MATParameters init(MobileAppTracker tune, Context context, String advertiserId, String conversionKey) {
         if (INSTANCE == null) {
             // Only instantiate and populate common params the first time
             INSTANCE = new MATParameters();
-            INSTANCE.mMat = mat;
+            INSTANCE.mTune = tune;
             INSTANCE.mContext = context;
             INSTANCE.populateParams(context, advertiserId, conversionKey);
         }
@@ -62,9 +63,10 @@ public class MATParameters {
      * Helper to populate the device params to send
      * @param context the application Context
      * @param advertiserId the advertiser id in MAT
+     * @param conversionKey the conversion key in MAT
      * @return whether params were successfully collected or not
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings( "deprecation" )
     @SuppressLint("NewApi")
     private synchronized boolean populateParams(Context context, String advertiserId, String conversionKey) {
         try {
@@ -74,9 +76,9 @@ public class MATParameters {
 
             // Default params
             setCurrencyCode(MATConstants.DEFAULT_CURRENCY_CODE);
-            
-            new Thread(new GetGAID(context)).start();
 
+            new Thread(new GetGAID(context)).start();
+            
             // Execute Runnable on UI thread to set user agent
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new GetUserAgent(mContext));
@@ -134,7 +136,7 @@ public class MATParameters {
             setScreenWidth(Integer.toString(width));
             setScreenHeight(Integer.toString(height));
 
-            // Set the device connection type, WIFI or mobile
+            // Set the device connection type, wifi or mobile
             ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (mWifi.isConnected()) {
@@ -144,14 +146,16 @@ public class MATParameters {
             }
 
             // Network and locale info
-            setLanguage(Locale.getDefault().getDisplayLanguage(Locale.US));
-            TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+            setLanguage(Locale.getDefault().getLanguage());
+            setCountryCode(Locale.getDefault().getCountry());
+            setTimeZone(TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT, Locale.US));
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             if (tm != null) {
                 if (tm.getNetworkCountryIso() != null) {
                     setCountryCode(tm.getNetworkCountryIso());
                 }
                 setDeviceCarrier(tm.getNetworkOperatorName());
-
+                
                 // Set Mobile Country Code and Mobile Network Code
                 String networkOperator = tm.getNetworkOperator();
                 if (networkOperator != null) {
@@ -176,7 +180,7 @@ public class MATParameters {
             
             return true;
         } catch (Exception e) {
-            Log.d(MATConstants.TAG, "MobileAppTracker initialization failed");
+            Log.d(MATConstants.TAG, "MobileAppTracking params initialization failed");
             e.printStackTrace();
             return false;
         }
@@ -204,26 +208,26 @@ public class MATParameters {
                 Method getLATMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient$Info").getDeclaredMethod("isLimitAdTrackingEnabled");
                 boolean isLAT = ((Boolean) getLATMethod.invoke(adInfo)).booleanValue();
                 
-                // mMat's params may not be initialized by the time this thread finishes
-                if (mMat.params == null) {
+                // mTune's params may not be initialized by the time this thread finishes
+                if (mTune.params == null) {
                     // Call the setters manually
                     setGoogleAdvertisingId(adId);
                     int intLimit = isLAT? 1 : 0;
                     setGoogleAdTrackingLimited(Integer.toString(intLimit));
                 }
-                // Set GAID in SDK singleton, in order to set receivedGAID flag and GAID for dplinkr
-                mMat.setGoogleAdvertisingId(adId, isLAT);
+                // Set GAID in SDK singleton
+                mTune.setGoogleAdvertisingId(adId, isLAT);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(MATConstants.TAG, "MAT SDK failed to get Google Advertising Id, collecting ANDROID_ID instead");
                 
-                // mMat's params may not be initialized by the time this thread finishes
-                if (mMat.params == null) {
+                // mTune's params may not be initialized by the time this thread finishes
+                if (mTune.params == null) {
                     // Call the setter manually
                     setAndroidId(Secure.getString(weakContext.get().getContentResolver(), Secure.ANDROID_ID));
                 }
                 // Set ANDROID_ID in SDK singleton, in order to set ANDROID_ID for dplinkr
-                mMat.setAndroidId(Secure.getString(weakContext.get().getContentResolver(), Secure.ANDROID_ID));
+                mTune.setAndroidId(Secure.getString(weakContext.get().getContentResolver(), Secure.ANDROID_ID));
             }
         }
     }
@@ -271,7 +275,7 @@ public class MATParameters {
     public synchronized void setAdvertiserId(String advertiserId) {
         mAdvertiserId = advertiserId;
     }
-
+    
     private String mAge = null;
     public synchronized String getAge() {
         return mAge;
@@ -440,6 +444,14 @@ public class MATParameters {
         mDeviceModel = model;
     }
 
+    private boolean mDebugMode = false;
+    public synchronized boolean getDebugMode() {
+        return mDebugMode;
+    }
+    public synchronized void setDebugMode(boolean debug) {
+        mDebugMode = debug;
+    }
+    
     private String mExistingUser = null;
     public synchronized String getExistingUser() {
         return mExistingUser;
@@ -447,7 +459,7 @@ public class MATParameters {
     public synchronized void setExistingUser(String existingUser) {
         mExistingUser = existingUser;
     }
-
+    
     private String mFbUserId = null;
     public synchronized String getFacebookUserId() {
         return mFbUserId;
@@ -455,7 +467,7 @@ public class MATParameters {
     public synchronized void setFacebookUserId(String fb_user_id) {
         mFbUserId = fb_user_id;
     }
-
+    
     private String mGender = null;
     public synchronized String getGender() {
         return mGender;
@@ -479,7 +491,7 @@ public class MATParameters {
     public synchronized void setGoogleAdTrackingLimited(String limited) {
         mGaidLimited = limited;
     }
-
+    
     private String mGgUserId = null;
     public synchronized String getGoogleUserId() {
         return mGgUserId;
@@ -505,17 +517,17 @@ public class MATParameters {
     }
 
     public synchronized String getInstallReferrer() {
-        return getStringFromSharedPreferences(MATConstants.KEY_REFERRER);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_REFERRER);
     }
     public synchronized void setInstallReferrer(String installReferrer) {
-        saveToSharedPreferences(MATConstants.KEY_REFERRER, installReferrer);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_REFERRER, installReferrer);
     }
-
+    
     public synchronized String getIsPayingUser() {
-        return getStringFromSharedPreferences(MATConstants.KEY_PAYING_USER);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_PAYING_USER);
     }
     public synchronized void setIsPayingUser(String isPayingUser) {
-        saveToSharedPreferences(MATConstants.KEY_PAYING_USER, isPayingUser);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_PAYING_USER, isPayingUser);
     }
 
     private String mLanguage = null;
@@ -527,10 +539,10 @@ public class MATParameters {
     }
 
     public synchronized String getLastOpenLogId() {
-        return getStringFromSharedPreferences(MATConstants.KEY_LAST_LOG_ID);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_LAST_LOG_ID);
     }
     public synchronized void setLastOpenLogId(String logId) {
-        saveToSharedPreferences(MATConstants.KEY_LAST_LOG_ID, logId);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_LAST_LOG_ID, logId);
     }
 
     private String mLatitude = null;
@@ -569,10 +581,10 @@ public class MATParameters {
         if (mContext.getSharedPreferences("mat_id", Context.MODE_PRIVATE).contains("mat_id")) {
             return mContext.getSharedPreferences("mat_id", Context.MODE_PRIVATE).getString("mat_id", "");
         }
-        return getStringFromSharedPreferences(MATConstants.KEY_MAT_ID);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_MAT_ID);
     }
     public synchronized void setMatId(String matId) {
-        saveToSharedPreferences(MATConstants.KEY_MAT_ID, matId);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_MAT_ID, matId);
     }
 
     private String mMCC = null;
@@ -592,10 +604,10 @@ public class MATParameters {
     }
 
     public synchronized String getOpenLogId() {
-        return getStringFromSharedPreferences(MATConstants.KEY_LOG_ID);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_LOG_ID);
     }
     public synchronized void setOpenLogId(String logId) {
-        saveToSharedPreferences(MATConstants.KEY_LOG_ID, logId);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_LOG_ID, logId);
     }
 
     private String mOsVersion = null;
@@ -615,13 +627,13 @@ public class MATParameters {
     }
     
     public synchronized String getPhoneNumber() {
-        return getStringFromSharedPreferences(MATConstants.KEY_PHONE_NUMBER);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_PHONE_NUMBER);
     }
     public synchronized void setPhoneNumber(String phoneNumber) {
-        saveToSharedPreferences(MATConstants.KEY_PHONE_NUMBER, phoneNumber);
-        setPhoneNumberMd5(MATEncryption.md5(phoneNumber));
-        setPhoneNumberSha1(MATEncryption.sha1(phoneNumber));
-        setPhoneNumberSha256(MATEncryption.sha256(phoneNumber));
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_PHONE_NUMBER, phoneNumber);
+        setPhoneNumberMd5(MATUtils.md5(phoneNumber));
+        setPhoneNumberSha1(MATUtils.sha1(phoneNumber));
+        setPhoneNumberSha256(MATUtils.sha256(phoneNumber));
     }
     
     private String mPhoneNumberMd5;
@@ -740,7 +752,15 @@ public class MATParameters {
     public synchronized void setSiteId(String siteId) {
         mSiteId = siteId;
     }
-    
+
+    private String mTimeZone = null;
+    public synchronized String getTimeZone() {
+        return mTimeZone;
+    }
+    public synchronized void setTimeZone(String timeZone) {
+        mTimeZone = timeZone;
+    }
+
     private String mTrackingId = null;
     public synchronized String getTrackingId() {
         return mTrackingId;
@@ -756,7 +776,7 @@ public class MATParameters {
     public synchronized void setTRUSTeId(String tpid) {
         mTrusteId = tpid;
     }
-
+    
     private String mTwUserId = null;
     public synchronized String getTwitterUserId() {
         return mTwUserId;
@@ -772,15 +792,15 @@ public class MATParameters {
     private void setUserAgent(String userAgent) {
         mUserAgent = userAgent;
     }
-
+    
     public synchronized String getUserEmail() {
-        return getStringFromSharedPreferences(MATConstants.KEY_USER_EMAIL);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_USER_EMAIL);
     }
     public synchronized void setUserEmail(String userEmail) {
-        saveToSharedPreferences(MATConstants.KEY_USER_EMAIL, userEmail);
-        setUserEmailMd5(MATEncryption.md5(userEmail));
-        setUserEmailSha1(MATEncryption.sha1(userEmail));
-        setUserEmailSha256(MATEncryption.sha256(userEmail));
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_USER_EMAIL, userEmail);
+        setUserEmailMd5(MATUtils.md5(userEmail));
+        setUserEmailSha1(MATUtils.sha1(userEmail));
+        setUserEmailSha256(MATUtils.sha256(userEmail));
     }
     
     private String mUserEmailMd5;
@@ -819,20 +839,20 @@ public class MATParameters {
     }
 
     public synchronized String getUserId() {
-        return getStringFromSharedPreferences(MATConstants.KEY_USER_ID);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_USER_ID);
     }
     public synchronized void setUserId(String user_id) {
-        saveToSharedPreferences(MATConstants.KEY_USER_ID, user_id);
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_USER_ID, user_id);
     }
 
     public synchronized String getUserName() {
-        return getStringFromSharedPreferences(MATConstants.KEY_USER_NAME);
+        return MATUtils.getStringFromSharedPreferences(mContext, MATConstants.KEY_USER_NAME);
     }
     public synchronized void setUserName(String userName) {
-        saveToSharedPreferences(MATConstants.KEY_USER_NAME, userName);
-        setUserNameMd5(MATEncryption.md5(userName));
-        setUserNameSha1(MATEncryption.sha1(userName));
-        setUserNameSha256(MATEncryption.sha256(userName));
+        MATUtils.saveToSharedPreferences(mContext, MATConstants.KEY_USER_NAME, userName);
+        setUserNameMd5(MATUtils.md5(userName));
+        setUserNameSha1(MATUtils.sha1(userName));
+        setUserNameSha256(MATUtils.sha256(userName));
     }
     
     private String mUserNameMd5;
@@ -857,17 +877,5 @@ public class MATParameters {
     }
     public synchronized void setUserNameSha256(String userNameSha256) {
         mUserNameSha256 = userNameSha256;
-    }
-    
-    /*
-     * Helper functions for shared prefs
-     */
-    
-    private synchronized void saveToSharedPreferences(String prefsKey, String prefsValue) {
-        mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).edit().putString(prefsKey, prefsValue).commit();
-    }
-
-    private synchronized String getStringFromSharedPreferences(String prefsKey) {
-        return mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).getString(prefsKey, "");
     }
 }

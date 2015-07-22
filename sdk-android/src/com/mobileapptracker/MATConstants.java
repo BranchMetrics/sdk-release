@@ -1,8 +1,8 @@
 package com.mobileapptracker;
 
 class MATConstants {
-    // SharedPreferences filename for MAT
-    static final String PREFS_MAT = "com.mobileapptracking";
+    // SharedPreferences filename for TUNE
+    static final String PREFS_TUNE = "com.mobileapptracking";
     // SharedPreferences filename for queued events
     static final String PREFS_QUEUE = "mat_queue";
     
@@ -38,7 +38,7 @@ class MATConstants {
     static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
     
     // MAT Android SDK version number
-    static final String SDK_VERSION = "3.9.1";
+    static final String SDK_VERSION = "3.10.0";
     // Debug log tag
     static final String TAG = "MobileAppTracker";
     // Max number of events to dump when queued

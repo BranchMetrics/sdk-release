@@ -35,11 +35,9 @@ import android.widget.Toast;
  * @author john.gu@hasoffers.com
  */
 public class MobileAppTracker {
-    public static final int GENDER_MALE = 0;
-    public static final int GENDER_FEMALE = 1;
-    
     private final String IV = "heF9BATUfWuISyO8";
     
+    /* Protected fields needed for unit tests */
     // Connectivity receiver
     protected BroadcastReceiver networkStateReceiver;
     // The context passed into the constructor
@@ -51,7 +49,9 @@ public class MobileAppTracker {
     // Parameters container
     protected MATParameters params;
     // Interface for testing URL requests
-    protected MATTestRequest matRequest; // note: this has no setter - must subclass to set
+    protected MATTestRequest tuneRequest; // note: this has no setter - must subclass to set
+    
+    protected MATUser mUser;
     // Whether variables were initialized correctly
     protected boolean initialized;
     // Whether connectivity receiver is registered or not
@@ -61,13 +61,14 @@ public class MobileAppTracker {
     private MATDeferredDplinkr dplinkr;
     // Preloaded apps data values to send
     private MATPreloadData mPreloadData;
+    
     // Interface for making url requests
     private MATUrlRequester urlRequester;
     // Encryptor for url
     private MATEncryption encryption;
     // Interface for reading platform response to tracking calls
-    private MATResponse matResponse;
-    
+    private MATResponse tuneListener;
+
     // Whether to show debug output
     private boolean debugMode;
     // Whether to open deferred deeplinks
@@ -80,9 +81,9 @@ public class MobileAppTracker {
     private boolean firstSession;
     // Whether we're invoking FB event logging
     private boolean fbLogging;
-    // Time that MAT was initialized
+    // Time that SDK was initialized
     private long initTime;
-    // Time that MAT received referrer
+    // Time that SDK received referrer
     private long referrerTime;
     
     // Whether Google Advertising ID was received
@@ -94,41 +95,42 @@ public class MobileAppTracker {
     // Thread pool for running the request Runnables
     ExecutorService pool;
     
-    private static volatile MobileAppTracker mat = null;
+    private static volatile MobileAppTracker tune = null;
 
     protected MobileAppTracker() {
     }
 
     /**
-     * Get existing MAT singleton object
-     * @return MobileAppTracker instance
+     * Get existing TUNE singleton object
+     * @return Tune instance
      */
     public static synchronized MobileAppTracker getInstance() {
-        return mat;
+        return tune;
     }
 
     /**
-     * Initializes a MobileAppTracker.
+     * Initializes the TUNE SDK.
      * @param context the application context
-     * @param advertiserId the MAT advertiser ID for the app
-     * @param conversionKey the MAT advertiser key for the app
-     * @return MobileAppTracker instance with initialized values
+     * @param advertiserId the TUNE advertiser ID for the app
+     * @param conversionKey the TUNE advertiser key for the app
+     * @return Tune instance with initialized values
      */
     public static synchronized MobileAppTracker init(Context context, final String advertiserId, final String conversionKey) {
-        if (mat == null) {
-            mat = new MobileAppTracker();
-            mat.mContext = context.getApplicationContext();
-            mat.pubQueue = Executors.newSingleThreadExecutor();
+        if (tune == null) {
+            tune = new MobileAppTracker();
+            tune.mContext = context.getApplicationContext();
+            tune.pubQueue = Executors.newSingleThreadExecutor();
+            tune.mUser = new MATUser();
             
-            mat.initAll(advertiserId, conversionKey);
+            tune.initAll(advertiserId, conversionKey);
         }
-        return mat;
+        return tune;
     }
     
     /**
-     * Private initialization function for MobileAppTracker.
-     * @param advertiserId the MAT advertiser ID for the app
-     * @param conversionKey the MAT conversion key for the app
+     * Private initialization function for TUNE SDK.
+     * @param advertiserId the TUNE advertiser ID for the app
+     * @param conversionKey the TUNE conversion key for the app
      */
     protected void initAll(String advertiserId, String conversionKey) {
         // Dplinkr init
@@ -178,7 +180,7 @@ public class MobileAppTracker {
         encryption = new MATEncryption(key.trim(), IV);
         
         initTime = System.currentTimeMillis();
-        gotReferrer = !(mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).getString(MATConstants.KEY_REFERRER, "").equals(""));
+        gotReferrer = !(mContext.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getString(MATConstants.KEY_REFERRER, "").equals(""));
         firstInstall = false;
         firstSession = true;
         initialized = false;
@@ -207,13 +209,13 @@ public class MobileAppTracker {
         
         pool.execute(eventQueue.new Dump());
     }
-    
+
     /**
      * Main session measurement function; this function should be called in onResume().
      */
     public void measureSession() {
         // If no SharedPreferences value for install exists, set it and mark firstInstall true
-        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE);
+        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE);
         if (!installed.contains(MATConstants.KEY_INSTALL)) {
             installed.edit().putBoolean(MATConstants.KEY_INSTALL, true).commit();
             firstInstall = true;
@@ -225,7 +227,7 @@ public class MobileAppTracker {
     
     /**
      * Event measurement function that measures an event for the given eventName.
-     * @param eventName event name in MAT system
+     * @param eventName event name in TUNE system
      */
     public void measureEvent(String eventName) {
         measureEvent(new MATEvent(eventName));
@@ -233,16 +235,16 @@ public class MobileAppTracker {
     
     /**
      * Event measurement function that measures an event for the given eventId.
-     * @param eventId event ID in MAT system
+     * @param eventId event ID in TUNE system
      */
     public void measureEvent(int eventId) {
         measureEvent(new MATEvent(eventId));
     }
     
     /**
-     * Event measurement function that measures an event based on MATEventData values.
-     * Create a MATEventData to pass in with:</br>
-     * <pre>new MATEventData.Builder(eventName).build()</pre>
+     * Event measurement function that measures an event based on TuneEvent values.
+     * Create a TuneEvent to pass in with:</br>
+     * <pre>new TuneEvent(eventName)</pre>
      * @param eventData custom data to associate with the event
      */
     public void measureEvent(final MATEvent eventData) {
@@ -273,11 +275,13 @@ public class MobileAppTracker {
         }
         
         if (eventData.getRevenue() > 0) {
-            params.setIsPayingUser(Integer.toString(1));
+            if (mUser != null) {
+                mUser.withPayingUser(true);
+            }
         }
         
         String link = MATUrlBuilder.buildLink(eventData, mPreloadData, debugMode);
-        String data = MATUrlBuilder.buildDataUnencrypted(eventData);
+        String data = MATUrlBuilder.buildDataUnencrypted(eventData, mUser);
         JSONArray eventItemsJson = new JSONArray();
         if (eventData.getEventItems() != null) {
             for (int i = 0; i < eventData.getEventItems().size(); i++) {
@@ -286,8 +290,8 @@ public class MobileAppTracker {
         }
         JSONObject postBody = MATUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
         
-        if (matRequest != null) {
-            matRequest.constructedRequest(link, data, postBody);
+        if (tuneRequest != null) {
+            tuneRequest.constructedRequest(link, data, postBody);
         }
         
         addEventToQueue(link, data, postBody, firstSession);
@@ -295,8 +299,8 @@ public class MobileAppTracker {
         firstSession = false;
         dumpQueue();
         
-        if (matResponse != null) {
-            matResponse.enqueuedActionWithRefId(eventData.getRefId());
+        if (tuneListener != null) {
+            tuneListener.enqueuedActionWithRefId(eventData.getRefId());
         }
         
         return;
@@ -317,21 +321,21 @@ public class MobileAppTracker {
         // The only way we get null from MATUrlRequester is if *our server* returned HTTP 400.
         // In that case, we should not retry this request.
         if (response == null) {
-            if (matResponse != null) {
+            if (tuneListener != null) {
                 // null isn't the most useful error message, but at least it's a notification
-                matResponse.didFailWithError(response);
+                tuneListener.didFailWithError(response);
             }
-            return true; // request went through, don't retry
+            return true;
         }
         
         // if response is empty, it should be requeued
         if (!response.has("success")) {
             if (debugMode) Log.d(MATConstants.TAG, "Request failed, event will remain in queue");
-            return false; // request failed to reach our server, retry
+            return false;
         }
 
-        // notify matResponse of success or failure
-        if (matResponse != null) {
+        // notify tuneListener of success or failure
+        if (tuneListener != null) {
             boolean success = false;
             try {
                 if (response.getString("success").equals("true")) {
@@ -339,13 +343,13 @@ public class MobileAppTracker {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                return false; // request failed to reach our server, retry
+                return false;
             }
 
             if (success) {
-                matResponse.didSucceedWithData(response);
+                tuneListener.didSucceedWithData(response);
             } else {
-                matResponse.didFailWithError(response);
+                tuneListener.didFailWithError(response);
             }
         }
 
@@ -378,13 +382,13 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the MAT advertiser ID.
-     * @return MAT advertiser ID
+     * Gets the TUNE advertiser ID.
+     * @return TUNE advertiser ID
      */
     public String getAdvertiserId() {
         return params.getAdvertiserId();
     }
-
+    
     /**
      * Gets the user age set.
      * @return age
@@ -399,6 +403,14 @@ public class MobileAppTracker {
      */
     public double getAltitude() {
         return Double.parseDouble(params.getAltitude());
+    }
+
+    /**
+     * Gets the ANDROID_ID of the device
+     * @return ANDROID_ID
+     */
+    public String getAndroidId() {
+        return params.getAndroidId();
     }
 
     /**
@@ -459,14 +471,6 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the device model name
-     * @return device model name
-     */
-    public String getDeviceModel() {
-        return params.getDeviceModel();
-    }
-
-    /**
      * Gets the device carrier if any
      * @return mobile device carrier/service provider name
      */
@@ -475,6 +479,22 @@ public class MobileAppTracker {
     }
 
     /**
+     * Gets the Device ID, also known as IMEI/MEID, if any
+     * @return device IMEI/MEID
+     */
+    public String getDeviceId() {
+        return params.getDeviceId();
+    }
+
+    /**
+     * Gets the device model name
+     * @return device model name
+     */
+    public String getDeviceModel() {
+        return params.getDeviceModel();
+    }
+    
+    /**
      * Gets value previously set of existing user or not.
      * @return whether user existed prior to install
      */
@@ -482,7 +502,7 @@ public class MobileAppTracker {
         int intExisting = Integer.parseInt(params.getExistingUser());
         return (intExisting == 1);
     }
-
+    
     /**
      * Gets the Facebook user ID previously set.
      * @return Facebook user ID
@@ -490,7 +510,7 @@ public class MobileAppTracker {
     public String getFacebookUserId() {
         return params.getFacebookUserId();
     }
-
+    
     /**
      * Gets the user gender set.
      * @return gender 0 for male, 1 for female
@@ -513,7 +533,7 @@ public class MobileAppTracker {
      */
     public boolean getGoogleAdTrackingLimited() {
         int intLimited = Integer.parseInt(params.getGoogleAdTrackingLimited());
-        return intLimited == 0? false : true;
+        return intLimited == 0 ? false : true;
     }
 
     /**
@@ -523,7 +543,7 @@ public class MobileAppTracker {
     public String getGoogleUserId() {
         return params.getGoogleUserId();
     }
-
+    
     /**
      * Gets the date of app install
      * @return date that app was installed, epoch seconds
@@ -548,7 +568,7 @@ public class MobileAppTracker {
         String isPayingUser = params.getIsPayingUser();
         return isPayingUser.equals("1");
     }
-
+    
     /**
      * Gets the language of the device
      * @return device language
@@ -558,8 +578,8 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the last MAT open log ID
-     * @return most recent MAT open log ID
+     * Gets the last TUNE open log ID
+     * @return most recent TUNE open log ID
      */
     public String getLastOpenLogId() {
         return params.getLastOpenLogId();
@@ -579,6 +599,14 @@ public class MobileAppTracker {
      */
     public double getLongitude() {
         return Double.parseDouble(params.getLongitude());
+    }
+
+    /**
+     * Gets the MAC address of device
+     * @return device MAC address
+     */
+    public String getMacAddress() {
+        return params.getMacAddress();
     }
 
     /**
@@ -606,8 +634,8 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the first MAT open log ID
-     * @return first MAT open log ID
+     * Gets the first TUNE open log ID
+     * @return first TUNE open log ID
      */
     public String getOpenLogId() {
         return params.getOpenLogId();
@@ -632,7 +660,7 @@ public class MobileAppTracker {
 
     /**
      * Get SDK plugin name used
-     * @return name of MAT plugin
+     * @return name of TUNE plugin
      */
     public String getPluginName() {
         return params.getPluginName();
@@ -677,7 +705,7 @@ public class MobileAppTracker {
     public String getScreenDensity() {
         return params.getScreenDensity();
     }
-
+    
     /**
      * Gets the screen height of the device in pixels
      * @return height
@@ -695,16 +723,16 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the MAT SDK version
-     * @return MAT SDK version
+     * Gets the TUNE SDK version
+     * @return TUNE SDK version
      */
     public String getSDKVersion() {
         return params.getSdkVersion();
     }
 
     /**
-     * Gets the MAT site ID set
-     * @return site ID in MAT
+     * Gets the TUNE site ID set
+     * @return site ID in TUNE
      */
     public String getSiteId() {
         return params.getSiteId();
@@ -717,13 +745,17 @@ public class MobileAppTracker {
     public String getTRUSTeId() {
         return params.getTRUSTeId();
     }
-
+    
     /**
      * Gets the Twitter user ID previously set.
      * @return Twitter user ID
      */
     public String getTwitterUserId() {
         return params.getTwitterUserId();
+    }
+
+    public MATUser getUser() {
+        return mUser;
     }
 
     /**
@@ -733,7 +765,7 @@ public class MobileAppTracker {
     public String getUserAgent() {
         return params.getUserAgent();
     }
-
+    
     /**
      * Gets the custom user email.
      * @return custom user email
@@ -763,15 +795,15 @@ public class MobileAppTracker {
      ******************/
 
     /**
-     * Sets the MAT advertiser ID
-     * @param advertiserId MAT advertiser ID
+     * Sets the TUNE advertiser ID
+     * @param advertiserId TUNE advertiser ID
      */
     public void setAdvertiserId(final String advertiserId) {
         pubQueue.execute(new Runnable() { public void run() {
             params.setAdvertiserId(advertiserId);
         }});
     }
-
+    
     /**
      * Sets the user's age.
      * @param age User age to track in MAT
@@ -791,13 +823,16 @@ public class MobileAppTracker {
             params.setAltitude(Double.toString(altitude));
         }});
     }
-
+    
     /**
      * Sets the ANDROID ID
      * @param androidId ANDROID_ID
      */
     public void setAndroidId(final String androidId) {
-        dplinkr.setAndroidId(androidId);
+        if (dplinkr != null) {
+            dplinkr.setAndroidId(androidId);
+        }
+        // Params sometimes not initialized by the time GetGAID thread finishes
         if (params != null) {
             params.setAndroidId(androidId);
         }
@@ -852,6 +887,16 @@ public class MobileAppTracker {
     }
 
     /**
+     * Sets the conversion key for the SDK
+     * @param conversionKey TUNE conversion key
+     */
+    public void setConversionKey(final String conversionKey) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setConversionKey(conversionKey);
+        }});
+    }
+
+    /**
      * Sets the ISO 4217 currency code.
      * @param currency_code the currency code
      */
@@ -894,7 +939,7 @@ public class MobileAppTracker {
             params.setDeviceModel(deviceModel);
         }});
     }
-
+    
     /**
      * Sets whether app was previously installed prior to version with MAT SDK
      * @param existing true if this user already had the app installed prior to updating to MAT version
@@ -908,7 +953,7 @@ public class MobileAppTracker {
             }
         }});
     }
-
+    
     /**
      * Sets the user ID to associate with Facebook
      * @param fb_user_id
@@ -918,7 +963,7 @@ public class MobileAppTracker {
             params.setFacebookUserId(fb_user_id);
         }});
     }
-
+    
     /**
      * Sets the user gender.
      * @param gender use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE
@@ -937,7 +982,9 @@ public class MobileAppTracker {
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled? 1 : 0;
         
-        dplinkr.setGoogleAdvertisingId(adId, intLimit);
+        if (dplinkr != null) {
+            dplinkr.setGoogleAdvertisingId(adId, intLimit);
+        }
         if (params != null) {
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
@@ -954,7 +1001,7 @@ public class MobileAppTracker {
             checkForDeferredDeeplink(deferredDplinkTimeout);
         }
     }
-
+    
     /**
      * Sets the user ID to associate with Google
      * @param google_user_id
@@ -976,11 +1023,11 @@ public class MobileAppTracker {
         if (params != null) {
             params.setReferrerDelay(referrerTime - initTime);
         }
-        pubQueue.execute(new Runnable() { public void run() {
+        pubQueue.execute(new Runnable() { public void run() { 
             params.setInstallReferrer(referrer);
         }});
     }
-
+    
     /**
      * Sets whether the user is revenue-generating or not
      * @param isPayingUser true if the user has produced revenue, false if not
@@ -1000,31 +1047,28 @@ public class MobileAppTracker {
      * @param latitude the device latitude
      */
     public void setLatitude(final double latitude) {
-        pubQueue.execute(new Runnable() { public void run() {
+        pubQueue.execute(new Runnable() { public void run() { 
             params.setLatitude(Double.toString(latitude));
         }});
     }
-
-    /**
-     * Sets the device location.
-     * @param location the device location
-     */
+    
     public void setLocation(final Location location) {
         pubQueue.execute(new Runnable() { public void run() {
             params.setLocation(location);
         }});
     }
+
     
     /**
      * Sets the device longitude.
      * @param longitude the device longitude
      */
     public void setLongitude(final double longitude) {
-        pubQueue.execute(new Runnable() { public void run() {
+        pubQueue.execute(new Runnable() { public void run() { 
             params.setLongitude(Double.toString(longitude));
         }});
     }
-
+    
     /**
      * Sets the device MAC address.
      * @param macAddress device MAC address
@@ -1037,11 +1081,11 @@ public class MobileAppTracker {
 
     /**
      * Register a MATResponse interface to receive server response callback
-     * @param response a MATResponse object that will be called when server request is complete
+     * @param listener a MATResponse object that will be called when server request is complete
      */
-    public void setMATResponse(MATResponse response) {
-        matResponse = response;
-        dplinkr.setDelegate(response);
+    public void setMATResponse(MATResponse listener) {
+        tuneListener = listener;
+        dplinkr.setListener(listener);
     }
     
     /**
@@ -1083,7 +1127,9 @@ public class MobileAppTracker {
                 int numberParsed = Integer.parseInt(String.valueOf(phoneNumberDigits.charAt(i)));
                 digitsBuilder.append(numberParsed);
             }
-            params.setPhoneNumber(digitsBuilder.toString());
+            if (mUser != null) {
+                mUser.withPhoneNumber(digitsBuilder.toString());
+            }
         }});
     }
     
@@ -1115,8 +1161,8 @@ public class MobileAppTracker {
     }
 
     /**
-     * Sets the MAT site ID to specify which app to attribute to
-     * @param siteId MAT site ID to attribute to
+     * Sets the TUNE site ID to specify which app to attribute to
+     * @param siteId TUNE site ID to attribute to
      */
     public void setSiteId(final String siteId) {
         pubQueue.execute(new Runnable() { public void run() { 
@@ -1133,7 +1179,7 @@ public class MobileAppTracker {
             params.setTRUSTeId(tpid);
         }});
     }
-
+    
     /**
      * Sets the user ID to associate with Twitter
      * @param twitter_user_id
@@ -1143,7 +1189,7 @@ public class MobileAppTracker {
             params.setTwitterUserId(twitter_user_id);
         }});
     }
-
+    
     /**
      * Sets the custom user email.
      * @param userEmail the user email
@@ -1172,6 +1218,23 @@ public class MobileAppTracker {
         pubQueue.execute(new Runnable() { public void run() { 
             params.setUserName(userName);
         }});
+    }
+
+    public void setUser(MATUser user) {
+        // Save auto-retrieved values if new ones don't exist
+        boolean isPayingUser = user.getIsPayingUser() == false ? mUser.getIsPayingUser() : user.getIsPayingUser();
+        String userEmail = user.getUserEmail() == null ? mUser.getUserEmail() : user.getUserEmail();
+        String userId = user.getUserId() == null ? mUser.getUserId() : user.getUserId();
+        String userName = user.getUserName() == null? mUser.getUserName() : user.getUserName();
+        String phoneNumber = user.getPhoneNumber() == null? mUser.getPhoneNumber() : user.getPhoneNumber();
+        
+        mUser = user;
+        // Restore previous values after setting user
+        mUser.withPayingUser(isPayingUser)
+             .withUserEmail(userEmail)
+             .withUserId(userId)
+             .withUserName(userName)
+             .withPhoneNumber(phoneNumber);
     }
 
     /**
@@ -1207,7 +1270,7 @@ public class MobileAppTracker {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
-                    Toast.makeText(mContext, "MAT Allow Duplicate Requests Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "TUNE Allow Duplicate Requests Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -1217,13 +1280,16 @@ public class MobileAppTracker {
      * Turns debug mode on or off, under tag "MobileAppTracker".
      * @param debug whether to enable debug output
      */
-    public void setDebugMode(boolean debug) {
+    public void setDebugMode(final boolean debug) {
         debugMode = debug;
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setDebugMode(debug);
+        }});
         if (debug) {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
-                    Toast.makeText(mContext, "MAT Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "TUNE Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -1251,7 +1317,9 @@ public class MobileAppTracker {
                 // Set primary Gmail address as user email
                 Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
                 if (accounts.length > 0) {
-                    params.setUserEmail(accounts[0].name);
+                    if (mUser != null) {
+                        mUser.withUserEmail(accounts[0].name);
+                    }
                 }
                 
                 // Store the rest of email addresses
@@ -1265,15 +1333,13 @@ public class MobileAppTracker {
                 Set<String> emailKeys = emailMap.keySet();
                 String[] emailArr = emailKeys.toArray(new String[emailKeys.size()]);
                 params.setUserEmails(emailArr);
-            } else {
-                params.setUserEmail(null);
             }
         }});
     }
     
     /**
-     * Whether to log MAT events in the FB SDK as well
-     * @param logging Whether to send MAT events to FB as well
+     * Whether to log TUNE events in the FB SDK as well
+     * @param logging Whether to send TUNE events to FB as well
      * @param context Activity context
      * @param limitEventAndDataUsage Whether user opted out of ads targeting
      */
@@ -1287,7 +1353,6 @@ public class MobileAppTracker {
     /**
      * Helper function to open a deferred deeplink if exists
      * @param timeout maximum timeout to wait for deeplink in ms
-     * @return deferred deeplink url
      */
     private String checkForDeferredDeeplink(int timeout) {
         if (firstInstall) {
@@ -1342,14 +1407,17 @@ public class MobileAppTracker {
                     deeplink = referrer.substring(deeplinkStart, deeplinkEnd);
                 }
 
+                // Try to decode deeplink if needed
+                deeplink = URLDecoder.decode(deeplink, "UTF-8");
                 // Open deeplink
                 if (deeplink.length() != 0) {
-                    if (matResponse != null) {
-                        matResponse.didReceiveDeeplink(deeplink);
+                    if (tuneListener != null) {
+                        tuneListener.didReceiveDeeplink(deeplink);
                     }
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(deeplink));
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    
                     mContext.startActivity(i);
                 }
             } catch (Exception e) {

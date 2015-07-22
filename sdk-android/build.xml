@@ -96,56 +96,12 @@
         <jar compress="true" destfile="MobileAppTracker-javadoc.jar" basedir="doc" />
     </target>
 
-    <target name="-obfuscate">
-        <if condition="${proguard.enabled}">
-            <then>
-                <property name="obfuscate.absolute.dir" location="${out.absolute.dir}/proguard" />
-                <property name="preobfuscate.jar.file" value="${obfuscate.absolute.dir}/original.jar" />
-                <property name="obfuscated.jar.file" value="${out.absolute.dir}/../MobileAppTracker.jar" />
-                <!-- input for dex will be proguard's output -->
-                <property name="out.dex.input.absolute.dir" value="${obfuscated.jar.file}" />
-
-                <!-- Add Proguard Tasks -->
-                <property name="proguard.jar" location="${android.tools.dir}/proguard/lib/proguard.jar" />
-                <taskdef name="proguard" classname="proguard.ant.ProGuardTask" classpath="${proguard.jar}" />
-
-                <mkdir   dir="${obfuscate.absolute.dir}" />
-                <delete file="${preobfuscate.jar.file}"/>
-                <delete file="${obfuscated.jar.file}"/>
-                <jar basedir="${out.classes.absolute.dir}"
-                    destfile="${preobfuscate.jar.file}" />
-                <proguard>
-                    -injars       "${preobfuscate.jar.file}"
-                    -outjars      "${obfuscated.jar.file}"
-                    -libraryjars  "${android.jar}"
-                    
-                    -optimizationpasses 5
-                    -dontusemixedcaseclassnames
-                    -dontskipnonpubliclibraryclasses
-                    -dontpreverify
-                    -verbose
-                    -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*,!code/allocation/variable
-                    
-                    -keepparameternames
-                    
-                    -keepattributes Signature
-                    
-                    -keep public class com.mobileapptracker.** {
-                        public protected *;
-                    }
-                    
-                    -keepclassmembers enum * {
-                        public static **[] values();
-                        public static ** valueOf(java.lang.String);
-                    }
-                    
-                    -dump         "${obfuscate.absolute.dir}/dump.txt"
-                    -printseeds   "${obfuscate.absolute.dir}/seeds.txt"
-                    -printusage   "${obfuscate.absolute.dir}/usage.txt"
-                    -printmapping "${obfuscate.absolute.dir}/mapping.txt"
-                </proguard>
-            </then>
-        </if>
+    <target name="jar" depends="release">
+        <delete file="MobileAppTracker.jar" />
+        <jar destfile="MobileAppTracker.jar"
+           basedir="bin/classes"
+           includes="com/mobileapptracker/** com/tune/**" >
+        </jar>
     </target>
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />

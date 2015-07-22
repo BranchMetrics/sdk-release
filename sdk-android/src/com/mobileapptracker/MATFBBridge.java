@@ -125,22 +125,22 @@ class MATFBBridge {
             limitMethodParams[1] = boolean.class;
             
             // Call the FB AppEventsLogger's activateApp method with Context
-            Method activateMethod = Class.forName("com.facebook.AppEventsLogger").getMethod("activateApp", activateMethodParams);
+            Method activateMethod = Class.forName("com.facebook.appevents.AppEventsLogger").getMethod("activateApp", activateMethodParams);
             Object[] activateArgs = new Object[1];
             activateArgs[0] = context;
             activateMethod.invoke(null, activateArgs);
             
             justActivated = true;
             
-            // Call FB Setting's setLimitEventAndDataUsage method with Context and limitEvent setting
-            Method limitMethod = Class.forName("com.facebook.Settings").getMethod("setLimitEventAndDataUsage", limitMethodParams);
+            // Call FacebookSdk's setLimitEventAndDataUsage method with Context and limitEvent setting
+            Method limitMethod = Class.forName("com.facebook.FacebookSdk").getMethod("setLimitEventAndDataUsage", limitMethodParams);
             Object[] limitArgs = new Object[2];
             limitArgs[0] = context;
             limitArgs[1] = limitEventAndDataUsage;
             limitMethod.invoke(null, limitArgs);
             
             // Call the AppEventsLogger's newLogger method with same Context
-            Method loggerMethod = Class.forName("com.facebook.AppEventsLogger").getMethod("newLogger", activateMethodParams);
+            Method loggerMethod = Class.forName("com.facebook.appevents.AppEventsLogger").getMethod("newLogger", activateMethodParams);
             logger = loggerMethod.invoke(null, activateArgs);
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,7 +165,7 @@ class MATFBBridge {
                  */
                 String fbEventName = event.getEventName();
                 double valueToSum = event.getRevenue();
-                MATParameters matParams = MATParameters.getInstance();
+                MATParameters tuneParams = MATParameters.getInstance();
                 
                 String eventNameLower = event.getEventName().toLowerCase(Locale.US);
                 if (eventNameLower.contains("session")) {
@@ -218,7 +218,7 @@ class MATFBBridge {
                 addBundleValue(bundle, EVENT_PARAM_SEARCH_STRING, event.getSearchString());
                 addBundleValue(bundle, EVENT_PARAM_NUM_ITEMS, Integer.toString(event.getQuantity()));
                 addBundleValue(bundle, EVENT_PARAM_LEVEL, Integer.toString(event.getLevel()));
-                addBundleValue(bundle, "tune_referral_source", matParams.getReferralSource());
+                addBundleValue(bundle, "tune_referral_source", tuneParams.getReferralSource());
                 addBundleValue(bundle, "tune_source_sdk", "TUNE-MAT");
                 
                 Object[] args = new Object[3];

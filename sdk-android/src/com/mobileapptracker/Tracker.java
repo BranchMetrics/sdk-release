@@ -24,19 +24,19 @@ public class Tracker extends BroadcastReceiver {
                 String rawReferrer = intent.getStringExtra("referrer");
                 if (rawReferrer != null) {
                     String referrer = URLDecoder.decode(rawReferrer, "UTF-8");
-                    Log.d(MATConstants.TAG, "MAT received referrer " + referrer);
+                    Log.d(MATConstants.TAG, "TUNE received referrer " + referrer);
                     
                     // Save the referrer value in SharedPreferences
-                    context.getSharedPreferences(MATConstants.PREFS_MAT, Context.MODE_PRIVATE).edit().putString(MATConstants.KEY_REFERRER, referrer).commit();
+                    context.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).edit().putString(MATConstants.KEY_REFERRER, referrer).commit();
                     
                     // Notify threadpool waiting for referrer and GAID
-                    MobileAppTracker mat = MobileAppTracker.getInstance();
-                    if (mat != null) {
-                        mat.setInstallReferrer(referrer);
-                        if (mat.gotGaid && !mat.notifiedPool) {
-                            synchronized (mat.pool) {
-                                mat.pool.notifyAll();
-                                mat.notifiedPool = true;
+                    MobileAppTracker tune = MobileAppTracker.getInstance();
+                    if (tune != null) {
+                        tune.setInstallReferrer(referrer);
+                        if (tune.gotGaid && !tune.notifiedPool) {
+                            synchronized (tune.pool) {
+                                tune.pool.notifyAll();
+                                tune.notifiedPool = true;
                             }
                         }
                     }
