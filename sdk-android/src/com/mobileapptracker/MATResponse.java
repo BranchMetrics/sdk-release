@@ -8,6 +8,4 @@ public interface MATResponse {
     public abstract void didSucceedWithData(JSONObject data);
     
     public abstract void didFailWithError(JSONObject error);
-    
-    public abstract void didReceiveDeeplink(String deeplink, boolean timeout);
 }

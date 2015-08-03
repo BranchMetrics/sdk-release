@@ -1,8 +1,6 @@
 package com.mobileapptracker;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 
 class MATDeferredDplinkr {
     private String advertiserId;
@@ -12,7 +10,8 @@ class MATDeferredDplinkr {
     private int isLATEnabled;
     private String androidId;
     private String userAgent;
-    private MATResponse listener;
+    private MATDeeplinkListener listener;
+    private boolean enabled;
     
     private static volatile MATDeferredDplinkr dplinkr;
     
@@ -92,56 +91,43 @@ class MATDeferredDplinkr {
         return dplinkr.androidId;
     }
     
-    public void setListener(MATResponse response) {
-        dplinkr.listener = response;
+    public void setListener(MATDeeplinkListener listener) {
+        dplinkr.listener = listener;
     }
     
-    public MATResponse getListener() {
+    public MATDeeplinkListener getListener() {
         return dplinkr.listener;
     }
     
-    public String checkForDeferredDeeplink(Context context, MATUrlRequester urlRequester, int timeout) {
-        MATDplink dplink = new MATDplink("", false);
-        
-        // If advertiser ID, conversion key, or package name were not set, return
-        if (dplinkr.advertiserId == null || dplinkr.conversionKey == null || dplinkr.packageName == null) {
-            return dplink.deeplink;
-        }
-
-        // If no device identifiers collected, return
-        if (dplinkr.googleAdvertisingId == null && dplinkr.androidId == null) {
-            return dplink.deeplink;
-        }
-
-        // Query for deeplink url and open
-        try {
-            dplink = urlRequester.requestDeeplink(dplinkr, timeout);
-            // Notify delegate of deeplink url
-            if (listener != null) {
-                listener.didReceiveDeeplink(dplink.deeplink, dplink.timeout);
-            }
-            if (dplink.deeplink.length() != 0) {
-                // Open the deferred deeplink url only if it didn't timeout
-                if (!dplink.timeout) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(dplink.deeplink));
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(i);
-                }
-            }
-        } catch (Exception e) {
-        }
-        
-        return dplink.deeplink;
+    public void enable(boolean enable) {
+        enabled = enable;
     }
     
-    protected class MATDplink {
-        public String deeplink;
-        public boolean timeout;
-        
-        public MATDplink(String deeplink, boolean timeout) {
-            this.deeplink = deeplink;
-            this.timeout = timeout;
-        }
+    public boolean isEnabled() {
+        return enabled;
+    }
+    
+    public void checkForDeferredDeeplink(final Context context, final MATUrlRequester urlRequester) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // If advertiser ID, conversion key, or package name were not set, return
+                if (dplinkr.advertiserId == null || dplinkr.conversionKey == null || dplinkr.packageName == null) {
+                    if (listener != null) {
+                        listener.didFailDeeplink("Advertiser ID, conversion key, or package name not set");
+                    }
+                }
+                
+                // If no device identifiers collected, return
+                if (dplinkr.googleAdvertisingId == null && dplinkr.androidId == null) {
+                    if (listener != null) {
+                        listener.didFailDeeplink("No device identifiers collected");
+                    }
+                }
+                
+                // Query for deeplink url
+                urlRequester.requestDeeplink(dplinkr);
+            }
+        }).start();
     }
 }

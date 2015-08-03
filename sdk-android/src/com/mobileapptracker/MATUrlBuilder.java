@@ -95,7 +95,7 @@ class MATUrlBuilder {
      * Builds data in conversion link based on class member values, to be encrypted.
      * @return URL-encoded string based on class settings.
      */
-    public static synchronized String buildDataUnencrypted(MATEvent eventData, MATUser user) {
+    public static synchronized String buildDataUnencrypted(MATEvent eventData) {
         params = MATParameters.getInstance();
 
         StringBuilder link = new StringBuilder();
@@ -177,47 +177,24 @@ class MATUrlBuilder {
             safeAppend(link, "device_form", eventData.getDeviceForm());
         }
         
-        // Append user-level params
-        if (user != null) {
-            safeAppend(link, "age", Integer.toString(user.getAge()));
-            safeAppend(link, "existing_user", user.getIsExistingUser() ? "1" : "0");
-            safeAppend(link, "facebook_user_id", user.getFacebookUserId());
-            // Pass gender if not unknown
-            if (user.getGender() != MATGender.UNKNOWN) {
-                safeAppend(link, "gender", Integer.toString(user.getGender().ordinal()));
-            }
-            safeAppend(link, "google_user_id", user.getGoogleUserId());
-            safeAppend(link, "is_paying_user", user.getIsPayingUser() ? "1" : "0");
-            safeAppend(link, "twitter_user_id", user.getTwitterUserId());
-            safeAppend(link, "user_email_md5", user.getUserEmailMd5());
-            safeAppend(link, "user_email_sha1", user.getUserEmailSha1());
-            safeAppend(link, "user_email_sha256", user.getUserEmailSha256());
-            safeAppend(link, "user_id", user.getUserId());
-            safeAppend(link, "user_name_md5", user.getUserNameMd5());
-            safeAppend(link, "user_name_sha1", user.getUserNameSha1());
-            safeAppend(link, "user_name_sha256", user.getUserNameSha256());
-            safeAppend(link, "user_phone_md5", user.getPhoneNumberMd5());
-            safeAppend(link, "user_phone_sha1", user.getPhoneNumberSha1());
-            safeAppend(link, "user_phone_sha256", user.getPhoneNumberSha256());
-        } else {
-            safeAppend(link, "age", params.getAge());
-            safeAppend(link, "existing_user", params.getExistingUser());
-            safeAppend(link, "facebook_user_id", params.getFacebookUserId());
-            safeAppend(link, "gender", params.getGender());
-            safeAppend(link, "google_user_id", params.getGoogleUserId());
-            safeAppend(link, "is_paying_user", params.getIsPayingUser());
-            safeAppend(link, "twitter_user_id", params.getTwitterUserId());
-            safeAppend(link, "user_email_md5", params.getUserEmailMd5());
-            safeAppend(link, "user_email_sha1", params.getUserEmailSha1());
-            safeAppend(link, "user_email_sha256", params.getUserEmailSha256());
-            safeAppend(link, "user_id", params.getUserId());
-            safeAppend(link, "user_name_md5", params.getUserNameMd5());
-            safeAppend(link, "user_name_sha1", params.getUserNameSha1());
-            safeAppend(link, "user_name_sha256", params.getUserNameSha256());
-            safeAppend(link, "user_phone_md5", params.getPhoneNumberMd5());
-            safeAppend(link, "user_phone_sha1", params.getPhoneNumberSha1());
-            safeAppend(link, "user_phone_sha256", params.getPhoneNumberSha256());
-        }
+        // Append user information
+        safeAppend(link, "age", params.getAge());
+        safeAppend(link, "existing_user", params.getExistingUser());
+        safeAppend(link, "facebook_user_id", params.getFacebookUserId());
+        safeAppend(link, "gender", params.getGender());
+        safeAppend(link, "google_user_id", params.getGoogleUserId());
+        safeAppend(link, "is_paying_user", params.getIsPayingUser());
+        safeAppend(link, "twitter_user_id", params.getTwitterUserId());
+        safeAppend(link, "user_email_md5", params.getUserEmailMd5());
+        safeAppend(link, "user_email_sha1", params.getUserEmailSha1());
+        safeAppend(link, "user_email_sha256", params.getUserEmailSha256());
+        safeAppend(link, "user_id", params.getUserId());
+        safeAppend(link, "user_name_md5", params.getUserNameMd5());
+        safeAppend(link, "user_name_sha1", params.getUserNameSha1());
+        safeAppend(link, "user_name_sha256", params.getUserNameSha256());
+        safeAppend(link, "user_phone_md5", params.getPhoneNumberMd5());
+        safeAppend(link, "user_phone_sha1", params.getPhoneNumberSha1());
+        safeAppend(link, "user_phone_sha256", params.getPhoneNumberSha256());
         
         return link.toString();
     }
@@ -251,7 +228,7 @@ class MATUrlBuilder {
             if (userAgent != null && !data.contains("&conversion_user_agent=")) {
                 safeAppend(updatedData, "conversion_user_agent", userAgent);
             }
-            String fbUserId = MobileAppTracker.getInstance().getUser().getFacebookUserId();
+            String fbUserId = params.getFacebookUserId();
             if (fbUserId != null && !data.contains("&facebook_user_id=")) {
                 safeAppend(updatedData, "facebook_user_id", fbUserId);
             }

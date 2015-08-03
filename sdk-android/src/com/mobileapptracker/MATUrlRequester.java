@@ -10,20 +10,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.mobileapptracker.MATDeferredDplinkr;
-import com.mobileapptracker.MATDeferredDplinkr.MATDplink;
-
 import android.net.Uri;
 import android.util.Log;
 
 class MATUrlRequester {
-    public MATDplink requestDeeplink(MATDeferredDplinkr dplinkr, int timeout) {
+    public void requestDeeplink(MATDeferredDplinkr dplinkr) {
         String deeplink = "";
-        boolean timedOut = false;
-        
-        // Log deeplink request start and end time to check for timeout
-        long startTime = System.currentTimeMillis();
-        
         InputStream is = null;
         
         // Construct deeplink endpoint url
@@ -52,18 +44,27 @@ class MATUrlRequester {
             conn.setDoInput(true);
             
             conn.connect();
+            
+            boolean error = false;
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 is = conn.getInputStream();
             } else {
+                error = true;
                 is = conn.getErrorStream();
-            }
-            long endTime = System.currentTimeMillis();
-            if ((endTime - startTime) > timeout) {
-                timedOut = true;
             }
             
             deeplink = MATUtils.readStream(is);
+            MATDeeplinkListener listener = dplinkr.getListener();
+            if (listener != null) {
+                if (error) {
+                    // Notify listener of error
+                    listener.didFailDeeplink(deeplink);
+                } else {
+                    // Notify listener of deeplink url
+                    listener.didReceiveDeeplink(deeplink);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -73,7 +74,6 @@ class MATUrlRequester {
                 e.printStackTrace();
             }
         }
-        return dplinkr.new MATDplink(deeplink, timedOut);
     }
     
     /**

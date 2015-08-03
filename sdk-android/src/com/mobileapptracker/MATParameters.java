@@ -472,8 +472,14 @@ public class MATParameters {
     public synchronized String getGender() {
         return mGender;
     }
-    public synchronized void setGender(String gender) {
-        mGender = gender;
+    public synchronized void setGender(MATGender gender) {
+        if (gender == MATGender.MALE) {
+            mGender = "0";
+        } else if (gender == MATGender.FEMALE) {
+            mGender = "1";
+        } else {
+            mGender = "";
+        }
     }
 
     private String mGaid = null;

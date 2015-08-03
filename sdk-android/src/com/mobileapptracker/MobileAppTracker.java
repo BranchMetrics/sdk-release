@@ -50,8 +50,7 @@ public class MobileAppTracker {
     protected MATParameters params;
     // Interface for testing URL requests
     protected MATTestRequest tuneRequest; // note: this has no setter - must subclass to set
-    
-    protected MATUser mUser;
+
     // Whether variables were initialized correctly
     protected boolean initialized;
     // Whether connectivity receiver is registered or not
@@ -71,12 +70,6 @@ public class MobileAppTracker {
 
     // Whether to show debug output
     private boolean debugMode;
-    // Whether to open deferred deeplinks
-    private boolean deferredDplink;
-    // Max timeout to wait for deferred deeplink
-    private int deferredDplinkTimeout;
-    // If this is the first app install, try to find deferred deeplink
-    private boolean firstInstall;
     // If this is the first session of the app lifecycle, wait for the GAID and referrer
     private boolean firstSession;
     // Whether we're invoking FB event logging
@@ -120,7 +113,6 @@ public class MobileAppTracker {
             tune = new MobileAppTracker();
             tune.mContext = context.getApplicationContext();
             tune.pubQueue = Executors.newSingleThreadExecutor();
-            tune.mUser = new MATUser();
             
             tune.initAll(advertiserId, conversionKey);
         }
@@ -181,7 +173,6 @@ public class MobileAppTracker {
         
         initTime = System.currentTimeMillis();
         gotReferrer = !(mContext.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getString(MATConstants.KEY_REFERRER, "").equals(""));
-        firstInstall = false;
         firstSession = true;
         initialized = false;
         isRegistered = false;
@@ -214,13 +205,6 @@ public class MobileAppTracker {
      * Main session measurement function; this function should be called in onResume().
      */
     public void measureSession() {
-        // If no SharedPreferences value for install exists, set it and mark firstInstall true
-        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE);
-        if (!installed.contains(MATConstants.KEY_INSTALL)) {
-            installed.edit().putBoolean(MATConstants.KEY_INSTALL, true).commit();
-            firstInstall = true;
-        }
-
         notifiedPool = false;
         measureEvent(new MATEvent("session"));
     }
@@ -275,13 +259,11 @@ public class MobileAppTracker {
         }
         
         if (eventData.getRevenue() > 0) {
-            if (mUser != null) {
-                mUser.withPayingUser(true);
-            }
+            params.setIsPayingUser("1");
         }
         
         String link = MATUrlBuilder.buildLink(eventData, mPreloadData, debugMode);
-        String data = MATUrlBuilder.buildDataUnencrypted(eventData, mUser);
+        String data = MATUrlBuilder.buildDataUnencrypted(eventData);
         JSONArray eventItemsJson = new JSONArray();
         if (eventData.getEventItems() != null) {
             for (int i = 0; i < eventData.getEventItems().size(); i++) {
@@ -754,10 +736,6 @@ public class MobileAppTracker {
         return params.getTwitterUserId();
     }
 
-    public MATUser getUser() {
-        return mUser;
-    }
-
     /**
      * Gets the device browser user agent
      * @return device user agent
@@ -831,14 +809,11 @@ public class MobileAppTracker {
     public void setAndroidId(final String androidId) {
         if (dplinkr != null) {
             dplinkr.setAndroidId(androidId);
+            requestDeeplink();
         }
         // Params sometimes not initialized by the time GetGAID thread finishes
         if (params != null) {
             params.setAndroidId(androidId);
-        }
-        
-        if (deferredDplink) {
-            checkForDeferredDeeplink(deferredDplinkTimeout);
         }
     }
     
@@ -910,6 +885,10 @@ public class MobileAppTracker {
         }});
     }
     
+    public void setDeeplinkListener(MATDeeplinkListener listener) {
+        dplinkr.setListener(listener);
+    }
+    
     /**
      * Sets the device brand, or manufacturer
      * @param deviceBrand device brand
@@ -966,11 +945,11 @@ public class MobileAppTracker {
     
     /**
      * Sets the user gender.
-     * @param gender use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE
+     * @param gender use MATGender.MALE, MATGender.FEMALE
      */
-    public void setGender(final int gender) {
+    public void setGender(final MATGender gender) {
         pubQueue.execute(new Runnable() { public void run() {
-            params.setGender(Integer.toString(gender));
+            params.setGender(gender);
         }});
     }
 
@@ -984,6 +963,7 @@ public class MobileAppTracker {
         
         if (dplinkr != null) {
             dplinkr.setGoogleAdvertisingId(adId, intLimit);
+            requestDeeplink();
         }
         if (params != null) {
             params.setGoogleAdvertisingId(adId);
@@ -995,10 +975,6 @@ public class MobileAppTracker {
                 pool.notifyAll();
                 notifiedPool = true;
             }
-        }
-        
-        if (deferredDplink) {
-            checkForDeferredDeeplink(deferredDplinkTimeout);
         }
     }
     
@@ -1085,7 +1061,6 @@ public class MobileAppTracker {
      */
     public void setMATResponse(MATResponse listener) {
         tuneListener = listener;
-        dplinkr.setListener(listener);
     }
     
     /**
@@ -1127,9 +1102,7 @@ public class MobileAppTracker {
                 int numberParsed = Integer.parseInt(String.valueOf(phoneNumberDigits.charAt(i)));
                 digitsBuilder.append(numberParsed);
             }
-            if (mUser != null) {
-                mUser.withPhoneNumber(digitsBuilder.toString());
-            }
+            params.setPhoneNumber(digitsBuilder.toString());
         }});
     }
     
@@ -1220,23 +1193,6 @@ public class MobileAppTracker {
         }});
     }
 
-    public void setUser(MATUser user) {
-        // Save auto-retrieved values if new ones don't exist
-        boolean isPayingUser = user.getIsPayingUser() == false ? mUser.getIsPayingUser() : user.getIsPayingUser();
-        String userEmail = user.getUserEmail() == null ? mUser.getUserEmail() : user.getUserEmail();
-        String userId = user.getUserId() == null ? mUser.getUserId() : user.getUserId();
-        String userName = user.getUserName() == null? mUser.getUserName() : user.getUserName();
-        String phoneNumber = user.getPhoneNumber() == null? mUser.getPhoneNumber() : user.getPhoneNumber();
-        
-        mUser = user;
-        // Restore previous values after setting user
-        mUser.withPayingUser(isPayingUser)
-             .withUserEmail(userEmail)
-             .withUserId(userId)
-             .withUserName(userName)
-             .withPhoneNumber(phoneNumber);
-    }
-
     /**
      * Set the name of plugin used, if any
      * @param plugin_name
@@ -1296,16 +1252,6 @@ public class MobileAppTracker {
     }
     
     /**
-     * Enables or disables opening deferred deeplinks
-     * @param enableDeferredDeeplink whether to open deferred deeplinks
-     * @param timeout maximum timeout to wait for deeplink in ms
-     */
-    public void setDeferredDeeplink(boolean enableDeferredDeeplink, int timeout) {
-        deferredDplink = enableDeferredDeeplink;
-        deferredDplinkTimeout = timeout;
-    }
-    
-    /**
      * Enables or disables primary Gmail address collection
      * Requires GET_ACCOUNTS permission
      * @param collectEmail whether to collect device email address
@@ -1317,9 +1263,7 @@ public class MobileAppTracker {
                 // Set primary Gmail address as user email
                 Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
                 if (accounts.length > 0) {
-                    if (mUser != null) {
-                        mUser.withUserEmail(accounts[0].name);
-                    }
+                    params.setUserEmail(accounts[0].name);
                 }
                 
                 // Store the rest of email addresses
@@ -1351,16 +1295,42 @@ public class MobileAppTracker {
     }
     
     /**
-     * Helper function to open a deferred deeplink if exists
-     * @param timeout maximum timeout to wait for deeplink in ms
+     * Checks for a deferred deeplink if exists
+     * Opens deferred deeplink if found and returns value in MATDplinkListener
+     * @param listener listener for deeplink value or error
      */
-    private String checkForDeferredDeeplink(int timeout) {
-        if (firstInstall) {
+    public void checkForDeferredDeeplink(MATDeeplinkListener listener) {
+        setDeeplinkListener(listener);
+        if (firstInstall()) {
+            dplinkr.enable(true);
+        } else {
+            dplinkr.enable(false);
+        }
+        // If GetGAID thread has completed by the time this is called,
+        // then get the deeplink now. Otherwise, wait until device identifiers are set
+        if (dplinkr.getGoogleAdvertisingId() != null || dplinkr.getAndroidId() != null) {
+            requestDeeplink();
+        }
+    }
+    
+    private void requestDeeplink() {
+        if (dplinkr.isEnabled()) {
             // Try to set user agent here after User Agent thread completed
             dplinkr.setUserAgent(params.getUserAgent());
-            return dplinkr.checkForDeferredDeeplink(mContext, urlRequester, timeout);
+            dplinkr.checkForDeferredDeeplink(mContext, urlRequester);
         }
-        return "";
+    }
+    
+    private boolean firstInstall() {
+        // If SharedPreferences value for install exists, set firstInstall false
+        SharedPreferences installed = mContext.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE);
+        if (installed.contains(MATConstants.KEY_INSTALL)) {
+            return false;
+        } else {
+            // Set install value in SharedPreferences if not there
+            installed.edit().putBoolean(MATConstants.KEY_INSTALL, true).commit();
+            return true;
+        }
     }
     
     /**

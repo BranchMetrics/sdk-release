@@ -10,10 +10,8 @@ import org.json.JSONObject;
 import android.content.res.Configuration;
 import android.location.Location;
 
-import com.mobileapptracker.MobileAppTracker;
 import com.mobileapptracker.MATGender;
 import com.mobileapptracker.MATParameters;
-import com.mobileapptracker.MATUser;
 
 /**
  * Class for holding params to send with ad metadata
@@ -133,22 +131,32 @@ public class TuneAdParams {
         timeZone = params.getTimeZone();
         userAgent = params.getUserAgent();
 
-        MATUser user = MobileAppTracker.getInstance().getUser();
-        gender = user.getGender();
-        facebookUserId = user.getFacebookUserId();
-        googleUserId = user.getGoogleUserId();
-        twitterUserId = user.getTwitterUserId();
-        payingUser = user.getIsPayingUser();
-        userEmailMd5 = user.getUserEmailMd5();
-        userEmailSha1 = user.getUserEmailSha1();
-        userEmailSha256 = user.getUserEmailSha256();
-        userId = user.getUserId();
-        userNameMd5 = user.getUserNameMd5();
-        userNameSha1 = user.getUserNameSha1();
-        userNameSha256 = user.getUserNameSha256();
-        userPhoneMd5 = user.getPhoneNumberMd5();
-        userPhoneSha1 = user.getPhoneNumberSha1();
-        userPhoneSha256 = user.getPhoneNumberSha256();
+        String matGender = params.getGender();
+        if (matGender.equals("0")) {
+            gender = MATGender.MALE;
+        } else if (matGender.equals("1")) {
+            gender = MATGender.FEMALE;
+        } else {
+            gender = MATGender.UNKNOWN;
+        }
+        facebookUserId = params.getFacebookUserId();
+        googleUserId = params.getGoogleUserId();
+        twitterUserId = params.getTwitterUserId();
+        if (params.getIsPayingUser().equals("1")) {
+            payingUser = true;
+        } else {
+            payingUser = false;
+        }
+        userEmailMd5 = params.getUserEmailMd5();
+        userEmailSha1 = params.getUserEmailSha1();
+        userEmailSha256 = params.getUserEmailSha256();
+        userId = params.getUserId();
+        userNameMd5 = params.getUserNameMd5();
+        userNameSha1 = params.getUserNameSha1();
+        userNameSha256 = params.getUserNameSha256();
+        userPhoneMd5 = params.getPhoneNumberMd5();
+        userPhoneSha1 = params.getPhoneNumberSha1();
+        userPhoneSha256 = params.getPhoneNumberSha256();
         
         // Default adsize: landscape dimensions = portrait flipped
         if (lastOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -185,9 +193,7 @@ public class TuneAdParams {
             }
 
             // Set the same params in MAT
-            if (user != null) {
-                user.withGender(gender);
-            }
+            params.setGender(gender);
             if (location != null) {
                 params.setLocation(location);
             }
