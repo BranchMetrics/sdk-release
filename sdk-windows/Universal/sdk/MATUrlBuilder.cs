@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Newtonsoft.Json;
 
-
-
-namespace MobileAppTracking 
+namespace MobileAppTracking
 {
     public class MATUrlBuilder
     {
-        internal static URLInfo BuildUrl(string action, string eventName, double revenue, string currency, string refId, List<MATEventItem> eventItems, MATParameters parameters)
+        //TODO: Look into using JSON rather than strings
+        public static string BuildUrl(string action, string eventName, double revenue, string currency, string refId, List<MATEventItem> eventItems, MATParameters parameters)
         {
             StringBuilder url = new StringBuilder("https://");
             url.Append(Uri.EscapeUriString(parameters.advertiserId)).Append(".");
@@ -21,7 +20,7 @@ namespace MobileAppTracking
             url.Append("&advertiser_id=").Append(Uri.EscapeUriString(parameters.advertiserId));
             url.Append("&mat_id=").Append(Uri.EscapeUriString(parameters.MatId));
             url.Append("&action=").Append(Uri.EscapeUriString(action));
-            url.Append("&package_name=").Append(Uri.EscapeUriString(parameters.PackageName)); 
+            url.Append("&package_name=").Append(Uri.EscapeUriString(parameters.PackageName));
             url.Append("&transaction_id=").Append(Guid.NewGuid().ToString().ToUpper());
             // Append event name/ID for events
             if (action.Equals("conversion"))
@@ -52,30 +51,26 @@ namespace MobileAppTracking
             long timestamp = UnixTimestamp();
             data.Append("&system_date=").Append(timestamp.ToString());
 
+            data.Append("&windows_aid=").Append(Uri.EscapeUriString(parameters.WindowsAid));
             data.Append("&app_name=").Append(Uri.EscapeUriString(parameters.AppName));
             data.Append("&app_version=").Append(Uri.EscapeUriString(parameters.AppVersion));
-            data.Append("&device_brand=").Append(Uri.EscapeUriString(parameters.DeviceBrand));
-            data.Append("&device_model=").Append(Uri.EscapeUriString(parameters.DeviceModel));
-            data.Append("&device_carrier=").Append(Uri.EscapeUriString(parameters.DeviceCarrier));
-            data.Append("&device_screen_size=").Append(Uri.EscapeUriString(parameters.DeviceScreenSize));
-            data.Append("&os_id=").Append(Uri.EscapeUriString(parameters.DeviceUniqueId));
-            data.Append("&os_version=").Append(Uri.EscapeUriString(parameters.OSVersion));
-
-
+            data.Append("&os_id=").Append(Uri.EscapeUriString(parameters.ASHWID));
+            if (parameters.UserAgent != null)
+                data.Append("&user_agent=").Append(Uri.EscapeUriString(parameters.UserAgent));
             if (parameters.AppAdTracking)
                 data.Append("&app_ad_tracking=1");
             else
                 data.Append("&app_ad_tracking=0");
 
             if (revenue > 0)
-                data.Append("&revenue=").Append(Uri.EscapeUriString(revenue.ToString()));
+                data.Append("&revenue=").Append(Uri.EscapeUriString(revenue.ToString(parameters.culture)));
             if (currency != null)
                 data.Append("&currency_code=").Append(Uri.EscapeUriString(currency));
             if (refId != null)
                 data.Append("&advertiser_ref_id=").Append(Uri.EscapeUriString(refId));
 
             if (parameters.Age > 0)
-                data.Append("&age=").Append(Uri.EscapeUriString(parameters.Age.ToString()));
+                data.Append("&age=").Append(Uri.EscapeUriString(parameters.Age.ToString(parameters.culture)));
             data.Append("&altitude=").Append(Uri.EscapeUriString(parameters.Altitude.ToString()));
             if (parameters.EventContentType != null)
                 data.Append("&content_type=").Append(Uri.EscapeUriString(parameters.EventContentType));
@@ -100,18 +95,24 @@ namespace MobileAppTracking
                 data.Append("&attribute_sub4=").Append(Uri.EscapeUriString(parameters.EventAttribute4));
             if (parameters.EventAttribute5 != null)
                 data.Append("&attribute_sub5=").Append(Uri.EscapeUriString(parameters.EventAttribute5));
+            if (parameters.DeviceBrand != null)
+                data.Append("&device_brand=").Append(Uri.EscapeUriString(parameters.DeviceBrand));
+            if (parameters.DeviceModel != null)
+                data.Append("&device_model=").Append(Uri.EscapeUriString(parameters.DeviceModel));
+            if (parameters.DeviceType != null)
+                data.Append("&device_type=").Append(Uri.EscapeUriString(parameters.DeviceType));
             if (parameters.FacebookUserId != null)
                 data.Append("&facebook_user_id=").Append(Uri.EscapeUriString(parameters.FacebookUserId));
             if (parameters.Gender != MATGender.NONE)
-                data.Append("&gender=").Append(Uri.EscapeUriString(parameters.Gender.ToString()));
+                data.Append("&gender=").Append(Uri.EscapeUriString(((int)parameters.Gender).ToString(parameters.culture)));
             if (parameters.GoogleUserId != null)
                 data.Append("&google_user_id=").Append(Uri.EscapeUriString(parameters.GoogleUserId));
             if (parameters.IsPayingUser != false)
                 data.Append("&is_paying_user=1");
             if (parameters.Latitude != 0)
-                data.Append("&latitude=").Append(Uri.EscapeUriString(parameters.Latitude.ToString()));
+                data.Append("&latitude=").Append(Uri.EscapeUriString(parameters.Latitude.ToString(parameters.culture)));
             if (parameters.Longitude != 0)
-                data.Append("&longitude=").Append(Uri.EscapeUriString(parameters.Longitude.ToString()));
+                data.Append("&longitude=").Append(Uri.EscapeUriString(parameters.Longitude.ToString(parameters.culture)));
             if (parameters.PhoneNumber != null)
             {
                 data.Append("&user_phone_md5=").Append(Uri.EscapeUriString(parameters.PhoneNumberMd5));
@@ -134,8 +135,6 @@ namespace MobileAppTracking
                 data.Append("&user_name_sha1=").Append(Uri.EscapeUriString(parameters.UserNameSha1));
                 data.Append("&user_name_sha256=").Append(Uri.EscapeUriString(parameters.UserNameSha256));
             }
-            if (parameters.WindowsAid != null)
-                data.Append("&windows_aid=").Append(Uri.EscapeUriString(parameters.WindowsAid));
 
             // Add event items to url as json string
             if (eventItems != null)
@@ -144,65 +143,28 @@ namespace MobileAppTracking
             if (parameters.matRequest != null)
                 parameters.matRequest.ParamsToBeEncrypted(data.ToString());
 
-            // Encrypt data string as byte array
-            /*byte[] encryptedDataBytes = urlEncrypter.Encrypt(data.ToString());
-
-            String decrypted = urlEncrypter.Decrypt(encryptedDataBytes);
-
-            // Convert byte[] to hex string to append to url
-            string dataStr = BitConverter.ToString(encryptedDataBytes).Replace("-", string.Empty);*/
-
-            //string dataStr = Encryption.ByteArrayToString(encryptedDataBytes);
-
-            url.Append("&data=").Append(data.ToString());
+            // Encrypt data string
+            string dataStr = parameters.urlEncrypter.Encrypt(data.ToString());
+            url.Append("&data=").Append(dataStr);
 
             url.Append("&response_format=json");
 
             if (parameters.matRequest != null)
                 parameters.matRequest.ConstructedRequest(url.ToString());
 
-            URLInfo newURL = new URLInfo();
-            newURL.url = url.ToString();
-            newURL.retryAttempt = 0;
-
-            return newURL;
+            return url.ToString();
         }
 
-        public class URLInfo
-        {
-            public string url { get; set; }
-            public int retryAttempt { get; set; }
-
-            public static implicit operator Tuple<string, int>(URLInfo urlInfo)
-            {
-                return Tuple.Create(urlInfo.url, urlInfo.retryAttempt);
-            }
-
-            public static implicit operator URLInfo(Tuple<string, int> info)
-            {
-                return new URLInfo()
-                {
-                    url = info.Item1,
-                    retryAttempt = info.Item2,
-                };
-            }
-
-            public URLInfo()
-            {
-            }
-        }
-
-        private static long UnixTimestamp()
+        public static long UnixTimestamp()
         {
             return UnixTimestamp(DateTime.UtcNow);
         }
 
-        protected static long UnixTimestamp(DateTime? date)
+        public static long UnixTimestamp(DateTime? date)
         {
             var utcEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var span = date - utcEpoch;
             return (long)(span ?? TimeSpan.Zero).TotalSeconds;
         }
-
     }
 }

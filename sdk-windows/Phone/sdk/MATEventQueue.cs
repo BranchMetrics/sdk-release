@@ -8,14 +8,12 @@ namespace MobileAppTracking
 {
     public class MATEventQueue
     {
-        private const string SETTINGS_MATEVENTQUEUE_KEY = "mat_event_queue";
-
         private readonly object syncLock;
         Thread queueThread;
 
-        Parameters parameters;
+        MATParameters parameters;
 
-        internal MATEventQueue(Parameters parameters)
+        internal MATEventQueue(MATParameters parameters)
         {
             syncLock = new object();
             this.parameters = parameters;
@@ -32,19 +30,19 @@ namespace MobileAppTracking
                     {
                         List<MATUrlBuilder.URLInfo> eventQueue;
                         // Get existing event queue or create new one
-                        if (IsolatedStorageSettings.ApplicationSettings.Contains(SETTINGS_MATEVENTQUEUE_KEY) &&
-                            IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>))
+                        if (IsolatedStorageSettings.ApplicationSettings.Contains(MATConstants.SETTINGS_MATEVENTQUEUE_KEY) &&
+                            IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>))
                         {
-                            eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY];
+                            eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY];
                         }
                         else // No existing queue, create
                         {
-                            IsolatedStorageSettings.ApplicationSettings.Remove(SETTINGS_MATEVENTQUEUE_KEY);
+                            IsolatedStorageSettings.ApplicationSettings.Remove(MATConstants.SETTINGS_MATEVENTQUEUE_KEY);
                             eventQueue = new List<MATUrlBuilder.URLInfo>();
                         }
 
                         eventQueue.Add(url);
-                        SaveLocalSetting(SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
+                        SaveLocalSetting(MATConstants.SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
                     });
                     queueThread.Start();
                 }
@@ -59,10 +57,10 @@ namespace MobileAppTracking
                 return;
 
             // Get existing event queue
-            if (IsolatedStorageSettings.ApplicationSettings.Contains(SETTINGS_MATEVENTQUEUE_KEY) &&
-                IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>)) //This only needs to be entered if a request was previously added to the queue
+            if (IsolatedStorageSettings.ApplicationSettings.Contains(MATConstants.SETTINGS_MATEVENTQUEUE_KEY) &&
+                IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>)) //This only needs to be entered if a request was previously added to the queue
             {
-                List<MATUrlBuilder.URLInfo> eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY];
+                List<MATUrlBuilder.URLInfo> eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY];
                 List<MATUrlBuilder.URLInfo> sentEvents = new List<MATUrlBuilder.URLInfo>();
 
                 if (eventQueue.Count == 0)
@@ -84,7 +82,7 @@ namespace MobileAppTracking
                 {
                     eventQueue.Remove(url);
                 }
-                SaveLocalSetting(SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
+                SaveLocalSetting(MATConstants.SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
             }
         }
 
@@ -95,7 +93,7 @@ namespace MobileAppTracking
             IsolatedStorageSettings.ApplicationSettings.Save();
         }
 
-        internal void ProcessTrackingRequest(string action, string eventName, double revenue, string currency, string refId, List<MATEventItem> eventItems, Parameters copy)
+        internal void ProcessTrackingRequest(string action, string eventName, double revenue, string currency, string refId, List<MATEventItem> eventItems, MATParameters copy)
         {
             lock (syncLock)
             {
@@ -106,20 +104,20 @@ namespace MobileAppTracking
                         DumpQueue(); //Clear anything from the last dump
                         List<MATUrlBuilder.URLInfo> eventQueue;
                         // Get existing event queue or create new one
-                        if (IsolatedStorageSettings.ApplicationSettings.Contains(SETTINGS_MATEVENTQUEUE_KEY) &&
-                            IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>))
+                        if (IsolatedStorageSettings.ApplicationSettings.Contains(MATConstants.SETTINGS_MATEVENTQUEUE_KEY) &&
+                            IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY].GetType() == typeof(List<MATUrlBuilder.URLInfo>))
                         {
-                            eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[SETTINGS_MATEVENTQUEUE_KEY];
+                            eventQueue = (List<MATUrlBuilder.URLInfo>)IsolatedStorageSettings.ApplicationSettings[MATConstants.SETTINGS_MATEVENTQUEUE_KEY];
                         }
                         else // No existing queue, create
                         {
-                            IsolatedStorageSettings.ApplicationSettings.Remove(SETTINGS_MATEVENTQUEUE_KEY);
+                            IsolatedStorageSettings.ApplicationSettings.Remove(MATConstants.SETTINGS_MATEVENTQUEUE_KEY);
                             eventQueue = new List<MATUrlBuilder.URLInfo>();
                         }
 
                         MATUrlBuilder.URLInfo url = MATUrlBuilder.BuildUrl(action, eventName, revenue, currency, refId, eventItems, copy);
                         eventQueue.Add(url);
-                        SaveLocalSetting(SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
+                        SaveLocalSetting(MATConstants.SETTINGS_MATEVENTQUEUE_KEY, eventQueue);
                         
                         if (parameters.matResponse != null)
                             parameters.matResponse.EnqueuedActionWithRefId(refId); 

@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using System.IO.IsolatedStorage;
+﻿using System;
+using System.Collections.Generic;
+using Windows.Networking.Connectivity;
+using Windows.Storage.Streams;
+using Windows.System.Profile;
 
-using Microsoft.Phone.Net.NetworkInformation;
-using System;
-using System.Threading;
-using System.Diagnostics;
-
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml;
+using Windows.UI.Core;
 
 namespace MobileAppTracking
 {
+
     public enum MATGender
     {
         MALE,
@@ -20,47 +22,17 @@ namespace MobileAppTracking
     {
         private static MobileAppTracker instance;
 
-        private MATEncryption urlEncrypter;
+        //private Encryption urlEncrypter;
         private bool nextConnectIsFirst = true;
+        // Handles the OnNetworkStatusChange event 
+        private NetworkStatusChangedEventHandler networkStatusCallback = null;
 
-        private MATParameters parameters;
-        internal MATEventQueue eventQueue;
+        protected internal MATParameters parameters;
+        protected internal MATEventQueue eventQueue;
+        
 
-        // Helper function to get value from ApplicationSettings
-        private object GetLocalSetting(string key)
+        protected internal MobileAppTracker()
         {
-            if (IsolatedStorageSettings.ApplicationSettings.Contains(key))
-                return IsolatedStorageSettings.ApplicationSettings[key];
-
-            return null;
-        }
-
-        private MobileAppTracker()
-        {
-        }
-
-        public static MobileAppTracker InitializeValues(string advId, string advKey)
-        {
-            if (instance == null) {
-                instance = new MobileAppTracker();
-            }
-
-            instance.urlEncrypter = new MATEncryption(advKey, MATConstants.IV);
-
-            // Attached objects for attributes, queue functionality, and more
-            instance.parameters = new MATParameters(advId, advKey);
-            instance.eventQueue = new MATEventQueue(instance.parameters);
-
-            // Add listener for network availability
-            DeviceNetworkInformation.NetworkAvailabilityChanged += instance.DeviceNetworkInformation_NetworkAvailabilityChanged;
-
-            // Check for Internet connectivity and send queued requests 
-            if (DeviceNetworkInformation.IsNetworkAvailable)
-            {
-                instance.eventQueue.DumpQueue();
-            }
-
-            return instance;
         }
 
         // Lazy instantiation singleton
@@ -71,20 +43,88 @@ namespace MobileAppTracking
             }
         }
 
-
-        private void DeviceNetworkInformation_NetworkAvailabilityChanged(object sender, NetworkNotificationEventArgs e)
+        public static MobileAppTracker InitializeValues(string advId, string advKey)
         {
-            if (!DeviceNetworkInformation.IsNetworkAvailable)
-            {
-                nextConnectIsFirst = true;
+            if (instance == null) {
+                instance = new MobileAppTracker();
             }
-            else if (DeviceNetworkInformation.IsNetworkAvailable && nextConnectIsFirst)
+
+            var hardwareId = HardwareIdentification.GetPackageSpecificToken(null).Id;
+            var dataReader = DataReader.FromBuffer(hardwareId);
+            byte[] bytes = new byte[hardwareId.Length];
+            dataReader.ReadBytes(bytes);
+
+            instance.parameters = new MATParameters(advId, advKey, bytes);
+
+            instance.eventQueue = new MATEventQueue(instance.parameters);
+
+            instance.GetUserAgent();
+
+            // Indicates if the connection profile is registered for network status change events. Set the default value to FALSE. 
+            bool registeredNetworkStatusNotif = false;
+
+            instance.networkStatusCallback = new NetworkStatusChangedEventHandler(instance.OnNetworkStatusChange);
+
+            // Register for network status change notifications
+            if (!registeredNetworkStatusNotif)
             {
-                // Connected to network, dump event queue if any
-                nextConnectIsFirst = false;
-                eventQueue.DumpQueue();
+                NetworkInformation.NetworkStatusChanged += instance.networkStatusCallback; 
+                registeredNetworkStatusNotif = true;
+            }
+
+            // Send queued requests
+            instance.eventQueue.DumpQueue();
+
+            return instance;
+        }
+
+        private void OnNetworkStatusChange(object sender)
+        {
+            // Get the ConnectionProfile that is currently used to connect to the Internet
+            ConnectionProfile profile = NetworkInformation.GetInternetConnectionProfile();
+
+            if (profile != null)
+            {
+                // NetworkInformation.NetworkStatusChanged fires multiple times for some reason, so we only want to get the first real reconnect
+                if (profile.GetNetworkConnectivityLevel() < NetworkConnectivityLevel.InternetAccess)
+                {
+                    nextConnectIsFirst = true;
+                }
+                else if (profile.GetNetworkConnectivityLevel() >= NetworkConnectivityLevel.InternetAccess && nextConnectIsFirst)
+                {
+                    nextConnectIsFirst = false;
+                    eventQueue.DumpQueue();
+                }
             }
         }
+
+        private void GetUserAgent()
+        {
+            // Only get user agent if running on UI thread
+            if (CoreWindow.GetForCurrentThread() != null)
+            {
+                var dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
+                var result = dispatcher.RunAsync(CoreDispatcherPriority.Normal, delegate()
+                {
+                    // Create a new WebView and get user agent
+                    WebView wv = new WebView();
+                    wv.Visibility = Visibility.Collapsed;
+                    wv.ScriptNotify += new NotifyEventHandler(UserAgentScriptNotify);
+                    string html =
+                        "<html><head><script type='text/javascript'>function GetUserAgent() {" +
+                        "window.external.notify(navigator.userAgent);}" +
+                        "</script></head>" +
+                        "<body onload='GetUserAgent();'></body></html>";
+                    wv.NavigateToString(html);
+                });
+            }
+        }
+
+        public void UserAgentScriptNotify(object sender, NotifyEventArgs e)
+        {
+            parameters.UserAgent = e.Value;
+        }
+
 
         public void MeasureSession()
         {
@@ -98,9 +138,8 @@ namespace MobileAppTracking
 
         private void Track(string eventName, double revenue = 0, string currency = null, string refId = null, List<MATEventItem> eventItems = null)
         {
-
             string action = "conversion";
-            
+
             // Don't send close events
             if (eventName.Equals("close"))
                 return;
@@ -110,10 +149,13 @@ namespace MobileAppTracking
             if (revenue > 0)
                 parameters.IsPayingUser = true;
 
-            //Add to queue and process building operation in separate thread.
-            //Copy is required because of async
-            MATParameters copy = parameters.Copy(); 
+            //Create hard copy of fields before making async tracking request
+            MATParameters copy = parameters.Copy();
+
             eventQueue.ProcessTrackingRequest(action, eventName, revenue, currency, refId, eventItems, copy);
+
+            if (parameters.matResponse != null)
+                parameters.matResponse.EnqueuedActionWithRefId(refId);
 
             parameters.EventContentType = null;
             parameters.EventContentId = null;
@@ -128,6 +170,45 @@ namespace MobileAppTracking
             parameters.EventAttribute3 = null;
             parameters.EventAttribute4 = null;
             parameters.EventAttribute5 = null;
+        }
+
+        private static long UnixTimestamp()
+        {
+            return UnixTimestamp(DateTime.UtcNow);
+        }
+
+        protected static long UnixTimestamp(DateTime? date)
+        {
+            var utcEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var span = date - utcEpoch;
+            return (long)(span ?? TimeSpan.Zero).TotalSeconds;
+        }
+
+        // Helper function to save key-value pair to ApplicationSettings
+        private void SaveLocalSetting(string key, object value)
+        {
+            parameters.localSettings.Values[key] = value;
+        }
+
+        // Helper function to get value from ApplicationSettings
+        private object GetLocalSetting(string key)
+        {
+            if (parameters.localSettings.Values.ContainsKey(key))
+                return parameters.localSettings.Values[key];
+
+            return null;
+        }
+
+        public virtual bool IsOnline()
+        {
+            // Whether we have internet connectivity or not
+            ConnectionProfile profile = NetworkInformation.GetInternetConnectionProfile();
+            return (profile != null && profile.GetNetworkConnectivityLevel() >= NetworkConnectivityLevel.InternetAccess);
+        }
+
+        protected void SetEventQueue(MATEventQueue eventQueue) 
+        {
+            this.eventQueue = eventQueue;
         }
 
         //////////////////////////////////////////////////////////////////
@@ -160,30 +241,14 @@ namespace MobileAppTracking
         { 
             return parameters.AppVersion; 
         }
+        public string GetASHWID ()
+        { 
+            return parameters.ASHWID;
+        }
         public bool GetDebugMode () 
         {
             return parameters.DebugMode;
         }
-        public string GetDeviceBrand () //only getter
-        { 
-            return parameters.DeviceBrand; 
-        }
-        public string GetDeviceCarrier () //only getter
-        { 
-            return parameters.DeviceCarrier; 
-        }
-        public string GetDeviceModel () //only getter
-        { 
-            return parameters.DeviceModel; 
-        }
-        public string GetDeviceUniqueId () //only getter
-        { 
-            return parameters.DeviceUniqueId; 
-        }
-        public string GetDeviceScreenSize () //only getter
-        { 
-            return parameters.DeviceScreenSize; 
-        } 
         public string GetEventContentType ()
         {
             return parameters.EventContentType;
@@ -254,11 +319,15 @@ namespace MobileAppTracking
         }
         public bool GetIsPayingUser () //special
         {
-            return parameters.IsPayingUser;
+            if (GetLocalSetting(MATConstants.SETTINGS_IS_PAYING_USER_KEY) != null)
+                return (bool)GetLocalSetting(MATConstants.SETTINGS_IS_PAYING_USER_KEY);
+            return false;
         }
         public string GetLastOpenLogId () //special
         {
-            return parameters.LastOpenLogId;
+            if (GetLocalSetting(MATConstants.SETTINGS_MATLASTOPENLOGID_KEY) != null)
+                return (string)GetLocalSetting(MATConstants.SETTINGS_MATLASTOPENLOGID_KEY);
+            return null;
         }
         public double GetLatitude ()
         { 
@@ -274,11 +343,13 @@ namespace MobileAppTracking
         }
         public string GetOpenLogId () //special
         {
-            return parameters.OpenLogId; 
+            if (GetLocalSetting(MATConstants.SETTINGS_MATOPENLOGID_KEY) != null)
+                return (string)GetLocalSetting(MATConstants.SETTINGS_MATOPENLOGID_KEY);
+            return null;
         }
-        public string GetOSVersion () 
-        { 
-            return parameters.OSVersion; 
+        public string GetPhoneNumber()
+        {
+            return parameters.PhoneNumber;
         }
         public string GetPackageName ()
         { 
@@ -288,22 +359,19 @@ namespace MobileAppTracking
         { 
             return parameters.TwitterUserId; 
         }
-        public string GetUserEmail () //special
+        public string GetUserEmail ()
         {
             return parameters.UserEmail;
         }
-        public string GetUserId () //special
+        public string GetUserId ()
         {
             return parameters.UserId;
         }
-        public string GetUserName () //special
+        public string GetUserName ()
         {
             return parameters.UserName;
         }
-        public string GetWindowsAid()
-        {
-            return parameters.WindowsAid;
-        }
+
 
         //////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////
@@ -334,6 +402,10 @@ namespace MobileAppTracking
         public void SetAppVersion(string appVersion)
         {
             parameters.AppVersion = appVersion;
+        }
+        public void SetASHWID (string ASHWID)
+        { 
+            parameters.ASHWID = ASHWID;
         }
         public void SetDebugMode(bool debugMode)
         {
@@ -410,10 +482,12 @@ namespace MobileAppTracking
         public void SetIsPayingUser(bool isPayingUser) //special
         {
             parameters.IsPayingUser = isPayingUser;
+            SaveLocalSetting(MATConstants.SETTINGS_IS_PAYING_USER_KEY, isPayingUser);
         }
         public void SetLastOpenLogId(string lastOpenLogId) //special
         {
             parameters.LastOpenLogId = lastOpenLogId;
+            SaveLocalSetting(MATConstants.SETTINGS_MATLASTOPENLOGID_KEY, lastOpenLogId);
         }
         public void SetLatitude(double latitude) 
         {
@@ -434,10 +508,7 @@ namespace MobileAppTracking
         public void SetOpenLogId(string openLogId) //special
         {
             parameters.OpenLogId = openLogId;
-        }
-        public void SetOSVersion(string OSVersion)
-        {
-            parameters.OSVersion = OSVersion;
+            SaveLocalSetting(MATConstants.SETTINGS_MATOPENLOGID_KEY, openLogId);
         }
         public void SetPackageName(string packageName)
         {
@@ -445,6 +516,7 @@ namespace MobileAppTracking
         }
         public void SetPhoneNumber(string phoneNumber)
         {
+            // TODO: parse for only numbers
             parameters.PhoneNumber = phoneNumber;
         }
         public void SetTwitterUserId(string twitterUserId)
@@ -458,18 +530,19 @@ namespace MobileAppTracking
         public void SetUserId(string userId) //special
         {
             parameters.UserId = userId;
+            SaveLocalSetting(MATConstants.SETTINGS_USERID_KEY, userId);
         }
         public void SetUserName(string userName) //special
         {
-        parameters.UserName = userName;
+            parameters.UserName = userName;
         }
         public void SetMATResponse(MATResponse response)
         {
             parameters.SetMATResponse(response);
         }
-        public void SetWindowsAid(string windowsAid)
+        protected internal void SetIsTestingOffline(bool isTestingOffline) 
         {
-            parameters.WindowsAid = windowsAid;
+            parameters.IsTestingOffline = isTestingOffline;
         }
     }
 }

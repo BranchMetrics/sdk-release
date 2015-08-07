@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using MATPhone8TestApp.Resources;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+
 
 using MobileAppTracking;
-using System.Threading;
-using System.Windows.Threading;
 
-namespace MATPhone8TestApp
+// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
+
+namespace MATWindows81TestApp
 {
-    public partial class MainPage : PhoneApplicationPage
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class MainPage : Page
     {
         DispatcherTimer newTimer;
+        int counter = 99999999;
         MobileAppTracker mat;
 
-        // Constructor
         public MainPage()
         {
-            InitializeComponent();
-
             newTimer = new DispatcherTimer();
             newTimer.Interval = TimeSpan.FromTicks(1);
-            newTimer.Tick += OnTimerTick;
+            newTimer.Tick += delegate { clock.Content = counter--; };
             newTimer.Start();
 
+            this.InitializeComponent();
+            
+            // Init MobileAppTracker
             mat = MobileAppTracker.InitializeValues("877", "8c14d6bbe466b65211e781d62e301eec");
-            mat.SetPackageName("com.hasofferstestapp");
             mat.SetAllowDuplicates(true);
             mat.SetDebugMode(true);
 
@@ -53,27 +52,9 @@ namespace MATPhone8TestApp
             mat.MeasureAction("test event", 0.99, "USD", "123", items);
         }
 
-        private void TestBtn_Click(object sender, RoutedEventArgs e)
+        private void TestBtn_Click(object sender, RoutedEventArgs e) 
         {
-            int i = 0;
-            while (i < 10000)
-            i++;
-            Debug.WriteLine("Side task computed that i = " + i);
-        }
-
-        int counter = 999999999;
-        void OnTimerTick(Object sender, EventArgs args)
-        {
-            counter--;
-            if (counter < 0)
-            {
-                newTimer.Stop();
-                counter = 60;
-            }
-            else
-            {
-                clock.Text = counter.ToString();
-            }
+            //Use to test UI responsiveness 
         }
     }
 

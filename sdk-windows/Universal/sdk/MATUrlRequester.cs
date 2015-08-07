@@ -1,50 +1,35 @@
-﻿using System;
-using System.Text;
-using System.Net;
-using System.IO;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Diagnostics;
-
-using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Net;
+using System.Text;
 
 namespace MobileAppTracking
 {
-    public class MATUrlRequester
+    class MATUrlRequester
     {
-        MATEventQueue eventQueue; 
-        MATUrlBuilder.URLInfo currentUrlInfo;
+        private const string SETTINGS_MATEVENTQUEUE_KEY = "mat_event_queue";
+        private const int MAX_NUMBER_OF_RETRY_ATTEMPTS = 5;
 
-        private MATParameters parameters;
+        MATParameters parameters;
+        MATEventQueue eventQueue;
+        string currentUrl;
+        int currentUrlAttempt;
 
-        internal MATUrlRequester(MATParameters parameters, MATEventQueue eventQueue)
+        internal MATUrlRequester(MATParameters parameters, MATEventQueue eventQueue) 
         {
             this.parameters = parameters;
             this.eventQueue = eventQueue;
         }
 
-        internal void SendRequest(MATUrlBuilder.URLInfo urlInfo) 
+        internal void SendRequest(string urlInfo, int urlAttempt)
         {
-            this.currentUrlInfo = urlInfo;
-            string url = urlInfo.url + "&sdk_retry_attempt=" + urlInfo.retryAttempt;
-            //string url = "https://877.debug.engine.mobileapptracking.com/junk"; //For debugging purposes
+            this.currentUrl = urlInfo;
+            this.currentUrlAttempt = urlAttempt;
+            string url = urlInfo + "&sdk_retry_attempt=" + urlAttempt;
 
-            /*request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            
-            // Write the request Asynchronously 
-            using (var stream = await Task.Factory.FromAsync<Stream>(request.BeginGetRequestStream,
-                                                                     request.EndGetRequestStream, null))
-            {
-                //create some json string
-                string json = "{ \"my\" : \"json\" }";
-
-                // convert json to byte array
-                byte[] jsonAsBytes = Encoding.UTF8.GetBytes(json);
-
-                // Write the bytes to the stream
-                await stream.WriteAsync(jsonAsBytes, 0, jsonAsBytes.Length);
-            }*/
-
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url); 
             request.BeginGetResponse(GetUrlCallback, request);
         }
 
@@ -58,6 +43,7 @@ namespace MobileAppTracking
             try
             {
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(result);
+
                 using (Stream stream = response.GetResponseStream())
                 {
                     StreamReader reader = new StreamReader(stream, Encoding.UTF8);
@@ -96,22 +82,30 @@ namespace MobileAppTracking
                         {
                             if (parameters.matResponse != null)
                                 parameters.matResponse.DidFailWithError(responseString);
+                            if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
+                            {
+                                Debug.WriteLine("MAT request failed, will be queued");
+                                eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
+                            }
+                            else
+                            {
+                                Debug.WriteLine("Exceeded maximum number of retries. Will not be requeued.");
+                            }
                         }
+
                         if (parameters.DebugMode)
                             Debug.WriteLine("Server response is " + responseString);
                     }
-                    else // Requeue all other requests 
+                    else // Requeue all other requests
                     {
-
-                        currentUrlInfo.retryAttempt++;
-                        if (currentUrlInfo.retryAttempt <= MATConstants.MAX_NUMBER_OF_RETRY_ATTEMPTS)
+                        if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                         {
                             Debug.WriteLine("MAT request failed, will be queued");
-                            eventQueue.AddToQueue(currentUrlInfo);
+                            eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
                         }
                         else
                         {
-                            Debug.WriteLine("Exceeded maximum number of retries. Removing from queue.");
+                            Debug.WriteLine("Exceeded maximum number of retries. Will not be requeued.");
                         }
                     }
                 }
@@ -123,15 +117,14 @@ namespace MobileAppTracking
                 // Have to convert to String because TrustFailure isn't accessible in this .NET WebExceptionStatus for some reason
                 if (e.Status.ToString().Equals("TrustFailure"))
                 {
-                    currentUrlInfo.retryAttempt++;
-                    if (currentUrlInfo.retryAttempt <= MATConstants.MAX_NUMBER_OF_RETRY_ATTEMPTS)
+                    if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                     {
                         Debug.WriteLine("SSL error, will be queued");
-                        eventQueue.AddToQueue(currentUrlInfo);
+                        eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
                     }
                     else
                     {
-                        Debug.WriteLine("Exceeded maximum number of retries. Removing from queue.");
+                        Debug.WriteLine("Exceeded maximum number of retries. Will not be requeued.");
                     }
                     return;
                 }
@@ -158,15 +151,14 @@ namespace MobileAppTracking
                             {
                                 if (parameters.matResponse != null)
                                     parameters.matResponse.DidFailWithError((responseString));
-                                if (currentUrlInfo.retryAttempt <= MATConstants.MAX_NUMBER_OF_RETRY_ATTEMPTS)
+                                if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                                 {
-                                    currentUrlInfo.retryAttempt++;
                                     Debug.WriteLine("MAT request failed, will be queued");
-                                    eventQueue.AddToQueue(currentUrlInfo);
+                                    eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
                                 }
                                 else
                                 {
-                                    Debug.WriteLine("Exceeded maximum number of retries. Removing from queue.");
+                                    Debug.WriteLine("Exceeded maximum number of retries. Will not be requeued.");
                                 }
                             }
                         }
