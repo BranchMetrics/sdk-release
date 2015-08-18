@@ -11,7 +11,7 @@ namespace MobileAppTracking
         public const string DOMAIN = "engine.mobileapptracking.com";
         public const string IV = "heF9BATUfWuISyO8";
         public const string SDK_TYPE = "windows";
-        public const string SDK_VERSION = "3.5.0";
+        public const string SDK_VERSION = "3.5.1";
         public const string SETTINGS_MATID_KEY = "mat_id";
         public const string SETTINGS_MATLASTOPENLOGID_KEY = "mat_last_open_log_id";
         public const string SETTINGS_MATOPENLOGID_KEY = "mat_open_log_id";

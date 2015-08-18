@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Xml.Linq;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Store;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.System.UserProfile;
@@ -44,7 +45,16 @@ namespace MobileAppTracking
             var version = Package.Current.Id.Version;
             this.AppVersion = String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
 
-            this.PackageName = Package.Current.Id.Name;
+            // If app has a Store app id, use it as package name
+            if (CurrentApp.AppId != Guid.Empty)
+            {
+                this.PackageName = CurrentApp.AppId.ToString();
+            }
+            else
+            {
+                // No store app id yet, use local package name
+                this.PackageName = Package.Current.Id.Name;
+            }
 
             // Get device info
             EasClientDeviceInformation info = new EasClientDeviceInformation();

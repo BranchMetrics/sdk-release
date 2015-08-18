@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Phone.Info;
 using Microsoft.Phone.Net.NetworkInformation;
 using System.Windows;
+using Windows.ApplicationModel.Store;
 using System.Diagnostics;
 
 namespace MobileAppTracking
@@ -33,18 +34,24 @@ namespace MobileAppTracking
             var type = Type.GetType("Windows.System.UserProfile.AdvertisingManager, Windows, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null, ContentType=WindowsRuntime");
             this.WindowsAid = type != null ? (string)type.GetProperty("AdvertisingId").GetValue(null, null) : null;
 
-            XElement app = XDocument.Load("WMAppManifest.xml").Root.Element("App");
-            this.AppName = GetValue(app, "Title");
-            this.AppVersion = GetValue(app, "Version");
 
-            string productId = GetValue(app, "ProductID");
-            if (productId == null)
+            // If app has a Store app id, use it as package name
+            if (CurrentApp.AppId != Guid.Empty)
             {
-                // TODO: figure out what Win10 did to the ProductID
+                this.PackageName = CurrentApp.AppId.ToString();
             }
             else
             {
-                this.PackageName = Regex.Match(productId, "(?<={).*(?=})").Value;
+                // Fallback is to try to get WMAppManifest ProductID
+                XElement app = XDocument.Load("WMAppManifest.xml").Root.Element("App");
+                this.AppName = GetValue(app, "Title");
+                this.AppVersion = GetValue(app, "Version");
+
+                string productId = GetValue(app, "ProductID");
+                if (productId != null)
+                {
+                    this.PackageName = Regex.Match(productId, "(?<={).*(?=})").Value;
+                }
             }
 
             byte[] deviceUniqueId = (byte[])DeviceExtendedProperties.GetValue("DeviceUniqueId");

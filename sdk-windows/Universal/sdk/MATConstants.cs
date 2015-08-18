@@ -11,7 +11,7 @@ namespace MobileAppTracking
         public const string DOMAIN = "engine.mobileapptracking.com";
         public const string IV = "heF9BATUfWuISyO8";
         public const string SDK_TYPE = "windows";
-        public const string SDK_VERSION = "3.5.0";
+        public const string SDK_VERSION = "3.5.1";
         public const string SETTINGS_MATEVENTQUEUE_KEY = "mat_event_queue";
         public const string SETTINGS_MATEVENTQUEUE_ATTEMPT_KEY = "mat_event_queue_attempt";
         public const string SETTINGS_MATEVENTQUEUESIZE_KEY = "mat_event_queue_size";
