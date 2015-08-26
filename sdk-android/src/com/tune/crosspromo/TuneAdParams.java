@@ -131,13 +131,14 @@ public class TuneAdParams {
         timeZone = params.getTimeZone();
         userAgent = params.getUserAgent();
 
+        gender = MATGender.UNKNOWN;
         String matGender = params.getGender();
-        if (matGender.equals("0")) {
-            gender = MATGender.MALE;
-        } else if (matGender.equals("1")) {
-            gender = MATGender.FEMALE;
-        } else {
-            gender = MATGender.UNKNOWN;
+        if (matGender != null) {
+            if (matGender.equals("0")) {
+                gender = MATGender.MALE;
+            } else if (matGender.equals("1")) {
+                gender = MATGender.FEMALE;
+            }
         }
         facebookUserId = params.getFacebookUserId();
         googleUserId = params.getGoogleUserId();

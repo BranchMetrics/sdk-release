@@ -15,7 +15,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -47,7 +46,6 @@ public class TuneBanner extends FrameLayout implements TuneAd {
     private Context mContext;
     private Handler mHandler;
     private TuneBannerPosition mPosition;
-    private TuneAdSize mSize;
     private TuneAdView mAdView;
     private WebView mWebView1;
     private WebView mWebView2;
@@ -71,30 +69,14 @@ public class TuneBanner extends FrameLayout implements TuneAd {
     public TuneBanner(Context context, AttributeSet attrs) {
         super(context, attrs);
         
-        TuneAdSize adSize = TuneAdSize.BANNER;
         String advertiserId = attrs.getAttributeValue(null, "advertiserId");
         String conversionKey = attrs.getAttributeValue(null, "conversionKey");
         
-        String bannerSize = attrs.getAttributeValue(null, "adSize");
-        if (bannerSize != null && bannerSize.equals("smartBanner")) {
-            adSize = TuneAdSize.SMART_BANNER;
-        }
-        
         if (advertiserId != null && conversionKey != null) {
-            init(context, advertiserId, conversionKey, adSize);
+            init(context, advertiserId, conversionKey);
         } else {
             Log.e(TAG, "TuneBanner XML requires advertiserId and conversionKey");
         }
-    }
-    
-    /**
-     * Banner ad constructor for default banner size 320x50
-     * 
-     * @param context
-     *            Activity context
-     */
-    public TuneBanner(Context context) {
-        this(context, TuneAdSize.BANNER);
     }
 
     /**
@@ -102,28 +84,18 @@ public class TuneBanner extends FrameLayout implements TuneAd {
      * 
      * @param context
      *            Activity context
-     * @param size
-     *            Banner size
      */
-    public TuneBanner(Context context, TuneAdSize size) {
+    public TuneBanner(Context context) {
         super(context);
-        init(context, null, null, size);
+        init(context, null, null);
     }
     
-    private void init(Context context, String advertiserId, String conversionKey, TuneAdSize size) {
+    private void init(Context context, String advertiserId, String conversionKey) {
         mContext = context;
         mHandler = new Handler(context.getMainLooper());
         
         mLastOrientation = getResources().getConfiguration().orientation;
-        if (size == TuneAdSize.SMART_BANNER) {
-            mOrientation = TuneAdOrientation.ALL;
-        } else {
-            if (mLastOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                mOrientation = TuneAdOrientation.LANDSCAPE_ONLY;
-            } else {
-                mOrientation = TuneAdOrientation.PORTRAIT_ONLY;
-            }
-        }
+        mOrientation = TuneAdOrientation.ALL;
         
         // Activity's set orientation, if any, overrides the last detected
         int forcedOrientation = ((Activity)context).getRequestedOrientation();
@@ -133,7 +105,6 @@ public class TuneBanner extends FrameLayout implements TuneAd {
             mOrientation = TuneAdOrientation.LANDSCAPE_ONLY;
         }
         
-        mSize = size;
         utils = TuneAdUtils.getInstance();
         utils.init(context, advertiserId, conversionKey);
 
@@ -231,8 +202,8 @@ public class TuneBanner extends FrameLayout implements TuneAd {
     private void positionAd() {
         ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) getLayoutParams();
         if (params != null) {
-            params.width = mSize.getWidthPixels(mContext);
-            params.height = mSize.getHeightPixels(mContext);
+            params.width = TuneBannerSize.getScreenWidthPixels(mContext);
+            params.height = TuneBannerSize.getBannerHeightPixels(mContext, getResources().getConfiguration().orientation);
         }
 
         // Set the position based on mPosition
@@ -294,15 +265,6 @@ public class TuneBanner extends FrameLayout implements TuneAd {
         mPosition = position;
     }
 
-    /**
-     * Gets the banner size as TuneAdSize object
-     * 
-     * @return The TuneAdSize of the banner
-     */
-    public TuneAdSize getSize() {
-        return mSize;
-    }
-
     private class RefreshTask implements Runnable {
         @Override
         public void run() {
@@ -354,6 +316,9 @@ public class TuneBanner extends FrameLayout implements TuneAd {
     }
 
     private void notifyOnFailed(final String error) {
+        if (mAdParams.debugMode) {
+            Log.d(TAG, "Request failed with error: " + error);
+        }
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -436,18 +401,13 @@ public class TuneBanner extends FrameLayout implements TuneAd {
         }
 
         mAdParams = new TuneAdParams(mPlacement, utils.getParams(), mMetadata, mOrientation, mLastOrientation);
-        if (mSize == TuneAdSize.SMART_BANNER) {
-            // If smart banner, set the ad portrait and landscape dimensions separately
-            int orientation = getResources().getConfiguration().orientation;
-            mAdParams.adWidthPortrait = mSize.getWidthPixelsPortrait(mContext, orientation);
-            mAdParams.adHeightPortrait = mSize.getHeightPixelsPortrait(mContext, orientation);
-            mAdParams.adWidthLandscape = mSize.getWidthPixelsLandscape(mContext, orientation);
-            mAdParams.adHeightLandscape = mSize.getHeightPixelsLandscape(mContext, orientation);
-        } else {
-            // Regular banner, use fixed size regardless of orientation
-            mAdParams.adWidthPortrait = mAdParams.adWidthLandscape = mSize.getWidthPixels(mContext);
-            mAdParams.adHeightPortrait = mAdParams.adHeightLandscape = mSize.getHeightPixels(mContext);
-        }
+        // Set the banner ad portrait and landscape dimensions separately
+        int orientation = getResources().getConfiguration().orientation;
+        mAdParams.adWidthPortrait = TuneBannerSize.getScreenWidthPixelsPortrait(mContext, orientation);
+        mAdParams.adHeightPortrait = TuneBannerSize.getBannerHeightPixelsPortrait(mContext, orientation);
+        mAdParams.adWidthLandscape = TuneBannerSize.getScreenWidthPixelsLandscape(mContext, orientation);
+        mAdParams.adHeightLandscape = TuneBannerSize.getBannerHeightPixelsLandscape(mContext, orientation);
+
         if (mAdParams.debugMode) {
             Log.d(TAG, "Requesting banner with: " + mAdParams.toJSON().toString());
         }
@@ -564,7 +524,6 @@ public class TuneBanner extends FrameLayout implements TuneAd {
         }
         mWebView1 = null;
         mWebView2 = null;
-        mSize = null;
         utils.destroyAdViews();
         utils = null;
         mOrientation = null;
@@ -579,8 +538,8 @@ public class TuneBanner extends FrameLayout implements TuneAd {
         // Only resize banner on actual orientation change
         if (orientation != mLastOrientation) {
             mLastOrientation = orientation;
-            int widthPx = mSize.getWidthPixels(mContext);
-            int heightPx = mSize.getHeightPixels(mContext);
+            int widthPx = TuneBannerSize.getScreenWidthPixels(mContext);
+            int heightPx = TuneBannerSize.getBannerHeightPixels(mContext, orientation);
             
             int newWidthMeasureSpec = MeasureSpec.makeMeasureSpec(widthPx, MeasureSpec.EXACTLY);
             int newHeightMeasureSpec = MeasureSpec.makeMeasureSpec(heightPx, MeasureSpec.EXACTLY);

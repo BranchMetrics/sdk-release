@@ -1,7 +1,6 @@
 package com.tune.crosspromo;
 
-
-public class TuneAdViewSet {
+class TuneAdViewSet {
     public String placement;
     public TuneAdView view1;
     public TuneAdView view2;

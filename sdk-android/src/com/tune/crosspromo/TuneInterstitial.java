@@ -309,6 +309,12 @@ public class TuneInterstitial implements TuneAd {
     private void notifyOnFailed(String placement, final String error) {
         TuneAdView currentAd = getCurrentAd(placement);
         currentAd.loading = false;
+        
+        mShowOnLoad = false;
+        
+        if (mAdParams.debugMode) {
+            Log.d(TAG, "Request failed with error: " + error);
+        }
         mHandler.post(new Runnable() {
             @Override
             public void run() {

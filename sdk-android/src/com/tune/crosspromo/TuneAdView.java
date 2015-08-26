@@ -7,7 +7,7 @@ import android.webkit.WebView;
 /**
  * Class that contains ad and metadata information from server
  */
-public class TuneAdView {
+class TuneAdView {
     public String placement;
     public TuneAdMetadata metadata;
     public String requestId;

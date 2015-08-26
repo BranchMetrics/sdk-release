@@ -224,6 +224,14 @@ class MATUrlBuilder {
             if (referrer != null && !data.contains("&install_referrer=")) {
                 safeAppend(updatedData, "install_referrer", referrer);
             }
+            String referralSource = params.getReferralSource();
+            if (referralSource != null && !data.contains("&referral_source=")) {
+                safeAppend(updatedData, "referral_source", referralSource);
+            }
+            String referralUrl = params.getReferralUrl();
+            if (referralUrl != null && !data.contains("&referral_url=")) {
+                safeAppend(updatedData, "referral_url", referralUrl);
+            }
             String userAgent = params.getUserAgent();
             if (userAgent != null && !data.contains("&conversion_user_agent=")) {
                 safeAppend(updatedData, "conversion_user_agent", userAgent);

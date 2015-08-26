@@ -20,6 +20,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.net.Uri.Builder;
 
@@ -33,8 +34,8 @@ public class TuneAdClient {
     private final static int TIMEOUT = 60 * 1000; // 60 seconds timeout
 
     // Staging server
-    private static final String API_URL_STAGE = "aa.stage.tuneapi.com/api/v1/ads";
-    private static final String API_URL_PROD = "aa.tuneapi.com/api/v1/ads";
+    private static final String API_URL_STAGE = "api.cp.stage.tune.com/api/v1/ads";
+    private static final String API_URL_PROD = "api.cp.tune.com/api/v1/ads";
     private static String advertiserId;
     private static String apiUrl;
     private static boolean customMode;
@@ -55,6 +56,7 @@ public class TuneAdClient {
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection}
      * This is to aid testing on a local box or staging, not for use on production.
      */
+    @SuppressLint("TrulyRandom")
     private static void disableSSLCertificateChecking() {
         TrustManager[] trustAllCerts = new TrustManager[] {
             new X509TrustManager() {
@@ -128,7 +130,7 @@ public class TuneAdClient {
             } else {
                 builder = Uri.parse("https://" + advertiserId + ".request." + apiUrl + "/request").buildUpon();
             }
-            builder.encodedQuery("context[type]=" + type);
+            builder.appendQueryParameter("context[type]", type);
             
             response = requestAd(builder.build().toString(), adParams.toJSON());
         }
@@ -143,12 +145,11 @@ public class TuneAdClient {
                 public void run() {
                     Builder builder;
                     if (customMode) {
-                        builder = Uri.parse("http://" + apiUrl + "/api/v1/ads/event").buildUpon();
+                        builder = Uri.parse("http://" + apiUrl + "/api/v1/ads/view").buildUpon();
                     } else {
-                        builder = Uri.parse("https://" + advertiserId + ".event." + apiUrl + "/event").buildUpon();
+                        builder = Uri.parse("https://" + advertiserId + ".event." + apiUrl + "/view").buildUpon();
                     }
-                    builder.appendQueryParameter("action", "view")
-                           .appendQueryParameter("requestId", adView.requestId);
+                    builder.appendQueryParameter("requestId", adView.requestId);
                     
                     logEvent(builder.build().toString(), adParams);
                 }
@@ -168,8 +169,7 @@ public class TuneAdClient {
                     } else {
                         builder = Uri.parse("https://" + advertiserId + ".click." + apiUrl + "/click").buildUpon();
                     }
-                    builder.appendQueryParameter("action", "click")
-                           .appendQueryParameter("requestId", adView.requestId);
+                    builder.appendQueryParameter("requestId", adView.requestId);
                     
                     logEvent(builder.build().toString(), adParams);
                 }
@@ -185,12 +185,11 @@ public class TuneAdClient {
                 public void run() {
                     Builder builder;
                     if (customMode) {
-                        builder = Uri.parse("http://" + apiUrl + "/api/v1/ads/event").buildUpon();
+                        builder = Uri.parse("http://" + apiUrl + "/api/v1/ads/close").buildUpon();
                     } else {
-                        builder = Uri.parse("https://" + advertiserId + ".event." + apiUrl + "/event").buildUpon();
+                        builder = Uri.parse("https://" + advertiserId + ".event." + apiUrl + "/close").buildUpon();
                     }
-                    builder.appendQueryParameter("action", "close")
-                           .appendQueryParameter("requestId", adView.requestId);
+                    builder.appendQueryParameter("requestId", adView.requestId);
                     
                     logEvent(builder.build().toString(), adParams);
                 }

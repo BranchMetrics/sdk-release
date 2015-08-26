@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.WindowManager;
 import android.webkit.WebView;
 
@@ -120,18 +121,21 @@ public class MATParameters {
             // Screen density
             float density = context.getResources().getDisplayMetrics().density;
             setScreenDensity(Float.toString(density));
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             int width;
             int height;
-            // Screen layout size
-            if (android.os.Build.VERSION.SDK_INT >= 13) {
-                Point size = new Point();
-                wm.getDefaultDisplay().getSize(size);
+            Point size = new Point();
+            if (Build.VERSION.SDK_INT >= 17) {
+                display.getRealSize(size);
+                width = size.x;
+                height = size.y;
+            } else if (Build.VERSION.SDK_INT >= 13) {
+                display.getSize(size);
                 width = size.x;
                 height = size.y;
             } else {
-                width = wm.getDefaultDisplay().getWidth();
-                height = wm.getDefaultDisplay().getHeight();
+                width = display.getWidth();
+                height = display.getHeight();
             }
             setScreenWidth(Integer.toString(width));
             setScreenHeight(Integer.toString(height));

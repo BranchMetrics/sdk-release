@@ -70,7 +70,7 @@ class MATUrlRequester {
         } finally {
             try {
                 is.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

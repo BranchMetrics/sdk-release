@@ -41,7 +41,11 @@ public class MATUtils {
      * @return SharedPreferences value for the given key
      */
     public static synchronized String getStringFromSharedPreferences(Context context, String prefsKey) {
-        return context.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getString(prefsKey, "");
+        try {
+            return context.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getString(prefsKey, "");
+        } catch (ClassCastException e) {
+            return "";
+        }
     }
     
     /**
@@ -51,7 +55,11 @@ public class MATUtils {
      * @return SharedPreferences value for the given key
      */
     public static synchronized boolean getBooleanFromSharedPreferences(Context context, String prefsKey) {
-        return context.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getBoolean(prefsKey, false);
+        try {
+            return context.getSharedPreferences(MATConstants.PREFS_TUNE, Context.MODE_PRIVATE).getBoolean(prefsKey, false);
+        } catch (ClassCastException e) {
+            return false;
+        }
     }
     
     /**

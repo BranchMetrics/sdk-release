@@ -15,7 +15,7 @@ import com.mobileapptracker.MATParameters;
 /**
  * Helper class for Tune Ads
  */
-public class TuneAdUtils {
+class TuneAdUtils {
     private static TuneAdUtils INSTANCE;
     
     static final String AD_ACTIVITY_KEY = "tune_ad_activity_active";
