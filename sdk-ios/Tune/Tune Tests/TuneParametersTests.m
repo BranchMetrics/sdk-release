@@ -7,10 +7,14 @@
 //
 
 #import <XCTest/XCTest.h>
-#import <AdSupport/AdSupport.h>
+
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
+
 #import "../Tune/Tune.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/TuneLocation.h"
+
 #import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneSettings.h"
 #import "../Tune/Common/TuneTracker.h"
@@ -34,7 +38,7 @@
 {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
     params = [TuneTestParams new];
@@ -153,30 +157,40 @@
     ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
 }
 
-- (void)testGenderLarge
+- (void)testGenderUnknown
 {
-    static const TuneGender gender = (TuneGender)65536;
-    NSString *expectedGender = [@(TuneGenderMale) stringValue];
+    static const TuneGender gender = TuneGenderUnknown;
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
+    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
+}
+
+- (void)testGenderLarge
+{
+    static const TuneGender gender = (TuneGender)65536;
+    
+    [Tune setGender:gender];
+    [Tune measureEventName:@"registration"];
+    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
 }
 
 - (void)testGenderNegative
 {
     static const TuneGender gender = (TuneGender)-304;
-    NSString *expectedGender = [@(TuneGenderMale) stringValue];
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
+    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
 }
 
 
@@ -189,7 +203,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -205,7 +223,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -221,7 +243,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -237,7 +263,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -253,7 +283,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -269,7 +303,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -285,7 +323,11 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    [Tune setLatitude:lat longitude:lon];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -303,7 +345,12 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    [Tune setLatitude:lat longitude:lon altitude:alt];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    location.altitude = @(alt);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -322,7 +369,12 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    [Tune setLatitude:lat longitude:lon altitude:alt];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    location.altitude = @(alt);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -341,7 +393,12 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    [Tune setLatitude:lat longitude:lon altitude:alt];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    location.altitude = @(alt);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     
@@ -360,7 +417,12 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    [Tune setLatitude:lat longitude:lon altitude:alt];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(lat);
+    location.longitude = @(lon);
+    location.altitude = @(alt);
+    [Tune setLocation:location];
+    
     [Tune measureEventName:@"registration"];
     waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
     

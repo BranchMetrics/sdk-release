@@ -8,6 +8,8 @@
 
 #import "TuneAdInterstitialVC.h"
 
+#import "../TuneInterstitial.h"
+
 @interface TuneAdInterstitialVC ()
 
 @property (nonatomic, weak) TuneInterstitial *adView;

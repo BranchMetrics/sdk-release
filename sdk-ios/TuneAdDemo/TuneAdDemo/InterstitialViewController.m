@@ -67,14 +67,14 @@ BOOL shouldShowAd = NO;
 
 #pragma mark - TuneAdDelegate
 
-- (void)tuneAdDidCloseForView:(id<TuneAdView>)adView
+- (void)tuneAdDidCloseForView:(TuneAdView *)adView
 {
     NSLog(@"InterstitialVC tuneAdDidClose");
     
     [self writeToConsole:@"Interstitial closed"];
 }
 
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
 {
     NSLog(@"InterstitialVC tuneAdDidFetchAd");
     
@@ -87,14 +87,14 @@ BOOL shouldShowAd = NO;
     }
 }
 
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
     NSLog(@"InterstitialVC tuneAdDidFailWithError: %@", error);
     
     [self writeToConsole:error];
 }
 
--(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView
+-(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidFireRequestWithUrl:\nurl = %@,\ndata = %@", url, data);
     

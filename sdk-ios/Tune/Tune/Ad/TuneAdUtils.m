@@ -7,22 +7,21 @@
 //
 
 #import "TuneAdUtils.h"
+
 #import "TuneAdKeyStrings.h"
+
+#import "../Common/NSString+TuneURLEncoding.h"
+#import "../Common/Tune_internal.h"
+#import "../Common/TuneKeyStrings.h"
 #import "../Common/TuneSettings.h"
 #import "../Common/TuneTracker.h"
 #import "../Common/TuneUtils.h"
-#import "../Common/Tune_internal.h"
-#import "../Common/NSString+TuneURLEncoding.h"
 
 #if DEBUG_AD_STAGING
-const NSString * TUNE_AD_SERVER                          = @"aa.stage.tuneapi.com"; // Stage
+const NSString * TUNE_AD_SERVER                         = @"api.cp.stage.tune.com"; // Stage
 #else
-const NSString * TUNE_AD_SERVER                          = @"aa.tuneapi.com"; // Prod
+const NSString * TUNE_AD_SERVER                         = @"api.cp.tune.com"; // Prod
 #endif
-
-// http://p-adsapi01-sta-1a.use01.plat.priv/api/v1/ads/request/?context%5Btype%5D\=banner
-
-//const NSString * TUNE_AD_SERVER                          = @"http://192.168.197.78:8888"; // Sam
 
 const NSUInteger TUNE_AD_LENGTH_ITUNES_APP_ID           = 9; // ex. "550852584" --> https://itunes.apple.com/us/app/atomic-dodge-ball/id550852584?mt=8
 NSString * const TUNE_AD_ITUNES_APP_ID_PREFIX           = @"/id";
@@ -128,30 +127,39 @@ NSString* closeImageString()
 + (NSString *)tuneAdServerUrl:(TuneAdType)type
 {
     TuneSettings *tuneParams = [[Tune sharedManager] parameters];
-    
-    return [NSString stringWithFormat:@"https://%@.request.%@/api/v1/ads/request?context[type]=%@", tuneParams.advertiserId, TUNE_AD_SERVER, TuneAdTypeInterstitial == type ? @"interstitial" : @"banner"];
+//    /api/v1/ads/request?context[type]=[banner/interstitial]
+    return [NSString stringWithFormat:@"%@://%@.request.%@/api/v1/ads/request?context[type]=%@", TUNE_KEY_HTTPS,
+            tuneParams.advertiserId, TUNE_AD_SERVER, TuneAdTypeInterstitial == type ? @"interstitial" : @"banner"];
 }
 
 + (NSString *)tuneAdClickUrl:(TuneAd *)ad
 {
-    return [self tuneUrlForAd:ad endpoint:TUNE_AD_KEY_CLICK action:TUNE_AD_KEY_CLICK];
+    return [self tuneUrlForAd:ad subdomain:TUNE_AD_KEY_CLICK action:TUNE_AD_KEY_CLICK];
 }
 
 + (NSString *)tuneAdViewUrl:(TuneAd *)ad
 {
-    return [self tuneUrlForAd:ad endpoint:TUNE_AD_KEY_EVENT action:TUNE_AD_KEY_VIEW];
+    return [self tuneUrlForAd:ad subdomain:TUNE_AD_KEY_EVENT action:TUNE_AD_KEY_VIEW];
 }
 
 + (NSString *)tuneAdClosedUrl:(TuneAd *)ad
 {
-    return [self tuneUrlForAd:ad endpoint:TUNE_AD_KEY_EVENT action:TUNE_AD_KEY_CLOSE];
+    return [self tuneUrlForAd:ad subdomain:TUNE_AD_KEY_EVENT action:TUNE_AD_KEY_CLOSE];
 }
 
-+ (NSString *)tuneUrlForAd:(TuneAd *)ad endpoint:(NSString *)endpoint action:(NSString *)action
++ (NSString *)tuneUrlForAd:(TuneAd *)ad subdomain:(NSString *)subDomain action:(NSString *)action
 {
     TuneSettings *tuneParams = [[Tune sharedManager] parameters];
+
+//    [advertiserId].[action].api.cp.tune.com
+//    Where [action] = request, click, close, and view
+
+//    /api/v1/ads/click?requestId=[requestId]
+//    /api/v1/ads/close?requestId=[requestId]
+//    /api/v1/ads/view?requestId=[requestId]
     
-    return [NSString stringWithFormat:@"https://%@.%@.%@/api/v1/ads/%@?%@=%@&%@", tuneParams.advertiserId, endpoint, TUNE_AD_SERVER, endpoint, TUNE_AD_KEY_ACTION, action, [self requestQueryParams:ad]];
+    return [NSString stringWithFormat:@"%@://%@.%@.%@/api/v1/ads/%@?%@", TUNE_KEY_HTTPS,
+            tuneParams.advertiserId, subDomain, TUNE_AD_SERVER, action, [self requestQueryParams:ad]];
 }
 
 + (NSString *)requestQueryParams:(TuneAd *)ad

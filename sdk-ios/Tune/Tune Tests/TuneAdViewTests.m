@@ -50,7 +50,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -82,7 +82,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -118,7 +118,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -172,7 +172,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -222,7 +222,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -268,7 +268,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -317,7 +317,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
@@ -361,14 +361,14 @@
 
 #pragma mark - TuneAdDelegate Methods
 
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
 {
     XCTAssertEqual(expectedTuneAdError, TUNE_AD_TEST_NO_ERROR, @"Should not have succeeded");
     
     [completionExpectation fulfill];
 }
 
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
     NSLog(@"error = %@", error);
     
@@ -377,22 +377,22 @@
     [completionExpectation fulfill];
 }
 
-- (void)tuneAdDidStartActionForView:(id<TuneAdView>)adView willLeaveApplication:(BOOL)willLeave
+- (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave
 {
     // empty
 }
 
-- (void)tuneAdDidEndActionForView:(id<TuneAdView>)adView
+- (void)tuneAdDidEndActionForView:(TuneAdView *)adView
 {
     // empty
 }
 
-- (void)tuneAdDidCloseForView:(id<TuneAdView>)adView
+- (void)tuneAdDidCloseForView:(TuneAdView *)adView
 {
     // empty
 }
 
-- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
     NSLog(@"%@\n%@", url, data);
 }

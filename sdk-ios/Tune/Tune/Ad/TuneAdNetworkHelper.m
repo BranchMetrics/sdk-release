@@ -7,8 +7,15 @@
 //
 
 #import "TuneAdNetworkHelper.h"
-#import "TuneAdDownloadHelper.h"
+
+#import "../TuneAdMetadata.h"
+
 #import "../Common/TuneKeyStrings.h"
+
+#import "TuneAd.h"
+#import "TuneAdDownloadHelper.h"
+#import "TuneAdParams.h"
+
 
 @interface TuneAdNetworkHelper ()
 {
@@ -35,7 +42,7 @@
     // construct the request json post data
     NSString *paramData = [TuneAdParams jsonForAdType:adType placement:placement metadata:metadata orientations:orientations ad:ad];
     
-    DLLog(@"TuneAdsNetworkHelper: url: %@, data: %@", url, paramData);
+    DLLog(@"TuneAdsNetworkHelper: url: %@, data: %@", urlString, paramData);
     
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];

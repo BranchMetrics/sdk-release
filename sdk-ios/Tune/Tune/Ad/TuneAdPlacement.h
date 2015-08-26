@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "TuneAd.h"
-#import "../TuneAdMetadata.h"
+@class TuneAd;
+@class TuneAdMetadata;
 
 @interface TuneAdPlacement : NSObject
 

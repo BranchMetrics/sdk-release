@@ -6,26 +6,26 @@
 //  Copyright (c) 2014 TUNE. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
-#import "TuneEncrypter.h"
 #import "TuneEventQueue.h"
+
+#import "NSString+TuneURLEncoding.h"
+#import "TuneEncrypter.h"
 #import "TuneKeyStrings.h"
+#import "TuneLocation_internal.h"
 #import "TuneLocationHelper.h"
 #import "TuneReachability.h"
 #import "TuneRequestsQueue.h"
 #import "TuneUtils.h"
 #import "TuneUserAgentCollector.h"
-#import "NSString+TuneURLEncoding.h"
 
+const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL  = 60.;
 
-int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL          = 60;
+static NSString* const TUNE_REQUEST_QUEUE_FOLDER            = @"MATqueue";
+static NSString* const TUNE_REQUEST_QUEUE_FILENAME          = @"events.json";
+static NSString* const TUNE_LEGACY_REQUEST_QUEUE_FOLDER     = @"queue";
 
-static NSString* const TUNE_REQUEST_QUEUE_FOLDER         = @"MATqueue";
-static NSString* const TUNE_REQUEST_QUEUE_FILENAME       = @"events.json";
-static NSString* const TUNE_LEGACY_REQUEST_QUEUE_FOLDER  = @"queue";
+static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
 
-static const NSInteger TUNE_REQUEST_400_ERROR_CODE       = 1302;
 
 #pragma mark - Private variables
 
@@ -174,7 +174,7 @@ static TuneEventQueue *sharedQueue = nil;
     }
 }
 
-+ (void)setDelegate:(id <TuneEventQueueDelegate>)delegate
++ (void)setDelegate:(id<TuneEventQueueDelegate>)delegate
 {
     sharedQueue.delegate = delegate;
 }
@@ -222,7 +222,6 @@ static TuneEventQueue *sharedQueue = nil;
 
     [self dumpQueue];
 }
-
 
 - (void)appendOrIncrementRetryCount:(NSString**)trackingLink sendDate:(NSDate**)sendDate
 {
@@ -291,9 +290,12 @@ static TuneEventQueue *sharedQueue = nil;
     // Add/update tracked values that are determined asynchronously.
     
     if( encryptParams != nil ) {
+        
+        NSString *searchString = nil;
+        
         // if iad_attribution, append/overwrite current status
         if( [self.delegate isiAdAttribution] ) {
-            NSString *searchString = [NSString stringWithFormat:@"&%@=0", TUNE_KEY_IAD_ATTRIBUTION];
+            searchString = [NSString stringWithFormat:@"&%@=0", TUNE_KEY_IAD_ATTRIBUTION];
             NSString *replaceString = [NSString stringWithFormat:@"&%@=1", TUNE_KEY_IAD_ATTRIBUTION];
             if( [encryptParams rangeOfString:searchString].location != NSNotFound )
                 encryptParams = [encryptParams stringByReplacingOccurrencesOfString:searchString withString:replaceString];
@@ -302,7 +304,7 @@ static TuneEventQueue *sharedQueue = nil;
         }
         
         // append user agent, if not present
-        NSString *searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_CONVERSION_USER_AGENT];
+        searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_CONVERSION_USER_AGENT];
         if( [encryptParams rangeOfString:searchString].location == NSNotFound )
         {
             // url encoded user agent string
@@ -313,43 +315,48 @@ static TuneEventQueue *sharedQueue = nil;
             }
         }
         
-        searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_LATITUDE];
         // if the request url does not contain device location params, try to auto-collect
+        searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_LATITUDE];
         if( [encryptParams rangeOfString:searchString].location == NSNotFound )
         {
-            // check if location already exists
-            NSArray *latLonAlt;
-            BOOL locationEnabled = [TuneLocationHelper getOrRequestDeviceLocation:&latLonAlt];
+            BOOL locationEnabled = [TuneLocationHelper isLocationEnabled];
             
             // if location has been enabled
             if(locationEnabled)
             {
+                // check if location is available
+                TuneLocation *location = [TuneLocationHelper getOrRequestDeviceLocation];
+                
                 // if location is not readily available
-                if(!latLonAlt)
+                if(!location)
                 {
                     // wait for location update to finish
                     [NSThread sleepForTimeInterval:TUNE_LOCATION_UPDATE_DELAY];
-                    locationEnabled = [TuneLocationHelper getOrRequestDeviceLocation:&latLonAlt];
+                    
+                    // again try to access the location
+                    location = [TuneLocationHelper getOrRequestDeviceLocation];
                 }
                 
                 // if the location is available
-                if(latLonAlt)
+                if(location)
                 {
+                    NSMutableString *mutableEncryptParams = [NSMutableString stringWithString:encryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.altitude forKey:TUNE_KEY_ALTITUDE queryParams:mutableEncryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.latitude forKey:TUNE_KEY_LATITUDE queryParams:mutableEncryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.longitude forKey:TUNE_KEY_LONGITUDE queryParams:mutableEncryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.horizontalAccuracy forKey:TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY queryParams:mutableEncryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.verticalAccuracy forKey:TUNE_KEY_LOCATION_VERTICAL_ACCURACY queryParams:mutableEncryptParams];
+                    [TuneUtils addUrlQueryParamValue:location.timestamp forKey:TUNE_KEY_LOCATION_TIMESTAMP queryParams:mutableEncryptParams];
+                    
                     // include the location info in the request url
-                    encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@"
-                                     , TUNE_KEY_LATITUDE, [TuneUtils urlEncodeQueryParamValue:latLonAlt[0]]
-                                     , TUNE_KEY_LONGITUDE, [TuneUtils urlEncodeQueryParamValue:latLonAlt[1]]
-                                     , TUNE_KEY_ALTITUDE, [TuneUtils urlEncodeQueryParamValue:latLonAlt[2]]
-                                     , TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY, [TuneUtils urlEncodeQueryParamValue:latLonAlt[3]]
-                                     , TUNE_KEY_LOCATION_VERTICAL_ACCURACY, [TuneUtils urlEncodeQueryParamValue:latLonAlt[4]]
-                                     , TUNE_KEY_LOCATION_TIMESTAMP, [TuneUtils urlEncodeQueryParamValue:latLonAlt[5]]
-                                     ];
+                    encryptParams = mutableEncryptParams;
                 }
             }
         }
         
         // encrypt params and append
-        NSString* encryptedData = [TuneEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
+        NSString *encryptedData = [TuneEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
+        encryptedData = 0 == [encryptedData length] ? @"encryption_failed_no_data_included" : encryptedData;
         trackingLink = [trackingLink stringByAppendingFormat:@"&%@=%@", TUNE_KEY_DATA, encryptedData];
     }
     
@@ -364,6 +371,7 @@ static TuneEventQueue *sharedQueue = nil;
     if( ![TuneUtils isNetworkReachable] ) return;
     
     [requestOpQueue addOperationWithBlock:^{
+        
         // get first request
         NSDictionary *request = nil;
         @synchronized( events ) {

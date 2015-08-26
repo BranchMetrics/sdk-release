@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "../TuneAdView.h"
-#import "TuneAd.h"
+
+@class TuneAd;
+@class TuneAdMetadata;
+
 
 @interface TuneAdParams : NSObject
 

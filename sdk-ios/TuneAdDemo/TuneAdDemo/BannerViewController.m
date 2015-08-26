@@ -190,7 +190,7 @@ BOOL disableBanner = NO;
 
 #pragma mark - TuneAdDelegate
 
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
 {
     NSLog(@"BannerVC tuneAdDidFetchAd");
     
@@ -202,7 +202,7 @@ BOOL disableBanner = NO;
     }
 }
 
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
     NSLog(@"BannerVC tuneAdDidFailWithError: %@", error);
     
@@ -211,7 +211,7 @@ BOOL disableBanner = NO;
     [self writeToConsole:error];
 }
 
--(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView
+-(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidFireRequestWithUrl:\nurl = %@,\ndata = %@", url, data);
     

@@ -6,14 +6,16 @@
 //  Copyright (c) 2012 Scopic Software. All rights reserved.
 //
 
+#import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
 #import <MobileCoreServices/UTType.h>
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <UIKit/UIKit.h>
+
 #import <sys/xattr.h>
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
-#import "../Tune.h"
 #import "TuneReachability.h"
 
 @interface TuneUtils : NSObject
@@ -58,6 +60,13 @@ FOUNDATION_EXPORT const float TUNE_IOS_VERSION_501; // float equivalent of 5.0.1
 + (void)overrideNetworkReachability:(NSString *)reachable;
 #endif
 
+/*!
+ Appends the key, value pair to the query string if the url-encoded value is non-nil.
+ <code>&key=value</code>
+ @param value value to be url-encoded and appended to the query string
+ @param key key to be appended to the query string
+ @param params query string to which the key-value pair has to be appended
+ */
 + (void)addUrlQueryParamValue:(id)value
                        forKey:(NSString*)key
                   queryParams:(NSMutableString*)params;
@@ -74,10 +83,9 @@ FOUNDATION_EXPORT const float TUNE_IOS_VERSION_501; // float equivalent of 5.0.1
 + (NSData *)tuneDataFromBase64String:(NSString *)aString;
 + (NSString *)tuneBase64EncodedStringFromData:(NSData *)data;
 
-/*!
- Collects IFA if ASIdentifierManager class in AdSupport.framework is dynamically accessible.
- @return An array with two items [advertisingIdentifier - NSUUID*, isAdvertisingTrackingEnabled - NSNumber*]
- */
-+ (NSArray *)ifaInfo;
+#pragma mark -
+
++ (CGSize)screenSize;
++ (CGRect)screenBoundsForStatusBarOrientation;
 
 @end

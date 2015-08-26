@@ -18,8 +18,8 @@
 
 + (void)setPackageName:(NSString*)packageName;
 
-+ (void)setIFA:(NSString*)appleAdvertisingIdentifier trackingEnabled:(BOOL)adTrackingEnabled;
++ (void)setIfa:(NSString*)appleAdvertisingIdentifier trackingEnabled:(BOOL)adTrackingEnabled;
 
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout;
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
 
 @end

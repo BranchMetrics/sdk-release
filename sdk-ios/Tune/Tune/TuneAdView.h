@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TuneAdMetadata.h"
+
+@class TuneAd;
 
 @protocol TuneAdDelegate;
 
@@ -61,11 +62,12 @@ typedef NS_OPTIONS(NSUInteger, TuneAdOrientation)
     TuneAdOrientationLandscape   = 1 << 1
 };
 
-/*!
- Tune ad view used to display banner or interstitial ads.
- */
 
-@protocol TuneAdView
+/*!
+ Tune ad view abstract class extended by TuneBanner and TuneInterstitial.
+ To create an ad view instance, please directly use TuneBanner or TuneInterstitial as appropriate.
+ */
+@interface TuneAdView : UIView
 
 /*!
  Delegate that handles callbacks from TuneAdView
@@ -82,28 +84,8 @@ typedef NS_OPTIONS(NSUInteger, TuneAdOrientation)
  */
 @property (nonatomic, getter=isReady, readonly) BOOL ready;
 
-
-/*!
- Method to create a new ad view with the specified ad type and delegate. This method immediately starts fetching a new ad and sends an appropriate callback to the delegate as soon as the fetch request completes. Defaults to ads with portrait and/or landscape orientation(s) depending on the supported orientations mentioned in Info.plist project settings.
- */
-+ (instancetype)adView;
-
-/*!
- Method to create a new ad view with the specified ad type and delegate. This method immediately starts fetching a new ad and sends an appropriate callback to the delegate as soon as the fetch request completes. Defaults to ads with portrait and/or landscape orientation(s) depending on the supported orientations mentioned in Info.plist project settings.
- @param adViewDelegate A delegate used by TuneAdView to post success and failure callbacks
- */
-+ (instancetype)adViewWithDelegate:(id<TuneAdDelegate>)adViewDelegate;
-
-/*!
- Method to create a new ad view with the specified ad type, delegate and orientation. This method immediately starts fetching a new ad and sends an appropriate callback to the delegate as soon as the fetch request completes.
- @param adViewDelegate A delegate used by TuneAdView to post success and failure callbacks
- @param allowedOrientations Orientations supported by this ad view, e.g. TuneAdOrientationAll, TuneAdOrientationPortrait, TuneAdOrientationLandscape
- */
-+ (instancetype)adViewWithDelegate:(id<TuneAdDelegate>)adViewDelegate
-                      orientations:(TuneAdOrientation)allowedOrientations;
-
-
 @end
+
 
 /*!
  Protocol to be implemented in order to receive callbacks from this TuneAdView
@@ -116,7 +98,7 @@ typedef NS_OPTIONS(NSUInteger, TuneAdOrientation)
  Required callback method called when the next ad is ready for display
  @param adView the current ad view object
  */
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView;
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement;
 
 @optional
 
@@ -125,30 +107,30 @@ typedef NS_OPTIONS(NSUInteger, TuneAdOrientation)
  @param adView the ad view that the user tapped
  @param willLeave YES if another application will be launched to execute the action; NO if the action is going to be executed inside your application.
  */
-- (void)tuneAdDidStartActionForView:(id<TuneAdView>)adView willLeaveApplication:(BOOL)willLeave;
+- (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave;
 
 /*!
  Optional callback method called when the user ad click action ends. This method is not called if tuneAdDidStartActionForView:willLeaveApplication: was called with willLeave = YES.
  @param adView the current ad view object
  */
-- (void)tuneAdDidEndActionForView:(id<TuneAdView>)adView;
+- (void)tuneAdDidEndActionForView:(TuneAdView *)adView;
 
 /*!
  Optional callback method called when the user clicks the close button on an interstitial ad. This method is not called for banner ads.
  @param adView the current ad view object
  */
-- (void)tuneAdDidCloseForView:(id<TuneAdView>)adView;
+- (void)tuneAdDidCloseForView:(TuneAdView *)adView;
 
 /*!
- Optional callback method called when this TuneAdView encounters an error.
+ Optional callback method called when this ad view encounters an error.
  @param adView the current ad view object
  */
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView;
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView;
 
 /*!
  Optional callback method called when a new ad fetch request is fired.
  @param adView the current ad view object
  */
-- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView;
+- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView;
 
 @end

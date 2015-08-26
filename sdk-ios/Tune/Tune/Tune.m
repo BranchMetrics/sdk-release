@@ -7,10 +7,19 @@
 //
 
 #import "Tune.h"
+#import "TuneAdView.h"
+#import "TuneBanner.h"
+#import "TuneEvent.h"
+#import "TuneEventItem.h"
+#import "TuneInterstitial.h"
+#import "TuneLocation.h"
+#import "TunePreloadData.h"
+
 #import "Common/TuneEvent_internal.h"
 #import "Common/TuneKeyStrings.h"
 #import "Common/TuneTracker.h"
 #import "Common/TuneDeferredDplinkr.h"
+#import "Common/TuneSettings.h"
 
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
 
@@ -44,16 +53,16 @@ static NSOperationQueue *opQueue = nil;
 
 #pragma mark - Init Method
 
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key
 {
-    [self initializeWithTuneAdvertiserId:aid TuneConversionKey:key TunePackageName:nil wearable:NO];
+    [self initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:nil wearable:NO];
 }
 
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key TunePackageName:(NSString *)name wearable:(BOOL)wearable
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable
 {
     [TuneDeferredDplinkr setAdvertiserId:aid conversionKey:key];
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] startTrackerWithTuneAdvertiserId:aid TuneConversionKey:key wearable:wearable];
+        [[self sharedManager] startTrackerWithTuneAdvertiserId:aid tuneConversionKey:key wearable:wearable];
     }];
     
     if(name)
@@ -79,13 +88,13 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)setDelegate:(id <TuneDelegate>)delegate
++ (void)setDelegate:(id<TuneDelegate>)delegate
 {
     [TuneDeferredDplinkr setDelegate:delegate];
     [opQueue addOperationWithBlock:^{
         [self sharedManager].delegate = delegate;
 #if DEBUG
-        [self sharedManager].parameters.delegate = (id <TuneSettingsDelegate>)delegate;
+        [self sharedManager].parameters.delegate = (id<TuneSettingsDelegate>)delegate;
 #endif
     }];
 }
@@ -93,9 +102,9 @@ static NSOperationQueue *opQueue = nil;
 
 #pragma mark - Behavior Flags
 
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate
 {
-    [TuneDeferredDplinkr checkForDeferredDeeplinkWithTimeout:timeout];
+    [TuneDeferredDplinkr checkForDeferredDeeplink:delegate];
 }
 
 + (void)automateIapEventMeasurement:(BOOL)automate
@@ -116,12 +125,14 @@ static NSOperationQueue *opQueue = nil;
 
 #pragma mark - Setter Methods
 
-+ (void)setRegionDelegate:(id <TuneRegionDelegate>)delegate
+#ifdef TUNE_USE_LOCATION
++ (void)setRegionDelegate:(id<TuneRegionDelegate>)delegate
 {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].regionMonitor.delegate = delegate;
     }];
 }
+#endif
 
 + (void)setExistingUser:(BOOL)existingUser
 {
@@ -133,8 +144,9 @@ static NSOperationQueue *opQueue = nil;
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
-    [TuneDeferredDplinkr setIFA:[appleAdvertisingIdentifier UUIDString] trackingEnabled:adTrackingEnabled];
+    [TuneDeferredDplinkr setIfa:[appleAdvertisingIdentifier UUIDString] trackingEnabled:adTrackingEnabled];
     [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoCollectAppleAdvertisingIdentifier:NO];
         [self sharedManager].parameters.ifa = [appleAdvertisingIdentifier UUIDString];
         [self sharedManager].parameters.ifaTracking = @(adTrackingEnabled);
     }];
@@ -143,6 +155,7 @@ static NSOperationQueue *opQueue = nil;
 + (void)setAppleVendorIdentifier:(NSUUID *)appleVendorIdentifier
 {
     [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:NO];
         [self sharedManager].parameters.ifv = [appleVendorIdentifier UUIDString];
     }];
 }
@@ -157,6 +170,7 @@ static NSOperationQueue *opQueue = nil;
 + (void)setJailbroken:(BOOL)jailbroken
 {
     [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoDetectJailbroken:NO];
         [self sharedManager].parameters.jailbroken = @(jailbroken);
     }];
 }
@@ -173,6 +187,20 @@ static NSOperationQueue *opQueue = nil;
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] setShouldAutoDetectJailbroken:autoDetect];
+    }];
+}
+
++ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoCollectDeviceLocation:autoCollect];
+    }];
+}
+
++ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
+{
+    [opQueue addOperationWithBlock:^{
+        [[self sharedManager] setShouldAutoCollectAppleAdvertisingIdentifier:autoCollect];
     }];
 }
 
@@ -256,25 +284,16 @@ static NSOperationQueue *opQueue = nil;
 + (void)setGender:(TuneGender)userGender
 {
     [opQueue addOperationWithBlock:^{
-        // if an unknown value has been provided then default to "MALE" gender
-        long gen = TuneGenderFemale == userGender ? TuneGenderFemale : TuneGenderMale;
-        [self sharedManager].parameters.gender = @(gen);
+        NSNumber *gen = (TuneGenderFemale == userGender || TuneGenderMale == userGender) ? @(userGender) : nil;
+        [self sharedManager].parameters.gender = gen;
     }];
 }
 
-+ (void)setLatitude:(double)latitude longitude:(double)longitude
++ (void)setLocation:(TuneLocation *)location
 {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.latitude = @(latitude);
-        [self sharedManager].parameters.longitude = @(longitude);
-    }];
-}
-
-+ (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude
-{
-    [self setLatitude:latitude longitude:longitude];
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.altitude = @(altitude);
+        [[self sharedManager] setShouldAutoCollectDeviceLocation:NO];
+        [self sharedManager].parameters.location = location;
     }];
 }
 
@@ -683,6 +702,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+#ifdef TUNE_USE_LOCATION
 + (void)startMonitoringForBeaconRegion:(NSUUID*)UUID
                                 nameId:(NSString*)nameId
                                majorId:(NSUInteger)majorId
@@ -692,5 +712,6 @@ static NSOperationQueue *opQueue = nil;
         [[self sharedManager].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
     }];
 }
+#endif
 
 @end

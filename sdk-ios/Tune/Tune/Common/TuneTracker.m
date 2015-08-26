@@ -7,19 +7,25 @@
 //
 
 #import "TuneTracker.h"
+
 #import "../Tune.h"
 #import "../TuneEventItem.h"
+#import "../TunePreloadData.h"
 
+#import "NSString+TuneURLEncoding.m"
 #import "TuneAppToAppTracker.h"
 #import "TuneCWorks.h"
+#import "TuneEvent_internal.h"
 #import "TuneEventQueue.h"
 #import "TuneFBBridge.h"
+#import "TuneIfa.h"
+#import "TuneKeyStrings.h"
 #import "TuneLocationHelper.h"
+#import "TuneRegionMonitor.h"
+#import "TuneSettings.h"
 #import "TuneStoreKitDelegate.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUtils.h"
-
-#import "NSString+TuneURLEncoding.m"
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <UIKit/UIKit.h>
@@ -68,6 +74,8 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
 @property (nonatomic, assign) BOOL shouldDetectJailbroken;
+@property (nonatomic, assign) BOOL shouldCollectDeviceLocation;
+@property (nonatomic, assign) BOOL shouldCollectAdvertisingIdentifier;
 @property (nonatomic, assign) BOOL shouldGenerateVendorIdentifier;
 
 @end
@@ -76,7 +84,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 @implementation TuneTracker
 
 
-#pragma mark - init methods
+#pragma mark - Init methods
 
 - (id)init
 {
@@ -101,12 +109,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         // !!! very important to init some parms here
         _shouldUseCookieTracking = NO; // by default do not use cookie tracking
         [self setShouldAutoDetectJailbroken:YES];
+        [self setShouldAutoCollectDeviceLocation:YES];
+        [self setShouldAutoCollectAppleAdvertisingIdentifier:YES];
         [self setShouldAutoGenerateAppleVendorIdentifier:YES];
         // the user can turn these off before calling a method which will
         // remove the keys. turning them back on will regenerate the keys.
         
         // collect IFA if accessible
-        [self updateIFA];
+        [self updateIfa];
         
 #if USE_IAD
         [self checkIadAttribution:nil];
@@ -125,7 +135,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     return regionMonitor;
 }
 
-- (void)startTrackerWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key wearable:(BOOL)wearable
+- (void)startTrackerWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key wearable:(BOOL)wearable
 {
     self.trackerStarted = NO;
     
@@ -197,9 +207,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 
 #pragma mark - iAd methods
 
+/*!
+ Check if the app install was attributed to an iAd. If attributed to iAd, the optionally provided code block is executed. This method is a no-op on successive calls.
+ @param attributionBlock optional code block to be executed if install has been attributed to iAd
+ */
 - (void)checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
 {
 #if USE_IAD
+    // Since app install iAd attribution value does not change, collect it only once and store it to disk. After that, reuse the stored info.
     if( [UIApplication sharedApplication] && [ADClient class] && self.parameters.iadAttribution == nil ) {
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
@@ -341,28 +356,36 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     event.cworksClick = dictCworksClick;
     event.cworksImpression = dictCworksImpression;
     
-    // collect IFA if accessible
-    [self updateIFA];
+    if(self.shouldCollectAdvertisingIdentifier)
+    {
+        // collect IFA if accessible
+        [self updateIfa];
+    }
     
     // if the device location has not been explicitly set, try to auto-collect
-    if(!self.parameters.latitude && !self.parameters.longitude)
+    if(self.shouldCollectDeviceLocation && !self.parameters.location)
     {
         // check if location already exists
-        NSArray *latLonAlt;
-        BOOL locationEnabled = [TuneLocationHelper getOrRequestDeviceLocation:&latLonAlt];
+        BOOL locationEnabled = [TuneLocationHelper isLocationEnabled];
         
-        DLog(@"called getOrRequestDeviceLocation: location enabled = %d, location = %@", locationEnabled, latLonAlt);
+        DLog(@"called getOrRequestDeviceLocation: location enabled = %d, location = %@", locationEnabled, self.parameters.location);
         
         if(locationEnabled)
         {
-            BOOL updated = [self updateEvent:event withLocation:latLonAlt];
-            if(!updated)
+            TuneLocation *location = [TuneLocationHelper getOrRequestDeviceLocation];
+            if (location)
+            {
+                event.location = location;
+            }
+            else
             {
                 DLog(@"delaying event request to wait for location update");
                 // delay event request by a few seconds to allow location update
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, TUNE_LOCATION_UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                     DLog(@"firing delayed location check");
-                    [self fetchLocationAndSendRequestForEvent:event];
+                    event.location = [TuneLocationHelper getOrRequestDeviceLocation];
+                    
+                    [self sendRequestAndCheckIadAttributionForEvent:event];
                 });
                 
                 return;
@@ -371,34 +394,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     }
     
     [self sendRequestAndCheckIadAttributionForEvent:event];
-}
-
-- (void)fetchLocationAndSendRequestForEvent:(TuneEvent *)event
-{
-    NSArray *location;
-    [TuneLocationHelper getOrRequestDeviceLocation:&location];
-    
-    [self updateEvent:event withLocation:location];
-    
-    [self sendRequestAndCheckIadAttributionForEvent:event];
-}
-
-- (BOOL)updateEvent:(TuneEvent *)event withLocation:(NSArray *)location
-{
-    BOOL updated = NO;
-    if(location)
-    {
-        event.latitude = location[0];
-        event.longitude = location[1];
-        event.altitude = location[2];
-        event.locationHorizontalAccuracy = location[3];
-        event.locationVerticalAccuracy = location[4];
-        event.locationTimestamp = location[5];
-        
-        updated = YES;
-    }
-    
-    return updated;
 }
 
 - (void)sendRequestAndCheckIadAttributionForEvent:(TuneEvent *)event
@@ -470,6 +465,25 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         self.parameters.jailbroken = @([TuneUtils checkJailBreak]);
     else
         self.parameters.jailbroken = nil;
+}
+
+- (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect
+{
+    self.shouldCollectDeviceLocation = shouldAutoCollect;
+}
+
+- (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect
+{
+    self.shouldCollectAdvertisingIdentifier = shouldAutoCollect;
+    if( shouldAutoCollect )
+    {
+        [self updateIfa];
+    }
+    else
+    {
+        self.parameters.ifa = nil;
+        self.parameters.ifaTracking = @(NO);
+    }
 }
 
 - (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)shouldAutoGenerate
@@ -660,13 +674,13 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         [self.delegate tuneEnqueuedActionWithReferenceId:event.refId];
 }
 
-- (void)updateIFA
+- (void)updateIfa
 {
-    NSArray *ifaInfo = [TuneUtils ifaInfo];
-    if(ifaInfo && 2 == ifaInfo.count)
+    TuneIfa *ifaInfo = [TuneIfa ifaInfo];
+    if(ifaInfo)
     {
-        self.parameters.ifa = [ifaInfo[0] UUIDString];
-        self.parameters.ifaTracking = ifaInfo[1];
+        self.parameters.ifa = ifaInfo.ifa;
+        self.parameters.ifaTracking = @(ifaInfo.trackingEnabled);
     }
 }
 

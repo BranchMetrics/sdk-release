@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-FOUNDATION_EXPORT int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
+FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 
 @protocol TuneEventQueueDelegate;
 
@@ -17,12 +17,12 @@ FOUNDATION_EXPORT int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 @interface TuneEventQueue : NSObject
 
-+(void) setDelegate:(id <TuneEventQueueDelegate>)delegate;
++ (void)setDelegate:(id<TuneEventQueueDelegate>)delegate;
 
 /*!
  Method used to enqueue a request in the main Tune event queue.
  */
-+(void) enqueueUrlRequest:(NSString*)trackingLink
++ (void)enqueueUrlRequest:(NSString*)trackingLink
             encryptParams:(NSString*)encryptParams
                  postData:(NSString*)postData
                   runDate:(NSDate*)runDate;

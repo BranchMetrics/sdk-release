@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "../TuneAdView.h"
-#import "../TuneInterstitial.h"
+
+@class TuneAdView;
+@class TuneInterstitial;
 
 @interface TuneAdInterstitialVC : UIViewController
 

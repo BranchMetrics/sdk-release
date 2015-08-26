@@ -9,9 +9,10 @@
 #import "TuneAdPlacementManager.h"
 
 #import "TuneAdDownloadHelper.h"
+#import "../TuneAdMetadata.h"
 #import "TuneAdPlacement.h"
 
-static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minute
+static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60.; // 1 minute
 
 @interface TuneAdPlacementManager ()
 {
@@ -43,6 +44,7 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
           placement:(NSString *)placement
            metadata:(TuneAdMetadata *)metadata
        orientations:(TuneAdOrientation)orientations
+     requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
   completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler
 {
     DLog(@"current cache = %@", self.adPlacements.keyEnumerator.allObjects);
@@ -64,7 +66,7 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
             DLog(@"TAPM: pass1: pre-fetch");
             
             // initiate ad pre-fetch
-            [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations];
+            [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations requestHandler:requestHandler];
         });
         
         if(completionHandler)
@@ -83,17 +85,23 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
                                      orientations:orientations
                                         placement:placement
                                        adMetadata:metadata
+                                   requestHandler:^(NSString *url, NSString *data) {
+                                       if(requestHandler)
+                                       {
+                                           requestHandler(url, data);
+                                       }
+                                   }
                                 completionHandler:^(TuneAd *adNew, NSError *error) {
                                    
                                     DLog(@"TAPM: ad download finished");
                                     
                                     if(adNew)
                                     {
-                                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                                             DLog(@"TAPM: pass2: pre-fetch");
                                             
                                             // initiate ad pre-fetch
-                                            [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations];
+                                            [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations requestHandler:requestHandler];
                                         });
                                     }
                                     
@@ -110,6 +118,7 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
                   placement:(NSString *)placement
                    metadata:(TuneAdMetadata *)metadata
                orientations:(TuneAdOrientation)orientations
+             requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
 {
     @synchronized(pendingPrefetch)
     {
@@ -128,6 +137,12 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
                                          orientations:orientations
                                             placement:placement
                                            adMetadata:metadata
+                                       requestHandler:^(NSString *url, NSString *data) {
+                                           if(requestHandler)
+                                           {
+                                               requestHandler(url, data);
+                                           }
+                                       }
                                     completionHandler:^(TuneAd *adNew, NSError *error) {
 
                                         if(adNew)
@@ -195,7 +210,7 @@ static const int TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60; // 1 minu
 {
     // the app has received a low memory warning, try to free up some space
     
-    DLog(@"low memory warning: purge cache and disable caching for %d seconds", TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY);
+    DLog(@"low memory warning: purge cache and disable caching for %f seconds", TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY);
     
     // purge the cache to free up memory
     [self.adPlacements removeAllObjects];

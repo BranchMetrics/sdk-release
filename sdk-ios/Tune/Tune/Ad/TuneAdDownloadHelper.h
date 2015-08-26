@@ -1,5 +1,5 @@
 //
-//  TuneDownloadHelper.h
+//  TuneAdDownloadHelper.h
 //  Tune
 //
 //  Created by Harshal Ogale on 5/13/14.
@@ -8,14 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "../TuneAdView.h"
-#import "../TuneBanner.h"
-#import "../TuneInterstitial.h"
-#import "TuneAd.h"
-#import "../Common/TuneKeyStrings.h"
-#import "TuneAdKeyStrings.h"
-#import "TuneAdUtils.h"
-#import "TuneAdParams.h"
+#import "TuneAdView.h"
+
+@class TuneBanner;
+@class TuneInterstitial;
+@class TuneKeyStrings;
+@class TuneAd;
+@class TuneAdKeyStrings;
+@class TuneAdMetadata;
+@class TuneAdParams;
+@class TuneAdUtils;
 
 @protocol TuneAdDownloadHelperDelegate;
 
@@ -40,6 +42,7 @@
                      placement:(NSString *)pl
                       metadata:(TuneAdMetadata *)met
                   orientations:(TuneAdOrientation)ori
+                requestHandler:(void (^)(NSString *url, NSString *data))rh
              completionHandler:(void (^)(TuneAd *ad, NSError *error))ch;
 
 /*!
@@ -64,12 +67,14 @@
  @param orientations supported orientations
  @param placement placement string
  @param metadata ad metadata
+ @param requestHandler block of code to execute when an ad download request is fired
  @param completionHandler block of code to execute when the download is finishes
  */
 + (void)downloadAdForAdType:(TuneAdType)adType
                orientations:(TuneAdOrientation)orientations
                   placement:(NSString *)placement
                  adMetadata:(TuneAdMetadata *)metadata
+             requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
           completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler;
 
 @end

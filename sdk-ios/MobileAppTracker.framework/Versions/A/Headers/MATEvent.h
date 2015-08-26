@@ -10,7 +10,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <AvailabilityMacros.h>
 
-#import "MATEventItem.h"
+@class MATEventItem;
 
 /*!
  MobileAppTracking pre-defined event string "achievement_unlocked"

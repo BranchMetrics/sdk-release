@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+
 #import "TuneAdView.h"
+
+@class TuneAdMetadata;
 
 @interface TuneAd : NSObject
 
@@ -17,7 +20,7 @@ FOUNDATION_EXPORT const CGFloat TUNE_AD_DEFAULT_BANNER_HEIGHT_IPHONE_LANDSCAPE;
 FOUNDATION_EXPORT const CGFloat TUNE_AD_DEFAULT_BANNER_HEIGHT_IPAD_PORTRAIT;
 FOUNDATION_EXPORT const CGFloat TUNE_AD_DEFAULT_BANNER_HEIGHT_IPAD_LANDSCAPE;
 
-FOUNDATION_EXPORT const CGFloat TUNE_AD_DEFAULT_BANNER_CYCLE_DURATION;
+FOUNDATION_EXPORT const NSTimeInterval TUNE_AD_DEFAULT_BANNER_CYCLE_DURATION;
 
 @property (nonatomic, assign) TuneAdType type; // locally assigned
 @property (nonatomic, copy) NSString *placement; // locally assigned

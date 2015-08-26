@@ -7,12 +7,10 @@
 //
 
 #import "TuneUtils.h"
+
+#import "NSString+TuneURLEncoding.h"
 #import "TuneKeyStrings.h"
 #import "TuneSettings.h"
-#import "NSString+TuneURLEncoding.h"
-
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <MobileCoreServices/UTType.h>
 
 #include <CommonCrypto/CommonDigest.h>
 #include <sys/sysctl.h>
@@ -537,31 +535,43 @@ NSString *overrideNetworkStatus;
     return useString;
 }
 
-+ (NSArray *)ifaInfo
++ (CGSize)screenSize
 {
-    NSArray *arrInfo = nil;
+    CGSize screenSize = CGSizeZero;
     
-    Class aIdManager = NSClassFromString(@"ASIdentifierManager");
-    
-    if(aIdManager)
+    // Make sure that the collected screen size is independent of the current device orientation,
+    // when iOS version
+    // >= 8.0 use "nativeBounds"
+    // <  8.0 use "bounds"
+    if([UIScreen instancesRespondToSelector:@selector(nativeBounds)])
     {
-        id sharedManager = [aIdManager performSelector:@selector(sharedManager)];
-        NSUUID *ifaUUID = (NSUUID *)[sharedManager performSelector:@selector(advertisingIdentifier)];
-        
-        SEL selIsAdvertisingTrackingEnabled = @selector(isAdvertisingTrackingEnabled);
-        NSMethodSignature* signature = [sharedManager methodSignatureForSelector:selIsAdvertisingTrackingEnabled];
-        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
-        [invocation setTarget:sharedManager];
-        [invocation setSelector:selIsAdvertisingTrackingEnabled];
-        [invocation invoke];
-        
-        BOOL adTrackingEnabled = NO;
-        [invocation getReturnValue:&adTrackingEnabled];
-        
-        arrInfo = @[ifaUUID, @(adTrackingEnabled)];
+        CGSize nativeScreenSize = [[UIScreen mainScreen] nativeBounds].size;
+        CGFloat nativeScreenScale = [[UIScreen mainScreen] nativeScale];
+        screenSize = CGSizeMake(nativeScreenSize.width / nativeScreenScale, nativeScreenSize.height / nativeScreenScale);
+    }
+    else
+    {
+        screenSize = [[UIScreen mainScreen] bounds].size;
     }
     
-    return arrInfo;
+    return screenSize;
+}
+
+/*!
+ Determine width, height of the main screen depending on the current status bar orientation.
+ Ref: http://stackoverflow.com/a/14809642
+ */
++ (CGRect)screenBoundsForStatusBarOrientation
+{
+    // portrait screen size
+    CGSize screenSize = [self screenSize];
+    
+    // if current status bar orientation is landscape, then swap the screen width-height values
+    BOOL isLandscape = UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
+    CGFloat curWidth = isLandscape ? screenSize.height : screenSize.width;
+    CGFloat curHeight = isLandscape ? screenSize.width : screenSize.height;
+    
+    return CGRectMake(0, 0, curWidth, curHeight);
 }
 
 @end

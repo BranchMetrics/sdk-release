@@ -19,6 +19,7 @@
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
 #import "TuneInterstitial.h"
+#import "TuneLocation.h"
 #import "TunePreloadData.h"
 
 //#define MAT_USE_LOCATION
@@ -27,7 +28,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define MATVERSION @"3.10.0"
+#define MATVERSION @"3.11.0"
 
 
 #pragma mark - enumerated types
@@ -95,7 +96,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  [MobileAppTrackerDelegate](MobileAppTrackerDelegate) : A delegate used by the MobileAppTracker
  to post success and failure callbacks from the MAT servers.
  */
-+ (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)setDelegate:(id<MobileAppTrackerDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
 #ifdef MAT_USE_LOCATION
 /** @name MAT SDK Region Delegate */
@@ -103,7 +104,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  [MobileAppTrackerRegionDelegate](MobileAppTrackerRegionDelegate) : A delegate used by the MobileAppTracker
  to post geofencing boundary notifications.
  */
-+ (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)setRegionDelegate:(id<MobileAppTrackerRegionDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 #endif
 
 
@@ -133,19 +134,15 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
 
 /*!
  Check for a deferred deeplink entry point upon app installation.
+ On completion, this method does not auto-open the deferred deeplink,
+ only the success/failure delegate callbacks are fired.
+ 
  This is safe to call at every app launch, since the function does nothing
  unless this is the first launch.
  
- The timeout parameter should be set in keeping with the normal first-launch
- time and user experience of your app.
- 
- The deep-link is automatically opened only if it received within
- the specified timeout duration.
- 
- On completion, this method always fires a delegate callback that includes
- the deeplink url and a boolean flag to indicate if the request timed out.
+ @param delegate Delegate that implements the MobileAppTrackerDelegate deferred deeplink related callbacks.
  */
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)checkForDeferredDeeplink:(id<MobileAppTrackerDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
 /*!
  Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
@@ -206,6 +203,21 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param packageName The string name for the package.
  */
 + (void)setPackageName:(NSString *)packageName DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+
+/*!
+ Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
+ YES/NO
+ Note that setting to NO will clear any previously set value for the property.
+ @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
+ */
++ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+
+/*!
+ Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
+ YES/NO
+ @param autoCollect YES will auto collect device location, defaults to YES.
+ */
++ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
 /*!
  Specifies if the sdk should auto detect if the iOS device is jailbroken.
@@ -293,7 +305,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param latitude user's latitude
  @param longitude user's longitude
  */
-+ (void)setLatitude:(double)latitude longitude:(double)longitude DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)setLatitude:(double)latitude longitude:(double)longitude DEPRECATED_MSG_ATTRIBUTE("Please use setLocation: method from class Tune");
 
 /*!
  Sets the user's location including altitude.
@@ -301,7 +313,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param longitude user's longitude
  @param altitude user's altitude
  */
-+ (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude DEPRECATED_MSG_ATTRIBUTE("Please use setLocation: method from class Tune");
 
 /*!
  Set app-level ad-tracking.
@@ -748,10 +760,10 @@ DEPRECATED_MSG_ATTRIBUTE("Please use protocol TuneDelegate instead") @protocol M
 
 /*!
  Delegate method called when a deferred deeplink becomes available.
+ The deeplink should be used to open the appropriate screen in your app.
  @param deeplink String representation of the deeplink url.
- @param timeout NO if the deferred deep-link became available within the specified timeout, YES otherwise
  */
-- (void)mobileAppTrackerDidReceiveDeeplink:(NSString *)deeplink didTimeout:(BOOL)timeout DEPRECATED_MSG_ATTRIBUTE("Implement corresponding method of protocol TuneDelegate");
+- (void)mobileAppTrackerDidReceiveDeeplink:(NSString *)deeplink DEPRECATED_MSG_ATTRIBUTE("Implement corresponding method of protocol TuneDelegate");
 
 /*!
  Delegate method called when a deferred deeplink request fails.

@@ -20,7 +20,6 @@ NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSpecifiedSizes      = @"NO_SPECI
 NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSuitableAds         = @"NO_SUITABLE_ADS";
 NSString * const TUNE_AD_KEY_TuneAdServerErrorUnknownAdvertiser     = @"UNKNOWN_ADVERTISER";
 
-NSString * const TUNE_AD_KEY_CLOSE                                  = @"close";
 NSString * const TUNE_AD_KEY_NATIVE                                 = @"native";
 
 NSString * const TUNE_AD_KEY_HTML                                   = @"html";
@@ -32,6 +31,7 @@ NSString * const TUNE_AD_KEY_COLOR                                  = @"color";
 NSString * const TUNE_AD_KEY_ERROR                                  = @"error";
 
 NSString * const TUNE_AD_KEY_CLICK                                  = @"click";
+NSString * const TUNE_AD_KEY_CLOSE                                  = @"close";
 NSString * const TUNE_AD_KEY_EVENT                                  = @"event";
 NSString * const TUNE_AD_KEY_VIEW                                   = @"view";
 

@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TuneEvent_internal.h"
-#import "TuneKeyStrings.h"
-#import "TunePreloadData.h"
+
+@class TuneEvent;
+@class TuneKeyStrings;
+@class TuneLocation;
+@class TunePreloadData;
 
 @protocol TuneSettingsDelegate;
 
@@ -83,12 +85,12 @@
 @property (nonatomic, copy) NSNumber *age;                          // KEY_AGE
 @property (nonatomic, copy) NSNumber *gender;                       // KEY_GENDER
 
-@property (nonatomic, copy) NSNumber *latitude;                     // KEY_LATITUDE
-@property (nonatomic, copy) NSNumber *longitude;                    // KEY_LONGITUDE
-@property (nonatomic, copy) NSNumber *altitude;                     // KEY_ALTITUDE
-@property (nonatomic, copy) NSNumber *locationHorizontalAccuracy;   // KEY_LOCATION_HORIZONTAL_ACCURACY
-@property (nonatomic, copy) NSDate *locationTimestamp;              // KEY_LOCATION_TIMESTAMP
-@property (nonatomic, copy) NSNumber *locationVerticalAccuracy;     // KEY_LOCATION_VERTICAL_ACCURACY
+@property (nonatomic, strong) TuneLocation *location;               // KEY_LATITUDE
+                                                                    // KEY_LONGITUDE
+                                                                    // KEY_ALTITUDE
+                                                                    // KEY_LOCATION_HORIZONTAL_ACCURACY
+                                                                    // KEY_LOCATION_TIMESTAMP
+                                                                    // KEY_LOCATION_VERTICAL_ACCURACY
 
 @property (nonatomic, copy) NSString *trusteTPID;                   // KEY_TRUSTE_TPID
 

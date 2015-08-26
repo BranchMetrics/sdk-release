@@ -50,9 +50,9 @@ static NSArray *arrPlacements;
     metadata.debugMode = YES;
     
     arrPlacements = @[@"place1", @"place2", @"place3"];
-    [interstitial cacheForPlacement:@"place1" adMetadata:metadata];
-    [interstitial cacheForPlacement:@"place2" adMetadata:metadata];
-    [interstitial cacheForPlacement:@"place3" adMetadata:metadata];
+    [interstitial cacheForPlacement:arrPlacements[0] adMetadata:metadata];
+    [interstitial cacheForPlacement:arrPlacements[1] adMetadata:metadata];
+    [interstitial cacheForPlacement:arrPlacements[2] adMetadata:metadata];
 }
 
 - (void)showInterstitialAd
@@ -66,31 +66,36 @@ static NSArray *arrPlacements;
 
 #pragma mark - TuneAdDelegate Methods
 
-- (void)tuneAdDidCloseForView:(id<TuneAdView>)adView
+- (void)tuneAdDidCloseForView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidClose");
 }
 
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
 {
     NSLog(@"tuneAdDidFetchAd");
 }
 
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
     // Ref: TuneAdView.TuneAdError enum for the list of known error codes
     // Ref: Troubleshooting steps for info on how to handle some of these error codes
     NSLog(@"tuneAdDidFailWithError: %@", error);
 }
 
-- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidFireRequestWithUrl:data:forView: url = %@, data = %@", url, data);
 }
 
-- (void)tuneAdDidStartActionForView:(id<TuneAdView>)adView willLeaveApplication:(BOOL)willLeave
+- (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave
 {
     NSLog(@"tuneAdDidStartActionForView:willLeaveApplication: willLeave = %d", willLeave);
+}
+
+- (void)tuneAdDidEndActionForView:(TuneAdView *)adView
+{
+    NSLog(@"tuneAdDidEndActionForView");
 }
 
 @end

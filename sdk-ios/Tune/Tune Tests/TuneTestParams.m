@@ -10,6 +10,8 @@
 #import "TuneTestParams.h"
 #import "TuneTestsHelper.h"
 #import "../Tune/Tune.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/TuneEventItem.h"
 #import "../Tune/Common/TuneUtils.h"
 #import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneEncrypter.h"

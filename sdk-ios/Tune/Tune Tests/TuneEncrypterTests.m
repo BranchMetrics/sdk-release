@@ -10,6 +10,7 @@
 #import "TuneTestsHelper.h"
 #import "../Tune/TuneEvent.h"
 #import "../Tune/Common/TuneEncrypter.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneSettings.h"
 
 @interface TuneEncrypterTests : XCTestCase

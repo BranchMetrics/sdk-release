@@ -78,7 +78,7 @@
     }
 
     if( ![CLLocationManager isMonitoringAvailableForClass:[CLBeaconRegion class]] ) {
-        NSLog( @"beacon monitoring is not available -- are you using the simulator?" );
+        NSLog( @"Tune: beacon monitoring is not available -- are you using the simulator?" );
         return;
     }
 

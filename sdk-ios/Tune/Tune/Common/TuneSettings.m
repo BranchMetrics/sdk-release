@@ -8,19 +8,24 @@
 
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
-//#import <sys/types.h>
 #import <mach/machine.h>
-#import <Foundation/Foundation.h>
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "TuneSettings.h"
-#import "TuneUtils.h"
-#import "NSString+TuneURLEncoding.m"
-#import "TuneInstallReceipt.h"
-#import "TuneUserAgentCollector.h"
 #import "../Tune.h"
+
+#import "NSString+TuneURLEncoding.m"
+#import "TuneEvent_internal.h"
+#import "TuneInstallReceipt.h"
+#import "TuneKeyStrings.h"
+#import "TuneLocation_internal.h"
+#import "TunePreloadData.h"
+#import "TuneSettings.h"
+#import "TuneUserAgentCollector.h"
+#import "TuneUtils.h"
+
 
 @interface TuneSettings ()
 {
@@ -103,23 +108,7 @@ static CTTelephonyNetworkInfo *netInfo;
         // Device params
         self.deviceBrand = @"Apple";
         
-        CGSize screenSize = CGSizeZero;
-        
-        // Make sure that the collected screen size is independent of the current device orientation,
-        // when iOS version
-        // >= 8.0 use "nativeBounds"
-        // <  8.0 use "bounds"
-        if([UIScreen instancesRespondToSelector:@selector(nativeBounds)])
-        {
-            CGSize nativeScreenSize = [[UIScreen mainScreen] nativeBounds].size;
-            CGFloat nativeScreenScale = [[UIScreen mainScreen] nativeScale];
-            screenSize = CGSizeMake(nativeScreenSize.width / nativeScreenScale, nativeScreenSize.height / nativeScreenScale);
-        }
-        else
-        {
-            screenSize = [[UIScreen mainScreen] bounds].size;
-        }
-        
+        CGSize screenSize = [TuneUtils screenSize];
         self.screenWidth = @(screenSize.width);
         self.screenHeight = @(screenSize.height);
         
@@ -304,146 +293,153 @@ static CTTelephonyNetworkInfo *netInfo;
     
     NSString *currencyCode = event.currencyCode ?: self.currencyCode;
     
+    NSNumber *hAccuracy = self.location.horizontalAccuracy ?: event.location.horizontalAccuracy;
+    NSNumber *vAccuracy = self.location.verticalAccuracy ?: event.location.verticalAccuracy;
+    NSDate *locTimestamp = self.location.timestamp ?: event.location.timestamp;
+    
     // convert properties to keys, format, and append to URL
-    [self addValue:event.actionName                  forKey:TUNE_KEY_ACTION                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.advertiserId                 forKey:TUNE_KEY_ADVERTISER_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.age                          forKey:TUNE_KEY_AGE                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.altitude                     forKey:TUNE_KEY_ALTITUDE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appAdTracking                forKey:TUNE_KEY_APP_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appName                      forKey:TUNE_KEY_APP_NAME                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.appVersion                   forKey:TUNE_KEY_APP_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.bluetoothState               forKey:TUNE_KEY_BLUETOOTH_STATE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileCountryCode            forKey:TUNE_KEY_CARRIER_COUNTRY_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileCountryCodeISO         forKey:TUNE_KEY_CARRIER_COUNTRY_CODE_ISO encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.mobileNetworkCode            forKey:TUNE_KEY_CARRIER_NETWORK_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.countryCode                  forKey:TUNE_KEY_COUNTRY_CODE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:currencyCode                      forKey:TUNE_KEY_CURRENCY_CODE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceBrand                  forKey:TUNE_KEY_DEVICE_BRAND             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCarrier                forKey:TUNE_KEY_DEVICE_CARRIER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCpuSubtype             forKey:TUNE_KEY_DEVICE_CPUSUBTYPE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.deviceCpuType                forKey:TUNE_KEY_DEVICE_CPUTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.actionName                 forKey:TUNE_KEY_ACTION                   	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.advertiserId                forKey:TUNE_KEY_ADVERTISER_ID               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.age                         forKey:TUNE_KEY_AGE                      	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.location.altitude           forKey:TUNE_KEY_ALTITUDE                 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appAdTracking               forKey:TUNE_KEY_APP_AD_TRACKING          	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appName                     forKey:TUNE_KEY_APP_NAME                 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.appVersion                  forKey:TUNE_KEY_APP_VERSION                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.bluetoothState              forKey:TUNE_KEY_BLUETOOTH_STATE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileCountryCode           forKey:TUNE_KEY_CARRIER_COUNTRY_CODE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileCountryCodeISO        forKey:TUNE_KEY_CARRIER_COUNTRY_CODE_ISO    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.mobileNetworkCode           forKey:TUNE_KEY_CARRIER_NETWORK_CODE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.countryCode                 forKey:TUNE_KEY_COUNTRY_CODE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:currencyCode                     forKey:TUNE_KEY_CURRENCY_CODE               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceBrand                 forKey:TUNE_KEY_DEVICE_BRAND                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCarrier               forKey:TUNE_KEY_DEVICE_CARRIER              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCpuSubtype            forKey:TUNE_KEY_DEVICE_CPUSUBTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceCpuType               forKey:TUNE_KEY_DEVICE_CPUTYPE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     if(self.wearable)
     {
-        [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE  forKey:TUNE_KEY_DEVICE_FORM             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE    forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     }
     
-    [self addValue:self.deviceModel                  forKey:TUNE_KEY_DEVICE_MODEL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.attribute1                  forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB1     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.attribute2                  forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB2     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.attribute3                  forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB3     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.attribute4                  forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB4     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.attribute5                  forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB5     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.contentId                   forKey:TUNE_KEY_EVENT_CONTENT_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.contentType                 forKey:TUNE_KEY_EVENT_CONTENT_TYPE       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.date1                       forKey:TUNE_KEY_EVENT_DATE1              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.date2                       forKey:TUNE_KEY_EVENT_DATE2              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@(event.level)                    forKey:TUNE_KEY_EVENT_LEVEL              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@(event.quantity)                 forKey:TUNE_KEY_EVENT_QUANTITY           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@(event.rating)                   forKey:TUNE_KEY_EVENT_RATING             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.refId                       forKey:TUNE_KEY_REF_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@(event.revenue)                  forKey:TUNE_KEY_REVENUE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.searchString                forKey:TUNE_KEY_EVENT_SEARCH_STRING      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:@(event.transactionState)         forKey:TUNE_KEY_IOS_PURCHASE_STATUS      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.existingUser                 forKey:TUNE_KEY_EXISTING_USER            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.facebookUserId               forKey:TUNE_KEY_FACEBOOK_USER_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.facebookCookieId             forKey:TUNE_KEY_FB_COOKIE_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.gender                       forKey:TUNE_KEY_GENDER                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:event.iBeaconRegionId             forKey:TUNE_KEY_GEOFENCE_NAME            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.googleUserId                 forKey:TUNE_KEY_GOOGLE_USER_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.iadAttribution               forKey:TUNE_KEY_IAD_ATTRIBUTION          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.iadImpressionDate            forKey:TUNE_KEY_IAD_IMPRESSION_DATE      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.installDate                  forKey:TUNE_KEY_INSDATE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.installLogId                 forKey:TUNE_KEY_INSTALL_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifaTracking                  forKey:TUNE_KEY_IOS_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifa                          forKey:TUNE_KEY_IOS_IFA                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.ifv                          forKey:TUNE_KEY_IOS_IFV                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.payingUser                   forKey:TUNE_KEY_IS_PAYING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.conversionKey                forKey:TUNE_KEY_KEY                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.language                     forKey:TUNE_KEY_LANGUAGE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.lastOpenLogId                forKey:TUNE_KEY_LAST_OPEN_LOG_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.latitude                     forKey:TUNE_KEY_LATITUDE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.locationAuthorizationStatus  forKey:TUNE_KEY_LOCATION_AUTH_STATUS     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.longitude                    forKey:TUNE_KEY_LONGITUDE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.matId                        forKey:TUNE_KEY_MAT_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.openLogId                    forKey:TUNE_KEY_OPEN_LOG_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.jailbroken                   forKey:TUNE_KEY_OS_JAILBROKE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.osVersion                    forKey:TUNE_KEY_OS_VERSION               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.packageName                  forKey:TUNE_KEY_PACKAGE_NAME             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.redirectUrl                  forKey:TUNE_KEY_REDIRECT_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.referralSource               forKey:TUNE_KEY_REFERRAL_SOURCE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.referralUrl                  forKey:TUNE_KEY_REFERRAL_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:TUNE_KEY_JSON                     forKey:TUNE_KEY_RESPONSE_FORMAT          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.screenDensity                forKey:TUNE_KEY_SCREEN_DENSITY           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.screenSize                   forKey:TUNE_KEY_SCREEN_SIZE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:TUNE_KEY_IOS                      forKey:TUNE_KEY_SDK                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.pluginName                   forKey:TUNE_KEY_SDK_PLUGIN               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.sessionDate                  forKey:TUNE_KEY_SESSION_DATETIME         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:eventNameOrId                     forKey:keySiteEvent                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.siteId                       forKey:TUNE_KEY_SITE_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.systemDate                   forKey:TUNE_KEY_SYSTEM_DATE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.trackingId                   forKey:TUNE_KEY_TRACKING_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[NSUUID UUID] UUIDString]        forKey:TUNE_KEY_TRANSACTION_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.trusteTPID                   forKey:TUNE_KEY_TRUSTE_TPID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.twitterUserId                forKey:TUNE_KEY_TWITTER_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.updateLogId                  forKey:TUNE_KEY_UPDATE_LOG_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userEmailMd5                 forKey:TUNE_KEY_USER_EMAIL_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userEmailSha1                forKey:TUNE_KEY_USER_EMAIL_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userEmailSha256              forKey:TUNE_KEY_USER_EMAIL_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userId                       forKey:TUNE_KEY_USER_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userNameMd5                  forKey:TUNE_KEY_USER_NAME_MD5            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userNameSha1                 forKey:TUNE_KEY_USER_NAME_SHA1           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.userNameSha256               forKey:TUNE_KEY_USER_NAME_SHA256         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.phoneNumberMd5               forKey:TUNE_KEY_USER_PHONE_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.phoneNumberSha1              forKey:TUNE_KEY_USER_PHONE_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.phoneNumberSha256            forKey:TUNE_KEY_USER_PHONE_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.deviceModel                 forKey:TUNE_KEY_DEVICE_MODEL            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.attribute1                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB1    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.attribute2                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB2    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.attribute3                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB3    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.attribute4                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB4    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.attribute5                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB5    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.contentId                  forKey:TUNE_KEY_EVENT_CONTENT_ID        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.contentType                forKey:TUNE_KEY_EVENT_CONTENT_TYPE      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.date1                      forKey:TUNE_KEY_EVENT_DATE1             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.date2                      forKey:TUNE_KEY_EVENT_DATE2             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(event.level)                   forKey:TUNE_KEY_EVENT_LEVEL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(event.quantity)                forKey:TUNE_KEY_EVENT_QUANTITY          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(event.rating)                  forKey:TUNE_KEY_EVENT_RATING            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.refId                      forKey:TUNE_KEY_REF_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(event.revenue)                 forKey:TUNE_KEY_REVENUE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.searchString               forKey:TUNE_KEY_EVENT_SEARCH_STRING     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(event.transactionState)        forKey:TUNE_KEY_IOS_PURCHASE_STATUS     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.existingUser                forKey:TUNE_KEY_EXISTING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.facebookUserId              forKey:TUNE_KEY_FACEBOOK_USER_ID        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.facebookCookieId            forKey:TUNE_KEY_FB_COOKIE_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.gender                      forKey:TUNE_KEY_GENDER                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.iBeaconRegionId            forKey:TUNE_KEY_GEOFENCE_NAME           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.googleUserId                forKey:TUNE_KEY_GOOGLE_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.iadAttribution              forKey:TUNE_KEY_IAD_ATTRIBUTION         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.iadImpressionDate           forKey:TUNE_KEY_IAD_IMPRESSION_DATE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.installDate                 forKey:TUNE_KEY_INSDATE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.installLogId                forKey:TUNE_KEY_INSTALL_LOG_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifaTracking                 forKey:TUNE_KEY_IOS_AD_TRACKING         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifa                         forKey:TUNE_KEY_IOS_IFA                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.ifv                         forKey:TUNE_KEY_IOS_IFV                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.payingUser                  forKey:TUNE_KEY_IS_PAYING_USER          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.conversionKey               forKey:TUNE_KEY_KEY                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.language                    forKey:TUNE_KEY_LANGUAGE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.lastOpenLogId               forKey:TUNE_KEY_LAST_OPEN_LOG_ID        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.location.latitude           forKey:TUNE_KEY_LATITUDE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.locationAuthorizationStatus forKey:TUNE_KEY_LOCATION_AUTH_STATUS    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:hAccuracy                        forKey:TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:vAccuracy                        forKey:TUNE_KEY_LOCATION_VERTICAL_ACCURACY      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:locTimestamp                     forKey:TUNE_KEY_LOCATION_TIMESTAMP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.location.longitude          forKey:TUNE_KEY_LONGITUDE               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.matId                       forKey:TUNE_KEY_MAT_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.openLogId                   forKey:TUNE_KEY_OPEN_LOG_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.jailbroken                  forKey:TUNE_KEY_OS_JAILBROKE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.osVersion                   forKey:TUNE_KEY_OS_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.packageName                 forKey:TUNE_KEY_PACKAGE_NAME            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.redirectUrl                 forKey:TUNE_KEY_REDIRECT_URL            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.referralSource              forKey:TUNE_KEY_REFERRAL_SOURCE         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.referralUrl                 forKey:TUNE_KEY_REFERRAL_URL            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:TUNE_KEY_JSON                    forKey:TUNE_KEY_RESPONSE_FORMAT         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.screenDensity               forKey:TUNE_KEY_SCREEN_DENSITY          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.screenSize                  forKey:TUNE_KEY_SCREEN_SIZE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:TUNE_KEY_IOS                     forKey:TUNE_KEY_SDK                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.pluginName                  forKey:TUNE_KEY_SDK_PLUGIN              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.sessionDate                 forKey:TUNE_KEY_SESSION_DATETIME        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:eventNameOrId                    forKey:keySiteEvent                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.siteId                      forKey:TUNE_KEY_SITE_ID                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.systemDate                  forKey:TUNE_KEY_SYSTEM_DATE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.trackingId                  forKey:TUNE_KEY_TRACKING_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[NSUUID UUID] UUIDString]       forKey:TUNE_KEY_TRANSACTION_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.trusteTPID                  forKey:TUNE_KEY_TRUSTE_TPID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.twitterUserId               forKey:TUNE_KEY_TWITTER_USER_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.updateLogId                 forKey:TUNE_KEY_UPDATE_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailMd5                forKey:TUNE_KEY_USER_EMAIL_MD5          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailSha1               forKey:TUNE_KEY_USER_EMAIL_SHA1         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userEmailSha256             forKey:TUNE_KEY_USER_EMAIL_SHA256       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userId                      forKey:TUNE_KEY_USER_ID                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameMd5                 forKey:TUNE_KEY_USER_NAME_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameSha1                forKey:TUNE_KEY_USER_NAME_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.userNameSha256              forKey:TUNE_KEY_USER_NAME_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberMd5              forKey:TUNE_KEY_USER_PHONE_MD5          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberSha1             forKey:TUNE_KEY_USER_PHONE_SHA1         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.phoneNumberSha256           forKey:TUNE_KEY_USER_PHONE_SHA256       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     if(self.preloadData.publisherId)
     {
-        [self addValue:self.preloadData.advertiserSubAd         forKey:TUNE_KEY_ADVERTISER_SUB_AD          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
-        [self addValue:self.preloadData.advertiserSubAdgroup    forKey:TUNE_KEY_ADVERTISER_SUB_ADGROUP     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.advertiserSubCampaign   forKey:TUNE_KEY_ADVERTISER_SUB_CAMPAIGN    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.advertiserSubKeyword    forKey:TUNE_KEY_ADVERTISER_SUB_KEYWORD     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.advertiserSubPublisher  forKey:TUNE_KEY_ADVERTISER_SUB_PUBLISHER   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.advertiserSubSite       forKey:TUNE_KEY_ADVERTISER_SUB_SITE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
-        [self addValue:self.preloadData.agencyId                forKey:TUNE_KEY_AGENCY_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.offerId                 forKey:TUNE_KEY_OFFER_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:@(1)                                     forKey:TUNE_KEY_PRELOAD_DATA               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherId             forKey:TUNE_KEY_PUBLISHER_ID               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
-        [self addValue:self.preloadData.publisherReferenceId    forKey:TUNE_KEY_PUBLISHER_REF_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubAd          forKey:TUNE_KEY_PUBLISHER_SUB_AD           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubAdgroup     forKey:TUNE_KEY_PUBLISHER_SUB_ADGROUP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubCampaign    forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
-        [self addValue:self.preloadData.publisherSubKeyword     forKey:TUNE_KEY_PUBLISHER_SUB_KEYWORD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubPublisher   forKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubSite        forKey:TUNE_KEY_PUBLISHER_SUB_SITE         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSub1           forKey:TUNE_KEY_PUBLISHER_SUB1             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSub2           forKey:TUNE_KEY_PUBLISHER_SUB2             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSub3           forKey:TUNE_KEY_PUBLISHER_SUB3             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSub4           forKey:TUNE_KEY_PUBLISHER_SUB4             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSub5           forKey:TUNE_KEY_PUBLISHER_SUB5             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.advertiserSubAd         forKey:TUNE_KEY_ADVERTISER_SUB_AD           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.advertiserSubAdgroup    forKey:TUNE_KEY_ADVERTISER_SUB_ADGROUP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.advertiserSubCampaign   forKey:TUNE_KEY_ADVERTISER_SUB_CAMPAIGN     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.advertiserSubKeyword    forKey:TUNE_KEY_ADVERTISER_SUB_KEYWORD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.advertiserSubPublisher  forKey:TUNE_KEY_ADVERTISER_SUB_PUBLISHER    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.advertiserSubSite       forKey:TUNE_KEY_ADVERTISER_SUB_SITE         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.agencyId                forKey:TUNE_KEY_AGENCY_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.offerId                 forKey:TUNE_KEY_OFFER_ID                    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:@(1)                                     forKey:TUNE_KEY_PRELOAD_DATA                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherId             forKey:TUNE_KEY_PUBLISHER_ID                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.publisherReferenceId    forKey:TUNE_KEY_PUBLISHER_REF_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSubAd          forKey:TUNE_KEY_PUBLISHER_SUB_AD            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSubAdgroup     forKey:TUNE_KEY_PUBLISHER_SUB_ADGROUP       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSubCampaign    forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.publisherSubKeyword     forKey:TUNE_KEY_PUBLISHER_SUB_KEYWORD       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSubPublisher   forKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSubSite        forKey:TUNE_KEY_PUBLISHER_SUB_SITE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSub1           forKey:TUNE_KEY_PUBLISHER_SUB1              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSub2           forKey:TUNE_KEY_PUBLISHER_SUB2              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSub3           forKey:TUNE_KEY_PUBLISHER_SUB3              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSub4           forKey:TUNE_KEY_PUBLISHER_SUB4              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:self.preloadData.publisherSub5           forKey:TUNE_KEY_PUBLISHER_SUB5              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     }
     
-    [self addValue:TUNEVERSION                       			forKey:TUNE_KEY_VER                        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:TUNEVERSION                       			forKey:TUNE_KEY_VER                         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
-    [self addValue:[TuneUserAgentCollector userAgent]           forKey:TUNE_KEY_CONVERSION_USER_AGENT      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[TuneUserAgentCollector userAgent]           forKey:TUNE_KEY_CONVERSION_USER_AGENT       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     if( [self.debugMode boolValue] )
-        [self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 
     if( [self.allowDuplicates boolValue] )
-        [self addValue:@(TRUE)                       			forKey:TUNE_KEY_SKIP_DUP                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:@(TRUE)                       			forKey:TUNE_KEY_SKIP_DUP                    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 
     // Note: it's possible for a cworks key to duplicate a built-in key (say, "sdk").
     // If that happened, the constructed URL would have two of the same parameter (e.g.,
     // "...sdk=ios&sdk=cworksvalue..."), though one might be encrypted and one not.
     for( NSString *key in [event.cworksClick allKeys] )
-        [self addValue:event.cworksClick[key]        			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:event.cworksClick[key]        			forKey:key                                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     for( NSString *key in [event.cworksImpression allKeys] )
-        [self addValue:event.cworksImpression[key]   			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+        [self addValue:event.cworksImpression[key]   			forKey:key                                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
 #if DEBUG
-    [self addValue:@(TRUE)                                      forKey:TUNE_KEY_BYPASS_THROTTLING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:@(TRUE)                                      forKey:TUNE_KEY_BYPASS_THROTTLING           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #endif
     
     DLLog(@"Tune urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
@@ -451,7 +447,8 @@ static CTTelephonyNetworkInfo *netInfo;
     if( [_delegate respondsToSelector:@selector(_tuneURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [_delegate _tuneURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
     
-    *trackingLink = [NSString stringWithFormat:@"https://%@.%@/%@?%@",
+    *trackingLink = [NSString stringWithFormat:@"%@://%@.%@/%@?%@",
+                     TUNE_KEY_HTTPS,
                      self.advertiserId,
                      [self domainName],
                      TUNE_SERVER_PATH_TRACKING_ENGINE,

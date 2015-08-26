@@ -9,6 +9,8 @@
 #import <XCTest/XCTest.h>
 #import "TuneTestsHelper.h"
 #import "../Tune/Tune.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/TuneEventItem.h"
 #import "../Tune/Common/TuneTracker.h"
 
 @interface TuneServerTests : XCTestCase <TuneDelegate>
@@ -34,7 +36,7 @@
     callFailedDuplicate = NO;
 
     [Tune setAllowDuplicateRequests:YES];
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
 
     emptyRequestQueue();

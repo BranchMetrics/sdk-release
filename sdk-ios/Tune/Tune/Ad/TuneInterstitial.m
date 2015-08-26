@@ -6,23 +6,24 @@
 //  Copyright (c) 2015 Tune Inc. All rights reserved.
 //
 
+#import "../TuneInterstitial.h"
+
+#import "../Common/Tune_internal.h"
+#import "../Common/TuneKeyStrings.h"
 #import "../Common/TuneReachability.h"
 #import "../Common/TuneSettings.h"
 #import "../Common/TuneTracker.h"
 #import "../Common/TuneUtils.h"
-#import "../Common/Tune_internal.h"
-#import "../TuneInterstitial.h"
-#import "TuneAd.h"
+
 #import "TuneAdInterstitialVC.h"
 #import "TuneAdKeyStrings.h"
-#import "TuneAdParams.h"
-#import "TuneAdPlacementManager.h"
-#import "TuneAdUtilitiesUI.h"
-#import "TuneAdUtils.h"
+#import "TuneAdMetadata.h"
 #import "TuneAdNetworkHelper.h"
 #import "TuneAdSKStoreProductViewController.h"
+#import "TuneAdUtilitiesUI.h"
+#import "TuneAdUtils.h"
+#import "TuneAdView_internal.h"
 
-#import <QuartzCore/QuartzCore.h>
 #import <StoreKit/StoreKit.h>
 
 NSString * TUNE_AD_CLOSE_HTML_CALLBACK                  = @"#close";
@@ -32,31 +33,7 @@ UIImage *imageCloseButton;
 
 
 @interface TuneInterstitial () <UIWebViewDelegate, UIScrollViewDelegate, SKStoreProductViewControllerDelegate>
-{
-    /*!
-     Dictionary of (placement name, placement view) -- (NSString*, TunePlacementAdQueue)
-     */
-    NSMutableDictionary *placementAds;
-    
-    /*!
-     First webview to be used to toggle between the current ad and the next pre-fetched ad
-     */
-    UIWebView *webview1;
-    /*!
-     Second webview to be used to toggle between the current ad and the next pre-fetched ad
-     */
-    UIWebView *webview2;
-    
-    /*!
-        The ad currently being displayed
-     */
-    TuneAd *adCurrent;
-    
-    /*!
-        The next ad to be displayed
-     */
-    TuneAd *adNext;
-    
+{    
     /*!
         The interstitial ad close button.
      */
@@ -68,59 +45,14 @@ UIImage *imageCloseButton;
     BOOL closeButtonAdded;
     
     /*!
-        Is the app currently active
-     */
-    BOOL appActive;
-    
-    /*!
-        is the in-app store currently visible
-     */
-    BOOL appStoreVisible;
-    
-    /*!
         Whether to show the interstitial upon load
      */
     BOOL showOnLoad;
     
     /*!
-        Common error object
-     */
-    NSError *adError;
-    
-    /*!
-        View controller to be used to present the modal in-app store view controller
-     */
-    UIViewController *parentViewController;
-    
-    /*!
-        In-app store view controller
-     */
-    TuneAdSKStoreProductViewController *storeVC;
-    
-    /*!
-        Activity indicator
-     */
-    UIActivityIndicatorView *activity;
-    
-    /*!
-        Currently active webview.
-     */
-    NSInteger viewIndex;
-    
-    /*!
         View Controller used to show the interstitial ad view.
      */
     TuneAdInterstitialVC *interstitialVC;
-    
-    /*!
-        Instance of a class that manages download and pre-fetch of ads for the given placement.
-     */
-    TuneAdPlacementManager *pm;
-    
-    /*!
-       Is ad request pending
-    */
-    BOOL waitingForAd;
 }
 
 @end
@@ -132,9 +64,7 @@ UIImage *imageCloseButton;
 
 + (void)initialize
 {
-    if (self == [TuneInterstitial class]) {
-        imageCloseButton = [TuneAdUtils closeButtonImage];
-    }
+    imageCloseButton = [TuneAdUtils closeButtonImage];
 }
 
 + (instancetype)adView
@@ -145,7 +75,7 @@ UIImage *imageCloseButton;
 + (instancetype)adViewWithDelegate:(id<TuneAdDelegate>)adViewDelegate
 {
     return [TuneInterstitial adViewWithDelegate:adViewDelegate
-                                   orientations:[self defaultAdOrientation]];
+                                   orientations:[TuneAdView defaultAdOrientation]];
 }
 
 + (instancetype)adViewWithDelegate:(id<TuneAdDelegate>)adViewDelegate
@@ -155,84 +85,13 @@ UIImage *imageCloseButton;
                                          orientations:allowedOrientations];
 }
 
-+ (TuneAdOrientation)defaultAdOrientation
-{
-    UIInterfaceOrientationMask mask = supportedOrientations();
-    
-    BOOL isLandscape = mask & UIInterfaceOrientationMaskLandscape;
-    BOOL isPortrait = mask & UIInterfaceOrientationMaskPortrait || mask & UIInterfaceOrientationMaskPortraitUpsideDown;
-    
-    TuneAdOrientation defaultOrientation = isLandscape && isPortrait ? TuneAdOrientationAll : (isLandscape ? TuneAdOrientationLandscape : TuneAdOrientationPortrait);
-    
-    return defaultOrientation;
-}
-
 - (instancetype)initWithDelegate:(id<TuneAdDelegate>)adViewDelegate
                     orientations:(TuneAdOrientation)allowedOrientations
 {
-    CGFloat adViewY = 0.;
-    CGFloat adViewH = [UIScreen mainScreen].bounds.size.height;
-    
-    CGRect frameRect = CGRectMake(0, adViewY, [UIScreen mainScreen].bounds.size.width, adViewH);
-    DLog(@"initWithAdType: %@", NSStringFromCGRect(frameRect));
-    
-    self = [super initWithFrame:frameRect];
-    if (self)
-    {
-        _adOrientations = allowedOrientations;
-        _delegate = adViewDelegate;
-        
-        [self internalInit];
-    }
+    self = [super initForAdType:TuneAdTypeInterstitial
+                       delegate:adViewDelegate
+                   orientations:allowedOrientations];
     return self;
-}
-
-- (void)internalInit
-{
-    self.backgroundColor = [UIColor blackColor];
-    
-    // set to 2, so that webview1 is used by default
-    viewIndex = 2;
-    
-    webview1 = [TuneAdUtils webviewForAdView:self.frame.size webviewDelegate:self scrollviewDelegate:self];
-    webview2 = [TuneAdUtils webviewForAdView:self.frame.size webviewDelegate:self scrollviewDelegate:self];
-    
-    pm = [TuneAdPlacementManager new];
-    
-    // add both the webviews to the ad view
-    [self addSubview:webview2];
-    [self addSubview:webview1];
-    
-    // Delay setting notification handlers, to make sure that on first
-    // app-launch the appDidBecomActive notification does not get fired
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        // list for network reachability notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleNetworkChange:)
-                                                     name:kTuneReachabilityChangedNotification
-                                                   object:nil];
-        
-        // listen for app-became-active notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleAppBecameActive:)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
-        
-        // listen for app-will-resign-active notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleAppWillResignActive:)
-                                                     name:UIApplicationWillResignActiveNotification
-                                                   object:nil];
-        
-        // begin generating device orientation change notifications
-        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-        
-        // listen for device rotation change notifications
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(statusBarOrientationWillChange:)
-                                                     name:UIApplicationWillChangeStatusBarOrientationNotification
-                                                   object:nil];
-    });
 }
 
 
@@ -256,7 +115,7 @@ UIImage *imageCloseButton;
         // Fetch an ad and show it upon ad load
         showOnLoad = true;
         [self cacheForPlacement:placement adMetadata:metadata];
-        _ready = NO;
+        self.ready = NO;
     }
 }
 
@@ -292,9 +151,7 @@ UIImage *imageCloseButton;
  */
 - (void)cacheForPlacement:(NSString *)placement adMetadata:(TuneAdMetadata *)metadata
 {
-    DLog(@"loadForPlacement: placement = %@", placement);
-    
-    [self reset];
+    DLog(@"cacheForPlacement: placement = %@", placement);
     
     // placement string must be a non-nil string,
     // otherwise send an error notification to the delegate
@@ -312,59 +169,6 @@ UIImage *imageCloseButton;
         DLog(@"pass1: first call to getNextAd");
         [self getNextAd:placement metadata:metadata];
     }
-}
-
-/*!
- Resets state
- */
-- (void)reset
-{
-    DLog(@"reset adview: %d", appStoreVisible);
-    // to start with, use webview1
-    //viewIndex = 1;
-    
-//#if TESTING
-//    // When unit-testing UIApplicationDidBecomeActiveNotification notification 
-//    // is not received, hence we explicitly set the appActive flag.
-//    appActive = YES;
-//#endif
-    appActive = YES;
-    
-    closeButtonAdded = NO;
-    
-    //appStoreVisible = NO;
-}
-
-/*!
- Show the next webview and hide the currently visible webview.
- */
-- (void)toggleWebviews
-{
-    DLog(@"toggleWebviews");
-    
-    // get current webview
-    UIWebView *current = 1 == viewIndex ? webview1 : webview2;
-    
-    // move webview so that it appears behind its sibling views
-    [self sendSubviewToBack:current];
-    
-    // toggle webview index
-    viewIndex = 1 == viewIndex ? 2 : 1;
-    
-    // set the current ad to the next pre-fetched ad
-    adCurrent = adNext;
-    
-    // clear the next ad
-    adNext = nil;
-}
-
-/*!
- Loads empty html in the webview.
- */
-- (void)clearWebview:(UIWebView *)webview
-{
-    DLog(@"clearWebview: %d", webview1 == webview ? 1 : 2);
-    [webview loadHTMLString:TUNE_STRING_EMPTY baseURL:nil];
 }
 
 /*!
@@ -413,7 +217,7 @@ UIImage *imageCloseButton;
     if(parentViewController.view.window)
     {
         // width, height adjusted for current interface orientation
-        CGRect bounds = [self screenBoundsForStatusBarOrientation];
+        CGRect bounds = [TuneUtils screenBoundsForStatusBarOrientation];
         
         DLog(@"ad window orientation = %ld, screenBounds = %@", (long)[[UIApplication sharedApplication] statusBarOrientation],  NSStringFromCGRect(bounds));
             
@@ -423,7 +227,7 @@ UIImage *imageCloseButton;
         // make sure the webviews are visible
         webview1.hidden = NO;
         webview2.hidden = NO;
-            
+        
         // show next available ad
         [self toggleWebviews];
             
@@ -433,12 +237,12 @@ UIImage *imageCloseButton;
             
         if([TuneUtils isNetworkReachable] && placement != nil)
         {
-            DLog(@"handleDisplayAd: call getNextAd: placement = %@", self.placement);
+            DLog(@"handleDisplayAd: call getNextAd: placement = %@", placement);
             [self getNextAd:placement metadata:metadata];
         }
         else
         {
-            _ready = NO;
+            self.ready = NO;
         }
     }
 #if DEBUG
@@ -449,93 +253,8 @@ UIImage *imageCloseButton;
 #endif
 }
 
-- (void)getNextAd:(NSString *)placement metadata:(TuneAdMetadata *)metadata
-{
-    waitingForAd = YES;
-    
-    DLog(@"requesting ad for placement = %@", self.placement);
-    
-    [pm adForAdType:TuneAdTypeInterstitial
-          placement:placement
-           metadata:metadata
-       orientations:self.adOrientations
-  completionHandler:^(TuneAd *ad, NSError *error) {
-      
-      if(ad)
-      {
-          waitingForAd = NO;
-          
-          DLog(@"adview: pl mgr: completionHandler: adNext set");
-          
-          adNext = ad;
-          
-          DLog(@"adview: pl mgr: completionHandler: preload ad in webview");
-          
-          // preload in the next available webview
-          [self preloadAd:ad];
-      }
-      else
-      {
-          DLog(@"adview: pl mgr: error = %@", error);
-          
-          waitingForAd = NO;
-      
-          // TODO: consider if special handling of network error is required
-          // TODO: check if this is a network error
-          BOOL isNetworkError = NO;
-          
-          if(isNetworkError)
-          {
-              // in case of interstitial ads, let the delegate know that the network is currently unreachable
-              
-              NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
-              [errorDetails setValue:TUNE_AD_KEY_TuneAdErrorNetworkNotReachable forKey:NSLocalizedFailureReasonErrorKey];
-              [errorDetails setValue:@"The network is currently unreachable." forKey:NSLocalizedDescriptionKey];
-              
-              error = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:TuneAdErrorNetworkNotReachable userInfo:errorDetails];
-          }
-          
-          [self notifyFailedWithError:error];
-      }
-  }];
-}
-
-/*!
- Preloads the currently unused webview with html content of the given ad.
- */
-- (void)preloadAd:(TuneAd *)ad
-{
-    // find out the webview that's currently not visible
-    UIWebView *nextWebView = 1 == viewIndex ? webview2 : webview1;
-    
-    DLog(@"preloadAd: webview = %d, adNext.html.length = %d", 1 == viewIndex ? 2 : 1, (int)ad.html.length);
-    
-#if DEBUG
-    if([ad.html length] == 0)
-    {
-        DLog(@"!!!! invalid ad html !!!!");
-    }
-#endif
-    
-    // load the next ad in the currently invisible webview
-    [nextWebView loadHTMLString:ad.html baseURL:nil];
-    
-    DLog(@"preloadAd: timerStarted    = %d", timerStarted);
-    DLog(@"preloadAd: appStoreVisible = %d", appStoreVisible);
-}
-
 
 #pragma mark - Interstitial Close Action
-
-/*!
- Handles in-app store view close action.
- */
-- (void)handleStoreViewClosing
-{
-    [self dismissActivityOverlay];
-    
-    appStoreVisible = NO;
-}
 
 /*!
  Handles ad view close action.
@@ -549,18 +268,6 @@ UIImage *imageCloseButton;
     appStoreVisible = NO;
     
     [self notifyClose];
-}
-
-/*!
- Dismiss activity indicator overlay if it exists.
- */
-- (void)dismissActivityOverlay
-{
-    if(activity)
-    {
-        [activity removeFromSuperview];
-        activity = nil;
-    }
 }
 
 /*!
@@ -584,75 +291,6 @@ UIImage *imageCloseButton;
 }
 
 
-#pragma mark - View Rotation
-
-/*!
- Resizes ad webview for the new orientation.
- */
-- (void)updateWebViewFrameForOrientation:(UIInterfaceOrientation)newOrientation
-{
-    TuneSettings *tuneParams = [[Tune sharedManager] parameters];
-    
-    CGFloat portraitWidth = [[tuneParams screenWidth] floatValue];
-    CGFloat portraitHeight = [[tuneParams screenHeight] floatValue];
-    
-    CGRect bounds = CGRectZero;
-    
-    if (UIInterfaceOrientationIsLandscape(newOrientation))
-    {
-        bounds.size = CGSizeMake(portraitHeight, portraitWidth);
-    }
-    else
-    {
-        bounds.size = CGSizeMake(portraitWidth, portraitHeight);
-    }
-    
-    webview1.frame = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
-    webview2.frame = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
-    
-    if(activity)
-    {
-        activity.center = CGPointMake(bounds.size.width / 2, bounds.size.height / 2);
-    }
-}
-
-
-#pragma mark - Notification Handlers
-
-- (void)handleAppBecameActive:(NSNotification *)notice
-{
-    DLog(@"app became active: was active = %d", appActive);
-    
-    BOOL appWasActive = appActive;
-    
-    appActive = YES;
-    
-    if(appWasActive)
-    {
-        DLog(@"handleAppBecameActive: calling load");
-        //[self load];
-    }
-}
-
-- (void)handleAppWillResignActive:(NSNotification *)notice
-{
-    DLog(@"app will resign active");
-    
-    appActive = NO;
-}
-
-- (void)statusBarOrientationWillChange:(NSNotification *)notification
-{
-    NSNumber *numOrientation = notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey];
-    UIInterfaceOrientation orientation = numOrientation.intValue;
-    
-    DLog(@"new status bar orientation = %d", (int)orientation);
-    
-    // update view size depending on current interface orientation
-    [self updateWebViewFrameForOrientation:orientation];
-}
-
-
 #pragma mark - UIWebViewDelegate Methods
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -667,7 +305,7 @@ UIImage *imageCloseButton;
         DLog(@"webview ad preload complete: webview = %d", webView == webview1 ? 1 : 2 );
         
         DLog(@"calling notifyDidFetchAd");
-        [self notifyDidFetchAd];
+        [self notifyDidFetchAd:adCurrent.placement];
         
         // Display the ad if it was lazy-loaded
         if (showOnLoad)
@@ -724,15 +362,6 @@ UIImage *imageCloseButton;
 }
 
 
-#pragma mark - WebView Helper - UIScrollViewDelegate Methods
-
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
-{
-    // disable UIWebView zoom
-    return nil;
-}
-
-
 #pragma mark - In-App Store Helper Method
 
 /*!
@@ -764,7 +393,7 @@ UIImage *imageCloseButton;
 #endif
     
     // width, height adjusted for current device orientation
-    CGRect bounds = [self screenBoundsForStatusBarOrientation];
+    CGRect bounds = [TuneUtils screenBoundsForStatusBarOrientation];
     
     UIViewController *superVC = firstAvailableUIViewController(self);
     
@@ -878,152 +507,18 @@ UIImage *imageCloseButton;
 /*!
  Handles ad view click action.
  */
-- (void)handleAdClickWithUrl:(NSURL *)url
+- (BOOL)handleAdClickWithUrl:(NSURL *)url
 {
-    DLog(@"appStoreVisible = %d", appStoreVisible);
-    
-    // when app store is already visible, ignore webview click action
-    if(!appStoreVisible)
+    BOOL openedExternally = [super handleAdClickWithUrl:url];
+    if(openedExternally)
     {
-        // mark the flag to stop cycling banner ads while the in-app store view is visible
-        appStoreVisible = YES;
-        
-        // We take into consideration some of the the optional params that can be included in the App Store url: "at", "ct"
-        // ref: http://blog.georiot.com/2013/12/06/parameter-cheat-sheet-for-itunes-and-app-store-links/
-        
-        // For iOS < 8.0, if the App Store link contains query params "at" or "ct"
-        // then do not use SKStoreProductViewController, open the link using default browser,
-        // since prior to iOS 8.0, the affiliate token and campaign token params cannot be passed to the SKStoreProductViewController.
-        // ref: https://developer.apple.com/library/prerelease/ios/documentation/StoreKit/Reference/SKITunesProductViewController_Ref/index.html
-        
-        BOOL isSimulator = [[[UIDevice currentDevice] model] hasSuffix:@"Simulator"];
-        
-        // only if the in-app store is available on this device
-        BOOL isSkStoreAvailable = nil != [SKStoreProductViewController class] && !isSimulator;
-        
-        NSString *strUrl = [url absoluteString];
-        NSDictionary *dictItemUrl = isSkStoreAvailable ? [TuneAdUtils itunesItemIdAndTokensFromUrl:strUrl] : nil;
-        
-        NSNumber *itemId = dictItemUrl[@"itemId"];
-        NSString *aToken = dictItemUrl[@"at"];
-        NSString *cToken = dictItemUrl[@"ct"];
-        
-        // do not open the iTunes store link in an in-app store view if the url contains "at" or "ct" params and iOS version is < 8.0
-        BOOL showInAppStore = [TuneUtils isNetworkReachable] && isSkStoreAvailable && itemId && ((!aToken && !cToken) || SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"));
-        
-        DLog(@"should showInAppStore = %d", showInAppStore);
-        
-        // let the delegate know that the ad was clicked
-        [self notifyClickActionStart:!showInAppStore];
-        
-        // if the link can be opened in the in-app store
-        if(showInAppStore)
-        {
-            [self showInAppStoreForAppId:itemId
-                           campaignToken:cToken
-                          affiliateToken:aToken
-                              requestUrl:url];
-        }
-        else
-        {
-            // this link cannot be opened in the in-app store view, open it using the default browser
-            
-            DLog(@"webview: open in default browser: cur ad type = %ld", (long)adCurrent.type);
-            
-            //  open the non-app store link in the default internet browser
-            [[UIApplication sharedApplication] openURL:url];
-            
-            DLog(@"webview: close interstitial ad");
-            
-            // close the interstitial ad
-            [self dismissInterstitial];
-        }
-        
-        // now that the ad has been clicked, fire the ad click url
-        // regardless if the target app download page is displayed or not
-        // since we do not have a way to detect if the external browser
-        // was successful in opening the click url
-        NSString *clickUrl = [TuneAdUtils tuneAdClickUrl:adCurrent];
-        [TuneAdNetworkHelper fireUrl:clickUrl ad:adCurrent];
-    }
-}
-
-
-#pragma mark - View Helper Methods
-
-/*!
- Determine width, height of the main screen depending on the current status bar orientation.
- Ref: http://stackoverflow.com/a/14809642
- */
-- (CGRect)screenBoundsForStatusBarOrientation
-{
-    TuneSettings *tuneParams = [[Tune sharedManager] parameters];
-    
-    // screen portrait bounds
-    CGRect bounds = CGRectMake(0, 0, [[tuneParams screenWidth] floatValue], [[tuneParams screenHeight] floatValue]);
-    
-    // if current orientation is landscape, then swap the width, height
-    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))
-    {
-        bounds.size = CGSizeMake(bounds.size.height, bounds.size.width);
+        // close the interstitial ad
+        [self dismissInterstitial];
     }
     
-    return bounds;
+    return openedExternally;
 }
 
-
-#pragma mark - Delegate Callback Helper Methods
-
-- (void)notifyDidFetchAd
-{
-    DLog(@"notifyDidFetchAd");
-    
-    _ready = YES;
-    
-    [self.delegate tuneAdDidFetchAdForView:self];
-}
-
-- (void)notifyClickActionStart:(BOOL)willLeave
-{
-    if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidStartActionForView:willLeaveApplication:)])
-    {
-        [self.delegate tuneAdDidStartActionForView:self willLeaveApplication:willLeave];
-    }
-}
-
-- (void)notifyClickActionEnd
-{
-    if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidEndActionForView:)])
-    {
-        [self.delegate tuneAdDidEndActionForView:self];
-    }
-}
-
-- (void)notifyClose
-{
-    if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidCloseForView:)])
-    {
-        [self.delegate tuneAdDidCloseForView:self];
-    }
-}
-
-- (void)notifyFailedWithError:(NSError *)error
-{
-    _ready = NO;
-    
-    if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidFailWithError:forView:)])
-    {
-        [self.delegate tuneAdDidFailWithError:error forView:self];
-    }
-}
-
-- (void)notifyAdRequestWithUrl:(NSString *)url data:(NSString *)data
-{
-    if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidFireRequestWithUrl:data:forView:)])
-    {
-        [self.delegate tuneAdDidFireRequestWithUrl:url data:data forView:self];
-    }
-}
 
 #pragma mark - SKStoreProductViewControllerDelegate Methods
 
@@ -1048,54 +543,11 @@ UIImage *imageCloseButton;
 }
 
 
-#pragma mark - Object Dealloc Cleanup
-
-- (void)dealloc
-{
-    // now that the TuneAdView object is being released,
-    // remove all notification observers
-    
-    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTuneReachabilityChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
-}
-
-
 #pragma mark - Debug Description
 
 - (NSString *)debugDescription
 {
     return [NSString stringWithFormat:@"<%@: %p> adType = %ld, adOrientations = %ld, ready = %d, delegate = %p", [self class], self, (long)TuneAdTypeInterstitial, (long)self.adOrientations, self.ready, self.delegate];
 }
-
-
-#pragma mark - Override UIView method
-
-- (CGSize)sizeThatFits:(CGSize)size
-{
-    //DLog(@"sizeThatFits: %@ --> %@", NSStringFromCGSize(size), NSStringFromCGSize(webview1.frame.size));
-    
-    return webview1.frame.size;
-}
-
-
-#if DEBUG
-
-#pragma mark - Helper Methods for Testing
-
-+ (void)setTuneAdServer:(NSString *)serverDomain
-{
-    //DLog(@"setTuneAdServer: %@", serverDomain);
-    TUNE_AD_SERVER = serverDomain;
-}
-
-+ (NSString *)tuneAdServer
-{
-    return (NSString *)TUNE_AD_SERVER;
-}
-
-#endif
 
 @end

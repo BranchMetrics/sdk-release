@@ -7,6 +7,9 @@
 //
 
 #import "TuneTestsHelper.h"
+
+#import "../Tune/Common/TuneEventQueue.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneUtils.h"
 
 NSString* const kTestAdvertiserId = @"877";

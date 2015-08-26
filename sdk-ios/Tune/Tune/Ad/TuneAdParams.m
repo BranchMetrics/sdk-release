@@ -7,12 +7,19 @@
 //
 
 #import "TuneAdParams.h"
-#import "TuneAdUtils.h"
+
+#import "../Common/Tune_internal.h"
+#import "../Common/TuneKeyStrings.h"
+#import "../Common/TuneLocation_internal.h"
 #import "../Common/TuneSettings.h"
 #import "../Common/TuneTracker.h"
-#import "../Common/TuneUtils.h"
 #import "../Common/TuneUserAgentCollector.h"
-#import "../Common/Tune_internal.h"
+#import "../Common/TuneUtils.h"
+
+#import "TuneAd.h"
+#import "TuneAdMetadata.h"
+#import "TuneAdUtils.h"
+
 
 @implementation TuneAdParams
 
@@ -81,9 +88,9 @@
     [dict setValue:tuneParams.mobileCountryCodeISO forKey:@"mccIso"];
     [dict setValue:tuneParams.mobileNetworkCode forKey:@"mnc"];
     
-    [dict setValue:metadata ? [@(metadata.latitude) stringValue] : tuneParams.latitude forKey:@"latitude"];
-    [dict setValue:metadata ? [@(metadata.longitude) stringValue] : tuneParams.longitude forKey:@"longitude"];
-    [dict setValue:metadata ? [@(metadata.altitude) stringValue] : tuneParams.altitude forKey:@"altitude"];
+    [dict setValue:metadata ? [@(metadata.latitude) stringValue] : tuneParams.location.latitude forKey:@"latitude"];
+    [dict setValue:metadata ? [@(metadata.longitude) stringValue] : tuneParams.location.longitude forKey:@"longitude"];
+    [dict setValue:metadata ? [@(metadata.altitude) stringValue] : tuneParams.location.altitude forKey:@"altitude"];
     
     [dict setValue:[TuneUserAgentCollector userAgent] forKey:@"userAgent"];
     [dict setValue:tuneParams.jailbroken forKey:@"osJailbroke"];
@@ -164,8 +171,8 @@
         NSNumber *ht = TuneAdTypeBanner == adType ? @([TuneAd bannerHeightPortrait]) : tuneParams.screenHeight;
         
         NSMutableDictionary *dictPortrait = [NSMutableDictionary dictionary];
-        dictPortrait[@"width"]  = tuneParams.screenWidth;
-        dictPortrait[@"height"] = ht;
+        dictPortrait[@"width"]  = @(tuneParams.screenWidth.doubleValue * tuneParams.screenDensity.doubleValue);
+        dictPortrait[@"height"] = @(ht.doubleValue * tuneParams.screenDensity.doubleValue);
         
         dict[@"portrait"]       = dictPortrait;
     }
@@ -175,8 +182,8 @@
         NSNumber *ht = TuneAdTypeBanner == adType ? @([TuneAd bannerHeightLandscape]) : tuneParams.screenWidth;
         
         NSMutableDictionary *dictLandscape = [NSMutableDictionary dictionary];
-        dictLandscape[@"width"]     = tuneParams.screenHeight;
-        dictLandscape[@"height"]    = ht;
+        dictLandscape[@"width"]     = @(tuneParams.screenHeight.doubleValue * tuneParams.screenDensity.doubleValue);
+        dictLandscape[@"height"]    = @(ht.doubleValue * tuneParams.screenDensity.doubleValue);
         
         dict[@"landscape"]          = dictLandscape;
     }

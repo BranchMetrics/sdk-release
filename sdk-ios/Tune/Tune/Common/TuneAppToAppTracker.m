@@ -42,7 +42,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     if (!publisherId) publisherId = TUNE_STRING_EMPTY;
     
     NSString *strLink = [NSString stringWithFormat:@"%@://%@/%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                         @"https", domainName, TUNE_SERVER_PATH_TRACKING_ENGINE,
+                         TUNE_KEY_HTTPS, domainName, TUNE_SERVER_PATH_TRACKING_ENGINE,
                          TUNE_KEY_ACTION, TUNE_EVENT_CLICK,
                          TUNE_KEY_PUBLISHER_ADVERTISER_ID, advertiserId,
                          TUNE_KEY_PACKAGE_NAME, targetBundleId,

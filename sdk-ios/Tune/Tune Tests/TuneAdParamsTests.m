@@ -12,6 +12,7 @@
 #import "TuneTestsHelper.h"
 
 #import "../Tune/Tune.h"
+#import "../Tune/TuneInterstitial.h"
 #import "../Tune/Ad/TuneAdParams.h"
 
 @interface TuneAdParamsTests : XCTestCase
@@ -32,7 +33,7 @@
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's Tune package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];

@@ -7,6 +7,9 @@
 //
 
 #import "TuneRequestsQueue.h"
+
+#import "TuneKeyStrings.h"
+#import "TuneRequestsQueuePart.h"
 #import "TuneUtils.h"
 
 NSString * const TUNE_REQUEST_QUEUE_FOLDER = @"queue";

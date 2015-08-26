@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "TuneAd.h"
-#import "../TuneAdMetadata.h"
+#import "TuneAdView.h"
+
+@class TuneAd;
+@class TuneAdMetadata;
 
 /*!
  Manages download and pre-fetch of ads for the given ad-type, placement, metadata and supported orientations.
@@ -26,6 +28,7 @@
           placement:(NSString *)placement
            metadata:(TuneAdMetadata *)metadata
        orientations:(TuneAdOrientation)orientations
+     requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
   completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler;
 
 /*!

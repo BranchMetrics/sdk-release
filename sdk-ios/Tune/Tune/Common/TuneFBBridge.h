@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TuneSettings.h"
-#import "TuneEvent.h"
+
+@class TuneEvent;
+@class TuneSettings;
+
 
 @interface TuneFBBridge : NSObject
 

@@ -10,17 +10,15 @@
 #import <UIKit/UIKit.h>
 #import <AvailabilityMacros.h>
 
-#import "TuneAdView.h"
-#import "TuneBanner.h"
-#import "TuneEvent.h"
-#import "TuneEventItem.h"
-#import "TuneInterstitial.h"
-#import "TunePreloadData.h"
+@class TuneAdView;
+@class TuneBanner;
+@class TuneEvent;
+@class TuneEventItem;
+@class TuneInterstitial;
+@class TuneLocation;
+@class TunePreloadData;
 
-#import "MobileAppTracker.h"
-#import "MATEvent.h"
-#import "MATEventItem.h"
-#import "MATPreloadData.h"
+#import "TuneAdMetadata.h"
 
 //#define TUNE_USE_LOCATION
 #ifdef TUNE_USE_LOCATION
@@ -28,7 +26,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"3.10.0"
+#define TUNEVERSION @"3.11.0"
 
 
 #pragma mark - enumerated types
@@ -66,7 +64,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param aid the Tune Advertiser ID provided in Tune.
  @param key the Tune Conversion Key provided in Tune.
  */
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key;
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key;
 
 /** @name Initializing Tune With Advertiser Information */
 /*!
@@ -76,7 +74,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param name the package name used when setting up the app in Mobile App Tracking.
  @param wearable should be set to YES when being initialized in a WatchKit extension, defaults to NO.
  */
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key TunePackageName:(NSString *)name wearable:(BOOL)wearable;
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable;
 
 #pragma mark - Delegate
 
@@ -85,7 +83,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  [TuneDelegate](TuneDelegate) : A delegate used by Tune
  to post success and failure callbacks from the Tune servers.
  */
-+ (void)setDelegate:(id <TuneDelegate>)delegate;
++ (void)setDelegate:(id<TuneDelegate>)delegate;
 
 #ifdef TUNE_USE_LOCATION
 /** @name Tune SDK Region Delegate */
@@ -93,7 +91,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  [TuneRegionDelegate](TuneRegionDelegate) : A delegate used by Tune
  to post geofencing boundary notifications.
  */
-+ (void)setRegionDelegate:(id <TuneRegionDelegate>)delegate;
++ (void)setRegionDelegate:(id<TuneRegionDelegate>)delegate;
 #endif
 
 
@@ -123,15 +121,15 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 
 /*!
  Check for a deferred deeplink entry point upon app installation.
+ On completion, this method does not auto-open the deferred deeplink,
+ only the success/failure delegate callbacks are fired.
+ 
  This is safe to call at every app launch, since the function does nothing
  unless this is the first launch.
  
- The timeout parameter should be set in keeping with the normal first-launch
- time and user experience of your app.
- 
- @param timeout If the deeplink value is not received within this timeout duration, then the deeplink will not be opened.
+ @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
  */
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout;
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
 
 /*!
  Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
@@ -192,6 +190,21 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param packageName The string name for the package.
  */
 + (void)setPackageName:(NSString *)packageName;
+
+/*!
+ Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
+ YES/NO
+ Note that setting to NO will clear any previously set value for the property.
+ @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
+ */
++ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect;
+
+/*!
+ Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
+ YES/NO
+ @param autoCollect YES will auto collect device location, defaults to YES.
+ */
++ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect;
 
 /*!
  Specifies if the sdk should auto detect if the iOS device is jailbroken.
@@ -276,18 +289,9 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 
 /*!
  Sets the user's location.
- @param latitude user's latitude
- @param longitude user's longitude
+ @param location a TuneLocation instance
  */
-+ (void)setLatitude:(double)latitude longitude:(double)longitude;
-
-/*!
- Sets the user's location including altitude.
- @param latitude user's latitude
- @param longitude user's longitude
- @param altitude user's altitude
- */
-+ (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude;
++ (void)setLocation:(TuneLocation *)location;
 
 /*!
  Set app-level ad-measurement.
@@ -735,10 +739,10 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 
 /*!
  Delegate method called when a deferred deeplink becomes available.
+ The deeplink should be used to open the appropriate screen in your app.
  @param deeplink String representation of the deeplink url.
- @param timeout NO if the deferred deep-link became available within the specified timeout, YES otherwise
  */
-- (void)tuneDidReceiveDeeplink:(NSString *)deeplink didTimeout:(BOOL)timeout;
+- (void)tuneDidReceiveDeeplink:(NSString *)deeplink;
 
 /*!
  Delegate method called when a deferred deeplink request fails.

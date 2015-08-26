@@ -11,6 +11,7 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 
 @interface TuneAutoParameterizationTests : XCTestCase <TuneDelegate>
 {
@@ -46,7 +47,7 @@
 {
     networkOnline();
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     Tune.delegate = self;
 }
 

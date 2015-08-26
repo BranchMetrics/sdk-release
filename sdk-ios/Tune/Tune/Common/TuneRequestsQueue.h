@@ -9,10 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "TuneRequestsQueuePart.h"
-#import "TuneUtils.h"
-#import "TuneKeyStrings.h"
-
 @interface TuneRequestsQueue : NSObject <NSXMLParserDelegate>
 {
     NSMutableArray * queueParts_;

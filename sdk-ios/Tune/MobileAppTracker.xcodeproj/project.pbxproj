@@ -69,6 +69,7 @@
 		F8080C4F196C8CFF00CF63BC /* TuneAdNetworkHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F8080C3E196C8CFF00CF63BC /* TuneAdNetworkHelper.m */; };
 		F8080C50196C8CFF00CF63BC /* TuneAdUtilitiesUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F8080C3F196C8CFF00CF63BC /* TuneAdUtilitiesUI.h */; };
 		F8080C51196C8CFF00CF63BC /* TuneAdUtilitiesUI.m in Sources */ = {isa = PBXBuildFile; fileRef = F8080C40196C8CFF00CF63BC /* TuneAdUtilitiesUI.m */; };
+		F808B44A1B716C310067114F /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F808B4491B716C310067114F /* MATEvent_internal.h */; };
 		F80E4FAA1A536970001918CF /* TuneAdNetworkHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F80E4FA91A536970001918CF /* TuneAdNetworkHelperTests.m */; };
 		F824DE821AE5A37F0042E796 /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */; };
 		F824DE831AE5A37F0042E796 /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */; };
@@ -78,6 +79,11 @@
 		F835C8E31AEED5E300B56A9D /* TunePreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F835C8E11AEED5E300B56A9D /* TunePreloadData.m */; };
 		F83D5BFB199E943800C40A68 /* TuneAdKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = F83D5BF9199E943800C40A68 /* TuneAdKeyStrings.h */; };
 		F83D5BFC199E943800C40A68 /* TuneAdKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = F83D5BFA199E943800C40A68 /* TuneAdKeyStrings.m */; };
+		F84C7B0D1B70027400AE871C /* TuneIfa.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B0B1B70027400AE871C /* TuneIfa.h */; };
+		F84C7B0E1B70027400AE871C /* TuneIfa.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B0C1B70027400AE871C /* TuneIfa.m */; };
+		F84C7B481B70382200AE871C /* TuneLocation_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B471B70382200AE871C /* TuneLocation_internal.h */; };
+		F84C7B4B1B70389800AE871C /* TuneLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B491B70389800AE871C /* TuneLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F84C7B4C1B70389800AE871C /* TuneLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B4A1B70389800AE871C /* TuneLocation.m */; };
 		F85C672719B9098800AF940F /* TuneAdViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672619B9098800AF940F /* TuneAdViewTests.m */; };
 		F85C672919B90A0700AF940F /* TuneAdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672819B90A0700AF940F /* TuneAdTests.m */; };
 		F85C672B19B90A7F00AF940F /* TuneAdUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672A19B90A7F00AF940F /* TuneAdUtilsTests.m */; };
@@ -87,6 +93,8 @@
 		F85D8B081AEEF33300379028 /* TunePreloadDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85D8B071AEEF33300379028 /* TunePreloadDataTests.m */; };
 		F861A99F1A5216A300185E2F /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */; };
 		F861A9A11A52184F00185E2F /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F861A9A01A52184F00185E2F /* CoreTelephony.framework */; };
+		F865FE611B73F67400A2BBEC /* TuneAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = F865FE601B73F67400A2BBEC /* TuneAdView.m */; };
+		F865FE631B73F67D00A2BBEC /* TuneAdView_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F865FE621B73F67D00A2BBEC /* TuneAdView_internal.h */; };
 		F86E5C571B1BD1E200F82326 /* TuneAdPlacementManager.h in Headers */ = {isa = PBXBuildFile; fileRef = F86E5C551B1BD1E200F82326 /* TuneAdPlacementManager.h */; };
 		F86E5C581B1BD1E200F82326 /* TuneAdPlacementManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F86E5C561B1BD1E200F82326 /* TuneAdPlacementManager.m */; };
 		F86E5C671B1BD2C100F82326 /* TuneAdPlacement.h in Headers */ = {isa = PBXBuildFile; fileRef = F86E5C651B1BD2C100F82326 /* TuneAdPlacement.h */; };
@@ -109,7 +117,6 @@
 		F8B71E7D1B56FA55008E8215 /* MATEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E781B56FA55008E8215 /* MATEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F8B71E7E1B56FA55008E8215 /* MATEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E791B56FA55008E8215 /* MATEventItem.m */; };
 		F8B71E7F1B56FA55008E8215 /* MobileAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E7A1B56FA55008E8215 /* MobileAppTracker.m */; };
-		F8B71E811B5708AE008E8215 /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E801B5708AE008E8215 /* MATEvent_internal.h */; };
 		F8BAC7F1189333BB001A25FC /* TuneUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F0189333BB001A25FC /* TuneUtilsTests.m */; };
 		F8BAC7F3189335B0001A25FC /* TuneEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F2189335B0001A25FC /* TuneEventItemTests.m */; };
 		F8BF1CA019B536910002B5FD /* TuneAdUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8BF1C9E19B536910002B5FD /* TuneAdUtils.h */; };
@@ -207,6 +214,7 @@
 		F8080C3E196C8CFF00CF63BC /* TuneAdNetworkHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdNetworkHelper.m; sourceTree = "<group>"; };
 		F8080C3F196C8CFF00CF63BC /* TuneAdUtilitiesUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdUtilitiesUI.h; sourceTree = "<group>"; };
 		F8080C40196C8CFF00CF63BC /* TuneAdUtilitiesUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdUtilitiesUI.m; sourceTree = "<group>"; };
+		F808B4491B716C310067114F /* MATEvent_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent_internal.h; sourceTree = "<group>"; };
 		F80E4FA91A536970001918CF /* TuneAdNetworkHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdNetworkHelperTests.m; sourceTree = "<group>"; };
 		F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneStoreKitDelegate.h; sourceTree = "<group>"; };
 		F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneStoreKitDelegate.m; sourceTree = "<group>"; };
@@ -217,6 +225,11 @@
 		F83D5BF9199E943800C40A68 /* TuneAdKeyStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdKeyStrings.h; sourceTree = "<group>"; };
 		F83D5BFA199E943800C40A68 /* TuneAdKeyStrings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdKeyStrings.m; sourceTree = "<group>"; };
 		F8492D66198C1A850058A259 /* TuneUtils_TestPrivateMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneUtils_TestPrivateMethods.h; sourceTree = "<group>"; };
+		F84C7B0B1B70027400AE871C /* TuneIfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneIfa.h; sourceTree = "<group>"; };
+		F84C7B0C1B70027400AE871C /* TuneIfa.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneIfa.m; sourceTree = "<group>"; };
+		F84C7B471B70382200AE871C /* TuneLocation_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocation_internal.h; sourceTree = "<group>"; };
+		F84C7B491B70389800AE871C /* TuneLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocation.h; sourceTree = "<group>"; };
+		F84C7B4A1B70389800AE871C /* TuneLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneLocation.m; sourceTree = "<group>"; };
 		F85C672619B9098800AF940F /* TuneAdViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdViewTests.m; sourceTree = "<group>"; };
 		F85C672819B90A0700AF940F /* TuneAdTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdTests.m; sourceTree = "<group>"; };
 		F85C672A19B90A7F00AF940F /* TuneAdUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdUtilsTests.m; sourceTree = "<group>"; };
@@ -225,6 +238,8 @@
 		F85D8B051AEEEDA600379028 /* TuneEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEventTests.m; sourceTree = "<group>"; };
 		F85D8B071AEEF33300379028 /* TunePreloadDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePreloadDataTests.m; sourceTree = "<group>"; };
 		F861A9A01A52184F00185E2F /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		F865FE601B73F67400A2BBEC /* TuneAdView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TuneAdView.m; path = Ad/TuneAdView.m; sourceTree = "<group>"; };
+		F865FE621B73F67D00A2BBEC /* TuneAdView_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdView_internal.h; sourceTree = "<group>"; };
 		F86E5C551B1BD1E200F82326 /* TuneAdPlacementManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdPlacementManager.h; sourceTree = "<group>"; };
 		F86E5C561B1BD1E200F82326 /* TuneAdPlacementManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdPlacementManager.m; sourceTree = "<group>"; };
 		F86E5C651B1BD2C100F82326 /* TuneAdPlacement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdPlacement.h; sourceTree = "<group>"; };
@@ -246,7 +261,6 @@
 		F8B71E781B56FA55008E8215 /* MATEventItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEventItem.h; sourceTree = "<group>"; };
 		F8B71E791B56FA55008E8215 /* MATEventItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MATEventItem.m; sourceTree = "<group>"; };
 		F8B71E7A1B56FA55008E8215 /* MobileAppTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MobileAppTracker.m; sourceTree = "<group>"; };
-		F8B71E801B5708AE008E8215 /* MATEvent_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent_internal.h; sourceTree = "<group>"; };
 		F8BAC7F0189333BB001A25FC /* TuneUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneUtilsTests.m; sourceTree = "<group>"; };
 		F8BAC7F2189335B0001A25FC /* TuneEventItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEventItemTests.m; sourceTree = "<group>"; };
 		F8BF1C9E19B536910002B5FD /* TuneAdUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdUtils.h; sourceTree = "<group>"; };
@@ -373,6 +387,7 @@
 				F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */,
 				F83044721A16D78A002CA9A1 /* TuneAdMetadata.m */,
 				3232BC461B2A33CF00594EB2 /* TuneAdView.h */,
+				F865FE601B73F67400A2BBEC /* TuneAdView.m */,
 				3232BC361B29F3D200594EB2 /* TuneBanner.h */,
 				3232BC341B29F3CB00594EB2 /* TuneBanner.m */,
 				F883D9BF1AAF984200E7223E /* TuneEvent.h */,
@@ -381,6 +396,8 @@
 				42CBBD261880893F00187A4A /* TuneEventItem.m */,
 				3232BC3A1B29FF5700594EB2 /* TuneInterstitial.h */,
 				3232BC381B29FF4E00594EB2 /* TuneInterstitial.m */,
+				F84C7B491B70389800AE871C /* TuneLocation.h */,
+				F84C7B4A1B70389800AE871C /* TuneLocation.m */,
 				F835C8E01AEED5E300B56A9D /* TunePreloadData.h */,
 				F835C8E11AEED5E300B56A9D /* TunePreloadData.m */,
 				F8080C35196C8CFF00CF63BC /* Ad */,
@@ -403,9 +420,10 @@
 		4FDFA19715C7014A00BEEC38 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				F8B71E801B5708AE008E8215 /* MATEvent_internal.h */,
+				F808B4491B716C310067114F /* MATEvent_internal.h */,
 				F8A85C5C196E26620012927E /* Tune_internal.h */,
 				F8F498A21B03C8D000A51D2D /* TuneEvent_internal.h */,
+				F84C7B471B70382200AE871C /* TuneLocation_internal.h */,
 				42C1E2B718C012B100C5789C /* TuneAppToAppTracker.h */,
 				42C1E2B818C012B100C5789C /* TuneAppToAppTracker.m */,
 				F8A2EA8116445D3E0023FCE1 /* TuneCWorks.h */,
@@ -418,6 +436,8 @@
 				42D52291199A8A9E00FC5F8F /* TuneEventQueue.m */,
 				42BA465C19E5D3F00076249D /* TuneFBBridge.h */,
 				42BA465D19E5D3F00076249D /* TuneFBBridge.m */,
+				F84C7B0B1B70027400AE871C /* TuneIfa.h */,
+				F84C7B0C1B70027400AE871C /* TuneIfa.m */,
 				4212224318E0BCBD001F263E /* TuneInstallReceipt.h */,
 				4212224418E0BCBE001F263E /* TuneInstallReceipt.m */,
 				4FDFA19C15C7029A00BEEC38 /* TuneKeyStrings.h */,
@@ -448,6 +468,7 @@
 		F8080C35196C8CFF00CF63BC /* Ad */ = {
 			isa = PBXGroup;
 			children = (
+				F865FE621B73F67D00A2BBEC /* TuneAdView_internal.h */,
 				F8080C36196C8CFF00CF63BC /* TuneAd.h */,
 				F8080C37196C8CFF00CF63BC /* TuneAd.m */,
 				F8080C39196C8CFF00CF63BC /* TuneAdDownloadHelper.h */,
@@ -490,13 +511,15 @@
 				3232BC371B29F3D200594EB2 /* TuneBanner.h in Headers */,
 				F8080C47196C8CFF00CF63BC /* TuneAd.h in Headers */,
 				429857F81A41E2B5008539A6 /* TuneDeferredDplinkr.h in Headers */,
-				F8B71E811B5708AE008E8215 /* MATEvent_internal.h in Headers */,
+				F84C7B4B1B70389800AE871C /* TuneLocation.h in Headers */,
 				42CBBD33188093DB00187A4A /* TuneSettings.h in Headers */,
 				F883D9C11AAF984200E7223E /* TuneEvent.h in Headers */,
 				42CBBD271880893F00187A4A /* TuneEventItem.h in Headers */,
+				F84C7B481B70382200AE871C /* TuneLocation_internal.h in Headers */,
 				F835C8E21AEED5E300B56A9D /* TunePreloadData.h in Headers */,
 				F83044731A16D78A002CA9A1 /* TuneAdMetadata.h in Headers */,
 				F8080C4A196C8CFF00CF63BC /* TuneAdDownloadHelper.h in Headers */,
+				F865FE631B73F67D00A2BBEC /* TuneAdView_internal.h in Headers */,
 				4FDFA21915C7032400BEEC38 /* Tune.h in Headers */,
 				4260CBCF196B69DF0084FE12 /* TuneEncrypter.h in Headers */,
 				F824DE821AE5A37F0042E796 /* TuneStoreKitDelegate.h in Headers */,
@@ -504,6 +527,8 @@
 				F83D5BFB199E943800C40A68 /* TuneAdKeyStrings.h in Headers */,
 				F8C5D35219A8134F002CCC39 /* TuneAdSKStoreProductViewController.h in Headers */,
 				F8BF1CA019B536910002B5FD /* TuneAdUtils.h in Headers */,
+				F84C7B0D1B70027400AE871C /* TuneIfa.h in Headers */,
+				F808B44A1B716C310067114F /* MATEvent_internal.h in Headers */,
 				F8F498A31B03C8D000A51D2D /* TuneEvent_internal.h in Headers */,
 				4FDFA1B215C7029A00BEEC38 /* TuneKeyStrings.h in Headers */,
 				F86E5C671B1BD2C100F82326 /* TuneAdPlacement.h in Headers */,
@@ -713,6 +738,7 @@
 				4FDFA1B315C7029A00BEEC38 /* TuneKeyStrings.m in Sources */,
 				F8B71E5F1B55E4C0008E8215 /* TuneLocationHelper.m in Sources */,
 				42C1E2BA18C012B200C5789C /* TuneAppToAppTracker.m in Sources */,
+				F84C7B4C1B70389800AE871C /* TuneLocation.m in Sources */,
 				42D52293199A8A9E00FC5F8F /* TuneEventQueue.m in Sources */,
 				F83044741A16D78A002CA9A1 /* TuneAdMetadata.m in Sources */,
 				4FDFA1B715C7029A00BEEC38 /* NSString+TuneURLEncoding.m in Sources */,
@@ -736,6 +762,8 @@
 				42CD4181191156BC003D0293 /* TuneRegionMonitor.m in Sources */,
 				F8080C4F196C8CFF00CF63BC /* TuneAdNetworkHelper.m in Sources */,
 				428F085018C13F1900B1AC24 /* TuneTracker.m in Sources */,
+				F84C7B0E1B70027400AE871C /* TuneIfa.m in Sources */,
+				F865FE611B73F67400A2BBEC /* TuneAdView.m in Sources */,
 				4212224618E0BCBE001F263E /* TuneInstallReceipt.m in Sources */,
 				F8080C4D196C8CFF00CF63BC /* TuneAdInterstitialVC.m in Sources */,
 				F8080C48196C8CFF00CF63BC /* TuneAd.m in Sources */,
@@ -996,6 +1024,9 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_AD_STAGING=0",
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;

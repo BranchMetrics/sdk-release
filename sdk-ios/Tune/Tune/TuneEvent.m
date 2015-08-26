@@ -7,7 +7,11 @@
 //
 
 #import "Common/TuneEvent_internal.h"
+
 #import "Common/TuneKeyStrings.h"
+
+#import "TuneEventItem.h"
+#import "TuneLocation_internal.h"
 
 NSString *const TUNE_EVENT_ACHIEVEMENT_UNLOCKED = @"achievement_unlocked";
 NSString *const TUNE_EVENT_ADD_TO_CART          = @"add_to_cart";
@@ -33,18 +37,6 @@ static const int TUNE_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
 @interface TuneEvent ()
 
 @property (nonatomic, copy) NSString *eventName;
-@property (nonatomic, copy) NSString *actionName;
-
-@property (nonatomic, copy) NSNumber *altitude;
-@property (nonatomic, strong) NSDictionary *cworksClick;            // key, value pair
-@property (nonatomic, strong) NSDictionary *cworksImpression;       // key, value pair
-@property (nonatomic, copy) NSString *iBeaconRegionId;              // KEY_GEOFENCE_NAME
-@property (nonatomic, copy) NSNumber *latitude;
-@property (nonatomic, copy) NSNumber *locationHorizontalAccuracy;
-@property (nonatomic, copy) NSDate *locationTimestamp;
-@property (nonatomic, copy) NSNumber *locationVerticalAccuracy;
-@property (nonatomic, copy) NSNumber *longitude;
-@property (nonatomic, assign) BOOL postConversion;                  // KEY_POST_CONVERSION
 
 @end
 

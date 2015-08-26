@@ -21,7 +21,7 @@
     return self;
 }
 
--(id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(NSZone *)zone
 {
     TuneAdMetadata *meta = [[TuneAdMetadata allocWithZone: zone] init];
     meta.birthDate = self.birthDate;

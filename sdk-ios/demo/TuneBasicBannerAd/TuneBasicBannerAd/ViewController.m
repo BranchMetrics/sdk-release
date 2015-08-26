@@ -87,23 +87,33 @@ static NSArray *arrPlacements;
 
 #pragma mark - TuneAdDelegate Methods
 
-- (void)tuneAdDidFetchAdForView:(id<TuneAdView>)adView
+- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
 {
     NSLog(@"tuneAdDidFetchAdForView");
     
     [self layoutAnimated:YES];
 }
 
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(id<TuneAdView>)adView
+- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidFailWithError: %@", error);
     
     [self layoutAnimated:YES];
 }
 
--(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(id<TuneAdView>)adView
+-(void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
     NSLog(@"tuneAdDidFireRequest: url = %@, data = %@", url, data);
+}
+
+- (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave
+{
+    NSLog(@"tuneAdDidStartActionForView: willLeaveApplication = %d", willLeave);
+}
+
+- (void)tuneAdDidEndActionForView:(TuneAdView *)adView
+{
+    NSLog(@"tuneAdDidEndActionForView");
 }
 
 @end

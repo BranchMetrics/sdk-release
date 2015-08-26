@@ -1,5 +1,5 @@
 //
-//  TuneDownloadHelper.m
+//  TuneAdDownloadHelper.m
 //  Tune
 //
 //  Created by Harshal Ogale on 5/13/14.
@@ -7,10 +7,23 @@
 //
 
 #import "TuneAdDownloadHelper.h"
-#import "../Common/TuneUtils.h"
-#import "../Common/TuneTracker.h"
-#import "../Common/TuneSettings.h"
+
+#import "../TuneAdView.h"
+#import "../TuneBanner.h"
+#import "../TuneInterstitial.h"
+#import "../TuneAdMetadata.h"
+
 #import "../Common/Tune_internal.h"
+#import "../Common/TuneKeyStrings.h"
+#import "../Common/TuneSettings.h"
+#import "../Common/TuneTracker.h"
+#import "../Common/TuneUtils.h"
+
+#import "TuneAd.h"
+#import "TuneAdKeyStrings.h"
+#import "TuneAdParams.h"
+#import "TuneAdUtils.h"
+
 
 @interface TuneAdDownloadHelper ()
 
@@ -25,6 +38,7 @@
 const NSUInteger TUNE_AD_MAX_AD_DOWNLOAD_RETRY_COUNT    = 5; // max number of retries when an ad download fails
 
 static NSDictionary *dictErrorCodes;
+
 
 @interface TuneAdDownloadHelper() <NSURLConnectionDelegate>
 {
@@ -46,14 +60,15 @@ static NSDictionary *dictErrorCodes;
     TuneAdOrientation orientations;
 }
 
+@property (nonatomic, copy) void (^requestHandler) (NSString *url, NSString *data);
 @property (nonatomic, copy) void (^responseCompletionHandler) (TuneAd *ad, NSError *error);
 
 @end
 
+
 @implementation TuneAdDownloadHelper
 
 @synthesize delegate, fetchAdInProgress;
-
 
 +(void)initialize
 {
@@ -69,6 +84,7 @@ static NSDictionary *dictErrorCodes;
                      placement:(NSString *)pl
                       metadata:(TuneAdMetadata *)met
                   orientations:(TuneAdOrientation)or
+                requestHandler:(void (^)(NSString *url, NSString *data))rh
              completionHandler:(void (^)(TuneAd *ad, NSError *error))ch
 {
     self = [super init];
@@ -77,6 +93,7 @@ static NSDictionary *dictErrorCodes;
         metadata = met;
         placement = pl;
         orientations = or;
+        _requestHandler = rh;
         _responseCompletionHandler = ch;
     }
     return self;
@@ -348,6 +365,11 @@ static NSDictionary *dictErrorCodes;
         // fire the request
         NSString *adUrl = [TuneAdUtils tuneAdServerUrl:adType];
         [self fireUrl:adUrl withData:adRequestData];
+        
+        if(self.requestHandler)
+        {
+            self.requestHandler(adUrl, adRequestData);
+        }
     }
     
     return reachable;
@@ -416,13 +438,14 @@ static NSDictionary *dictErrorCodes;
                orientations:(TuneAdOrientation)ori
                   placement:(NSString *)pl
                  adMetadata:(TuneAdMetadata *)met
+             requestHandler:(void (^)(NSString *url, NSString *data))rh
           completionHandler:(void (^)(TuneAd *ad, NSError *error))ch
 {
-    DLLog(@"TADH: downloadAdForAdType: ch = %@, eh = %@", ch, eh);
+    DLLog(@"TADH: downloadAdForAdType: ch = %@, rh = %@", ch, rh);
     
     if([TuneUtils isNetworkReachable])
     {
-        TuneAdDownloadHelper *dh = [[TuneAdDownloadHelper alloc] initWithAdType:ty placement:pl metadata:met orientations:ori completionHandler:ch];
+        TuneAdDownloadHelper *dh = [[TuneAdDownloadHelper alloc] initWithAdType:ty placement:pl metadata:met orientations:ori requestHandler:rh completionHandler:ch];
         [dh fetchAd];
     }
     else

@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "../Common/TuneEvent_internal.h"
-#import "../TunePreloadData.h"
-#import "TuneSettings.h"
-#import "TuneRegionMonitor.h"
+
+@class TuneEvent;
+@class TunePreloadData;
+@class TuneRegionMonitor;
+@class TuneSettings;
 
 FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
 
@@ -33,7 +34,7 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
 
 @property (nonatomic, readonly) TuneRegionMonitor *regionMonitor;
 
-- (void)startTrackerWithTuneAdvertiserId:(NSString *)aid TuneConversionKey:(NSString *)key wearable:(BOOL)wearable;
+- (void)startTrackerWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key wearable:(BOOL)wearable;
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;
 
@@ -53,6 +54,8 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
               redirect:(BOOL)shouldRedirect;
 
 - (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetect;
+- (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect;
+- (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect;
 - (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)shouldAutoGenerate;
 
 - (void)setDebugMode:(BOOL)newDebugMode;

@@ -12,6 +12,7 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
+#import "../Tune/TunePreloadData.h"
 #import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneSettings.h"
 #import "../Tune/Common/TuneTracker.h"
@@ -39,7 +40,7 @@
 {
     [super setUp];
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
     params = [TuneTestParams new];

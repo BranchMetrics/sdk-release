@@ -7,11 +7,13 @@
 //
 
 #import "TuneConnectionManager.h"
-#import "TuneKeyStrings.h"
-#import "TuneUtils.h"
-#import "TuneEncrypter.h"
 
-int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
+#import "TuneEncrypter.h"
+#import "TuneKeyStrings.h"
+#import "TuneRequestsQueue.h"
+#import "TuneUtils.h"
+
+const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL1 = 60.;
 
 /********* MNSURLConnection interface ********/
 @interface MNSURLConnection : NSURLConnection
@@ -163,7 +165,7 @@ int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
         NSURL * url = [NSURL URLWithString:trackingLink];
         NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                            timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
+                                                            timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL1];
         
         MNSURLConnection * connection = [[MNSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
         connection.url = url;
@@ -209,7 +211,7 @@ int const TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL = 60;
     NSURL * url = [NSURL URLWithString:trackingLink];
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:url
                                                             cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                        timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
+                                                        timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL1];
     
     [request setHTTPMethod:HTTP_METHOD_POST];
     [request setValue:HTTP_CONTENT_TYPE_APPLICATION_JSON forHTTPHeaderField:HTTP_CONTENT_TYPE];

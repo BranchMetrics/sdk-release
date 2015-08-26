@@ -10,8 +10,9 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
-#import "../Tune/Common/TuneTracker.h"
+#import "../Tune/TuneEvent.h"
 #import "../Tune/Common/TuneKeyStrings.h"
+#import "../Tune/Common/TuneTracker.h"
 
 
 @interface TuneTests : XCTestCase <TuneDelegate>
@@ -28,7 +29,7 @@
 {
     [super setUp];
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     

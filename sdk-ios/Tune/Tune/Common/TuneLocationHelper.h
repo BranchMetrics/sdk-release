@@ -6,9 +6,10 @@
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
 
-
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+
+@class TuneLocation;
 
 /*!
  Provides access to device location (latitude, longitude, altitude).
@@ -20,13 +21,23 @@
  */
 @interface TuneLocationHelper : NSObject
 
+/*!
+ Duration in seconds by which an event measurement request may be delayed while waiting for device location update
+ */
 FOUNDATION_EXPORT const NSTimeInterval TUNE_LOCATION_UPDATE_DELAY;
 
 /*!
- If location access is permitted, gets the current device location.
- @param arrLocation pointer to an array that will contain 4 items [latitude, longitude, altitude, timestamp], nil when location is not enabled
- @return YES if location is enabled, NO otherwise
+ When location access is permitted, this method can be used to access the current device location.
+ If the available location info is more than 60 seconds old, then this method initiates a new location fetch request and returns nil.
+ When nil is returned, this method may be called again after a few seconds to access the updated device location.
+ @return a TuneLocation instance, nil if location access is disabled or if current location info is stale
  */
-+ (BOOL)getOrRequestDeviceLocation:(NSArray **)arrLocation;
++ (TuneLocation *)getOrRequestDeviceLocation;
+
+/*!
+ Checks if the end-user has permitted device location access
+ @return YES if location access is permitted, NO otherwise
+ */
++ (BOOL)isLocationEnabled;
 
 @end

@@ -8,9 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "../Tune/Common/TuneEventQueue.h"
-#import "../Tune/Common/TuneKeyStrings.h"
-
 FOUNDATION_EXPORT NSString* const kTestAdvertiserId;
 FOUNDATION_EXPORT NSString* const kTestConversionKey;
 FOUNDATION_EXPORT NSString* const kTestBundleId;

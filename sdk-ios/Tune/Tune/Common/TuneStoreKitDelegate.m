@@ -7,7 +7,10 @@
 //
 
 #import "TuneStoreKitDelegate.h"
+
 #import "Tune.h"
+#import "TuneEvent.h"
+#import "TuneEventItem.h"
 
 @interface TuneStoreKitDelegate () <SKPaymentTransactionObserver>
 

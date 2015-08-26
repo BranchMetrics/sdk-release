@@ -10,11 +10,14 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
+#import "../Tune/TuneEvent.h"
 #import "../Tune/Common/TuneEventQueue.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneReachability.h"
 #import "../Tune/Common/TuneRequestsQueue.h"
 #import "../Tune/Common/TuneSettings.h"
 #import "../Tune/Common/TuneTracker.h"
+#import "../Tune/Common/TuneUtils.h"
 
 @interface TuneQueueTests : XCTestCase <TuneDelegate>
 {
@@ -36,7 +39,7 @@
 {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
     [Tune setDebugMode:YES];

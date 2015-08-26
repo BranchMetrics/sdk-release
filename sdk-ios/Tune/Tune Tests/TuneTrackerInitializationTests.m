@@ -11,6 +11,8 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneSettings.h"
 #import "../Tune/Common/TuneTracker.h"
 #import "../Tune/Common/TuneUtils.h"
@@ -49,7 +51,7 @@
 
 - (void)testAutodetectJailbroken
 {
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
@@ -61,7 +63,7 @@
 - (void)testNotAutodetectJailbroken
 {
     [tune setShouldAutoDetectJailbroken:NO];
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
@@ -72,7 +74,7 @@
 
 - (void)testAutogenerateIFV
 {
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
@@ -84,7 +86,7 @@
 - (void)testNotAutogenerateIFV
 {
     [tune setShouldAutoGenerateAppleVendorIdentifier:NO];
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
@@ -98,7 +100,7 @@
     static NSString* const eventName = @"fakeEventName";
     NSData *receiptData = [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];
     
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     tune.parameters.openLogId = nil; // coerce receipt data into being sent again
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
     [tune measureEvent:event];
@@ -142,7 +144,7 @@
     tune.delegate = self;
     tune.parameters.delegate = self;
 
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:NO];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
     [tune measureEvent:event];
     
@@ -166,7 +168,7 @@
 
 - (void)testWearableDevice
 {
-    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey wearable:YES];
+    [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:YES];
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
     [tune measureEvent:event];
     

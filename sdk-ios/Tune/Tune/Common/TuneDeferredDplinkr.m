@@ -7,11 +7,13 @@
 //
 
 #import "TuneDeferredDplinkr.h"
-#import "TuneKeyStrings.h"
-#import "TuneUtils.h"
-#import "TuneUserAgentCollector.h"
-#import "NSString+TuneURLEncoding.h"
 
+#import "NSString+TuneURLEncoding.h"
+#import "Tune.h"
+#import "TuneIfa.h"
+#import "TuneKeyStrings.h"
+#import "TuneUserAgentCollector.h"
+#import "TuneUtils.h"
 
 @interface TuneDeferredDplinkr()
 
@@ -19,6 +21,7 @@
 @property (nonatomic, copy) NSString *advertiserId;
 @property (nonatomic, copy) NSString *conversionKey;
 @property (nonatomic, assign) id<TuneDelegate> delegate;
+@property (nonatomic, assign) id<TuneDelegate> deeplinkDelegate;
 @property (nonatomic, copy) NSString *bundleId;
 @property (nonatomic, copy) NSString *ifa;
 @property (nonatomic, assign) BOOL adTrackingEnabled;
@@ -49,11 +52,11 @@ static TuneDeferredDplinkr *dplinkr;
     dplinkr = [TuneDeferredDplinkr new];
     
     // collect IFA if accessible
-    NSArray *ifaInfo = [TuneUtils ifaInfo];
-    if(ifaInfo && 2 == ifaInfo.count)
+    TuneIfa *ifaInfo = [TuneIfa ifaInfo];
+    if(ifaInfo)
     {
-        dplinkr.ifa = [ifaInfo[0] UUIDString];
-        dplinkr.adTrackingEnabled = [ifaInfo[1] boolValue];
+        dplinkr.ifa = ifaInfo.ifa;
+        dplinkr.adTrackingEnabled = ifaInfo.trackingEnabled;
     }
 }
 
@@ -73,23 +76,28 @@ static TuneDeferredDplinkr *dplinkr;
     dplinkr.bundleId = packageName;
 }
 
-+ (void)setIFA:(NSString*)appleAdvertisingIdentifier trackingEnabled:(BOOL)adTrackingEnabled
++ (void)setIfa:(NSString*)appleAdvertisingIdentifier trackingEnabled:(BOOL)adTrackingEnabled
 {
     dplinkr.ifa = appleAdvertisingIdentifier;
     dplinkr.adTrackingEnabled = adTrackingEnabled;
 }
 
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate
 {
     if( dplinkr.advertiserId == nil ||
         dplinkr.ifa == nil ||
         [TuneUtils userDefaultValueforKey:TUNE_KEY_DEEPLINK_CHECKED] != nil )
+    {
         return;
+    }
+    
+    dplinkr.deeplinkDelegate = delegate;
     
     // persist state so deeplink isn't requested twice
     [TuneUtils setUserDefaultValue:@YES forKey:TUNE_KEY_DEEPLINK_CHECKED];
     
-    NSMutableString *urlString = [NSMutableString stringWithFormat:@"https://%@.%@/%@?platform=ios",
+    NSMutableString *urlString = [NSMutableString stringWithFormat:@"%@://%@.%@/%@?platform=ios",
+                                  TUNE_KEY_HTTPS,
                                   dplinkr.advertiserId,
                                   TUNE_SERVER_DOMAIN_DEEPLINK,
                                   TUNE_SERVER_PATH_DEEPLINK];
@@ -112,12 +120,12 @@ static TuneDeferredDplinkr *dplinkr;
     
     [request addValue:dplinkr.conversionKey forHTTPHeaderField:@"X-MAT-Key"];
     
-    NSDate *start = [NSDate date];
-    
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:dplinkr.deeplinkOpQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
     {
+        id<TuneDelegate> deepDelegate = dplinkr.deeplinkDelegate ?: dplinkr.delegate;
+        
         NSError *error = nil;
         
         if( !connectionError ) {
@@ -131,26 +139,10 @@ static TuneDeferredDplinkr *dplinkr;
                 
                 if( deeplink )
                 {
-                    NSDate *end = [NSDate date];
-                    NSTimeInterval diff = [end timeIntervalSinceDate:start];
-                    BOOL didTimeout = diff - timeout > 0;
-                    
-                    if(!didTimeout)
-                    {
-                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                            
-                            // let the AppDelegate handle
-                            [[[UIApplication sharedApplication] delegate] application:[UIApplication sharedApplication]
-                                                                              openURL:deeplink
-                                                                    sourceApplication:[TuneUtils bundleId]
-                                                                           annotation:nil];
-                        }];
-                    }
-                    
                     // check and call success delegate callback
-                    if ([dplinkr.delegate respondsToSelector:@selector(tuneDidReceiveDeeplink:didTimeout:)])
+                    if ([deepDelegate respondsToSelector:@selector(tuneDidReceiveDeeplink:)])
                     {
-                        [dplinkr.delegate tuneDidReceiveDeeplink:deeplink.absoluteString didTimeout:didTimeout];
+                        [deepDelegate tuneDidReceiveDeeplink:deeplink.absoluteString];
                     }
                 }
                 else
@@ -183,9 +175,9 @@ static TuneDeferredDplinkr *dplinkr;
             DLog( @"error: %@", error );
 
             // check and call error delegate callback
-            if ([dplinkr.delegate respondsToSelector:@selector(tuneDidFailDeeplinkWithError:)])
+            if ([deepDelegate respondsToSelector:@selector(tuneDidFailDeeplinkWithError:)])
             {
-                [dplinkr.delegate tuneDidFailDeeplinkWithError:error];
+                [deepDelegate tuneDidFailDeeplinkWithError:error];
             }
         }
     }];

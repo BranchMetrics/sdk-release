@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 #import "TuneTestsHelper.h"
+#import "../Tune/Common/TuneEventQueue.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 #import "../Tune/Common/TuneTracker.h"
 
 @interface TuneHTTPErrorTests : XCTestCase

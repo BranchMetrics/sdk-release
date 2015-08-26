@@ -137,7 +137,7 @@ NSString * kAppListUrl      = @"/api/v1/demo/apps";
     appPackageName = @"edu.self.AtomicDodgeBallLite";
     
     [Tune initializeWithTuneAdvertiserId:appAdvId
-                       TuneConversionKey:appConversionKey];
+                       tuneConversionKey:appConversionKey];
     
     [Tune setPackageName:appPackageName];
     
@@ -600,7 +600,7 @@ NSString * kAppListUrl      = @"/api/v1/demo/apps";
         appLogoUrl = curApp[@"logo"];
         
         [Tune initializeWithTuneAdvertiserId:appAdvId
-                           TuneConversionKey:appConversionKey];
+                           tuneConversionKey:appConversionKey];
         [Tune setPackageName:appPackageName];
         
         [self.btnApp setTitle:appName forState:UIControlStateNormal];

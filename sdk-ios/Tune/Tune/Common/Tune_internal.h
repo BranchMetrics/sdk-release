@@ -7,7 +7,8 @@
 //
 
 #import "../Tune.h"
-#import "../Common/TuneTracker.h"
+
+@class TuneTracker;
 
 @interface Tune()
 

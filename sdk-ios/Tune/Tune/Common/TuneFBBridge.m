@@ -7,7 +7,10 @@
 //
 
 #import "TuneFBBridge.h"
+
+#import "TuneEvent.h"
 #import "TuneKeyStrings.h"
+#import "TuneSettings.h"
 
 // Ref: if < FB 4.0 <FACEBOOK_IOS_FRAMEWORK>/Headers/FBAppEvents.h
 // Ref: if >= FB 4.0 <FACEBOOK_IOS_FRAMEWORK>/Headers/FBSDKAppEvents.h

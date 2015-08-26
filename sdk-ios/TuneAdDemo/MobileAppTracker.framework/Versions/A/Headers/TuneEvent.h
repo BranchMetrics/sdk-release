@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "TuneEventItem.h"
+@class TuneEventItem;
 
 /*!
  TUNE pre-defined event string "achievement_unlocked"

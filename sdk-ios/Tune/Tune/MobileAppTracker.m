@@ -12,10 +12,14 @@
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 
 @interface TuneDelegateForMat : NSObject <TuneDelegate>
 
 @property (nonatomic, assign) id<MobileAppTrackerDelegate> matDelegate;
+@property (nonatomic, assign) id<MobileAppTrackerDelegate> matDeeplinkDelegate;
 
 @end
 
@@ -48,19 +52,23 @@
     }
 }
 
-- (void)tuneDidReceiveDeeplink:(NSString *)deeplink didTimeout:(BOOL)timeout
+- (void)tuneDidReceiveDeeplink:(NSString *)deeplink
 {
-    if(self.matDelegate && [self.matDelegate respondsToSelector:@selector(mobileAppTrackerDidReceiveDeeplink:didTimeout:)])
+    id<MobileAppTrackerDelegate> deepDelegate = self.matDeeplinkDelegate ?: self.matDelegate;
+    
+    if(deepDelegate && [deepDelegate respondsToSelector:@selector(mobileAppTrackerDidReceiveDeeplink:)])
     {
-        [self.matDelegate mobileAppTrackerDidReceiveDeeplink:deeplink didTimeout:timeout];
+        [deepDelegate mobileAppTrackerDidReceiveDeeplink:deeplink];
     }
 }
 
 - (void)tuneDidFailDeeplinkWithError:(NSError *)error
 {
-    if(self.matDelegate && [self.matDelegate respondsToSelector:@selector(mobileAppTrackerDidFailDeeplinkWithError:)])
+    id<MobileAppTrackerDelegate> deepDelegate = self.matDeeplinkDelegate ?: self.matDelegate;
+    
+    if(deepDelegate && [deepDelegate respondsToSelector:@selector(mobileAppTrackerDidFailDeeplinkWithError:)])
     {
-        [self.matDelegate mobileAppTrackerDidFailDeeplinkWithError:error];
+        [deepDelegate mobileAppTrackerDidFailDeeplinkWithError:error];
     }
 }
 
@@ -171,12 +179,12 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 
 + (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key
 {
-    [Tune initializeWithTuneAdvertiserId:aid TuneConversionKey:key];
+    [Tune initializeWithTuneAdvertiserId:aid tuneConversionKey:key];
 }
 
 + (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key MATPackageName:(NSString *)name wearable:(BOOL)wearable
 {
-    [Tune initializeWithTuneAdvertiserId:aid TuneConversionKey:key TunePackageName:name wearable:wearable];
+    [Tune initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:name wearable:wearable];
 }
 
 
@@ -192,7 +200,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     [Tune setAllowDuplicateRequests:allow];
 }
 
-+ (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate
++ (void)setDelegate:(id<MobileAppTrackerDelegate>)delegate
 {
     matTuneDelegate.matDelegate = delegate;
     
@@ -202,9 +210,11 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 
 #pragma mark - Behavior Flags
 
-+ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout
++ (void)checkForDeferredDeeplink:(id<MobileAppTrackerDelegate>)delegate
 {
-    [Tune checkForDeferredDeeplinkWithTimeout:timeout];
+    matTuneDelegate.matDeeplinkDelegate = delegate;
+    
+    [Tune checkForDeferredDeeplink:matTuneDelegate];
 }
 
 + (void)automateIapEventMeasurement:(BOOL)automate
@@ -216,7 +226,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 #pragma mark - Setter Methods
 
 #ifdef MAT_USE_LOCATION
-+ (void)setRegionDelegate:(id <MobileAppTrackerRegionDelegate>)delegate
++ (void)setRegionDelegate:(id<MobileAppTrackerRegionDelegate>)delegate
 {
     matTuneRegionDelegate.matRegionDelegate = delegate;
     
@@ -253,6 +263,16 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 + (void)setPackageName:(NSString *)packageName
 {
     [Tune setPackageName:packageName];
+}
+
++ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
+{
+    [Tune setShouldAutoCollectAppleAdvertisingIdentifier:autoCollect];
+}
+
++ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
+{
+    [Tune setShouldAutoCollectDeviceLocation:autoCollect];
 }
 
 + (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect
@@ -322,12 +342,21 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 
 + (void)setLatitude:(double)latitude longitude:(double)longitude
 {
-    [Tune setLatitude:latitude longitude:longitude];
+    TuneLocation *location = [TuneLocation new];
+    location.latitude = @(latitude);
+    location.longitude = @(longitude);
+    
+    [Tune setLocation:location];
 }
 
 + (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude
 {
-    [Tune setLatitude:latitude longitude:longitude altitude:altitude];
+    TuneLocation *location = [TuneLocation new];
+    location.altitude = @(altitude);
+    location.latitude = @(latitude);
+    location.longitude = @(longitude);
+    
+    [Tune setLocation:location];
 }
 
 + (void)setAppAdTracking:(BOOL)enable
@@ -436,7 +465,6 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     else
     {
         tuneEvent = [TuneEvent eventWithId:event.eventId];
-        
     }
     tuneEvent.attribute1 = event.attribute1;
     tuneEvent.attribute2 = event.attribute2;
@@ -764,3 +792,5 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 }
 
 @end
+
+#pragma GCC diagnostic pop

@@ -10,6 +10,8 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Common/Tune_internal.h"
+#import "../Tune/TuneEvent.h"
+#import "../Tune/TuneEventItem.h"
 #import "../Tune/Common/TuneTracker.h"
 #import "../Tune/Common/TuneKeyStrings.h"
 
@@ -26,7 +28,7 @@
 {
     [super setUp];
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId TuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     

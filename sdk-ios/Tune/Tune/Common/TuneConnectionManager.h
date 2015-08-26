@@ -10,8 +10,9 @@
 #import <netinet/in.h>
 #import <UIKit/UIKit.h>
 
-#import "TuneRequestsQueue.h"
 #import "TuneReachability.h"
+
+@class TuneRequestsQueue;
 
 @protocol TuneConnectionManagerDelegate;
 

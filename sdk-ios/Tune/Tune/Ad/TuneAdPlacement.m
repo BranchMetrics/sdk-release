@@ -8,6 +8,9 @@
 
 #import "TuneAdPlacement.h"
 
+#import "TuneAd.h"
+#import "TuneAdMetadata.h"
+
 @implementation TuneAdPlacement
 
 + (instancetype)adPlacementWithPlacement:(NSString *)placement

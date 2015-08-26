@@ -25,7 +25,7 @@ NSString * const TUNE_PACKAGE_NAME = @"edu.self.AtomicDodgeBallLite";
     
     // initialize Tune by providing advertiser_id and conversion_key
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
-                       TuneConversionKey:TUNE_CONVERSION_KEY];
+                       tuneConversionKey:TUNE_CONVERSION_KEY];
     
     // required only if your app's TUNE package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
