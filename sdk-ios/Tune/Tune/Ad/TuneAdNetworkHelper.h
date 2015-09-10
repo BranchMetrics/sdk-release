@@ -14,8 +14,8 @@
 @class TuneAdMetadata;
 @class TuneAdParams;
 
-@interface TuneAdNetworkHelper : NSObject <NSURLConnectionDelegate>
 
+@interface TuneAdNetworkHelper : NSObject <NSURLConnectionDelegate>
 
 - (void)fireUrl:(NSString *)urlString adType:(TuneAdType)adType placement:(NSString *)placement metadata:(TuneAdMetadata *)metadata orientations:(TuneAdOrientation)orientations ad:(TuneAd *)ad;
 

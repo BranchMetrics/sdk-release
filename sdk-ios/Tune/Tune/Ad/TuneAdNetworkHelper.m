@@ -66,6 +66,11 @@
     }
 }
 
+- (void)dealloc
+{
+    [self cancel];
+}
+
 #pragma mark - NSURLConnectionDelegate Methods
 
 - (void)connection:(NSURLConnection *)conn didFailWithError:(NSError *)error

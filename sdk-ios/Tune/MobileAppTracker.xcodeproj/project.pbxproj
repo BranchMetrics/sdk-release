@@ -953,6 +953,10 @@
 		4FDFA19115C700D300BEEC38 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
@@ -997,6 +1001,7 @@
 				PRODUCT_NAME = MobileAppTracker;
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "i386 x86_64 armv7 armv7s arm64";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1005,6 +1010,10 @@
 		4FDFA19215C700D300BEEC38 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
@@ -1026,7 +1035,6 @@
 					"DEBUG_LOG=0",
 					"DEBUG_LINK_LOG=0",
 					"DEBUG_REQUEST_LOG=0",
-					"DEBUG_AD_STAGING=0",
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -1047,6 +1055,7 @@
 				PRODUCT_NAME = MobileAppTracker;
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "i386 x86_64 armv7 armv7s arm64";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1089,6 +1098,10 @@
 		F8C5D2D219AE9FAA00CB7C6C /* Testing */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					armv7s,
+				);
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
@@ -1133,6 +1146,7 @@
 				PRODUCT_NAME = MobileAppTracker;
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "i386 x86_64 armv7 armv7s arm64";
 				WRAPPER_EXTENSION = framework;
 			};

@@ -47,8 +47,15 @@ static NSString* const testKey = @"fakeTuneKey";
 
 - (void)testJsonSerialize
 {
-    NSDictionary *item1 = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"item1", @(1), @(2.99f), @(2.99f), @"attr1", @"attr2", @"attr3", @"attr4", @"attr5", nil]
-                                                      forKeys:[NSArray arrayWithObjects:@"item", @"quantity", @"revenue", @"unit_price", @"attribute_sub1", @"attribute_sub2", @"attribute_sub3", @"attribute_sub4", @"attribute_sub5", nil]];
+    NSDictionary *item1 = @{@"item":@"item1",
+                            @"quantity":@(1),
+                            @"revenue":@(2.99f),
+                            @"unit_price":@(2.99f),
+                            @"attribute_sub1":@"attr1",
+                            @"attribute_sub2":@"attr2",
+                            @"attribute_sub3":@"attr3",
+                            @"attribute_sub4":@"attr4",
+                            @"attribute_sub5":@"attr5"};
     
     NSArray *arr1 = @ [ item1 ];
     

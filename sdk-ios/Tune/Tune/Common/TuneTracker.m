@@ -74,7 +74,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
 @property (nonatomic, assign) BOOL shouldDetectJailbroken;
-@property (nonatomic, assign) BOOL shouldCollectDeviceLocation;
 @property (nonatomic, assign) BOOL shouldCollectAdvertisingIdentifier;
 @property (nonatomic, assign) BOOL shouldGenerateVendorIdentifier;
 
@@ -263,22 +262,22 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 {
     // Note: This method of sizing the banner is deprecated in iOS 6.0.
     if( iAd.superview.frame.size.width <= [UIScreen mainScreen].bounds.size.width ) {
-        if( debugMode ) NSLog( @"Tune laying out iAd in portrait orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
+        if( debugMode ) NSLog( @"Tune: laying out iAd in portrait orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
     }
     else {
-        if( debugMode ) NSLog( @"Tune laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
+        if( debugMode ) NSLog( @"Tune: laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
     }
     
     if( iAd.bannerLoaded ) {
-        if( debugMode ) NSLog( @"Tune iAd has banner loaded, displaying its superview" );
+        if( debugMode ) NSLog( @"Tune: iAd has banner loaded, displaying its superview" );
         iAd.superview.alpha = 1.;
         if( [_delegate respondsToSelector:@selector(tuneDidDisplayiAd)] )
             [_delegate tuneDidDisplayiAd];
     }
     else {
-        if( debugMode ) NSLog( @"Tune iAd has no banner loaded, hiding its superview" );
+        if( debugMode ) NSLog( @"Tune: iAd has no banner loaded, hiding its superview" );
         iAd.superview.alpha = 0.;
         if( [_delegate respondsToSelector:@selector(tuneDidRemoveiAd)] )
             [_delegate tuneDidRemoveiAd];
@@ -671,7 +670,9 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     [TuneEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
     
     if( [self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)] )
+    {
         [self.delegate tuneEnqueuedActionWithReferenceId:event.refId];
+    }
 }
 
 - (void)updateIfa

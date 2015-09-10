@@ -54,14 +54,16 @@
 /*!
  Method to be called to display the next interstitial ad using the provided view controller. If a previously cached ad is not available, then a new ad will be requested and displayed.
  @param placement Ad view placement info, e.g. "menu_page", "highscores", "game-end"
+ @param viewController View Controller to be used to display the interstitial ad
  */
-- (void)showForPlacement:(NSString *)placement viewController:(UIViewController *)vc;
+- (void)showForPlacement:(NSString *)placement viewController:(UIViewController *)viewController;
 
 /*!
  Method to be called to display the next interstitial ad using the provided view controller. If a previously cached ad is not available, then a new ad will be requested and displayed.
  @param placement Ad view placement info, e.g. "menu_page", "highscores", "game-end"
+ @param viewController View Controller to be used to display the interstitial ad
  @param metadata Properties to be included when requesting ads for an ad view
  */
-- (void)showForPlacement:(NSString *)placement viewController:(UIViewController *)vc adMetadata:(TuneAdMetadata *)metadata;
+- (void)showForPlacement:(NSString *)placement viewController:(UIViewController *)viewController adMetadata:(TuneAdMetadata *)metadata;
 
 @end

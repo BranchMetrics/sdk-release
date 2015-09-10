@@ -85,7 +85,8 @@ static NSArray *arrPlacements;
 
 - (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
-    NSLog(@"tuneAdDidFireRequestWithUrl:data:forView: url = %@, data = %@", url, data);
+    NSLog(@"tuneAdDidFireRequestWithUrl:data:forView:");
+    //NSLog(@"tuneAdDidFireRequestWithUrl:data:forView: url = %@, data = %@", url, data);
 }
 
 - (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave

@@ -60,23 +60,25 @@
     [Tune setAppleAdvertisingIdentifier:ifa
              advertisingTrackingEnabled:YES];
     
-    TuneAdMetadata *req = [TuneAdMetadata new];
-    req.customTargets = @{@"param123":@"value123"};
+    TuneAdMetadata *met = [TuneAdMetadata new];
+    met.customTargets = @{@"param123":@"value123"};
     
     expectedTuneAdError = TUNE_AD_TEST_NO_ERROR;
     completionExpectation = [self expectationWithDescription:@"interstitial ad fetch"];
     
-    TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"place1" adMetadata:req];
     
-//    TuneAdDownloadHelper *dh = [[TuneAdDownloadHelper alloc] initWithAdView:adView];
-//    dh.delegate = self;
-//    
-//    XCTAssertFalse(dh.fetchAdInProgress, @"fetch request should not have started before fetchAd call");
-//    
-//    [dh fetchAd];
-//    
-//    XCTAssertTrue(dh.fetchAdInProgress, @"fetch request should have started after fetchAd call");
+    [TuneAdDownloadHelper downloadAdForAdType:TuneAdTypeInterstitial
+                                    placement:@"place1"
+                                     metadata:met
+                                 orientations:TuneAdOrientationAll
+                               requestHandler:^(NSString *url, NSString *data) {
+                                   
+                               } completionHandler:^(TuneAd *ad, NSError *error) {
+                                   XCTAssertNotNil(ad);
+                                   XCTAssertNil(error);
+                                   
+                                   [completionExpectation fulfill];
+                               }];
     
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
 }

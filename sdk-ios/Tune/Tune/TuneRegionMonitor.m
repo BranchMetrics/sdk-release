@@ -46,7 +46,7 @@
     startCalled = TRUE;
 
     bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self
-                                                            queue:dispatch_get_current_queue()
+                                                            queue:dispatch_get_main_queue()
                                                           options:@{CBCentralManagerOptionShowPowerAlertKey: @(NO)}];
     [Tune setBluetoothState:bluetoothManager.state];
 

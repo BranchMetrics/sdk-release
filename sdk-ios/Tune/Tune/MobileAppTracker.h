@@ -28,7 +28,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define MATVERSION @"3.11.0"
+#define MATVERSION @"3.11.1"
 
 
 #pragma mark - enumerated types

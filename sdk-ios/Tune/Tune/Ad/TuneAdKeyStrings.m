@@ -15,6 +15,7 @@ NSString * const TUNE_AD_KEY_TuneAdErrorNetworkNotReachable         = @"TuneAdEr
 NSString * const TUNE_AD_KEY_TuneAdErrorInvalidPlacement            = @"TuneAdErrorInvalidPlacement";
 
 NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingAdGroups    = @"NO_MATCHING_ADGROUPS";
+NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingPlacement   = @"NO_MATCHING_PLACEMENT";
 NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingSites       = @"NO_MATCHING_SITES";
 NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSpecifiedSizes      = @"NO_SPECIFIED_SIZES";
 NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSuitableAds         = @"NO_SUITABLE_ADS";

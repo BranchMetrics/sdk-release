@@ -135,11 +135,11 @@
     TuneSettings *tuneParams = [[Tune sharedManager] parameters];
     [tuneParams setAdvertiserId:@"12345"];
     
-    expected = @"https://12345.request.aa.tuneapi.com/api/v1/ads/request?context[type]=banner";
+    expected = @"https://12345.request.api.cp.tune.com/api/v1/ads/request?context[type]=banner";
     actual = [TuneAdUtils tuneAdServerUrl:TuneAdTypeBanner];
     XCTAssert([actual isEqualToString:expected], @"incorrect server url for banner ad request, expected = %@, actual = %@", expected, actual);
     
-    expected = @"https://12345.request.aa.tuneapi.com/api/v1/ads/request?context[type]=interstitial";
+    expected = @"https://12345.request.api.cp.tune.com/api/v1/ads/request?context[type]=interstitial";
     actual = [TuneAdUtils tuneAdServerUrl:TuneAdTypeInterstitial];
     XCTAssert([actual isEqualToString:expected], @"incorrect server url for interstitial ad request, expected = %@, actual = %@", expected, actual);
 }
@@ -161,15 +161,15 @@
     ad.requestId        = @"f09f6bb4-24bf-4141-878a-f973becf45bc";
     ad.refs             = @{@"siteId":@"2960",@"siteName":@"Atomic Dodge Ball",@"advertiserId":@"877",@"subPublisherId":@"877",@"subPublisherName":@"MAT Demo Account",@"subSiteId":@"2962",@"subSiteName":@"Atomic Dodge Ball Lite",@"subCampaignId":@"48",@"subCampaignName":@"Atomic Dodge Ball",@"subAdgroupId":@"50",@"subAdgroupName":@"Atomic Dodge Ball",@"subAdId":@"48",@"subAdName":@"Atomic Dodge Ball"};
     
-    expected = @"https://12345.click.aa.tuneapi.com/api/v1/ads/click?action=click&requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
+    expected = @"https://12345.click.api.cp.tune.com/api/v1/ads/click?requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
     actual = [TuneAdUtils tuneAdClickUrl:ad];
     XCTAssert([actual isEqualToString:expected], @"incorrect click ad url, expected = %@, actual = %@", expected, actual);
     
-    expected = @"https://12345.event.aa.tuneapi.com/api/v1/ads/event?action=view&requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
+    expected = @"https://12345.event.api.cp.tune.com/api/v1/ads/view?requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
     actual = [TuneAdUtils tuneAdViewUrl:ad];
     XCTAssert([actual isEqualToString:expected], @"incorrect view ad url, expected = %@, actual = %@", expected, actual);
     
-    expected = @"https://12345.event.aa.tuneapi.com/api/v1/ads/event?action=close&requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
+    expected = @"https://12345.event.api.cp.tune.com/api/v1/ads/close?requestId=f09f6bb4-24bf-4141-878a-f973becf45bc";
     actual = [TuneAdUtils tuneAdClosedUrl:ad];
     XCTAssert([actual isEqualToString:expected], @"incorrect close ad url, expected = %@, actual = %@", expected, actual);
 }
