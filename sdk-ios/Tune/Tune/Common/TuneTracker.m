@@ -218,7 +218,44 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
 
-#ifdef __IPHONE_8_0 // if Tune is built in Xcode 6
+#ifdef __IPHONE_9_0 // if Tune is built in Xcode 7
+        if( [adClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)] ) {
+            [adClient requestAttributionDetailsWithBlock:^(NSDictionary *attributionDetails, NSError *error) {
+                
+                if( error.code == ADClientErrorLimitAdTracking ) {
+                    // value will never be available, so don't try again
+                    // NOTE: legally, iAd could provide attribution information in this case, but chooses not to
+                    self.parameters.iadAttribution = @NO;
+                }
+                else if( error ) {
+                    return; // don't call attribution block
+                }
+                else
+                {
+                    // iOS 7.1
+                    if( attributionDetails[@"iad-attribution"] ) self.parameters.iadAttribution = attributionDetails[@"iad-attribution"];
+                    // iOS 8
+                    if( attributionDetails[@"iad-impression-date"] ) {
+                        NSDateFormatter *formatter = [NSDateFormatter new];
+                        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZ";
+                        self.parameters.iadImpressionDate = [formatter dateFromString:attributionDetails[@"iad-impression-date"]];
+                    }
+                    // iOS 9
+                    if( attributionDetails[@"iad-campaign-id"] ) self.parameters.iadCampaignId = attributionDetails[@"iad-campaign-id"];
+                    if( attributionDetails[@"iad-campaign-name"] ) self.parameters.iadCampaignName = attributionDetails[@"iad-campaign-name"];
+                    if( attributionDetails[@"iad-org-name"] ) self.parameters.iadCampaignOrgName = attributionDetails[@"iad-org-name"];
+                    if( attributionDetails[@"iad-lineitem-id"] ) self.parameters.iadLineId = attributionDetails[@"iad-lineitem-id"];
+                    if( attributionDetails[@"iad-lineitem-name"] ) self.parameters.iadLineName = attributionDetails[@"iad-lineitem-name"];
+                    if( attributionDetails[@"iad-creative-id"] ) self.parameters.iadCreativeId = attributionDetails[@"iad-creative-id"];
+                    if( attributionDetails[@"iad-creative-name"] ) self.parameters.iadCreativeName = attributionDetails[@"iad-creative-name"];
+                }
+                
+                if( attributionBlock )
+                    attributionBlock( self.parameters.iadAttribution.boolValue );
+            }];
+        }
+        else
+#endif
         if( [adClient respondsToSelector:@selector(lookupAdConversionDetails:)] ) {
             // device is iOS 8.0
             [[ADClient sharedClient] lookupAdConversionDetails:^(NSDate *appPurchaseDate, NSDate *iAdImpressionDate) {
@@ -230,8 +267,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
                     attributionBlock( iAdOriginatedInstallation );
             }];
         }
-        else
-#endif
+        else {
             // device is iOS 7.1
             [adClient determineAppInstallationAttributionWithCompletionHandler:^(BOOL appInstallationWasAttributedToiAd) {
                 [TuneUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:TUNE_KEY_IAD_ATTRIBUTION];
@@ -239,6 +275,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
                 if( attributionBlock )
                     attributionBlock( appInstallationWasAttributedToiAd );
             }];
+        }
     }
 #endif
 }
