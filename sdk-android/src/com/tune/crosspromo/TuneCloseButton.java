@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
-class TuneCloseButton extends FrameLayout {
+public class TuneCloseButton extends FrameLayout {
     private ImageButton close;
 
     private TuneAdActivity adActivity;
