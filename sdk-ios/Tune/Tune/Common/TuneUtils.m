@@ -170,8 +170,7 @@ NSString *overrideNetworkStatus;
     
     // METHOD 1: Check for file paths of some commonly used hacks
     // array of jail broken paths
-    NSArray *jailBrokenPaths = [NSArray arrayWithObjects:
-                                @"/Applications/Cydia.app",
+    NSArray *jailBrokenPaths = @[@"/Applications/Cydia.app",
                                 @"/Applications/blackra1n.app",
                                 @"/Applications/FakeCarrier.app",
                                 @"/Applications/Icy.app",
@@ -191,7 +190,7 @@ NSString *overrideNetworkStatus;
                                 @"/System/Library/LaunchDaemons/com.saurik.Cydia.Startup.plist",
                                 @"/usr/bin/sshd",
                                 @"/usr/libexec/sftp-server",
-                                @"/usr/sbin/sshd", nil];
+                                @"/usr/sbin/sshd"];
     
     BOOL jailBroken = NO;
     for (NSString * path in jailBrokenPaths)

@@ -292,22 +292,24 @@ const NSTimeInterval TUNE_AD_DURATION_RECHECK_FETCH_COMPLETE   = 1.0;
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    DLLog(@"webViewDidFinishLoad:");
+    DLog(@"webViewDidFinishLoad: webview = %d", webView == webview1 ? 1 : 2);
     
     NSString *html = [webView stringByEvaluatingJavaScriptFromString:@"document.body.innerHTML"];
     
     // ignore the clear webview actions
     if (![html isEqualToString:TUNE_STRING_EMPTY])
     {
-        DLog(@"webview ad preload complete: webview = %d", webView == webview1 ? 1 : 2 );
+        DLog(@"webview ad preload complete: webview = %d", webView == webview1 ? 1 : 2);
         
         adReadyForDisplay = YES;
         
-        DLog(@"webview ad preload complete: banner currently visible = %d", bannerVisible );
+        DLog(@"webview ad preload complete: banner currently visible = %d, self = %@", bannerVisible, self);
             
         if(!bannerVisible)
         {
             [bannerTimer invalidate];
+            
+            DLog(@"webview ad preload complete: called bannerTimerFired");
             [self bannerTimerFired];
         }
     }
@@ -315,13 +317,15 @@ const NSTimeInterval TUNE_AD_DURATION_RECHECK_FETCH_COMPLETE   = 1.0;
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    DLog(@"webView:shouldStartLoadWithRequest: webview = %d", webView == webview1 ? 1 : 2);
+    
     BOOL shouldContinueRequest = YES;
     
     if (UIWebViewNavigationTypeLinkClicked == navigationType)
     {
         // handle ad view tapped
         
-        DLog(@"webview url clicked: request = %@", [[request URL] absoluteString]);
+        DLLog(@"webview url clicked: request = %@", [[request URL] absoluteString]);
         
         NSURL *url = [request URL];
         
@@ -566,13 +570,12 @@ const NSTimeInterval TUNE_AD_DURATION_RECHECK_FETCH_COMPLETE   = 1.0;
     // again start cycling banner ads
     appStoreVisible = NO;
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         
         [self notifyClickActionEnd];
         
         [self dismissActivityOverlay];
         
-        DLog(@"calling bannerTimerFired");
         [self bannerTimerFired];
     });
 }
@@ -583,6 +586,15 @@ const NSTimeInterval TUNE_AD_DURATION_RECHECK_FETCH_COMPLETE   = 1.0;
 - (NSString *)debugDescription
 {
     return [NSString stringWithFormat:@"<%@: %p> adType = %ld, adOrientations = %ld, ready = %d, delegate = %p", [self class], self, (long)TuneAdTypeBanner, (long)self.adOrientations, self.ready, self.delegate];
+}
+
+- (void)dealloc
+{
+    if(bannerTimer)
+    {
+        [bannerTimer invalidate];
+        bannerTimer = nil;
+    }
 }
 
 @end

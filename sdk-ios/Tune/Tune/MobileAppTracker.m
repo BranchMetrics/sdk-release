@@ -453,7 +453,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 }
 
 
-#pragma MobileAppTracker-Tune Conversion Helpers
+#pragma mark - MobileAppTracker-Tune Conversion Helpers
 
 + (TuneEvent *)tuneEventFromMATEvent:(MATEvent *)event
 {

@@ -304,15 +304,15 @@ UIImage *imageCloseButton;
     {
         DLog(@"webview ad preload complete: webview = %d", webView == webview1 ? 1 : 2 );
         
-        DLog(@"calling notifyDidFetchAd");
-        [self notifyDidFetchAd:adCurrent.placement];
-        
         // Display the ad if it was lazy-loaded
         if (showOnLoad)
         {
             showOnLoad = false;
             [self handleDisplayAd:nil metadata:nil];
         }
+        
+        DLog(@"calling notifyDidFetchAd: %@", adCurrent.placement);
+        [self notifyDidFetchAd:adCurrent.placement];
     }
 }
 
@@ -324,7 +324,7 @@ UIImage *imageCloseButton;
     {
         // handle ad view tapped
         
-        DLog(@"webview url clicked: request = %@", [[request URL] absoluteString]);
+        DLLog(@"webview url clicked: request = %@", [[request URL] absoluteString]);
         
         NSURL *url = [request URL];
         
@@ -400,7 +400,7 @@ UIImage *imageCloseButton;
     DLog(@"show in-app store using firstAvailableViewController = %@, parentViewController = %@", superVC, parentViewController);
     
     // open the iTunes App Store link in-app using SKStoreProductViewController
-    storeVC = [[TuneAdSKStoreProductViewController alloc] init];
+    storeVC = [TuneAdSKStoreProductViewController new];
     storeVC.view.frame = bounds;
     storeVC.delegate = self;
     
@@ -532,8 +532,7 @@ UIImage *imageCloseButton;
     // again start cycling banner ads
     appStoreVisible = NO;
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001*NSEC_PER_SEC), dispatch_get_current_queue(), ^{
-        
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.001 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self notifyClickActionEnd];
         
         [self dismissInterstitial];

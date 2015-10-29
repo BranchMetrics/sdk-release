@@ -74,7 +74,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
 @property (nonatomic, assign) BOOL shouldDetectJailbroken;
-@property (nonatomic, assign) BOOL shouldCollectDeviceLocation;
 @property (nonatomic, assign) BOOL shouldCollectAdvertisingIdentifier;
 @property (nonatomic, assign) BOOL shouldGenerateVendorIdentifier;
 
@@ -219,7 +218,44 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
 
-#ifdef __IPHONE_8_0 // if Tune is built in Xcode 6
+#ifdef __IPHONE_9_0 // if Tune is built in Xcode 7
+        if( [adClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)] ) {
+            [adClient requestAttributionDetailsWithBlock:^(NSDictionary *attributionDetails, NSError *error) {
+                
+                if( error.code == ADClientErrorLimitAdTracking ) {
+                    // value will never be available, so don't try again
+                    // NOTE: legally, iAd could provide attribution information in this case, but chooses not to
+                    self.parameters.iadAttribution = @NO;
+                }
+                else if( error ) {
+                    return; // don't call attribution block
+                }
+                else
+                {
+                    // iOS 7.1
+                    if( attributionDetails[@"iad-attribution"] ) self.parameters.iadAttribution = attributionDetails[@"iad-attribution"];
+                    // iOS 8
+                    if( attributionDetails[@"iad-impression-date"] ) {
+                        NSDateFormatter *formatter = [NSDateFormatter new];
+                        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZ";
+                        self.parameters.iadImpressionDate = [formatter dateFromString:attributionDetails[@"iad-impression-date"]];
+                    }
+                    // iOS 9
+                    if( attributionDetails[@"iad-campaign-id"] ) self.parameters.iadCampaignId = attributionDetails[@"iad-campaign-id"];
+                    if( attributionDetails[@"iad-campaign-name"] ) self.parameters.iadCampaignName = attributionDetails[@"iad-campaign-name"];
+                    if( attributionDetails[@"iad-org-name"] ) self.parameters.iadCampaignOrgName = attributionDetails[@"iad-org-name"];
+                    if( attributionDetails[@"iad-lineitem-id"] ) self.parameters.iadLineId = attributionDetails[@"iad-lineitem-id"];
+                    if( attributionDetails[@"iad-lineitem-name"] ) self.parameters.iadLineName = attributionDetails[@"iad-lineitem-name"];
+                    if( attributionDetails[@"iad-creative-id"] ) self.parameters.iadCreativeId = attributionDetails[@"iad-creative-id"];
+                    if( attributionDetails[@"iad-creative-name"] ) self.parameters.iadCreativeName = attributionDetails[@"iad-creative-name"];
+                }
+                
+                if( attributionBlock )
+                    attributionBlock( self.parameters.iadAttribution.boolValue );
+            }];
+        }
+        else
+#endif
         if( [adClient respondsToSelector:@selector(lookupAdConversionDetails:)] ) {
             // device is iOS 8.0
             [[ADClient sharedClient] lookupAdConversionDetails:^(NSDate *appPurchaseDate, NSDate *iAdImpressionDate) {
@@ -231,8 +267,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
                     attributionBlock( iAdOriginatedInstallation );
             }];
         }
-        else
-#endif
+        else {
             // device is iOS 7.1
             [adClient determineAppInstallationAttributionWithCompletionHandler:^(BOOL appInstallationWasAttributedToiAd) {
                 [TuneUtils setUserDefaultValue:@(appInstallationWasAttributedToiAd) forKey:TUNE_KEY_IAD_ATTRIBUTION];
@@ -240,6 +275,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
                 if( attributionBlock )
                     attributionBlock( appInstallationWasAttributedToiAd );
             }];
+        }
     }
 #endif
 }
@@ -263,22 +299,22 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 {
     // Note: This method of sizing the banner is deprecated in iOS 6.0.
     if( iAd.superview.frame.size.width <= [UIScreen mainScreen].bounds.size.width ) {
-        if( debugMode ) NSLog( @"Tune laying out iAd in portrait orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
+        if( debugMode ) NSLog( @"Tune: laying out iAd in portrait orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
     }
     else {
-        if( debugMode ) NSLog( @"Tune laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
+        if( debugMode ) NSLog( @"Tune: laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
     }
     
     if( iAd.bannerLoaded ) {
-        if( debugMode ) NSLog( @"Tune iAd has banner loaded, displaying its superview" );
+        if( debugMode ) NSLog( @"Tune: iAd has banner loaded, displaying its superview" );
         iAd.superview.alpha = 1.;
         if( [_delegate respondsToSelector:@selector(tuneDidDisplayiAd)] )
             [_delegate tuneDidDisplayiAd];
     }
     else {
-        if( debugMode ) NSLog( @"Tune iAd has no banner loaded, hiding its superview" );
+        if( debugMode ) NSLog( @"Tune: iAd has no banner loaded, hiding its superview" );
         iAd.superview.alpha = 0.;
         if( [_delegate respondsToSelector:@selector(tuneDidRemoveiAd)] )
             [_delegate tuneDidRemoveiAd];
@@ -671,7 +707,9 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     [TuneEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
     
     if( [self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)] )
+    {
         [self.delegate tuneEnqueuedActionWithReferenceId:event.refId];
+    }
 }
 
 - (void)updateIfa

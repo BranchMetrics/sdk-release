@@ -28,6 +28,7 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
 @property (nonatomic, assign) BOOL shouldUseCookieTracking;
 
 @property (nonatomic, assign) BOOL automateIapMeasurement;
+@property (nonatomic, assign) BOOL shouldCollectDeviceLocation;
 
 @property (nonatomic, assign) BOOL fbLogging;
 @property (nonatomic, assign) BOOL fbLimitUsage;

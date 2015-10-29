@@ -7,6 +7,7 @@
 //
 
 #import "TuneEncrypter.h"
+#import "TuneKeyStrings.h"
 
 @interface TuneEncrypter()
 
@@ -19,21 +20,30 @@
 @implementation TuneEncrypter
 
 
-+ (NSString *)encryptString:(NSMutableString *)str withKey:(NSString *)key
++ (NSString *)encryptString:(NSString *)str withKey:(NSString *)key
 {
-    // hex encode the input string
-    NSString *encodedInput = [self hexEncode:[str dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *output = nil;
+
+    if(nil == str || (id)[NSNull null] == str)
+    {
+        output = TUNE_STRING_EMPTY;
+    }
+    else
+    {
+        // hex encode the input string
+        NSString *encodedInput = [self hexEncode:[str dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        // hex encoded input data
+        NSData *inputData = [encodedInput dataUsingEncoding:NSUTF8StringEncoding];
+        
+        // encrypt the hex encoded input data
+        NSData * outputData = [self aesEncryptData:inputData withKey:key];
+        
+        // hex encode the encrypted data
+        output = [self hexEncode:outputData];
+    }
     
-    // hex encoded input data
-    NSData *inputData = [encodedInput dataUsingEncoding:NSUTF8StringEncoding];
-    
-    // encrypt the hex encoded input data
-    NSData * outputData = [self aesEncryptData:inputData withKey:key];
-    
-    // hex encode the encrypted data
-    NSString *hexret = [self hexEncode:outputData];
-    
-    return hexret;
+    return output;
 }
 
 

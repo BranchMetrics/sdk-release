@@ -67,7 +67,7 @@
     
     // create ad view
     TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"main_menu"];
+    [interstitial cacheForPlacement:@"place1"];
     
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
 }
@@ -99,7 +99,7 @@
     
     // create ad view
     TuneBanner *banner = [TuneBanner adViewWithDelegate:self];
-    [banner showForPlacement:@"main_menu"];
+    [banner showForPlacement:@"place1"];
     
     // add the banner view to a dummy window, to allow banner functioning
     UIWindow *tempWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 768, 1024 )];
@@ -140,7 +140,7 @@
     
     // create ad view
     TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"abcd" adMetadata:req];
+    [interstitial cacheForPlacement:@"place1" adMetadata:req];
     
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
     
@@ -150,7 +150,7 @@
     
     // create ad view
     TuneBanner *banner = [TuneBanner adViewWithDelegate:self];
-    [banner showForPlacement:@"abcd" adMetadata:req];
+    [banner showForPlacement:@"place1" adMetadata:req];
     
     // add the banner view to a dummy window, to allow banner functioning
     UIWindow *tempWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 768, 1024 )];
@@ -188,7 +188,7 @@
     [req setCustomTargets:@{@"gender":@"male",@"dummyParam":@"dummyValue"}];
     
     // Interstitial
-    expectedTuneAdError = TuneAdErrorNoMatchingSites;
+    expectedTuneAdError = TuneAdErrorNoMatchingAds;
     completionExpectation = [self expectationWithDescription:@"interstitial no matching ad error test"];
     
     // create ad view
@@ -198,7 +198,7 @@
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
     
     // Banner
-    expectedTuneAdError = TuneAdErrorNoMatchingSites;
+    expectedTuneAdError = TuneAdErrorNoMatchingAds;
     completionExpectation = [self expectationWithDescription:@"banner no matching ad error test"];
     
     // create ad view
@@ -239,7 +239,7 @@
     
     // create ad view
     TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"main_menu"];
+    [interstitial cacheForPlacement:@"place1"];
     
     [self waitForExpectationsWithTimeout:60.0 handler:nil];
     
@@ -249,7 +249,7 @@
     
     // create ad view
     TuneBanner *banner = [TuneBanner adViewWithDelegate:self];
-    [banner showForPlacement:@"main_menu"];
+    [banner showForPlacement:@"place1"];
     
     // add the banner view to a dummy window, to allow banner functioning
     UIWindow *tempWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 768, 1024 )];
@@ -285,7 +285,7 @@
     
     // create ad view
     TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"main_menu"];
+    [interstitial cacheForPlacement:@"place1"];
     
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
     
@@ -295,7 +295,7 @@
     
     // create ad view
     TuneBanner *banner = [TuneBanner adViewWithDelegate:self];
-    [banner showForPlacement:@"main_menu"];
+    [banner showForPlacement:@"place1"];
     
     // add the banner view to a dummy window, to allow banner functioning
     UIWindow *tempWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 768, 1024 )];
@@ -334,7 +334,7 @@
     
     // create ad view
     TuneInterstitial *interstitial = [TuneInterstitial adViewWithDelegate:self];
-    [interstitial cacheForPlacement:@"main_menu"];
+    [interstitial cacheForPlacement:@"place1"];
     
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
     
@@ -344,7 +344,7 @@
     
     // create ad view
     TuneBanner *banner = [TuneBanner adViewWithDelegate:self];
-    [banner showForPlacement:@"main_menu"];
+    [banner showForPlacement:@"place1"];
     
     // add the banner view to a dummy window, to allow banner functioning
     UIWindow *tempWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 768, 1024 )];
@@ -370,7 +370,7 @@
 
 - (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
 {
-    NSLog(@"error = %@", error);
+    //NSLog(@"error = %@", error);
     
     XCTAssertEqual(expectedTuneAdError, error.code, @"Unexpected error");
     
@@ -394,7 +394,7 @@
 
 - (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
 {
-    NSLog(@"%@\n%@", url, data);
+    //NSLog(@"%@\n%@", url, data);
 }
 
 @end

@@ -57,6 +57,13 @@
 
 @property (nonatomic, copy) NSNumber *iadAttribution;               // KEY_IAD_ATTRIBUTION
 @property (nonatomic, copy) NSDate *iadImpressionDate;              // KEY_IAD_IMPRESSION_DATE
+@property (nonatomic, copy) NSString *iadCampaignId;                // KEY_IAD_CAMPAIGN_ID
+@property (nonatomic, copy) NSString *iadCampaignName;              // KEY_IAD_CAMPAIGN_NAME
+@property (nonatomic, copy) NSString *iadCampaignOrgName;           // KEY_IAD_CAMPAIGN_ORG_NAME
+@property (nonatomic, copy) NSString *iadLineId;                    // KEY_IAD_LINE_ID
+@property (nonatomic, copy) NSString *iadLineName;                  // KEY_IAD_LINE_NAME
+@property (nonatomic, copy) NSString *iadCreativeId;                // KEY_IAD_CREATIVE_ID
+@property (nonatomic, copy) NSString *iadCreativeName;              // KEY_IAD_CREATIVE_NAME
 
 @property (nonatomic, copy) NSNumber *appAdTracking;                // KEY_APP_AD_TRACKING
 

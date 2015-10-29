@@ -15,6 +15,10 @@
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
 
+#ifdef TUNE_USE_LOCATION
+#import "TuneRegionMonitor.h"
+#endif
+
 #import "Common/TuneEvent_internal.h"
 #import "Common/TuneKeyStrings.h"
 #import "Common/TuneTracker.h"

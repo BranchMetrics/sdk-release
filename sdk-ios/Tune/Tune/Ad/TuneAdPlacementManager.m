@@ -16,18 +16,26 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
 
 @interface TuneAdPlacementManager ()
 {
+    /*!
+     Mutable dictionary that contains one entry for each placement for which an ad request is pending.
+     */
     NSMutableDictionary *pendingPrefetch;
     
+    /*!
+     Mutable array of TuneAd objects.
+     */
+    NSMutableDictionary *adPlacements;
+    
+    /*!
+     Indicates if ad caching is enabled.
+     */
     BOOL cachingAllowed;
+    
+    /*!
+     Timer used to reset ad caching behavior after a low memory condition is encountered.
+     */
+    NSTimer *lowMemoryTimer;
 }
-
-/*!
- Mutable array of TuneAd objects.
- */
-@property (nonatomic, strong) NSMutableDictionary *adPlacements;
-
-- (TuneAdPlacement *)adPlacementForPlacement:(NSString *)placement;
-- (void)removeAdPlacementForPlacement:(NSString *)placement;
 
 @end
 
@@ -47,17 +55,17 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
      requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
   completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler
 {
-    DLog(@"current cache = %@", self.adPlacements.keyEnumerator.allObjects);
+    DLog(@"TAPM: adForAdType: current cache = %@", adPlacements.keyEnumerator.allObjects);
     
     // extract the cached ad for this placement
     TuneAdPlacement *adPlacement = [self adPlacementForPlacement:placement];
     
-    DLog(@"TAPM: existing adplacement for: %@ = %@", placement, adPlacement);
+    DLog(@"TAPM: existing ad placement for: %@ = %@", placement, adPlacement);
     
     // if a cached ad is present
     if(adPlacement)
     {
-        DLog(@"return cached ad for placement = %@", placement);
+        DLog(@"TAPM: return cached ad for placement = %@", placement);
         
         // remove the cached ad for this placement
         [self removeAdPlacementForPlacement:placement];
@@ -77,40 +85,43 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
     }
     else
     {
-        DLog(@"no cached ad for placement = %@, start new download", placement);
+        DLog(@"TAPM: no cached ad for placement = %@, start new download", placement);
+        
+        void(^dhRequestHandler)(NSString *, NSString *) = ^(NSString *url, NSString *data) {
+            DLog(@"TAPM: download helper requestHandler1");
+            if(requestHandler)
+            {
+                requestHandler(url, data);
+            }
+        };
+        
+        void(^dhCompletionHandler)(TuneAd*, NSError*) = ^(TuneAd* adNew, NSError* error) {
+            DLog(@"TAPM: download helper completionHandler1: %p", completionHandler);
+            if(adNew)
+            {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    DLog(@"TAPM: pass2: pre-fetch");
+                    
+                    // initiate ad pre-fetch
+                    [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations requestHandler:requestHandler];
+                });
+            }
+            
+            if(completionHandler)
+            {
+                // send the downloaded ad to the completion handler
+                completionHandler(adNew, error);
+            }
+        };
         
         // initiate an ad download for this new placement
         // and call the appropriate handler when download is complete
         [TuneAdDownloadHelper downloadAdForAdType:adType
-                                     orientations:orientations
                                         placement:placement
-                                       adMetadata:metadata
-                                   requestHandler:^(NSString *url, NSString *data) {
-                                       if(requestHandler)
-                                       {
-                                           requestHandler(url, data);
-                                       }
-                                   }
-                                completionHandler:^(TuneAd *adNew, NSError *error) {
-                                   
-                                    DLog(@"TAPM: ad download finished");
-                                    
-                                    if(adNew)
-                                    {
-                                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                                            DLog(@"TAPM: pass2: pre-fetch");
-                                            
-                                            // initiate ad pre-fetch
-                                            [self prefetchAdForAdType:adType placement:placement metadata:metadata orientations:orientations requestHandler:requestHandler];
-                                        });
-                                    }
-                                    
-                                    if(completionHandler)
-                                    {
-                                        // send the downloaded ad to the completion handler
-                                        completionHandler(adNew, error);
-                                    }
-                                }];
+                                         metadata:metadata
+                                     orientations:orientations
+                                   requestHandler:dhRequestHandler
+                                completionHandler:dhCompletionHandler];
     }
 }
 
@@ -122,44 +133,60 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
 {
     @synchronized(pendingPrefetch)
     {
+        DLog(@"TAPM: pre-fetch: caching allowed = %d, current cache = %@", cachingAllowed, adPlacements);
+        
         // pre-fetch an ad if the cache is empty
-        TuneAdPlacement *cachedAdPlacement = self.adPlacements[placement];
+        TuneAdPlacement *cachedAdPlacement = adPlacements[placement];
         if(cachingAllowed && !cachedAdPlacement && !pendingPrefetch[placement])
         {
-            DLog(@"pre-fetch ad for placement = %@", placement);
+            DLog(@"TAPM: pre-fetch: ad for placement = %@", placement);
             
             static NSString *strPrefetchPending = @"pre-fetch pending";
-            pendingPrefetch[placement] = strPrefetchPending;
             
-            // initiate an ad pre-fetch for this placement,
-            // but do not call the parent completion handlers
+            @synchronized(pendingPrefetch)
+            {
+                pendingPrefetch[placement] = strPrefetchPending;
+            }
+            
+            // handle request-fired callback from download helper
+            void(^dhRequestHandler)(NSString *, NSString *) = ^(NSString *url, NSString *data) {
+                DLog(@"TAPM: download helper requestHandler2");
+                if(requestHandler)
+                {
+                    requestHandler(url, data);
+                }
+            };
+            
+            // handle request-completed callback from download helper
+            void(^dhCompletionHandler)(TuneAd*, NSError*) = ^(TuneAd* adNew, NSError* error) {
+                DLog(@"TAPM: download helper completionHandler2: adNew = %p", adNew);
+                if(adNew)
+                {
+                    // cache the downloaded ad
+                    [self cacheAd:adNew forPlacement:placement metadata:metadata];
+                }
+                
+                @synchronized(pendingPrefetch)
+                {
+                    if(placement)
+                    {
+                        [pendingPrefetch removeObjectForKey:placement];
+                    }
+                }
+            };
+            
+            // pre-fetch and cache an ad but do not call the caller's completion handler
             [TuneAdDownloadHelper downloadAdForAdType:adType
-                                         orientations:orientations
                                             placement:placement
-                                           adMetadata:metadata
-                                       requestHandler:^(NSString *url, NSString *data) {
-                                           if(requestHandler)
-                                           {
-                                               requestHandler(url, data);
-                                           }
-                                       }
-                                    completionHandler:^(TuneAd *adNew, NSError *error) {
-
-                                        if(adNew)
-                                        {
-                                            // cache the downloded ad
-                                            [self cacheAd:adNew forPlacement:placement metadata:metadata];
-                                        }
-                                        
-                                        @synchronized(pendingPrefetch)
-                                        {
-                                            [pendingPrefetch setValue:nil forKey:placement];
-                                        }
-                                    }];
+                                             metadata:metadata
+                                         orientations:orientations
+                                       requestHandler:dhRequestHandler
+                                    completionHandler:dhCompletionHandler];
         }
         else
         {
-            DLog(@"skip pre-fetch for placement = %@, caching disabled = %d, cache ready = %d, request pending = %d", placement, !cachingAllowed, nil != cachedAdPlacement, nil != pendingPrefetch[placement]);
+            DLog(@"TAPM: skip pre-fetch for placement = %@, caching allowed = %d, cache ready = %d, request pending = %d", placement, cachingAllowed, nil != cachedAdPlacement, nil != pendingPrefetch[placement]);
+            DLog(@"TAPM: pendingPrefetch[placement] = %@", pendingPrefetch);
         }
     }
 }
@@ -168,7 +195,7 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
 {
     self = [super init];
     if (self) {
-        _adPlacements = [NSMutableDictionary dictionary];
+        adPlacements = [NSMutableDictionary dictionary];
         pendingPrefetch = [NSMutableDictionary dictionary];
         cachingAllowed = YES;
         
@@ -182,45 +209,44 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
 
 - (void)cacheAd:(TuneAd *)ad forPlacement:(NSString *)placement metadata:(TuneAdMetadata *)metadata
 {
-    TuneAdPlacement *pl = self.adPlacements[placement];
-    
     // create a new placement
-    pl = [TuneAdPlacement adPlacementWithPlacement:placement metadata:metadata];
+    TuneAdPlacement *pl = [TuneAdPlacement adPlacementWithPlacement:placement metadata:metadata];
     pl.ad = ad;
     
     // create an entry in dictionary for this new placement
-    self.adPlacements[placement] = pl;
+    adPlacements[placement] = pl;
     
-    DLog(@"new cache = %@", self.adPlacements.keyEnumerator.allObjects);
+    DLog(@"TAPM: new cache = %@", adPlacements.keyEnumerator.allObjects);
 }
 
 - (TuneAdPlacement *)adPlacementForPlacement:(NSString *)placement
 {
-    return self.adPlacements[placement];
+    return adPlacements[placement];
 }
 
 - (void)removeAdPlacementForPlacement:(NSString *)placement
 {
     DLog(@"removeAdPlacementForPlacement: %@", placement);
     
-    [self.adPlacements removeObjectForKey:placement];
+    [adPlacements removeObjectForKey:placement];
 }
 
 - (void)handleLowMemoryWarning:(NSNotification *)notification
 {
     // the app has received a low memory warning, try to free up some space
     
-    DLog(@"low memory warning: purge cache and disable caching for %f seconds", TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY);
-    
+    DLog(@"TAPM: low memory warning: purge cache and disable caching for %f seconds", TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY);
+    DLog(@"TAPM: low memory warning: before purge: storage: %@", adPlacements);
     // purge the cache to free up memory
-    [self.adPlacements removeAllObjects];
-    
+    [adPlacements removeAllObjects];
+    DLog(@"TAPM: low memory warning: after purge: storage: %@", adPlacements);
     // disable caching for a few minutes to help resolve the low memory condition
     cachingAllowed = NO;
-    [NSTimer scheduledTimerWithTimeInterval:TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY target:self selector:@selector(lowMemoryResponseTimerFired) userInfo:nil repeats:NO];
+    [lowMemoryTimer invalidate];
+    lowMemoryTimer = [NSTimer scheduledTimerWithTimeInterval:TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY target:self selector:@selector(lowMemoryWarningResetTimerFired) userInfo:nil repeats:NO];
 }
 
-- (void)lowMemoryResponseTimerFired
+- (void)lowMemoryWarningResetTimerFired
 {
     cachingAllowed = YES;
 }
@@ -228,6 +254,12 @@ static const NSTimeInterval TUNE_AD_DURATION_DISABLE_CACHING_FOR_LOW_MEMORY = 60
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    if(lowMemoryTimer)
+    {
+        [lowMemoryTimer invalidate];
+        lowMemoryTimer = nil;
+    }
 }
 
 @end

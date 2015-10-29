@@ -43,22 +43,20 @@ static NSDictionary *dictErrorCodes;
 @interface TuneAdDownloadHelper() <NSURLConnectionDelegate>
 {
     NSMutableData *responseData;
-    NSURLConnection *connection;
-    
-    NSString *requestUrl;
-    NSString *requestData;
     
     // the retry count of ad download network requests due to failed requests
     NSUInteger retryCount;
-    
-    // retry timer
-    NSTimer *retryTimer;
-    
-    NSString *placement;
-    TuneAdMetadata *metadata;
-    TuneAdType adType;
-    TuneAdOrientation orientations;
 }
+
+@property (nonatomic, strong) NSURLConnection *connection;
+
+@property (nonatomic, copy) NSString *requestUrl;
+@property (nonatomic, copy) NSString *requestData;
+
+@property (nonatomic, copy) NSString *placement;
+@property (nonatomic, strong) TuneAdMetadata *metadata;
+@property (nonatomic, assign) TuneAdType adType;
+@property (nonatomic, assign) TuneAdOrientation orientations;
 
 @property (nonatomic, copy) void (^requestHandler) (NSString *url, NSString *data);
 @property (nonatomic, copy) void (^responseCompletionHandler) (TuneAd *ad, NSError *error);
@@ -74,6 +72,7 @@ static NSDictionary *dictErrorCodes;
 {
     dictErrorCodes = @{
                        TUNE_AD_KEY_TuneAdServerErrorNoMatchingAdGroups   : @(TuneAdErrorNoMatchingAds),
+                       TUNE_AD_KEY_TuneAdServerErrorNoMatchingPlacement  : @(TuneAdErrorNoMatchingAds),
                        TUNE_AD_KEY_TuneAdServerErrorNoSuitableAds        : @(TuneAdErrorNoMatchingAds),
                        TUNE_AD_KEY_TuneAdServerErrorNoMatchingSites      : @(TuneAdErrorNoMatchingSites),
                        TUNE_AD_KEY_TuneAdServerErrorUnknownAdvertiser    : @(TuneAdErrorUnknownAdvertiser)
@@ -89,12 +88,12 @@ static NSDictionary *dictErrorCodes;
 {
     self = [super init];
     if (self) {
-        adType = ty;
-        metadata = met;
-        placement = pl;
-        orientations = or;
-        _requestHandler = rh;
-        _responseCompletionHandler = ch;
+        _adType = ty;
+        _metadata = [met copy];
+        _placement = [pl copy];
+        _orientations = or;
+        _requestHandler = [rh copy];
+        _responseCompletionHandler = [ch copy];
     }
     return self;
 }
@@ -106,42 +105,45 @@ static NSDictionary *dictErrorCodes;
  */
 - (void)fireUrl:(NSString *)urlString withData:(NSString *)strData
 {
+    DLog(@"TADH: fireUrl:withData:");
     [self cancel];
     
-    requestUrl = [NSString stringWithString:urlString];
-    requestData = [NSString stringWithString:strData];
+    self.requestUrl = urlString;
+    self.requestData = strData;
     
     [self fireUrl];
     
-    [delegate downloadStartedForAdWithUrl:requestUrl data:requestData];
+    [delegate downloadStartedForAdWithUrl:self.requestUrl data:self.requestData];
 }
 
 - (void)fireUrl
 {
+    DLog(@"TADH: fireUrl");
+    
     responseData = [NSMutableData data];
     
-    NSURL *url = [NSURL URLWithString:requestUrl];
+    NSURL *url = [NSURL URLWithString:self.requestUrl];
+    NSData *postData = [self.requestData dataUsingEncoding:NSUTF8StringEncoding];
+    
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-
     [request setHTTPMethod:TUNE_HTTP_METHOD_POST];
     [request setValue:TUNE_HTTP_CONTENT_TYPE_APPLICATION_JSON forHTTPHeaderField:TUNE_HTTP_CONTENT_TYPE];
-    
-    NSData *postData = [requestData dataUsingEncoding:NSUTF8StringEncoding];
     [request setHTTPBody:postData];
     [request setValue:[@(postData.length) stringValue] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
     
-    //DLLog(@"url: %@, data: %@", url, requestData);
+    self.connection = [NSURLConnection connectionWithRequest:request
+                                                    delegate:self];
     
-    connection = [NSURLConnection connectionWithRequest:request
-                                               delegate:self];
+    DLog(@"TADH: fireUrl: connection = %p", self.connection);
 }
 
 - (void)cancel
 {
-    if (connection)
+    if (self.connection)
     {
-        [connection cancel];
-        connection = nil;
+        DLog(@"TADH: canceling connection: %p, fetchAdInProgress = %d", self.connection, self.fetchAdInProgress);
+        [self.connection cancel];
+        self.connection = nil;
     }
 }
 
@@ -149,45 +151,48 @@ static NSDictionary *dictErrorCodes;
 
 - (void)connection:(NSURLConnection *)conn didFailWithError:(NSError *)error
 {
-    DLLog(@"error = %@", error);
+    DLog(@"TADH: conn failed: error = %@", error);
     
     self.fetchAdInProgress = NO;
     
-    [connection cancel];
-    connection = nil;
+    [self.connection cancel];
+    self.connection = nil;
     
     NSError *networkError = [NSError errorWithDomain:error.domain code:error.code userInfo:error.userInfo];
     
-    if(TuneAdTypeInterstitial == adType)
+    if(TuneAdTypeInterstitial == self.adType)
     {
         [self retryAdDownload:networkError];
     }
     else
     {
-        DLLog(@"TADH: conn failed: calling error handler: %@", self.responseCompletionHandler);
+        DLog(@"TADH: conn failed: calling error handler: %@", self.responseCompletionHandler);
         
         if(self.responseCompletionHandler)
         {
             self.responseCompletionHandler(nil, networkError);
-            DLLog(@"TADH: conn failed: finished error handler");
+            DLog(@"TADH: conn failed: finished error handler");
         }
+        
         [delegate downloadFailedWithError:networkError];
     }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    DLLog(@"DownloadHelper: didReceiveData: %@", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding]);
+    DLog(@"TADH: didReceiveData");
+    DLLog(@"TADH: didReceiveData: %@", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding]);
     
     [responseData appendData:data];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    DLLog(@"response = %@", [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding]);
-    //DLLog(@"delegate = %@", delegate);
+    DLog(@"TADH: conn finished");
+    //DLog(@"TADH: conn finished: response = %@", [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding]);
+    //DLog(@"TADH: delegate = %@", delegate);
     
-    fetchAdInProgress = NO;
+    self.fetchAdInProgress = NO;
     
     // extract the json object from the downloaded data
     NSError *error;
@@ -195,10 +200,10 @@ static NSDictionary *dictErrorCodes;
                                                          options:NSJSONReadingMutableContainers
                                                            error:&error];
     
-    //DLLog(@"dict = %@", dict);
+    DLog(@"TADH: conn finished: dict = %p", dict);
     
     // create a new ad object by parsing the json string
-    TuneAd* ad = [TuneAd ad:adType placement:placement metadata:metadata orientations:orientations fromDictionary:dict];
+    TuneAd* ad = [TuneAd ad:self.adType placement:self.placement metadata:self.metadata orientations:self.orientations fromDictionary:dict];
     
 #if DUMMY_ADS_IF_NOT_AVAILABLE
     
@@ -251,10 +256,12 @@ static NSDictionary *dictErrorCodes;
     }
 #endif
     
+    DLog(@"TADH: conn finished: ad = %p", ad);
+    
     // if next ad was successfully downloaded
     if(ad)
     {
-        DLog(@"ad successfully downloaded");
+        DLog(@"TADH: conn finished: ad successfully downloaded: calling completion handler: %p", self.responseCompletionHandler);
         
         retryCount = 0;
         
@@ -262,6 +269,7 @@ static NSDictionary *dictErrorCodes;
         {
             self.responseCompletionHandler(ad, nil);
         }
+        
         [delegate downloadFinishedWithAd:ad];
     }
     else if(dict && dict[TUNE_AD_KEY_ERROR])
@@ -277,20 +285,20 @@ static NSDictionary *dictErrorCodes;
 
         // when debug mode is enabled, include the full error description
         TuneSettings *tuneParams = [[Tune sharedManager] parameters];
-        BOOL isDebug = metadata ? metadata.debugMode : tuneParams.debugMode.boolValue;
-        NSString *msgDescr = isDebug ? [NSString stringWithFormat:@"%@", dict] : msg;
+        BOOL isDebug = self.metadata ? self.metadata.debugMode : tuneParams.debugMode.boolValue;
+        NSString *msgDescr = isDebug ? dict.description : msg;
         [errorDetails setValue:msgDescr forKey:NSLocalizedDescriptionKey];
         
         NSError *serverError = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:errCode userInfo:errorDetails];
-        
         
         if(self.responseCompletionHandler)
         {
             self.responseCompletionHandler(nil, serverError);
         }
+        
         [delegate downloadFailedWithError:serverError];
         
-        DLLog(@"server error = %@", error);
+        DLog(@"TADH: server error = %@", error);
         
         // Note: the request will not be retried
     }
@@ -302,9 +310,10 @@ static NSDictionary *dictErrorCodes;
         
         NSError *unknownError = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:TuneAdErrorUnknown userInfo:errorDetails];
         
-        if(TuneAdTypeInterstitial == adType)
+        // only retry interstitial ad download, banner download will be auto retried at the next ad refresh cycyle
+        if(TuneAdTypeInterstitial == self.adType)
         {
-            DLLog(@"calling retry");
+            DLog(@"TADH: calling retry");
             
             [self retryAdDownload:unknownError];
         }
@@ -341,38 +350,35 @@ static NSDictionary *dictErrorCodes;
 
 - (void)dealloc
 {
-    // empty
+    DLog(@"TADH: dealloc: self = %@", self);
+    
+    [self cancel];
 }
 
 #pragma mark - Fetch Ad Web Request
 
-- (BOOL)fetchAd
+- (void)fetchAd
 {
-    DLog(@"fetchAd: network reachable = %d", [TuneUtils isNetworkReachable]);
+    DLog(@"TADH: fetchAd: network reachable = %d", [TuneUtils isNetworkReachable]);
     
     // cancel any existing ad fetch request
     [self cancel];
     
-    // continue with the request if the network is reachable
-    BOOL reachable = [TuneUtils isNetworkReachable];
-    if(reachable)
+    self.fetchAdInProgress = YES;
+    
+    // construct the request json post data
+    NSString *adRequestData = [TuneAdParams jsonForAdType:self.adType placement:self.placement metadata:self.metadata orientations:self.orientations];
+    
+    // fire the request
+    NSString *adUrl = [TuneAdUtils tuneAdServerUrl:self.adType];
+    [self fireUrl:adUrl withData:adRequestData];
+    
+    if(self.requestHandler)
     {
-        fetchAdInProgress = YES;
-        
-        // construct the request json post data
-        NSString *adRequestData = [TuneAdParams jsonForAdType:adType placement:placement metadata:metadata orientations:orientations];
-        
-        // fire the request
-        NSString *adUrl = [TuneAdUtils tuneAdServerUrl:adType];
-        [self fireUrl:adUrl withData:adRequestData];
-        
-        if(self.requestHandler)
-        {
-            self.requestHandler(adUrl, adRequestData);
-        }
+        self.requestHandler(adUrl, adRequestData);
     }
     
-    return reachable;
+    [delegate downloadStartedForAdWithUrl:adUrl data:adRequestData];
 }
 
 #pragma mark - Network Request Retry Methods
@@ -382,18 +388,18 @@ static NSDictionary *dictErrorCodes;
  */
 - (void)retryAdDownload:(NSError *)error
 {
-    DLLog(@"retryCount = %ld", (long)retryCount);
+    DLog(@"TADH: retryCount = %td", retryCount);
     
     // do not fire a new request if the max retry count has been reached
     if(retryCount < TUNE_AD_MAX_AD_DOWNLOAD_RETRY_COUNT)
     {
-        DLLog(@"retry: network reachable = %d", [TuneUtils isNetworkReachable]);
-        
-        BOOL fired = [self fetchAd];
+        DLog(@"TADH: retry: network reachable = %d", [TuneUtils isNetworkReachable]);
         
         // if network is reachable
-        if(fired)
+        if([TuneUtils isNetworkReachable])
         {
+            [self fetchAd];
+            
             // increment the retry count by 1
             ++retryCount;
         }
@@ -406,27 +412,31 @@ static NSDictionary *dictErrorCodes;
             [errorDetails setValue:@"The network is currently unreachable." forKey:NSLocalizedDescriptionKey];
             NSError *unreachableError = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:TuneAdErrorNetworkNotReachable userInfo:errorDetails];
             
-            [delegate downloadFailedWithError:unreachableError];
             if(self.completionHandler)
             {
                 self.completionHandler(nil, unreachableError);
             }
+            
+            [delegate downloadFailedWithError:unreachableError];
         }
     }
     else
     {
-        DLLog(@"retryAdDownload max retries consumed: finished retries");
+        DLog(@"TADH: retryAdDownload max retries consumed: finished retries");
         
-        [delegate downloadFailedWithError:error];
         if(self.completionHandler)
         {
             self.completionHandler(nil, error);
         }
+        
+        [delegate downloadFailedWithError:error];
     }
 }
 
 - (void)reset
 {
+    DLog(@"TADH: reset");
+    
     [self cancel];
     
     fetchAdInProgress = NO;
@@ -435,17 +445,18 @@ static NSDictionary *dictErrorCodes;
 }
 
 + (void)downloadAdForAdType:(TuneAdType)ty
-               orientations:(TuneAdOrientation)ori
                   placement:(NSString *)pl
-                 adMetadata:(TuneAdMetadata *)met
+                   metadata:(TuneAdMetadata *)met
+               orientations:(TuneAdOrientation)ori
              requestHandler:(void (^)(NSString *url, NSString *data))rh
           completionHandler:(void (^)(TuneAd *ad, NSError *error))ch
 {
-    DLLog(@"TADH: downloadAdForAdType: ch = %@, rh = %@", ch, rh);
+    DLog(@"TADH: downloadAdForAdType: ch = %@, rh = %@, network reachable = %d", ch, rh, [TuneUtils isNetworkReachable]);
     
     if([TuneUtils isNetworkReachable])
     {
         TuneAdDownloadHelper *dh = [[TuneAdDownloadHelper alloc] initWithAdType:ty placement:pl metadata:met orientations:ori requestHandler:rh completionHandler:ch];
+        DLog(@"TADH: downloadAdForAdType: dh = %@", dh);
         [dh fetchAd];
     }
     else

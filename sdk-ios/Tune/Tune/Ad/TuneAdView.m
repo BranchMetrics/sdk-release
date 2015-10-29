@@ -113,52 +113,62 @@
     
     DLog(@"requesting ad for placement = %@", placement);
     
+    // handle request-fired callback from placement manager
+    void(^requestHandler)(NSString *, NSString *) = ^(NSString *url, NSString *data) {
+        DLog(@"TuneAdView: getNextAd: placement manager requestHandler");
+        
+        [self notifyAdRequestWithUrl:url data:data];
+    };
+    
+    // handle request-fired callback from placement manager
+    void(^completionHandler)(TuneAd*, NSError*) = ^(TuneAd* ad, NSError* error) {
+        DLog(@"TuneAdView: getNextAd: placement manager completionHandler");
+        
+        if(ad)
+        {
+            waitingForAd = NO;
+            
+            DLog(@"adview: pl mgr: completionHandler: adNext set");
+            
+            adNext = ad;
+            
+            DLog(@"adview: pl mgr: completionHandler: preload ad in webview");
+            
+            // preload ad in the next available webview
+            [self preloadAd:ad];
+        }
+        else
+        {
+            DLog(@"adview: pl mgr: error = %@", error);
+            
+            waitingForAd = NO;
+            
+            // TODO: consider if special handling of network error is required
+            // TODO: check if this is a network error
+            BOOL isNetworkError = NO;
+            
+            if(isNetworkError)
+            {
+                // in case of interstitial ads, let the delegate know that the network is currently unreachable
+                
+                NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
+                [errorDetails setValue:TUNE_AD_KEY_TuneAdErrorNetworkNotReachable forKey:NSLocalizedFailureReasonErrorKey];
+                [errorDetails setValue:@"The network is currently unreachable." forKey:NSLocalizedDescriptionKey];
+                
+                error = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:TuneAdErrorNetworkNotReachable userInfo:errorDetails];
+            }
+            
+            [self notifyFailedWithError:error];
+        }
+    };
+    
+    // request a new ad from the placement manager
     [pm adForAdType:adType
           placement:placement
            metadata:metadata
        orientations:self.adOrientations
-     requestHandler:^(NSString *url, NSString *data) {
-         [self notifyAdRequestWithUrl:url data:data];
-     }
-  completionHandler:^(TuneAd *ad, NSError *error) {
-      
-      if(ad)
-      {
-          waitingForAd = NO;
-          
-          DLog(@"adview: pl mgr: completionHandler: adNext set");
-          
-          adNext = ad;
-          
-          DLog(@"adview: pl mgr: completionHandler: preload ad in webview");
-          
-          // preload in the next available webview
-          [self preloadAd:ad];
-      }
-      else
-      {
-          DLog(@"adview: pl mgr: error = %@", error);
-          
-          waitingForAd = NO;
-          
-          // TODO: consider if special handling of network error is required
-          // TODO: check if this is a network error
-          BOOL isNetworkError = NO;
-          
-          if(isNetworkError)
-          {
-              // in case of interstitial ads, let the delegate know that the network is currently unreachable
-              
-              NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
-              [errorDetails setValue:TUNE_AD_KEY_TuneAdErrorNetworkNotReachable forKey:NSLocalizedFailureReasonErrorKey];
-              [errorDetails setValue:@"The network is currently unreachable." forKey:NSLocalizedDescriptionKey];
-              
-              error = [NSError errorWithDomain:TUNE_AD_KEY_TuneAdErrorDomain code:TuneAdErrorNetworkNotReachable userInfo:errorDetails];
-          }
-          
-          [self notifyFailedWithError:error];
-      }
-  }];
+     requestHandler:requestHandler
+  completionHandler:completionHandler];
 }
 
 
@@ -201,7 +211,6 @@
 
 - (void)clearWebview:(UIWebView *)webview
 {
-    DLog(@"clearWebview: %d", webview1 == webview ? 1 : 2);
     [webview loadHTMLString:TUNE_STRING_EMPTY baseURL:nil];
 }
 
@@ -213,7 +222,7 @@
     // find out the webview that's currently not visible
     UIWebView *nextWebView = 1 == viewIndex ? webview2 : webview1;
     
-    DLog(@"preloadAd: webview = %d, adNext.html.length = %d", 1 == viewIndex ? 2 : 1, (int)ad.html.length);
+    DLog(@"TuneAdView preloadAd: webview = %d, adNext.html.length = %d", 1 == viewIndex ? 2 : 1, (int)ad.html.length);
     
 #if DEBUG
     if([ad.html length] == 0)
@@ -224,8 +233,6 @@
     
     // load the next ad in the currently invisible webview
     [nextWebView loadHTMLString:ad.html baseURL:nil];
-    
-    DLog(@"preloadAd: appStoreVisible = %d", appStoreVisible);
 }
 
 
@@ -282,7 +289,7 @@
 {
     BOOL openedExternally = NO;
     
-    DLog(@"appStoreVisible = %d", appStoreVisible);
+    DRLog(@"handleAdClickWithUrl: appStoreVisible = %d", appStoreVisible);
     
     // when app store is already visible, ignore webview click action
     if(!appStoreVisible)
@@ -387,8 +394,6 @@
     NSNumber *numOrientation = notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey];
     UIInterfaceOrientation orientation = numOrientation.intValue;
     
-    DLog(@"new status bar orientation = %d", (int)orientation);
-    
     // update view size depending on current interface orientation
     [self updateWebViewFrameForOrientation:orientation];
 }
@@ -396,22 +401,16 @@
 - (void)handleNetworkChange:(NSNotification *)notice
 {
     // empty placeholder implementation
-    
-    DLog(@"TuneAdView: handleNetworkChange:");
 }
 
 - (void)handleAppBecameActive:(NSNotification *)notice
 {
     // empty placeholder implementation
-    
-    DLog(@"TuneAdView: handleAppBecameActive:");
 }
 
 - (void)handleAppWillResignActive:(NSNotification *)notice
 {
     // empty placeholder implementation
-    
-    DLog(@"TuneAdView: handleAppWillResignActive:");
 }
 
 
@@ -419,8 +418,18 @@
 
 - (void)dealloc
 {
+    [self dismissActivityOverlay];
+    
+    webview1.delegate = nil;
+    webview2.delegate = nil;
+    
     // now that the TuneAdView object is being released,
     // remove all notification observers
+    [webview1 stopLoading];
+    [webview2 stopLoading];
+
+    webview1 = nil;
+    webview2 = nil;
     
     [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
     
@@ -445,8 +454,6 @@
 
 - (void)notifyDidFetchAd:(NSString *)placement
 {
-    DLog(@"TuneAdView: notifyDidFetchAd: %@", placement);
-    
     _ready = YES;
     
     [self.delegate tuneAdDidFetchAdForView:self placement:placement];
@@ -478,8 +485,6 @@
 
 - (void)notifyFailedWithError:(NSError *)error
 {
-    DLog(@"TuneAdView: notifyFailedWithError: %@", error);
-    
     _ready = NO;
     
     if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidFailWithError:forView:)])
@@ -490,7 +495,6 @@
 
 - (void)notifyAdRequestWithUrl:(NSString *)url data:(NSString *)data
 {
-    DLog(@"TuneAdView: notifyAdRequestWithUrl: %@", url);
     if(self.delegate && [self.delegate respondsToSelector:@selector(tuneAdDidFireRequestWithUrl:data:forView:)])
     {
         [self.delegate tuneAdDidFireRequestWithUrl:url data:data forView:self];

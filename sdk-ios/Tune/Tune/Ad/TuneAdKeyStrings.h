@@ -13,6 +13,7 @@ FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdErrorNetworkNotReachable;
 FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdErrorInvalidPlacement;
 
 FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingAdGroups;
+FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingPlacement;
 FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdServerErrorNoMatchingSites;
 FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSpecifiedSizes;
 FOUNDATION_EXPORT NSString * const TUNE_AD_KEY_TuneAdServerErrorNoSuitableAds;

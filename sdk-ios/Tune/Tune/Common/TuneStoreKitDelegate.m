@@ -214,7 +214,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
     float revenue = quantity * unitPrice;
     
     // if the product info is not available, then use the product id as the event item name
-    NSString *productTitle = product.localizedTitle ? product.localizedTitle : transaction.payment.productIdentifier;
+    NSString *productTitle = product.localizedTitle ?: transaction.payment.productIdentifier;
     
     // create the event item, unitPrice and revenue will be zero if the product info download fails
     TuneEventItem *eventItem = [TuneEventItem eventItemWithName:productTitle unitPrice:unitPrice quantity:quantity revenue:revenue];
@@ -225,6 +225,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
     event.receipt = receipt;
     event.eventItems = @[eventItem];
     event.transactionState = transaction.transactionState;
+    event.date1 = transaction.transactionDate;
     [Tune measureEvent:event];
 }
 

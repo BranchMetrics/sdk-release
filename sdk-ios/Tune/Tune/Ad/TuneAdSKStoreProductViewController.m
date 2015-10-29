@@ -15,7 +15,7 @@
 
 @implementation TuneAdSKStoreProductViewController
 
-- (NSUInteger)supportedInterfaceOrientations
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
     return supportedOrientations();
 }

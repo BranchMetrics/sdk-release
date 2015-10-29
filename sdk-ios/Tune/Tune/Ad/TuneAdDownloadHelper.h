@@ -21,6 +21,7 @@
 
 @protocol TuneAdDownloadHelperDelegate;
 
+
 /*!
  Downloads ads from server.
  */
@@ -34,22 +35,26 @@
 @property (nonatomic, assign) BOOL fetchAdInProgress;
 
 /*!
- Initialize download helper for a TuneAdView
+ Initialize an instance of ad download helper.
+ @param adType type of ad
+ @param placement name of the ad view placement
+ @param metadata metadata to be included in the ad download network request 
+ @param orientations device orientations to be supported
+ @param requestHandler block to be executed when a download network request is fired, contains url and data
+ @param completionHandler block to be executed on completion of the download request, includes a new ad or an error
+ @return an initialized instance of ad download helper
  */
-//- (instancetype)initWithAdView:(TuneAdView *)tuneAdView;
-
-- (instancetype)initWithAdType:(TuneAdType)ty
-                     placement:(NSString *)pl
-                      metadata:(TuneAdMetadata *)met
-                  orientations:(TuneAdOrientation)ori
-                requestHandler:(void (^)(NSString *url, NSString *data))rh
-             completionHandler:(void (^)(TuneAd *ad, NSError *error))ch;
+- (instancetype)initWithAdType:(TuneAdType)adType
+                     placement:(NSString *)placement
+                      metadata:(TuneAdMetadata *)metadata
+                  orientations:(TuneAdOrientation)orientations
+                requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
+             completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler;
 
 /*!
- If network is reachable, then fires a request to fetch a new ad from the ad server.
- @return TRUE if the request was fired, NO otherwise
+ Fires a request to fetch a new ad from the ad server. This method should be called only if the network is reachable.
  */
-- (BOOL)fetchAd;
+- (void)fetchAd;
 
 /*!
  Cancel the currently active network request.
@@ -64,16 +69,16 @@
 /*!
  Downloads an ad from the Tune ad server.
  @param adType type of ad
- @param orientations supported orientations
  @param placement placement string
  @param metadata ad metadata
+ @param orientations supported orientations
  @param requestHandler block of code to execute when an ad download request is fired
  @param completionHandler block of code to execute when the download is finishes
  */
 + (void)downloadAdForAdType:(TuneAdType)adType
-               orientations:(TuneAdOrientation)orientations
                   placement:(NSString *)placement
-                 adMetadata:(TuneAdMetadata *)metadata
+                   metadata:(TuneAdMetadata *)metadata
+               orientations:(TuneAdOrientation)orientations
              requestHandler:(void (^)(NSString *url, NSString *data))requestHandler
           completionHandler:(void (^)(TuneAd *ad, NSError *error))completionHandler;
 
