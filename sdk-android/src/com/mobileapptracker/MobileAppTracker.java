@@ -1134,6 +1134,16 @@ public class MobileAppTracker {
     }
 
     /**
+     * Set referral url (deeplink)
+     * @param url deeplink with which app was invoked
+     */
+    public void setReferralUrl(final String url) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setReferralUrl(url);
+        }});
+    }
+
+    /**
      * Sets the TUNE site ID to specify which app to attribute to
      * @param siteId TUNE site ID to attribute to
      */

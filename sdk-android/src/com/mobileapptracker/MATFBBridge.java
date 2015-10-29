@@ -116,34 +116,75 @@ class MATFBBridge {
     private static boolean justActivated = false;
     
     public static void startLogger(Context context, boolean limitEventAndDataUsage) {
+        // Check for Facebook SDK version to determine API calls
+        String sdkVersion = getFbSdkVersion();
+        startLoggerForVersion(sdkVersion, context, limitEventAndDataUsage);
+    }
+    
+    private static String getFbSdkVersion() {
+        // Try to invoke 4.x SDK via reflection
         try {
-            Class<?>[] activateMethodParams = new Class[1];
-            activateMethodParams[0] = Context.class;
-            
-            Class<?>[] limitMethodParams = new Class[2];
-            limitMethodParams[0] = Context.class;
-            limitMethodParams[1] = boolean.class;
-            
-            // Call the FB AppEventsLogger's activateApp method with Context
-            Method activateMethod = Class.forName("com.facebook.appevents.AppEventsLogger").getMethod("activateApp", activateMethodParams);
-            Object[] activateArgs = new Object[1];
-            activateArgs[0] = context;
-            activateMethod.invoke(null, activateArgs);
-            
-            justActivated = true;
-            
-            // Call FacebookSdk's setLimitEventAndDataUsage method with Context and limitEvent setting
-            Method limitMethod = Class.forName("com.facebook.FacebookSdk").getMethod("setLimitEventAndDataUsage", limitMethodParams);
-            Object[] limitArgs = new Object[2];
-            limitArgs[0] = context;
-            limitArgs[1] = limitEventAndDataUsage;
-            limitMethod.invoke(null, limitArgs);
-            
-            // Call the AppEventsLogger's newLogger method with same Context
-            Method loggerMethod = Class.forName("com.facebook.appevents.AppEventsLogger").getMethod("newLogger", activateMethodParams);
-            logger = loggerMethod.invoke(null, activateArgs);
+            // > 4.0, com.facebook.FacebookSdk -> getSdkVersion()
+            Method sdkVersionMethod = Class.forName("com.facebook.FacebookSdk").getMethod("getSdkVersion");
+            return (String)sdkVersionMethod.invoke(null);
         } catch (Exception e) {
+            // Reflection failed for 4.x, try 3.x
             e.printStackTrace();
+            try {
+                // < 4.0, com.facebook.Settings -> getSdkVersion()
+                Method sdkVersionMethod = Class.forName("com.facebook.Settings").getMethod("getSdkVersion");
+                return (String)sdkVersionMethod.invoke(null);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        return "";
+    }
+    
+    private static void startLoggerForVersion(String sdkVersion, Context context, boolean limitEventAndDataUsage) {
+        // If we were able to determine SDK version, start the logger
+        if (!sdkVersion.isEmpty()) {
+            String appEventsLoggerClassName = "";
+            String setLimitEventAndDataUsageClassName = "";
+            if (sdkVersion.startsWith("4.")) {
+                // 4.x AppEventsLogger class name
+                appEventsLoggerClassName = "com.facebook.appevents.AppEventsLogger";
+                // 4.x setLimitEventAndDataUsage class name
+                setLimitEventAndDataUsageClassName = "com.facebook.FacebookSdk";
+            } else if (sdkVersion.startsWith("3.")) {
+                // 3.x AppEventsLogger class name
+                appEventsLoggerClassName = "com.facebook.AppEventsLogger";
+                // 3.x setLimitEventAndDataUsage class name
+                setLimitEventAndDataUsageClassName = "com.facebook.Settings";
+            } 
+            
+            try {
+                // Call AppEventsLogger's activateApp method with Context
+                Class<?>[] activateMethodParams = new Class[1];
+                activateMethodParams[0] = Context.class;
+                Method activateMethod = Class.forName(appEventsLoggerClassName).getMethod("activateApp", activateMethodParams);
+                Object[] activateArgs = new Object[1];
+                activateArgs[0] = context;
+                activateMethod.invoke(null, activateArgs);
+                
+                justActivated = true;
+                
+                // Call setLimitEventAndDataUsage method with Context and limitEvent setting
+                Class<?>[] limitMethodParams = new Class[2];
+                limitMethodParams[0] = Context.class;
+                limitMethodParams[1] = boolean.class;
+                Method limitMethod = Class.forName(setLimitEventAndDataUsageClassName).getMethod("setLimitEventAndDataUsage", limitMethodParams);
+                Object[] limitArgs = new Object[2];
+                limitArgs[0] = context;
+                limitArgs[1] = limitEventAndDataUsage;
+                limitMethod.invoke(null, limitArgs);
+                
+                // Call AppEventsLogger's newLogger method with same Context
+                Method loggerMethod = Class.forName(appEventsLoggerClassName).getMethod("newLogger", activateMethodParams);
+                logger = loggerMethod.invoke(null, activateArgs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     

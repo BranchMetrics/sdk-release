@@ -248,6 +248,7 @@ public class MATParameters {
 
         public void run() {
             try {
+                Class.forName("android.os.AsyncTask"); // prevents WebView from crashing on certain devices
                 // Create WebView to set user agent, then destroy WebView
                 WebView wv = new WebView(weakContext.get());
                 String userAgent = wv.getSettings().getUserAgentString();

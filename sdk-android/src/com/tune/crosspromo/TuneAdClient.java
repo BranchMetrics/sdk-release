@@ -269,6 +269,7 @@ public class TuneAdClient {
             
             // Fire and forget
             conn.connect();
+            conn.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
