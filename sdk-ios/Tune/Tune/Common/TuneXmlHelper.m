@@ -1,29 +1,12 @@
 //
-//  NSString+TuneURLEncoding.m
+//  TuneXmlHelper.m
 //  Tune
 //
 //  Created by Pavel Yurchenko on 7/17/12.
 //  Copyright (c) 2012 Scopic Software. All rights reserved.
 //
 
-#import "NSString+TuneURLEncoding.h"
-
-@implementation NSString (TuneURLEncoding)
-
-- (NSString *)urlEncodeUsingEncoding:(NSStringEncoding)encoding
-{
-    CFStringRef stringRef = CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                    (CFStringRef)self,
-                                                                    NULL,
-                                                                    (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ",
-                                                                    CFStringConvertNSStringEncodingToEncoding(encoding));
-    NSString *string = [(__bridge NSString*)stringRef copy];
-    CFRelease( stringRef );
-    return string;
-}
-
-@end
-
+#import "TuneXmlHelper.h"
 
 //
 //  GTMNSString+XML.m
@@ -204,14 +187,14 @@ static NSString *AutoreleasedCloneForXML(NSString *src, BOOL escaping) {
     return finalString;
 } // AutoreleasedCloneForXML
 
-@implementation NSString (TuneGTMNSStringXMLAdditions)
+@implementation TuneXmlHelper
 
-- (NSString *)Tunegtm_stringBySanitizingAndEscapingForXML {
-    return AutoreleasedCloneForXML(self, YES);
++ (NSString *)tuneGtm_stringBySanitizingAndEscapingForXML:(NSString *)string {
+    return AutoreleasedCloneForXML(string, YES);
 } // gtm_stringBySanitizingAndEscapingForXML
 
-- (NSString *)Tunegtm_stringBySanitizingToXMLSpec {
-    return AutoreleasedCloneForXML(self, NO);
++ (NSString *)tuneGtm_stringBySanitizingToXMLSpec:(NSString *)string {
+    return AutoreleasedCloneForXML(string, NO);
 } // gtm_stringBySanitizingToXMLSpec
 
 @end

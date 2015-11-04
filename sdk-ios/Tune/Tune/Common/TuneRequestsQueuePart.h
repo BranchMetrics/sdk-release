@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TuneUtils.h"
+
 
 @interface TuneRequestsQueuePart : NSObject <NSXMLParserDelegate>
 {

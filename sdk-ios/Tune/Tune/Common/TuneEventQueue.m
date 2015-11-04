@@ -8,7 +8,6 @@
 
 #import "TuneEventQueue.h"
 
-#import "NSString+TuneURLEncoding.h"
 #import "Tune_internal.h"
 #import "TuneEncrypter.h"
 #import "TuneKeyStrings.h"
@@ -19,6 +18,7 @@
 #import "TuneTracker.h"
 #import "TuneUtils.h"
 #import "TuneUserAgentCollector.h"
+
 
 const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL  = 60.;
 
@@ -103,14 +103,25 @@ static TuneEventQueue *sharedQueue = nil;
 
 - (void)addNetworkAndAppNotificationListeners
 {
+#if !TARGET_OS_WATCH
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(networkChangeHandler)
                                                  name:kTuneReachabilityChangedNotification
                                                object:nil];
+#endif
+    
+    NSString *strNotif = nil;
+#if TARGET_OS_WATCH
+    strNotif = NSExtensionHostDidBecomeActiveNotification;
+#else
+    strNotif = UIApplicationDidBecomeActiveNotification;
+#endif
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(networkChangeHandler)
-                                                 name:UIApplicationDidBecomeActiveNotification
+                                                 name:strNotif
                                                object:nil];
+
 }
 
 /*!
@@ -119,9 +130,13 @@ static TuneEventQueue *sharedQueue = nil;
 - (void)createQueueStorageDirectory
 {
     // create queue storage directory
-    CGFloat systemVersion = [TuneUtils numericiOSSystemVersion];
-    NSSearchPathDirectory folderType = systemVersion < TUNE_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
+    
+    NSSearchPathDirectory queueParentFolder = NSDocumentDirectory;
+#if TARGET_OS_TV // || TARGET_OS_WATCH
+    queueParentFolder = NSCachesDirectory;
+#endif
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(queueParentFolder, NSUserDomainMask, YES);
     NSString *baseFolder = [paths objectAtIndex:0];
     storageDir = [baseFolder stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
     
@@ -193,14 +208,16 @@ static TuneEventQueue *sharedQueue = nil;
 #pragma mark - Request handling
 
 + (void)enqueueUrlRequest:(NSString*)trackingLink
+              eventAction:(NSString*)actionName
             encryptParams:(NSString*)encryptParams
                  postData:(NSString*)postData
                   runDate:(NSDate*)runDate
 {
-    [sharedQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:postData runDate:runDate];
+    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName encryptParams:encryptParams postData:postData runDate:runDate];
 }
 
 - (void)enqueueUrlRequest:(NSString*)trackingLink
+              eventAction:(NSString*)actionName
             encryptParams:(NSString*)encryptParams
                  postData:(NSString*)postData
                   runDate:(NSDate*)runDate
@@ -210,8 +227,9 @@ static TuneEventQueue *sharedQueue = nil;
     
     // add item to queue
     // note that postData might be nil
-    NSDictionary *item = [NSDictionary dictionaryWithObjectsAndKeys:
+    NSMutableDictionary *item = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                           @([runDate timeIntervalSince1970]),   TUNE_KEY_RUN_DATE,
+                          actionName,                           TUNE_KEY_ACTION,
                           trackingLink,                         TUNE_KEY_URL,
                           encryptParams,                        TUNE_KEY_DATA,
                           postData,                             TUNE_KEY_JSON,
@@ -219,6 +237,7 @@ static TuneEventQueue *sharedQueue = nil;
     
     @synchronized( events ) {
         [events addObject:item];
+        
         [self saveQueue];
     }
     
@@ -246,6 +265,33 @@ static TuneEventQueue *sharedQueue = nil;
                          (long)retryCount,
                          [*trackingLink substringFromIndex:searchResult.location + searchResult.length + valueLength]];
         *sendDate = [*sendDate dateByAddingTimeInterval:[[self class] retryDelayForAttempt:retryCount]];
+    }
+}
+
++ (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId
+{
+    [sharedQueue updateEnqueuedEventsWithReferralUrl:url referralSource:bundleId];
+}
+
+- (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId
+{
+    @synchronized( events ) {
+        // start updating events from the end of queue
+        for (long i = events.count - 1; i >= 0; --i) {
+            
+            NSMutableDictionary *dictEvent = events[i];
+            
+            [dictEvent setValue:url forKey:TUNE_KEY_REFERRAL_URL];
+            [dictEvent setValue:bundleId forKey:TUNE_KEY_REFERRAL_SOURCE];
+            
+            // do not update events that were fired before the last "session" request
+            if([dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION])
+            {
+                break;
+            }
+        }
+        
+        [self saveQueue];
     }
 }
 
@@ -287,13 +333,27 @@ static TuneEventQueue *sharedQueue = nil;
 
 #pragma mark - Sending requests
 
-- (NSString*)updateTrackingLink:(NSString*)trackingLink encryptParams:(NSString*)encryptParams
+- (NSString*)updateTrackingLink:(NSString*)trackingLink encryptParams:(NSString*)encryptParams referralUrl:(NSString *)refUrl referralSource:(NSString*)refSource
 {
     // Add/update tracked values that are determined asynchronously.
     
     if( encryptParams != nil ) {
-    
+        
         NSString *searchString = nil;
+        
+        searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_REFERRAL_URL];
+        if( refUrl && [encryptParams rangeOfString:searchString].location == NSNotFound)
+        {
+            NSString *refUrlParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_URL, refUrl];
+            encryptParams = [encryptParams stringByAppendingString:refUrlParam];
+        }
+        
+        searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_REFERRAL_SOURCE];
+        if( refSource && [encryptParams rangeOfString:searchString].location == NSNotFound)
+        {
+            NSString *refSourceParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_SOURCE, refSource];
+            encryptParams = [encryptParams stringByAppendingString:refSourceParam];
+        }
         
         // if iad_attribution, append/overwrite current status
         if( [self.delegate isiAdAttribution] ) {
@@ -376,7 +436,6 @@ static TuneEventQueue *sharedQueue = nil;
     if( ![TuneUtils isNetworkReachable] ) return;
     
     [requestOpQueue addOperationWithBlock:^{
-        
         // get first request
         NSDictionary *request = nil;
         @synchronized( events ) {
@@ -394,15 +453,20 @@ static TuneEventQueue *sharedQueue = nil;
         NSString *trackingLink = request[TUNE_KEY_URL];
         NSString *encryptParams = request[TUNE_KEY_DATA];
         NSString *postData = request[TUNE_KEY_JSON];
+        NSString *refUrl = request[TUNE_KEY_REFERRAL_URL];
+        NSString *refSource = request[TUNE_KEY_REFERRAL_SOURCE];
         
-        NSString *fullRequestString = [self updateTrackingLink:trackingLink encryptParams:encryptParams];
+        NSString *fullRequestString = [self updateTrackingLink:trackingLink encryptParams:encryptParams referralUrl:refUrl referralSource:refSource];
         
 #if DEBUG
         // for testing, attempt informing the delegate's delegate of the trackingLink
         if( [self.delegate respondsToSelector:@selector(delegate)] ) {
             id ddelegate = [self.delegate performSelector:@selector(delegate)];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
             if( [ddelegate respondsToSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
                 [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postData];
+#pragma clang diagnostic pop
         }
 #endif
         NSURL *reqUrl = [NSURL URLWithString:fullRequestString];
@@ -416,98 +480,134 @@ static TuneEventQueue *sharedQueue = nil;
         [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)post.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
         [urlReq setHTTPBody:post];
         
-        NSHTTPURLResponse *urlResp = nil;
-        NSError *error = nil;
-        NSData *data = nil;
-        
-        NSInteger code = 0;
+        void (^handlerBlock)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) =
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)response;
+            NSString *trackingUrl = request[TUNE_KEY_URL];
+            
+            NSInteger code = 0;
+            if( error != nil ) {
+                
+                DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
+                
+                if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] )
+                    [_delegate queueRequestDidFailWithError:error];
+                
+                urlResp = nil; // set response to nil and make sure that the request is retried
+            }
+            
+#if TESTING
+            // when testing network errors, use forced error code
+            if(self.forceError)
+            {
+                code = self.forcedErrorCode;
+            }
+            else
+#endif
+                code = [urlResp statusCode];
+            NSDictionary *headers = [urlResp allHeaderFields];
+            NSDictionary *newFirstItem = nil;
+            
+            // if the network request was successful, great
+            if( code >= 200 && code <= 299 ) {
+                if( [_delegate respondsToSelector:@selector(queueRequestDidSucceedWithData:)] )
+                    [_delegate queueRequestDidSucceedWithData:data];
+                // leave newFirstItem nil to delete
+            }
+            // for HTTP 400, if it's from our server, drop the request and don't retry
+            else if( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
+                if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] ) {
+                    
+                    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+                    userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
+                    userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
+                    userInfo[NSURLErrorKey] = reqUrl;
+                    
+                    // use setValue:forKey: to handle nil error object
+                    [userInfo setValue:error forKey:NSUnderlyingErrorKey];
+                    
+                    NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
+                                                     code:TUNE_REQUEST_400_ERROR_CODE
+                                                 userInfo:userInfo];
+                    [_delegate queueRequestDidFailWithError:e];
+                }
+                // leave newFirstItem nil to delete
+            }
+            // for all other calls, assume the server/connection is broken and will be fixed later
+            else {
+                // update retry parameters
+                NSDate *newSendDate = [NSDate date];
+                
+                [self appendOrIncrementRetryCount:&trackingUrl sendDate:&newSendDate];
+                
+                NSMutableDictionary *newRequest = [NSMutableDictionary dictionaryWithDictionary:request];
+                newRequest[TUNE_KEY_URL] = trackingUrl;
+                newRequest[TUNE_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);
+                newFirstItem = [NSMutableDictionary dictionaryWithDictionary:newRequest];
+            }
+            
+            // pop or replace event from queue
+            @synchronized( events ) {
+                NSUInteger index = [events indexOfObject:request];
+                
+                if( index != NSNotFound ) {
+                    if( newFirstItem == nil )
+                        [events removeObjectAtIndex:index];
+                    else
+                        [events replaceObjectAtIndex:index withObject:newFirstItem];
+                }
+                
+                [self saveQueue];
+            }
+            
+            // send next
+            [self performSelectorOnMainThread:@selector(dumpQueue) withObject:nil waitUntilDone:NO];
+        };
         
 #if TESTING
         // when testing network errors, skip request and force error response
         if(self.forceError)
         {
-            error = [NSError errorWithDomain:@"TuneTest" code:self.forcedErrorCode userInfo:nil];
+            NSError *error = [NSError errorWithDomain:@"TuneTest" code:self.forcedErrorCode userInfo:nil];
+            
+            handlerBlock(nil, nil, error);
+            return;
+        }
+#endif
+        NSHTTPURLResponse *urlResp = nil;
+        NSError *error = nil;
+        NSData *data = nil;
+        
+        if ([NSURLSession class]) {
+            data = [TuneUtils sendSynchronousDataTaskWithRequest:urlReq forSession:[NSURLSession sharedSession] returningResponse:&urlResp error:&error];
         }
         else
-#endif
-        data = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&urlResp error:&error];
+        {
+            SEL ector = @selector(sendSynchronousRequest:returningResponse:error:);
+            
+            if ([NSURLConnection respondsToSelector:ector]) {
+                // iOS 6
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSURLConnection methodSignatureForSelector:ector]];
+                [invocation setTarget:[NSURLConnection class]];
+                [invocation setSelector:ector];
+                [invocation setArgument:&urlReq atIndex:2];
+                [invocation setArgument:&urlResp atIndex:3];
+                [invocation setArgument:&error atIndex:4];
+                [invocation invoke];
+            }
+        }
         
-        if( error != nil ) {
+        if (error != nil) {
             
             DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
             
-            if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] )
+            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
                 [_delegate queueRequestDidFailWithError:error];
-            
+            }
             urlResp = nil; // set response to nil and make sure that the request is retried
         }
         
-#if TESTING
-        // when testing network errors, use forced error code
-        if(self.forceError)
-        {
-            code = self.forcedErrorCode;
-        }
-        else
-#endif
-        code = [urlResp statusCode];
-        NSDictionary *headers = [urlResp allHeaderFields];
-        NSDictionary *newFirstItem = nil;
-        
-        // if the network request was successful, great
-        if( code >= 200 && code <= 299 ) {
-            if( [_delegate respondsToSelector:@selector(queueRequestDidSucceedWithData:)] )
-                [_delegate queueRequestDidSucceedWithData:data];
-            // leave newFirstItem nil to delete
-        }
-        // for HTTP 400, if it's from our server, drop the request and don't retry
-        else if( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
-            if( [_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)] ) {
-                
-                NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-                userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
-                userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
-                userInfo[NSURLErrorKey] = reqUrl;
-                
-                // use setValue:forKey: to handle nil error object
-                [userInfo setValue:error forKey:NSUnderlyingErrorKey];
-                
-                NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
-                                                 code:TUNE_REQUEST_400_ERROR_CODE
-                                             userInfo:userInfo];
-                [_delegate queueRequestDidFailWithError:e];
-            }
-            // leave newFirstItem nil to delete
-        }
-        // for all other calls, assume the server/connection is broken and will be fixed later
-        else {
-            // update retry parameters
-            NSDate *newSendDate = [NSDate date];
-            
-            [self appendOrIncrementRetryCount:&trackingLink sendDate:&newSendDate];
-            
-            NSMutableDictionary *newRequest = [NSMutableDictionary dictionaryWithDictionary:request];
-            newRequest[TUNE_KEY_URL] = trackingLink;
-            newRequest[TUNE_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);
-            newFirstItem = [NSDictionary dictionaryWithDictionary:newRequest];
-        }
-        
-        // pop or replace event from queue
-        @synchronized( events ) {
-            NSUInteger index = [events indexOfObject:request];
-            
-            if( index != NSNotFound ) {
-                if( newFirstItem == nil )
-                    [events removeObjectAtIndex:index];
-                else
-                    [events replaceObjectAtIndex:index withObject:newFirstItem];
-            }
-            
-            [self saveQueue];
-        }
-
-        // send next
-        [self performSelectorOnMainThread:@selector(dumpQueue) withObject:nil waitUntilDone:NO];
+        handlerBlock(data, urlResp, error);
     }];
 }
 

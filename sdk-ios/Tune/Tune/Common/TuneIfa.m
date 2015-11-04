@@ -25,10 +25,13 @@
     
     if(aIdManager)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         id sharedManager = [aIdManager performSelector:@selector(sharedManager)];
         NSUUID *ifaUUID = (NSUUID *)[sharedManager performSelector:@selector(advertisingIdentifier)];
         
         SEL selIsAdvertisingTrackingEnabled = @selector(isAdvertisingTrackingEnabled);
+#pragma clang diagnostic pop
         NSMethodSignature* signature = [sharedManager methodSignatureForSelector:selIsAdvertisingTrackingEnabled];
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
         [invocation setTarget:sharedManager];

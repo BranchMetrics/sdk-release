@@ -8,6 +8,16 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
 
+    @import UIKit;
+    @import Foundation;
+    @import AdSupport;
+    @import CoreGraphics;
+    @import MobileCoreServices;
+    @import StoreKit;
+    @import SystemConfiguration;
+
+    #import <MobileAppTracker/MobileAppTracker.h>
+
     #if DEBUG_LOG
     #define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
     #else

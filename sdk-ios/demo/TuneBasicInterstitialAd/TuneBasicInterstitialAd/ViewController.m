@@ -50,9 +50,10 @@ static NSArray *arrPlacements;
     metadata.debugMode = YES;
     
     arrPlacements = @[@"place1", @"place2", @"place3"];
-    [interstitial cacheForPlacement:arrPlacements[0] adMetadata:metadata];
-    [interstitial cacheForPlacement:arrPlacements[1] adMetadata:metadata];
-    [interstitial cacheForPlacement:arrPlacements[2] adMetadata:metadata];
+    
+    for (NSString *pl in arrPlacements) {
+        [interstitial cacheForPlacement:pl adMetadata:metadata];
+    }
 }
 
 - (void)showInterstitialAd

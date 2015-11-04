@@ -30,6 +30,8 @@
     
     TuneTestParams *params;
     TuneTestParams *params2;
+    
+    BOOL finished;
 }
 @end
 
@@ -45,6 +47,8 @@
     [Tune setDebugMode:YES];
     [Tune setAllowDuplicateRequests:YES];
     
+    finished = NO;
+    
     eventQueue = [TuneEventQueue sharedInstance];
     
     emptyRequestQueue();
@@ -57,7 +61,9 @@
 - (void)tearDown
 {
     networkOnline();
-
+    
+    finished = NO;
+    
     // drain the event queue
     emptyRequestQueue();
     
@@ -111,7 +117,7 @@
     XCTAssertFalse( [TuneUtils isNetworkReachable], @"connection status should be not reachable" );
     [Tune measureSession];
     
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( [TuneUtils isNetworkReachable], @"connection status should be not reachable" );
     
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -124,12 +130,13 @@
     networkOffline();
     [Tune measureEventName:@"registration"];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
     
+    finished = NO;
     networkOnline();
     [[NSNotificationCenter defaultCenter] postNotificationName:kTuneReachabilityChangedNotification object:nil];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION ); // wait for server response
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished ); // wait for server response
     XCTAssertFalse( callFailed, @"dequeuing call should have succeeded" );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_RETRY_COUNT, [@0 stringValue] );
@@ -142,9 +149,9 @@
 {
     networkOffline();
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
-
+    
     [Tune measureEventName:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"second offline call should not have received a failure notification" );
@@ -157,10 +164,11 @@
     
     networkOffline();
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
 
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
-    
+
+    finished = NO;
     [Tune measureEventName:@"yourMomEvent"];
     waitFor( 0.1 );
     XCTAssertFalse( callFailed, @"offline call should not have received a failure notification" );
@@ -168,11 +176,19 @@
     XCTAssertTrue( [TuneEventQueue queueSize] == 2, @"expected 2 queued requests" );
     networkOnline();
     [[NSNotificationCenter defaultCenter] postNotificationName:kTuneReachabilityChangedNotification object:nil];
-    waitFor( 5. );
+    
+    // wait for session event
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    XCTAssertFalse( callFailed, @"dequeuing call should not have failed" );
+    XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
+    
+    finished = NO;
+    // wait for conversion event
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( callFailed, @"dequeuing call should not have failed" );
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
-    waitFor( 10. );
+    //waitFor( 10. );
 }
 
 - (void)testEnqueue2RetriedOrder
@@ -188,8 +204,12 @@
     
     networkOnline();
     [[NSNotificationCenter defaultCenter] postNotificationName:kTuneReachabilityChangedNotification object:nil];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    // wait for event1
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
+    // wait for event2
+    finished = NO;
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
     XCTAssertTrue( [successMessages count] == 2, @"both calls should have succeeded, but %lu did", (unsigned long)[successMessages count] );
@@ -214,7 +234,7 @@
     XCTAssertFalse( callSuccess, @"session call should not have been attempted after 1 sec" );
     XCTAssertTrue( [TuneEventQueue queueSize] == 1, @"expected 1 queued request, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
     
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION);
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     XCTAssertTrue( [successMessages count] == 1, @"call should have succeeded" );
@@ -230,6 +250,7 @@
     params2 = [TuneTestParams new];
 
     [Tune setDebugMode:YES];
+    
     [Tune measureSession];
     [Tune measureEventName:@"event name"];
     waitFor( 1. );
@@ -237,8 +258,16 @@
     XCTAssertFalse( callFailed, @"no calls should have been attempted after 1 sec" );
     XCTAssertFalse( callSuccess, @"no calls should have been attempted after 1 sec" );
     XCTAssertTrue( [TuneEventQueue queueSize] == 2, @"expected 2 queued requests, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
-
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    
+    NSDate *startTime = [NSDate date];
+    
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    
+    NSLog(@"time spent = %f", [[NSDate date] timeIntervalSinceDate:startTime]);
+    
+    finished = NO;
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    
     XCTAssertFalse( callFailed, @"session call should not have failed" );
     XCTAssertTrue( callSuccess, @"session call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
@@ -258,7 +287,7 @@
     [Tune setDebugMode:YES];
     [Tune measureSession];
     
-    waitFor( 1. );
+    waitFor1( 1., &finished );
     
     NSMutableArray *requests = [TuneEventQueue events];
     NSString *strUrl = requests[0][@"url"];
@@ -271,7 +300,7 @@
     
     ////////////
     
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION);
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     requests = [TuneEventQueue events];
     strUrl = requests[0][@"url"];
@@ -319,7 +348,7 @@
     
     ////////////
     
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION);
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callFailed, @"session call should have failed" );
     XCTAssertFalse( callSuccess, @"session call should not have succeeded" );
     
@@ -336,10 +365,11 @@
     
     ////////////
     
+    finished = NO;
     NSInteger retry = 1;
     NSTimeInterval retryDelay = [TuneEventQueue retryDelayForAttempt:retry];
     
-    waitFor( retryDelay + TUNE_TEST_NETWORK_REQUEST_DURATION);
+    waitFor1( retryDelay + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     requests = [TuneEventQueue events];
     
@@ -392,6 +422,8 @@
     //NSLog( @"TuneQueueTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
+    
+    finished = YES;
 }
 
 - (void)tuneDidFailWithError:(NSError *)error
@@ -399,6 +431,8 @@
     //NSLog( @"TuneQueueTests: test received failure with %@\n", error );
     callFailed = YES;
     callSuccess = NO;
+    
+    finished = YES;
 }
 
 

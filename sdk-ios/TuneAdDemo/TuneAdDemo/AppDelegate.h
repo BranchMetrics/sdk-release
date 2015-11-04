@@ -9,6 +9,8 @@
 @import AdSupport;
 @import CoreTelephony;
 @import iAd;
+@import MobileCoreServices;
+@import StoreKit;
 @import SystemConfiguration;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>

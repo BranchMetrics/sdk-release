@@ -9,23 +9,28 @@
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 #import <mach/machine.h>
-#import <CoreTelephony/CTCarrier.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
 #import "../Tune.h"
+#import "../TunePreloadData.h"
 
-#import "NSString+TuneURLEncoding.m"
 #import "TuneEvent_internal.h"
 #import "TuneInstallReceipt.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation_internal.h"
-#import "TunePreloadData.h"
 #import "TuneSettings.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUtils.h"
 
+#if TARGET_OS_IOS
+#import <CoreTelephony/CTCarrier.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+
+#if TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
+#endif
 
 @interface TuneSettings ()
 {
@@ -34,8 +39,10 @@
 @end
 
 static NSSet * ignoreParams;
-static CTTelephonyNetworkInfo *netInfo;
 
+#if TARGET_OS_IOS
+static CTTelephonyNetworkInfo *netInfo;
+#endif
 
 @implementation TuneSettings
 
@@ -44,7 +51,9 @@ static CTTelephonyNetworkInfo *netInfo;
 + (void)initialize {
     ignoreParams = [NSSet setWithObjects:TUNE_KEY_REDIRECT_URL, TUNE_KEY_KEY, nil];
     
+#if TARGET_OS_IOS
     netInfo = [CTTelephonyNetworkInfo new];
+#endif
 }
 
 #pragma mark - Initialization
@@ -107,19 +116,23 @@ static CTTelephonyNetworkInfo *netInfo;
         
         // Device params
         self.deviceBrand = @"Apple";
-        
+
+#if !TARGET_OS_WATCH
         CGSize screenSize = [TuneUtils screenSize];
         self.screenWidth = @(screenSize.width);
         self.screenHeight = @(screenSize.height);
         
         self.screenSize = [NSString stringWithFormat:@"%.fx%.f", screenSize.width, screenSize.height];
         self.screenDensity = @([[UIScreen mainScreen] scale]);
+#endif
         
+#if TARGET_OS_IOS
         CTCarrier *carrier = [netInfo subscriberCellularProvider];
         self.deviceCarrier = [carrier carrierName];
         self.mobileCountryCode = [carrier mobileCountryCode];
         self.mobileCountryCodeISO = [carrier isoCountryCode];
         self.mobileNetworkCode = [carrier mobileNetworkCode];
+#endif
         
         // App params
         NSBundle *mainBundle = [NSBundle mainBundle];
@@ -127,21 +140,29 @@ static CTTelephonyNetworkInfo *netInfo;
         self.packageName = [TuneUtils bundleId]; // should be same as above
         self.appName = [mainBundle objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleNameKey];
         self.appVersion = [mainBundle objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleVersionKey];
-
+#if !TARGET_OS_WATCH
         if( self.packageName == nil && [UIApplication sharedApplication] == nil ) {
             // should only happen during unit tests
             self.packageName = @"com.mobileapptracking.iosunittest";
         }
+#endif
         
-        //Other params
+        // Other params
         self.countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+        
+#if TARGET_OS_WATCH
+        self.osVersion = [[WKInterfaceDevice currentDevice] systemVersion];
+#else
         self.osVersion = [[UIDevice currentDevice] systemVersion];
+#endif
         self.language = [[NSLocale preferredLanguages] objectAtIndex:0];
         
         self.installDate = [TuneUtils installDate];
-        
+
+#if TARGET_OS_IOS
         // FB cookie id
         [self loadFacebookCookieId];
+#endif
         
         // default to USD for currency code
         self.currencyCode = TUNE_KEY_CURRENCY_USD;
@@ -156,11 +177,12 @@ static CTTelephonyNetworkInfo *netInfo;
     return self;
 }
 
+#if TARGET_OS_IOS
 - (void)loadFacebookCookieId
 {
     self.facebookCookieId = [TuneUtils generateFBCookieIdString];
 }
-
+#endif
 
 #pragma mark - Overridden setters
 
@@ -306,13 +328,17 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:self.appName                     forKey:TUNE_KEY_APP_NAME                 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.appVersion                  forKey:TUNE_KEY_APP_VERSION                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.bluetoothState              forKey:TUNE_KEY_BLUETOOTH_STATE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#if TARGET_OS_IOS
     [self addValue:self.mobileCountryCode           forKey:TUNE_KEY_CARRIER_COUNTRY_CODE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.mobileCountryCodeISO        forKey:TUNE_KEY_CARRIER_COUNTRY_CODE_ISO    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.mobileNetworkCode           forKey:TUNE_KEY_CARRIER_NETWORK_CODE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#endif
     [self addValue:self.countryCode                 forKey:TUNE_KEY_COUNTRY_CODE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:currencyCode                     forKey:TUNE_KEY_CURRENCY_CODE               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.deviceBrand                 forKey:TUNE_KEY_DEVICE_BRAND                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#if TARGET_OS_IOS
     [self addValue:self.deviceCarrier               forKey:TUNE_KEY_DEVICE_CARRIER              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#endif
     [self addValue:self.deviceCpuSubtype            forKey:TUNE_KEY_DEVICE_CPUSUBTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.deviceCpuType               forKey:TUNE_KEY_DEVICE_CPUTYPE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
@@ -340,7 +366,9 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:@(event.transactionState)        forKey:TUNE_KEY_IOS_PURCHASE_STATUS     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.existingUser                forKey:TUNE_KEY_EXISTING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.facebookUserId              forKey:TUNE_KEY_FACEBOOK_USER_ID        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#if TARGET_OS_IOS
     [self addValue:self.facebookCookieId            forKey:TUNE_KEY_FB_COOKIE_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#endif
     [self addValue:self.gender                      forKey:TUNE_KEY_GENDER                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:event.iBeaconRegionId            forKey:TUNE_KEY_GEOFENCE_NAME           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.googleUserId                forKey:TUNE_KEY_GOOGLE_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -379,7 +407,15 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:TUNE_KEY_JSON                    forKey:TUNE_KEY_RESPONSE_FORMAT         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.screenDensity               forKey:TUNE_KEY_SCREEN_DENSITY          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.screenSize                  forKey:TUNE_KEY_SCREEN_SIZE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:TUNE_KEY_IOS                     forKey:TUNE_KEY_SDK                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
+    NSString *sdkPlatform = TUNE_KEY_IOS;
+#if TARGET_OS_TV
+    sdkPlatform = TUNE_KEY_TVOS;
+#elif TARGET_OS_WATCH
+    sdkPlatform = TUNE_KEY_WATCHOS;
+#endif
+    [self addValue:sdkPlatform                      forKey:TUNE_KEY_SDK                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
     [self addValue:self.pluginName                  forKey:TUNE_KEY_SDK_PLUGIN              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.sessionDate                 forKey:TUNE_KEY_SESSION_DATETIME        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:eventNameOrId                    forKey:keySiteEvent                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -403,20 +439,20 @@ static CTTelephonyNetworkInfo *netInfo;
     
     if(self.preloadData.publisherId)
     {
-        [self addValue:self.preloadData.advertiserSubAd         forKey:TUNE_KEY_ADVERTISER_SUB_AD           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.advertiserSubAd         forKey:TUNE_KEY_ADVERTISER_SUB_AD           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.advertiserSubAdgroup    forKey:TUNE_KEY_ADVERTISER_SUB_ADGROUP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.advertiserSubCampaign   forKey:TUNE_KEY_ADVERTISER_SUB_CAMPAIGN     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.advertiserSubKeyword    forKey:TUNE_KEY_ADVERTISER_SUB_KEYWORD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.advertiserSubPublisher  forKey:TUNE_KEY_ADVERTISER_SUB_PUBLISHER    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.advertiserSubSite       forKey:TUNE_KEY_ADVERTISER_SUB_SITE         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.advertiserSubSite       forKey:TUNE_KEY_ADVERTISER_SUB_SITE         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.agencyId                forKey:TUNE_KEY_AGENCY_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.offerId                 forKey:TUNE_KEY_OFFER_ID                    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:@(1)                                     forKey:TUNE_KEY_PRELOAD_DATA                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherId             forKey:TUNE_KEY_PUBLISHER_ID                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.publisherId             forKey:TUNE_KEY_PUBLISHER_ID                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherReferenceId    forKey:TUNE_KEY_PUBLISHER_REF_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherSubAd          forKey:TUNE_KEY_PUBLISHER_SUB_AD            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherSubAdgroup     forKey:TUNE_KEY_PUBLISHER_SUB_ADGROUP       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-        [self addValue:self.preloadData.publisherSubCampaign    forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];        
+        [self addValue:self.preloadData.publisherSubCampaign    forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherSubKeyword     forKey:TUNE_KEY_PUBLISHER_SUB_KEYWORD       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherSubPublisher   forKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
         [self addValue:self.preloadData.publisherSubSite        forKey:TUNE_KEY_PUBLISHER_SUB_SITE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

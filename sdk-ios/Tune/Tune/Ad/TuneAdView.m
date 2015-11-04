@@ -88,7 +88,7 @@
                                                      selector:@selector(handleNetworkChange:)
                                                          name:kTuneReachabilityChangedNotification
                                                        object:nil];
-                
+            
             // listen for app-became-active notifications
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(handleAppBecameActive:)
@@ -434,7 +434,9 @@
     [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+#if !TARGET_OS_WATCH
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTuneReachabilityChangedNotification object:nil];
+#endif
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 }

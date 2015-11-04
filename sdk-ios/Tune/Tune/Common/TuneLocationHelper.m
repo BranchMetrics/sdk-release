@@ -48,10 +48,6 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 + (void)initialize
 {
     tuneSharedLocationHelper = [TuneLocationHelper new];
-    
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self startLocationUpdates];
-    }];
 }
 
 
@@ -59,6 +55,8 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 
 + (TuneLocation *)getOrRequestDeviceLocation
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     TuneLocation *location = nil;
     
     BOOL isEnabled = [self isLocationEnabled];
@@ -92,7 +90,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
                 [invocation getReturnValue:&timestamp];
                 
                 // check if location is recent enough to be used, otherwise request a new location update
-                if(timestamp && [[NSDate date] timeIntervalSinceDate:timestamp] < TUNE_LOCATION_VALIDITY_DURATION )
+                if(timestamp && [[NSDate date] timeIntervalSinceDate:timestamp] < TUNE_LOCATION_VALIDITY_DURATION)
                 {
                     requestNewLocation = NO;
                     
@@ -158,6 +156,8 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     }
     
     return location;
+    
+#pragma clang diagnostic pop
 }
 
 
@@ -169,9 +169,11 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     
     Class classLocationManager = NSClassFromString(@"CLLocationManager");
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     SEL selAuthStatus = @selector(authorizationStatus);
     SEL selLocationEnabled = @selector(locationServicesEnabled);
-    
+#pragma clang diagnostic pop
     if([classLocationManager class]
        && [classLocationManager respondsToSelector:selAuthStatus]
        && [classLocationManager respondsToSelector:selLocationEnabled])
@@ -227,6 +229,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         // start updating location
         [tuneCLLocationManager performSelector:@selector(startUpdatingLocation)];
 #pragma clang diagnostic pop
@@ -249,6 +252,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         // stop updating location
         [tuneCLLocationManager performSelector:@selector(stopUpdatingLocation)];
 #pragma clang diagnostic pop
@@ -265,6 +269,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         // stop updating location
         [tuneCLLocationManager performSelector:@selector(stopUpdatingLocation)];
 #pragma clang diagnostic pop

@@ -49,7 +49,14 @@
 @property (nonatomic, copy) NSString *conversionKey;                // KEY_KEY
 @property (nonatomic, copy) NSString *trackingId;                   // KEY_TRACKING_ID
 @property (nonatomic, copy) NSString *matId;                        // KEY_MAT_ID
+
+#if TARGET_OS_IOS
 @property (nonatomic, copy) NSString *facebookCookieId;             // KEY_FB_COOKIE_ID
+@property (nonatomic, copy) NSString *deviceCarrier;                // KEY_DEVICE_CARRIER
+@property (nonatomic, copy) NSString *mobileCountryCode;            // KEY_CARRIER_COUNTRY_CODE
+@property (nonatomic, copy) NSString *mobileCountryCodeISO;         // KEY_CARRIER_COUNTRY_CODE_ISO
+@property (nonatomic, copy) NSString *mobileNetworkCode;            // KEY_CARRIER_NETWORK_CODE
+#endif
 
 @property (nonatomic, copy) NSString *ifv;                          // KEY_IOS_IFV
 @property (nonatomic, copy) NSString *ifa;                          // KEY_IOS_IFA
@@ -104,15 +111,11 @@
 @property (nonatomic, copy) NSString *deviceModel;                  // KEY_DEVICE_MODEL
 @property (nonatomic, copy) NSNumber *deviceCpuType;                // KEY_DEVICE_CPUTYPE
 @property (nonatomic, copy) NSNumber *deviceCpuSubtype;             // KEY_DEVICE_CPUSUBTYPE
-@property (nonatomic, copy) NSString *deviceCarrier;                // KEY_DEVICE_CARRIER
 @property (nonatomic, copy) NSString *deviceBrand;                  // KEY_DEVICE_BRAND
 @property (nonatomic, copy) NSNumber *screenHeight;                 // KEY_SCREEN_HEIGHT
 @property (nonatomic, copy) NSNumber *screenWidth;                  // KEY_SCREEN_WIDTH
 @property (nonatomic, copy) NSString *screenSize;                   // KEY_SCREEN_SIZE
 @property (nonatomic, copy) NSNumber *screenDensity;                // KEY_SCREEN_DENSITY
-@property (nonatomic, copy) NSString *mobileCountryCode;            // KEY_CARRIER_COUNTRY_CODE
-@property (nonatomic, copy) NSString *mobileCountryCodeISO;         // KEY_CARRIER_COUNTRY_CODE_ISO
-@property (nonatomic, copy) NSString *mobileNetworkCode;            // KEY_CARRIER_NETWORK_CODE
 @property (nonatomic, copy) NSString *countryCode;                  // KEY_COUNTRY_CODE
 @property (nonatomic, copy) NSString *osVersion;                    // KEY_OS_VERSION
 @property (nonatomic, copy) NSString *language;                     // KEY_LANGUAGE
@@ -124,7 +127,9 @@
 
 @property (nonatomic, assign) id <TuneSettingsDelegate> delegate;
 
+#if TARGET_OS_IOS
 - (void)loadFacebookCookieId;
+#endif
 
 - (NSString*)domainName;
 

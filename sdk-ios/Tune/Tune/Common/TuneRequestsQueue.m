@@ -60,10 +60,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     {
         self.queueParts = [NSMutableArray array];
         
-        float systemVersion = [TuneUtils numericiOSSystemVersion];
-        
-        NSSearchPathDirectory folderType = systemVersion < TUNE_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *baseFolder = [paths objectAtIndex:0];
         
         DLog(@"TuneReqQue: init: storage dir  = %@", self.pathStorageDir);
@@ -75,12 +72,6 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         DLog(@"TuneReqQue: init: systemVersion = %f", systemVersion);
         DLog(@"TuneReqQue: init: pathStorageDir = %@, exists = %d", pathStorageDir, [[NSFileManager defaultManager] fileExistsAtPath:pathStorageDir]);
         DLog(@"TuneReqQue: init: pathStorageFile = %@", pathStorageFile);
-        
-        if(systemVersion < TUNE_IOS_VERSION_501)
-        {
-            DLog(@"TuneReqQue: init: set pathOld");
-            self.pathOld = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
-        }
         
         // make sure that the queue storage folder exists
         if (![[NSFileManager defaultManager] fileExistsAtPath:self.pathStorageDir])
@@ -351,36 +342,11 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     if(![[TuneUtils userDefaultValueforKey:TUNE_KEY_MAT_FIXED_FOR_ICLOUD] boolValue])
     {
         NSString *queueStorageFolder = self.pathStorageDir;
-        
         NSError *error = nil;
-        
-        float systemVersion = [TuneUtils numericiOSSystemVersion];
         
         DLog(@"TuneReqQue: fixForCloud: systemVersion = %f", systemVersion);
         
-        if(systemVersion < TUNE_IOS_VERSION_501)
-        {
-            NSString *oldPath = self.pathOld;
-            
-            DLog(@"TuneReqQue: fixForCloud: oldPath = %@, exists = %d", oldPath, [[NSFileManager defaultManager] fileExistsAtPath:oldPath]);
-            
-            // If old request queue storage folder Documents/queue exists, then move it to the Library/Caches folder.
-            if([[NSFileManager defaultManager] fileExistsAtPath:oldPath])
-            {
-                DLog(@"TuneReqQue: fixForCloud: Removing destination path = %@.", queueStorageFolder);
-                // Make sure that the destination does not already contain a folder with the same name
-                [[NSFileManager defaultManager] removeItemAtPath:queueStorageFolder error:&error];
-
-                DLog(@"TuneReqQue: fixForCloud: Moving old %@ to new %@.", oldPath, queueStorageFolder);
-                // move queue storage files from old Documents folder location to the new non-iCloud Library/Cache location
-                [[NSFileManager defaultManager] moveItemAtPath:oldPath toPath:queueStorageFolder error:&error];
-            }
-        }
-        else
-        {
-            // For iOS 5.0.1 and above set the ignore-for-iCloud-backup flag for the queue folder.
-            [TuneUtils addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:queueStorageFolder]];
-        }
+        [TuneUtils addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:queueStorageFolder]];
         
 #if DEBUG_LOG
         if(error)
@@ -400,10 +366,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 
 + (BOOL)exists
 {
-    float systemVersion = [TuneUtils numericiOSSystemVersion];
-    
-    NSSearchPathDirectory folderType = systemVersion < TUNE_IOS_VERSION_501 ? NSCachesDirectory : NSDocumentDirectory;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(folderType, NSUserDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *baseFolder = [paths objectAtIndex:0];
     NSString *pathDir = [baseFolder stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
     NSString *pathFile = [pathDir stringByAppendingPathComponent:XML_FILE_NAME];

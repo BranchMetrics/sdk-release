@@ -10,7 +10,6 @@
 
 #import "TuneAdKeyStrings.h"
 
-#import "../Common/NSString+TuneURLEncoding.h"
 #import "../Common/Tune_internal.h"
 #import "../Common/TuneKeyStrings.h"
 #import "../Common/TuneSettings.h"
@@ -299,18 +298,9 @@ NSString* closeImageString()
  */
 + (NSString *)urlEncode:(id)value
 {
-    NSString *encodedString = nil;
-    
-    if( nil == value || (id)[NSNull null] == value )
-        encodedString = TUNE_STRING_EMPTY;
-    else if( [value isKindOfClass:[NSNumber class]] )
-        encodedString = [(NSNumber*)value stringValue];
-    else if( [value isKindOfClass:[NSDate class]] )
-        encodedString = [NSString stringWithFormat:@"%ld", (long)round( [(NSDate *)value timeIntervalSince1970] )];
-    else if( [value isKindOfClass:[NSString class]] )
-        encodedString = [(NSString*)value urlEncodeUsingEncoding:NSUTF8StringEncoding];
-    
-    return encodedString;
+    return ( nil == value || (id)[NSNull null] == value )
+    ? TUNE_STRING_EMPTY
+    : [TuneUtils urlEncodeQueryParamValue:value];
 }
 
 @end

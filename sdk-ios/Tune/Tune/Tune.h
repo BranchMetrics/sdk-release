@@ -18,15 +18,18 @@
 @class TuneLocation;
 @class TunePreloadData;
 
-#import "TuneAdMetadata.h"
-
+#if TARGET_OS_IOS
 //#define TUNE_USE_LOCATION
+
+#import "TuneAdMetadata.h"
+#endif
+
 #ifdef TUNE_USE_LOCATION
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"3.13.0"
+#define TUNEVERSION @"3.14.0"
 
 
 #pragma mark - enumerated types
@@ -131,11 +134,13 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 + (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
 
+#if !TARGET_OS_WATCH
 /*!
  Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
  @param automate Automate IAP purchase event measurement. Defaults to NO.
  */
 + (void)automateIapEventMeasurement:(BOOL)automate;
+#endif
 
 /*!
  * Set whether the Tune events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
@@ -158,6 +163,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 + (void)setExistingUser:(BOOL)existingUser;
 
+#if !TARGET_OS_WATCH
 /*!
  Set the Apple Advertising Identifier available in iOS 6.
  @param appleAdvertisingIdentifier - Apple Advertising Identifier
@@ -170,6 +176,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param appleVendorIdentifier - Apple Vendor Identifier
  */
 + (void)setAppleVendorIdentifier:(NSUUID * )appleVendorIdentifier;
+#endif
 
 /*!
  Sets the currency code.
@@ -191,6 +198,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 + (void)setPackageName:(NSString *)packageName;
 
+#if !TARGET_OS_WATCH
 /*!
  Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
  YES/NO
@@ -198,13 +206,16 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
  */
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect;
+#endif
 
+#if TARGET_OS_IOS
 /*!
  Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
  YES/NO
  @param autoCollect YES will auto collect device location, defaults to YES.
  */
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect;
+#endif
 
 /*!
  Specifies if the sdk should auto detect if the iOS device is jailbroken.
@@ -213,6 +224,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 + (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect;
 
+#if !TARGET_OS_WATCH
 /*!
  Specifies if the sdk should pull the Apple Vendor Identifier from the device.
  YES/NO
@@ -220,12 +232,13 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param autoGenerate YES will set the Apple Vendor Identifier, defaults to YES.
  */
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate;
+#endif
 
 /*!
  Sets the site ID.
  @param siteId The Tune app/site ID of this mobile app.
  */
-+ (void)setSiteId:(NSString *)siteId;
++ (void)setSiteId:(NSString *)siteId DEPRECATED_MSG_ATTRIBUTE("Please use +(void)setPackageName:(NSString *)packageName");
 
 /*!
  Set the TRUSTe Trusted Preference Identifier (TPID).
@@ -280,6 +293,17 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param userAge user's age
  */
 + (void)setAge:(NSInteger)userAge;
+
+#if !TARGET_OS_IOS
+
+/** @name Gender type constants */
+typedef NS_ENUM(NSInteger) {
+    TuneGenderUnknown,
+    TuneGenderMale,
+    TuneGenderFemale
+} TuneGender;
+
+#endif
 
 /*!
  Sets the user's gender.
@@ -750,6 +774,8 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 - (void)tuneDidFailDeeplinkWithError:(NSError *)error;
 
+#if USE_IAD
+
 /*!
  Delegate method called when an iAd is displayed and its parent view is faded in.
  */
@@ -766,6 +792,8 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 - (void)tuneFailedToReceiveiAdWithError:(NSError *)error;
 
+#endif
+
 @end
 
 
@@ -780,6 +808,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 
 @protocol TuneRegionDelegate <NSObject>
+
 @optional
 
 /*!

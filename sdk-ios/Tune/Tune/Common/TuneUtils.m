@@ -8,18 +8,18 @@
 
 #import "TuneUtils.h"
 
-#import "NSString+TuneURLEncoding.h"
 #import "TuneKeyStrings.h"
 #import "TuneSettings.h"
+#import "TuneUtils.h"
 
 #include <CommonCrypto/CommonDigest.h>
 #include <sys/sysctl.h>
 #include <net/if.h>
 #include <net/if_dl.h>
 
-const float TUNE_IOS_VERSION_501 = 5.01f;
-
+#if TARGET_OS_IOS
 NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
+#endif
 
 static NSString* const USER_DEFAULT_KEY_PREFIX = @"_TUNE_";
 
@@ -33,8 +33,10 @@ NSString *overrideNetworkStatus;
 
 +(void)initialize
 {
+#if !TARGET_OS_WATCH
     reachability = [TuneReachability reachabilityForInternetConnection];
     [reachability startNotifier];
+#endif
 }
 
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime
@@ -44,16 +46,16 @@ NSString *overrideNetworkStatus;
     
     NSCalendar *calendar = [NSCalendar currentCalendar];
     
-    [calendar rangeOfUnit:NSDayCalendarUnit
+    [calendar rangeOfUnit:NSCalendarUnitDay
                 startDate:&fromDate
                  interval:NULL
                   forDate:fromDateTime];
-    [calendar rangeOfUnit:NSDayCalendarUnit
+    [calendar rangeOfUnit:NSCalendarUnitDay
                 startDate:&toDate
                  interval:NULL
                   forDate:toDateTime];
     
-    NSDateComponents *difference = [calendar components:NSDayCalendarUnit
+    NSDateComponents *difference = [calendar components:NSCalendarUnitDay
                                                fromDate:fromDate
                                                  toDate:toDate
                                                 options:0];
@@ -61,7 +63,7 @@ NSString *overrideNetworkStatus;
     return [difference day];
 }
 
-
+#if TARGET_OS_IOS
 + (NSString*)generateFBCookieIdString
 {
     NSString * attributionID = nil;
@@ -74,9 +76,12 @@ NSString *overrideNetworkStatus;
     
     return attributionID;
 }
+#endif
 
 + (NSString *)getUUID
 {
+    return [[NSUUID UUID] UUIDString];
+    /*
     CFUUIDRef theUUID = CFUUIDCreate(NULL);
     CFStringRef string = CFUUIDCreateString(NULL, theUUID);
     CFRelease(theUUID);
@@ -84,8 +89,8 @@ NSString *overrideNetworkStatus;
     CFRelease(string);
     
     return returnString;
+     */
 }
-
 
 + (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag
 {
@@ -113,22 +118,24 @@ NSString *overrideNetworkStatus;
 {
     NSString *storedValue = nil;
     
-//    UIPasteboard *cookiePasteBoard = [UIPasteboard pasteboardWithName:pasteBoardName create:NO];
-//    
-//    if (key && cookiePasteBoard)
-//    {
-//        NSDictionary * itemsDict = nil;
-//        id items = [cookiePasteBoard valueForPasteboardType:(NSString*)kUTTypeTagSpecificationKey];
-//        if (items)
-//        {
-//            itemsDict = [NSKeyedUnarchiver unarchiveObjectWithData:items];
-//        }
-//        
-//        if (itemsDict)
-//        {
-//            storedValue = [itemsDict objectForKey:key];
-//        }
-//    }
+#if TARGET_OS_IOS
+    UIPasteboard *cookiePasteBoard = [UIPasteboard pasteboardWithName:pasteBoardName create:NO];
+    
+    if (key && cookiePasteBoard)
+    {
+        NSDictionary * itemsDict = nil;
+        id items = [cookiePasteBoard valueForPasteboardType:(NSString*)kUTTypeTagSpecificationKey];
+        if (items)
+        {
+            itemsDict = [NSKeyedUnarchiver unarchiveObjectWithData:items];
+        }
+        
+        if (itemsDict)
+        {
+            storedValue = [itemsDict objectForKey:key];
+        }
+    }
+#endif
     
     return storedValue;
 }
@@ -164,10 +171,10 @@ NSString *overrideNetworkStatus;
 
 + (BOOL)checkJailBreak
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     return NO;
-#endif
-    
+#else
+
     // METHOD 1: Check for file paths of some commonly used hacks
     // array of jail broken paths
     NSArray *jailBrokenPaths = @[@"/Applications/Cydia.app",
@@ -206,8 +213,9 @@ NSString *overrideNetworkStatus;
     {
         // METHOD 2: Check if a shell is present
         // Jailbroken devices have shell access, system(NULL) returns a non-zero value if a shell is present
+#if TARGET_OS_IOS
         jailBroken = system (NULL) != 0;
-        
+#endif
         if(!jailBroken)
         {
             // METHOD 3: There's no shell access, but check if we are being cheated.
@@ -234,6 +242,7 @@ NSString *overrideNetworkStatus;
 #endif
     
     return jailBroken;
+#endif
 }
 
 
@@ -251,25 +260,31 @@ NSString *overrideNetworkStatus;
     return appAttrs[NSFileCreationDate];
 }
 
-+ (NetworkStatus)networkReachabilityStatus
+#if !TARGET_OS_WATCH
++ (TuneNetworkStatus)networkReachabilityStatus
 {
-    NetworkStatus stat = [reachability currentReachabilityStatus];
+    TuneNetworkStatus stat = [reachability currentReachabilityStatus];
     
 #if TESTING
-    stat = overrideNetworkStatus && ![overrideNetworkStatus boolValue] ? NotReachable : [reachability currentReachabilityStatus];
+    stat = overrideNetworkStatus && ![overrideNetworkStatus boolValue] ? TuneNotReachable : [reachability currentReachabilityStatus];
 #endif
     
     return stat;
 }
+#endif
 
 + (BOOL)isNetworkReachable
 {
-    BOOL reachable = NotReachable != [self networkReachabilityStatus];
+    BOOL reachable = 
+#if TARGET_OS_WATCH
+    YES;
+#else
+    TuneNotReachable != [self networkReachabilityStatus];
     
 #if TESTING
-    reachable = overrideNetworkStatus ? [overrideNetworkStatus boolValue] : NotReachable != [reachability currentReachabilityStatus];
+    reachable = overrideNetworkStatus ? [overrideNetworkStatus boolValue] : TuneNotReachable != [reachability currentReachabilityStatus];
 #endif
-    
+#endif
     DLog(@"TuneUtils: isNetworkReachable: status = %d", reachable);
     
     return reachable;
@@ -310,7 +325,11 @@ NSString *overrideNetworkStatus;
 */
 + (float)numericiOSSystemVersion
 {
+#if TARGET_OS_WATCH
+    return 2.0;
+#else
     return [TuneUtils numericiOSVersion:[[UIDevice currentDevice] systemVersion]];
+#endif
 }
 
 // Refer: http://developer.apple.com/library/ios/#qa/qa1719/_index.html#//apple_ref/doc/uid/DTS40011342
@@ -326,31 +345,16 @@ NSString *overrideNetworkStatus;
     
     if([[NSFileManager defaultManager] fileExistsAtPath: [URL path]])
     {
-        float systemVersion = [TuneUtils numericiOSSystemVersion];
-        
-        if(systemVersion == TUNE_IOS_VERSION_501)
-        {
-            const char* filePath = [[URL path] fileSystemRepresentation];
-            
-            const char* attrName = "com.apple.MobileBackup";
-            u_int8_t attrValue = 1;
-            
-            int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
-            success = 0 == result;
-        }
-        else if(systemVersion > TUNE_IOS_VERSION_501)
-        {
-            NSError *error = nil;
-            success = [URL setResourceValue:@(YES)
-                                     forKey:NSURLIsExcludedFromBackupKey
-                                      error:&error];
+        NSError *error = nil;
+        success = [URL setResourceValue:@(YES)
+                                 forKey:NSURLIsExcludedFromBackupKey
+                                  error:&error];
 #if DEBUG_LOG
-            if(!success)
-            {
-                NSLog(@"TuneUtils addSkipBackupAttributeToItemAtURL: Error excluding %@ from backup %@", [URL lastPathComponent], error);
-            }
-#endif
+        if(!success)
+        {
+            NSLog(@"TuneUtils addSkipBackupAttributeToItemAtURL: Error excluding %@ from backup %@", [URL lastPathComponent], error);
         }
+#endif
     }
     
     return success;
@@ -528,7 +532,7 @@ NSString *overrideNetworkStatus;
         else if( [value isKindOfClass:[NSDate class]] )
             useString = [@((long)round( [value timeIntervalSince1970] )) stringValue];
         else if( [value isKindOfClass:[NSString class]] )
-            useString = [(NSString*)value urlEncodeUsingEncoding:NSUTF8StringEncoding];
+            useString = [TuneUtils urlEncode:(NSString*)value];
     }
     
     return useString;
@@ -537,7 +541,7 @@ NSString *overrideNetworkStatus;
 + (CGSize)screenSize
 {
     CGSize screenSize = CGSizeZero;
-    
+#if !TARGET_OS_WATCH
     // Make sure that the collected screen size is independent of the current device orientation,
     // when iOS version
     // >= 8.0 use "nativeBounds"
@@ -552,7 +556,7 @@ NSString *overrideNetworkStatus;
     {
         screenSize = [[UIScreen mainScreen] bounds].size;
     }
-    
+#endif
     return screenSize;
 }
 
@@ -562,15 +566,103 @@ NSString *overrideNetworkStatus;
  */
 + (CGRect)screenBoundsForStatusBarOrientation
 {
+#if TARGET_OS_WATCH
+    return CGRectZero; // TODO: fix of watchOS
+#else
     // portrait screen size
     CGSize screenSize = [self screenSize];
     
     // if current status bar orientation is landscape, then swap the screen width-height values
-    BOOL isLandscape = UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
+    BOOL isLandscape = FALSE;
+    if( [[UIApplication sharedApplication] respondsToSelector:@selector(statusBarOrientation)] ) {
+        //isLandscape = UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
+        NSInteger orientation = (NSInteger)[[UIApplication sharedApplication] performSelector:@selector(statusBarOrientation)];
+        isLandscape = (orientation == 3 || orientation == 4);
+    }
+    
     CGFloat curWidth = isLandscape ? screenSize.height : screenSize.width;
     CGFloat curHeight = isLandscape ? screenSize.width : screenSize.height;
     
     return CGRectMake(0, 0, curWidth, curHeight);
+#endif
 }
+
+
+#pragma mark - String Helper Methods
+
++ (NSString *)urlEncode:(NSString *)string
+{
+    return [self urlEncode:string usingEncoding:NSUTF8StringEncoding];
+}
+
++ (NSString *)urlEncode:(NSString *)inputString usingEncoding:(NSStringEncoding)encoding
+{
+    NSString *encodedString = nil;
+    
+    if(inputString && (id)[NSNull null] != inputString)
+    {
+        CFStringRef stringRef = CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                        (CFStringRef)inputString,
+                                                                        NULL,
+                                                                        (CFStringRef)@"!*'\"();:@&=+$,/?%#[] ",
+                                                                        CFStringConvertNSStringEncodingToEncoding(encoding));
+        encodedString = [(__bridge NSString*)stringRef copy];
+        CFRelease( stringRef );
+    }
+    
+    return encodedString;
+}
+
++ (void)logCharacterSet:(NSCharacterSet*)characterSet
+{
+    unichar unicharBuffer[20];
+    int index = 0;
+    
+    for (unichar uc = 0; uc < (0xFFFF); uc ++)
+    {
+        if ([characterSet characterIsMember:uc])
+        {
+            unicharBuffer[index] = uc;
+            
+            index ++;
+            
+            if (index == 20)
+            {
+                NSString * characters = [NSString stringWithCharacters:unicharBuffer length:index];
+                NSLog(@"%@", characters);
+                
+                index = 0;
+            }
+        }
+    }
+    
+    if (index != 0)
+    {
+        NSString * characters = [NSString stringWithCharacters:unicharBuffer length:index];
+        NSLog(@"%@", characters);
+    }
+}
+
+
+#pragma mark - NSURLSession Helpers
+
++ (nullable NSData *)sendSynchronousDataTaskWithRequest:(nonnull NSURLRequest *)request forSession:(NSURLSession *)session returningResponse:(NSURLResponse *_Nullable*_Nullable)response error:(NSError *_Nullable*_Nullable)error {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block NSData *data = nil;
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *taskData, NSURLResponse *taskResponse, NSError *taskError) {
+        data = taskData;
+        if (response) {
+            *response = taskResponse;
+        }
+        if (error) {
+            *error = taskError;
+        }
+        dispatch_semaphore_signal(semaphore);
+    }] resume];
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    
+    return data;
+}
+
 
 @end

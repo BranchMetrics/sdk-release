@@ -9,7 +9,11 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 #import <MobileCoreServices/UTType.h>
+
+#if TARGET_OS_IOS
 #import <SystemConfiguration/SystemConfiguration.h>
+#endif
+
 #import <UIKit/UIKit.h>
 
 #import <sys/xattr.h>
@@ -20,44 +24,46 @@
 
 @interface TuneUtils : NSObject
 
-FOUNDATION_EXPORT const float TUNE_IOS_VERSION_501; // float equivalent of 5.0.1
+#if TARGET_OS_IOS
++ (nullable NSString*)generateFBCookieIdString;
+#endif
 
-+ (NSString*)generateFBCookieIdString;
++ (nonnull NSString *)getUUID;
 
-+ (NSString *)getUUID;
-
-+ (NSString *)bundleId;
-+ (NSDate *)installDate;
++ (nonnull NSString *)bundleId;
++ (nonnull NSDate *)installDate;
 
 + (BOOL)isNetworkReachable;
 
-+ (NetworkStatus)networkReachabilityStatus;
+#if !TARGET_OS_WATCH
++ (TuneNetworkStatus)networkReachabilityStatus;
+#endif
 
-+ (NSString*)getStringForKey:(NSString*)key fromPasteBoard:(NSString *)pasteBoardName;
++ (nullable NSString*)getStringForKey:(nonnull NSString*)key fromPasteBoard:(nonnull NSString *)pasteBoardName;
 
-+ (id)userDefaultValueforKey:(NSString *)key;
-+ (void)setUserDefaultValue:(id)value forKey:(NSString* )key;
++ (nullable id)userDefaultValueforKey:(nonnull NSString *)key;
++ (void)setUserDefaultValue:(nonnull id)value forKey:(nonnull NSString* )key;
 + (void)synchronizeUserDefaults;
 
 + (BOOL)checkJailBreak;
 
-+ (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime;
++ (NSInteger)daysBetweenDate:(nonnull NSDate*)fromDateTime andDate:(nonnull NSDate*)toDateTime;
 
-+ (float)numericiOSVersion:(NSString *)iOSVersion;
++ (float)numericiOSVersion:(nonnull NSString *)iOSVersion;
 + (float)numericiOSSystemVersion;
 
-+ (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL;
++ (BOOL)addSkipBackupAttributeToItemAtURL:(nonnull NSURL *)URL;
 
-+ (NSString *)jsonSerialize:(id)object;
++ (nullable NSString *)jsonSerialize:(nullable id)object;
 
-+ (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag;
++ (nullable NSString *)parseXmlString:(nullable NSString *)strXml forTag:(nullable NSString *)tag;
 
-+ (NSString *)hashMd5:(NSString *)input;
-+ (NSString *)hashSha1:(NSString *)input;
-+ (NSString *)hashSha256:(NSString *)input;
++ (nullable NSString *)hashMd5:(nullable NSString *)input;
++ (nullable NSString *)hashSha1:(nullable NSString *)input;
++ (nullable NSString *)hashSha256:(nullable NSString *)input;
 
 #if TESTING
-+ (void)overrideNetworkReachability:(NSString *)reachable;
++ (void)overrideNetworkReachability:(nonnull NSString *)reachable;
 #endif
 
 /*!
@@ -67,25 +73,34 @@ FOUNDATION_EXPORT const float TUNE_IOS_VERSION_501; // float equivalent of 5.0.1
  @param key key to be appended to the query string
  @param params query string to which the key-value pair has to be appended
  */
-+ (void)addUrlQueryParamValue:(id)value
-                       forKey:(NSString*)key
-                  queryParams:(NSMutableString*)params;
++ (void)addUrlQueryParamValue:(nonnull id)value
+                       forKey:(nonnull NSString*)key
+                  queryParams:(nonnull NSMutableString*)params;
 
 /*!
  Converts input object to equivalent string representation for use as value of a url query param.
  Returns stringValue for NSNumber*, timeIntervalSince1970 stringValue for NSDate*, and url-encoded string for NSString*, nil otherwise.
  */
-+ (NSString *)urlEncodeQueryParamValue:(id)value;
++ (nullable NSString *)urlEncodeQueryParamValue:(nullable id)value;
 
 
 #pragma mark -
 
-+ (NSData *)tuneDataFromBase64String:(NSString *)aString;
-+ (NSString *)tuneBase64EncodedStringFromData:(NSData *)data;
++ (nonnull NSData *)tuneDataFromBase64String:(nonnull NSString *)aString;
++ (nonnull NSString *)tuneBase64EncodedStringFromData:(nonnull NSData *)data;
 
 #pragma mark -
 
 + (CGSize)screenSize;
 + (CGRect)screenBoundsForStatusBarOrientation;
+
+#pragma mark - String Helper Methods
+
++ (nullable NSString *)urlEncode:(nullable NSString *)string;
++ (nullable NSString *)urlEncode:(nullable NSString *)string usingEncoding:(NSStringEncoding)encoding;
+
+#pragma mark - NSURLSession Helper
+
++ (nullable NSData *)sendSynchronousDataTaskWithRequest:(nonnull NSURLRequest *)request forSession:(nonnull NSURLSession *)session returningResponse:(NSURLResponse *_Nullable*_Nullable)response error:(NSError *_Nullable*_Nullable)error;
 
 @end

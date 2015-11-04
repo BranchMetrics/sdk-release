@@ -12,6 +12,10 @@
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
 
+#ifdef MAT_USE_LOCATION
+#import "TuneRegionMonitor.h"
+#endif
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -72,6 +76,8 @@
     }
 }
 
+#if USE_IAD
+
 - (void)tuneDidDisplayiAd
 {
     if(self.matDelegate && [self.matDelegate respondsToSelector:@selector(mobileAppTrackerDidDisplayiAd)])
@@ -95,6 +101,8 @@
         [self.matDelegate mobileAppTrackerFailedToReceiveiAdWithError:error];
     }
 }
+
+#endif
 
 @end
 
@@ -217,11 +225,12 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     [Tune checkForDeferredDeeplink:matTuneDelegate];
 }
 
+#if !TARGET_OS_WATCH
 + (void)automateIapEventMeasurement:(BOOL)automate
 {
     [Tune automateIapEventMeasurement:automate];
 }
-
+#endif
 
 #pragma mark - Setter Methods
 
@@ -239,6 +248,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     [Tune setExistingUser:existingUser];
 }
 
+#if !TARGET_OS_WATCH
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
@@ -249,6 +259,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 {
     [Tune setAppleVendorIdentifier:appleVendorIdentifier];
 }
+#endif
 
 + (void)setCurrencyCode:(NSString *)currencyCode
 {
@@ -265,25 +276,31 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     [Tune setPackageName:packageName];
 }
 
+#if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
 {
     [Tune setShouldAutoCollectAppleAdvertisingIdentifier:autoCollect];
 }
+#endif
 
+#if TARGET_OS_IOS
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
 {
     [Tune setShouldAutoCollectDeviceLocation:autoCollect];
 }
+#endif
 
 + (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect
 {
     [Tune setShouldAutoDetectJailbroken:autoDetect];
 }
 
+#if !TARGET_OS_WATCH
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate
 {
     [Tune setShouldAutoGenerateAppleVendorIdentifier:autoGenerate];
 }
+#endif
 
 + (void)setSiteId:(NSString *)siteId
 {
@@ -793,4 +810,4 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 
 @end
 
-#pragma GCC diagnostic pop
+#pragma mark - GCC diagnostic pop

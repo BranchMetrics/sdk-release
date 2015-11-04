@@ -10,6 +10,7 @@
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Common/Tune_internal.h"
+#import "../Tune/Tune.h"
 #import "../Tune/TuneEvent.h"
 #import "../Tune/TuneEventItem.h"
 #import "../Tune/Common/TuneTracker.h"
@@ -18,6 +19,7 @@
 @interface TuneEventItemTests : XCTestCase <TuneDelegate>
 {
     TuneTestParams *params;
+    BOOL finished;
 }
 
 @end
@@ -32,6 +34,8 @@
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     
+    finished = NO;
+    
     params = [TuneTestParams new];
     
     emptyRequestQueue();
@@ -39,9 +43,11 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    finished = NO;
     
     emptyRequestQueue();
+    
+    [super tearDown];
 }
 
 #pragma mark - TuneEventItem Tests
@@ -62,7 +68,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -81,7 +87,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertTrue( [params checkNoDataItems], @"should not send dictionary event items" );
@@ -103,7 +109,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -131,7 +137,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -163,7 +169,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -201,7 +207,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -240,7 +246,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );

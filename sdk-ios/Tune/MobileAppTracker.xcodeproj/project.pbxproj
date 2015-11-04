@@ -6,6 +6,42 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		F814391E1BB9CD2F00FFD87A /* MatUniversal_ios */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_ios" */;
+			buildPhases = (
+				F81439231BB9CD6B00FFD87A /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = MatUniversal_ios;
+			productName = MatUniversal_ios;
+		};
+		F81439241BB9CD7F00FFD87A /* MatUniversal_tvos */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvos" */;
+			buildPhases = (
+				F81439251BB9CD7F00FFD87A /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = MatUniversal_tvos;
+			productName = MatUniversal_ios;
+		};
+		F814392A1BB9CD8A00FFD87A /* MatUniversal_watchos */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchos" */;
+			buildPhases = (
+				F814392B1BB9CD8A00FFD87A /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = MatUniversal_watchos;
+			productName = MatUniversal_ios;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		3232BC351B29F3CB00594EB2 /* TuneBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232BC341B29F3CB00594EB2 /* TuneBanner.m */; };
 		3232BC371B29F3D200594EB2 /* TuneBanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 3232BC361B29F3D200594EB2 /* TuneBanner.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -22,7 +58,6 @@
 		4260CBCC196B41CF0084FE12 /* TuneEncrypterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCB196B41CF0084FE12 /* TuneEncrypterTests.m */; };
 		4260CBCF196B69DF0084FE12 /* TuneEncrypter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4260CBCD196B69DF0084FE12 /* TuneEncrypter.h */; };
 		4260CBD0196B69DF0084FE12 /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCE196B69DF0084FE12 /* TuneEncrypter.m */; };
-		4284981818E1ECE6008E8FF0 /* TuneInstallReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 4212224418E0BCBE001F263E /* TuneInstallReceipt.m */; };
 		428F084C18C13E5900B1AC24 /* TuneTrackerInitializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084B18C13E5900B1AC24 /* TuneTrackerInitializationTests.m */; };
 		428F084F18C13F1900B1AC24 /* TuneTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* TuneTracker.h */; };
 		428F085018C13F1900B1AC24 /* TuneTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* TuneTracker.m */; };
@@ -49,8 +84,8 @@
 		4FDFA18C15C700D300BEEC38 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
 		4FDFA1B215C7029A00BEEC38 /* TuneKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19C15C7029A00BEEC38 /* TuneKeyStrings.h */; };
 		4FDFA1B315C7029A00BEEC38 /* TuneKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* TuneKeyStrings.m */; };
-		4FDFA1B615C7029A00BEEC38 /* NSString+TuneURLEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* NSString+TuneURLEncoding.h */; };
-		4FDFA1B715C7029A00BEEC38 /* NSString+TuneURLEncoding.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A115C7029A00BEEC38 /* NSString+TuneURLEncoding.m */; };
+		4FDFA1B615C7029A00BEEC38 /* TuneXmlHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* TuneXmlHelper.h */; };
+		4FDFA1B715C7029A00BEEC38 /* TuneXmlHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A115C7029A00BEEC38 /* TuneXmlHelper.m */; };
 		4FDFA1BC15C7029A00BEEC38 /* TuneRequestsQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A615C7029A00BEEC38 /* TuneRequestsQueue.h */; };
 		4FDFA1BE15C7029A00BEEC38 /* TuneRequestsQueuePart.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A815C7029A00BEEC38 /* TuneRequestsQueuePart.h */; };
 		4FDFA1C215C7029A00BEEC38 /* TuneUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1AC15C7029A00BEEC38 /* TuneUtils.h */; };
@@ -71,6 +106,134 @@
 		F8080C51196C8CFF00CF63BC /* TuneAdUtilitiesUI.m in Sources */ = {isa = PBXBuildFile; fileRef = F8080C40196C8CFF00CF63BC /* TuneAdUtilitiesUI.m */; };
 		F808B44A1B716C310067114F /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F808B4491B716C310067114F /* MATEvent_internal.h */; };
 		F80E4FAA1A536970001918CF /* TuneAdNetworkHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F80E4FA91A536970001918CF /* TuneAdNetworkHelperTests.m */; };
+		F814384B1BB9CCD200FFD87A /* TuneEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F883D9C01AAF984200E7223E /* TuneEvent.m */; };
+		F814384C1BB9CCD200FFD87A /* TuneEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD261880893F00187A4A /* TuneEventItem.m */; };
+		F814384D1BB9CCD200FFD87A /* TuneSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD32188093DB00187A4A /* TuneSettings.m */; };
+		F814384E1BB9CCD200FFD87A /* MATEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E771B56FA55008E8215 /* MATEvent.m */; };
+		F81438501BB9CCD200FFD87A /* TuneKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* TuneKeyStrings.m */; };
+		F81438511BB9CCD200FFD87A /* TuneLocationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */; };
+		F81438521BB9CCD200FFD87A /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 42C1E2B818C012B100C5789C /* TuneAppToAppTracker.m */; };
+		F81438531BB9CCD200FFD87A /* TuneLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B4A1B70389800AE871C /* TuneLocation.m */; };
+		F81438541BB9CCD200FFD87A /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 42D52291199A8A9E00FC5F8F /* TuneEventQueue.m */; };
+		F81438561BB9CCD200FFD87A /* TuneXmlHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A115C7029A00BEEC38 /* TuneXmlHelper.m */; };
+		F81438571BB9CCD200FFD87A /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 429857F71A41E2B5008539A6 /* TuneDeferredDplinkr.m */; };
+		F81438581BB9CCD200FFD87A /* TuneRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* TuneRequestsQueue.m */; };
+		F81438591BB9CCD200FFD87A /* TuneRequestsQueuePart.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A915C7029A00BEEC38 /* TuneRequestsQueuePart.m */; };
+		F814385A1BB9CCD200FFD87A /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCE196B69DF0084FE12 /* TuneEncrypter.m */; };
+		F814385B1BB9CCD200FFD87A /* TunePreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F835C8E11AEED5E300B56A9D /* TunePreloadData.m */; };
+		F814385C1BB9CCD200FFD87A /* TuneUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 42FFE858191D16AE00ACF2E2 /* TuneUserAgentCollector.m */; };
+		F814385D1BB9CCD200FFD87A /* TuneUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1AD15C7029A00BEEC38 /* TuneUtils.m */; };
+		F814385E1BB9CCD200FFD87A /* MATEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E791B56FA55008E8215 /* MATEventItem.m */; };
+		F81438631BB9CCD200FFD87A /* MobileAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E7A1B56FA55008E8215 /* MobileAppTracker.m */; };
+		F81438641BB9CCD200FFD87A /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 42BA465D19E5D3F00076249D /* TuneFBBridge.m */; };
+		F81438651BB9CCD200FFD87A /* Tune.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21615C7032400BEEC38 /* Tune.m */; };
+		F81438671BB9CCD200FFD87A /* MATPreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E711B56F869008E8215 /* MATPreloadData.m */; };
+		F81438681BB9CCD200FFD87A /* TuneRegionMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CD417F191156BC003D0293 /* TuneRegionMonitor.m */; };
+		F814386A1BB9CCD200FFD87A /* TuneTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* TuneTracker.m */; };
+		F814386B1BB9CCD200FFD87A /* TuneIfa.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B0C1B70027400AE871C /* TuneIfa.m */; };
+		F814386D1BB9CCD200FFD87A /* TuneInstallReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 4212224418E0BCBE001F263E /* TuneInstallReceipt.m */; };
+		F81438701BB9CCD200FFD87A /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */; };
+		F81438731BB9CCD200FFD87A /* TuneReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* TuneReachability.m */; };
+		F81438741BB9CCD200FFD87A /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* TuneCWorks.m */; };
+		F81438771BB9CCD200FFD87A /* MobileAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E721B56F869008E8215 /* MobileAppTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438781BB9CCD200FFD87A /* MATEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E761B56FA55008E8215 /* MATEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438791BB9CCD200FFD87A /* MATEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E781B56FA55008E8215 /* MATEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F814387A1BB9CCD200FFD87A /* MATPreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E701B56F869008E8215 /* MATPreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F814387F1BB9CCD200FFD87A /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 429857F61A41E2B5008539A6 /* TuneDeferredDplinkr.h */; };
+		F81438801BB9CCD200FFD87A /* TuneLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B491B70389800AE871C /* TuneLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438811BB9CCD200FFD87A /* TuneSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CBBD31188093DB00187A4A /* TuneSettings.h */; };
+		F81438821BB9CCD200FFD87A /* TuneEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F883D9BF1AAF984200E7223E /* TuneEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438831BB9CCD200FFD87A /* TuneEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CBBD251880893F00187A4A /* TuneEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438841BB9CCD200FFD87A /* TuneLocation_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B471B70382200AE871C /* TuneLocation_internal.h */; };
+		F81438851BB9CCD200FFD87A /* TunePreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F835C8E01AEED5E300B56A9D /* TunePreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438891BB9CCD200FFD87A /* Tune.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA21515C7032400BEEC38 /* Tune.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F814388A1BB9CCD200FFD87A /* TuneEncrypter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4260CBCD196B69DF0084FE12 /* TuneEncrypter.h */; };
+		F814388B1BB9CCD200FFD87A /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */; };
+		F814388C1BB9CCD200FFD87A /* TuneUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 42FFE857191D16AE00ACF2E2 /* TuneUserAgentCollector.h */; };
+		F81438901BB9CCD200FFD87A /* TuneIfa.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B0B1B70027400AE871C /* TuneIfa.h */; };
+		F81438911BB9CCD200FFD87A /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F808B4491B716C310067114F /* MATEvent_internal.h */; };
+		F81438921BB9CCD200FFD87A /* TuneEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F498A21B03C8D000A51D2D /* TuneEvent_internal.h */; };
+		F81438931BB9CCD200FFD87A /* TuneKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19C15C7029A00BEEC38 /* TuneKeyStrings.h */; };
+		F81438961BB9CCD200FFD87A /* TuneAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 42C1E2B718C012B100C5789C /* TuneAppToAppTracker.h */; };
+		F81438971BB9CCD200FFD87A /* TuneRegionMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CD417E191156BC003D0293 /* TuneRegionMonitor.h */; };
+		F81438981BB9CCD200FFD87A /* Tune_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A85C5C196E26620012927E /* Tune_internal.h */; };
+		F814389C1BB9CCD200FFD87A /* TuneXmlHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* TuneXmlHelper.h */; };
+		F814389D1BB9CCD200FFD87A /* TuneTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* TuneTracker.h */; };
+		F814389E1BB9CCD200FFD87A /* TuneRequestsQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A615C7029A00BEEC38 /* TuneRequestsQueue.h */; };
+		F814389F1BB9CCD200FFD87A /* TuneRequestsQueuePart.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A815C7029A00BEEC38 /* TuneRequestsQueuePart.h */; };
+		F81438A01BB9CCD200FFD87A /* TuneUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1AC15C7029A00BEEC38 /* TuneUtils.h */; };
+		F81438A11BB9CCD200FFD87A /* TuneEventQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 42D52290199A8A9E00FC5F8F /* TuneEventQueue.h */; };
+		F81438A31BB9CCD200FFD87A /* TuneFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 42BA465C19E5D3F00076249D /* TuneFBBridge.h */; };
+		F81438A41BB9CCD200FFD87A /* TuneInstallReceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = 4212224318E0BCBD001F263E /* TuneInstallReceipt.h */; };
+		F81438A51BB9CCD200FFD87A /* TuneReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA21C15C7079A00BEEC38 /* TuneReachability.h */; };
+		F81438A61BB9CCD200FFD87A /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* TuneCWorks.h */; };
+		F81438A71BB9CCD200FFD87A /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */; };
+		F81438A91BB9CCD200FFD87A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
+		F81438B71BB9CCDD00FFD87A /* TuneEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F883D9C01AAF984200E7223E /* TuneEvent.m */; };
+		F81438B81BB9CCDD00FFD87A /* TuneEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD261880893F00187A4A /* TuneEventItem.m */; };
+		F81438B91BB9CCDD00FFD87A /* TuneSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CBBD32188093DB00187A4A /* TuneSettings.m */; };
+		F81438BA1BB9CCDD00FFD87A /* MATEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E771B56FA55008E8215 /* MATEvent.m */; };
+		F81438BC1BB9CCDD00FFD87A /* TuneKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* TuneKeyStrings.m */; };
+		F81438BD1BB9CCDD00FFD87A /* TuneLocationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */; };
+		F81438BE1BB9CCDD00FFD87A /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 42C1E2B818C012B100C5789C /* TuneAppToAppTracker.m */; };
+		F81438BF1BB9CCDD00FFD87A /* TuneLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B4A1B70389800AE871C /* TuneLocation.m */; };
+		F81438C01BB9CCDD00FFD87A /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 42D52291199A8A9E00FC5F8F /* TuneEventQueue.m */; };
+		F81438C21BB9CCDD00FFD87A /* TuneXmlHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A115C7029A00BEEC38 /* TuneXmlHelper.m */; };
+		F81438C31BB9CCDD00FFD87A /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 429857F71A41E2B5008539A6 /* TuneDeferredDplinkr.m */; };
+		F81438C41BB9CCDD00FFD87A /* TuneRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* TuneRequestsQueue.m */; };
+		F81438C51BB9CCDD00FFD87A /* TuneRequestsQueuePart.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A915C7029A00BEEC38 /* TuneRequestsQueuePart.m */; };
+		F81438C61BB9CCDD00FFD87A /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCE196B69DF0084FE12 /* TuneEncrypter.m */; };
+		F81438C71BB9CCDD00FFD87A /* TunePreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F835C8E11AEED5E300B56A9D /* TunePreloadData.m */; };
+		F81438C81BB9CCDD00FFD87A /* TuneUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 42FFE858191D16AE00ACF2E2 /* TuneUserAgentCollector.m */; };
+		F81438C91BB9CCDD00FFD87A /* TuneUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1AD15C7029A00BEEC38 /* TuneUtils.m */; };
+		F81438CA1BB9CCDD00FFD87A /* MATEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E791B56FA55008E8215 /* MATEventItem.m */; };
+		F81438CF1BB9CCDD00FFD87A /* MobileAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E7A1B56FA55008E8215 /* MobileAppTracker.m */; };
+		F81438D01BB9CCDD00FFD87A /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 42BA465D19E5D3F00076249D /* TuneFBBridge.m */; };
+		F81438D11BB9CCDD00FFD87A /* Tune.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21615C7032400BEEC38 /* Tune.m */; };
+		F81438D31BB9CCDD00FFD87A /* MATPreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E711B56F869008E8215 /* MATPreloadData.m */; };
+		F81438D41BB9CCDD00FFD87A /* TuneRegionMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 42CD417F191156BC003D0293 /* TuneRegionMonitor.m */; };
+		F81438D61BB9CCDD00FFD87A /* TuneTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084E18C13F1900B1AC24 /* TuneTracker.m */; };
+		F81438D71BB9CCDD00FFD87A /* TuneIfa.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B0C1B70027400AE871C /* TuneIfa.m */; };
+		F81438D91BB9CCDD00FFD87A /* TuneInstallReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 4212224418E0BCBE001F263E /* TuneInstallReceipt.m */; };
+		F81438DC1BB9CCDD00FFD87A /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */; };
+		F81438DF1BB9CCDD00FFD87A /* TuneReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA21D15C7079A00BEEC38 /* TuneReachability.m */; };
+		F81438E01BB9CCDD00FFD87A /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* TuneCWorks.m */; };
+		F81438E31BB9CCDD00FFD87A /* MobileAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E721B56F869008E8215 /* MobileAppTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438E41BB9CCDD00FFD87A /* MATEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E761B56FA55008E8215 /* MATEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438E51BB9CCDD00FFD87A /* MATEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E781B56FA55008E8215 /* MATEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438E61BB9CCDD00FFD87A /* MATPreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E701B56F869008E8215 /* MATPreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438EB1BB9CCDD00FFD87A /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 429857F61A41E2B5008539A6 /* TuneDeferredDplinkr.h */; };
+		F81438EC1BB9CCDD00FFD87A /* TuneLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B491B70389800AE871C /* TuneLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438ED1BB9CCDD00FFD87A /* TuneSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CBBD31188093DB00187A4A /* TuneSettings.h */; };
+		F81438EE1BB9CCDD00FFD87A /* TuneEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F883D9BF1AAF984200E7223E /* TuneEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438EF1BB9CCDD00FFD87A /* TuneEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CBBD251880893F00187A4A /* TuneEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438F01BB9CCDD00FFD87A /* TuneLocation_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B471B70382200AE871C /* TuneLocation_internal.h */; };
+		F81438F11BB9CCDD00FFD87A /* TunePreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F835C8E01AEED5E300B56A9D /* TunePreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438F51BB9CCDD00FFD87A /* Tune.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA21515C7032400BEEC38 /* Tune.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81438F61BB9CCDD00FFD87A /* TuneEncrypter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4260CBCD196B69DF0084FE12 /* TuneEncrypter.h */; };
+		F81438F71BB9CCDD00FFD87A /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */; };
+		F81438F81BB9CCDD00FFD87A /* TuneUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 42FFE857191D16AE00ACF2E2 /* TuneUserAgentCollector.h */; };
+		F81438FC1BB9CCDD00FFD87A /* TuneIfa.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B0B1B70027400AE871C /* TuneIfa.h */; };
+		F81438FD1BB9CCDD00FFD87A /* MATEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F808B4491B716C310067114F /* MATEvent_internal.h */; };
+		F81438FE1BB9CCDD00FFD87A /* TuneEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F498A21B03C8D000A51D2D /* TuneEvent_internal.h */; };
+		F81438FF1BB9CCDD00FFD87A /* TuneKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA19C15C7029A00BEEC38 /* TuneKeyStrings.h */; };
+		F81439021BB9CCDD00FFD87A /* TuneAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 42C1E2B718C012B100C5789C /* TuneAppToAppTracker.h */; };
+		F81439031BB9CCDD00FFD87A /* TuneRegionMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 42CD417E191156BC003D0293 /* TuneRegionMonitor.h */; };
+		F81439041BB9CCDD00FFD87A /* Tune_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A85C5C196E26620012927E /* Tune_internal.h */; };
+		F81439081BB9CCDD00FFD87A /* TuneXmlHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A015C7029A00BEEC38 /* TuneXmlHelper.h */; };
+		F81439091BB9CCDD00FFD87A /* TuneTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 428F084D18C13F1900B1AC24 /* TuneTracker.h */; };
+		F814390A1BB9CCDD00FFD87A /* TuneRequestsQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A615C7029A00BEEC38 /* TuneRequestsQueue.h */; };
+		F814390B1BB9CCDD00FFD87A /* TuneRequestsQueuePart.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1A815C7029A00BEEC38 /* TuneRequestsQueuePart.h */; };
+		F814390C1BB9CCDD00FFD87A /* TuneUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA1AC15C7029A00BEEC38 /* TuneUtils.h */; };
+		F814390D1BB9CCDD00FFD87A /* TuneEventQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 42D52290199A8A9E00FC5F8F /* TuneEventQueue.h */; };
+		F814390F1BB9CCDD00FFD87A /* TuneFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 42BA465C19E5D3F00076249D /* TuneFBBridge.h */; };
+		F81439101BB9CCDD00FFD87A /* TuneInstallReceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = 4212224318E0BCBD001F263E /* TuneInstallReceipt.h */; };
+		F81439111BB9CCDD00FFD87A /* TuneReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDFA21C15C7079A00BEEC38 /* TuneReachability.h */; };
+		F81439121BB9CCDD00FFD87A /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* TuneCWorks.h */; };
+		F81439131BB9CCDD00FFD87A /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */; };
+		F81439151BB9CCDD00FFD87A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
+		F81439361BB9D21400FFD87A /* MobileAppTracker_tvos.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81439371BB9D21900FFD87A /* MobileAppTracker_watchos.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F824DE821AE5A37F0042E796 /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */; };
 		F824DE831AE5A37F0042E796 /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */; };
 		F83044731A16D78A002CA9A1 /* TuneAdMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -84,6 +247,7 @@
 		F84C7B481B70382200AE871C /* TuneLocation_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B471B70382200AE871C /* TuneLocation_internal.h */; };
 		F84C7B4B1B70389800AE871C /* TuneLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = F84C7B491B70389800AE871C /* TuneLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F84C7B4C1B70389800AE871C /* TuneLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F84C7B4A1B70389800AE871C /* TuneLocation.m */; };
+		F854C0BD1BE7EDC20056E5A2 /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */; };
 		F85C672719B9098800AF940F /* TuneAdViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672619B9098800AF940F /* TuneAdViewTests.m */; };
 		F85C672919B90A0700AF940F /* TuneAdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672819B90A0700AF940F /* TuneAdTests.m */; };
 		F85C672B19B90A7F00AF940F /* TuneAdUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672A19B90A7F00AF940F /* TuneAdUtilsTests.m */; };
@@ -91,7 +255,6 @@
 		F85C672F19B90B0600AF940F /* TuneAdDownloadHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85C672E19B90B0600AF940F /* TuneAdDownloadHelperTests.m */; };
 		F85D8B061AEEEDA600379028 /* TuneEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85D8B051AEEEDA600379028 /* TuneEventTests.m */; };
 		F85D8B081AEEF33300379028 /* TunePreloadDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85D8B071AEEF33300379028 /* TunePreloadDataTests.m */; };
-		F861A99F1A5216A300185E2F /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */; };
 		F861A9A11A52184F00185E2F /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F861A9A01A52184F00185E2F /* CoreTelephony.framework */; };
 		F865FE611B73F67400A2BBEC /* TuneAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = F865FE601B73F67400A2BBEC /* TuneAdView.m */; };
 		F865FE631B73F67D00A2BBEC /* TuneAdView_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F865FE621B73F67D00A2BBEC /* TuneAdView_internal.h */; };
@@ -101,12 +264,27 @@
 		F86E5C681B1BD2C100F82326 /* TuneAdPlacement.m in Sources */ = {isa = PBXBuildFile; fileRef = F86E5C661B1BD2C100F82326 /* TuneAdPlacement.m */; };
 		F883D9C11AAF984200E7223E /* TuneEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = F883D9BF1AAF984200E7223E /* TuneEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F883D9C21AAF984200E7223E /* TuneEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = F883D9C01AAF984200E7223E /* TuneEvent.m */; };
-		F89BDEE91ABCA3EE002485ED /* TuneKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA19D15C7029A00BEEC38 /* TuneKeyStrings.m */; };
 		F8A2EA8316445D3E0023FCE1 /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* TuneCWorks.h */; };
 		F8A2EA8416445D3E0023FCE1 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A2EA8216445D3E0023FCE1 /* TuneCWorks.m */; };
 		F8A85C5A196E0E760012927E /* TuneAdParams.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A85C58196E0E760012927E /* TuneAdParams.h */; };
 		F8A85C5B196E0E760012927E /* TuneAdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A85C59196E0E760012927E /* TuneAdParams.m */; };
 		F8A85C5D196E26620012927E /* Tune_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A85C5C196E26620012927E /* Tune_internal.h */; };
+		F8B3AB0D1BBC7271003E602A /* TuneAutoParameterizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42DD9C8A1863A719005CA6F9 /* TuneAutoParameterizationTests.m */; };
+		F8B3AB0E1BBC7271003E602A /* TuneEncrypterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCB196B41CF0084FE12 /* TuneEncrypterTests.m */; };
+		F8B3AB0F1BBC7271003E602A /* TuneEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85D8B051AEEEDA600379028 /* TuneEventTests.m */; };
+		F8B3AB101BBC7271003E602A /* TuneEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F2189335B0001A25FC /* TuneEventItemTests.m */; };
+		F8B3AB111BBC7271003E602A /* TuneHTTPErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F085818C166DC00B1AC24 /* TuneHTTPErrorTests.m */; };
+		F8B3AB121BBC7271003E602A /* TuneParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C03186277AB005BDB32 /* TuneParametersTests.m */; };
+		F8B3AB131BBC7271003E602A /* TunePreloadDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F85D8B071AEEF33300379028 /* TunePreloadDataTests.m */; };
+		F8B3AB141BBC7271003E602A /* TuneQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BF9186250DB005BDB32 /* TuneQueueTests.m */; };
+		F8B3AB151BBC7271003E602A /* TuneServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108BFD1862518F005BDB32 /* TuneServerTests.m */; };
+		F8B3AB161BBC7271003E602A /* TuneTestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C06186356E0005BDB32 /* TuneTestParams.m */; };
+		F8B3AB171BBC7271003E602A /* TuneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42EAA54B1860F4B900041A8D /* TuneTests.m */; };
+		F8B3AB181BBC7271003E602A /* TuneTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C01186251EE005BDB32 /* TuneTestsHelper.m */; };
+		F8B3AB191BBC7271003E602A /* TuneTrackerInitializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084B18C13E5900B1AC24 /* TuneTrackerInitializationTests.m */; };
+		F8B3AB1A1BBC7271003E602A /* TuneUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F0189333BB001A25FC /* TuneUtilsTests.m */; };
+		F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */; };
+		F8B3AB1C1BBC766C003E602A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42EAA5481860F4B900041A8D /* InfoPlist.strings */; };
 		F8B71E5E1B55E4C0008E8215 /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */; };
 		F8B71E5F1B55E4C0008E8215 /* TuneLocationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */; };
 		F8B71E731B56F869008E8215 /* MATPreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E701B56F869008E8215 /* MATPreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -121,22 +299,20 @@
 		F8BAC7F3189335B0001A25FC /* TuneEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F2189335B0001A25FC /* TuneEventItemTests.m */; };
 		F8BF1CA019B536910002B5FD /* TuneAdUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8BF1C9E19B536910002B5FD /* TuneAdUtils.h */; };
 		F8BF1CA119B536910002B5FD /* TuneAdUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BF1C9F19B536910002B5FD /* TuneAdUtils.m */; };
-		F8C1E84B1980729F00101D56 /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4260CBCE196B69DF0084FE12 /* TuneEncrypter.m */; };
 		F8C5D35219A8134F002CCC39 /* TuneAdSKStoreProductViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = F8C5D35019A8134F002CCC39 /* TuneAdSKStoreProductViewController.h */; };
 		F8C5D35319A8134F002CCC39 /* TuneAdSKStoreProductViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C5D35119A8134F002CCC39 /* TuneAdSKStoreProductViewController.m */; };
 		F8E580871AA7D00A0000E856 /* TuneRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A715C7029A00BEEC38 /* TuneRequestsQueue.m */; };
 		F8E580881AA7D00A0000E856 /* TuneRequestsQueuePart.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1A915C7029A00BEEC38 /* TuneRequestsQueuePart.m */; };
 		F8F498A31B03C8D000A51D2D /* TuneEvent_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F498A21B03C8D000A51D2D /* TuneEvent_internal.h */; };
-		F8F698C91AF161B200D71CB6 /* TuneUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDFA1AD15C7029A00BEEC38 /* TuneUtils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F85D8B091AEEF7E600379028 /* PBXContainerItemProxy */ = {
+		F8B3AB051BBC7252003E602A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FDFA17515C700D300BEEC38 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 4FDFA18115C700D300BEEC38;
-			remoteInfo = Tune;
+			remoteGlobalIDString = F81438461BB9CCD200FFD87A;
+			remoteInfo = MobileAppTracker_tvos;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -178,22 +354,21 @@
 		42D52291199A8A9E00FC5F8F /* TuneEventQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEventQueue.m; sourceTree = "<group>"; };
 		42DD9C8A1863A719005CA6F9 /* TuneAutoParameterizationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAutoParameterizationTests.m; sourceTree = "<group>"; };
 		42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MobileAppTracker Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		42EAA5471860F4B900041A8D /* MobileAppTracker Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MobileAppTracker Tests-Info.plist"; sourceTree = "<group>"; };
 		42EAA5491860F4B900041A8D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		42EAA54B1860F4B900041A8D /* TuneTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneTests.m; sourceTree = "<group>"; };
 		42EAA54D1860F4B900041A8D /* MobileAppTracker Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MobileAppTracker Tests-Prefix.pch"; sourceTree = "<group>"; };
 		42FFE857191D16AE00ACF2E2 /* TuneUserAgentCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneUserAgentCollector.h; sourceTree = "<group>"; };
 		42FFE858191D16AE00ACF2E2 /* TuneUserAgentCollector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneUserAgentCollector.m; sourceTree = "<group>"; };
 		4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FDFA18915C700D300BEEC38 /* MobileAppTracker-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MobileAppTracker-Info.plist"; sourceTree = "<group>"; };
+		4FDFA18915C700D300BEEC38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4FDFA18B15C700D300BEEC38 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4FDFA18D15C700D300BEEC38 /* MobileAppTracker-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MobileAppTracker-Prefix.pch"; sourceTree = "<group>"; };
 		4FDFA19815C7029A00BEEC38 /* TuneConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneConnectionManager.h; sourceTree = "<group>"; };
 		4FDFA19915C7029A00BEEC38 /* TuneConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneConnectionManager.m; sourceTree = "<group>"; };
 		4FDFA19C15C7029A00BEEC38 /* TuneKeyStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneKeyStrings.h; sourceTree = "<group>"; };
 		4FDFA19D15C7029A00BEEC38 /* TuneKeyStrings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneKeyStrings.m; sourceTree = "<group>"; };
-		4FDFA1A015C7029A00BEEC38 /* NSString+TuneURLEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+TuneURLEncoding.h"; sourceTree = "<group>"; };
-		4FDFA1A115C7029A00BEEC38 /* NSString+TuneURLEncoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+TuneURLEncoding.m"; sourceTree = "<group>"; };
+		4FDFA1A015C7029A00BEEC38 /* TuneXmlHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneXmlHelper.h; sourceTree = "<group>"; };
+		4FDFA1A115C7029A00BEEC38 /* TuneXmlHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneXmlHelper.m; sourceTree = "<group>"; };
 		4FDFA1A615C7029A00BEEC38 /* TuneRequestsQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneRequestsQueue.h; sourceTree = "<group>"; };
 		4FDFA1A715C7029A00BEEC38 /* TuneRequestsQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneRequestsQueue.m; sourceTree = "<group>"; };
 		4FDFA1A815C7029A00BEEC38 /* TuneRequestsQueuePart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneRequestsQueuePart.h; sourceTree = "<group>"; };
@@ -216,6 +391,10 @@
 		F8080C40196C8CFF00CF63BC /* TuneAdUtilitiesUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdUtilitiesUI.m; sourceTree = "<group>"; };
 		F808B4491B716C310067114F /* MATEvent_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent_internal.h; sourceTree = "<group>"; };
 		F80E4FA91A536970001918CF /* TuneAdNetworkHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdNetworkHelperTests.m; sourceTree = "<group>"; };
+		F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_tvos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_watchos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_tvos.h; sourceTree = "<group>"; };
+		F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_watchos.h; sourceTree = "<group>"; };
 		F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneStoreKitDelegate.h; sourceTree = "<group>"; };
 		F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneStoreKitDelegate.m; sourceTree = "<group>"; };
 		F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdMetadata.h; sourceTree = "<group>"; };
@@ -230,6 +409,7 @@
 		F84C7B471B70382200AE871C /* TuneLocation_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocation_internal.h; sourceTree = "<group>"; };
 		F84C7B491B70389800AE871C /* TuneLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocation.h; sourceTree = "<group>"; };
 		F84C7B4A1B70389800AE871C /* TuneLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneLocation.m; sourceTree = "<group>"; };
+		F85B91661BBA00D600AB7209 /* MobileAppTracker Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MobileAppTracker Tests-Info.plist"; sourceTree = "<group>"; };
 		F85C672619B9098800AF940F /* TuneAdViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdViewTests.m; sourceTree = "<group>"; };
 		F85C672819B90A0700AF940F /* TuneAdTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdTests.m; sourceTree = "<group>"; };
 		F85C672A19B90A7F00AF940F /* TuneAdUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdUtilsTests.m; sourceTree = "<group>"; };
@@ -251,6 +431,7 @@
 		F8A85C58196E0E760012927E /* TuneAdParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdParams.h; sourceTree = "<group>"; };
 		F8A85C59196E0E760012927E /* TuneAdParams.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdParams.m; sourceTree = "<group>"; };
 		F8A85C5C196E26620012927E /* Tune_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tune_internal.h; sourceTree = "<group>"; };
+		F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileAppTrackerTests_tvos.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocationHelper.h; sourceTree = "<group>"; };
 		F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneLocationHelper.m; sourceTree = "<group>"; };
 		F8B71E701B56F869008E8215 /* MATPreloadData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATPreloadData.h; sourceTree = "<group>"; };
@@ -275,8 +456,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F854C0BD1BE7EDC20056E5A2 /* MobileAppTracker.framework in Frameworks */,
 				F861A9A11A52184F00185E2F /* CoreTelephony.framework in Frameworks */,
-				F861A99F1A5216A300185E2F /* MobileAppTracker.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +465,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F81438751BB9CCD200FFD87A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F81438E11BB9CCDD00FFD87A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8B3AAF91BBC7232003E602A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +540,7 @@
 		42EAA5461860F4B900041A8D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				42EAA5471860F4B900041A8D /* MobileAppTracker Tests-Info.plist */,
+				F85B91661BBA00D600AB7209 /* MobileAppTracker Tests-Info.plist */,
 				42EAA5481860F4B900041A8D /* InfoPlist.strings */,
 				42EAA54D1860F4B900041A8D /* MobileAppTracker Tests-Prefix.pch */,
 			);
@@ -359,6 +562,9 @@
 			children = (
 				4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */,
 				42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */,
+				F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */,
+				F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */,
+				F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -382,6 +588,8 @@
 				F8B71E771B56FA55008E8215 /* MATEvent.m */,
 				F8B71E781B56FA55008E8215 /* MATEventItem.h */,
 				F8B71E791B56FA55008E8215 /* MATEventItem.m */,
+				F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */,
+				F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */,
 				4FDFA21515C7032400BEEC38 /* Tune.h */,
 				4FDFA21615C7032400BEEC38 /* Tune.m */,
 				F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */,
@@ -410,8 +618,8 @@
 		4FDFA18815C700D300BEEC38 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4FDFA18915C700D300BEEC38 /* MobileAppTracker-Info.plist */,
 				4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */,
+				4FDFA18915C700D300BEEC38 /* Info.plist */,
 				4FDFA18D15C700D300BEEC38 /* MobileAppTracker-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -458,8 +666,8 @@
 				42FFE858191D16AE00ACF2E2 /* TuneUserAgentCollector.m */,
 				4FDFA1AC15C7029A00BEEC38 /* TuneUtils.h */,
 				4FDFA1AD15C7029A00BEEC38 /* TuneUtils.m */,
-				4FDFA1A015C7029A00BEEC38 /* NSString+TuneURLEncoding.h */,
-				4FDFA1A115C7029A00BEEC38 /* NSString+TuneURLEncoding.m */,
+				4FDFA1A015C7029A00BEEC38 /* TuneXmlHelper.h */,
+				4FDFA1A115C7029A00BEEC38 /* TuneXmlHelper.m */,
 				42D52294199A8AC600FC5F8F /* legacy queueing */,
 			);
 			path = Common;
@@ -539,7 +747,7 @@
 				F8080C4E196C8CFF00CF63BC /* TuneAdNetworkHelper.h in Headers */,
 				F8A85C5A196E0E760012927E /* TuneAdParams.h in Headers */,
 				F8080C4C196C8CFF00CF63BC /* TuneAdInterstitialVC.h in Headers */,
-				4FDFA1B615C7029A00BEEC38 /* NSString+TuneURLEncoding.h in Headers */,
+				4FDFA1B615C7029A00BEEC38 /* TuneXmlHelper.h in Headers */,
 				428F084F18C13F1900B1AC24 /* TuneTracker.h in Headers */,
 				4FDFA1BC15C7029A00BEEC38 /* TuneRequestsQueue.h in Headers */,
 				4FDFA1BE15C7029A00BEEC38 /* TuneRequestsQueuePart.h in Headers */,
@@ -554,12 +762,94 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F81438761BB9CCD200FFD87A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F81438771BB9CCD200FFD87A /* MobileAppTracker.h in Headers */,
+				F81438781BB9CCD200FFD87A /* MATEvent.h in Headers */,
+				F81438791BB9CCD200FFD87A /* MATEventItem.h in Headers */,
+				F814387A1BB9CCD200FFD87A /* MATPreloadData.h in Headers */,
+				F814387F1BB9CCD200FFD87A /* TuneDeferredDplinkr.h in Headers */,
+				F81438801BB9CCD200FFD87A /* TuneLocation.h in Headers */,
+				F81438811BB9CCD200FFD87A /* TuneSettings.h in Headers */,
+				F81438821BB9CCD200FFD87A /* TuneEvent.h in Headers */,
+				F81439361BB9D21400FFD87A /* MobileAppTracker_tvos.h in Headers */,
+				F81438831BB9CCD200FFD87A /* TuneEventItem.h in Headers */,
+				F81438841BB9CCD200FFD87A /* TuneLocation_internal.h in Headers */,
+				F81438851BB9CCD200FFD87A /* TunePreloadData.h in Headers */,
+				F81438891BB9CCD200FFD87A /* Tune.h in Headers */,
+				F814388A1BB9CCD200FFD87A /* TuneEncrypter.h in Headers */,
+				F814388B1BB9CCD200FFD87A /* TuneStoreKitDelegate.h in Headers */,
+				F814388C1BB9CCD200FFD87A /* TuneUserAgentCollector.h in Headers */,
+				F81438901BB9CCD200FFD87A /* TuneIfa.h in Headers */,
+				F81438911BB9CCD200FFD87A /* MATEvent_internal.h in Headers */,
+				F81438921BB9CCD200FFD87A /* TuneEvent_internal.h in Headers */,
+				F81438931BB9CCD200FFD87A /* TuneKeyStrings.h in Headers */,
+				F81438961BB9CCD200FFD87A /* TuneAppToAppTracker.h in Headers */,
+				F81438971BB9CCD200FFD87A /* TuneRegionMonitor.h in Headers */,
+				F81438981BB9CCD200FFD87A /* Tune_internal.h in Headers */,
+				F814389C1BB9CCD200FFD87A /* TuneXmlHelper.h in Headers */,
+				F814389D1BB9CCD200FFD87A /* TuneTracker.h in Headers */,
+				F814389E1BB9CCD200FFD87A /* TuneRequestsQueue.h in Headers */,
+				F814389F1BB9CCD200FFD87A /* TuneRequestsQueuePart.h in Headers */,
+				F81438A01BB9CCD200FFD87A /* TuneUtils.h in Headers */,
+				F81438A11BB9CCD200FFD87A /* TuneEventQueue.h in Headers */,
+				F81438A31BB9CCD200FFD87A /* TuneFBBridge.h in Headers */,
+				F81438A41BB9CCD200FFD87A /* TuneInstallReceipt.h in Headers */,
+				F81438A51BB9CCD200FFD87A /* TuneReachability.h in Headers */,
+				F81438A61BB9CCD200FFD87A /* TuneCWorks.h in Headers */,
+				F81438A71BB9CCD200FFD87A /* TuneLocationHelper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F81438E21BB9CCDD00FFD87A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F81438E31BB9CCDD00FFD87A /* MobileAppTracker.h in Headers */,
+				F81438E41BB9CCDD00FFD87A /* MATEvent.h in Headers */,
+				F81438E51BB9CCDD00FFD87A /* MATEventItem.h in Headers */,
+				F81438E61BB9CCDD00FFD87A /* MATPreloadData.h in Headers */,
+				F81438EB1BB9CCDD00FFD87A /* TuneDeferredDplinkr.h in Headers */,
+				F81438EC1BB9CCDD00FFD87A /* TuneLocation.h in Headers */,
+				F81438ED1BB9CCDD00FFD87A /* TuneSettings.h in Headers */,
+				F81438EE1BB9CCDD00FFD87A /* TuneEvent.h in Headers */,
+				F81438EF1BB9CCDD00FFD87A /* TuneEventItem.h in Headers */,
+				F81439371BB9D21900FFD87A /* MobileAppTracker_watchos.h in Headers */,
+				F81438F01BB9CCDD00FFD87A /* TuneLocation_internal.h in Headers */,
+				F81438F11BB9CCDD00FFD87A /* TunePreloadData.h in Headers */,
+				F81438F51BB9CCDD00FFD87A /* Tune.h in Headers */,
+				F81438F61BB9CCDD00FFD87A /* TuneEncrypter.h in Headers */,
+				F81438F71BB9CCDD00FFD87A /* TuneStoreKitDelegate.h in Headers */,
+				F81438F81BB9CCDD00FFD87A /* TuneUserAgentCollector.h in Headers */,
+				F81438FC1BB9CCDD00FFD87A /* TuneIfa.h in Headers */,
+				F81438FD1BB9CCDD00FFD87A /* MATEvent_internal.h in Headers */,
+				F81438FE1BB9CCDD00FFD87A /* TuneEvent_internal.h in Headers */,
+				F81438FF1BB9CCDD00FFD87A /* TuneKeyStrings.h in Headers */,
+				F81439021BB9CCDD00FFD87A /* TuneAppToAppTracker.h in Headers */,
+				F81439031BB9CCDD00FFD87A /* TuneRegionMonitor.h in Headers */,
+				F81439041BB9CCDD00FFD87A /* Tune_internal.h in Headers */,
+				F81439081BB9CCDD00FFD87A /* TuneXmlHelper.h in Headers */,
+				F81439091BB9CCDD00FFD87A /* TuneTracker.h in Headers */,
+				F814390A1BB9CCDD00FFD87A /* TuneRequestsQueue.h in Headers */,
+				F814390B1BB9CCDD00FFD87A /* TuneRequestsQueuePart.h in Headers */,
+				F814390C1BB9CCDD00FFD87A /* TuneUtils.h in Headers */,
+				F814390D1BB9CCDD00FFD87A /* TuneEventQueue.h in Headers */,
+				F814390F1BB9CCDD00FFD87A /* TuneFBBridge.h in Headers */,
+				F81439101BB9CCDD00FFD87A /* TuneInstallReceipt.h in Headers */,
+				F81439111BB9CCDD00FFD87A /* TuneReachability.h in Headers */,
+				F81439121BB9CCDD00FFD87A /* TuneCWorks.h in Headers */,
+				F81439131BB9CCDD00FFD87A /* TuneLocationHelper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		42EAA53F1860F4B800041A8D /* MobileAppTracker Tests */ = {
+		42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTracker Tests" */;
+			buildConfigurationList = 42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_ios" */;
 			buildPhases = (
 				42EAA53C1860F4B800041A8D /* Sources */,
 				42EAA53D1860F4B800041A8D /* Frameworks */,
@@ -568,9 +858,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				F85D8B0A1AEEF7E600379028 /* PBXTargetDependency */,
 			);
-			name = "MobileAppTracker Tests";
+			name = MobileAppTrackerTests_ios;
 			productName = "Tune Tests";
 			productReference = 42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -579,13 +868,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FDFA19015C700D300BEEC38 /* Build configuration list for PBXNativeTarget "MobileAppTracker" */;
 			buildPhases = (
-				4FDFA17A15C700D300BEEC38 /* ShellScript */,
 				4FDFA17B15C700D300BEEC38 /* Sources */,
 				4FDFA17C15C700D300BEEC38 /* Frameworks */,
 				4FDFA17D15C700D300BEEC38 /* Headers */,
 				4FDFA17E15C700D300BEEC38 /* Resources */,
-				4FDFA17F15C700D300BEEC38 /* ShellScript */,
-				4FDFA18015C700D300BEEC38 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -596,6 +882,60 @@
 			productReference = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */;
 			productType = "com.apple.product-type.framework.static";
 		};
+		F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvos" */;
+			buildPhases = (
+				F81438481BB9CCD200FFD87A /* Sources */,
+				F81438751BB9CCD200FFD87A /* Frameworks */,
+				F81438761BB9CCD200FFD87A /* Headers */,
+				F81438A81BB9CCD200FFD87A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MobileAppTracker_tvos;
+			productName = Tune;
+			productReference = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */;
+			productType = "com.apple.product-type.framework.static";
+		};
+		F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchos" */;
+			buildPhases = (
+				F81438B41BB9CCDD00FFD87A /* Sources */,
+				F81438E11BB9CCDD00FFD87A /* Frameworks */,
+				F81438E21BB9CCDD00FFD87A /* Headers */,
+				F81439141BB9CCDD00FFD87A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MobileAppTracker_watchos;
+			productName = Tune;
+			productReference = F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */;
+			productType = "com.apple.product-type.framework.static";
+		};
+		F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvos" */;
+			buildPhases = (
+				F8B3AAF81BBC7232003E602A /* Sources */,
+				F8B3AAF91BBC7232003E602A /* Frameworks */,
+				F8B3AAFA1BBC7232003E602A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F8B3AB061BBC7252003E602A /* PBXTargetDependency */,
+			);
+			name = MobileAppTrackerTests_tvos;
+			productName = MobileAppTrackerTests_tvos;
+			productReference = F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -603,11 +943,17 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = Tune;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = TUNE;
 				TargetAttributes = {
 					42EAA53F1860F4B800041A8D = {
 						TestTargetID = 4FDFA18115C700D300BEEC38;
+					};
+					F814391E1BB9CD2F00FFD87A = {
+						CreatedOnToolsVersion = 7.0;
+					};
+					F8B3AAFB1BBC7232003E602A = {
+						CreatedOnToolsVersion = 7.0;
 					};
 				};
 			};
@@ -624,7 +970,13 @@
 			projectRoot = "";
 			targets = (
 				4FDFA18115C700D300BEEC38 /* MobileAppTracker */,
-				42EAA53F1860F4B800041A8D /* MobileAppTracker Tests */,
+				42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_ios */,
+				F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */,
+				F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvos */,
+				F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchos */,
+				F814391E1BB9CD2F00FFD87A /* MatUniversal_ios */,
+				F81439241BB9CD7F00FFD87A /* MatUniversal_tvos */,
+				F814392A1BB9CD8A00FFD87A /* MatUniversal_watchos */,
 			);
 		};
 /* End PBXProject section */
@@ -646,10 +998,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F81438A81BB9CCD200FFD87A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F81438A91BB9CCD200FFD87A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F81439141BB9CCDD00FFD87A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F81439151BB9CCDD00FFD87A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8B3AAFA1BBC7232003E602A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8B3AB1C1BBC766C003E602A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4FDFA17A15C700D300BEEC38 /* ShellScript */ = {
+		F81439231BB9CD6B00FFD87A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -660,9 +1036,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nset +u\nif [[ $UFW_MASTER_SCRIPT_RUNNING ]]\nthen\n    # Nothing for the slave script to do\n    exit 0\nfi\nset -u\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\n    UFW_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find platform name from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\n\tUFW_SDK_VERSION=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find sdk version  from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$UFW_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\n    UFW_OTHER_PLATFORM=iphonesimulator\nelse\n    UFW_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$UFW_SDK_PLATFORM$ ]]\nthen\n    UFW_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${UFW_OTHER_PLATFORM}\"\nelse\n    echo \"Could not find $UFW_SDK_PLATFORM in $BUILT_PRODUCTS_DIR\"\n    exit 1\nfi\n\nONLY_ACTIVE_PLATFORM=${ONLY_ACTIVE_PLATFORM:-$ONLY_ACTIVE_ARCH}\n\n# Short-circuit if all binaries are up to date\n\nif [[ -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && \\\n   [[ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && \\\n   [[ ! \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && \\\n  ([[ \"${ONLY_ACTIVE_PLATFORM}\" == \"YES\" ]] || \\\n    ([[ -f \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && \\\n     [[ -f \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && \\\n     [[ ! \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]]\n    )\n  )\nthen\n    exit 0\nfi\n\n\n# Clean other platform if needed\n\nif [[ ! -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && [[ \"${ONLY_ACTIVE_PLATFORM}\" != \"YES\" ]]\nthen\n\techo \"Platform \\\"$UFW_SDK_PLATFORM\\\" was cleaned recently. Cleaning \\\"$UFW_OTHER_PLATFORM\\\" as well\"\n\techo xcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" clean\n\txcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" clean\nfi\n\n\n# Make sure we are building from fresh binaries\n\nrm -rf \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\nrm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\n\nif [[ \"${ONLY_ACTIVE_PLATFORM}\" != \"YES\" ]]\nthen\n    rm -rf \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n    rm -rf \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\nfi\n";
+			shellScript = "TARGET_OS=iphone\nPLATFORM_SUFFIX=\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
 		};
-		4FDFA17F15C700D300BEEC38 /* ShellScript */ = {
+		F81439251BB9CD7F00FFD87A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -673,10 +1049,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "HEADERS_ROOT=$SRCROOT/$PRODUCT_NAME\nFRAMEWORK_HEADERS_DIR=\"$BUILT_PRODUCTS_DIR/$WRAPPER_NAME/Versions/$FRAMEWORK_VERSION/Headers\"\n\n## only header files expected at this point\nPUBLIC_HEADERS=$(find $FRAMEWORK_HEADERS_DIR/. -not -type d 2> /dev/null | sed -e \"s@.*/@@g\")\n\nFIND_OPTS=\"\"\nfor PUBLIC_HEADER in $PUBLIC_HEADERS; do\n  if [ -n \"$FIND_OPTS\" ]; then\n    FIND_OPTS=\"$FIND_OPTS -o\"\n  fi\n  FIND_OPTS=\"$FIND_OPTS -name '$PUBLIC_HEADER'\"\ndone\n\nif [ -n \"$FIND_OPTS\" ]; then\n  for ORIG_HEADER in $(eval \"find $HEADERS_ROOT/. $FIND_OPTS\" 2> /dev/null | sed -e \"s@^$HEADERS_ROOT/./@@g\"); do\n    PUBLIC_HEADER=$(basename $ORIG_HEADER)\n    RELATIVE_PATH=$(dirname $ORIG_HEADER)\n    if [ -e $FRAMEWORK_HEADERS_DIR/$PUBLIC_HEADER ]; then\n      mkdir -p \"$FRAMEWORK_HEADERS_DIR/$RELATIVE_PATH\"\n      mv \"$FRAMEWORK_HEADERS_DIR/$PUBLIC_HEADER\" \"$FRAMEWORK_HEADERS_DIR/$RELATIVE_PATH/$PUBLIC_HEADER\"\n    fi\n  done\nfi\n";
-			showEnvVarsInLog = 0;
+			shellScript = "TARGET_OS=appletv\nPLATFORM_SUFFIX=_tvos\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
 		};
-		4FDFA18015C700D300BEEC38 /* ShellScript */ = {
+		F814392B1BB9CD8A00FFD87A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -687,8 +1062,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nset +u\nif [[ $UFW_MASTER_SCRIPT_RUNNING ]]\nthen\n    # Nothing for the slave script to do\n    exit 0\nfi\nset -u\nexport UFW_MASTER_SCRIPT_RUNNING=1\n\n\n# Functions\n\n## List files in the specified directory, storing to the specified array.\n#\n# @param $1 The path to list\n# @param $2 The name of the array to fill\n#\n##\nlist_files ()\n{\n    filelist=$(ls \"$1\")\n    while read line\n    do\n        eval \"$2[\\${#$2[*]}]=\\\"\\$line\\\"\"\n    done <<< \"$filelist\"\n}\n\n\n# Sanity check\n\nif [[ ! -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]]\nthen\n    echo \"Framework target \\\"${TARGET_NAME}\\\" had no source files to build from. Make sure your source files have the correct target membership\"\n    exit 1\nfi\n\n\n# Gather information\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\n    UFW_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find platform name from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\n    UFW_SDK_VERSION=${BASH_REMATCH[1]}\nelse\n    echo \"Could not find sdk version from SDK_NAME: $SDK_NAME\"\n    exit 1\nfi\n\nif [[ \"$UFW_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\n    UFW_OTHER_PLATFORM=iphonesimulator\nelse\n    UFW_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$UFW_SDK_PLATFORM$ ]]\nthen\n    UFW_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${UFW_OTHER_PLATFORM}\"\nelse\n    echo \"Could not find $UFW_SDK_PLATFORM in $BUILT_PRODUCTS_DIR\"\n    exit 1\nfi\n\nONLY_ACTIVE_PLATFORM=${ONLY_ACTIVE_PLATFORM:-$ONLY_ACTIVE_ARCH}\n\n# Short-circuit if all binaries are up to date.\n# We already checked the other platform in the prerun script.\n\nif [[ -f \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" ]] && [[ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]] && [[ ! \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -nt \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/${EXECUTABLE_PATH}\" ]]\nthen\n    exit 0\nfi\n\nif [ \"${ONLY_ACTIVE_PLATFORM}\" == \"YES\" ]\nthen\n    echo \"ONLY_ACTIVE_PLATFORM=${ONLY_ACTIVE_PLATFORM}: Skipping other platform build\"\nelse\n    # Make sure the other platform gets built\n    \n    echo \"Build other platform\"\n    \n    echo xcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" $ACTION\n    xcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${UFW_OTHER_PLATFORM}${UFW_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" CONFIGURATION_TEMP_DIR=\"${PROJECT_TEMP_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\" $ACTION\n    \n    \n    # Build the fat static library binary\n    \n    echo \"Create universal static library\"\n    \necho \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin//libtool\" -static \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -o \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\"\n\"/usr/bin//libtool\" -static \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" \"${UFW_OTHER_BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\" -o \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\"\n    \n    echo mv \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n    mv \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}.temp\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\nfi\n\n# Build embedded framework structure\n\necho \"Build Embedded Framework\"\n\necho rm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\nrm -rf \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework\"\necho mkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources\"\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources\"\necho cp -a \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/\"\ncp -a \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/\"\n\ndeclare -a UFW_FILE_LIST\nlist_files \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" UFW_FILE_LIST\nfor filename in \"${UFW_FILE_LIST[@]}\"\ndo\n    if [[ \"${filename}\" != \"Info.plist\" ]] && [[ ! \"${filename}\" =~ .*\\.lproj$ ]]\n    then\n        echo ln -sfh \"../${WRAPPER_NAME}/Resources/${filename}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources/${filename}\"\n        ln -sfh \"../${WRAPPER_NAME}/Resources/${filename}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.embeddedframework/Resources/${filename}\"\n    fi\ndone\n\n\nif [ \"${ONLY_ACTIVE_PLATFORM}\" != \"YES\" ]\nthen\n    # Replace other platform's framework with a copy of this one (so that both have the same universal binary)\n    \n    echo \"Copy from $UFW_SDK_PLATFORM to $UFW_OTHER_PLATFORM\"\n    \n    echo rm -rf \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\n    rm -rf \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\n    echo cp -a \"${BUILD_DIR}/${CONFIGURATION}-${UFW_SDK_PLATFORM}\" \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\n    cp -a \"${BUILD_DIR}/${CONFIGURATION}-${UFW_SDK_PLATFORM}\" \"${BUILD_DIR}/${CONFIGURATION}-${UFW_OTHER_PLATFORM}\"\nfi\n";
-			showEnvVarsInLog = 0;
+			shellScript = "TARGET_OS=watch\nPLATFORM_SUFFIX=_watchos\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -697,9 +1071,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F89BDEE91ABCA3EE002485ED /* TuneKeyStrings.m in Sources */,
 				F80E4FAA1A536970001918CF /* TuneAdNetworkHelperTests.m in Sources */,
-				4284981818E1ECE6008E8FF0 /* TuneInstallReceipt.m in Sources */,
 				F85C672D19B90AA000AF940F /* TuneAdParamsTests.m in Sources */,
 				F85C672919B90A0700AF940F /* TuneAdTests.m in Sources */,
 				F8BAC7F1189333BB001A25FC /* TuneUtilsTests.m in Sources */,
@@ -708,10 +1080,8 @@
 				F85C672F19B90B0600AF940F /* TuneAdDownloadHelperTests.m in Sources */,
 				42108BFA186250DB005BDB32 /* TuneQueueTests.m in Sources */,
 				42108BFE1862518F005BDB32 /* TuneServerTests.m in Sources */,
-				F8F698C91AF161B200D71CB6 /* TuneUtils.m in Sources */,
 				F85C672719B9098800AF940F /* TuneAdViewTests.m in Sources */,
 				F85D8B061AEEEDA600379028 /* TuneEventTests.m in Sources */,
-				F8C1E84B1980729F00101D56 /* TuneEncrypter.m in Sources */,
 				428F084C18C13E5900B1AC24 /* TuneTrackerInitializationTests.m in Sources */,
 				F85D8B081AEEF33300379028 /* TunePreloadDataTests.m in Sources */,
 				42108C02186251EE005BDB32 /* TuneTestsHelper.m in Sources */,
@@ -741,7 +1111,7 @@
 				F84C7B4C1B70389800AE871C /* TuneLocation.m in Sources */,
 				42D52293199A8A9E00FC5F8F /* TuneEventQueue.m in Sources */,
 				F83044741A16D78A002CA9A1 /* TuneAdMetadata.m in Sources */,
-				4FDFA1B715C7029A00BEEC38 /* NSString+TuneURLEncoding.m in Sources */,
+				4FDFA1B715C7029A00BEEC38 /* TuneXmlHelper.m in Sources */,
 				429857F91A41E2B5008539A6 /* TuneDeferredDplinkr.m in Sources */,
 				F8E580871AA7D00A0000E856 /* TuneRequestsQueue.m in Sources */,
 				F8E580881AA7D00A0000E856 /* TuneRequestsQueuePart.m in Sources */,
@@ -775,13 +1145,106 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F81438481BB9CCD200FFD87A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F814384B1BB9CCD200FFD87A /* TuneEvent.m in Sources */,
+				F814384C1BB9CCD200FFD87A /* TuneEventItem.m in Sources */,
+				F814384D1BB9CCD200FFD87A /* TuneSettings.m in Sources */,
+				F814384E1BB9CCD200FFD87A /* MATEvent.m in Sources */,
+				F81438501BB9CCD200FFD87A /* TuneKeyStrings.m in Sources */,
+				F81438511BB9CCD200FFD87A /* TuneLocationHelper.m in Sources */,
+				F81438521BB9CCD200FFD87A /* TuneAppToAppTracker.m in Sources */,
+				F81438531BB9CCD200FFD87A /* TuneLocation.m in Sources */,
+				F81438541BB9CCD200FFD87A /* TuneEventQueue.m in Sources */,
+				F81438561BB9CCD200FFD87A /* TuneXmlHelper.m in Sources */,
+				F81438571BB9CCD200FFD87A /* TuneDeferredDplinkr.m in Sources */,
+				F81438581BB9CCD200FFD87A /* TuneRequestsQueue.m in Sources */,
+				F81438591BB9CCD200FFD87A /* TuneRequestsQueuePart.m in Sources */,
+				F814385A1BB9CCD200FFD87A /* TuneEncrypter.m in Sources */,
+				F814385B1BB9CCD200FFD87A /* TunePreloadData.m in Sources */,
+				F814385C1BB9CCD200FFD87A /* TuneUserAgentCollector.m in Sources */,
+				F814385D1BB9CCD200FFD87A /* TuneUtils.m in Sources */,
+				F814385E1BB9CCD200FFD87A /* MATEventItem.m in Sources */,
+				F81438631BB9CCD200FFD87A /* MobileAppTracker.m in Sources */,
+				F81438641BB9CCD200FFD87A /* TuneFBBridge.m in Sources */,
+				F81438651BB9CCD200FFD87A /* Tune.m in Sources */,
+				F81438671BB9CCD200FFD87A /* MATPreloadData.m in Sources */,
+				F81438681BB9CCD200FFD87A /* TuneRegionMonitor.m in Sources */,
+				F814386A1BB9CCD200FFD87A /* TuneTracker.m in Sources */,
+				F814386B1BB9CCD200FFD87A /* TuneIfa.m in Sources */,
+				F814386D1BB9CCD200FFD87A /* TuneInstallReceipt.m in Sources */,
+				F81438701BB9CCD200FFD87A /* TuneStoreKitDelegate.m in Sources */,
+				F81438731BB9CCD200FFD87A /* TuneReachability.m in Sources */,
+				F81438741BB9CCD200FFD87A /* TuneCWorks.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F81438B41BB9CCDD00FFD87A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F81438B71BB9CCDD00FFD87A /* TuneEvent.m in Sources */,
+				F81438B81BB9CCDD00FFD87A /* TuneEventItem.m in Sources */,
+				F81438B91BB9CCDD00FFD87A /* TuneSettings.m in Sources */,
+				F81438BA1BB9CCDD00FFD87A /* MATEvent.m in Sources */,
+				F81438BC1BB9CCDD00FFD87A /* TuneKeyStrings.m in Sources */,
+				F81438BD1BB9CCDD00FFD87A /* TuneLocationHelper.m in Sources */,
+				F81438BE1BB9CCDD00FFD87A /* TuneAppToAppTracker.m in Sources */,
+				F81438BF1BB9CCDD00FFD87A /* TuneLocation.m in Sources */,
+				F81438C01BB9CCDD00FFD87A /* TuneEventQueue.m in Sources */,
+				F81438C21BB9CCDD00FFD87A /* TuneXmlHelper.m in Sources */,
+				F81438C31BB9CCDD00FFD87A /* TuneDeferredDplinkr.m in Sources */,
+				F81438C41BB9CCDD00FFD87A /* TuneRequestsQueue.m in Sources */,
+				F81438C51BB9CCDD00FFD87A /* TuneRequestsQueuePart.m in Sources */,
+				F81438C61BB9CCDD00FFD87A /* TuneEncrypter.m in Sources */,
+				F81438C71BB9CCDD00FFD87A /* TunePreloadData.m in Sources */,
+				F81438C81BB9CCDD00FFD87A /* TuneUserAgentCollector.m in Sources */,
+				F81438C91BB9CCDD00FFD87A /* TuneUtils.m in Sources */,
+				F81438CA1BB9CCDD00FFD87A /* MATEventItem.m in Sources */,
+				F81438CF1BB9CCDD00FFD87A /* MobileAppTracker.m in Sources */,
+				F81438D01BB9CCDD00FFD87A /* TuneFBBridge.m in Sources */,
+				F81438D11BB9CCDD00FFD87A /* Tune.m in Sources */,
+				F81438D31BB9CCDD00FFD87A /* MATPreloadData.m in Sources */,
+				F81438D41BB9CCDD00FFD87A /* TuneRegionMonitor.m in Sources */,
+				F81438D61BB9CCDD00FFD87A /* TuneTracker.m in Sources */,
+				F81438D71BB9CCDD00FFD87A /* TuneIfa.m in Sources */,
+				F81438D91BB9CCDD00FFD87A /* TuneInstallReceipt.m in Sources */,
+				F81438DC1BB9CCDD00FFD87A /* TuneStoreKitDelegate.m in Sources */,
+				F81438DF1BB9CCDD00FFD87A /* TuneReachability.m in Sources */,
+				F81438E01BB9CCDD00FFD87A /* TuneCWorks.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8B3AAF81BBC7232003E602A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8B3AB0D1BBC7271003E602A /* TuneAutoParameterizationTests.m in Sources */,
+				F8B3AB0E1BBC7271003E602A /* TuneEncrypterTests.m in Sources */,
+				F8B3AB0F1BBC7271003E602A /* TuneEventTests.m in Sources */,
+				F8B3AB101BBC7271003E602A /* TuneEventItemTests.m in Sources */,
+				F8B3AB111BBC7271003E602A /* TuneHTTPErrorTests.m in Sources */,
+				F8B3AB121BBC7271003E602A /* TuneParametersTests.m in Sources */,
+				F8B3AB131BBC7271003E602A /* TunePreloadDataTests.m in Sources */,
+				F8B3AB141BBC7271003E602A /* TuneQueueTests.m in Sources */,
+				F8B3AB151BBC7271003E602A /* TuneServerTests.m in Sources */,
+				F8B3AB161BBC7271003E602A /* TuneTestParams.m in Sources */,
+				F8B3AB171BBC7271003E602A /* TuneTests.m in Sources */,
+				F8B3AB181BBC7271003E602A /* TuneTestsHelper.m in Sources */,
+				F8B3AB191BBC7271003E602A /* TuneTrackerInitializationTests.m in Sources */,
+				F8B3AB1A1BBC7271003E602A /* TuneUtilsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F85D8B0A1AEEF7E600379028 /* PBXTargetDependency */ = {
+		F8B3AB061BBC7252003E602A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FDFA18115C700D300BEEC38 /* MobileAppTracker */;
-			targetProxy = F85D8B091AEEF7E600379028 /* PBXContainerItemProxy */;
+			target = F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */;
+			targetProxy = F8B3AB051BBC7252003E602A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -819,13 +1282,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -835,12 +1296,15 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "x86_64 armv7 armv7s";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -859,29 +1323,30 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"TESTING=1",
-					"DEBUG=1",
+					"RELEASE=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "x86_64 armv7 armv7s";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -957,18 +1422,23 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEFINES_MODULE = YES;
-				DEPLOYMENT_POSTPROCESSING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -982,28 +1452,32 @@
 					"DEBUG_JAILBREAK_LOG=0",
 				);
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				INFOPLIST_FILE = "Tune/MobileAppTracker-Info.plist";
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MODULEMAP_FILE = "";
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MobileAppTracker;
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
-				STRIP_STYLE = "non-global";
+				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "i386 x86_64 armv7 arm64";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1015,19 +1489,24 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEFINES_MODULE = YES;
-				DEPLOYMENT_POSTPROCESSING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1037,29 +1516,651 @@
 					"DEBUG_REQUEST_LOG=0",
 				);
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				INFOPLIST_FILE = "Tune/MobileAppTracker-Info.plist";
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MODULEMAP_FILE = "";
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MobileAppTracker;
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
-				STRIP_STYLE = "non-global";
+				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "i386 x86_64 armv7 arm64";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		F81438AD1BB9CCD200FFD87A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CUSTOM_LOG=0",
+					"DEBUG_STAGING=0",
+					"DEBUG_AD_STAGING=0",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_JAILBREAK_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		F81438AE1BB9CCD200FFD87A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CUSTOM_LOG=0",
+					"DEBUG_STAGING=0",
+					"DEBUG_AD_STAGING=0",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_JAILBREAK_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Testing;
+		};
+		F81438AF1BB9CCD200FFD87A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		F81439191BB9CCDD00FFD87A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CUSTOM_LOG=0",
+					"DEBUG_STAGING=0",
+					"DEBUG_AD_STAGING=0",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_JAILBREAK_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				TARGETED_DEVICE_FAMILY = 4;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		F814391A1BB9CCDD00FFD87A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CUSTOM_LOG=0",
+					"DEBUG_STAGING=0",
+					"DEBUG_AD_STAGING=0",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+					"DEBUG_JAILBREAK_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				TARGETED_DEVICE_FAMILY = 4;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Testing;
+		};
+		F814391B1BB9CCDD00FFD87A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEFINES_MODULE = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG_LOG=0",
+					"DEBUG_LINK_LOG=0",
+					"DEBUG_REQUEST_LOG=0",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				TARGETED_DEVICE_FAMILY = 4;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		F81439201BB9CD3000FFD87A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Debug;
+		};
+		F81439211BB9CD3000FFD87A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Testing;
+		};
+		F81439221BB9CD3000FFD87A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Release;
+		};
+		F81439271BB9CD7F00FFD87A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Debug;
+		};
+		F81439281BB9CD7F00FFD87A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Testing;
+		};
+		F81439291BB9CD7F00FFD87A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Release;
+		};
+		F814392D1BB9CD8A00FFD87A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Debug;
+		};
+		F814392E1BB9CD8A00FFD87A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Testing;
+		};
+		F814392F1BB9CD8A00FFD87A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Release;
+		};
+		F8B3AB021BBC7232003E602A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_MODULES_AUTOLINK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TESTING=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Debug;
+		};
+		F8B3AB031BBC7232003E602A /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_MODULES_AUTOLINK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+			};
+			name = Testing;
+		};
+		F8B3AB041BBC7232003E602A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_MODULES_AUTOLINK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TESTING=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 			};
 			name = Release;
 		};
@@ -1104,18 +2205,23 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_MODULES_AUTOLINK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEFINES_MODULE = NO;
-				DEPLOYMENT_POSTPROCESSING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune/MobileAppTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1129,28 +2235,32 @@
 					"DEBUG_JAILBREAK_LOG=0",
 				);
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				INFOPLIST_FILE = "Tune/MobileAppTracker-Info.plist";
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Tune/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MODULEMAP_FILE = "";
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MobileAppTracker;
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
-				STRIP_STYLE = "non-global";
+				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "i386 x86_64 armv7 arm64";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Testing;
@@ -1169,25 +2279,26 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tune Tests/MobileAppTracker Tests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "Tune Tests/MobileAppTracker Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "x86_64 armv7 armv7s";
+				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Testing;
@@ -1195,7 +2306,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTracker Tests" */ = {
+		42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42EAA5501860F4B900041A8D /* Debug */,
@@ -1221,6 +2332,66 @@
 				4FDFA19115C700D300BEEC38 /* Debug */,
 				F8C5D2D219AE9FAA00CB7C6C /* Testing */,
 				4FDFA19215C700D300BEEC38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F81438AD1BB9CCD200FFD87A /* Debug */,
+				F81438AE1BB9CCD200FFD87A /* Testing */,
+				F81438AF1BB9CCD200FFD87A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F81439191BB9CCDD00FFD87A /* Debug */,
+				F814391A1BB9CCDD00FFD87A /* Testing */,
+				F814391B1BB9CCDD00FFD87A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F81439201BB9CD3000FFD87A /* Debug */,
+				F81439211BB9CD3000FFD87A /* Testing */,
+				F81439221BB9CD3000FFD87A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F81439271BB9CD7F00FFD87A /* Debug */,
+				F81439281BB9CD7F00FFD87A /* Testing */,
+				F81439291BB9CD7F00FFD87A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F814392D1BB9CD8A00FFD87A /* Debug */,
+				F814392E1BB9CD8A00FFD87A /* Testing */,
+				F814392F1BB9CD8A00FFD87A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8B3AB021BBC7232003E602A /* Debug */,
+				F8B3AB031BBC7232003E602A /* Testing */,
+				F8B3AB041BBC7232003E602A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

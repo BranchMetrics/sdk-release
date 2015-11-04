@@ -18,6 +18,14 @@ NSString* const kTestBundleId = @"com.mobileapptracking.iosunittest";
 
 const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.;
 
+void waitFor1( NSTimeInterval duration, BOOL* finished )
+{
+    // block test thread while app executes
+    NSDate *stopDate = [[NSDate date] dateByAddingTimeInterval:duration];
+    do [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:stopDate];
+    while( [stopDate timeIntervalSinceNow] > 0 && !(*finished) );
+}
+
 void waitFor( NSTimeInterval duration )
 {
     // block test thread while app executes

@@ -11,7 +11,9 @@
 
 BOOL isPad();
 BOOL isRetina();
+#if TARGET_OS_IOS
 BOOL isPortraitOr(UIDeviceOrientation orientation);
+#endif
 BOOL isPortrait();
 
 void tellParentToDismissModalVC(UIViewController* viewController);
@@ -20,4 +22,6 @@ UIViewController* firstAvailableUIViewController(UIView *aView);
 
 id traverseResponderChainForUIViewController(UIView *aView);
 
+#if TARGET_OS_IOS
 UIInterfaceOrientationMask supportedOrientations();
+#endif

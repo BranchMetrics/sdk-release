@@ -16,8 +16,8 @@
 
 #define kBgQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
-NSString * kAdServerProd = @"aa.tuneapi.com"; // Prod
-NSString * kAdServerStage = @"aa.stage.tuneapi.com"; // Stage
+NSString * kAdServerProd = @"api.cp.tune.com"; // Prod
+NSString * kAdServerStage = @"api.cp.stage.tune.com"; // Stage
 NSString * kAdServerSam = @"192.168.197.66:8080"; // Stage
 
 NSString * kAdvListUrl      = @"/api/v1/demo/advertisers";
@@ -26,13 +26,13 @@ NSString * kAppListUrl      = @"/api/v1/demo/apps";
 //Dev:
 //http://DEV_SERVER_IP/api/v1/...
 //Stage:
-//http://ADVERTISER_ID.request.aa.stage.tuneapi.com/api/v1/... (for ad requests)
-//http://ADVERTISER_ID.event.aa.stage.tuneapi.com/api/v1/... (for view/close/etc.)
-//http://ADVERTISER_ID.click.aa.stage.tuneapi.com/api/v1/... (for clicks)
+//http://ADVERTISER_ID.request.api.cp.stage.tune.com/api/v1/... (for ad requests)
+//http://ADVERTISER_ID.event.api.cp.stage.tune.com/api/v1/... (for view/close/etc.)
+//http://ADVERTISER_ID.click.api.cp.stage.tune.com/api/v1/... (for clicks)
 //Prod:
-//http://ADVERTISER_ID.request.aa.tuneapi.com/api/v1/... (for ad requests)
-//http://ADVERTISER_ID.event.aa.tuneapi.com/api/v1/... (for view/close/etc.)
-//http://ADVERTISER_ID.click.aa.tuneapi.com/api/v1/... (for clicks)
+//http://ADVERTISER_ID.request.api.cp.tune.com/api/v1/... (for ad requests)
+//http://ADVERTISER_ID.event.api.cp.tune.com/api/v1/... (for view/close/etc.)
+//http://ADVERTISER_ID.click.api.cp.tune.com/api/v1/... (for clicks)
 
 @interface SettingsViewController ()
 {
@@ -215,12 +215,12 @@ NSString * kAppListUrl      = @"/api/v1/demo/apps";
 
 - (void)populateLists
 {
-    // ex. http://877.event.aa.stage.tuneapi.com/api/v1/demo/advertisers
+    // ex. http://877.event.api.cp.stage.tune.com/api/v1/demo/advertisers
     
     BOOL isProdOrStage = -1 != [demoServerUrl compare:kAdServerProd options:NSCaseInsensitiveSearch] || -1 != [demoServerUrl compare:kAdServerStage options:NSCaseInsensitiveSearch];
     NSString *urlPrefix = isProdOrStage ? @"877.event." : @"";
     
-    NSURL *demoAdvListUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@%@%@", urlPrefix, demoServerUrl, kAdvListUrl]];
+    NSURL *demoAdvListUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@%@", urlPrefix, demoServerUrl, kAdvListUrl]];
     
     NSLog(@"demoAdvListUrl = %@", demoAdvListUrl);
     

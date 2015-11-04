@@ -67,13 +67,16 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  */
 + (NSMutableDictionary*)TUNE_getDictFromPasteboard:(id)pboard
 {
-    id item = [pboard dataForPasteboardType:kConversionWorksDomain];
+    id item = nil;
+
+#if TARGET_OS_IOS
+    item = [pboard dataForPasteboardType:kConversionWorksDomain];
 
     if (item)
     {
         item = [NSKeyedUnarchiver unarchiveObjectWithData:item];
     }
-
+#endif
     // return an instance of a MutableDictionary
     return [NSMutableDictionary dictionaryWithDictionary:(item == nil || [item isKindOfClass:[NSDictionary class]]) ? item : nil];
 }
@@ -84,7 +87,9 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
 
 + (void)TUNE_setDict:(id)dict forPasteboard:(id)pboard
 {
+#if TARGET_OS_IOS
     [pboard setData:[NSKeyedArchiver archivedDataWithRootObject:dict] forPasteboardType:kConversionWorksDomain];
+#endif
 }
 
 /*
@@ -101,20 +106,20 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  */
 + (NSDictionary*)TUNE_getClicks:(NSString*) appID
 {
-    if([appID length] == 0)
+    NSMutableDictionary *dictClicks = nil;
+    
+#if TARGET_OS_IOS
+    if([appID length] > 0)
     {
-        return nil;
-    }
-    else
-    {
-        NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self TUNE_getMD5:appID]];
-
-        UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
-
-        NSMutableDictionary * clicksDict = [[NSMutableDictionary alloc] init];
+        NSString *pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self TUNE_getMD5:appID]];
+        
+        UIPasteboard *convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
+        
+        dictClicks = [NSMutableDictionary new];
+        
         if(convPB != nil)
         {
-            NSMutableDictionary * dict = [self TUNE_getDictFromPasteboard:convPB];
+            NSMutableDictionary *dict = [self TUNE_getDictFromPasteboard:convPB];
 
             //get all the clicks
             for(NSString *key in dict)
@@ -124,21 +129,18 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
                     NSString * value = (NSString *)[dict objectForKey:key];
                     if(value != nil)
                     {
-                        [clicksDict setObject:value forKey:key];
+                        [dictClicks setObject:value forKey:key];
                     }
                 }
             }
-            [dict removeObjectsForKeys:[clicksDict allKeys]];
+            [dict removeObjectsForKeys:[dictClicks allKeys]];
             //not removing the pasteboard because if there is a re-install event the pasteboard will be invalid
             [self TUNE_setDict:dict forPasteboard:convPB];
-
-            return clicksDict;
-        }
-        else
-        {
-            return nil;
         }
     }
+#endif
+    
+    return dictClicks;
 }
 
 /*
@@ -150,20 +152,16 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
  */
 + (NSDictionary*)TUNE_getImpressions:(NSString*) appID
 {
-    if([appID length] == 0)
+    NSMutableDictionary *dictImpressions = nil;
+#if TARGET_OS_IOS
+    if([appID length] > 0)
     {
-        return nil;
-    }
-    else
-    {
-        NSString * pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self TUNE_getMD5:appID]];
+        NSString *pbName = [NSString stringWithFormat:@"%@.%@", kConversionWorksKey, [self TUNE_getMD5:appID]];
 
-        UIPasteboard * convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
-
-        NSMutableDictionary * impressionsDict = [[NSMutableDictionary alloc] init];
+        UIPasteboard *convPB = [UIPasteboard pasteboardWithName:pbName create:NO];
+        dictImpressions = [NSMutableDictionary new];
         if(convPB != nil)
         {
-
             NSMutableDictionary * dict = [self TUNE_getDictFromPasteboard:convPB];
 
             //get all the impressions
@@ -174,23 +172,19 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
                     NSString * value = (NSString *)[dict objectForKey:key];
                     if(value != nil)
                     {
-                        [impressionsDict setObject:value forKey:key];
+                        [dictImpressions setObject:value forKey:key];
                     }
                 }
             }
 
             //remove all the impressions from the dict
-            [dict removeObjectsForKeys:[impressionsDict allKeys]];
+            [dict removeObjectsForKeys:[dictImpressions allKeys]];
 
             //not removi ng the pasteboard because if there is a re-install event the pasteboard will be invalid
             [self TUNE_setDict:dict forPasteboard:convPB];
-
-            return impressionsDict;
-        }
-        else
-        {
-            return nil;
         }
     }
+#endif
+    return dictImpressions;
 }
 @end

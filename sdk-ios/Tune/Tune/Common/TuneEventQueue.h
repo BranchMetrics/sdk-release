@@ -23,9 +23,12 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  Method used to enqueue a request in the main Tune event queue.
  */
 + (void)enqueueUrlRequest:(NSString*)trackingLink
+              eventAction:(NSString*)actionName
             encryptParams:(NSString*)encryptParams
                  postData:(NSString*)postData
                   runDate:(NSDate*)runDate;
+
++ (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;
 
 #if TESTING
 + (instancetype)sharedInstance;
