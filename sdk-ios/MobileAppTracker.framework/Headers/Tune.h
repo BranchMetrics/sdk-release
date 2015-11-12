@@ -297,11 +297,11 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 #if !TARGET_OS_IOS
 
 /** @name Gender type constants */
-typedef NS_ENUM(NSInteger) {
+typedef NS_ENUM(NSInteger, TuneGender) {
     TuneGenderUnknown,
     TuneGenderMale,
     TuneGenderFemale
-} TuneGender;
+};
 
 #endif
 
