@@ -29,6 +29,26 @@ TuneReachability *reachability;
 NSString *overrideNetworkStatus;
 #endif
 
+
+#if DEBUG_STAGING
+@interface TuneNSURLSessionDataDelegateHelper : NSObject <NSURLSessionDataDelegate>
+
+@end
+
+@implementation TuneNSURLSessionDataDelegateHelper
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
+{
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust])
+    {
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+    }
+}
+
+@end
+#endif
+
+
 @implementation TuneUtils
 
 +(void)initialize
@@ -649,6 +669,13 @@ NSString *overrideNetworkStatus;
 + (nullable NSData *)sendSynchronousDataTaskWithRequest:(nonnull NSURLRequest *)request forSession:(NSURLSession *)session returningResponse:(NSURLResponse *_Nullable*_Nullable)response error:(NSError *_Nullable*_Nullable)error {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     __block NSData *data = nil;
+    
+#if DEBUG_STAGING
+    session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
+                                            delegate:[TuneNSURLSessionDataDelegateHelper new]
+                                       delegateQueue:[NSOperationQueue mainQueue]];
+#endif
+    
     [[session dataTaskWithRequest:request completionHandler:^(NSData *taskData, NSURLResponse *taskResponse, NSError *taskError) {
         data = taskData;
         if (response) {

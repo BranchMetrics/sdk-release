@@ -73,17 +73,6 @@
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, [newIfv UUIDString] );
 }
 
-- (void)testIFVNil
-{
-    [self commonSetup];
-    [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:nil]];
-    [Tune measureEventName:@"registration"];
-    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, TUNE_KEY_GUID_EMPTY );
-}
-
 - (void)testIFVTrueNil
 {
     [self commonSetup];
@@ -169,18 +158,6 @@
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, [newIfa UUIDString] );
-}
-
-- (void)testIFANil
-{
-    [self commonSetup];
-    [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:nil]
-             advertisingTrackingEnabled:YES];
-    [Tune measureEventName:@"registration"];
-    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, TUNE_KEY_GUID_EMPTY );
 }
 
 - (void)testIFATrueNil

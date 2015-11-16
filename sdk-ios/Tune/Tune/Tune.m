@@ -11,7 +11,6 @@
 #import "TuneEventItem.h"
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
-#import "TuneRegionMonitor.h"
 #import "Common/TuneEvent_internal.h"
 #import "Common/TuneKeyStrings.h"
 #import "Common/TuneTracker.h"
@@ -364,6 +363,11 @@ static NSOperationQueue *opQueue = nil;
 
 
 #pragma mark - Getter Methods
+
++ (NSString*)appleAdvertisingIdentifier
+{
+    return [self sharedManager].parameters.ifa;
+}
 
 + (NSString*)matId
 {

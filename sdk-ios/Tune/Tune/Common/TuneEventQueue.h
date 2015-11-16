@@ -28,6 +28,9 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
                  postData:(NSString*)postData
                   runDate:(NSDate*)runDate;
 
+/*!
+ Update currently enqueued requests to include the provided referral_url and referral_source.
+ */
 + (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;
 
 #if TESTING

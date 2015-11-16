@@ -41,12 +41,12 @@
 #import <WatchKit/WatchKit.h>
 #endif
 
-static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
+static const int TUNE_CONVERSION_KEY_LENGTH     = 32;
 
 #if USE_IAD
-const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 15.;
+const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 15.;
 #else
-const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 0.;
+const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 0.;
 #endif
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
@@ -127,14 +127,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 #endif
         
 #if !TARGET_OS_WATCH
+        // enable IFA auto-collection and auto-collect IFA
         [self setShouldAutoCollectAppleAdvertisingIdentifier:YES];
+        
+        // enable IFV auto-collection and auto-collect IFV
         [self setShouldAutoGenerateAppleVendorIdentifier:YES];
 #endif
         // the user can turn these off before calling a method which will
         // remove the keys. turning them back on will regenerate the keys.
-        
-        // collect IFA if accessible
-        [self updateIfa];
         
         self.alertMessages = [NSMutableArray array];
         

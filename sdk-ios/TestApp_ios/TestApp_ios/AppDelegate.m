@@ -97,25 +97,25 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 {
     NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     
-    NSLog(@"Tune success: %@", dict);
+    NSLog(@"Tune ios success: %@", dict);
 }
 
 // Tune failure callback
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    NSLog(@"Tune error: %@", error);
+    NSLog(@"Tune ios error: %@", error);
 }
 
 // Tune request enqueued
 - (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
 {
-    NSLog(@"Tune enqueued request: refId = %@", referenceId);
+    NSLog(@"Tune ios enqueued request: refId = %@", referenceId);
 }
 
 // Tune deeplink received
 - (void)tuneDidReceiveDeeplink:(NSString *)deeplink
 {
-    NSLog(@"Tune deferred deeplink = %@", deeplink);
+    NSLog(@"Tune ios deferred deeplink = %@", deeplink);
     
     if(deeplink)
     {
@@ -126,7 +126,7 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 // Tune deeplink request failed
 -(void)tuneDidFailDeeplinkWithError:(NSError *)error
 {
-    NSLog(@"Tune deeplink error: %@", error);
+    NSLog(@"Tune ios deeplink error: %@", error);
 }
 
 @end

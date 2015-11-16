@@ -342,10 +342,18 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:self.deviceCpuSubtype            forKey:TUNE_KEY_DEVICE_CPUSUBTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.deviceCpuType               forKey:TUNE_KEY_DEVICE_CPUTYPE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
+    // watchOS1
     if(self.wearable)
     {
         [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE    forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     }
+    
+#if TARGET_OS_TV
+    [self addValue:TUNE_KEY_DEVICE_FORM_TV          forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#elif TARGET_OS_WATCH
+    // watchOS2
+    [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE    forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+#endif
     
     [self addValue:self.deviceModel                 forKey:TUNE_KEY_DEVICE_MODEL            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:event.attribute1                 forKey:TUNE_KEY_EVENT_ATTRIBUTE_SUB1    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

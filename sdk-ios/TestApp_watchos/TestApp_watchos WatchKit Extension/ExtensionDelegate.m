@@ -45,22 +45,22 @@
 // Tune success callback
 - (void)tuneDidSucceedWithData:(NSData *)data
 {
-    //NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    //NSLog(@"Tune watch success: %@", response);
+    //NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    //NSLog(@"Tune watch success: %@", dict);
     
-    NSLog(@"Tune watch success");
+    NSLog(@"Tune watchos success");
 }
 
 // Tune failure callback
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    NSLog(@"Tune watch error: %@", error);
+    NSLog(@"Tune watchos error: %@", error);
 }
 
 // Tune request enqueued
 - (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
 {
-    NSLog(@"Tune watch enqueued request: refId = %@", referenceId);
+    NSLog(@"Tune watchos enqueued request: refId = %@", referenceId);
 }
 
 @end

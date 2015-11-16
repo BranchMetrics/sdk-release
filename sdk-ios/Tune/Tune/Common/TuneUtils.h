@@ -63,7 +63,7 @@
 + (nullable NSString *)hashSha256:(nullable NSString *)input;
 
 #if TESTING
-+ (void)overrideNetworkReachability:(nonnull NSString *)reachable;
++ (void)overrideNetworkReachability:(nullable NSString *)reachable;
 #endif
 
 /*!

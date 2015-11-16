@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+@import AdSupport;
+@import MobileAppTracker_tvos;
+@import StoreKit;
+@import SystemConfiguration;
+
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;

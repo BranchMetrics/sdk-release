@@ -227,13 +227,12 @@ static TuneEventQueue *sharedQueue = nil;
     
     // add item to queue
     // note that postData might be nil
-    NSMutableDictionary *item = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                          @([runDate timeIntervalSince1970]),   TUNE_KEY_RUN_DATE,
-                          actionName,                           TUNE_KEY_ACTION,
-                          trackingLink,                         TUNE_KEY_URL,
-                          encryptParams,                        TUNE_KEY_DATA,
-                          postData,                             TUNE_KEY_JSON,
-                          nil];
+    NSMutableDictionary *item = [NSMutableDictionary dictionary];
+    [item setValue:@([runDate timeIntervalSince1970]) forKey:TUNE_KEY_RUN_DATE];
+    [item setValue:actionName forKey:TUNE_KEY_ACTION];
+    [item setValue:trackingLink forKey:TUNE_KEY_URL];
+    [item setValue:encryptParams forKey:TUNE_KEY_DATA];
+    [item setValue:postData forKey:TUNE_KEY_JSON];
     
     @synchronized( events ) {
         [events addObject:item];
@@ -341,18 +340,28 @@ static TuneEventQueue *sharedQueue = nil;
         
         NSString *searchString = nil;
         
+        // append referral_url if not present
         searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_REFERRAL_URL];
         if( refUrl && [encryptParams rangeOfString:searchString].location == NSNotFound)
         {
-            NSString *refUrlParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_URL, refUrl];
-            encryptParams = [encryptParams stringByAppendingString:refUrlParam];
+            NSString *encodedRefUrl = [TuneUtils urlEncodeQueryParamValue:refUrl];
+            if(encodedRefUrl)
+            {
+                NSString *refUrlParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_URL, encodedRefUrl];
+                encryptParams = [encryptParams stringByAppendingString:refUrlParam];
+            }
         }
         
+        // add referral_source if not present
         searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_REFERRAL_SOURCE];
         if( refSource && [encryptParams rangeOfString:searchString].location == NSNotFound)
         {
-            NSString *refSourceParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_SOURCE, refSource];
-            encryptParams = [encryptParams stringByAppendingString:refSourceParam];
+            NSString *encodedRefSource = [TuneUtils urlEncodeQueryParamValue:refSource];
+            if(encodedRefSource)
+            {
+                NSString *refSourceParam = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_REFERRAL_SOURCE, encodedRefSource];
+                encryptParams = [encryptParams stringByAppendingString:refSourceParam];
+            }
         }
         
         // if iad_attribution, append/overwrite current status

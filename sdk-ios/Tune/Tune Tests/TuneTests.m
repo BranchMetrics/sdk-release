@@ -119,6 +119,25 @@
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
 }
 
+- (void)testDeferredDeepLink
+{
+    [Tune measureSession];
+    
+    // wait 1 sec to simulate deferred deep link fetch delay
+    waitFor(1.);
+    
+    static NSString* const openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
+    static NSString* const sourceApplication = nil;
+    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
+    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_REFERRAL_SOURCE);
+}
+
 
 #pragma mark - Arbitrary actions
 

@@ -29,7 +29,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"3.14.0"
+#define TUNEVERSION @"3.14.1"
 
 
 #pragma mark - enumerated types
@@ -136,7 +136,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 
 #if !TARGET_OS_WATCH
 /*!
- Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
+ Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication. If your app provides subscription IAP items, please make sure you enter the iTunes Shared Secret on the TUNE dashboard, otherwise Apple receipt validation will fail and the events will be marked as rejected.
  @param automate Automate IAP purchase event measurement. Defaults to NO.
  */
 + (void)automateIapEventMeasurement:(BOOL)automate;
@@ -297,11 +297,11 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 #if !TARGET_OS_IOS
 
 /** @name Gender type constants */
-typedef NS_ENUM(NSInteger) {
+typedef NS_ENUM(NSInteger, TuneGender) {
     TuneGenderUnknown,
     TuneGenderMale,
     TuneGenderFemale
-} TuneGender;
+};
 
 #endif
 
@@ -341,6 +341,12 @@ typedef NS_ENUM(NSInteger) {
 #pragma mark - Data Getters
 
 /** @name Getter Methods */
+
+/*!
+ Get the Apple Advertising Identifier.
+ @return Apple Advertising Identifier (IFA)
+ */
++ (NSString*)appleAdvertisingIdentifier;
 
 /*!
  Get the MAT ID for this installation (mat_id).

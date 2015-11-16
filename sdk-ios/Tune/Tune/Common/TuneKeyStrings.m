@@ -29,6 +29,7 @@ NSString * const TUNE_KEY_DEVICE_CARRIER                 = @"device_carrier";
 NSString * const TUNE_KEY_DEVICE_CPUTYPE                 = @"device_cpu_type";
 NSString * const TUNE_KEY_DEVICE_CPUSUBTYPE              = @"device_cpu_subtype";
 NSString * const TUNE_KEY_DEVICE_FORM                    = @"device_form";
+NSString * const TUNE_KEY_DEVICE_FORM_TV                 = @"tv";
 NSString * const TUNE_KEY_DEVICE_FORM_WEARABLE           = @"wearable";
 NSString * const TUNE_KEY_DEVICE_MODEL                   = @"device_model";
 NSString * const TUNE_KEY_EXISTING_USER                  = @"existing_user";
