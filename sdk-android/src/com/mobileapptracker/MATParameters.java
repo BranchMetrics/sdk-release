@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
@@ -80,9 +81,7 @@ public class MATParameters {
 
             new Thread(new GetGAID(context)).start();
             
-            // Execute Runnable on UI thread to set user agent
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new GetUserAgent(mContext));
+            calculateUserAgent();
 
             // Get app package information
             String packageName = mContext.getPackageName();
@@ -190,6 +189,20 @@ public class MATParameters {
         }
     }
     
+    /**
+     * Determine the device's user agent and set the corresponding field.
+     */
+    private void calculateUserAgent() {
+        String userAgent = System.getProperty("http.agent", "");
+        if (TextUtils.isEmpty(userAgent)) {
+            // Execute Runnable on UI thread to set user agent
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new GetUserAgent(mContext));
+        } else {
+            setUserAgent(userAgent);
+        }
+    }
+
     private class GetGAID implements Runnable {
         private final WeakReference<Context> weakContext;
         
@@ -800,7 +813,7 @@ public class MATParameters {
     public synchronized String getUserAgent() {
         return mUserAgent;
     }
-    private void setUserAgent(String userAgent) {
+    private synchronized void setUserAgent(String userAgent) {
         mUserAgent = userAgent;
     }
     
