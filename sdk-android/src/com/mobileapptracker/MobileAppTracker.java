@@ -737,7 +737,7 @@ public class MobileAppTracker {
     }
 
     /**
-     * Gets the device browser user agent
+     * Gets the device user agent
      * @return device user agent
      */
     public String getUserAgent() {
