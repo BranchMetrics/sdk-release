@@ -8,10 +8,13 @@
 
 #import "TuneUserAgentCollector.h"
 
-@interface TuneUserAgentCollector() <UIWebViewDelegate>
+@interface TuneUserAgentCollector()
+#if TARGET_OS_IOS
+<UIWebViewDelegate>
+#endif
 
 @property (nonatomic, assign) BOOL hasStarted;
-@property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic, strong) id webView;
 @property (nonatomic, copy) NSString *userAgent;
 
 @end
@@ -34,14 +37,22 @@ static TuneUserAgentCollector *collector;
 + (void)startCollection
 {
     @synchronized( collector ) {
+#if !TARGET_OS_WATCH
         if( collector.hasStarted == NO && [UIApplication sharedApplication] != nil ) {
+#else
+        if( collector.hasStarted == NO ) {
+#endif
             collector.hasStarted = YES;
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                collector.webView = [UIWebView new];
-                collector.webView.delegate = collector;
-                [collector.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://fakesite"]]];
-            }];
+            Class webViewClass = NSClassFromString(@"UIWebView");
+            if( webViewClass && [webViewClass class] ) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    collector.webView = [webViewClass new];
+                    [collector.webView performSelector:@selector(setDelegate:) withObject:collector];
+                    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://fakesite"]];
+                    [collector.webView performSelector:@selector(loadRequest:) withObject:request];
+                }];
+            }
         }
     }
 }
@@ -54,9 +65,13 @@ static TuneUserAgentCollector *collector;
 
 #pragma mark - UIWebViewDelegate Methods
 
-- (BOOL)           webView:(UIWebView *)wv
+- (BOOL)           webView:(id)wv
 shouldStartLoadWithRequest:(NSURLRequest *)request
+#if TARGET_OS_IOS
             navigationType:(UIWebViewNavigationType)navigationType
+#else
+            navigationType:(NSInteger)navigationType
+#endif
 {
     NSString *agent = [request valueForHTTPHeaderField:@"User-Agent"];
     

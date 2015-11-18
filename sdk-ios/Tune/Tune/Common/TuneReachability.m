@@ -45,14 +45,17 @@
  
  */
 
+#import "TuneReachability.h"
+
+#if !TARGET_OS_WATCH
+
 #import <arpa/inet.h>
 #import <ifaddrs.h>
 #import <netdb.h>
 #import <sys/socket.h>
 
 #import <CoreFoundation/CoreFoundation.h>
-
-#import "TuneReachability.h"
+#import <SystemConfiguration/SystemConfiguration.h>
 
 
 NSString *kTuneReachabilityChangedNotification = @"kTuneNetworkReachabilityChangedNotification";
@@ -94,10 +97,13 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
     [[NSNotificationCenter defaultCenter] postNotificationName: kTuneReachabilityChangedNotification object: noteObject];
 }
 
+#endif
 
 #pragma mark - TuneReachability implementation
 
 @implementation TuneReachability
+
+#if !TARGET_OS_WATCH
 {
     BOOL _alwaysReturnLocalWiFiStatus; //default is NO
     SCNetworkReachabilityRef _reachabilityRef;
@@ -211,37 +217,37 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
 
 #pragma mark - Network Flag Handling
 
-- (NetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
+- (TuneNetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
 {
     PrintReachabilityFlags(flags, "localWiFiStatusForFlags");
-    NetworkStatus returnValue = NotReachable;
+    TuneNetworkStatus returnValue = TuneNotReachable;
     
     if ((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect))
     {
-        returnValue = ReachableViaWiFi;
+        returnValue = TuneReachableViaWiFi;
     }
     
     return returnValue;
 }
 
 
-- (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags
+- (TuneNetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags
 {
     PrintReachabilityFlags(flags, "networkStatusForFlags");
     if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
     {
         // The target host is not reachable.
-        return NotReachable;
+        return TuneNotReachable;
     }
     
-    NetworkStatus returnValue = NotReachable;
+    TuneNetworkStatus returnValue = TuneNotReachable;
     
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
     {
         /*
          If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
          */
-        returnValue = ReachableViaWiFi;
+        returnValue = TuneReachableViaWiFi;
     }
     
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
@@ -256,7 +262,7 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
             /*
              ... and no [user] intervention is needed...
              */
-            returnValue = ReachableViaWiFi;
+            returnValue = TuneReachableViaWiFi;
         }
     }
     
@@ -265,7 +271,7 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
          */
-        returnValue = ReachableViaWWAN;
+        returnValue = TuneReachableViaWWAN;
     }
     
     return returnValue;
@@ -286,10 +292,10 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
 }
 
 
-- (NetworkStatus)currentReachabilityStatus
+- (TuneNetworkStatus)currentReachabilityStatus
 {
     NSAssert(_reachabilityRef != NULL, @"currentNetworkStatus called with NULL SCNetworkReachabilityRef");
-    NetworkStatus returnValue = NotReachable;
+    TuneNetworkStatus returnValue = TuneNotReachable;
     SCNetworkReachabilityFlags flags;
     
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags))
@@ -307,5 +313,7 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
     return returnValue;
 }
 
+#endif
 
 @end
+

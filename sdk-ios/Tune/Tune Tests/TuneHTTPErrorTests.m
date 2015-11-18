@@ -65,10 +65,11 @@
     networkOnline();
     
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request&headers%5BX-MAT-Responder%5D=someserver"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=400&statusCode%%5Bmessage%%5D=HTTP/1.0%%20400%%20Bad%%20Request&headers%%5BX-MAT-Responder%%5D=someserver"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:0];
@@ -78,7 +79,7 @@
 - (void)test400NoHeaderRetry
 {
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.0%20400%20Bad%20Request"
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=400&statusCode%%5Bmessage%%5D=HTTP/1.0%%20400%%20Bad%%20Request"
                        encryptParams:nil
                             postData:nil
                              runDate:[NSDate date]];
@@ -93,10 +94,11 @@
     networkOnline();
     
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=500&statusCode%%5Bmessage%%5D=HTTP/1.0%%20500%%20Server%%20Error"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
     waitFor( 10. );
     
     [self checkAndClearExpectedQueueSize:1];
@@ -107,10 +109,11 @@
     networkOnline();
     
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=500&statusCode%%5Bmessage%%5D=HTTP/1.0%%20500%%20Server%%20Error"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
     waitFor( 10. );
 
     XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected %d queued requests, found %d",
@@ -129,14 +132,16 @@
 - (void)test500RetryOrder
 {
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=500&statusCode%%5Bmessage%%5D=HTTP/1.0%%20500%%20Server%%20Error"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=500&statusCode%%5Bmessage%%5D=HTTP/1.0%%20500%%20Server%%20Error&headers%%5Bdummyheader%%5D=yourmom"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
     waitFor( 10. );
     
     XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected %d queued requests, found %d",
@@ -152,10 +157,11 @@
 - (void)test500RetryTwice
 {
     [tracker setDebugMode:YES];
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Bad%"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
+    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%%5Bcode%%5D=500&statusCode%%5Bmessage%%5D=HTTP/1.0%%20500%%20Bad%%"
+                          eventAction:nil
+                        encryptParams:nil
+                             postData:nil
+                              runDate:[NSDate date]];
     waitFor( 10. );
     
     int expected = (unsigned int)[TuneEventQueue queueSize];

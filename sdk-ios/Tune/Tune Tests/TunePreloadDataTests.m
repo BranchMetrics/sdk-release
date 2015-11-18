@@ -29,6 +29,8 @@
     BOOL callFailed;
     
     TuneTestParams *params;
+    
+    BOOL finished;
 }
 
 @end
@@ -43,6 +45,8 @@
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
+    finished = NO;
+    
     params = [TuneTestParams new];
     
     emptyRequestQueue();
@@ -56,8 +60,11 @@
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
     
+    finished = NO;
+    
     emptyRequestQueue();
-    waitFor( 10. );
+    
+    waitFor( 0.3 );
     
     [super tearDown];
 }
@@ -69,7 +76,7 @@
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"incorrect_publisher_id"];
     [Tune setPreloadData:pd];
     [Tune measureEventName:@"event1"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
@@ -82,7 +89,7 @@
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"112233"];
     [Tune setPreloadData:pd];
     [Tune measureEventName:@"event2"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
@@ -116,7 +123,7 @@
     
     [Tune setPreloadData:pd];
     [Tune measureEventName:@"event1"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
@@ -154,6 +161,8 @@
     //NSLog( @"TunePreloadDataTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
+    
+    finished = YES;
 }
 
 - (void)tuneDidFailWithError:(NSError *)error
@@ -161,6 +170,8 @@
     //NSLog( @"TunePreloadDataTests: test received failure with %@\n", error );
     callFailed = YES;
     callSuccess = NO;
+    
+    finished = YES;
 }
 
 

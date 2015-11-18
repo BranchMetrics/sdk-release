@@ -16,6 +16,8 @@
 @interface TuneAutoParameterizationTests : XCTestCase <TuneDelegate>
 {
     TuneTestParams *params;
+    
+    BOOL finished;
 }
 
 @end
@@ -26,7 +28,9 @@
 - (void)setUp
 {
     [super setUp];
-
+    
+    finished = NO;
+    
     params = [TuneTestParams new];
 
     emptyRequestQueue();
@@ -34,13 +38,15 @@
 
 - (void)tearDown
 {
-    [super tearDown];
-
+    finished = NO;
+    
     [Tune setAppleVendorIdentifier:[[UIDevice currentDevice] identifierForVendor]];
     [Tune setAppleAdvertisingIdentifier:[[ASIdentifierManager sharedManager] advertisingIdentifier]
              advertisingTrackingEnabled:[[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]];
 
     emptyRequestQueue();
+    
+    [super tearDown];
 }
 
 - (void)commonSetup
@@ -61,21 +67,10 @@
     
     [Tune setAppleVendorIdentifier:newIfv];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, [newIfv UUIDString] );
-}
-
-- (void)testIFVNil
-{
-    [self commonSetup];
-    [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:nil]];
-    [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, @"00000000-0000-0000-0000-000000000000" );
 }
 
 - (void)testIFVTrueNil
@@ -83,7 +78,7 @@
     [self commonSetup];
     [Tune setAppleVendorIdentifier:nil];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -94,7 +89,7 @@
     [self commonSetup];
     [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@""]];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -105,7 +100,7 @@
     [self commonSetup];
     [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -116,7 +111,7 @@
     [self commonSetup];
     [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"0000000000000000000000000000000000000000000000000000000000000000000000"]];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -125,12 +120,12 @@
 - (void)testIFVZero
 {
     [self commonSetup];
-    [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]];
+    [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:TUNE_KEY_GUID_EMPTY]];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, TUNE_KEY_GUID_EMPTY );
 }
 
 - (void)testNoAutoGenerateIFV
@@ -143,7 +138,7 @@
     [Tune setAppleVendorIdentifier:newIfv];
     [Tune setShouldAutoGenerateAppleVendorIdentifier:NO];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifv"], @"should not have set an IFV (%@)", [params valueForKey:@"ios_ifv"] );
@@ -159,22 +154,10 @@
     
     [Tune setAppleAdvertisingIdentifier:newIfa advertisingTrackingEnabled:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, [newIfa UUIDString] );
-}
-
-- (void)testIFANil
-{
-    [self commonSetup];
-    [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:nil]
-             advertisingTrackingEnabled:YES];
-    [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, @"00000000-0000-0000-0000-000000000000" );
 }
 
 - (void)testIFATrueNil
@@ -183,7 +166,7 @@
     [Tune setAppleAdvertisingIdentifier:nil
              advertisingTrackingEnabled:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -195,7 +178,7 @@
     [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@""]
              advertisingTrackingEnabled:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -207,7 +190,7 @@
     [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"abc"]
              advertisingTrackingEnabled:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check should have failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"ios_ifa"], @"should not have set an IFA (%@)", [params valueForKey:@"ios_ifa"] );
@@ -216,13 +199,13 @@
 - (void)testIFAZero
 {
     [self commonSetup];
-    [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
+    [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:TUNE_KEY_GUID_EMPTY]
              advertisingTrackingEnabled:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, @"00000000-0000-0000-0000-000000000000" );
+    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, TUNE_KEY_GUID_EMPTY );
 }
 
 

@@ -28,6 +28,7 @@
 @interface TuneParametersTests : XCTestCase <TuneDelegate>
 {
     TuneTestParams *params;
+    BOOL finished;
 }
 
 @end
@@ -43,6 +44,8 @@
     
     params = [TuneTestParams new];
 
+    finished = NO;
+    
     emptyRequestQueue();
     
     networkOnline();
@@ -54,12 +57,24 @@
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
 
+    finished = NO;
+    
     emptyRequestQueue();
-    waitFor( 10. );
+    //waitFor( 10. );
+    waitFor( 0.3 );
 
     [super tearDown];
 }
 
+-(void)tuneDidSucceedWithData:(NSData *)data
+{
+    finished = YES;
+}
+
+- (void)tuneDidFailWithError:(NSError *)error
+{
+    finished = YES;
+}
 
 #pragma mark - Age
 
@@ -67,11 +82,15 @@
 {
     static const NSInteger age = 35;
     NSString *expectedAge = [@(age) stringValue];
-    
-    [Tune setAge:age];
-    [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
 
+    [Tune setAge:age];
+    
+    //startDate = [NSDate date];
+    [Tune measureEventName:@"registration"];
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    
+    //NSLog(@"after = %f", [[NSDate date] timeIntervalSinceDate:startDate]);
+    
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
 }
@@ -82,8 +101,11 @@
     NSString *expectedAge = [@(age) stringValue];
     
     [Tune setAge:age];
+    
+    //startDate = [NSDate date];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    //NSLog(@"after = %f", [[NSDate date] timeIntervalSinceDate:startDate]);
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
@@ -96,7 +118,7 @@
     
     [Tune setAge:age];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
@@ -109,7 +131,7 @@
     
     [Tune setAge:age];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
@@ -122,7 +144,7 @@
     
     [Tune setAge:age];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
@@ -138,7 +160,7 @@
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
@@ -151,7 +173,7 @@
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
@@ -163,7 +185,7 @@
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
@@ -175,7 +197,7 @@
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
@@ -187,7 +209,7 @@
     
     [Tune setGender:gender];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
@@ -209,7 +231,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -229,7 +251,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -249,7 +271,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -269,7 +291,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -289,7 +311,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -309,7 +331,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -329,7 +351,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -352,7 +374,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -376,7 +398,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -400,7 +422,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -424,7 +446,7 @@
     [Tune setLocation:location];
     
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
@@ -441,7 +463,7 @@
     
     [Tune setCurrencyCode:currency];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
@@ -450,7 +472,7 @@
 - (void)testCurrencyCodeDefault
 {
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     // fails because we have no real way to reset sharedManager
@@ -463,7 +485,7 @@
     
     [Tune setCurrencyCode:currency];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
@@ -473,7 +495,7 @@
 {
     [Tune setCurrencyCode:nil];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"currency_code"], @"should not have set currency code" );
@@ -485,7 +507,7 @@
     
     [Tune setCurrencyCode:currency];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
@@ -500,7 +522,7 @@
     
     [Tune setPackageName:package];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
@@ -512,7 +534,7 @@
     
     [Tune setPackageName:package];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
@@ -522,7 +544,7 @@
 {
     [Tune setPackageName:nil];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:@"package_name"], @"should not have set package name" );
@@ -534,7 +556,7 @@
     
     [Tune setPackageName:package];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
@@ -546,7 +568,7 @@
     
     [Tune setPackageName:package];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
@@ -558,7 +580,7 @@
 
     [Tune setPackageName:package];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
@@ -573,7 +595,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
@@ -585,7 +607,7 @@
 
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
@@ -595,7 +617,7 @@
 {
     [Tune setPluginName:nil];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
@@ -607,7 +629,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -619,7 +641,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
@@ -631,7 +653,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -643,7 +665,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -655,7 +677,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -667,7 +689,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -679,7 +701,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -691,7 +713,7 @@
     
     [Tune setPluginName:plugin];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
@@ -706,7 +728,7 @@
     
     [Tune setSiteId:ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SITE_ID, ID );
@@ -718,7 +740,7 @@
     
     [Tune setTRUSTeId:ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_SITE_ID, ID );
@@ -728,7 +750,7 @@
 {
     [Tune setExistingUser:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_EXISTING_USER, [@TRUE stringValue] );
@@ -743,7 +765,7 @@
     
     [Tune setUserEmail:EMAIL_ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_MD5, EMAIL_ID_MD5 );
@@ -761,7 +783,7 @@
     
     [Tune setUserEmail:USER_EMAIL];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_MD5, USER_EMAIL_MD5 );
@@ -776,7 +798,7 @@
     
     [Tune setUserEmail:USER_EMAIL];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_MD5 );
@@ -791,7 +813,7 @@
     
     [Tune setUserId:USER_ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_ID, USER_ID );
@@ -806,7 +828,7 @@
     
     [Tune setUserName:USER_NAME];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_MD5, USER_NAME_MD5 );
@@ -824,7 +846,7 @@
     
     [Tune setUserName:USER_NAME];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_MD5, USER_NAME_MD5 );
@@ -839,7 +861,7 @@
     
     [Tune setUserName:USER_NAME];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME_MD5 );
@@ -857,7 +879,7 @@
     
     [Tune setPhoneNumber:USER_PHONE];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
@@ -875,7 +897,7 @@
     
     [Tune setPhoneNumber:USER_PHONE];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
@@ -890,7 +912,7 @@
     
     [Tune setPhoneNumber:USER_PHONE];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE_MD5 );
@@ -995,7 +1017,7 @@
     
     [Tune setFacebookUserId:ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_FACEBOOK_USER_ID, ID );
@@ -1007,7 +1029,7 @@
     
     [Tune setTwitterUserId:ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_TWITTER_USER_ID, ID );
@@ -1019,7 +1041,7 @@
     
     [Tune setGoogleUserId:ID];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_GOOGLE_USER_ID, ID );
@@ -1029,7 +1051,7 @@
 {
     [Tune setPayingUser:YES];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IS_PAYING_USER, [@TRUE stringValue] );
@@ -1046,7 +1068,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IS_PAYING_USER, [@TRUE stringValue] );
@@ -1057,13 +1079,14 @@
 {
     [Tune setPayingUser:NO];
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IS_PAYING_USER, [@FALSE stringValue] );
     XCTAssertFalse( [Tune isPayingUser], @"should not be a paying user" );
 }
 
+#if TARGET_OS_IOS
 
 // TODO: move this to new class for internal params testing
 #pragma mark - iAd attribution
@@ -1079,7 +1102,7 @@
     sharedParams.iadAttribution = @(TRUE);
 
     [Tune measureEventName:@"registration"];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@(TRUE) stringValue] );
@@ -1107,6 +1130,8 @@
     XCTAssertTrue( [params checkKey:TUNE_KEY_IAD_ATTRIBUTION isEqualToValue:[@(TRUE) stringValue]],
                    @"should have set iad_attribution to true" );
 }
+
+#endif
 
 
 #pragma mark - Tune delegate

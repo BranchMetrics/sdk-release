@@ -14,21 +14,25 @@
 #import "MATPreloadData.h"
 
 #import "Tune.h"
-#import "TuneAdView.h"
-#import "TuneBanner.h"
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
-#import "TuneInterstitial.h"
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
 
+#if TARGET_OS_IOS
 //#define MAT_USE_LOCATION
+
+#import "TuneAdView.h"
+#import "TuneBanner.h"
+#import "TuneInterstitial.h"
+#endif
+
 #ifdef MAT_USE_LOCATION
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define MATVERSION @"3.12.0"
+#define MATVERSION @"3.14.1"
 
 
 #pragma mark - enumerated types
@@ -144,12 +148,13 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  */
 + (void)checkForDeferredDeeplink:(id<MobileAppTrackerDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
+#if !TARGET_OS_WATCH
 /*!
  Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
  @param automate Automate IAP purchase event measurement. Defaults to NO.
  */
 + (void)automateIapEventMeasurement:(BOOL)automate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
-
+#endif
 /*!
  * Set whether the MAT events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
  * @param logging Whether to send MAT events to FB as well
@@ -171,6 +176,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  */
 + (void)setExistingUser:(BOOL)existingUser DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
+#if !TARGET_OS_WATCH
 /*!
  Set the Apple Advertising Identifier available in iOS 6.
  @param appleAdvertisingIdentifier - Apple Advertising Identifier
@@ -183,6 +189,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param appleVendorIdentifier - Apple Vendor Identifier
  */
 + (void)setAppleVendorIdentifier:(NSUUID * )appleVendorIdentifier DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+#endif
 
 /*!
  Sets the currency code.
@@ -204,6 +211,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  */
 + (void)setPackageName:(NSString *)packageName DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
+#if !TARGET_OS_WATCH
 /*!
  Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
  YES/NO
@@ -211,13 +219,16 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
  */
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+#endif
 
+#if TARGET_OS_IOS
 /*!
  Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
  YES/NO
  @param autoCollect YES will auto collect device location, defaults to YES.
  */
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+#endif
 
 /*!
  Specifies if the sdk should auto detect if the iOS device is jailbroken.
@@ -226,6 +237,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  */
 + (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
+#if !TARGET_OS_WATCH
 /*!
  Specifies if the sdk should pull the Apple Vendor Identifier from the device.
  YES/NO
@@ -233,12 +245,13 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param autoGenerate YES will set the Apple Vendor Identifier, defaults to YES.
  */
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+#endif
 
 /*!
  Sets the site ID.
  @param siteId The MAT app/site ID of this mobile app.
  */
-+ (void)setSiteId:(NSString *)siteId DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (void)setSiteId:(NSString *)siteId DEPRECATED_MSG_ATTRIBUTE("Please use +(void)setPackageName:(NSString *)packageName method from class Tune");
 
 /*!
  Set the TRUSTe Trusted Preference Identifier (TPID).
@@ -771,6 +784,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use protocol TuneDelegate instead") @protocol M
  */
 - (void)mobileAppTrackerDidFailDeeplinkWithError:(NSError *)error DEPRECATED_MSG_ATTRIBUTE("Implement corresponding method of protocol TuneDelegate");
 
+#if USE_IAD
 /*!
  Delegate method called when an iAd is displayed and its parent view is faded in.
  */
@@ -786,6 +800,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use protocol TuneDelegate instead") @protocol M
  @param error Error object returned by the iAd framework.
  */
 - (void)mobileAppTrackerFailedToReceiveiAdWithError:(NSError *)error DEPRECATED_MSG_ATTRIBUTE("Implement corresponding method of protocol TuneDelegate");
+#endif
 
 @end
 

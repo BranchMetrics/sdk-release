@@ -18,6 +18,8 @@
     BOOL callSuccess;
     BOOL callFailed;
     BOOL callFailedDuplicate;
+    
+    BOOL finished;
 }
 
 @end
@@ -27,13 +29,15 @@
 
 - (void)setUp
 {
-    waitFor( 10. ); // wait for previous tests
+    //waitFor( 3. ); // wait for previous tests
     
     [super setUp];
     
     callSuccess = NO;
     callFailed = NO;
     callFailedDuplicate = NO;
+    
+    finished = NO;
 
     [Tune setAllowDuplicateRequests:YES];
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
@@ -44,18 +48,20 @@
 
 - (void)tearDown
 {
-    [super tearDown];
-
+    finished = NO;
+    
     [Tune setAllowDuplicateRequests:NO];
     [Tune setDebugMode:NO];
 
     emptyRequestQueue();
+    
+    [super tearDown];
 }
 
 - (void)testInstall
 {
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
     XCTAssertFalse( callFailed, @"measureSession should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
@@ -70,7 +76,7 @@
     [tune performSelector:@selector(measureInstallPostConversion)];
 #pragma clang diagnostic pop
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"measureInstallPostConversion should have succeeded" );
     XCTAssertFalse( callFailed, @"measureInstallPostConversion should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureInstallPostConversion should have succeeded" );
@@ -80,7 +86,7 @@
 {
     [Tune setExistingUser:YES];
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailed, @"trackUpdate should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
@@ -90,7 +96,7 @@
 {
     static NSString* const eventName = @"testEventName";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"measureEventName should have succeeded" );
     XCTAssertFalse( callFailed, @"measureEventName should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureEventName should have succeeded" );
@@ -100,16 +106,17 @@
 {
     static NSString* const eventName = @"testEventName";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( callSuccess, @"measureEventName should have succeeded" );
     XCTAssertFalse( callFailed, @"measureEventName should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureEventName should have succeeded" );
-
+    
     [Tune setAllowDuplicateRequests:NO];
-    waitFor( 5. );
-
+    waitFor( 1. );
+    
+    finished = NO;
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( callSuccess, @"measureEventName duplicate should not have succeeded" );
     XCTAssertTrue( callFailed, @"measureEventName duplicate should not have succeeded" );
     XCTAssertTrue( callFailedDuplicate, @"measureEventName duplicate should not have succeeded" );
@@ -133,7 +140,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
 
     XCTAssertTrue( callSuccess, @"measureEventName with items should have succeeded" );
     XCTAssertFalse( callFailed, @"measureEventName with items should have succeeded" );
@@ -151,12 +158,13 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( 5. );
+    waitFor1( 5., &finished );
     XCTAssertTrue( callSuccess, @"measureEventName with revenue should have succeeded" );
     XCTAssertFalse( callFailed, @"measureEventName with revenue should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureEventName with revenue should have succeeded" );
 
     callSuccess = NO;
+    finished = NO;
     
     evt = [TuneEvent eventWithName:@"purchase" ];
     evt.refId = [[NSUUID UUID] UUIDString];
@@ -165,7 +173,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( 5. );
+    waitFor1( 5., &finished );
     XCTAssertTrue( callSuccess, @"measureEventName with revenue should have succeeded" );
     XCTAssertFalse( callFailed, @"measureEventName with revenue should have succeeded" );
     XCTAssertFalse( callFailedDuplicate, @"measureEventName with revenue should have succeeded" );
@@ -179,12 +187,16 @@
     //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
+    
+    finished = YES;
 }
 
 - (void)tuneDidFailWithError:(NSError *)error
 {
     callFailed = YES;
     callSuccess = NO;
+    
+    finished = YES;
     
     NSString *serverString = [error localizedDescription];
     

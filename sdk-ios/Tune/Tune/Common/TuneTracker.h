@@ -40,10 +40,8 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;
 
 #if USE_IAD
-
 - (void)displayiAdInView:(UIView*)view;
 - (void)removeiAd;
-
 #endif
 
 - (void)measureEvent:(TuneEvent *)event;
@@ -55,9 +53,14 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
               redirect:(BOOL)shouldRedirect;
 
 - (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetect;
+#if TARGET_OS_IOS
 - (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect;
+#endif
+
+#if !TARGET_OS_WATCH
 - (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect;
 - (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)shouldAutoGenerate;
+#endif
 
 - (void)setDebugMode:(BOOL)newDebugMode;
 - (void)setAllowDuplicateRequests:(BOOL)allowDuplicates;

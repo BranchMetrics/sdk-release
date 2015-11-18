@@ -29,11 +29,16 @@ NSString * const TUNE_KEY_DEVICE_CARRIER                 = @"device_carrier";
 NSString * const TUNE_KEY_DEVICE_CPUTYPE                 = @"device_cpu_type";
 NSString * const TUNE_KEY_DEVICE_CPUSUBTYPE              = @"device_cpu_subtype";
 NSString * const TUNE_KEY_DEVICE_FORM                    = @"device_form";
+NSString * const TUNE_KEY_DEVICE_FORM_TV                 = @"tv";
 NSString * const TUNE_KEY_DEVICE_FORM_WEARABLE           = @"wearable";
 NSString * const TUNE_KEY_DEVICE_MODEL                   = @"device_model";
 NSString * const TUNE_KEY_EXISTING_USER                  = @"existing_user";
 NSString * const TUNE_KEY_FACEBOOK_USER_ID               = @"facebook_user_id";
+
+#if TARGET_OS_IOS
 NSString * const TUNE_KEY_FB_COOKIE_ID                   = @"fb_cookie_id";
+#endif
+
 NSString * const TUNE_KEY_GEOFENCE_NAME                  = @"geofence_name";
 NSString * const TUNE_KEY_GOOGLE_USER_ID                 = @"google_user_id";
 NSString * const TUNE_KEY_GUID_EMPTY                     = @"00000000-0000-0000-0000-000000000000";
@@ -105,6 +110,8 @@ NSString * const TUNE_KEY_TARGET_BUNDLE_ID               = @"target_package";
 NSString * const TUNE_KEY_TRACKING_ID                    = @"tracking_id";
 NSString * const TUNE_KEY_TRANSACTION_ID                 = @"transaction_id";
 NSString * const TUNE_KEY_TRUSTE_TPID                    = @"truste_tpid";
+NSString * const TUNE_KEY_TVOS                           = @"tvos";
+NSString * const TUNE_KEY_WATCHOS                        = @"watchos";
 NSString * const TUNE_KEY_TWITTER_USER_ID                = @"twitter_user_id";
 NSString * const TUNE_KEY_UPDATE_LOG_ID                  = @"update_log_id";
 NSString * const TUNE_KEY_URL                            = @"url";

@@ -38,7 +38,6 @@ NSString * const TUNE_AD_KEY_VIEW                                   = @"view";
 
 NSString * const TUNE_AD_KEY_ACTION                                 = @"action";
 NSString * const TUNE_AD_KEY_ADVERTISER_ID                          = @"advertiserId";
-NSString * const TUNE_AD_KEY_SITE_ID                                = @"siteId";
 NSString * const TUNE_AD_KEY_SUB_PUBLISHER                          = @"subPublisher";
 NSString * const TUNE_AD_KEY_SUB_CAMPAIGN                           = @"subCampaign";
 NSString * const TUNE_AD_KEY_SUB_AD                                 = @"subAd";

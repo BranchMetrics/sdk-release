@@ -46,21 +46,21 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
 
 
 typedef enum : NSInteger {
-    NotReachable = 0,
-    ReachableViaWiFi,
-    ReachableViaWWAN
-} NetworkStatus;
+    TuneNotReachable = 0,
+    TuneReachableViaWiFi,
+    TuneReachableViaWWAN
+} TuneNetworkStatus;
 
 
 extern NSString *kTuneReachabilityChangedNotification;
 
-
 @interface TuneReachability : NSObject
+
+#if !TARGET_OS_WATCH
 
 /*!
  * Use to check the reachability of a given host name.
@@ -88,12 +88,14 @@ extern NSString *kTuneReachabilityChangedNotification;
 - (BOOL)startNotifier;
 - (void)stopNotifier;
 
-- (NetworkStatus)currentReachabilityStatus;
+- (TuneNetworkStatus)currentReachabilityStatus;
 
 /*!
  * WWAN may be available, but not active until a connection has been established. WiFi may require a connection for VPN on Demand.
  */
 - (BOOL)connectionRequired;
+
+#endif
 
 @end
 

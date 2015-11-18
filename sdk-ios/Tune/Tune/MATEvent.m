@@ -78,7 +78,7 @@ static const int MAT_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
     return self;
 }
 
--(void)setPostConversion:(BOOL)postConversion
+- (void)setPostConversion:(BOOL)postConversion
 {
     _postConversion = postConversion;
     _actionName = [[[self class] actionNameForEvent:self] copy];

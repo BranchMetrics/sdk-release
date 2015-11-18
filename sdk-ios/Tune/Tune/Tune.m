@@ -7,23 +7,26 @@
 //
 
 #import "Tune.h"
-#import "TuneAdView.h"
-#import "TuneBanner.h"
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
-#import "TuneInterstitial.h"
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
-
-#ifdef TUNE_USE_LOCATION
-#import "TuneRegionMonitor.h"
-#endif
-
 #import "Common/TuneEvent_internal.h"
 #import "Common/TuneKeyStrings.h"
 #import "Common/TuneTracker.h"
 #import "Common/TuneDeferredDplinkr.h"
 #import "Common/TuneSettings.h"
+
+
+#if TARGET_OS_IOS
+#import "TuneAdView.h"
+#import "TuneBanner.h"
+#import "TuneInterstitial.h"
+#endif
+
+#ifdef TUNE_USE_LOCATION
+#import "TuneRegionMonitor.h"
+#endif
 
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
 
@@ -145,6 +148,7 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+#if !TARGET_OS_WATCH
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
@@ -163,6 +167,7 @@ static NSOperationQueue *opQueue = nil;
         [self sharedManager].parameters.ifv = [appleVendorIdentifier UUIDString];
     }];
 }
+#endif
 
 + (void)setCurrencyCode:(NSString *)currencyCode
 {
@@ -194,13 +199,16 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
+#if TARGET_OS_IOS
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] setShouldAutoCollectDeviceLocation:autoCollect];
     }];
 }
+#endif
 
+#if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
 {
     [opQueue addOperationWithBlock:^{
@@ -214,6 +222,7 @@ static NSOperationQueue *opQueue = nil;
         [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:autoGenerate];
     }];
 }
+#endif
 
 + (void)setSiteId:(NSString *)siteId
 {
@@ -296,7 +305,9 @@ static NSOperationQueue *opQueue = nil;
 + (void)setLocation:(TuneLocation *)location
 {
     [opQueue addOperationWithBlock:^{
+#if TARGET_OS_IOS
         [[self sharedManager] setShouldAutoCollectDeviceLocation:NO];
+#endif
         [self sharedManager].parameters.location = location;
     }];
 }
@@ -351,8 +362,12 @@ static NSOperationQueue *opQueue = nil;
 }
 
 
-
 #pragma mark - Getter Methods
+
++ (NSString*)appleAdvertisingIdentifier
+{
+    return [self sharedManager].parameters.ifa;
+}
 
 + (NSString*)matId
 {

@@ -12,7 +12,6 @@
 #import "../TuneEventItem.h"
 #import "../TunePreloadData.h"
 
-#import "NSString+TuneURLEncoding.m"
 #import "TuneAppToAppTracker.h"
 #import "TuneCWorks.h"
 #import "TuneEvent_internal.h"
@@ -23,7 +22,11 @@
 #import "TuneLocationHelper.h"
 #import "TuneRegionMonitor.h"
 #import "TuneSettings.h"
+
+#if !TARGET_OS_WATCH
 #import "TuneStoreKitDelegate.h"
+#endif
+
 #import "TuneUserAgentCollector.h"
 #import "TuneUtils.h"
 
@@ -34,18 +37,23 @@
 #import <iAd/iAd.h>
 #endif
 
-static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
+#if TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
+#endif
+
+static const int TUNE_CONVERSION_KEY_LENGTH     = 32;
 
 #if USE_IAD
-const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 15.;
+const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 15.;
 #else
-const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 0.;
+const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 0.;
 #endif
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
 const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
 
 const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
+
 
 @interface TuneEventItem(PrivateMethods)
 
@@ -77,6 +85,9 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 @property (nonatomic, assign) BOOL shouldCollectAdvertisingIdentifier;
 @property (nonatomic, assign) BOOL shouldGenerateVendorIdentifier;
 
+@property (nonatomic, strong) NSMutableArray *alertMessages;
+@property (nonatomic, assign) BOOL isWatchAlertVisible;
+
 @end
 
 
@@ -97,25 +108,35 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         self.parameters.staging = YES;
 #endif
         
-        // initiate collection of user agent string
-        [TuneUserAgentCollector startCollection];
-        
+        // delay user-agent collection to avoid threading related app crash
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            // initiate collection of user agent string
+            [TuneUserAgentCollector startCollection];
+        });
+#if TARGET_OS_IOS
         // provide access to location when available
         [TuneLocationHelper class];
-        
+#endif
         [TuneEventQueue setDelegate:self];
         
         // !!! very important to init some parms here
         _shouldUseCookieTracking = NO; // by default do not use cookie tracking
         [self setShouldAutoDetectJailbroken:YES];
+#if TARGET_OS_IOS
         [self setShouldAutoCollectDeviceLocation:YES];
+#endif
+        
+#if !TARGET_OS_WATCH
+        // enable IFA auto-collection and auto-collect IFA
         [self setShouldAutoCollectAppleAdvertisingIdentifier:YES];
+        
+        // enable IFV auto-collection and auto-collect IFV
         [self setShouldAutoGenerateAppleVendorIdentifier:YES];
+#endif
         // the user can turn these off before calling a method which will
         // remove the keys. turning them back on will regenerate the keys.
         
-        // collect IFA if accessible
-        [self updateIfa];
+        self.alertMessages = [NSMutableArray array];
         
 #if USE_IAD
         [self checkIadAttribution:nil];
@@ -168,9 +189,16 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     self.parameters.wearable = wearable;
     self.trackerStarted = YES;
     
+    NSString *strNotif = nil;
+#if TARGET_OS_WATCH
+    strNotif = NSExtensionHostWillResignActiveNotification;
+#else
+    strNotif = UIApplicationWillResignActiveNotification;
+#endif
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleNotification:)
-                                                 name:UIApplicationWillResignActiveNotification
+                                                 name:strNotif
                                                object:nil];
 }
 
@@ -187,6 +215,8 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     
     self.parameters.referralUrl = urlString;
     self.parameters.referralSource = sourceApplication;
+    
+    [TuneEventQueue updateEnqueuedEventsWithReferralUrl:urlString referralSource:sourceApplication];
 }
 
 
@@ -194,7 +224,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 
 - (void)handleNotification:(NSNotification *)notice
 {
-    if([notice.name isEqualToString:UIApplicationWillResignActiveNotification])
+    NSString *strNotif = nil;
+#if TARGET_OS_WATCH
+    strNotif = NSExtensionHostWillResignActiveNotification;
+#else
+    strNotif = UIApplicationWillResignActiveNotification;
+#endif
+    
+    if([notice.name isEqualToString:strNotif])
     {
         // make sure that the user default local storage is written to disk before the app closes
         [TuneUtils synchronizeUserDefaults];
@@ -212,12 +249,11 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
  */
 - (void)checkIadAttribution:(void (^)(BOOL iadAttributed))attributionBlock
 {
-#if USE_IAD
     // Since app install iAd attribution value does not change, collect it only once and store it to disk. After that, reuse the stored info.
     if( [UIApplication sharedApplication] && [ADClient class] && self.parameters.iadAttribution == nil ) {
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
-
+        
 #ifdef __IPHONE_9_0 // if Tune is built in Xcode 7
         if( [adClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)] ) {
             [adClient requestAttributionDetailsWithBlock:^(NSDictionary *attributionDetails, NSError *error) {
@@ -277,7 +313,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
             }];
         }
     }
-#endif
 }
 
 - (void)displayiAdInView:(UIView*)view
@@ -297,6 +332,8 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 
 - (void)positioniAd
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // Note: This method of sizing the banner is deprecated in iOS 6.0.
     if( iAd.superview.frame.size.width <= [UIScreen mainScreen].bounds.size.width ) {
         if( debugMode ) NSLog( @"Tune: laying out iAd in portrait orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
@@ -306,6 +343,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         if( debugMode ) NSLog( @"Tune: laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
     }
+#pragma clang diagnostic pop
     
     if( iAd.bannerLoaded ) {
         if( debugMode ) NSLog( @"Tune: iAd has banner loaded, displaying its superview" );
@@ -346,6 +384,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     if( [_delegate respondsToSelector:@selector(tuneFailedToReceiveiAdWithError:)] )
         [_delegate tuneFailedToReceiveiAdWithError:error];
 }
+
 
 #endif
 
@@ -503,11 +542,14 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         self.parameters.jailbroken = nil;
 }
 
+#if TARGET_OS_IOS
 - (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect
 {
     self.shouldCollectDeviceLocation = shouldAutoCollect;
 }
+#endif
 
+#if !TARGET_OS_WATCH
 - (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect
 {
     self.shouldCollectAdvertisingIdentifier = shouldAutoCollect;
@@ -536,6 +578,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     else
         self.parameters.ifv = nil;
 }
+#endif
 
 
 #pragma mark - Non-trivial setters
@@ -548,15 +591,26 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     self.parameters.debugMode = @(newDebugMode);
     
     // show an alert if the debug mode is enabled
-    if(newDebugMode && [UIApplication sharedApplication]) {
+    if(newDebugMode) {
+#if TARGET_OS_WATCH
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [[[UIAlertView alloc] initWithTitle:@"Warning"
-                                        message:@"TUNE Debug Mode Enabled. Use only when debugging, do not release with this enabled!!"
-                                       delegate:nil
-                              cancelButtonTitle:@"OK"
-                              otherButtonTitles:nil]
-             show];
+            [self showWarningAlert:@"TUNE Debug Mode Enabled. Use only when debugging, do not release with this enabled!"];
         }];
+#else
+        if([UIApplication sharedApplication]) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                id <UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
+                if( [appDelegate respondsToSelector:@selector(window)] && [UIAlertController class] ) {
+                    [self showWarningAlert:@"TUNE Debug Mode Enabled. Use only when debugging, do not release with this enabled!"];
+                }
+                else {
+                    NSLog( @"***********************************************************************************" );
+                    NSLog( @"TUNE Debug Mode Enabled. Use only when debugging, do not release with this enabled!" );
+                    NSLog( @"***********************************************************************************" );
+                }
+            }];
+        }
+#endif
     }
 }
 
@@ -567,15 +621,82 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     self.parameters.allowDuplicates = @(newAllowDuplicates);
     
     // show an alert if the allow duplicate requests   enabled
-    if(newAllowDuplicates && [UIApplication sharedApplication]) {
+    if(newAllowDuplicates) {
+#if TARGET_OS_WATCH
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [[[UIAlertView alloc] initWithTitle:@"Warning"
-                                        message:@"Allow Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!!"
-                                       delegate:nil
-                              cancelButtonTitle:@"OK"
-                              otherButtonTitles:nil]
-             show];
+            [self showWarningAlert:@"TUNE Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!"];
         }];
+#else
+        if([UIApplication sharedApplication]) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                id <UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
+                if( [appDelegate respondsToSelector:@selector(window)] && [UIAlertController class] ) {
+                    [self showWarningAlert:@"TUNE Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!"];
+                }
+                else {
+                    NSLog( @"*******************************************************************************************" );
+                    NSLog( @"TUNE Duplicate Requests Enabled. Use only when debugging, do not release with this enabled!" );
+                    NSLog( @"*******************************************************************************************" );
+                }
+            }];
+        }
+#endif
+    }
+}
+
+- (void)showWarningAlert:(NSString *)warning
+{
+    if(warning)
+    {
+        BOOL isAlertVisible = 
+#if TARGET_OS_WATCH
+        self.isWatchAlertVisible;
+#else
+        nil != [[UIApplication sharedApplication].delegate.window.rootViewController presentedViewController];
+#endif
+        
+        if(isAlertVisible)
+        {
+            [self.alertMessages addObject:warning];
+        }
+        else
+        {
+#if TARGET_OS_WATCH
+            self.isWatchAlertVisible = YES;
+            
+            WKAlertAction *alertAction = [WKAlertAction actionWithTitle:@"OK" style:WKAlertActionStyleCancel handler:^{
+                self.isWatchAlertVisible = NO;
+                NSString *nextMessage = [self.alertMessages firstObject];
+                if(nextMessage)
+                {
+                    [self showWarningAlert:nextMessage];
+                    [self.alertMessages removeObjectAtIndex:0];
+                }
+            }];
+            
+            [[[WKExtension sharedExtension] rootInterfaceController] presentAlertControllerWithTitle:@"Warning"
+                                                                                             message:warning
+                                                                                      preferredStyle:WKAlertControllerStyleAlert
+                                                                                             actions:@[alertAction]];
+#else
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning"
+                                                                           message:warning
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction * _Nonnull action) {
+                                                        NSString *nextMessage = [self.alertMessages firstObject];
+                                                        if(nextMessage)
+                                                        {
+                                                            [self showWarningAlert:nextMessage];
+                                                            [self.alertMessages removeObjectAtIndex:0];
+                                                        }
+                                                    }]];
+            
+            [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:YES completion:nil];
+#endif
+        }
     }
 }
 
@@ -585,6 +706,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     [TuneUtils setUserDefaultValue:@(isPayingUser) forKey:TUNE_KEY_IS_PAYING_USER];
 }
 
+#if !TARGET_OS_WATCH
 - (void)setAutomateIapMeasurement:(BOOL)automate
 {
     _automateIapMeasurement = automate;
@@ -600,6 +722,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         [TuneStoreKitDelegate stopObserver];
     }
 }
+#endif
 
 - (void)setPreloadData:(TunePreloadData *)preloadData
 {
@@ -636,11 +759,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 // Includes the eventItems and referenceId and fires the tracking request
 - (void)sendRequestWithEvent:(TuneEvent *)event
 {
-    //----------------------------
-    // Always look for a facebook cookie because it could change often.
-    //----------------------------
-    [self.parameters loadFacebookCookieId];
-    
     if(self.fbLogging)
     {
         // call the Facebook event logging methods on main thread to make sure FBSession threading requirements are met
@@ -704,7 +822,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
 #endif
     
     // fire the event tracking request
-    [TuneEventQueue enqueueUrlRequest:trackingLink encryptParams:encryptParams postData:strPost runDate:runDate];
+    [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName encryptParams:encryptParams postData:strPost runDate:runDate];
     
     if( [self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)] )
     {
@@ -813,7 +931,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     while( !_trackerStarted ) {
         if( maxWait == nil )
             maxWait = [NSDate dateWithTimeIntervalSinceNow:MAX_WAIT_TIME_FOR_INIT];
-        if( [maxWait timeIntervalSinceNow] < 0 ) { // is this right? time is hard
+        else if( [maxWait timeIntervalSinceNow] < 0 ) { // is this right? time is hard
             NSLog( @"Tune timeout waiting for initialization" );
             return;
         }

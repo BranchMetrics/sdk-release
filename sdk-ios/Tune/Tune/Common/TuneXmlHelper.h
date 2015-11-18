@@ -1,5 +1,5 @@
 //
-//  NSString+TuneURLEncoding.h
+//  TuneXmlHelper.h
 //  Tune
 //
 //  Created by Pavel Yurchenko on 7/17/12.
@@ -7,13 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@interface NSString (TuneURLEncoding)
-
-- (NSString *)urlEncodeUsingEncoding:(NSStringEncoding)encoding;
-
-@end
-
 
 //
 //  GTMNSString+XML.h
@@ -34,7 +27,7 @@
 //
 
 /// Utilities for NSStrings containing XML
-@interface NSString (TuneGTMNSStringXMLAdditions)
+@interface TuneXmlHelper : NSObject
 
 /// Get a string where characters that need escaping for XML are escaped and invalid characters removed
 //
@@ -46,7 +39,7 @@
 //  Returns:
 //    Autoreleased NSString
 //
-- (NSString *)Tunegtm_stringBySanitizingAndEscapingForXML;
++ (NSString *)tuneGtm_stringBySanitizingAndEscapingForXML:(NSString *)string;
 
 /// Get a string where characters that invalid characters per the XML spec have been removed
 //
@@ -58,7 +51,7 @@
 //  Returns:
 //    Autoreleased NSString
 //
-- (NSString *)Tunegtm_stringBySanitizingToXMLSpec;
++ (NSString *)tuneGtm_stringBySanitizingToXMLSpec:(NSString *)string;
 
 // There is no stringByUnescapingFromXML because the XML parser will do this.
 // The above api is here just incase you need to create XML yourself.

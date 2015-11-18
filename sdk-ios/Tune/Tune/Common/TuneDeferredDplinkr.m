@@ -8,8 +8,8 @@
 
 #import "TuneDeferredDplinkr.h"
 
-#import "NSString+TuneURLEncoding.h"
-#import "Tune.h"
+#import "../Tune.h"
+
 #import "TuneIfa.h"
 #import "TuneKeyStrings.h"
 #import "TuneUserAgentCollector.h"
@@ -25,6 +25,7 @@
 @property (nonatomic, copy) NSString *bundleId;
 @property (nonatomic, copy) NSString *ifa;
 @property (nonatomic, assign) BOOL adTrackingEnabled;
+@property (nonatomic, copy) void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *connectionError);
 
 @end
 
@@ -120,10 +121,7 @@ static TuneDeferredDplinkr *dplinkr;
     
     [request addValue:dplinkr.conversionKey forHTTPHeaderField:@"X-MAT-Key"];
     
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:dplinkr.deeplinkOpQueue
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
-    {
+    dplinkr.completionHandler = ^(NSData *data, NSURLResponse *response, NSError *connectionError) {
         id<TuneDelegate> deepDelegate = dplinkr.deeplinkDelegate ?: dplinkr.delegate;
         
         NSError *error = nil;
@@ -180,7 +178,31 @@ static TuneDeferredDplinkr *dplinkr;
                 [deepDelegate tuneDidFailDeeplinkWithError:error];
             }
         }
-    }];
+    };
+
+    if( [NSURLSession class] ) {
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+        [[session dataTaskWithRequest:request completionHandler:dplinkr.completionHandler] resume];
+    }
+    else {
+        SEL ector = @selector(sendAsynchronousRequest:queue:completionHandler:);
+        if( [NSURLConnection respondsToSelector:ector] ) {
+            // iOS 6
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSURLConnection methodSignatureForSelector:ector]];
+            [invocation setTarget:[NSURLConnection class]];
+            [invocation setSelector:ector];
+            [invocation setArgument:&request atIndex:2];
+            NSOperationQueue *q = dplinkr.deeplinkOpQueue;
+            [invocation setArgument:&q atIndex:3];
+            void (^connectionCompletionHandler)(NSURLResponse *response, NSData *data, NSError *connectionError) =
+            ^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                dplinkr.completionHandler( data, response, connectionError );
+            };
+            [invocation setArgument:&connectionCompletionHandler atIndex:4];
+            [invocation invoke];
+        }
+    }
 }
 
 @end

@@ -29,6 +29,7 @@ NSString * const TUNE_PACKAGE_NAME = @"edu.self.AtomicDodgeBallLite";
     
     // required only if your app's TUNE package name is different than the app bundle id
     [Tune setPackageName:TUNE_PACKAGE_NAME];
+    [Tune setDebugMode:YES];
     
     return YES;
 }

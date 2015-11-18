@@ -8,7 +8,8 @@
 
 #import "TuneFBBridge.h"
 
-#import "TuneEvent.h"
+#import "../TuneEvent.h"
+
 #import "TuneKeyStrings.h"
 #import "TuneSettings.h"
 
@@ -61,7 +62,10 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
 {
     Class FBSettings = NSClassFromString( @"FBSettings" ) ?: NSClassFromString( @"FBSDKSettings" );
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     SEL selLimitMethod = @selector(setLimitEventAndDataUsage:);
+#pragma clang diagnostic pop
     
     if([FBSettings class] && [FBSettings respondsToSelector:selLimitMethod])
     {
@@ -95,7 +99,10 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     
     if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_SESSION].location) {
         fbEventName = TUNE_FBAppEventNameActivatedApp;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         selMethod = @selector(activateApp);
+#pragma clang diagnostic pop
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_REGISTRATION].location) {
         fbEventName = TUNE_FBAppEventNameCompletedRegistration;
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_CONTENT_VIEW].location) {
@@ -117,7 +124,10 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
         fbEventName = TUNE_FBAppEventNameAddedPaymentInfo;
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_PURCHASE].location) {
         fbEventName = TUNE_FBAppEventNamePurchased;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         selMethod = @selector(logPurchase:currency:parameters:);
+#pragma clang diagnostic pop
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_LEVEL_ACHIEVED].location) {
         fbEventName = TUNE_FBAppEventNameAchievedLevel;
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_ACHIEVEMENT_UNLOCKED].location) {
@@ -168,8 +178,10 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     }
     else
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
         selMethod = @selector(logEvent:valueToSum:parameters:);
-        
+#pragma clang diagnostic pop
         if( ![FBAppEvents respondsToSelector:selMethod] ) {
             DLog(@"TuneFBBridge no %@ method in fbsdk", NSStringFromSelector(selMethod));
             return;

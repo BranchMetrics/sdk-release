@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
 
+#if !TARGET_OS_WATCH
+
 #import "TuneStoreKitDelegate.h"
 
 #import "Tune.h"
@@ -14,9 +16,7 @@
 
 @interface TuneStoreKitDelegate () <SKPaymentTransactionObserver>
 
-@property (nonatomic, copy) NSMutableSet *productIdentifiers;
 @property (nonatomic, copy) NSMutableDictionary *products;
-
 @property (nonatomic, copy) NSMutableDictionary *productRequests;
 
 @end
@@ -230,3 +230,5 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 }
 
 @end
+
+#endif

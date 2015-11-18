@@ -18,6 +18,8 @@
 @interface TuneTests : XCTestCase <TuneDelegate>
 {
     TuneTestParams *params;
+    
+    BOOL finished;
 }
 
 @end
@@ -32,6 +34,8 @@
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
+
+    finished = NO;
     
     params = [TuneTestParams new];
     
@@ -40,14 +44,26 @@
 
 - (void)tearDown
 {
-    [super tearDown];
+    finished = NO;
     
     emptyRequestQueue();
+    
+    [super tearDown];
 }
 
 - (void)testInitialization
 {
     XCTAssertTrue( TRUE );
+}
+
+-(void)tuneDidSucceedWithData:(NSData *)data
+{
+    finished = YES;
+}
+
+- (void)tuneDidFailWithError:(NSError *)error
+{
+    finished = YES;
 }
 
 
@@ -56,7 +72,7 @@
 - (void)testInstall
 {
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
@@ -66,7 +82,7 @@
 {
     [Tune setExistingUser:YES];
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
@@ -82,7 +98,7 @@
     [tune performSelector:@selector(measureInstallPostConversion)];
 #pragma clang diagnostic pop
     
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
     ASSERT_KEY_VALUE( TUNE_KEY_POST_CONVERSION, @"1" );
@@ -95,12 +111,31 @@
     [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
     
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
+}
+
+- (void)testDeferredDeepLink
+{
+    [Tune measureSession];
+    
+    // wait 1 sec to simulate deferred deep link fetch delay
+    waitFor(1.);
+    
+    static NSString* const openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
+    static NSString* const sourceApplication = nil;
+    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
+    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_REFERRAL_SOURCE);
 }
 
 
@@ -110,7 +145,7 @@
 {
     static NSString* const eventName = @"testEventName";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -124,7 +159,7 @@
     NSString *strEventId = [@(eventId) stringValue];
     
     [Tune measureEventId:eventId];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -136,7 +171,7 @@
 {
     static NSString* const eventName = @"103";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -155,7 +190,7 @@
     evt.refId = referenceId;
     
     [Tune measureEvent:evt];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -177,7 +212,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -204,7 +239,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -219,7 +254,7 @@
 {
     static NSString* const eventName = @"test event name";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -231,7 +266,7 @@
 {
     static NSString* const eventName = @"I'm an event name";
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -245,7 +280,7 @@
 - (void)testInstallActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_INSTALL];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
@@ -256,7 +291,7 @@
 - (void)testUpdateActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_UPDATE];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
@@ -267,7 +302,7 @@
 - (void)testCloseActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_CLOSE];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkIsEmpty], @"'%@' action should be ignored", TUNE_EVENT_CLOSE );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
@@ -277,7 +312,7 @@
 - (void)testOpenActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_OPEN];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION);
@@ -288,7 +323,7 @@
 - (void)testSessionActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_SESSION];
-    waitFor( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION);
@@ -300,7 +335,7 @@
 - (void)testClickActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_CLICK];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -312,7 +347,7 @@
 - (void)testConversionActionEvent
 {
     [Tune measureEventName:TUNE_EVENT_CONVERSION];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -326,7 +361,7 @@
     static NSString* const eventName = @"registration";
     
     [Tune measureEventName:eventName];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -348,7 +383,7 @@
     
     [Tune measureEvent:evt];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -361,7 +396,7 @@
 {
     static NSString* const eventName1 = @"testEventName1";
     [Tune measureEventName:eventName1];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
@@ -371,7 +406,7 @@
     
     static NSString* const eventName2 = @"testEventName2";
     [Tune measureEventName:eventName2];
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );

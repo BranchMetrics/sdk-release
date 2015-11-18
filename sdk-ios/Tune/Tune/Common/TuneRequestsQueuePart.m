@@ -8,7 +8,7 @@
 
 #import "TuneRequestsQueuePart.h"
 #import "TuneKeyStrings.h"
-#import "NSString+TuneURLEncoding.h"
+#import "TuneXmlHelper.h"
 
 const NSUInteger REQUESTS_MAX_COUNT_IN_PART =  50;
 
@@ -221,14 +221,14 @@ NSString * const XML_NODE_REQUEST = @"Request";
         {
             // clean up the text to make it compliant with XML
             NSString *urlValue = [request valueForKey:TUNE_KEY_URL];
-            NSString *encodedUrl = [urlValue Tunegtm_stringBySanitizingAndEscapingForXML];
+            NSString *encodedUrl = [TuneXmlHelper tuneGtm_stringBySanitizingAndEscapingForXML:urlValue];
             
             NSString *encrypt = [request valueForKey:TUNE_KEY_DATA];
-            NSString *encodedEncrypt = [encrypt Tunegtm_stringBySanitizingAndEscapingForXML];
+            NSString *encodedEncrypt = [TuneXmlHelper tuneGtm_stringBySanitizingAndEscapingForXML:encrypt];
             encodedEncrypt = encodedEncrypt ? [NSString stringWithFormat:@" %@=\"%@\"", TUNE_KEY_DATA, encodedEncrypt] : TUNE_STRING_EMPTY;
             
             NSString *jsonValue = [request valueForKey:TUNE_KEY_JSON];
-            NSString *encodedJson = [jsonValue Tunegtm_stringBySanitizingAndEscapingForXML];
+            NSString *encodedJson = [TuneXmlHelper tuneGtm_stringBySanitizingAndEscapingForXML:jsonValue];
             encodedJson = encodedJson ? [NSString stringWithFormat:@" %@=\"%@\"", TUNE_KEY_JSON, encodedJson] : TUNE_STRING_EMPTY;
             
             NSDate *runDate = [request valueForKey:TUNE_KEY_RUN_DATE];

@@ -7,7 +7,7 @@
 //
 
 #import "TuneInstallReceipt.h"
-#import <MessageUI/MessageUI.h> // just for emailing receipt files, has no effect
+//#import <MessageUI/MessageUI.h> // just for emailing receipt files, has no effect
 
 @implementation TuneInstallReceipt
 

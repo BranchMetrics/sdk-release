@@ -65,8 +65,8 @@
 
 + (NSDictionary *)deviceInfo:(TuneSettings *)tuneParams metadata:(TuneAdMetadata *)metadata
 {
-    NetworkStatus status = [TuneUtils networkReachabilityStatus];
-    NSString *connectionType = NotReachable == status ? nil : (ReachableViaWiFi == status ? @"wifi" : @"mobile");
+    TuneNetworkStatus status = [TuneUtils networkReachabilityStatus];
+    NSString *connectionType = TuneNotReachable == status ? nil : (TuneReachableViaWiFi == status ? @"wifi" : @"mobile");
     
     NSTimeZone *currentTimeZone = [NSTimeZone localTimeZone];
     NSString *strTimezone = [currentTimeZone abbreviation];

@@ -78,7 +78,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
             NSData *decodedData = [self decodeHexData:[keyValue[1] dataUsingEncoding:NSUTF8StringEncoding]];
             NSData *decryptedData = [self decodeHexData:[self aesDecrypt:kTestConversionKey data:decodedData]];
             NSString *decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
-            return [self extractParamsFromQueryString:[decryptedString stringByRemovingPercentEncoding]];
+            return [self extractParamsFromQueryString:decryptedString];
         }
         
         NSString *unencodedValue = keyValue[1];

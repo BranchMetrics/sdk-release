@@ -7,7 +7,11 @@
 //
 
 #import <XCTest/XCTest.h>
+
+#if TARGET_OS_IOS
 #import <iAd/iAd.h>
+#endif
+
 #import "TuneTestsHelper.h"
 #import "TuneTestParams.h"
 #import "../Tune/Tune.h"
@@ -24,6 +28,8 @@
     TuneTestParams *queryString;
     
     TuneTracker *tune;
+    
+    BOOL finished;
 }
 
 @end
@@ -37,7 +43,9 @@
     tune = [TuneTracker new];
     tune.delegate = self;
     tune.parameters.delegate = self;
-
+    
+    finished = NO;
+    
     params = [TuneTestParams new];
     queryString = [TuneTestParams new];
     
@@ -46,6 +54,8 @@
 
 - (void)tearDown
 {
+    finished = NO;
+    
     [super tearDown];
 }
 
@@ -55,7 +65,7 @@
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_OS_JAILBROKE, @"0" );
 }
@@ -67,7 +77,7 @@
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_OS_JAILBROKE );
 }
@@ -78,7 +88,7 @@
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
 }
@@ -90,7 +100,7 @@
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [tune measureEvent:event];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IOS_IFV );
 }
@@ -172,7 +182,7 @@
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
     [tune measureEvent:event];
     
-    waitFor( TUNE_TEST_NETWORK_REQUEST_DURATION );
+    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"device_form", @"wearable" );
 }
@@ -180,27 +190,31 @@
 
 #pragma mark - Tune delegate
 
-/*
+
 - (void)tuneDidSucceedWithData:(NSData *)data
 {
-    //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
-    callSuccess = YES;
-    callFailed = NO;
+    finished = YES;
+    
+//    //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
+//    callSuccess = YES;
+//    callFailed = NO;
 }
 
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    callFailed = YES;
-    callSuccess = NO;
+    finished = YES;
     
-    NSString *serverString = [error localizedDescription];
-    
-    if( [serverString rangeOfString:@"Duplicate request detected."].location != NSNotFound )
-        callFailedDuplicate = YES;
-    else
-        NSLog( @"test received failure with %@\n", error );
+//    callFailed = YES;
+//    callSuccess = NO;
+//    
+//    NSString *serverString = [error localizedDescription];
+//    
+//    if( [serverString rangeOfString:@"Duplicate request detected."].location != NSNotFound )
+//        callFailedDuplicate = YES;
+//    else
+//        NSLog( @"test received failure with %@\n", error );
 }
- */
+
 
 // secret functions to test server URLs
 - (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData

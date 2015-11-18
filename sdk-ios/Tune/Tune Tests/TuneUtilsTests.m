@@ -9,8 +9,8 @@
 #import <XCTest/XCTest.h>
 #import "TuneUtils_TestPrivateMethods.h"
 #import "../Tune/Common/TuneSettings.h"
-#import "../Tune/Common/TuneUtils.h"
 #import "../Tune/Common/TuneCWorks.h"
+#import "../Tune/Common/TuneKeyStrings.h"
 
 @interface TuneUtilsTests : XCTestCase
 
@@ -166,6 +166,26 @@ static NSString* const testKey = @"fakeTuneKey";
     NSString *actual = [TuneUtils hashSha256:input];
     
     XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
+}
+
+- (void)testUrlEncode
+{
+    id input = nil;
+    NSString * expected = nil;
+    NSString * actual = nil;
+    
+    input = nil;
+    actual = [TuneUtils urlEncode:input];
+    XCTAssertNil(actual, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = [NSNull null];
+    actual = [TuneUtils urlEncode:input];
+    XCTAssertNil(actual, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = @"abc.pqr@xyz.com";
+    expected = @"abc.pqr%40xyz.com";
+    actual = [TuneUtils urlEncode:input];
+    XCTAssert([actual isEqualToString:expected], @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
 }
 
 @end

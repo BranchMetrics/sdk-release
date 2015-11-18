@@ -14,6 +14,7 @@ FOUNDATION_EXPORT NSString* const kTestBundleId;
 FOUNDATION_EXPORT const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION;
 
 void waitFor( NSTimeInterval duration );
+void waitFor1( NSTimeInterval duration, BOOL* finished );
 
 void emptyRequestQueue();
 void networkOffline();

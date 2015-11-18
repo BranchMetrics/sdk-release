@@ -10,8 +10,11 @@
 #import "Tune.h"
 #import "Common/TuneEvent_internal.h"
 #import "Common/TuneKeyStrings.h"
+
+#ifdef TUNE_USE_LOCATION
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#endif
 
 @interface Tune (PrivateMethods)
 + (void)setRegionName:(NSString*)regionName;

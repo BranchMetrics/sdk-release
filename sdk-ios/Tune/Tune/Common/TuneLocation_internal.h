@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
 
-#import "TuneLocation.h"
+#import "../TuneLocation.h"
 
 @interface TuneLocation ()
 
