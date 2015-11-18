@@ -207,6 +207,14 @@ public class MobileAppTracker {
     public void measureSession() {
         notifiedPool = false;
         measureEvent(new MATEvent("session"));
+        if (debugMode) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(mContext, "TUNE measureSession called", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
     
     /**
@@ -495,10 +503,17 @@ public class MobileAppTracker {
     
     /**
      * Gets the user gender set.
-     * @return gender 0 for male, 1 for female
+     * @return gender
      */
-    public int getGender() {
-        return Integer.parseInt(params.getGender());
+    public MATGender getGender() {
+        String gender = params.getGender();
+        if (gender.equals("0")) {
+            return MATGender.MALE;
+        } else if (gender.equals("1")) {
+            return MATGender.FEMALE;
+        } else {
+            return MATGender.UNKNOWN;
+        }
     }
 
     /**

@@ -30,6 +30,7 @@ class MATUrlBuilder {
         
         link.append("/serve?ver=").append(params.getSdkVersion());
         link.append("&transaction_id=").append(UUID.randomUUID().toString());
+        link.append("&sdk_retry_attempt=0");
 
         safeAppend(link, "sdk", "android");
         safeAppend(link, "action", params.getAction());

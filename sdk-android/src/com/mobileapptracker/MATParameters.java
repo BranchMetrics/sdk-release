@@ -28,6 +28,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 public class MATParameters {
@@ -67,7 +68,7 @@ public class MATParameters {
      * @param conversionKey the conversion key in MAT
      * @return whether params were successfully collected or not
      */
-    @SuppressWarnings( "deprecation" )
+    @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
     private synchronized boolean populateParams(Context context, String advertiserId, String conversionKey) {
         try {
@@ -80,16 +81,22 @@ public class MATParameters {
 
             new Thread(new GetGAID(context)).start();
             
-            // Execute Runnable on UI thread to set user agent
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new GetUserAgent(mContext));
+            // Retrieve user agent
+            if (Build.VERSION.SDK_INT >= 17) {
+                // Call getDefaultUserAgent available in API 17
+                new Thread(new GetDefaultUserAgent(context)).start();
+            } else {
+                // Execute Runnable on UI thread to set user agent
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new GetWebViewUserAgent(context));
+            }
 
             // Get app package information
-            String packageName = mContext.getPackageName();
+            String packageName = context.getPackageName();
             setPackageName(packageName);
 
             // Get app name
-            PackageManager pm = mContext.getPackageManager();
+            PackageManager pm = context.getPackageManager();
             try {
                 ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
                 setAppName(pm.getApplicationLabel(ai).toString());
@@ -141,7 +148,7 @@ public class MATParameters {
             setScreenHeight(Integer.toString(height));
 
             // Set the device connection type, wifi or mobile
-            ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (mWifi.isConnected()) {
                 setConnectionType("wifi");
@@ -237,12 +244,28 @@ public class MATParameters {
     }
     
     /**
-     *  Runnable for creating a WebView and getting the device user agent
+     *  Runnable for retrieving WebSettings user agent
      */
-    private class GetUserAgent implements Runnable {
+    @SuppressLint("NewApi")
+    private class GetDefaultUserAgent implements Runnable {
         private final WeakReference<Context> weakContext;
 
-        public GetUserAgent(Context context) {
+        public GetDefaultUserAgent(Context context) {
+            weakContext = new WeakReference<Context>(context);
+        }
+
+        public void run() {
+            setUserAgent(WebSettings.getDefaultUserAgent(weakContext.get()));
+        }
+    }
+    
+    /**
+     *  Runnable for creating a WebView and getting the device user agent
+     */
+    private class GetWebViewUserAgent implements Runnable {
+        private final WeakReference<Context> weakContext;
+
+        public GetWebViewUserAgent(Context context) {
             weakContext = new WeakReference<Context>(context);
         }
 
@@ -251,9 +274,8 @@ public class MATParameters {
                 Class.forName("android.os.AsyncTask"); // prevents WebView from crashing on certain devices
                 // Create WebView to set user agent, then destroy WebView
                 WebView wv = new WebView(weakContext.get());
-                String userAgent = wv.getSettings().getUserAgentString();
+                setUserAgent(wv.getSettings().getUserAgentString());
                 wv.destroy();
-                setUserAgent(userAgent);
             } catch (Exception e) {
             } catch (VerifyError e) {
                 // Some device vendors have their own WebView implementation which crashes on our init
