@@ -48,7 +48,7 @@
 @property (nonatomic, copy) NSString *advertiserId;                 // KEY_ADVERTISER_ID
 @property (nonatomic, copy) NSString *conversionKey;                // KEY_KEY
 @property (nonatomic, copy) NSString *trackingId;                   // KEY_TRACKING_ID
-@property (nonatomic, copy) NSString *matId;                        // KEY_MAT_ID
+@property (nonatomic, copy) NSString *tuneId;                       // KEY_MAT_ID
 
 #if TARGET_OS_IOS
 @property (nonatomic, copy) NSString *facebookCookieId;             // KEY_FB_COOKIE_ID

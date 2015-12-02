@@ -726,7 +726,10 @@
 {
     static NSString* const ID = @"testId";
     
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     [Tune setSiteId:ID];
+#pragma GCC diagnostic pop
     [Tune measureEventName:@"registration"];
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     

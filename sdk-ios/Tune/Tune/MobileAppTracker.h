@@ -32,7 +32,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define MATVERSION @"3.14.1"
+#define MATVERSION TUNEVERSION
 
 
 #pragma mark - enumerated types
@@ -357,7 +357,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  Get the MAT ID for this installation (mat_id).
  @return MAT ID
  */
-+ (NSString*)matId DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
++ (NSString*)matId DEPRECATED_MSG_ATTRIBUTE("Please use +(NSString*)tuneId method from class Tune");
 
 /*!
  Get the MAT log ID for the first app open (open_log_id).

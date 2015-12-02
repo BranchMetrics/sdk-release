@@ -181,7 +181,7 @@ static TuneEventQueue *sharedQueue = nil;
             // prepend legacy items
             if( [legacyItems count] > 0 ) {
                 for( item in [legacyItems reverseObjectEnumerator] )
-                    [events insertObject:item atIndex:0];
+                    [events insertObject:[NSMutableDictionary dictionaryWithDictionary:item] atIndex:0];
                 [self saveQueue];
             }
             
@@ -515,7 +515,7 @@ static TuneEventQueue *sharedQueue = nil;
 #endif
                 code = [urlResp statusCode];
             NSDictionary *headers = [urlResp allHeaderFields];
-            NSDictionary *newFirstItem = nil;
+            NSMutableDictionary *newFirstItem = nil;
             
             // if the network request was successful, great
             if( code >= 200 && code <= 299 ) {
@@ -549,10 +549,9 @@ static TuneEventQueue *sharedQueue = nil;
                 
                 [self appendOrIncrementRetryCount:&trackingUrl sendDate:&newSendDate];
                 
-                NSMutableDictionary *newRequest = [NSMutableDictionary dictionaryWithDictionary:request];
-                newRequest[TUNE_KEY_URL] = trackingUrl;
-                newRequest[TUNE_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);
-                newFirstItem = [NSMutableDictionary dictionaryWithDictionary:newRequest];
+                newFirstItem = [NSMutableDictionary dictionaryWithDictionary:request];
+                newFirstItem[TUNE_KEY_URL] = trackingUrl;
+                newFirstItem[TUNE_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);
             }
             
             // pop or replace event from queue
@@ -661,7 +660,9 @@ static TuneEventQueue *sharedQueue = nil;
         }
     }
     
-    events = [NSMutableArray arrayWithArray:(NSArray*)queue];
+    for (NSDictionary *dict in queue) {
+        [events addObject:[NSMutableDictionary dictionaryWithDictionary:dict]];
+    }
 }
 
 /*! Serializes and saves the existing network request queue to disk.

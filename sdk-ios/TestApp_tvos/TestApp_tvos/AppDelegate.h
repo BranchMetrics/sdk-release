@@ -10,6 +10,7 @@
 
 @import AdSupport;
 @import MobileAppTracker_tvos;
+@import MobileCoreServices;
 @import StoreKit;
 @import SystemConfiguration;
 

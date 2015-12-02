@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+#import <AdSupport/ASIdentifierManager.h>
+
 NSString * const MAT_ADVERTISER_ID  = @"877";
 NSString * const MAT_CONVERSION_KEY = @"40c19f41ef0ec2d433f595f0880d39b9";
 NSString * const MAT_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";

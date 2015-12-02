@@ -228,8 +228,19 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
 
 - (BOOL)checkSdkValues
 {
+    NSString *sdkPlatform = @"ios";
+    NSString *deviceForm = nil;
+#if TARGET_OS_TV
+    sdkPlatform = @"tvos";
+    deviceForm = @"tv";
+#elif TARGET_OS_WATCH
+    sdkPlatform = @"watchos";
+    deviceForm = @"wearable";
+#endif
+    
     BOOL retval =
-    [self checkKey:@"sdk" isEqualToValue:@"ios"] &&
+    [self checkKey:@"sdk" isEqualToValue:sdkPlatform] &&
+    (!deviceForm || [self checkKey:@"device_form" isEqualToValue:deviceForm]) &&
     [self checkKeyHasValue:@"ver"] &&
     [self checkKeyHasValue:@"transaction_id"];
     

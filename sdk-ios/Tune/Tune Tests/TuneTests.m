@@ -56,6 +56,8 @@
     XCTAssertTrue( TRUE );
 }
 
+#pragma mark - TuneDelegate Methods
+
 -(void)tuneDidSucceedWithData:(NSData *)data
 {
     finished = YES;
@@ -129,6 +131,8 @@
     static NSString* const openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
     static NSString* const sourceApplication = nil;
     [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    
+    waitFor(1.0);
     
     waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     

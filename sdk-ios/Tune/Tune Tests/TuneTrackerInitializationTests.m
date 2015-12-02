@@ -176,6 +176,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
 }
 
+#if TARGET_OS_IOS
 - (void)testWearableDevice
 {
     [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:YES];
@@ -186,7 +187,7 @@
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( @"device_form", @"wearable" );
 }
-
+#endif
 
 #pragma mark - Tune delegate
 
