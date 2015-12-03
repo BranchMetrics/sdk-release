@@ -54,7 +54,19 @@
     networkOnline();
     
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
-    Tune.delegate = self;
+    [Tune setDelegate:self];
+}
+
+#pragma mark - TuneDelegate Methods
+
+- (void)tuneDidSucceedWithData:(NSData *)data
+{
+    finished = YES;
+}
+
+- (void)tuneDidFailWithError:(NSError *)error
+{
+    finished = YES;
 }
 
 

@@ -194,7 +194,7 @@
 + (NSDictionary *)identifierInfo:(TuneSettings *)tuneParams
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    dict[@"matId"]             = tuneParams.matId;
+    dict[@"matId"]             = tuneParams.tuneId;
     [dict setValue:tuneParams.ifa forKey:@"ifa"];
     dict[@"iosAdTracking"]     = @([tuneParams.ifaTracking boolValue]);
     [dict setValue:tuneParams.ifv forKey:@"ifv"];

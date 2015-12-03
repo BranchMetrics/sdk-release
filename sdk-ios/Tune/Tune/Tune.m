@@ -371,7 +371,12 @@ static NSOperationQueue *opQueue = nil;
 
 + (NSString*)matId
 {
-    return [self sharedManager].parameters.matId;
+    return [self tuneId];
+}
+
++ (NSString*)tuneId
+{
+    return [self sharedManager].parameters.tuneId;
 }
 
 + (NSString*)openLogId

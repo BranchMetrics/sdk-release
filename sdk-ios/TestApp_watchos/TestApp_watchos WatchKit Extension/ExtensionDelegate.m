@@ -17,7 +17,7 @@
     [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
                        tuneConversionKey:TUNE_CONVERSION_KEY
                          tunePackageName:TUNE_PACKAGE_NAME
-                                wearable:NO];
+                                wearable:YES];
     
     [Tune setDelegate:self];
     

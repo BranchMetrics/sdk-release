@@ -65,13 +65,13 @@ static CTTelephonyNetworkInfo *netInfo;
         // Tune ID
         if([TuneUtils userDefaultValueforKey:TUNE_KEY_MAT_ID])
         {
-            self.matId = [TuneUtils userDefaultValueforKey:TUNE_KEY_MAT_ID];
+            self.tuneId = [TuneUtils userDefaultValueforKey:TUNE_KEY_MAT_ID];
         }
         else
         {
             NSString *uuid = [TuneUtils getUUID];
             [TuneUtils setUserDefaultValue:uuid forKey:TUNE_KEY_MAT_ID];
-            self.matId = uuid;
+            self.tuneId = uuid;
         }
         
         // install receipt
@@ -341,14 +341,14 @@ static CTTelephonyNetworkInfo *netInfo;
 #endif
     [self addValue:self.deviceCpuSubtype            forKey:TUNE_KEY_DEVICE_CPUSUBTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.deviceCpuType               forKey:TUNE_KEY_DEVICE_CPUTYPE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    
+
+#if TARGET_OS_IOS
     // watchOS1
     if(self.wearable)
     {
         [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE    forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     }
-    
-#if TARGET_OS_TV
+#elif TARGET_OS_TV
     [self addValue:TUNE_KEY_DEVICE_FORM_TV          forKey:TUNE_KEY_DEVICE_FORM         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #elif TARGET_OS_WATCH
     // watchOS2
@@ -404,7 +404,7 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:vAccuracy                        forKey:TUNE_KEY_LOCATION_VERTICAL_ACCURACY      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:locTimestamp                     forKey:TUNE_KEY_LOCATION_TIMESTAMP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.location.longitude          forKey:TUNE_KEY_LONGITUDE               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.matId                       forKey:TUNE_KEY_MAT_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:self.tuneId                      forKey:TUNE_KEY_MAT_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.openLogId                   forKey:TUNE_KEY_OPEN_LOG_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.jailbroken                  forKey:TUNE_KEY_OS_JAILBROKE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.osVersion                   forKey:TUNE_KEY_OS_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

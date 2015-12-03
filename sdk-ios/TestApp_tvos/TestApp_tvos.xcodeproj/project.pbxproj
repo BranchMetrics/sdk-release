@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F83430341C0D0974008303AF /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F83430331C0D0974008303AF /* AdSupport.framework */; };
 		F86FB7EE1BD594B200C96335 /* MobileAppTracker_tvos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */; };
 		F8C0E5B51BC5CA9300942D8D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B41BC5CA9300942D8D /* main.m */; };
 		F8C0E5B81BC5CA9300942D8D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B71BC5CA9300942D8D /* AppDelegate.m */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F83430331C0D0974008303AF /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_tvos.framework; path = ../Tune/build/appletv/Release/MobileAppTracker_tvos.framework; sourceTree = "<group>"; };
 		F8C0E5B01BC5CA9300942D8D /* TestApp_tvos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_tvos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8C0E5B41BC5CA9300942D8D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -33,6 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F83430341C0D0974008303AF /* AdSupport.framework in Frameworks */,
 				F86FB7EE1BD594B200C96335 /* MobileAppTracker_tvos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -43,6 +46,7 @@
 		F8C0E5A71BC5CA9300942D8D = {
 			isa = PBXGroup;
 			children = (
+				F83430331C0D0974008303AF /* AdSupport.framework */,
 				F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */,
 				F8C0E5B21BC5CA9300942D8D /* TestApp_tvos */,
 				F8C0E5B11BC5CA9300942D8D /* Products */,

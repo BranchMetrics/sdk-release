@@ -80,20 +80,20 @@ static NSString* const testKey = @"fakeTuneKey";
 - (void)testNewKeyRead
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *oldMatId = [defaults valueForKey:@"_TUNE_mat_id"];
+    NSString *oldTuneId = [defaults valueForKey:@"_TUNE_mat_id"];
     
-    static NSString* const newMatId = @"fakeMatId";
+    static NSString* const newTuneId = @"fakeTuneId";
     
     // write a string to a new-style key
-    [defaults setObject:newMatId forKey:@"_TUNE_mat_id"];
+    [defaults setObject:newTuneId forKey:@"_TUNE_mat_id"];
     [defaults synchronize];
     
     // assert that the new-style key is read by TuneSettings
     TuneSettings *settings = [TuneSettings new];
-    NSString *readMatId = settings.matId;
-    XCTAssertTrue( [readMatId isEqualToString:newMatId], @"stored %@, read %@", newMatId, readMatId );
+    NSString *readTuneId = settings.tuneId;
+    XCTAssertTrue( [readTuneId isEqualToString:newTuneId], @"stored %@, read %@", newTuneId, readTuneId );
     
-    [defaults setValue:oldMatId forKey:@"_TUNE_mat_id"];
+    [defaults setValue:oldTuneId forKey:@"_TUNE_mat_id"];
 }
 
 - (void)testNewKeyStored

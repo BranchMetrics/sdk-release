@@ -42,6 +42,13 @@
     #define CLog(...)
     #endif
 
+/*
+ *  iAD Support Macro
+ */
+#if TARGET_OS_IOS
     #define USE_IAD TRUE
+#else
+    #define USE_IAD FALSE
+#endif
 
 #endif

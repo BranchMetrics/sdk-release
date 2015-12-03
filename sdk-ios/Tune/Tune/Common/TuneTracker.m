@@ -46,7 +46,8 @@ static const int TUNE_CONVERSION_KEY_LENGTH     = 32;
 #if USE_IAD
 const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 15.;
 #else
-const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 0.;
+// delay the session requests to allow deferred deep linking requests to complete
+const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
 #endif
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
@@ -343,7 +344,6 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         if( debugMode ) NSLog( @"Tune: laying out iAd in landscape orientation: superview's frame is %@", NSStringFromCGRect( iAd.superview.frame ) );
         iAd.currentContentSizeIdentifier = ADBannerContentSizeIdentifierLandscape;
     }
-#pragma clang diagnostic pop
     
     if( iAd.bannerLoaded ) {
         if( debugMode ) NSLog( @"Tune: iAd has banner loaded, displaying its superview" );
@@ -357,6 +357,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         if( [_delegate respondsToSelector:@selector(tuneDidRemoveiAd)] )
             [_delegate tuneDidRemoveiAd];
     }
+#pragma clang diagnostic pop
 }
 
 - (void)removeiAd
@@ -365,7 +366,10 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     iAd = nil;
     
     if( [_delegate respondsToSelector:@selector(tuneDidRemoveiAd)] )
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [_delegate tuneDidRemoveiAd];
+#pragma clang diagnostic pop
 }
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner
@@ -382,7 +386,10 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     }];
     
     if( [_delegate respondsToSelector:@selector(tuneFailedToReceiveiAdWithError:)] )
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [_delegate tuneFailedToReceiveiAdWithError:error];
+#pragma clang diagnostic pop
 }
 
 
@@ -816,10 +823,8 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
     
     NSDate *runDate = [NSDate date];
     
-#if USE_IAD
     if( [event.actionName isEqualToString:TUNE_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:TUNE_SESSION_QUEUING_DELAY];
-#endif
     
     // fire the event tracking request
     [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName encryptParams:encryptParams postData:strPost runDate:runDate];

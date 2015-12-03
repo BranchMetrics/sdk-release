@@ -73,6 +73,8 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation
 {
+    NSLog(@"application:openURL:sourceApplication: %@", url.absoluteString);
+    
     [Tune applicationDidOpenURL:url.absoluteString sourceApplication:sourceApplication];
     
     return YES;
@@ -80,7 +82,7 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options
 {
-    NSLog(@"application:openURL:");
+    NSLog(@"application:openURL:options: %@", url.absoluteString);
     
     NSString *sourceApplication = options[UIApplicationLaunchOptionsSourceApplicationKey];
     
@@ -95,9 +97,10 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 // Tune success callback
 - (void)tuneDidSucceedWithData:(NSData *)data
 {
-    NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-    
-    NSLog(@"Tune ios success: %@", dict);
+    NSLog(@"Tune ios success");
+//    NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+//    
+//    NSLog(@"Tune ios success: %@", dict);
 }
 
 // Tune failure callback

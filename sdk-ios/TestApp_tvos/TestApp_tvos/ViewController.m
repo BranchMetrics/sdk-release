@@ -40,7 +40,6 @@ CLLocationManager *singleLocationManager;
 -(void)viewDidAppear:(BOOL)animated
 {
     NSLog(@"TV ViewController didAppear");
-    
 }
 
 - (void)didReceiveMemoryWarning {

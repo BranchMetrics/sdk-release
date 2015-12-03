@@ -416,7 +416,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 
 + (NSString*)matId
 {
-    return [Tune matId];
+    return [Tune tuneId];
 }
 
 + (NSString*)openLogId
