@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
@@ -82,15 +83,8 @@ public class MATParameters {
             new Thread(new GetGAID(context)).start();
             
             // Retrieve user agent
-            if (Build.VERSION.SDK_INT >= 17) {
-                // Call getDefaultUserAgent available in API 17
-                new Thread(new GetDefaultUserAgent(context)).start();
-            } else {
-                // Execute Runnable on UI thread to set user agent
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new GetWebViewUserAgent(context));
-            }
-
+            calculateUserAgent();
+            
             // Get app package information
             String packageName = context.getPackageName();
             setPackageName(packageName);
@@ -197,6 +191,21 @@ public class MATParameters {
         }
     }
     
+    /**
+     * Determine the device's user agent and set the corresponding field.
+     */
+    private void calculateUserAgent() {
+        String userAgent = System.getProperty("http.agent", "");
+        if (!TextUtils.isEmpty(userAgent)) {
+            setUserAgent(userAgent);
+        } else {
+            // If system doesn't have user agent,
+            // execute Runnable on UI thread to get WebView user agent
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new GetWebViewUserAgent(mContext));
+        }
+    }
+    
     private class GetGAID implements Runnable {
         private final WeakReference<Context> weakContext;
         
@@ -244,24 +253,9 @@ public class MATParameters {
     }
     
     /**
-     *  Runnable for retrieving WebSettings user agent
+     *  Runnable for getting the WebView user agent
      */
     @SuppressLint("NewApi")
-    private class GetDefaultUserAgent implements Runnable {
-        private final WeakReference<Context> weakContext;
-
-        public GetDefaultUserAgent(Context context) {
-            weakContext = new WeakReference<Context>(context);
-        }
-
-        public void run() {
-            setUserAgent(WebSettings.getDefaultUserAgent(weakContext.get()));
-        }
-    }
-    
-    /**
-     *  Runnable for creating a WebView and getting the device user agent
-     */
     private class GetWebViewUserAgent implements Runnable {
         private final WeakReference<Context> weakContext;
 
@@ -272,11 +266,17 @@ public class MATParameters {
         public void run() {
             try {
                 Class.forName("android.os.AsyncTask"); // prevents WebView from crashing on certain devices
-                // Create WebView to set user agent, then destroy WebView
-                WebView wv = new WebView(weakContext.get());
-                setUserAgent(wv.getSettings().getUserAgentString());
-                wv.destroy();
+                if (Build.VERSION.SDK_INT >= 17) {
+                    setUserAgent(WebSettings.getDefaultUserAgent(weakContext.get()));
+                } else {
+                    // Create WebView to set user agent, then destroy WebView
+                    WebView wv = new WebView(weakContext.get());
+                    setUserAgent(wv.getSettings().getUserAgentString());
+                    wv.destroy();
+                }
             } catch (Exception e) {
+                // Alcatel has WebView implementation that causes getDefaultUserAgent to NPE
+                // Reference: https://groups.google.com/forum/#!topic/google-admob-ads-sdk/SX9yb3F_PNk
             } catch (VerifyError e) {
                 // Some device vendors have their own WebView implementation which crashes on our init
             }
@@ -822,7 +822,7 @@ public class MATParameters {
     public synchronized String getUserAgent() {
         return mUserAgent;
     }
-    private void setUserAgent(String userAgent) {
+    private synchronized void setUserAgent(String userAgent) {
         mUserAgent = userAgent;
     }
     
