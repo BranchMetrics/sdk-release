@@ -52,8 +52,14 @@ namespace MobileAppTracking
             long timestamp = UnixTimestamp();
             data.Append("&system_date=").Append(timestamp.ToString());
 
-            data.Append("&app_name=").Append(Uri.EscapeUriString(parameters.AppName));
-            data.Append("&app_version=").Append(Uri.EscapeUriString(parameters.AppVersion));
+            if (parameters.AppName != null)
+            {
+                data.Append("&app_name=").Append(Uri.EscapeUriString(parameters.AppName));
+            }
+            if (parameters.AppVersion != null)
+            {
+                data.Append("&app_version=").Append(Uri.EscapeUriString(parameters.AppVersion));
+            }
             data.Append("&device_brand=").Append(Uri.EscapeUriString(parameters.DeviceBrand));
             data.Append("&device_model=").Append(Uri.EscapeUriString(parameters.DeviceModel));
             data.Append("&device_carrier=").Append(Uri.EscapeUriString(parameters.DeviceCarrier));

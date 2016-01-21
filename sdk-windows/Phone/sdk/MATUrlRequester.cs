@@ -61,7 +61,12 @@ namespace MobileAppTracking
                 using (Stream stream = response.GetResponseStream())
                 {
                     StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                    string responseString = reader.ReadToEnd();
+                    string responseString = "";
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        responseString += line;
+                    }
                     HttpStatusCode statusCode = response.StatusCode;
 
                     // If status between 200 and 300, success
@@ -147,7 +152,12 @@ namespace MobileAppTracking
                         using (Stream stream = webResponse.GetResponseStream())
                         using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
                         {
-                            string responseString = streamReader.ReadToEnd();
+                            string responseString = "";
+                            string line;
+                            while ((line = streamReader.ReadLine()) != null)
+                            {
+                                responseString += line;
+                            }
                             if (httpWebResponse.StatusCode == HttpStatusCode.BadRequest && webResponse.Headers["X-MAT-Responder"] != null)
                             {
                                 if (parameters.matResponse != null)

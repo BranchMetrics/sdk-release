@@ -45,15 +45,18 @@ namespace MobileAppTracking
             var version = Package.Current.Id.Version;
             this.AppVersion = String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
 
-            // If app has a Store app id, use it as package name
-            if (CurrentApp.AppId != Guid.Empty)
+            // Use local package name by default
+            this.PackageName = Package.Current.Id.Name;
+            try
             {
-                this.PackageName = CurrentApp.AppId.ToString();
+                // If there's a store app id, use it
+                if (CurrentApp.AppId != Guid.Empty)
+                {
+                    this.PackageName = CurrentApp.AppId.ToString();
+                }
             }
-            else
+            catch
             {
-                // No store app id yet, use local package name
-                this.PackageName = Package.Current.Id.Name;
             }
 
             // Get device info
