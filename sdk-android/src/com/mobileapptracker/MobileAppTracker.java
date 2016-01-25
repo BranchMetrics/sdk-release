@@ -78,6 +78,11 @@ public class MobileAppTracker {
     private long initTime;
     // Time that SDK received referrer
     private long referrerTime;
+
+    // TUNE advertiser ID for the app
+    private static String advertiserId;
+    // TUNE advertiser key for the app
+    private static String conversionKey;
     
     // Whether Google Advertising ID was received
     boolean gotGaid;
@@ -98,6 +103,10 @@ public class MobileAppTracker {
      * @return Tune instance
      */
     public static synchronized MobileAppTracker getInstance() {
+        if (tune == null) {
+            tune = new MobileAppTracker();
+            tune.initAll(advertiserId, conversionKey);
+        }
         return tune;
     }
 
@@ -113,7 +122,8 @@ public class MobileAppTracker {
             tune = new MobileAppTracker();
             tune.mContext = context.getApplicationContext();
             tune.pubQueue = Executors.newSingleThreadExecutor();
-            
+            MobileAppTracker.advertiserId = advertiserId;
+            MobileAppTracker.conversionKey = conversionKey;
             tune.initAll(advertiserId, conversionKey);
         }
         return tune;
