@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-               BuildableName = "TestApp_watchos WatchKit App.app"
-               BlueprintName = "TestApp_watchos WatchKit App"
-               ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+               BuildableName = "TestApp_watchOS.app"
+               BlueprintName = "TestApp_watchOS WatchKit App"
+               ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8D75BC51BC5CA15001DD213"
-               BuildableName = "TestApp_watchos WatchKit Extension.appex"
-               BlueprintName = "TestApp_watchos WatchKit Extension"
-               ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+               BuildableName = "TestApp_watchOS.appex"
+               BlueprintName = "TestApp_watchOS WatchKit Extension"
+               ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8D75B9F1BC5CA15001DD213"
-               BuildableName = "TestApp_watchos.app"
-               BlueprintName = "TestApp_watchos"
-               ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+               BuildableName = "TestApp_watchOS.app"
+               BlueprintName = "TestApp_watchOS"
+               ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,9 +61,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-            BuildableName = "TestApp_watchos WatchKit App.app"
-            BlueprintName = "TestApp_watchos WatchKit App"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS WatchKit App"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -80,7 +80,7 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "8"
-      notificationPayloadFile = "TestApp_watchos WatchKit Extension/PushNotificationPayload.apns">
+      notificationPayloadFile = "TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.carousel"
@@ -88,18 +88,18 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-            BuildableName = "TestApp_watchos WatchKit App.app"
-            BlueprintName = "TestApp_watchos WatchKit App"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS WatchKit App"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-            BuildableName = "TestApp_watchos WatchKit App.app"
-            BlueprintName = "TestApp_watchos WatchKit App"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS WatchKit App"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -112,7 +112,7 @@
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "8"
-      notificationPayloadFile = "TestApp_watchos WatchKit Extension/PushNotificationPayload.apns">
+      notificationPayloadFile = "TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.carousel"
@@ -120,18 +120,18 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-            BuildableName = "TestApp_watchos WatchKit App.app"
-            BlueprintName = "TestApp_watchos WatchKit App"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS WatchKit App"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75BB61BC5CA15001DD213"
-            BuildableName = "TestApp_watchos WatchKit App.app"
-            BlueprintName = "TestApp_watchos WatchKit App"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS WatchKit App"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

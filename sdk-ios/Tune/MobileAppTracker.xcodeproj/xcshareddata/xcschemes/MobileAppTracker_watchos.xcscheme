@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F81438B21BB9CCDD00FFD87A"
-               BuildableName = "MobileAppTracker_watchos.framework"
-               BlueprintName = "MobileAppTracker_watchos"
+               BuildableName = "MobileAppTracker_watchOS.framework"
+               BlueprintName = "MobileAppTracker_watchOS"
                ReferencedContainer = "container:MobileAppTracker.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81438B21BB9CCDD00FFD87A"
-            BuildableName = "MobileAppTracker_watchos.framework"
-            BlueprintName = "MobileAppTracker_watchos"
+            BuildableName = "MobileAppTracker_watchOS.framework"
+            BlueprintName = "MobileAppTracker_watchOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81438B21BB9CCDD00FFD87A"
-            BuildableName = "MobileAppTracker_watchos.framework"
-            BlueprintName = "MobileAppTracker_watchos"
+            BuildableName = "MobileAppTracker_watchOS.framework"
+            BlueprintName = "MobileAppTracker_watchOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

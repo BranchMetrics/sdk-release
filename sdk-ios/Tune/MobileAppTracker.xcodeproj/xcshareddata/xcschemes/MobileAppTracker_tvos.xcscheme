@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F81438461BB9CCD200FFD87A"
-               BuildableName = "MobileAppTracker_tvos.framework"
-               BlueprintName = "MobileAppTracker_tvos"
+               BuildableName = "MobileAppTracker_tvOS.framework"
+               BlueprintName = "MobileAppTracker_tvOS"
                ReferencedContainer = "container:MobileAppTracker.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,8 +34,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8B3AAFB1BBC7232003E602A"
-               BuildableName = "MobileAppTrackerTests_tvos.xctest"
-               BlueprintName = "MobileAppTrackerTests_tvos"
+               BuildableName = "MobileAppTrackerTests_tvOS.xctest"
+               BlueprintName = "MobileAppTrackerTests_tvOS"
                ReferencedContainer = "container:MobileAppTracker.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -44,8 +44,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81438461BB9CCD200FFD87A"
-            BuildableName = "MobileAppTracker_tvos.framework"
-            BlueprintName = "MobileAppTracker_tvos"
+            BuildableName = "MobileAppTracker_tvOS.framework"
+            BlueprintName = "MobileAppTracker_tvOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81438461BB9CCD200FFD87A"
-            BuildableName = "MobileAppTracker_tvos.framework"
-            BlueprintName = "MobileAppTracker_tvos"
+            BuildableName = "MobileAppTracker_tvOS.framework"
+            BlueprintName = "MobileAppTracker_tvOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -84,8 +84,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81438461BB9CCD200FFD87A"
-            BuildableName = "MobileAppTracker_tvos.framework"
-            BlueprintName = "MobileAppTracker_tvos"
+            BuildableName = "MobileAppTracker_tvOS.framework"
+            BlueprintName = "MobileAppTracker_tvOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

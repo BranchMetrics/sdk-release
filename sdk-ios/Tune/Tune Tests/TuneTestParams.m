@@ -266,8 +266,11 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     [self checkKeyHasValue:@"device_cpu_subtype"] &&
     [self checkKeyHasValue:@"device_model"] &&
     [self checkKeyHasValue:@"os_version"] &&
-    [self checkKeyHasValue:@"insdate"] &&
-    [self checkKey:@"os_jailbroke" isEqualToValue:@"0"];
+    [self checkKeyHasValue:@"insdate"]
+#if TARGET_OS_IOS
+    && [self checkKey:@"os_jailbroke" isEqualToValue:@"0"]
+#endif
+     ;
     CGSize size = [[UIScreen mainScreen] bounds].size;
     [self checkKey:@"screen_size" isEqualToValue:[NSString stringWithFormat:@"%.fx%.f", size.width, size.height]];
     [self checkKey:@"screen_density" isEqualToValue:[@([[UIScreen mainScreen] scale]) stringValue]];

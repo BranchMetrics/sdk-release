@@ -149,7 +149,7 @@ static TuneDeferredDplinkr *dplinkr;
                     
                     error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                 code:TUNE_DEEPLINK_MALFORMED_ERROR_CODE
-                                            userInfo:@{NSLocalizedDescriptionKey:@"Malformed deferred deeplink", TUNE_KEY_REQUEST_URL:urlString}];
+                                            userInfo:@{NSLocalizedDescriptionKey:@"Malformed deferred deeplink", TUNE_KEY_REQUEST_URL:response.URL.absoluteString}];
                 }
             }
             else
@@ -158,14 +158,14 @@ static TuneDeferredDplinkr *dplinkr;
                 
                 error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                             code:[(NSHTTPURLResponse*)response statusCode]
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Deferred deeplink not found", TUNE_KEY_REQUEST_URL:urlString}];
+                                        userInfo:@{NSLocalizedDescriptionKey:@"Deferred deeplink not found", TUNE_KEY_REQUEST_URL:response.URL.absoluteString}];
             }
         }
         else
         {
             error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                         code:TUNE_DEEPLINK_NETWORK_ERROR_CODE
-                                    userInfo:@{NSLocalizedDescriptionKey:@"Network error when retrieving deferred deeplink", NSUnderlyingErrorKey:connectionError, TUNE_KEY_REQUEST_URL:urlString}];
+                                    userInfo:@{NSLocalizedDescriptionKey:@"Network error when retrieving deferred deeplink", NSUnderlyingErrorKey:connectionError}];
         }
         
         if(error)

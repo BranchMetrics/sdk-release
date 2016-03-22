@@ -1,6 +1,6 @@
 //
 //  InterfaceController.m
-//  TestApp_watchos WatchKit Extension
+//  TestApp_watchOS WatchKit Extension
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -8,7 +8,7 @@
 
 #import "InterfaceController.h"
 
-@import MobileAppTracker_watchos;
+@import MobileAppTrackerTestApp_watchOS;
 
 @interface InterfaceController() <TuneDelegate>
 

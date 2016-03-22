@@ -24,8 +24,8 @@ const NSTimeInterval TUNE_LOCATION_UPDATE_DELAY  = 5.;
 
 /*!
  Duration in seconds during which an existing known device location may be reused.
- If the difference between current time and the location timestamp is older than
- this value, then a new location update request will be fired.
+ If the difference in seconds between current timestamp and the location timestamp
+ is higher than this value, then a new location update request will be fired.
  */
 const NSTimeInterval TUNE_LOCATION_VALIDITY_DURATION = 60.;
 
@@ -40,6 +40,8 @@ static id tuneCLLocation;
 
 static TuneLocationHelper *tuneSharedLocationHelper;
 
+static Class classLocationManager;
+
 @implementation TuneLocationHelper
 
 
@@ -47,13 +49,15 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 
 + (void)initialize
 {
+    classLocationManager = NSClassFromString(@"CLLocationManager");
+    
     tuneSharedLocationHelper = [TuneLocationHelper new];
 }
 
 
 #pragma mark - Public Methods
 
-+ (TuneLocation *)getOrRequestDeviceLocation
++ (void)getOrRequestDeviceLocation:(NSMutableArray *)resultArr
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -64,99 +68,109 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     // if the CLLocationManager has been created
     if(isEnabled)
     {
-        BOOL requestNewLocation = YES;
-        
         if(nil != tuneCLLocationManager)
         {
             // get the current device location
-            SEL selLocation = @selector(location);
-            NSMethodSignature *signature = [tuneCLLocationManager methodSignatureForSelector:selLocation];
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-            [invocation setTarget:tuneCLLocationManager];
-            [invocation setSelector:selLocation];
-            [invocation invoke];
-            [invocation getReturnValue:&tuneCLLocation];
+            [self getCurrentCLLocation];
             
-            if(tuneCLLocation && [NSNull null] != tuneCLLocation)
-            {
-                // get the location timestamp
-                static NSDate *timestamp;
-                SEL selTimestamp = @selector(timestamp);
-                signature = [tuneCLLocation methodSignatureForSelector:selTimestamp];
-                invocation = [NSInvocation invocationWithMethodSignature:signature];
-                [invocation setTarget:tuneCLLocation];
-                [invocation setSelector:selTimestamp];
-                [invocation invoke];
-                [invocation getReturnValue:&timestamp];
-                
-                // check if location is recent enough to be used, otherwise request a new location update
-                if(timestamp && [[NSDate date] timeIntervalSinceDate:timestamp] < TUNE_LOCATION_VALIDITY_DURATION)
-                {
-                    requestNewLocation = NO;
-                    
-                    if(tuneCLLocation)
-                    {
-                        TuneCLLocationCoordinate2D coordinate;
-                        SEL selCoordinate = @selector(coordinate);
-                        signature = [tuneCLLocation methodSignatureForSelector:selCoordinate];
-                        invocation = [NSInvocation invocationWithMethodSignature:signature];
-                        [invocation setTarget:tuneCLLocation];
-                        [invocation setSelector:selCoordinate];
-                        [invocation invoke];
-                        [invocation getReturnValue:&coordinate];
-                        
-                        double altitude;
-                        SEL selAltitude = @selector(altitude);
-                        signature = [tuneCLLocation methodSignatureForSelector:selAltitude];
-                        invocation = [NSInvocation invocationWithMethodSignature:signature];
-                        [invocation setTarget:tuneCLLocation];
-                        [invocation setSelector:selAltitude];
-                        [invocation invoke];
-                        [invocation getReturnValue:&altitude];
-                        
-                        double hAccuracy;
-                        SEL selHorizontalAccu = @selector(horizontalAccuracy);
-                        signature = [tuneCLLocation methodSignatureForSelector:selHorizontalAccu];
-                        invocation = [NSInvocation invocationWithMethodSignature:signature];
-                        [invocation setTarget:tuneCLLocation];
-                        [invocation setSelector:selHorizontalAccu];
-                        [invocation invoke];
-                        [invocation getReturnValue:&hAccuracy];
-                        
-                        double vAccuracy;
-                        SEL selVerticalAccu = @selector(verticalAccuracy);
-                        signature = [tuneCLLocation methodSignatureForSelector:selVerticalAccu];
-                        invocation = [NSInvocation invocationWithMethodSignature:signature];
-                        [invocation setTarget:tuneCLLocation];
-                        [invocation setSelector:selVerticalAccu];
-                        [invocation invoke];
-                        [invocation getReturnValue:&vAccuracy];
-                        
-                        DLog(@"TuneLocationHelper: found new location = %f, %f, %f, %f, %f, %@", coordinate.latitude, coordinate.longitude, altitude, hAccuracy, vAccuracy, timestamp);
-                        
-                        location = [TuneLocation new];
-                        location.latitude = @(coordinate.latitude);
-                        location.longitude = @(coordinate.longitude);
-                        location.altitude = @(altitude);
-                        location.horizontalAccuracy = @(hAccuracy);
-                        location.verticalAccuracy = @(vAccuracy);
-                        location.timestamp = timestamp;
-                    }
-                }
-            }
+            location = [self tuneLocationFromCLLocation:tuneCLLocation];
         }
         
-        if(requestNewLocation)
+        if(!location)
         {
             // location is not ready, request a new update
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [self startLocationUpdates];
-            }];
+            [tuneSharedLocationHelper startLocationUpdates];
         }
     }
     
-    return location;
+    if(location)
+    {
+        resultArr[0] = location;
+    }
+#pragma clang diagnostic pop
+}
+
++ (void)getCurrentCLLocation
+{
+    // get the current device location
+    SEL selLocation = @selector(location);
+    NSMethodSignature *signature = [tuneCLLocationManager methodSignatureForSelector:selLocation];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    [invocation setTarget:tuneCLLocationManager];
+    [invocation setSelector:selLocation];
+    [invocation invoke];
+    [invocation getReturnValue:&tuneCLLocation];
+}
+
++ (TuneLocation *)tuneLocationFromCLLocation:(id)clLocation
+{
+    TuneLocation *location = nil;
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    if(clLocation && [NSNull null] != clLocation)
+    {
+        // get the location timestamp
+        static NSDate *timestamp;
+        SEL selTimestamp = @selector(timestamp);
+        NSMethodSignature *signature = [clLocation methodSignatureForSelector:selTimestamp];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:clLocation];
+        [invocation setSelector:selTimestamp];
+        [invocation invoke];
+        [invocation getReturnValue:&timestamp];
+        
+        // check if location is recent enough to be used, otherwise request a new location update
+        if(timestamp && [[NSDate date] timeIntervalSinceDate:timestamp] < TUNE_LOCATION_VALIDITY_DURATION)
+        {
+            TuneCLLocationCoordinate2D coordinate;
+            SEL selCoordinate = @selector(coordinate);
+            signature = [clLocation methodSignatureForSelector:selCoordinate];
+            invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:clLocation];
+            [invocation setSelector:selCoordinate];
+            [invocation invoke];
+            [invocation getReturnValue:&coordinate];
+            
+            double altitude;
+            SEL selAltitude = @selector(altitude);
+            signature = [clLocation methodSignatureForSelector:selAltitude];
+            invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:clLocation];
+            [invocation setSelector:selAltitude];
+            [invocation invoke];
+            [invocation getReturnValue:&altitude];
+            
+            double hAccuracy;
+            SEL selHorizontalAccu = @selector(horizontalAccuracy);
+            signature = [clLocation methodSignatureForSelector:selHorizontalAccu];
+            invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:clLocation];
+            [invocation setSelector:selHorizontalAccu];
+            [invocation invoke];
+            [invocation getReturnValue:&hAccuracy];
+            
+            double vAccuracy;
+            SEL selVerticalAccu = @selector(verticalAccuracy);
+            signature = [clLocation methodSignatureForSelector:selVerticalAccu];
+            invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:clLocation];
+            [invocation setSelector:selVerticalAccu];
+            [invocation invoke];
+            [invocation getReturnValue:&vAccuracy];
+            
+            DLog(@"TuneLocationHelper: found new location = %f, %f, %f, %f, %f, %@", coordinate.latitude, coordinate.longitude, altitude, hAccuracy, vAccuracy, timestamp);
+            
+            location = [TuneLocation new];
+            location.latitude = @(coordinate.latitude);
+            location.longitude = @(coordinate.longitude);
+            location.altitude = @(altitude);
+            location.horizontalAccuracy = @(hAccuracy);
+            location.verticalAccuracy = @(vAccuracy);
+            location.timestamp = timestamp;
+        }
+    }
+    return location;
 #pragma clang diagnostic pop
 }
 
@@ -166,8 +180,6 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 + (BOOL)isLocationEnabled
 {
     BOOL locationEnabled = NO;
-    
-    Class classLocationManager = NSClassFromString(@"CLLocationManager");
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -204,8 +216,6 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     // if location access is enabled and shared CLLocationManager does not exist, then create a new instance
     if (locationEnabled && nil == tuneCLLocationManager)
     {
-        Class classLocationManager = NSClassFromString(@"CLLocationManager");
-        
         tuneCLLocationManager = [classLocationManager new];
         
 #pragma clang diagnostic push
@@ -218,11 +228,6 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     return locationEnabled;
 }
 
-+ (void)startLocationUpdates
-{
-    [tuneSharedLocationHelper startLocationUpdates];
-}
-
 - (void)startLocationUpdates
 {
     if ([[self class] createLocationManager])
@@ -230,8 +235,14 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 #pragma clang diagnostic ignored "-Wundeclared-selector"
+        
         // start updating location
+#if TARGET_OS_IOS
         [tuneCLLocationManager performSelector:@selector(startUpdatingLocation)];
+#elif TARGET_OS_TV
+        [tuneCLLocationManager performSelector:@selector(requestLocation)];
+#endif
+        
 #pragma clang diagnostic pop
     }
 }

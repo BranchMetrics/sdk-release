@@ -53,11 +53,9 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
               redirect:(BOOL)shouldRedirect;
 
 - (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetect;
-#if TARGET_OS_IOS
-- (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect;
-#endif
 
 #if !TARGET_OS_WATCH
+- (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect;
 - (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect;
 - (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)shouldAutoGenerate;
 #endif

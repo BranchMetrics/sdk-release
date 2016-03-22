@@ -315,15 +315,18 @@ static CTTelephonyNetworkInfo *netInfo;
     
     NSString *currencyCode = event.currencyCode ?: self.currencyCode;
     
-    NSNumber *hAccuracy = self.location.horizontalAccuracy ?: event.location.horizontalAccuracy;
-    NSNumber *vAccuracy = self.location.verticalAccuracy ?: event.location.verticalAccuracy;
-    NSDate *locTimestamp = self.location.timestamp ?: event.location.timestamp;
+    TuneLocation *loc = event.location ?: self.location;
+    [self addValue:loc.altitude             forKey:TUNE_KEY_ALTITUDE                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:loc.longitude            forKey:TUNE_KEY_LONGITUDE                    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:loc.latitude             forKey:TUNE_KEY_LATITUDE                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:loc.verticalAccuracy     forKey:TUNE_KEY_LOCATION_VERTICAL_ACCURACY   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:loc.horizontalAccuracy   forKey:TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:loc.timestamp            forKey:TUNE_KEY_LOCATION_TIMESTAMP           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     // convert properties to keys, format, and append to URL
     [self addValue:event.actionName                 forKey:TUNE_KEY_ACTION                   	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.advertiserId                forKey:TUNE_KEY_ADVERTISER_ID               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.age                         forKey:TUNE_KEY_AGE                      	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.location.altitude           forKey:TUNE_KEY_ALTITUDE                 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.appAdTracking               forKey:TUNE_KEY_APP_AD_TRACKING          	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.appName                     forKey:TUNE_KEY_APP_NAME                 	encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.appVersion                  forKey:TUNE_KEY_APP_VERSION                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -398,12 +401,7 @@ static CTTelephonyNetworkInfo *netInfo;
     [self addValue:self.conversionKey               forKey:TUNE_KEY_KEY                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.language                    forKey:TUNE_KEY_LANGUAGE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.lastOpenLogId               forKey:TUNE_KEY_LAST_OPEN_LOG_ID        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.location.latitude           forKey:TUNE_KEY_LATITUDE                encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.locationAuthorizationStatus forKey:TUNE_KEY_LOCATION_AUTH_STATUS    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:hAccuracy                        forKey:TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:vAccuracy                        forKey:TUNE_KEY_LOCATION_VERTICAL_ACCURACY      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:locTimestamp                     forKey:TUNE_KEY_LOCATION_TIMESTAMP      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:self.location.longitude          forKey:TUNE_KEY_LONGITUDE               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.tuneId                      forKey:TUNE_KEY_MAT_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.openLogId                   forKey:TUNE_KEY_OPEN_LOG_ID             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:self.jailbroken                  forKey:TUNE_KEY_OS_JAILBROKE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

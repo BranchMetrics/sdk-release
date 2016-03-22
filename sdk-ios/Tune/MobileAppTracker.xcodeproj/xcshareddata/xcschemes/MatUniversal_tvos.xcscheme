@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0710"
+   LastUpgradeVersion = "0720"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F81439241BB9CD7F00FFD87A"
-               BuildableName = "MatUniversal_tvos"
-               BlueprintName = "MatUniversal_tvos"
+               BuildableName = "MatUniversal_tvOS"
+               BlueprintName = "MatUniversal_tvOS"
                ReferencedContainer = "container:MobileAppTracker.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81439241BB9CD7F00FFD87A"
-            BuildableName = "MatUniversal_tvos"
-            BlueprintName = "MatUniversal_tvos"
+            BuildableName = "MatUniversal_tvOS"
+            BlueprintName = "MatUniversal_tvOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F81439241BB9CD7F00FFD87A"
-            BuildableName = "MatUniversal_tvos"
-            BlueprintName = "MatUniversal_tvos"
+            BuildableName = "MatUniversal_tvOS"
+            BlueprintName = "MatUniversal_tvOS"
             ReferencedContainer = "container:MobileAppTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

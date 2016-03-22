@@ -163,6 +163,7 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
         [invocation setTarget:FBAppEvents];
         [invocation setSelector:selMethod];
+        [invocation invoke];
     }
     else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_PURCHASE].location
              && [FBAppEvents respondsToSelector:selMethod])

@@ -1,6 +1,6 @@
 //
 //  AppDelegate.h
-//  TestApp_tvos
+//  TestApp_tvOS
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @import AdSupport;
-@import MobileAppTracker_tvos;
-@import MobileCoreServices;
+@import MobileAppTracker_tvOS;
 @import StoreKit;
 @import SystemConfiguration;
 

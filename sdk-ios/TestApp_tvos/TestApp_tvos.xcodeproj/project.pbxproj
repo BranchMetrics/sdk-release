@@ -7,19 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F83430341C0D0974008303AF /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F83430331C0D0974008303AF /* AdSupport.framework */; };
-		F86FB7EE1BD594B200C96335 /* MobileAppTracker_tvos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */; };
+		F829F47A1C179A2F00F89E64 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F829F4791C179A2F00F89E64 /* AdSupport.framework */; };
 		F8C0E5B51BC5CA9300942D8D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B41BC5CA9300942D8D /* main.m */; };
 		F8C0E5B81BC5CA9300942D8D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B71BC5CA9300942D8D /* AppDelegate.m */; };
 		F8C0E5BB1BC5CA9300942D8D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5BA1BC5CA9300942D8D /* ViewController.m */; };
 		F8C0E5BE1BC5CA9300942D8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8C0E5BC1BC5CA9300942D8D /* Main.storyboard */; };
 		F8C0E5C01BC5CA9300942D8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F8C0E5BF1BC5CA9300942D8D /* Assets.xcassets */; };
+		F8C6353C1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F83430331C0D0974008303AF /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
-		F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_tvos.framework; path = ../Tune/build/appletv/Release/MobileAppTracker_tvos.framework; sourceTree = "<group>"; };
-		F8C0E5B01BC5CA9300942D8D /* TestApp_tvos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_tvos.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F829F4791C179A2F00F89E64 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		F8C0E5B01BC5CA9300942D8D /* TestApp_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8C0E5B41BC5CA9300942D8D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F8C0E5B61BC5CA9300942D8D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F8C0E5B71BC5CA9300942D8D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -28,6 +27,7 @@
 		F8C0E5BD1BC5CA9300942D8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F8C0E5BF1BC5CA9300942D8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F8C0E5C11BC5CA9300942D8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_tvOS.framework; path = "../Tune/build/Release-appletvos/MobileAppTracker_tvOS.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,8 +35,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F83430341C0D0974008303AF /* AdSupport.framework in Frameworks */,
-				F86FB7EE1BD594B200C96335 /* MobileAppTracker_tvos.framework in Frameworks */,
+				F8C6353C1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework in Frameworks */,
+				F829F47A1C179A2F00F89E64 /* AdSupport.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,9 +46,9 @@
 		F8C0E5A71BC5CA9300942D8D = {
 			isa = PBXGroup;
 			children = (
-				F83430331C0D0974008303AF /* AdSupport.framework */,
-				F86FB7ED1BD594B200C96335 /* MobileAppTracker_tvos.framework */,
-				F8C0E5B21BC5CA9300942D8D /* TestApp_tvos */,
+				F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */,
+				F829F4791C179A2F00F89E64 /* AdSupport.framework */,
+				F8C0E5B21BC5CA9300942D8D /* TestApp_tvOS */,
 				F8C0E5B11BC5CA9300942D8D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,12 +56,12 @@
 		F8C0E5B11BC5CA9300942D8D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F8C0E5B01BC5CA9300942D8D /* TestApp_tvos.app */,
+				F8C0E5B01BC5CA9300942D8D /* TestApp_tvOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F8C0E5B21BC5CA9300942D8D /* TestApp_tvos */ = {
+		F8C0E5B21BC5CA9300942D8D /* TestApp_tvOS */ = {
 			isa = PBXGroup;
 			children = (
 				F8C0E5B61BC5CA9300942D8D /* AppDelegate.h */,
@@ -73,7 +73,8 @@
 				F8C0E5C11BC5CA9300942D8D /* Info.plist */,
 				F8C0E5B31BC5CA9300942D8D /* Supporting Files */,
 			);
-			path = TestApp_tvos;
+			name = TestApp_tvOS;
+			path = ../TestApp_tvOS/TestApp_tvOS;
 			sourceTree = "<group>";
 		};
 		F8C0E5B31BC5CA9300942D8D /* Supporting Files */ = {
@@ -87,9 +88,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F8C0E5AF1BC5CA9300942D8D /* TestApp_tvos */ = {
+		F8C0E5AF1BC5CA9300942D8D /* TestApp_tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F8C0E5C41BC5CA9300942D8D /* Build configuration list for PBXNativeTarget "TestApp_tvos" */;
+			buildConfigurationList = F8C0E5C41BC5CA9300942D8D /* Build configuration list for PBXNativeTarget "TestApp_tvOS" */;
 			buildPhases = (
 				F8C0E5AC1BC5CA9300942D8D /* Sources */,
 				F8C0E5AD1BC5CA9300942D8D /* Frameworks */,
@@ -99,9 +100,9 @@
 			);
 			dependencies = (
 			);
-			name = TestApp_tvos;
+			name = TestApp_tvOS;
 			productName = TestApp_tvos;
-			productReference = F8C0E5B01BC5CA9300942D8D /* TestApp_tvos.app */;
+			productReference = F8C0E5B01BC5CA9300942D8D /* TestApp_tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -115,10 +116,11 @@
 				TargetAttributes = {
 					F8C0E5AF1BC5CA9300942D8D = {
 						CreatedOnToolsVersion = 7.1;
+						DevelopmentTeam = MN489GLUZK;
 					};
 				};
 			};
-			buildConfigurationList = F8C0E5AB1BC5CA9300942D8D /* Build configuration list for PBXProject "TestApp_tvos" */;
+			buildConfigurationList = F8C0E5AB1BC5CA9300942D8D /* Build configuration list for PBXProject "TestApp_tvOS" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -131,7 +133,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F8C0E5AF1BC5CA9300942D8D /* TestApp_tvos */,
+				F8C0E5AF1BC5CA9300942D8D /* TestApp_tvOS */,
 			);
 		};
 /* End PBXProject section */
@@ -258,10 +260,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				INFOPLIST_FILE = TestApp_tvos/Info.plist;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				INFOPLIST_FILE = TestApp_tvOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvos";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvOS";
+				PRODUCT_NAME = TestApp_tvOS;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -270,17 +275,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				INFOPLIST_FILE = TestApp_tvos/Info.plist;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				INFOPLIST_FILE = TestApp_tvOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvos";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvOS";
+				PRODUCT_NAME = TestApp_tvOS;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F8C0E5AB1BC5CA9300942D8D /* Build configuration list for PBXProject "TestApp_tvos" */ = {
+		F8C0E5AB1BC5CA9300942D8D /* Build configuration list for PBXProject "TestApp_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F8C0E5C21BC5CA9300942D8D /* Debug */,
@@ -289,7 +297,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F8C0E5C41BC5CA9300942D8D /* Build configuration list for PBXNativeTarget "TestApp_tvos" */ = {
+		F8C0E5C41BC5CA9300942D8D /* Build configuration list for PBXNativeTarget "TestApp_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F8C0E5C51BC5CA9300942D8D /* Debug */,

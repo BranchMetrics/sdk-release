@@ -27,12 +27,12 @@
 FOUNDATION_EXPORT const NSTimeInterval TUNE_LOCATION_UPDATE_DELAY;
 
 /*!
- When location access is permitted, this method can be used to access the current device location.
- If the available location info is more than 60 seconds old, then this method initiates a new location fetch request and returns nil.
- When nil is returned, this method may be called again after a few seconds to access the updated device location.
- @return a TuneLocation instance, nil if location access is disabled or if current location info is stale
+ When location access is permitted, the current device location is included in the mutable array input param.
+ If this is the first time location is being requested or if the location info is more than 60 seconds old,
+ then this method initiates a new location fetch request. Note: This method should be called on the main thread.
+ @param resultArr a mutable array to be used by the method to return location info
  */
-+ (TuneLocation *)getOrRequestDeviceLocation;
++ (void)getOrRequestDeviceLocation:(NSMutableArray *)resultArr;
 
 /*!
  Checks if the end-user has permitted device location access

@@ -39,6 +39,11 @@ static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
     NSOperationQueue *requestOpQueue;
     
     /*!
+     Shared NSOperationQueue for NSURLConnection.
+     */
+    NSOperationQueue *nsUrlConnectionQueue;
+    
+    /*!
      List of queued events.
      */
     NSMutableArray *events;
@@ -89,6 +94,9 @@ static TuneEventQueue *sharedQueue = nil;
     if( self ) {
         requestOpQueue = [NSOperationQueue new];
         requestOpQueue.maxConcurrentOperationCount = 1;
+        
+        nsUrlConnectionQueue = [NSOperationQueue new];
+        nsUrlConnectionQueue.maxConcurrentOperationCount = 1;
         
         [self addNetworkAndAppNotificationListeners];
         
@@ -386,25 +394,32 @@ static TuneEventQueue *sharedQueue = nil;
             }
         }
         
-        // if the request url does not contain device location params,
-        // auto-collection is enabled and location access, try to auto-collect
+        // if the request url does not contain device location params, auto-collection
+        // is enabled and location access is permitted, then try to auto-collect
         searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_LATITUDE];
         
         if( [encryptParams rangeOfString:searchString].location == NSNotFound
            && [Tune sharedManager].shouldCollectDeviceLocation
            && [TuneLocationHelper isLocationEnabled] )
         {
-            // check if location is available
-            TuneLocation *location = [TuneLocationHelper getOrRequestDeviceLocation];
+            // try accessing location
+            NSMutableArray *arr = [NSMutableArray arrayWithCapacity:1];
+            [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
             
-            // if location is not readily available
-            if(!location)
+            TuneLocation *location = nil;
+            
+            if(1 > arr.count)
             {
                 // wait for location update to finish
                 [NSThread sleepForTimeInterval:TUNE_LOCATION_UPDATE_DELAY];
                 
-                // again try to access the location
-                location = [TuneLocationHelper getOrRequestDeviceLocation];
+                // retry accessing location
+                [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
+            }
+            
+            if(1 == arr.count)
+            {
+                location = arr[0];
             }
             
             // if the location is available
@@ -582,27 +597,39 @@ static TuneEventQueue *sharedQueue = nil;
             return;
         }
 #endif
-        NSHTTPURLResponse *urlResp = nil;
-        NSError *error = nil;
-        NSData *data = nil;
+        
+        __block NSHTTPURLResponse *urlResp = nil;
+        __block NSError *error = nil;
+        __block NSData *data = nil;
         
         if ([NSURLSession class]) {
             data = [TuneUtils sendSynchronousDataTaskWithRequest:urlReq forSession:[NSURLSession sharedSession] returningResponse:&urlResp error:&error];
-        }
-        else
-        {
-            SEL ector = @selector(sendSynchronousRequest:returningResponse:error:);
+        } else {
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
             
-            if ([NSURLConnection respondsToSelector:ector]) {
+            SEL ector = @selector(sendAsynchronousRequest:queue:completionHandler:);
+            if( [NSURLConnection respondsToSelector:ector] ) {
                 // iOS 6
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSURLConnection methodSignatureForSelector:ector]];
                 [invocation setTarget:[NSURLConnection class]];
                 [invocation setSelector:ector];
                 [invocation setArgument:&urlReq atIndex:2];
-                [invocation setArgument:&urlResp atIndex:3];
-                [invocation setArgument:&error atIndex:4];
+                [invocation setArgument:&nsUrlConnectionQueue atIndex:3];
+                
+                void (^connectionCompletionHandler)(NSURLResponse *response, NSData *data1, NSError *connectionError) =
+                ^(NSURLResponse *response, NSData *data1, NSError *connectionError) {
+                    urlResp = (NSHTTPURLResponse *)response;
+                    data = data1;
+                    error = connectionError;
+                    
+                    dispatch_semaphore_signal(semaphore);
+                };
+                
+                [invocation setArgument:&connectionCompletionHandler atIndex:4];
                 [invocation invoke];
             }
+            
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         }
         
         if (error != nil) {

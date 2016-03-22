@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-               BuildableName = "TestApp_ios.app"
-               BlueprintName = "TestApp_ios"
-               ReferencedContainer = "container:TestApp_ios.xcodeproj">
+               BuildableName = "TestApp_iOS.app"
+               BlueprintName = "TestApp_iOS"
+               ReferencedContainer = "container:TestApp_iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "42EAA53F1860F4B800041A8D"
                BuildableName = "MobileAppTracker Tests.xctest"
-               BlueprintName = "MobileAppTrackerTests_ios"
+               BlueprintName = "MobileAppTrackerTests_iOS"
                ReferencedContainer = "container:../Tune/MobileAppTracker.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -44,9 +44,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_ios.app"
-            BlueprintName = "TestApp_ios"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BuildableName = "TestApp_iOS.app"
+            BlueprintName = "TestApp_iOS"
+            ReferencedContainer = "container:TestApp_iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -67,9 +67,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_ios.app"
-            BlueprintName = "TestApp_ios"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BuildableName = "TestApp_iOS.app"
+            BlueprintName = "TestApp_iOS"
+            ReferencedContainer = "container:TestApp_iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -91,9 +91,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_ios.app"
-            BlueprintName = "TestApp_ios"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BuildableName = "TestApp_iOS.app"
+            BlueprintName = "TestApp_iOS"
+            ReferencedContainer = "container:TestApp_iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

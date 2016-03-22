@@ -198,11 +198,13 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  */
 + (void)setCurrencyCode:(NSString *)currencyCode DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
 
+#if TARGET_OS_IOS
 /*!
  Sets the jailbroken device flag.
  @param jailbroken The jailbroken device flag.
  */
 + (void)setJailbroken:(BOOL)jailbroken DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
+#endif
 
 /*!
  Sets the package name (bundle identifier).
@@ -219,9 +221,7 @@ DEPRECATED_MSG_ATTRIBUTE("Please use class Tune instead") @interface MobileAppTr
  @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
  */
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class Tune");
-#endif
 
-#if TARGET_OS_IOS
 /*!
  Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
  YES/NO

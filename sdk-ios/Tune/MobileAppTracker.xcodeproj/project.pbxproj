@@ -7,37 +7,37 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		F814391E1BB9CD2F00FFD87A /* MatUniversal_ios */ = {
+		F814391E1BB9CD2F00FFD87A /* MatUniversal_iOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_ios" */;
+			buildConfigurationList = F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_iOS" */;
 			buildPhases = (
 				F81439231BB9CD6B00FFD87A /* ShellScript */,
 			);
 			dependencies = (
 			);
-			name = MatUniversal_ios;
+			name = MatUniversal_iOS;
 			productName = MatUniversal_ios;
 		};
-		F81439241BB9CD7F00FFD87A /* MatUniversal_tvos */ = {
+		F81439241BB9CD7F00FFD87A /* MatUniversal_tvOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvos" */;
+			buildConfigurationList = F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvOS" */;
 			buildPhases = (
 				F81439251BB9CD7F00FFD87A /* ShellScript */,
 			);
 			dependencies = (
 			);
-			name = MatUniversal_tvos;
+			name = MatUniversal_tvOS;
 			productName = MatUniversal_ios;
 		};
-		F814392A1BB9CD8A00FFD87A /* MatUniversal_watchos */ = {
+		F814392A1BB9CD8A00FFD87A /* MatUniversal_watchOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchos" */;
+			buildConfigurationList = F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchOS" */;
 			buildPhases = (
 				F814392B1BB9CD8A00FFD87A /* ShellScript */,
 			);
 			dependencies = (
 			);
-			name = MatUniversal_watchos;
+			name = MatUniversal_watchOS;
 			productName = MatUniversal_ios;
 		};
 /* End PBXAggregateTarget section */
@@ -232,8 +232,8 @@
 		F81439121BB9CCDD00FFD87A /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A2EA8116445D3E0023FCE1 /* TuneCWorks.h */; };
 		F81439131BB9CCDD00FFD87A /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */; };
 		F81439151BB9CCDD00FFD87A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4FDFA18A15C700D300BEEC38 /* InfoPlist.strings */; };
-		F81439361BB9D21400FFD87A /* MobileAppTracker_tvos.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F81439371BB9D21900FFD87A /* MobileAppTracker_watchos.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81439361BB9D21400FFD87A /* MobileAppTracker_tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439311BB9CF8300FFD87A /* MobileAppTracker_tvOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F81439371BB9D21900FFD87A /* MobileAppTracker_watchOS.h in Headers */ = {isa = PBXBuildFile; fileRef = F81439321BB9CF8300FFD87A /* MobileAppTracker_watchOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F824DE821AE5A37F0042E796 /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */; };
 		F824DE831AE5A37F0042E796 /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */; };
 		F83044731A16D78A002CA9A1 /* TuneAdMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -283,7 +283,7 @@
 		F8B3AB181BBC7271003E602A /* TuneTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 42108C01186251EE005BDB32 /* TuneTestsHelper.m */; };
 		F8B3AB191BBC7271003E602A /* TuneTrackerInitializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 428F084B18C13E5900B1AC24 /* TuneTrackerInitializationTests.m */; };
 		F8B3AB1A1BBC7271003E602A /* TuneUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8BAC7F0189333BB001A25FC /* TuneUtilsTests.m */; };
-		F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */; };
+		F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvOS.framework */; };
 		F8B3AB1C1BBC766C003E602A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42EAA5481860F4B900041A8D /* InfoPlist.strings */; };
 		F8B71E5E1B55E4C0008E8215 /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */; };
 		F8B71E5F1B55E4C0008E8215 /* TuneLocationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */; };
@@ -391,10 +391,10 @@
 		F8080C40196C8CFF00CF63BC /* TuneAdUtilitiesUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdUtilitiesUI.m; sourceTree = "<group>"; };
 		F808B4491B716C310067114F /* MATEvent_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATEvent_internal.h; sourceTree = "<group>"; };
 		F80E4FA91A536970001918CF /* TuneAdNetworkHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdNetworkHelperTests.m; sourceTree = "<group>"; };
-		F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_tvos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_watchos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_tvos.h; sourceTree = "<group>"; };
-		F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_watchos.h; sourceTree = "<group>"; };
+		F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = MobileAppTracker_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F81439311BB9CF8300FFD87A /* MobileAppTracker_tvOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_tvOS.h; sourceTree = "<group>"; };
+		F81439321BB9CF8300FFD87A /* MobileAppTracker_watchOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileAppTracker_watchOS.h; sourceTree = "<group>"; };
 		F824DE801AE5A37F0042E796 /* TuneStoreKitDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneStoreKitDelegate.h; sourceTree = "<group>"; };
 		F824DE811AE5A37F0042E796 /* TuneStoreKitDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneStoreKitDelegate.m; sourceTree = "<group>"; };
 		F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdMetadata.h; sourceTree = "<group>"; };
@@ -431,7 +431,7 @@
 		F8A85C58196E0E760012927E /* TuneAdParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAdParams.h; sourceTree = "<group>"; };
 		F8A85C59196E0E760012927E /* TuneAdParams.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAdParams.m; sourceTree = "<group>"; };
 		F8A85C5C196E26620012927E /* Tune_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tune_internal.h; sourceTree = "<group>"; };
-		F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileAppTrackerTests_tvos.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileAppTrackerTests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8B71E5C1B55E4C0008E8215 /* TuneLocationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneLocationHelper.h; sourceTree = "<group>"; };
 		F8B71E5D1B55E4C0008E8215 /* TuneLocationHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneLocationHelper.m; sourceTree = "<group>"; };
 		F8B71E701B56F869008E8215 /* MATPreloadData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MATPreloadData.h; sourceTree = "<group>"; };
@@ -486,7 +486,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvos.framework in Frameworks */,
+				F8B3AB1B1BBC742F003E602A /* MobileAppTracker_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -562,9 +562,9 @@
 			children = (
 				4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */,
 				42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */,
-				F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */,
-				F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */,
-				F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */,
+				F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvOS.framework */,
+				F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchOS.framework */,
+				F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -588,8 +588,8 @@
 				F8B71E771B56FA55008E8215 /* MATEvent.m */,
 				F8B71E781B56FA55008E8215 /* MATEventItem.h */,
 				F8B71E791B56FA55008E8215 /* MATEventItem.m */,
-				F81439311BB9CF8300FFD87A /* MobileAppTracker_tvos.h */,
-				F81439321BB9CF8300FFD87A /* MobileAppTracker_watchos.h */,
+				F81439311BB9CF8300FFD87A /* MobileAppTracker_tvOS.h */,
+				F81439321BB9CF8300FFD87A /* MobileAppTracker_watchOS.h */,
 				4FDFA21515C7032400BEEC38 /* Tune.h */,
 				4FDFA21615C7032400BEEC38 /* Tune.m */,
 				F83044711A16D78A002CA9A1 /* TuneAdMetadata.h */,
@@ -774,7 +774,7 @@
 				F81438801BB9CCD200FFD87A /* TuneLocation.h in Headers */,
 				F81438811BB9CCD200FFD87A /* TuneSettings.h in Headers */,
 				F81438821BB9CCD200FFD87A /* TuneEvent.h in Headers */,
-				F81439361BB9D21400FFD87A /* MobileAppTracker_tvos.h in Headers */,
+				F81439361BB9D21400FFD87A /* MobileAppTracker_tvOS.h in Headers */,
 				F81438831BB9CCD200FFD87A /* TuneEventItem.h in Headers */,
 				F81438841BB9CCD200FFD87A /* TuneLocation_internal.h in Headers */,
 				F81438851BB9CCD200FFD87A /* TunePreloadData.h in Headers */,
@@ -816,7 +816,7 @@
 				F81438ED1BB9CCDD00FFD87A /* TuneSettings.h in Headers */,
 				F81438EE1BB9CCDD00FFD87A /* TuneEvent.h in Headers */,
 				F81438EF1BB9CCDD00FFD87A /* TuneEventItem.h in Headers */,
-				F81439371BB9D21900FFD87A /* MobileAppTracker_watchos.h in Headers */,
+				F81439371BB9D21900FFD87A /* MobileAppTracker_watchOS.h in Headers */,
 				F81438F01BB9CCDD00FFD87A /* TuneLocation_internal.h in Headers */,
 				F81438F11BB9CCDD00FFD87A /* TunePreloadData.h in Headers */,
 				F81438F51BB9CCDD00FFD87A /* Tune.h in Headers */,
@@ -847,9 +847,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_ios */ = {
+		42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_ios" */;
+			buildConfigurationList = 42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_iOS" */;
 			buildPhases = (
 				42EAA53C1860F4B800041A8D /* Sources */,
 				42EAA53D1860F4B800041A8D /* Frameworks */,
@@ -859,7 +859,7 @@
 			);
 			dependencies = (
 			);
-			name = MobileAppTrackerTests_ios;
+			name = MobileAppTrackerTests_iOS;
 			productName = "Tune Tests";
 			productReference = 42EAA5401860F4B800041A8D /* MobileAppTracker Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -882,9 +882,9 @@
 			productReference = 4FDFA18215C700D300BEEC38 /* MobileAppTracker.framework */;
 			productType = "com.apple.product-type.framework.static";
 		};
-		F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */ = {
+		F81438461BB9CCD200FFD87A /* MobileAppTracker_tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvos" */;
+			buildConfigurationList = F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvOS" */;
 			buildPhases = (
 				F81438481BB9CCD200FFD87A /* Sources */,
 				F81438751BB9CCD200FFD87A /* Frameworks */,
@@ -895,14 +895,14 @@
 			);
 			dependencies = (
 			);
-			name = MobileAppTracker_tvos;
+			name = MobileAppTracker_tvOS;
 			productName = Tune;
-			productReference = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvos.framework */;
+			productReference = F81438B01BB9CCD200FFD87A /* MobileAppTracker_tvOS.framework */;
 			productType = "com.apple.product-type.framework.static";
 		};
-		F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchos */ = {
+		F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchos" */;
+			buildConfigurationList = F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchOS" */;
 			buildPhases = (
 				F81438B41BB9CCDD00FFD87A /* Sources */,
 				F81438E11BB9CCDD00FFD87A /* Frameworks */,
@@ -913,14 +913,14 @@
 			);
 			dependencies = (
 			);
-			name = MobileAppTracker_watchos;
+			name = MobileAppTracker_watchOS;
 			productName = Tune;
-			productReference = F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchos.framework */;
+			productReference = F814391C1BB9CCDD00FFD87A /* MobileAppTracker_watchOS.framework */;
 			productType = "com.apple.product-type.framework.static";
 		};
-		F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvos */ = {
+		F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvos" */;
+			buildConfigurationList = F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvOS" */;
 			buildPhases = (
 				F8B3AAF81BBC7232003E602A /* Sources */,
 				F8B3AAF91BBC7232003E602A /* Frameworks */,
@@ -931,9 +931,9 @@
 			dependencies = (
 				F8B3AB061BBC7252003E602A /* PBXTargetDependency */,
 			);
-			name = MobileAppTrackerTests_tvos;
+			name = MobileAppTrackerTests_tvOS;
 			productName = MobileAppTrackerTests_tvos;
-			productReference = F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvos.xctest */;
+			productReference = F8B3AAFC1BBC7232003E602A /* MobileAppTrackerTests_tvOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -970,13 +970,13 @@
 			projectRoot = "";
 			targets = (
 				4FDFA18115C700D300BEEC38 /* MobileAppTracker */,
-				42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_ios */,
-				F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */,
-				F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvos */,
-				F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchos */,
-				F814391E1BB9CD2F00FFD87A /* MatUniversal_ios */,
-				F81439241BB9CD7F00FFD87A /* MatUniversal_tvos */,
-				F814392A1BB9CD8A00FFD87A /* MatUniversal_watchos */,
+				42EAA53F1860F4B800041A8D /* MobileAppTrackerTests_iOS */,
+				F81438461BB9CCD200FFD87A /* MobileAppTracker_tvOS */,
+				F8B3AAFB1BBC7232003E602A /* MobileAppTrackerTests_tvOS */,
+				F81438B21BB9CCDD00FFD87A /* MobileAppTracker_watchOS */,
+				F814391E1BB9CD2F00FFD87A /* MatUniversal_iOS */,
+				F81439241BB9CD7F00FFD87A /* MatUniversal_tvOS */,
+				F814392A1BB9CD8A00FFD87A /* MatUniversal_watchOS */,
 			);
 		};
 /* End PBXProject section */
@@ -1049,7 +1049,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "TARGET_OS=appletv\nPLATFORM_SUFFIX=_tvos\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
+			shellScript = "TARGET_OS=appletv\nPLATFORM_SUFFIX=_tvOS\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
 		};
 		F814392B1BB9CD8A00FFD87A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1062,7 +1062,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "TARGET_OS=watch\nPLATFORM_SUFFIX=_watchos\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
+			shellScript = "TARGET_OS=watch\nPLATFORM_SUFFIX=_watchOS\n\nUNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}-universal\nPROJECT_BUILD_OUTPUT_FOLDER=${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: Detected, stopping\"\nelse\nexport ALREADYINVOKED=\"true\"\n\n# Step 0. Ensure that the universal binary output folder exists.\nmkdir -p \"${UNIVERSAL_OUTPUT_FOLDER}\"\nmkdir -p \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${PROJECT_NAME}${PLATFORM_SUFFIX}\" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\necho \"cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework ${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 2. Copy the framework structure (from ${TARGET_OS}os build) to the universal folder\ncp -R \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${UNIVERSAL_OUTPUT_FOLDER}\"\n\n# Step 3. Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}simulator/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\" \"${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework/${PROJECT_NAME}${PLATFORM_SUFFIX}\"\n\n# Step 4. Clean/create the build directory and copy the project resources.\nrm -rf \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\nrm -rf \"${SRCROOT}/build/${PROJECT_NAME}.build\"\nmkdir \"${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}\"\ncp -a \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\" \"${PROJECT_BUILD_OUTPUT_FOLDER}/${PROJECT_NAME}${PLATFORM_SUFFIX}.framework\"\n\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1243,7 +1243,7 @@
 /* Begin PBXTargetDependency section */
 		F8B3AB061BBC7252003E602A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F81438461BB9CCD200FFD87A /* MobileAppTracker_tvos */;
+			target = F81438461BB9CCD200FFD87A /* MobileAppTracker_tvOS */;
 			targetProxy = F8B3AB051BBC7252003E602A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1304,7 +1304,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -1346,7 +1346,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -1477,7 +1477,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1541,7 +1541,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -1609,7 +1609,7 @@
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1677,7 +1677,7 @@
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Testing;
@@ -1742,7 +1742,7 @@
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -1950,7 +1950,7 @@
 			buildSettings = {
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 			};
 			name = Debug;
 		};
@@ -1959,7 +1959,7 @@
 			buildSettings = {
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 			};
 			name = Testing;
 		};
@@ -1968,7 +1968,7 @@
 			buildSettings = {
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 			};
 			name = Release;
 		};
@@ -1979,7 +1979,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64 i386";
 			};
 			name = Debug;
 		};
@@ -1990,7 +1990,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64 i386";
 			};
 			name = Testing;
 		};
@@ -2001,7 +2001,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64 i386";
 			};
 			name = Release;
 		};
@@ -2070,11 +2070,11 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 			};
 			name = Debug;
 		};
@@ -2108,11 +2108,11 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 			};
 			name = Testing;
 		};
@@ -2150,11 +2150,11 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvos";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.MobileAppTrackerTests-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 x86_64";
 			};
 			name = Release;
 		};
@@ -2254,7 +2254,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Testing;
@@ -2292,7 +2292,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "MobileAppTracker Tests";
-				VALID_ARCHS = "arm64 armv7 armv7k x86_64 i386";
+				VALID_ARCHS = "arm64 armv7 x86_64 i386";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Testing;
@@ -2300,7 +2300,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_ios" */ = {
+		42EAA5521860F4B900041A8D /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				42EAA5501860F4B900041A8D /* Debug */,
@@ -2330,7 +2330,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvos" */ = {
+		F81438AC1BB9CCD200FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F81438AD1BB9CCD200FFD87A /* Debug */,
@@ -2340,7 +2340,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchos" */ = {
+		F81439181BB9CCDD00FFD87A /* Build configuration list for PBXNativeTarget "MobileAppTracker_watchOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F81439191BB9CCDD00FFD87A /* Debug */,
@@ -2350,7 +2350,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_ios" */ = {
+		F814391F1BB9CD3000FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F81439201BB9CD3000FFD87A /* Debug */,
@@ -2360,7 +2360,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvos" */ = {
+		F81439261BB9CD7F00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F81439271BB9CD7F00FFD87A /* Debug */,
@@ -2370,7 +2370,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchos" */ = {
+		F814392C1BB9CD8A00FFD87A /* Build configuration list for PBXAggregateTarget "MatUniversal_watchOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F814392D1BB9CD8A00FFD87A /* Debug */,
@@ -2380,7 +2380,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvos" */ = {
+		F8B3AB011BBC7232003E602A /* Build configuration list for PBXNativeTarget "MobileAppTrackerTests_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F8B3AB021BBC7232003E602A /* Debug */,

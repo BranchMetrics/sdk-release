@@ -29,7 +29,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"3.15.0"
+#define TUNEVERSION @"3.17.1"
 
 
 #pragma mark - enumerated types
@@ -185,11 +185,13 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  */
 + (void)setCurrencyCode:(NSString *)currencyCode;
 
+#if TARGET_OS_IOS
 /*!
  Sets the jailbroken device flag.
  @param jailbroken The jailbroken device flag.
  */
 + (void)setJailbroken:(BOOL)jailbroken;
+#endif
 
 /*!
  Sets the package name (bundle identifier).
@@ -206,9 +208,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
  @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
  */
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect;
-#endif
 
-#if TARGET_OS_IOS
 /*!
  Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
  YES/NO

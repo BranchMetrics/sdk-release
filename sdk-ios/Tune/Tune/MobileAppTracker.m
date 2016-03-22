@@ -266,10 +266,12 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
     [Tune setCurrencyCode:currencyCode];
 }
 
+#if TARGET_OS_IOS
 + (void)setJailbroken:(BOOL)jailbroken
 {
     [Tune setJailbroken:jailbroken];
 }
+#endif
 
 + (void)setPackageName:(NSString *)packageName
 {
@@ -281,9 +283,7 @@ static TuneRegionDelegateForMat *matTuneRegionDelegate;
 {
     [Tune setShouldAutoCollectAppleAdvertisingIdentifier:autoCollect];
 }
-#endif
 
-#if TARGET_OS_IOS
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
 {
     [Tune setShouldAutoCollectDeviceLocation:autoCollect];

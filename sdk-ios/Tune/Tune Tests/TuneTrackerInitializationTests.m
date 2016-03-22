@@ -59,6 +59,7 @@
     [super tearDown];
 }
 
+#if TARGET_OS_IOS
 - (void)testAutodetectJailbroken
 {
     [tune startTrackerWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey wearable:NO];
@@ -67,6 +68,7 @@
     
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+
     ASSERT_KEY_VALUE( TUNE_KEY_OS_JAILBROKE, @"0" );
 }
 
@@ -81,6 +83,7 @@
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_OS_JAILBROKE );
 }
+#endif
 
 - (void)testAutogenerateIFV
 {

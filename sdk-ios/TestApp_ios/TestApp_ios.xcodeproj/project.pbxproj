@@ -19,7 +19,7 @@
 
 /* Begin PBXFileReference section */
 		F82615131BBDFA2F00B7665B /* TUNE_WordMark_Color.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TUNE_WordMark_Color.png; sourceTree = "<group>"; };
-		F84F6B0E1BBBAF55003B25A4 /* TestApp_ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_ios.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F84F6B0E1BBBAF55003B25A4 /* TestApp_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84F6B121BBBAF55003B25A4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F84F6B141BBBAF55003B25A4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F84F6B151BBBAF55003B25A4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -48,7 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				F86FB7EB1BD5627200C96335 /* MobileAppTracker.framework */,
-				F84F6B101BBBAF55003B25A4 /* TestApp_ios */,
+				F84F6B101BBBAF55003B25A4 /* TestApp_iOS */,
 				F84F6B0F1BBBAF55003B25A4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,12 +56,12 @@
 		F84F6B0F1BBBAF55003B25A4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F84F6B0E1BBBAF55003B25A4 /* TestApp_ios.app */,
+				F84F6B0E1BBBAF55003B25A4 /* TestApp_iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F84F6B101BBBAF55003B25A4 /* TestApp_ios */ = {
+		F84F6B101BBBAF55003B25A4 /* TestApp_iOS */ = {
 			isa = PBXGroup;
 			children = (
 				F84F6B141BBBAF55003B25A4 /* AppDelegate.h */,
@@ -74,7 +74,8 @@
 				F84F6B221BBBAF55003B25A4 /* Info.plist */,
 				F84F6B111BBBAF55003B25A4 /* Supporting Files */,
 			);
-			path = TestApp_ios;
+			name = TestApp_iOS;
+			path = ../TestApp_iOS/TestApp_iOS;
 			sourceTree = "<group>";
 		};
 		F84F6B111BBBAF55003B25A4 /* Supporting Files */ = {
@@ -89,9 +90,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F84F6B0D1BBBAF55003B25A4 /* TestApp_ios */ = {
+		F84F6B0D1BBBAF55003B25A4 /* TestApp_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F84F6B251BBBAF55003B25A4 /* Build configuration list for PBXNativeTarget "TestApp_ios" */;
+			buildConfigurationList = F84F6B251BBBAF55003B25A4 /* Build configuration list for PBXNativeTarget "TestApp_iOS" */;
 			buildPhases = (
 				F84F6B0A1BBBAF55003B25A4 /* Sources */,
 				F84F6B0B1BBBAF55003B25A4 /* Frameworks */,
@@ -101,9 +102,9 @@
 			);
 			dependencies = (
 			);
-			name = TestApp_ios;
+			name = TestApp_iOS;
 			productName = TestApp;
-			productReference = F84F6B0E1BBBAF55003B25A4 /* TestApp_ios.app */;
+			productReference = F84F6B0E1BBBAF55003B25A4 /* TestApp_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -120,7 +121,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F84F6B091BBBAF55003B25A4 /* Build configuration list for PBXProject "TestApp_ios" */;
+			buildConfigurationList = F84F6B091BBBAF55003B25A4 /* Build configuration list for PBXProject "TestApp_iOS" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -133,7 +134,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F84F6B0D1BBBAF55003B25A4 /* TestApp_ios */,
+				F84F6B0D1BBBAF55003B25A4 /* TestApp_iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -272,12 +273,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/iphone/Release;
-				INFOPLIST_FILE = TestApp_ios/Info.plist;
+				INFOPLIST_FILE = TestApp_iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-ios";
-				PRODUCT_NAME = TestApp_ios;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
+				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -287,12 +288,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/iphone/Release;
-				INFOPLIST_FILE = TestApp_ios/Info.plist;
+				INFOPLIST_FILE = TestApp_iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-ios";
-				PRODUCT_NAME = TestApp_ios;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
+				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -300,7 +301,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F84F6B091BBBAF55003B25A4 /* Build configuration list for PBXProject "TestApp_ios" */ = {
+		F84F6B091BBBAF55003B25A4 /* Build configuration list for PBXProject "TestApp_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84F6B231BBBAF55003B25A4 /* Debug */,
@@ -309,7 +310,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F84F6B251BBBAF55003B25A4 /* Build configuration list for PBXNativeTarget "TestApp_ios" */ = {
+		F84F6B251BBBAF55003B25A4 /* Build configuration list for PBXNativeTarget "TestApp_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F84F6B261BBBAF55003B25A4 /* Debug */,

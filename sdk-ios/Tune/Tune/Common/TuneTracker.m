@@ -19,6 +19,7 @@
 #import "TuneFBBridge.h"
 #import "TuneIfa.h"
 #import "TuneKeyStrings.h"
+#import "TuneLocation_internal.h"
 #import "TuneLocationHelper.h"
 #import "TuneRegionMonitor.h"
 #import "TuneSettings.h"
@@ -125,9 +126,7 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         [self setShouldAutoDetectJailbroken:YES];
 #if TARGET_OS_IOS
         [self setShouldAutoCollectDeviceLocation:YES];
-#endif
-        
-#if !TARGET_OS_WATCH
+
         // enable IFA auto-collection and auto-collect IFA
         [self setShouldAutoCollectAppleAdvertisingIdentifier:YES];
         
@@ -454,23 +453,22 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         
         if(locationEnabled)
         {
-            TuneLocation *location = [TuneLocationHelper getOrRequestDeviceLocation];
-            if (location)
+            // try accessing location
+            NSMutableArray *arr = [NSMutableArray arrayWithCapacity:1];
+            [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
+            
+            if(1 > arr.count)
             {
-                event.location = location;
-            }
-            else
-            {
-                DLog(@"delaying event request to wait for location update");
-                // delay event request by a few seconds to allow location update
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, TUNE_LOCATION_UPDATE_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                    DLog(@"firing delayed location check");
-                    event.location = [TuneLocationHelper getOrRequestDeviceLocation];
-                    
-                    [self sendRequestAndCheckIadAttributionForEvent:event];
-                });
+                // wait for location update to finish
+                [NSThread sleepForTimeInterval:TUNE_LOCATION_UPDATE_DELAY];
                 
-                return;
+                // retry accessing location
+                [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
+            }
+            
+            if(1 == arr.count)
+            {
+                event.location = arr[0];
             }
         }
     }
@@ -549,14 +547,12 @@ const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
         self.parameters.jailbroken = nil;
 }
 
-#if TARGET_OS_IOS
+#if !TARGET_OS_WATCH
 - (void)setShouldAutoCollectDeviceLocation:(BOOL)shouldAutoCollect
 {
     self.shouldCollectDeviceLocation = shouldAutoCollect;
 }
-#endif
 
-#if !TARGET_OS_WATCH
 - (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)shouldAutoCollect
 {
     self.shouldCollectAdvertisingIdentifier = shouldAutoCollect;

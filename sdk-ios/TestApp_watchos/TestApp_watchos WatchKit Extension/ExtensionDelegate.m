@@ -1,6 +1,6 @@
 //
 //  ExtensionDelegate.m
-//  TestApp_watchos WatchKit Extension
+//  TestApp_watchOS WatchKit Extension
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -48,19 +48,19 @@
     //NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     //NSLog(@"Tune watch success: %@", dict);
     
-    NSLog(@"Tune watchos success");
+    NSLog(@"Tune watchOS success");
 }
 
 // Tune failure callback
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    NSLog(@"Tune watchos error: %@", error);
+    NSLog(@"Tune watchOS error: %@", error);
 }
 
 // Tune request enqueued
 - (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
 {
-    NSLog(@"Tune watchos enqueued request: refId = %@", referenceId);
+    NSLog(@"Tune watchOS enqueued request: refId = %@", referenceId);
 }
 
 @end

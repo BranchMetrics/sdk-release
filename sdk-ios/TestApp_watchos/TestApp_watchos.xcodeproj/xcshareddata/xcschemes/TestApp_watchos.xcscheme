@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F8D75B9F1BC5CA15001DD213"
-               BuildableName = "TestApp_watchos.app"
-               BlueprintName = "TestApp_watchos"
-               ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+               BuildableName = "TestApp_watchOS.app"
+               BlueprintName = "TestApp_watchOS"
+               ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75B9F1BC5CA15001DD213"
-            BuildableName = "TestApp_watchos.app"
-            BlueprintName = "TestApp_watchos"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75B9F1BC5CA15001DD213"
-            BuildableName = "TestApp_watchos.app"
-            BlueprintName = "TestApp_watchos"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -75,9 +75,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F8D75B9F1BC5CA15001DD213"
-            BuildableName = "TestApp_watchos.app"
-            BlueprintName = "TestApp_watchos"
-            ReferencedContainer = "container:TestApp_watchos.xcodeproj">
+            BuildableName = "TestApp_watchOS.app"
+            BlueprintName = "TestApp_watchOS"
+            ReferencedContainer = "container:TestApp_watchOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

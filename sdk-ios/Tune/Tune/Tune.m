@@ -199,16 +199,14 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-#if TARGET_OS_IOS
+#if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
 {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] setShouldAutoCollectDeviceLocation:autoCollect];
     }];
 }
-#endif
 
-#if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
 {
     [opQueue addOperationWithBlock:^{
@@ -305,7 +303,7 @@ static NSOperationQueue *opQueue = nil;
 + (void)setLocation:(TuneLocation *)location
 {
     [opQueue addOperationWithBlock:^{
-#if TARGET_OS_IOS
+#if !TARGET_OS_WATCH
         [[self sharedManager] setShouldAutoCollectDeviceLocation:NO];
 #endif
         [self sharedManager].parameters.location = location;

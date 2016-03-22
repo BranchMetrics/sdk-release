@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  TestApp_tvos
+//  TestApp_tvOS
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -8,11 +8,10 @@
 
 #import "AppDelegate.h"
 
-#import <AdSupport/ASIdentifierManager.h>
+NSString * const MAT_ADVERTISER_ID  = @"<your_tune_advertiser_id>";
+NSString * const MAT_CONVERSION_KEY = @"<your_tune_conversion_key>";
+NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
 
-NSString * const MAT_ADVERTISER_ID  = @"877";
-NSString * const MAT_CONVERSION_KEY = @"40c19f41ef0ec2d433f595f0880d39b9";
-NSString * const MAT_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 
 @interface AppDelegate () <TuneDelegate>
 
@@ -28,7 +27,7 @@ NSString * const MAT_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
     
     [Tune setDelegate:self];
     
-    [Tune setDebugMode:YES];
+    //[Tune setDebugMode:YES];
     [Tune setAllowDuplicateRequests:YES];
     
     // set your MAT advertiser id and conversion key
@@ -73,25 +72,25 @@ NSString * const MAT_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 {
     NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     
-    NSLog(@"Tune tvos success: %@", dict);
+    NSLog(@"Tune tvOS success: %@", dict);
 }
 
 // Tune failure callback
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    NSLog(@"Tune tvos error: %@", error);
+    NSLog(@"Tune tvOS error: %@", error);
 }
 
 // Tune request enqueued
 - (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
 {
-    NSLog(@"Tune tvos enqueued request: refId = %@", referenceId);
+    NSLog(@"Tune tvOS enqueued request: refId = %@", referenceId);
 }
 
 // Tune deeplink received
 - (void)tuneDidReceiveDeeplink:(NSString *)deeplink
 {
-    NSLog(@"Tune tvos deferred deeplink = %@", deeplink);
+    NSLog(@"Tune tvOS deferred deeplink = %@", deeplink);
     
     if(deeplink)
     {
@@ -102,7 +101,7 @@ NSString * const MAT_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 // Tune deeplink request failed
 -(void)tuneDidFailDeeplinkWithError:(NSError *)error
 {
-    NSLog(@"Tune tvos deeplink error: %@", error);
+    NSLog(@"Tune tvOS deeplink error: %@", error);
 }
 
 @end
