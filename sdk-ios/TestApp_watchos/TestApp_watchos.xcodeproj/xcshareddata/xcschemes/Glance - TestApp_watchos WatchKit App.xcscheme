@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0710"
+   LastUpgradeVersion = "0720"
    version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -80,7 +80,7 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "4"
-      notificationPayloadFile = "TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
+      notificationPayloadFile = "../TestApp_watchOS/TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.carousel"
@@ -112,7 +112,7 @@
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "4"
-      notificationPayloadFile = "TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
+      notificationPayloadFile = "../TestApp_watchOS/TestApp_watchOS WatchKit Extension/PushNotificationPayload.apns">
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.carousel"

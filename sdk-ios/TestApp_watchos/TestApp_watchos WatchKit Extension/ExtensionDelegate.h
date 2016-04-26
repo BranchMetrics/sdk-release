@@ -1,6 +1,6 @@
 //
 //  ExtensionDelegate.h
-//  TestApp_watchOS WatchKit Extension
+//  TestApp_watchos WatchKit Extension
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -8,7 +8,7 @@
 
 #import <WatchKit/WatchKit.h>
 
-@import MobileAppTrackerTestApp_watchOS;
+@import Tune_watchOS;
 
 @import MobileCoreServices;
 

@@ -7,17 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F829F47A1C179A2F00F89E64 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F829F4791C179A2F00F89E64 /* AdSupport.framework */; };
+		F80462721C3B1B71005C6652 /* TuneConfiguration.plist in Resources */ = {isa = PBXBuildFile; fileRef = F80462711C3B1B71005C6652 /* TuneConfiguration.plist */; };
+		F8465FFC1C3B2978005C42CC /* Tune_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8465FFB1C3B2978005C42CC /* Tune_tvOS.framework */; };
 		F8C0E5B51BC5CA9300942D8D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B41BC5CA9300942D8D /* main.m */; };
 		F8C0E5B81BC5CA9300942D8D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5B71BC5CA9300942D8D /* AppDelegate.m */; };
 		F8C0E5BB1BC5CA9300942D8D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8C0E5BA1BC5CA9300942D8D /* ViewController.m */; };
 		F8C0E5BE1BC5CA9300942D8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F8C0E5BC1BC5CA9300942D8D /* Main.storyboard */; };
 		F8C0E5C01BC5CA9300942D8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F8C0E5BF1BC5CA9300942D8D /* Assets.xcassets */; };
-		F8C6353C1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */; };
+		F8C81C0C1CA61567005C7B5D /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8C81C0B1CA61567005C7B5D /* AdSupport.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F829F4791C179A2F00F89E64 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		F80462711C3B1B71005C6652 /* TuneConfiguration.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TuneConfiguration.plist; sourceTree = "<group>"; };
+		F8465FFB1C3B2978005C42CC /* Tune_tvOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Tune_tvOS.framework; path = "../Tune/build/Debug-appletvos/Tune_tvOS.framework"; sourceTree = "<group>"; };
 		F8C0E5B01BC5CA9300942D8D /* TestApp_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8C0E5B41BC5CA9300942D8D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F8C0E5B61BC5CA9300942D8D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -27,7 +29,7 @@
 		F8C0E5BD1BC5CA9300942D8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F8C0E5BF1BC5CA9300942D8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F8C0E5C11BC5CA9300942D8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_tvOS.framework; path = "../Tune/build/Release-appletvos/MobileAppTracker_tvOS.framework"; sourceTree = "<group>"; };
+		F8C81C0B1CA61567005C7B5D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,8 +37,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8C6353C1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework in Frameworks */,
-				F829F47A1C179A2F00F89E64 /* AdSupport.framework in Frameworks */,
+				F8C81C0C1CA61567005C7B5D /* AdSupport.framework in Frameworks */,
+				F8465FFC1C3B2978005C42CC /* Tune_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,8 +48,8 @@
 		F8C0E5A71BC5CA9300942D8D = {
 			isa = PBXGroup;
 			children = (
-				F8C6353B1C7684BE00E5CD00 /* MobileAppTracker_tvOS.framework */,
-				F829F4791C179A2F00F89E64 /* AdSupport.framework */,
+				F8C81C0B1CA61567005C7B5D /* AdSupport.framework */,
+				F8465FFB1C3B2978005C42CC /* Tune_tvOS.framework */,
 				F8C0E5B21BC5CA9300942D8D /* TestApp_tvOS */,
 				F8C0E5B11BC5CA9300942D8D /* Products */,
 			);
@@ -80,6 +82,7 @@
 		F8C0E5B31BC5CA9300942D8D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F80462711C3B1B71005C6652 /* TuneConfiguration.plist */,
 				F8C0E5B41BC5CA9300942D8D /* main.m */,
 			);
 			name = "Supporting Files";
@@ -144,6 +147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F8C0E5C01BC5CA9300942D8D /* Assets.xcassets in Resources */,
+				F80462721C3B1B71005C6652 /* TuneConfiguration.plist in Resources */,
 				F8C0E5BE1BC5CA9300942D8D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,12 +265,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				INFOPLIST_FILE = TestApp_tvOS/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = ../Tune/build/appletv/Release;
+				INFOPLIST_FILE = TestApp_tvos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvOS";
 				PRODUCT_NAME = TestApp_tvOS;
-				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -276,12 +283,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				INFOPLIST_FILE = TestApp_tvOS/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = ../Tune/build/appletv/Release;
+				INFOPLIST_FILE = TestApp_tvos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-tvOS";
 				PRODUCT_NAME = TestApp_tvOS;
-				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

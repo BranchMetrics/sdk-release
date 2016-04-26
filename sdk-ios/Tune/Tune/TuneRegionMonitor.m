@@ -7,9 +7,9 @@
 //
 
 #import "TuneRegionMonitor.h"
-#import "Tune.h"
-#import "Common/TuneEvent_internal.h"
-#import "Common/TuneKeyStrings.h"
+#import "Tune+Internal.h"
+#import "TuneEvent+Internal.h"
+#import "TuneKeyStrings.h"
 
 #ifdef TUNE_USE_LOCATION
 #import <CoreLocation/CoreLocation.h>

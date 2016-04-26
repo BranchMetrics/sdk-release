@@ -1,6 +1,0 @@
-framework module MobileAppTracker_tvOS {
-  umbrella header "MobileAppTracker_tvOS.h"
-
-  export *
-  module * { export * }
-}

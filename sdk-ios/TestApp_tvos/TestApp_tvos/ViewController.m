@@ -1,15 +1,14 @@
 //
 //  ViewController.m
-//  TestApp_tvOS
+//  TestApp_tvos
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
 //
 #import "ViewController.h"
 
+@import Tune_tvOS;
 @import AdSupport;
-@import MobileAppTracker_tvOS;
-
 @import CoreLocation;
 
 @interface ViewController () <CLLocationManagerDelegate>
@@ -25,8 +24,6 @@ CLLocationManager *singleLocationManager;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
-    //NSLog(@"tv ifa = %@", [[ASIdentifierManager sharedManager] advertisingIdentifier]);
     
     NSLog(@"TV ViewController loaded");
     
@@ -58,16 +55,12 @@ CLLocationManager *singleLocationManager;
     
     [[[NSURLSession sharedSession] dataTaskWithURL:urlClick completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         NSLog(@"click response: response = %@, error = %@", response, error);
-        if(response.URL)
-        {
-            [[UIApplication sharedApplication] openURL:response.URL];
-        }
     }] resume];
 }
 
 - (IBAction)tapSession:(id)sender
 {
-    NSLog(@"session fired from TV app");
+    NSLog(@"event fired from TV app");
     
     [Tune measureSession];
 }

@@ -1,0 +1,50 @@
+{
+    "power_hooks": {
+        "itemsToDisplay" : {
+            "value" : "10",
+            "experiment_value" : "55",
+            "start_date" : "2008-08-26T13:38:20Z",
+            "end_date" : "2115-08-26T13:38:20Z",
+            "variation_id" : "abc",
+            "experiment_id" : "123"
+        },
+        "showMainScreen" : {
+            "value" : "YES",
+            "experiment_value" : "NO",
+            "start_date" : "2008-08-26T13:38:20Z",
+            "end_date" : "2115-08-26T13:38:20Z",
+            "variation_id" : "def",
+            "experiment_id" : "456"
+        }
+    },
+    "experiment_details": {
+        "123" : {
+            "name" : "Number of Items to Display Experiment",
+            "id" : "123",
+            "type" : "power_hook",
+            "current_variation" : {
+                "id" : "abc",
+                "name" : "Variation A"
+            }
+        },
+        "456" : {
+            "name" : "Testing w/ Main screen hidden",
+            "id" : "456",
+            "type" : "power_hook",
+            "current_variation" : {
+                "id" : "def",
+                "name" : "Variation B"
+            }
+        },
+        "789" : {
+            "name" : "Testing a Message",
+            "id" : "789",
+            "type" : "in_app",
+            "current_variation" : {
+                "id" : "foobar",
+                "name" : "Variation B"
+            }
+        }
+    }
+    "schema_version": "1.0"
+}

@@ -1,0 +1,339 @@
+//
+//  TuneAnalyticsManagerTests.m
+//  TuneMarketingConsoleSDK
+//
+//  Created by Daniel Koch on 8/24/15.
+//  Copyright (c) 2015 Tune. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import <OCMock/OCMock.h>
+
+#import "SimpleObserver.h"
+#import "Tune+Testing.h"
+#import "TuneAnalyticsConstants.h"
+#import "TuneAnalyticsDispatchEventsOperation.h"
+#import "TuneAnalyticsDispatchToConnectedModeOperation.h"
+#import "TuneAnalyticsEvent.h"
+#import "TuneAnalyticsManager+Testing.h"
+#import "TuneAnalyticsVariable.h"
+#import "TuneBlankViewController.h"
+#import "TuneConfiguration.h"
+#import "TuneEvent+Internal.h"
+#import "TuneEventItem+Internal.h"
+#import "TuneFileManager.h"
+#import "TuneJSONUtils.h"
+#import "TuneManager.h"
+#import "TuneSkyhookCenter.h"
+#import "TuneSkyhookPayloadConstants.h"
+#import "TuneState.h"
+
+@interface TuneAnalyticsManagerTests : XCTestCase
+{
+    id mockApplication;
+    id mockTimer;
+    id mockOperationQueue;
+    
+    TuneAnalyticsManager *analyticsManager;
+    id fileManagerMock;
+    TuneConfiguration *configuration;
+    
+    SimpleObserver *simpleObserver;
+    
+    NSUInteger dispatchCount;
+    NSUInteger connectedModeDispatchCount;
+}
+@end
+
+@implementation TuneAnalyticsManagerTests
+
+- (void)setUp {
+    [super setUp];
+    
+    RESET_EVERYTHING();
+    // Don't let the automatically made analyticsmanager act on any skyhooks
+    [[TuneSkyhookCenter defaultCenter] removeObserver:[TuneManager currentManager].analyticsManager];
+
+    mockApplication = OCMClassMock([UIApplication class]);
+    OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);
+    
+    mockTimer = OCMClassMock([NSTimer class]);
+    
+    TuneAnalyticsManager *baseManager = [[TuneAnalyticsManager alloc] initWithTuneManager:[TuneManager currentManager]];
+    analyticsManager = OCMPartialMock(baseManager);
+    mockOperationQueue = OCMPartialMock([analyticsManager operationQueue]);
+    OCMStub([mockOperationQueue addOperation:[OCMArg isKindOfClass:[TuneAnalyticsDispatchEventsOperation class]]]).andCall(self, @selector(addedDispatchOperation:));
+    OCMStub([mockOperationQueue addOperation:[OCMArg isKindOfClass:[TuneAnalyticsDispatchToConnectedModeOperation class]]]).andCall(self, @selector(addedConnectedDispatchOperation:));
+    OCMStub([analyticsManager operationQueue]).andReturn(mockOperationQueue);
+    
+    fileManagerMock = OCMClassMock([TuneFileManager class]);
+    
+    [analyticsManager.tuneManager setAnalyticsManager:analyticsManager];
+    [analyticsManager registerSkyhooks];
+    
+    configuration = [[TuneConfiguration alloc] initWithTuneManager:[TuneManager currentManager]];
+    configuration.analyticsDispatchPeriod = @(3);
+    [TuneManager currentManager].configuration = configuration;
+    pointMAUrlsToNothing();
+    
+    simpleObserver = [[SimpleObserver alloc] init];
+    
+    dispatchCount = 0;
+}
+
+- (void)tearDown {
+    [TuneState updateConnectedMode: NO];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    [mockTimer stopMocking];
+    [mockOperationQueue stopMocking];
+    [mockApplication stopMocking];
+    [fileManagerMock stopMocking];
+    
+    [super tearDown];
+}
+
+- (void)testHandleCustomEvent {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    TuneEvent *event = [TuneEvent eventWithName:@"testAction"];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:self userInfo:@{ TunePayloadCustomEvent: event }];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        // assert action
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"action\":\"testAction\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"{\"controlEvent\":null,\"category\":\"Custom\",\"schemaVersion\":\"2.0\",\"control\":null,"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"type\":\"EVENT\""]);
+    }
+}
+
+- (void)testHandleCustomEventWithId {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    TuneEvent *event = [TuneEvent eventWithId:123];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:self userInfo:@{ TunePayloadCustomEvent: event }];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        // assert action
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"action\":\"123\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"{\"controlEvent\":null,\"category\":\"Custom\",\"schemaVersion\":\"2.0\",\"control\":null,"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"type\":\"EVENT\""]);
+    }
+}
+
+- (void)testHandleClearVariableCall {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    NSSet *analyticsToClear = [[NSSet alloc] initWithObjects:@"variable1", @"variable2", nil];
+    
+    TuneAnalyticsEvent *clearProfileEvent = [[TuneAnalyticsEvent alloc] initAsTracerEvent];
+    clearProfileEvent.action = TUNE_EVENT_ACTION_PROFILE_VARIABLES_CLEARED;
+    clearProfileEvent.category = @"variable1,variable2";
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneUserProfileVariablesCleared
+                                                     object:self
+                                                   userInfo:@{ TunePayloadProfileVariablesToClear: analyticsToClear }];
+    
+    XCTAssertTrue(dispatchCount == 1, @"Actually: %lu", (unsigned long)dispatchCount);
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"category\":\"variable1,variable2\""]);
+    }
+}
+
+- (void)testHandleSessionStart {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    XCTAssertTrue(dispatchCount == 1, @"Actually: %lu", (unsigned long)dispatchCount);
+    
+    [analyticsManager waitForOperationsToFinish];
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    
+    XCTAssertTrue([storedAnalytics count] == 1, @"Actually: %lu", (unsigned long)[storedAnalytics count]);
+    OCMVerify([mockTimer scheduledTimerWithTimeInterval:3
+                                                 target:[OCMArg any]
+                                               selector:[OCMArg anySelector]
+                                               userInfo:[OCMArg any]
+                                                repeats:YES]);
+}
+
+
+- (void)testConfirmNoDuplicateTimers {
+    OCMExpect([mockTimer scheduledTimerWithTimeInterval:3
+                                                 target:[OCMArg any]
+                                               selector:[OCMArg anySelector]
+                                               userInfo:[OCMArg any]
+                                                repeats:YES]);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    
+    OCMVerifyAll(mockTimer);
+}
+
+- (void)testHandleSessionStop {
+    OCMExpect([mockTimer invalidate]);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    [analyticsManager waitForOperationsToFinish];
+    
+    [TuneFileManager deleteAnalyticsFromDisk];
+    [analyticsManager setDispatchScheduler:mockTimer];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self];
+    
+    OCMVerifyAll(mockTimer);
+    XCTAssertTrue(dispatchCount == 2, @"Actually: %lu", (unsigned long)dispatchCount);
+    
+    [analyticsManager waitForOperationsToFinish];
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    XCTAssertTrue([storedAnalytics count] == 1, @"Actually: %lu", (unsigned long)[storedAnalytics count]);
+}
+
+- (void)testHandleViewControllerAppearedWritesEventWhenViewControllerIsValid {
+    OCMExpect([fileManagerMock saveAnalyticsEventToDisk:OCMOCK_ANY withId:OCMOCK_ANY]);
+    
+    TuneBlankViewController *viewController = [[TuneBlankViewController alloc] init];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneViewControllerAppeared object:viewController];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    OCMVerifyAll(fileManagerMock);
+}
+
+- (void)testConfirmNoInvalidTimerInvalidation {
+    OCMStub([mockTimer invalidate]);
+    [analyticsManager setDispatchScheduler:nil];
+    
+    // Shouldn't throw an exception.
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self];
+}
+
+- (void)testConfirmNoDuplicateTimerInvalidation {
+    OCMExpect([mockTimer invalidate]);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    [analyticsManager setDispatchScheduler:mockTimer];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self];
+    
+    OCMVerifyAll(mockTimer);
+}
+
+#pragma mark - Session Variables
+
+//- (void)testSessionVariablesAreAddedToEvents {
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableName: @"VAR_NAME", TunePayloadSessionVariableValue: @"VAR_VALUE", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeTag }];
+//    
+//    TuneEvent *event = [TuneEvent eventWithName:@"SHRED"];
+//    OCMStub([fileManagerMock saveAnalyticsEventToDisk:OCMOCK_ANY withId:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
+//        NSString *eventToSaveJSON;
+//        [invocation getArgument:&eventToSaveJSON atIndex:2];
+//        XCTAssert([eventToSaveJSON containsString:@"VAR_NAME"]);
+//        XCTAssert([eventToSaveJSON containsString:@"VAR_VALUE"]);
+//    });
+//    
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: event }];
+//}
+
+//- (void)testSessionVariablesAreResetAtEndOfSession {
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableName: @"VAR_NAME", TunePayloadSessionVariableValue: @"VAR_VALUE", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeTag }];
+//    
+//    TuneEvent *event = [TuneEvent eventWithName:@"SHRED"];
+//    
+//    __block int saveCount = 0;
+//    OCMStub([fileManagerMock saveAnalyticsEventToDisk:OCMOCK_ANY withId:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
+//        
+//        if (saveCount == 0) {
+//            NSString *eventToSaveJSON;
+//            [invocation getArgument:&eventToSaveJSON atIndex:2];
+//            XCTAssert([eventToSaveJSON containsString:@"VAR_NAME"]);
+//            XCTAssert([eventToSaveJSON containsString:@"VAR_VALUE"]);
+//        }
+//        
+//        if (saveCount == 3) {
+//            NSString *eventToSaveJSON2;
+//            [invocation getArgument:&eventToSaveJSON2 atIndex:2];
+//            XCTAssertFalse([eventToSaveJSON2 containsString:@"VAR_NAME"], @"Actually: %@", eventToSaveJSON2);
+//            XCTAssertFalse([eventToSaveJSON2 containsString:@"VAR_VALUE"], @"Actually: %@", eventToSaveJSON2);
+//        }
+//        
+//        saveCount++;
+//    });
+//    
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: event }];
+//    
+//    // End/Start session
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd];
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart];
+//    
+//    [analyticsManager waitForOperationsToFinish];
+//    
+//    TuneEvent *event2 = [TuneEvent eventWithName:@"SHRED2"];
+//    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: event2 }];
+//    
+//    [analyticsManager waitForOperationsToFinish];
+//}
+
+- (void)testStartOfConnectedMode {
+    OCMExpect([mockTimer invalidate]);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self];
+    [analyticsManager setDispatchScheduler:mockTimer];
+    [analyticsManager waitForOperationsToFinish];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneStateTMAConnectedModeTurnedOn object:self userInfo:nil];
+    
+    OCMVerifyAll(mockTimer);
+}
+
+- (void)testDispatchWhenInConnectedMode {
+    [TuneState updateConnectedMode: YES];
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    TuneEvent *event = [TuneEvent eventWithName:@"testAction"];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:self userInfo:@{ TunePayloadCustomEvent: event }];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    // Confirm that we correctly dispatched to connected mode.
+    XCTAssertTrue(connectedModeDispatchCount == 1, @"Actually: %lu", (unsigned long)connectedModeDispatchCount);
+    XCTAssertTrue(dispatchCount == 0, @"Actually: %lu", (unsigned long)dispatchCount);
+    
+    // Confirm that the event wasn't stored locally.
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    XCTAssertTrue([storedAnalytics count] == 0);
+}
+
+#pragma mark - Helpers
+
+- (void)addedDispatchOperation:(NSOperation *) operation {
+    dispatchCount ++;
+}
+
+- (void)addedConnectedDispatchOperation:(NSOperation *) operation {
+    connectedModeDispatchCount ++;
+}
+
+@end

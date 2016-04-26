@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 
+@class TuneLocation;
+
 /*!
  TuneEventItem represents event items for use with Tune events.
  */
@@ -18,40 +20,40 @@
 /*!
  name of the event item
  */
-@property (nonatomic, copy) NSString *item;
+@property(nonatomic, copy) NSString *item;
 /*!
  unit price of the event item
  */
-@property (nonatomic, assign) CGFloat unitPrice;
+@property(nonatomic, assign) CGFloat unitPrice;
 /*!
  quantity of the event item
  */
-@property (nonatomic, assign) NSUInteger quantity;
+@property(nonatomic, assign) NSUInteger quantity;
 /*!
  revenue of the event item
  */
-@property (nonatomic, assign) CGFloat revenue;
+@property(nonatomic, assign) CGFloat revenue;
 
 /*!
  an extra parameter that corresponds to attribute_sub1 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute1;
+@property(nonatomic, copy) NSString *attribute1;
 /*!
  an extra parameter that corresponds to attribute_sub2 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute2;
+@property(nonatomic, copy) NSString *attribute2;
 /*!
  an extra parameter that corresponds to attribute_sub3 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute3;
+@property(nonatomic, copy) NSString *attribute3;
 /*!
  an extra parameter that corresponds to attribute_sub4 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute4;
+@property(nonatomic, copy) NSString *attribute4;
 /*!
  an extra parameter that corresponds to attribute_sub5 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute5;
+@property(nonatomic, copy) NSString *attribute5;
 
 
 /** @name Methods to create TuneEventItem objects.*/
@@ -108,4 +110,5 @@
                        attribute3:(NSString *)attribute3
                        attribute4:(NSString *)attribute4
                        attribute5:(NSString *)attribute5;
+
 @end

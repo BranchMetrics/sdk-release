@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  TestApp_tvOS
+//  TestApp_tvos
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.
@@ -8,9 +8,9 @@
 
 #import "AppDelegate.h"
 
-NSString * const MAT_ADVERTISER_ID  = @"<your_tune_advertiser_id>";
-NSString * const MAT_CONVERSION_KEY = @"<your_tune_conversion_key>";
-NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
+NSString * const TUNE_ADVERTISER_ID  = @"3216";
+NSString * const TUNE_CONVERSION_KEY = @"7dd1feb3b304aa169e62e9a0966f5e4d";
+NSString * const TUNE_PACKAGE_NAME   = @"com.tune.tvostestapp1";
 
 
 @interface AppDelegate () <TuneDelegate>
@@ -22,19 +22,21 @@ NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
+
     NSLog(@"TV AppDelegate didFinishLaunching");
-    
+
     [Tune setDelegate:self];
     
+    // NOTE: currently debug mode is not supported for tvOS
     //[Tune setDebugMode:YES];
-    [Tune setAllowDuplicateRequests:YES];
     
     // set your MAT advertiser id and conversion key
-    [Tune initializeWithTuneAdvertiserId:MAT_ADVERTISER_ID
-                       tuneConversionKey:MAT_CONVERSION_KEY
-                         tunePackageName:MAT_PACKAGE_NAME
+    [Tune initializeWithTuneAdvertiserId:TUNE_ADVERTISER_ID
+                       tuneConversionKey:TUNE_CONVERSION_KEY
+                         tunePackageName:TUNE_PACKAGE_NAME
                                 wearable:NO];
+    
+    [Tune checkForDeferredDeeplink:self];
     
     return YES;
 }
@@ -55,9 +57,9 @@ NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    
+
     NSLog(@"TV AppDelegate didBecomeActive");
-    
+
     //[Tune measureSession];
 }
 
@@ -71,27 +73,27 @@ NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
 - (void)tuneDidSucceedWithData:(NSData *)data
 {
     NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-    
-    NSLog(@"Tune tvOS success: %@", dict);
+
+    NSLog(@"Tune tvos success: %@", dict);
 }
 
 // Tune failure callback
 - (void)tuneDidFailWithError:(NSError *)error
 {
-    NSLog(@"Tune tvOS error: %@", error);
+    NSLog(@"Tune tvos error: %@", error);
 }
 
 // Tune request enqueued
 - (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
 {
-    NSLog(@"Tune tvOS enqueued request: refId = %@", referenceId);
+    NSLog(@"Tune tvos enqueued request: refId = %@", referenceId);
 }
 
 // Tune deeplink received
 - (void)tuneDidReceiveDeeplink:(NSString *)deeplink
 {
-    NSLog(@"Tune tvOS deferred deeplink = %@", deeplink);
-    
+    NSLog(@"Tune tvos deferred deeplink = %@", deeplink);
+
     if(deeplink)
     {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:deeplink]];
@@ -101,7 +103,7 @@ NSString * const MAT_PACKAGE_NAME   = @"<your_tune_package_name>";
 // Tune deeplink request failed
 -(void)tuneDidFailDeeplinkWithError:(NSError *)error
 {
-    NSLog(@"Tune tvOS deeplink error: %@", error);
+    NSLog(@"Tune tvos deeplink error: %@", error);
 }
 
 @end

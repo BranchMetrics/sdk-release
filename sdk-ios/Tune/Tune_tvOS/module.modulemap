@@ -1,0 +1,6 @@
+framework module Tune_tvOS {
+  umbrella header "Tune_tvOS.h"
+  
+  export *
+  module * { export * }
+}

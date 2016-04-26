@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AEEA55E41C571011004506D8 /* Tune.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA55E31C571011004506D8 /* Tune.framework */; };
+		AEEA5E4B1C583E200078C52D /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4A1C583E200078C52D /* AdSupport.framework */; };
+		AEEA5E4D1C583E2A0078C52D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */; };
+		AEEA5E4F1C583E360078C52D /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4E1C583E360078C52D /* iAd.framework */; };
+		AEEA5E511C583E540078C52D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E501C583E540078C52D /* MobileCoreServices.framework */; };
+		AEEA5E531C583E5D0078C52D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E521C583E5D0078C52D /* Security.framework */; };
+		AEEA5E551C583E660078C52D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E541C583E660078C52D /* StoreKit.framework */; };
+		AEEA5E571C583E730078C52D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E561C583E730078C52D /* SystemConfiguration.framework */; };
+		AEEA5E591C583E7D0078C52D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E581C583E7D0078C52D /* libz.tbd */; };
 		F82615141BBDFA2F00B7665B /* TUNE_WordMark_Color.png in Resources */ = {isa = PBXBuildFile; fileRef = F82615131BBDFA2F00B7665B /* TUNE_WordMark_Color.png */; };
 		F84F6B131BBBAF55003B25A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F84F6B121BBBAF55003B25A4 /* main.m */; };
 		F84F6B161BBBAF55003B25A4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F84F6B151BBBAF55003B25A4 /* AppDelegate.m */; };
@@ -14,10 +23,20 @@
 		F84F6B1C1BBBAF55003B25A4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1A1BBBAF55003B25A4 /* Main.storyboard */; };
 		F84F6B1E1BBBAF55003B25A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1D1BBBAF55003B25A4 /* Assets.xcassets */; };
 		F84F6B211BBBAF55003B25A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1F1BBBAF55003B25A4 /* LaunchScreen.storyboard */; };
-		F86FB7EC1BD5627200C96335 /* MobileAppTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F86FB7EB1BD5627200C96335 /* MobileAppTracker.framework */; };
+		F8F0FE5F1CBF16E00069E4E5 /* CoreSpotlight.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8F0FE5E1CBF16E00069E4E5 /* CoreSpotlight.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AEEA55E31C571011004506D8 /* Tune.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Tune.framework; path = "../../../../Library/Developer/Xcode/DerivedData/MobileAppTracker-fwzvjtrtmaurhgcvaeuvpujstmcp/Build/Products/Debug-iphoneos/Tune.framework"; sourceTree = "<group>"; };
+		AEEA5E4A1C583E200078C52D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		AEEA5E4E1C583E360078C52D /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		AEEA5E501C583E540078C52D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		AEEA5E521C583E5D0078C52D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		AEEA5E541C583E660078C52D /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		AEEA5E561C583E730078C52D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		AEEA5E581C583E7D0078C52D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		F80462731C3B1B9C005C6652 /* TuneConfiguration.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TuneConfiguration.plist; sourceTree = "<group>"; };
 		F82615131BBDFA2F00B7665B /* TUNE_WordMark_Color.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TUNE_WordMark_Color.png; sourceTree = "<group>"; };
 		F84F6B0E1BBBAF55003B25A4 /* TestApp_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84F6B121BBBAF55003B25A4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -29,7 +48,7 @@
 		F84F6B1D1BBBAF55003B25A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F84F6B201BBBAF55003B25A4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F84F6B221BBBAF55003B25A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F86FB7EB1BD5627200C96335 /* MobileAppTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker.framework; path = ../Tune/build/iphone/Release/MobileAppTracker.framework; sourceTree = "<group>"; };
+		F8F0FE5E1CBF16E00069E4E5 /* CoreSpotlight.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreSpotlight.framework; path = System/Library/Frameworks/CoreSpotlight.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +56,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F86FB7EC1BD5627200C96335 /* MobileAppTracker.framework in Frameworks */,
+				F8F0FE5F1CBF16E00069E4E5 /* CoreSpotlight.framework in Frameworks */,
+				AEEA5E591C583E7D0078C52D /* libz.tbd in Frameworks */,
+				AEEA5E571C583E730078C52D /* SystemConfiguration.framework in Frameworks */,
+				AEEA5E551C583E660078C52D /* StoreKit.framework in Frameworks */,
+				AEEA5E531C583E5D0078C52D /* Security.framework in Frameworks */,
+				AEEA5E511C583E540078C52D /* MobileCoreServices.framework in Frameworks */,
+				AEEA5E4F1C583E360078C52D /* iAd.framework in Frameworks */,
+				AEEA5E4D1C583E2A0078C52D /* CoreTelephony.framework in Frameworks */,
+				AEEA5E4B1C583E200078C52D /* AdSupport.framework in Frameworks */,
+				AEEA55E41C571011004506D8 /* Tune.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,7 +75,16 @@
 		F84F6B051BBBAF55003B25A4 = {
 			isa = PBXGroup;
 			children = (
-				F86FB7EB1BD5627200C96335 /* MobileAppTracker.framework */,
+				F8F0FE5E1CBF16E00069E4E5 /* CoreSpotlight.framework */,
+				AEEA5E581C583E7D0078C52D /* libz.tbd */,
+				AEEA5E561C583E730078C52D /* SystemConfiguration.framework */,
+				AEEA5E541C583E660078C52D /* StoreKit.framework */,
+				AEEA5E521C583E5D0078C52D /* Security.framework */,
+				AEEA5E501C583E540078C52D /* MobileCoreServices.framework */,
+				AEEA5E4E1C583E360078C52D /* iAd.framework */,
+				AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */,
+				AEEA5E4A1C583E200078C52D /* AdSupport.framework */,
+				AEEA55E31C571011004506D8 /* Tune.framework */,
 				F84F6B101BBBAF55003B25A4 /* TestApp_iOS */,
 				F84F6B0F1BBBAF55003B25A4 /* Products */,
 			);
@@ -81,6 +118,7 @@
 		F84F6B111BBBAF55003B25A4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F80462731C3B1B9C005C6652 /* TuneConfiguration.plist */,
 				F82615131BBDFA2F00B7665B /* TUNE_WordMark_Color.png */,
 				F84F6B121BBBAF55003B25A4 /* main.m */,
 			);
@@ -118,6 +156,12 @@
 				TargetAttributes = {
 					F84F6B0D1BBBAF55003B25A4 = {
 						CreatedOnToolsVersion = 7.0.1;
+						DevelopmentTeam = MN489GLUZK;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -272,11 +316,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/iphone/Release;
-				INFOPLIST_FILE = TestApp_iOS/Info.plist;
+				INFOPLIST_FILE = TestApp_ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
 				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -287,11 +336,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/iphone/Release;
-				INFOPLIST_FILE = TestApp_iOS/Info.plist;
+				INFOPLIST_FILE = TestApp_ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
 				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";

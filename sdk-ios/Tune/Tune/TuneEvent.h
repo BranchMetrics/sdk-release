@@ -10,6 +10,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 @class TuneEventItem;
+@class TuneLocation;
 
 /*!
  TUNE pre-defined event string "achievement_unlocked"
@@ -110,108 +111,108 @@ FOUNDATION_EXPORT NSString *const TUNE_EVENT_TUTORIAL_COMPLETE;
 /*!
  Name of the event
  */
-@property (nonatomic, copy, readonly) NSString *eventName;
+@property(nonatomic, copy, readonly) NSString *eventName;
 
 /*!
  Event ID of the event as defined on the MobileAppTracking dashboard
  */
-@property (nonatomic, assign, readonly) NSInteger eventId;
+@property(nonatomic, assign, readonly) NSInteger eventId;
 
 /*!
  An array of TuneEventItem items
  */
-@property (nonatomic, copy) NSArray *eventItems;
+@property(nonatomic, copy) NSArray *eventItems;
 
 /*!
  Revenue associated with the event
  */
-@property (nonatomic, assign) CGFloat revenue;
+@property(nonatomic, assign) CGFloat revenue;
 
 /*!
  Currency code associated with the event
  */
-@property (nonatomic, copy) NSString *currencyCode;
+@property(nonatomic, copy) NSString *currencyCode;
 
 /*!
  Reference ID associated with the event
  */
-@property (nonatomic, copy) NSString *refId;
+@property(nonatomic, copy) NSString *refId;
 
 /*!
  App Store in-app-purchase transaction receipt data
  */
-@property (nonatomic, copy) NSData *receipt;
+@property(nonatomic, copy) NSData *receipt;
 
 /*!
  Content type associated with the event (e.g., @"shoes")
  */
-@property (nonatomic, copy) NSString *contentType;
+@property(nonatomic, copy) NSString *contentType;
 
 /*!
  Content ID associated with the event (International Article Number
  (EAN) when applicable, or other product or content identifier)
  */
-@property (nonatomic, copy) NSString *contentId;
+@property(nonatomic, copy) NSString *contentId;
 
 /*!
  Search string associated with the event
  */
-@property (nonatomic, copy) NSString *searchString;
+@property(nonatomic, copy) NSString *searchString;
 
 /*!
  Transaction state of App Store in-app-purchase
  */
-@property (nonatomic, assign) NSInteger transactionState;
+@property(nonatomic, assign) NSInteger transactionState;
 
 /*!
  Rating associated with the event (e.g., a user rating an item)
  */
-@property (nonatomic, assign) CGFloat rating;
+@property(nonatomic, assign) CGFloat rating;
 
 /*!
  Level associated with the event (e.g., for a game)
  */
-@property (nonatomic, assign) NSInteger level;
+@property(nonatomic, assign) NSInteger level;
 
 /*!
  Quantity associated with the event (e.g., number of items)
  */
-@property (nonatomic, assign) NSUInteger quantity;
+@property(nonatomic, assign) NSUInteger quantity;
 
 /*!
  First date associated with the event (e.g., user's check-in time)
  */
-@property (nonatomic, strong) NSDate *date1;
+@property(nonatomic, strong) NSDate *date1;
 
 /*!
  Second date associated with the next action (e.g., user's check-out time)
  */
-@property (nonatomic, strong) NSDate *date2;
+@property(nonatomic, strong) NSDate *date2;
 
 /*!
  First custom string attribute for the event
  */
-@property (nonatomic, copy) NSString *attribute1;
+@property(nonatomic, copy) NSString *attribute1;
 
 /*!
  Second custom string attribute for the event
  */
-@property (nonatomic, copy) NSString *attribute2;
+@property(nonatomic, copy) NSString *attribute2;
 
 /*!
  Third custom string attribute for the event
  */
-@property (nonatomic, copy) NSString *attribute3;
+@property(nonatomic, copy) NSString *attribute3;
 
 /*!
  Fourth custom string attribute for the event
  */
-@property (nonatomic, copy) NSString *attribute4;
+@property(nonatomic, copy) NSString *attribute4;
 
 /*!
  Fifth custom string attribute for the event
  */
-@property (nonatomic, copy) NSString *attribute5;
+@property(nonatomic, copy) NSString *attribute5;
 
 /*!
  Create a new event with the specified event name.
@@ -226,5 +227,53 @@ FOUNDATION_EXPORT NSString *const TUNE_EVENT_TUTORIAL_COMPLETE;
  @param eventId Event ID of the event as defined on the MobileAppTracking dashboard
  */
 + (instancetype)eventWithId:(NSInteger)eventId;
+
+/** Tag this event with a string.
+ *
+ * Tags can be used to add additional event data for filtering and targeting within Tune In-App Marketing.
+ *
+ * You may not tag the same event with with the same tag name more than once.
+ *
+ * @param name Name of the tag.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
+ *
+ * @param value Value for the tag.
+ */
+- (void)addTag:(NSString *)name withStringValue:(NSString *)value;
+
+/** Tag this event with a date.
+ *
+ * Tags can be used to add additional event data for filtering and targeting within Tune In-App Marketing.
+ *
+ * You may not tag the same event with with the same tag name more than once.
+ *
+ * @param name Name of the tag.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
+ *
+ * @param value Value for the tag.
+ */
+- (void)addTag:(NSString *)name withDateTimeValue:(NSDate *)value;
+
+/** Tag this event with a number.
+ *
+ * Tags can be used to add additional event data for filtering and targeting within Tune In-App Marketing.
+ *
+ * You may not tag the same event with with the same tag name more than once.
+ *
+ * @param name Name of the tag.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
+ *
+ * @param value Value for the tag.
+ */
+- (void)addTag:(NSString *)name withNumberValue:(NSNumber *)value;
+
+/** Tag this event with a location.
+ *
+ * Tags can be used to add additional event data for filtering and targeting within Tune In-App Marketing.
+ *
+ * You may not tag the same event with with the same tag name more than once.
+ *
+ * @param name Name of the tag.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
+ *
+ * @param value Value for the tag.
+ */
+- (void)addTag:(NSString *)name withGeolocationValue:(TuneLocation *)value;
 
 @end

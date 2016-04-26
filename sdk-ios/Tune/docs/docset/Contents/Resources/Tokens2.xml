@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Tokens version="1.0">
 	<File path="Classes/MobileAppTracker.html">
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/cl/MobileAppTracker</TokenIdentifier>
 			<Abstract type="html">MobileAppTracker provides the methods to send events and actions to the
 HasOffers servers.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-            
-			
+
+
 			<NodeRef refid="2"/>
 		</Token>
-		
-		
+
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/clm/MobileAppTracker/sharedManager</TokenIdentifier>
 			<Abstract type="html">A singleton of the MobileAppTracker class</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>+ (MobileAppTracker *)sharedManager</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/sharedManager</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/startTrackerWithMATAdvertiserId:MATConversionKey:</TokenIdentifier>
 			<Abstract type="html">Starts Mobile App Tracker with MAT Advertiser Id and MAT Conversion Key. Both values are required.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key</Declaration>
 			<Parameters>
 				<Parameter>
@@ -44,87 +44,87 @@ HasOffers servers.</Abstract>
 			<Anchor>//api/name/startTrackerWithMATAdvertiserId:MATConversionKey:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setDelegate:</TokenIdentifier>
 			<Abstract type="html">MobileAppTrackerDelegate : A Delegate used by MobileAppTracker to callback.
 Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, assign) id&lt;MobileAppTrackerDelegate&gt; delegate</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/delegate</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/delegate</TokenIdentifier>
 			<Abstract type="html">MobileAppTrackerDelegate : A Delegate used by MobileAppTracker to callback.
 Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, assign) id&lt;MobileAppTrackerDelegate&gt; delegate</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/delegate</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instp/MobileAppTracker/delegate</TokenIdentifier>
 			<Abstract type="html">MobileAppTrackerDelegate : A Delegate used by MobileAppTracker to callback.
 Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, assign) id&lt;MobileAppTrackerDelegate&gt; delegate</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/delegate</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setSdkDataParameters:</TokenIdentifier>
 			<Abstract type="html">Provides a view of the parameters used by the sdk at any time.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, readonly) NSDictionary *sdkDataParameters</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/sdkDataParameters</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/sdkDataParameters</TokenIdentifier>
 			<Abstract type="html">Provides a view of the parameters used by the sdk at any time.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, readonly) NSDictionary *sdkDataParameters</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/sdkDataParameters</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instp/MobileAppTracker/sdkDataParameters</TokenIdentifier>
 			<Abstract type="html">Provides a view of the parameters used by the sdk at any time.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>@property (nonatomic, readonly) NSDictionary *sdkDataParameters</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/sdkDataParameters</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setDebugMode:</TokenIdentifier>
 			<Abstract type="html">Specifies that the server responses should include debug information.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setDebugMode:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -132,33 +132,16 @@ Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 					<Abstract type="html">defaults to NO.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setDebugMode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
-		<Token>
-			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setAllowDuplicateRequests:</TokenIdentifier>
-			<Abstract type="html">Set to YES to allow duplicate requests to be registered with the MAT server.</Abstract>
-			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
-			<Declaration>- (void)setAllowDuplicateRequests:(BOOL)yesorno</Declaration>
-			<Parameters>
-				<Parameter>
-					<Name>yesorno</Name>
-					<Abstract type="html">defaults to NO.</Abstract>
-				</Parameter>
-			</Parameters>
-			
-			<Anchor>//api/name/setAllowDuplicateRequests:</Anchor>
-            <NodeRef refid="2"/>
-		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setAppleAdvertisingIdentifier:</TokenIdentifier>
 			<Abstract type="html">Set the Apple Advertising Identifier available in iOS 6.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier</Declaration>
 			<Parameters>
 				<Parameter>
@@ -166,16 +149,16 @@ Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 					<Abstract type="html">- Apple Advertising Identifier</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setAppleAdvertisingIdentifier:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setAppleVendorIdentifier:</TokenIdentifier>
 			<Abstract type="html">Set the Apple Vendor Identifier available in iOS 6.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setAppleVendorIdentifier:(NSUUID *)appleVendorIdentifier</Declaration>
 			<Parameters>
 				<Parameter>
@@ -183,17 +166,17 @@ Set this to receive success and failure callbacks from the MAT SDK.</Abstract>
 					<Abstract type="html">- Apple Vendor Identifier</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setAppleVendorIdentifier:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setCurrencyCode:</TokenIdentifier>
 			<Abstract type="html">Sets the currency code.
 Default: USD</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setCurrencyCode:(NSString *)currencyCode</Declaration>
 			<Parameters>
 				<Parameter>
@@ -201,16 +184,16 @@ Default: USD</Abstract>
 					<Abstract type="html">The string name for the currency code.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setCurrencyCode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setJailbroken:</TokenIdentifier>
 			<Abstract type="html">Sets the jailbroken device flag.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setJailbroken:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -218,16 +201,16 @@ Default: USD</Abstract>
 					<Abstract type="html">The jailbroken device flag.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setJailbroken:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setMATAdvertiserId:</TokenIdentifier>
 			<Abstract type="html">Sets the MAT advertiser id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setMATAdvertiserId:(NSString *)advertiserId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -235,16 +218,16 @@ Default: USD</Abstract>
 					<Abstract type="html">The string id for the MAT advertiser id.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setMATAdvertiserId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setMATConversionKey:</TokenIdentifier>
 			<Abstract type="html">Sets the MAT conversion key.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setMATConversionKey:(NSString *)conversionKey</Declaration>
 			<Parameters>
 				<Parameter>
@@ -252,17 +235,17 @@ Default: USD</Abstract>
 					<Abstract type="html">The string value for the MAT conversion key.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setMATConversionKey:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setPackageName:</TokenIdentifier>
 			<Abstract type="html">Sets the package name (bundle_id).
 Defaults to the Bundle Id of the app that is running the sdk.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setPackageName:(NSString *)packageName</Declaration>
 			<Parameters>
 				<Parameter>
@@ -270,17 +253,17 @@ Defaults to the Bundle Id of the app that is running the sdk.</Abstract>
 					<Abstract type="html">The string name for the package.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setPackageName:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setShouldAutoDetectJailbroken:</TokenIdentifier>
 			<Abstract type="html">Specifies if the sdk should auto detect if the iOS device is jailbroken.
 YES/NO</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setShouldAutoDetectJailbroken:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -288,17 +271,17 @@ YES/NO</Abstract>
 					<Abstract type="html">YES will detect if the device is jailbroken, defaults to YES.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setShouldAutoDetectJailbroken:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setShouldAutoGenerateAppleAdvertisingIdentifier:</TokenIdentifier>
 			<Abstract type="html">Specifies if the sdk should pull the Apple Advertising Identifier from the device.
 YES/NO</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setShouldAutoGenerateAppleAdvertisingIdentifier:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -306,17 +289,17 @@ YES/NO</Abstract>
 					<Abstract type="html">YES will set the Apple Advertising Identifier, defaults to NO.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setShouldAutoGenerateAppleAdvertisingIdentifier:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setShouldAutoGenerateAppleVendorIdentifier:</TokenIdentifier>
 			<Abstract type="html">Specifies if the sdk should pull the Apple Vendor Identifier from the device.
 YES/NO</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -324,16 +307,16 @@ YES/NO</Abstract>
 					<Abstract type="html">YES will set the Apple Vendor Identifier, defaults to NO.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setShouldAutoGenerateAppleVendorIdentifier:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setMACAddress:</TokenIdentifier>
 			<Abstract type="html">Sets the MAC address.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setMACAddress:(NSString *)macAddress</Declaration>
 			<Parameters>
 				<Parameter>
@@ -341,16 +324,16 @@ YES/NO</Abstract>
 					<Abstract type="html">mac address, defaults to nil.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setMACAddress:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setODIN1:</TokenIdentifier>
 			<Abstract type="html">Sets the ODIN-1.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setODIN1:(NSString *)odin1</Declaration>
 			<Parameters>
 				<Parameter>
@@ -358,16 +341,16 @@ YES/NO</Abstract>
 					<Abstract type="html">ODIN-1, defaults to nil.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setODIN1:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setOpenUDID:</TokenIdentifier>
 			<Abstract type="html">Sets the OpenUDID.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setOpenUDID:(NSString *)openUDID</Declaration>
 			<Parameters>
 				<Parameter>
@@ -375,16 +358,16 @@ YES/NO</Abstract>
 					<Abstract type="html">OpenUDID, defaults to nil.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setOpenUDID:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setSiteId:</TokenIdentifier>
 			<Abstract type="html">Sets the site id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setSiteId:(NSString *)siteId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -392,16 +375,16 @@ YES/NO</Abstract>
 					<Abstract type="html">The string id for the site id.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setSiteId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setTrusteTPID:</TokenIdentifier>
 			<Abstract type="html">Set the Trusted Preference Identifier (TPID).</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setTrusteTPID:(NSString *)trusteTPID</Declaration>
 			<Parameters>
 				<Parameter>
@@ -409,16 +392,16 @@ YES/NO</Abstract>
 					<Abstract type="html">- Trusted Preference Identifier (TPID)</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setTrusteTPID:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setUserId:</TokenIdentifier>
 			<Abstract type="html">Sets the user id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setUserId:(NSString *)userId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -426,17 +409,17 @@ YES/NO</Abstract>
 					<Abstract type="html">The string name for the user id.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setUserId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setUIID:</TokenIdentifier>
 			<Abstract type="html">Sets the UIID. UIID is replacement of the deprecated UDID in iOS for Asia and Japan.
 Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setUIID:(NSString *)uiid</Declaration>
 			<Parameters>
 				<Parameter>
@@ -444,16 +427,16 @@ Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 					<Abstract type="html">UIID, defaults to nil.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setUIID:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setAge:</TokenIdentifier>
 			<Abstract type="html">Sets the user&apos;s age.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setAge:(NSInteger)userAge</Declaration>
 			<Parameters>
 				<Parameter>
@@ -461,16 +444,16 @@ Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 					<Abstract type="html">user&apos;s age</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setAge:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setGender:</TokenIdentifier>
 			<Abstract type="html">Sets the user&apos;s gender.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setGender:(MATGender)userGender</Declaration>
 			<Parameters>
 				<Parameter>
@@ -478,16 +461,16 @@ Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 					<Abstract type="html">user&apos;s gender, possible values MATGENDERMALE (0), MATGENDERFEMALE (1).</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setGender:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setLatitude:longitude:</TokenIdentifier>
 			<Abstract type="html">Sets the user&apos;s location.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setLatitude:(double)latitude longitude:(double)longitude</Declaration>
 			<Parameters>
 				<Parameter>
@@ -498,16 +481,16 @@ Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 					<Abstract type="html">user&apos;s longitude</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setLatitude:longitude:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setLatitude:longitude:altitude:</TokenIdentifier>
 			<Abstract type="html">Sets the user&apos;s location including altitude.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setLatitude:(double)latitude longitude:(double)longitude altitude:(double)altitude</Declaration>
 			<Parameters>
 				<Parameter>
@@ -521,17 +504,17 @@ Ref: https://github.com/akisute/UIApplication-UIID</Abstract>
 					<Abstract type="html">user&apos;s altitude</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setLatitude:longitude:altitude:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setAppAdTracking:</TokenIdentifier>
 			<Abstract type="html">Set app-level ad-tracking.
 YES/NO</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setAppAdTracking:(BOOL)enable</Declaration>
 			<Parameters>
 				<Parameter>
@@ -539,11 +522,11 @@ YES/NO</Abstract>
 					<Abstract type="html">YES means opt-in, NO means opt-out.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setAppAdTracking:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackInstall</TokenIdentifier>
 			<Abstract type="html">Record an Install or an Update by determining if a previous
@@ -553,14 +536,14 @@ or the previous version also included MAT sdk.
 To be called when an app opens; typically in the didFinishLaunching event.
 Works only once per app version, does not have any effect if called again in the same app version.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackInstall</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/trackInstall</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackInstallWithReferenceId:</TokenIdentifier>
 			<Abstract type="html">Record an Install or an Update by determining if a previous
@@ -570,7 +553,7 @@ or the previous version also included MAT sdk.
 To be called when an app opens; typically in the didFinishLaunching event.
 Works only once per app version, does not have any effect if called again in the same app version.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackInstallWithReferenceId:(NSString *)refId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -578,11 +561,11 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">A reference id used to track an install and/or update, corresponds to advertiserrefid on the website.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackInstallWithReferenceId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackUpdate</TokenIdentifier>
 			<Abstract type="html">Instead of an Install, force an Update to be recorded.
@@ -592,14 +575,14 @@ between an install and an update, else use trackInstall.
 To be called when an app opens; typically in the didFinishLaunching event.
 Works only once per app version, does not have any effect if called again in the same app version.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackUpdate</Declaration>
-			
-			
+
+
 			<Anchor>//api/name/trackUpdate</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackUpdateWithReferenceId:</TokenIdentifier>
 			<Abstract type="html">Instead of an Install, force an Update to be recorded.
@@ -609,7 +592,7 @@ between an install and an update, else use trackInstallWithReferenceId.
 To be called when an app opens; typically in the didFinishLaunching event.
 Works only once per app version, does not have any effect if called again in the same app version.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackUpdateWithReferenceId:(NSString *)refId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -617,16 +600,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">A reference id used to track an update, corresponds to advertiserrefid on the website.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackUpdateWithReferenceId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Id or Name.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -637,16 +620,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">Yes if the event is an Id otherwise No if the event is a name only.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:referenceId:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Id or Name and reference id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId referenceId:(NSString *)refId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -660,16 +643,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The referencId for an event, corresponds to advertiserrefid on the website.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:referenceId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:revenueAmount:currencyCode:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Id or Name, revenue and currency.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode</Declaration>
 			<Parameters>
 				<Parameter>
@@ -686,16 +669,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The currency code override for the event. Blank defaults to sdk setting.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:revenueAmount:currencyCode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:referenceId:revenueAmount:currencyCode:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Id or Name and reference id, revenue and currency.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId referenceId:(NSString *)refId revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode</Declaration>
 			<Parameters>
 				<Parameter>
@@ -715,16 +698,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The currency code override for the event. Blank defaults to sdk setting.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:referenceId:revenueAmount:currencyCode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Id or Name and a list of event items.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems</Declaration>
 			<Parameters>
 				<Parameter>
@@ -738,16 +721,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">An array of MATEventItem objects</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Name or Id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems referenceId:(NSString *)refId</Declaration>
 			<Parameters>
 				<Parameter>
@@ -764,16 +747,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The referencId for an event, corresponds to advertiserrefid on the website.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:revenueAmount:currencyCode:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Name or Id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode</Declaration>
 			<Parameters>
 				<Parameter>
@@ -793,16 +776,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The currency code override for the event. Blank defaults to sdk setting.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:revenueAmount:currencyCode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Name or Id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems referenceId:(NSString *)refId revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode</Declaration>
 			<Parameters>
 				<Parameter>
@@ -825,16 +808,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The currency code override for the event. Blank defaults to sdk setting.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:transactionState:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Name or Id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems referenceId:(NSString *)refId revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode transactionState:(NSInteger)transactionState</Declaration>
 			<Parameters>
 				<Parameter>
@@ -860,16 +843,16 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The in-app purchase transaction SKPaymentTransactionState as received from the iTunes store.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:transactionState:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:transactionState:receipt:</TokenIdentifier>
 			<Abstract type="html">Record a Track Action for an Event Name or Id.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)trackActionForEventIdOrName:(NSString *)eventIdOrName eventIsId:(BOOL)isId eventItems:(NSArray *)eventItems referenceId:(NSString *)refId revenueAmount:(float)revenueAmount currencyCode:(NSString *)currencyCode transactionState:(NSInteger)transactionState receipt:(NSData *)receipt</Declaration>
 			<Parameters>
 				<Parameter>
@@ -898,17 +881,17 @@ Works only once per app version, does not have any effect if called again in the
 					<Abstract type="html">The in-app purchase transaction receipt as received from the iTunes store.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/trackActionForEventIdOrName:eventIsId:eventItems:referenceId:revenueAmount:currencyCode:transactionState:receipt:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setUseCookieTracking:</TokenIdentifier>
 			<Abstract type="html">Sets whether or not to user cookie based tracking.
 Default: NO</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setUseCookieTracking:(BOOL)yesorno</Declaration>
 			<Parameters>
 				<Parameter>
@@ -916,18 +899,18 @@ Default: NO</Abstract>
 					<Abstract type="html">YES/NO for cookie based tracking.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setUseCookieTracking:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setRedirectUrl:</TokenIdentifier>
 			<Abstract type="html">Sets a url to be used with app-to-app tracking so that
 the sdk can open the download (redirect) url. This is
 used in conjunction with the setTracking:advertiserId:offerId:publisherId:redirect: method.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setRedirectUrl:(NSString *)redirectURL</Declaration>
 			<Parameters>
 				<Parameter>
@@ -935,16 +918,16 @@ used in conjunction with the setTracking:advertiserId:offerId:publisherId:redire
 					<Abstract type="html">The string name for the url.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setRedirectUrl:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/setTracking:advertiserId:offerId:publisherId:redirect:</TokenIdentifier>
 			<Abstract type="html">Start a Tracking Session on the MAT server.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)setTracking:(NSString *)targetAppPackageName advertiserId:(NSString *)targetAppAdvertiserId offerId:(NSString *)targetAdvertiserOfferId publisherId:(NSString *)targetAdvertiserPublisherId redirect:(BOOL)shouldRedirect</Declaration>
 			<Parameters>
 				<Parameter>
@@ -964,11 +947,11 @@ used in conjunction with the setTracking:advertiserId:offerId:publisherId:redire
 					<Abstract type="html">The MAT offer id of the target app.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/setTracking:advertiserId:offerId:publisherId:redirect:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
+
 		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/MobileAppTracker/applicationDidOpenURL:sourceApplication:</TokenIdentifier>
 			<Abstract type="html">Record the URL and Source when an application is opened via a URL scheme.
@@ -976,7 +959,7 @@ This typically occurs during OAUTH or when an app exits and is returned
 to via a URL. The data will be sent to the HasOffers server so that a
 Re-Engagement can be recorded.</Abstract>
 			<DeclaredIn>MobileAppTracker.h</DeclaredIn>
-			
+
 			<Declaration>- (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication</Declaration>
 			<Parameters>
 				<Parameter>
@@ -987,11 +970,11 @@ Re-Engagement can be recorded.</Abstract>
 					<Abstract type="html">the source used to open your app. For example, mobile safari.</Abstract>
 				</Parameter>
 			</Parameters>
-			
+
 			<Anchor>//api/name/applicationDidOpenURL:sourceApplication:</Anchor>
             <NodeRef refid="2"/>
 		</Token>
-		
-        
+
+
 	</File>
 </Tokens>

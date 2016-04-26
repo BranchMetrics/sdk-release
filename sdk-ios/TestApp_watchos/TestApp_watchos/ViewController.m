@@ -1,6 +1,6 @@
 //
 //  ViewController.m
-//  TestApp_watchOS
+//  TestApp_watchos
 //
 //  Created by Harshal Ogale on 10/7/15.
 //  Copyright © 2015 Tune. All rights reserved.

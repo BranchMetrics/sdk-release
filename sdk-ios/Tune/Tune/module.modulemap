@@ -1,0 +1,7 @@
+framework module Tune {
+  umbrella header "Tune.h"
+  exclude header "UIViewController+NameTag.h"
+  
+  export *
+  module * { export * }
+}

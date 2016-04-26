@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F83B84871C33498000EBCE2C /* MobileAppTracker_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F83B84861C33498000EBCE2C /* MobileAppTracker_watchOS.framework */; };
+		F84660021C3B47DA005C42CC /* Tune_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F84660011C3B47DA005C42CC /* Tune_watchOS.framework */; };
 		F8D75BA51BC5CA15001DD213 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D75BA41BC5CA15001DD213 /* main.m */; };
 		F8D75BA81BC5CA15001DD213 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D75BA71BC5CA15001DD213 /* AppDelegate.m */; };
 		F8D75BAB1BC5CA15001DD213 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F8D75BAA1BC5CA15001DD213 /* ViewController.m */; };
@@ -68,8 +68,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F83B84861C33498000EBCE2C /* MobileAppTracker_watchOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_watchOS.framework; path = ../Tune/build/watch/Release/MobileAppTracker_watchOS.framework; sourceTree = "<group>"; };
-		F88837EE1BC5D34000296482 /* MobileAppTracker_watchos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileAppTracker_watchos.framework; path = ../../Tune/build/watch/Release/MobileAppTracker_watchos.framework; sourceTree = "<group>"; };
+		F84660011C3B47DA005C42CC /* Tune_watchOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Tune_watchOS.framework; path = ../Tune/build/watch/Release/Tune_watchOS.framework; sourceTree = "<group>"; };
 		F8D75BA01BC5CA15001DD213 /* TestApp_watchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp_watchOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8D75BA41BC5CA15001DD213 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F8D75BA61BC5CA15001DD213 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -110,7 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F83B84871C33498000EBCE2C /* MobileAppTracker_watchOS.framework in Frameworks */,
+				F84660021C3B47DA005C42CC /* Tune_watchOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,7 +119,7 @@
 		F8D75B971BC5CA15001DD213 = {
 			isa = PBXGroup;
 			children = (
-				F83B84861C33498000EBCE2C /* MobileAppTracker_watchOS.framework */,
+				F84660011C3B47DA005C42CC /* Tune_watchOS.framework */,
 				F8D75BA21BC5CA15001DD213 /* TestApp_watchOS */,
 				F8D75BBB1BC5CA15001DD213 /* TestApp_watchOS WatchKit App */,
 				F8D75BCA1BC5CA15001DD213 /* TestApp_watchOS WatchKit Extension */,
@@ -177,7 +176,6 @@
 		F8D75BCA1BC5CA15001DD213 /* TestApp_watchOS WatchKit Extension */ = {
 			isa = PBXGroup;
 			children = (
-				F88837EE1BC5D34000296482 /* MobileAppTracker_watchos.framework */,
 				F8D75BCD1BC5CA15001DD213 /* InterfaceController.h */,
 				F8D75BCE1BC5CA15001DD213 /* InterfaceController.m */,
 				F8D75BD01BC5CA15001DD213 /* ExtensionDelegate.h */,
@@ -478,7 +476,7 @@
 		F8D75BDF1BC5CA15001DD213 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = "TestApp_watchOS WatchKit Extension/Info.plist";
+				INFOPLIST_FILE = "TestApp_watchos WatchKit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS.watchkitapp.watchkitextension";
 				PRODUCT_NAME = TestApp_watchOS;
@@ -492,7 +490,7 @@
 		F8D75BE01BC5CA15001DD213 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = "TestApp_watchOS WatchKit Extension/Info.plist";
+				INFOPLIST_FILE = "TestApp_watchos WatchKit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS.watchkitapp.watchkitextension";
 				PRODUCT_NAME = TestApp_watchOS;
@@ -507,9 +505,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				IBSC_MODULE = TestApp_watchOS_WatchKit_Extension;
-				INFOPLIST_FILE = "TestApp_watchOS WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS.watchkitapp";
+				IBSC_MODULE = TestApp_watchos_WatchKit_Extension;
+				INFOPLIST_FILE = "TestApp_watchos WatchKit App/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos.watchkitapp";
 				PRODUCT_NAME = TestApp_watchOS;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -522,9 +520,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				IBSC_MODULE = TestApp_watchOS_WatchKit_Extension;
-				INFOPLIST_FILE = "TestApp_watchOS WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS.watchkitapp";
+				IBSC_MODULE = TestApp_watchos_WatchKit_Extension;
+				INFOPLIST_FILE = "TestApp_watchos WatchKit App/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos.watchkitapp";
 				PRODUCT_NAME = TestApp_watchOS;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -537,10 +535,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = TestApp_watchOS/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = ../Tune/build/watch/Release;
+				INFOPLIST_FILE = TestApp_watchos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos";
 				PRODUCT_NAME = TestApp_watchOS;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Debug;
 		};
@@ -548,10 +549,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = TestApp_watchOS/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = ../Tune/build/watch/Release;
+				INFOPLIST_FILE = TestApp_watchos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos";
 				PRODUCT_NAME = TestApp_watchOS;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Release;
 		};

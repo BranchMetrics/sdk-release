@@ -6,23 +6,30 @@
 //  Copyright (c) 2013 Tune. All rights reserved.
 //
 
-#import "Tune.h"
-#import "TuneEvent.h"
-#import "TuneEventItem.h"
-#import "TuneLocation.h"
-#import "TunePreloadData.h"
-#import "Common/TuneEvent_internal.h"
-#import "Common/TuneKeyStrings.h"
-#import "Common/TuneTracker.h"
-#import "Common/TuneDeferredDplinkr.h"
-#import "Common/TuneSettings.h"
+#import "Tune+Internal.h"
 
-
-#if TARGET_OS_IOS
-#import "TuneAdView.h"
-#import "TuneBanner.h"
-#import "TuneInterstitial.h"
+#import "TuneAppDelegate.h"
+#import "TuneConfiguration.h"
+#import "TuneDeeplink.h"
+#if !TARGET_OS_WATCH
+#import "TuneDeferredDplinkr.h"
 #endif
+#import "TuneEvent+Internal.h"
+#import "TuneKeyStrings.h"
+#import "TuneManager.h"
+#import "TunePowerHookManager.h"
+#import "TuneSkyhookCenter.h"
+#import "TuneSkyhookConstants.h"
+#import "TuneSkyhookPayloadConstants.h"
+#import "TuneTracker.h"
+#import "TuneUserProfile.h"
+#import "TuneUserProfileKeys.h"
+#import "TuneUtils.h"
+#import "TuneJSONPlayer.h"
+#import "TuneExperimentManager.h"
+#import "TuneDeepActionManager.h"
+#import "TunePlaylistManager.h"
+#import "TuneState.h"
 
 #ifdef TUNE_USE_LOCATION
 #import "TuneRegionMonitor.h"
@@ -31,77 +38,105 @@
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
 
 static NSOperationQueue *opQueue = nil;
+static TuneManager *_tuneManager;
 
+
+static TuneTracker *_sharedManager = nil;
 
 @implementation Tune
 
-
 #pragma mark - Private Initialization Methods
 
-+ (void)initialize
-{
-    opQueue = [NSOperationQueue new];
-    opQueue.maxConcurrentOperationCount = 1;
++ (void)initialize {
+    @synchronized(self) {
+        if (!opQueue) {
+            opQueue = [NSOperationQueue new];
+            opQueue.maxConcurrentOperationCount = 1;
+            [TuneManager instantiateModules];
+        }
+    }
 }
 
-+ (TuneTracker *)sharedManager
-{
++ (TuneTracker *)sharedManager {
     // note that the initialization is slow (potentially hundreds of milliseconds),
     // so call this function on a background thread if it might be the first time
-    static TuneTracker *sharedManager = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedManager = [[TuneTracker alloc] init];
-    });
+    #if TESTING
+    if (_sharedManagerOverride){
+        _sharedManager = _sharedManagerOverride;
+    }
+    #endif
+    if (!_sharedManager) {
+        dispatch_once(&onceToken, ^{
+            _sharedManager = [[TuneTracker alloc] init];
+        });
+    }
     
-    return sharedManager;
+    return _sharedManager;
 }
 
 
 #pragma mark - Init Method
 
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key
-{
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key {
     [self initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:nil wearable:NO];
 }
 
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable
-{
-    [TuneDeferredDplinkr setAdvertiserId:aid conversionKey:key];
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] startTrackerWithTuneAdvertiserId:aid tuneConversionKey:key wearable:wearable];
-    }];
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable {
+    [self initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:name wearable:wearable configuration:nil];
+}
+
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary *)configOrNil {
+    if (!configOrNil) {
+        configOrNil = [NSDictionary dictionary];
+    }
+    
+    TuneManager *tuneManager = [TuneManager currentManager];
+    
+    [tuneManager.userProfile setAdvertiserId: [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+    [tuneManager.userProfile setConversionKey: [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+    [tuneManager.userProfile setWearable:@(wearable)];
     
     if(name)
     {
-        [self setPackageName:name];
+        [tuneManager.userProfile setPackageName:name];
     }
+    
+    [tuneManager.configuration setupConfiguration:configOrNil];
+    
+    // If the SDK user told us to use the PlaylistPlayer than set that up.
+    if (tuneManager.configuration.usePlaylistPlayer) {
+        TuneJSONPlayer *playlistPlayer = [[TuneJSONPlayer alloc] init];
+        [playlistPlayer setFiles:tuneManager.configuration.playlistPlayerFilenames];
+        tuneManager.playlistPlayer = playlistPlayer;
+    }
+    
+    if (tuneManager.configuration.useConfigurationPlayer) {
+        TuneJSONPlayer *configurationPlayer = [[TuneJSONPlayer alloc] init];
+        [configurationPlayer setFiles:tuneManager.configuration.configurationPlayerFilenames];
+        tuneManager.configurationPlayer = configurationPlayer;
+    }
+    
+    [[self sharedManager] startTracker];
 }
-
 
 #pragma mark - Debugging Helper Methods
 
-+ (void)setDebugMode:(BOOL)enable
-{
++ (void)setDebugMode:(BOOL)enable {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setDebugMode:enable];
+        [TuneManager currentManager].configuration.debugMode = @(enable);
     }];
 }
 
-+ (void)setAllowDuplicateRequests:(BOOL)allow
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setAllowDuplicateRequests:allow];
-    }];
-}
-
-+ (void)setDelegate:(id<TuneDelegate>)delegate
-{
++ (void)setDelegate:(id<TuneDelegate>)delegate {
+#if !TARGET_OS_WATCH
     [TuneDeferredDplinkr setDelegate:delegate];
+#endif
     [opQueue addOperationWithBlock:^{
         [self sharedManager].delegate = delegate;
 #if DEBUG
-        [self sharedManager].parameters.delegate = (id<TuneSettingsDelegate>)delegate;
+        [TuneManager currentManager].userProfile.delegate = (id <TuneUserProfileDelegate>)delegate;
+        [TuneManager currentManager].configuration.delegate = (id <TuneConfigurationDelegate>)delegate;
 #endif
     }];
 }
@@ -109,20 +144,21 @@ static NSOperationQueue *opQueue = nil;
 
 #pragma mark - Behavior Flags
 
-+ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate
-{
+#if !TARGET_OS_WATCH
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate {
     [TuneDeferredDplinkr checkForDeferredDeeplink:delegate];
 }
+#endif
 
-+ (void)automateIapEventMeasurement:(BOOL)automate
-{
+#if !TARGET_OS_WATCH
++ (void)automateIapEventMeasurement:(BOOL)automate {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].automateIapMeasurement = automate;
+        [[TuneManager currentManager].configuration setShouldAutomateIapMeasurement:automate];
     }];
 }
+#endif
 
-+ (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit
-{
++ (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].fbLogging = logging;
         [self sharedManager].fbLimitUsage = limit;
@@ -133,18 +169,28 @@ static NSOperationQueue *opQueue = nil;
 #pragma mark - Setter Methods
 
 #ifdef TUNE_USE_LOCATION
-+ (void)setRegionDelegate:(id<TuneRegionDelegate>)delegate
-{
++ (void)setRegionDelegate:(id<TuneRegionDelegate>)delegate {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].regionMonitor.delegate = delegate;
     }];
 }
 #endif
 
-+ (void)setExistingUser:(BOOL)existingUser
-{
++ (void)setExistingUser:(BOOL)existingUser {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.existingUser = @(existingUser);
+        [[TuneManager currentManager].userProfile setExistingUser: @(existingUser)];
+    }];
+}
+
++ (void)setCurrencyCode:(NSString *)currencyCode {
+    [opQueue addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setCurrencyCode:currencyCode];
+    }];
+}
+
++ (void)setPackageName:(NSString *)packageName {
+    [opQueue addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setPackageName:packageName];
     }];
 }
 
@@ -152,553 +198,452 @@ static NSOperationQueue *opQueue = nil;
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 {
-    [TuneDeferredDplinkr setIfa:[appleAdvertisingIdentifier UUIDString] trackingEnabled:adTrackingEnabled];
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoCollectAppleAdvertisingIdentifier:NO];
-        [self sharedManager].parameters.ifa = [appleAdvertisingIdentifier UUIDString];
-        [self sharedManager].parameters.ifaTracking = @(adTrackingEnabled);
+        [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:NO];
+        [[TuneManager currentManager].userProfile setAppleAdvertisingIdentifier: [appleAdvertisingIdentifier UUIDString]];
+        [[TuneManager currentManager].userProfile setAppleAdvertisingTrackingEnabled:@(adTrackingEnabled)];
     }];
 }
 
-+ (void)setAppleVendorIdentifier:(NSUUID *)appleVendorIdentifier
-{
++ (void)setAppleVendorIdentifier:(NSUUID *)appleVendorIdentifier {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:NO];
-        [self sharedManager].parameters.ifv = [appleVendorIdentifier UUIDString];
+        [[TuneManager currentManager].configuration setShouldAutoGenerateVendorIdentifier:NO];
+        [[TuneManager currentManager].userProfile setAppleVendorIdentifier:[appleVendorIdentifier UUIDString]];
+    }];
+}
+
++ (void)setJailbroken:(BOOL)jailbroken {
+    [opQueue addOperationWithBlock:^{
+        [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:NO];
+        
+        [[TuneManager currentManager].userProfile setJailbroken:@(jailbroken)];
+    }];
+}
+
++ (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect {
+    [opQueue addOperationWithBlock:^{
+        [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:autoDetect];
     }];
 }
 #endif
 
-+ (void)setCurrencyCode:(NSString *)currencyCode
-{
++ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.currencyCode = currencyCode;
-    }];
-}
-
-+ (void)setJailbroken:(BOOL)jailbroken
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoDetectJailbroken:NO];
-        [self sharedManager].parameters.jailbroken = @(jailbroken);
-    }];
-}
-
-+ (void)setPackageName:(NSString *)packageName
-{
-    [TuneDeferredDplinkr setPackageName:packageName];
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.packageName = packageName;
-    }];
-}
-
-+ (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoDetectJailbroken:autoDetect];
+        [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:autoCollect];
     }];
 }
 
 #if !TARGET_OS_WATCH
-+ (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect
-{
++ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoCollectDeviceLocation:autoCollect];
+        [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:autoCollect];
     }];
 }
 
-+ (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect
-{
++ (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoCollectAppleAdvertisingIdentifier:autoCollect];
-    }];
-}
-
-+ (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate
-{
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setShouldAutoGenerateAppleVendorIdentifier:autoGenerate];
+        [[TuneManager currentManager].configuration setShouldAutoGenerateVendorIdentifier:autoGenerate];
     }];
 }
 #endif
 
-+ (void)setSiteId:(NSString *)siteId
-{
++ (void)setTRUSTeId:(NSString *)tpid; {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.siteId = siteId;
+        [[TuneManager currentManager].userProfile setTRUSTeId:tpid];
     }];
 }
 
-+ (void)setTRUSTeId:(NSString *)tpid;
-{
++ (void)setUserEmail:(NSString *)userEmail {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.trusteTPID = tpid;
+        [[TuneManager currentManager].userProfile setUserEmail:userEmail];
     }];
 }
 
-+ (void)setUserEmail:(NSString *)userEmail
-{
++ (void)setUserId:(NSString *)userId {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.userEmail = userEmail;
+        [[TuneManager currentManager].userProfile setUserId:userId];
     }];
 }
 
-+ (void)setUserId:(NSString *)userId
-{
++ (void)setUserName:(NSString *)userName {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.userId = userId;
+        [[TuneManager currentManager].userProfile setUserName:userName];
     }];
 }
 
-+ (void)setUserName:(NSString *)userName
-{
++ (void)setPhoneNumber:(NSString *)phoneNumber {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.userName = userName;
+        [[TuneManager currentManager].userProfile setPhoneNumber:phoneNumber];
     }];
 }
 
-+ (void)setPhoneNumber:(NSString *)phoneNumber
-{
++ (void)setFacebookUserId:(NSString *)facebookUserId {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.phoneNumber = phoneNumber;
+        [[TuneManager currentManager].userProfile setFacebookUserId:facebookUserId];
     }];
 }
 
-+ (void)setFacebookUserId:(NSString *)facebookUserId
-{
++ (void)setTwitterUserId:(NSString *)twitterUserId {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.facebookUserId = facebookUserId;
+        [[TuneManager currentManager].userProfile setTwitterUserId:twitterUserId];
     }];
 }
 
-+ (void)setTwitterUserId:(NSString *)twitterUserId
-{
++ (void)setGoogleUserId:(NSString *)googleUserId {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.twitterUserId = twitterUserId;
+        [[TuneManager currentManager].userProfile setGoogleUserId:googleUserId];
     }];
 }
 
-+ (void)setGoogleUserId:(NSString *)googleUserId
-{
++ (void)setAge:(NSInteger)userAge {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.googleUserId = googleUserId;
+        [[TuneManager currentManager].userProfile setAge:@(userAge)];
     }];
 }
 
-+ (void)setAge:(NSInteger)userAge
-{
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.age = @(userAge);
-    }];
-}
-
-+ (void)setGender:(TuneGender)userGender
-{
++ (void)setGender:(TuneGender)userGender {
     [opQueue addOperationWithBlock:^{
         NSNumber *gen = (TuneGenderFemale == userGender || TuneGenderMale == userGender) ? @(userGender) : nil;
-        [self sharedManager].parameters.gender = gen;
+        [[TuneManager currentManager].userProfile setGender:gen];
     }];
 }
 
-+ (void)setLocation:(TuneLocation *)location
-{
++ (void)setLocation:(TuneLocation *)location {
     [opQueue addOperationWithBlock:^{
-#if !TARGET_OS_WATCH
-        [[self sharedManager] setShouldAutoCollectDeviceLocation:NO];
-#endif
-        [self sharedManager].parameters.location = location;
+        [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:NO];
+        [[TuneManager currentManager].userProfile setLocation:location];
     }];
 }
 
-+ (void)setAppAdMeasurement:(BOOL)enable
-{
++ (void)setAppAdMeasurement:(BOOL)enable {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.appAdTracking = @(enable);
+        [[TuneManager currentManager].userProfile setAppAdTracking:@(enable)];
     }];
 }
 
-+ (void)setPluginName:(NSString *)pluginName
-{
++ (void)setPluginName:(NSString *)pluginName {
     [opQueue addOperationWithBlock:^{
         if( pluginName == nil )
-            [self sharedManager].parameters.pluginName = pluginName;
+            [TuneManager currentManager].configuration.pluginName = pluginName;
         else
             for( NSString *allowedName in PLUGIN_NAMES )
                 if( [pluginName isEqualToString:allowedName] ) {
-                    [self sharedManager].parameters.pluginName = pluginName;
+                    [TuneManager currentManager].configuration.pluginName = pluginName;
                     break;
                 }
     }];
 }
 
-+ (void)setLocationAuthorizationStatus:(NSInteger)authStatus // private method
-{
++ (void)setLocationAuthorizationStatus:(NSInteger)authStatus { // private method
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.locationAuthorizationStatus = @(authStatus);
+        [TuneManager currentManager].userProfile.locationAuthorizationStatus = @(authStatus);
     }];
 }
 
-+ (void)setBluetoothState:(NSInteger)bluetoothState // private method
-{
++ (void)setBluetoothState:(NSInteger)bluetoothState { // private method
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.bluetoothState = @(bluetoothState);
+        [TuneManager currentManager].userProfile.bluetoothState = @(bluetoothState);
     }];
 }
 
-+ (void)setPayingUser:(BOOL)isPayingUser
-{
++ (void)setPayingUser:(BOOL)isPayingUser {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setPayingUser:isPayingUser];
+        [[TuneManager currentManager].userProfile setPayingUser:@(isPayingUser)];
     }];
 }
 
-+ (void)setPreloadData:(TunePreloadData *)preloadData
-{
++ (void)setPreloadData:(TunePreloadData *)preloadData {
     [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setPreloadData:preloadData];
+        [[TuneManager currentManager].userProfile setPreloadData:preloadData];
     }];
 }
 
+#pragma mark - Register/Set Custom Profile Variables
+
++ (void)registerCustomProfileString:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerString:variableName];
+}
+
++ (void)registerCustomProfileString:(NSString *)variableName hashed:(BOOL)shouldHash {
+    [[TuneManager currentManager].userProfile registerString:variableName hashed:shouldHash];
+}
+
++ (void)registerCustomProfileBoolean:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerBoolean:variableName];
+}
+
++ (void)registerCustomProfileDateTime:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerDateTime:variableName];
+}
+
++ (void)registerCustomProfileNumber:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerNumber:variableName];
+}
+
++ (void)registerCustomProfileGeolocation:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerGeolocation:variableName];
+}
+
++ (void)registerCustomProfileVersion:(NSString *)variableName {
+    [[TuneManager currentManager].userProfile registerVersion:variableName];
+}
+
++ (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value {
+    [[TuneManager currentManager].userProfile registerString:variableName withDefault:value];
+}
+
++ (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldHash {
+    [[TuneManager currentManager].userProfile registerString:variableName withDefault:value hashed:shouldHash];
+}
+
++ (void)registerCustomProfileBoolean:(NSString *)variableName withDefault:(NSNumber *)value {
+    [[TuneManager currentManager].userProfile registerBoolean:variableName withDefault:value];
+}
+
++ (void)registerCustomProfileDateTime:(NSString *)variableName withDefault:(NSDate *)value {
+    [[TuneManager currentManager].userProfile registerDateTime:variableName withDefault:value];
+}
+
++ (void)registerCustomProfileNumber:(NSString *)variableName withDefault:(NSNumber *)value {
+    [[TuneManager currentManager].userProfile registerNumber:variableName withDefault:value];
+}
+
++ (void)registerCustomProfileGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value {
+    [[TuneManager currentManager].userProfile registerGeolocation:variableName withDefault:value];
+}
+
++ (void)registerCustomProfileVersion:(NSString *)variableName withDefault:(NSString *)value {
+    [[TuneManager currentManager].userProfile registerVersion:variableName withDefault:value];
+}
+
++ (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setStringValue:value forVariable:name];
+}
+
++ (void)setCustomProfileBooleanValue:(NSNumber *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setBooleanValue:value forVariable:name];
+}
+
++ (void)setCustomProfileDateTimeValue:(NSDate *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setDateTimeValue:value forVariable:name];
+}
+
++ (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setNumberValue:value forVariable:name];
+}
+
++ (void)setCustomProfileGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setGeolocationValue:value forVariable:name];
+}
+
++ (void)setCustomProfileVersionValue:(NSString *)value forVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile setVersionValue:value forVariable:name];
+}
+
++ (NSString *)getCustomProfileString:(NSString *)name {
+    return [[TuneManager currentManager].userProfile getCustomProfileString:name];
+}
+
++ (NSDate *)getCustomProfileDateTime:(NSString *)name {
+    return [[TuneManager currentManager].userProfile getCustomProfileDateTime:name];
+}
+
++ (NSNumber *)getCustomProfileNumber:(NSString *)name {
+    return [[TuneManager currentManager].userProfile getCustomProfileNumber:name];
+}
+
++ (TuneLocation *)getCustomProfileGeolocation:(NSString *)name {
+    return [[TuneManager currentManager].userProfile getCustomProfileGeolocation:name];
+}
+
++ (void)clearCustomProfileVariable:(NSString *)name {
+    [[TuneManager currentManager].userProfile clearCustomVariables:[NSSet setWithObject:name]];
+}
+
++ (void)clearAllCustomProfileVariables {
+    [[TuneManager currentManager].userProfile clearCustomProfile];
+}
 
 #pragma mark - Getter Methods
 
-+ (NSString*)appleAdvertisingIdentifier
-{
-    return [self sharedManager].parameters.ifa;
++ (NSString*)appleAdvertisingIdentifier {
+    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_IOS_IFA];
 }
 
-+ (NSString*)matId
-{
-    return [self tuneId];
++ (NSString*)tuneId {
+    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_MAT_ID];
 }
 
-+ (NSString*)tuneId
-{
-    return [self sharedManager].parameters.tuneId;
++ (NSString*)openLogId {
+    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_OPEN_LOG_ID];
 }
 
-+ (NSString*)openLogId
-{
-    return [self sharedManager].parameters.openLogId;
++ (BOOL)isPayingUser {
+    return [[[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_IS_PAYING_USER] boolValue];
 }
 
-+ (BOOL)isPayingUser
-{
-    return [[self sharedManager].parameters.payingUser boolValue];
++ (NSString *)getPushToken {
+    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_DEVICE_TOKEN];
 }
 
 
-#if USE_IAD
+#pragma mark - Power Hook API
 
-#pragma mark - iAd Display Methods
-
-+ (void)displayiAdInView:(UIView*)view
-{
-    [opQueue addOperationWithBlock:^{
-        TuneTracker *tune = [self sharedManager];
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [tune displayiAdInView:view];
-        }];
-    }];
++(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue {
+    [Tune registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:nil approvedValues:nil];
 }
 
-+ (void)removeiAd
-{
-    [opQueue addOperationWithBlock:^{
-        TuneTracker *tune = [self sharedManager];
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [tune removeiAd];
-        }];
-    }];
++(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description {
+    [Tune registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:description approvedValues:nil];
 }
 
++(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description approvedValues:(NSArray *)approvedValues {
+    [[TuneManager currentManager].powerHookManager registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:description approvedValues:approvedValues];
+}
+
+
++(NSString *)getValueForHookById:(NSString *)hookId {
+    return [[TuneManager currentManager].powerHookManager getValueForHookById:hookId];
+}
+
++(void)setValueForHookById:(NSString *)hookId value:(NSString *)value {
+    [[TuneManager currentManager].powerHookManager setValueForHookById:hookId value:value];
+}
+
++(void)onPowerHooksChanged:(void (^)()) block {
+    [[TuneManager currentManager].powerHookManager onPowerHooksChanged:block];
+}
+
+
+#pragma mark - Deep Action API
+
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
+    [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
+                                                                friendlyName:friendlyName
+                                                                 description:nil
+                                                                        data:data
+                                                              approvedValues:nil
+                                                                   andAction:deepAction];
+}
+
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
+    [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
+                                                                friendlyName:friendlyName
+                                                                 description:description
+                                                                        data:data
+                                                              approvedValues:nil
+                                                                   andAction:deepAction];
+}
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data approvedValues:(NSDictionary *)approvedValues andAction:(void (^)(NSDictionary *extra_data))deepAction  {
+    [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
+                                                                friendlyName:friendlyName
+                                                                 description:description
+                                                                        data:data
+                                                              approvedValues:approvedValues
+                                                                   andAction:deepAction];
+}
+
+
+#pragma mark - Push Notifications API
+
+#if TARGET_OS_IOS
+
++ (void)application:(UIApplication *)application tuneDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [TuneAppDelegate application:application tune_didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
++ (void)application:(UIApplication *)application tuneDidFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    [TuneAppDelegate application:application tune_didFailToRegisterForRemoteNotificationsWithError:error];
+}
+
++ (void)application:(UIApplication *)application tuneDidReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    [TuneAppDelegate application:application tune_didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+}
+
++ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+    [TuneAppDelegate application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+}
+
++ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler {
+    [TuneAppDelegate application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
+}
 #endif
+
+#pragma mark - Spotlight API
+
+#if !TARGET_OS_WATCH
++ (BOOL)application:(UIApplication *)application tuneContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler {
+    return [TuneAppDelegate application:application tune_continueUserActivity:userActivity restorationHandler:restorationHandler];
+}
+#endif
+
+#pragma mark - Experiment API
+
++ (NSDictionary *)getPowerHookVariableExperimentDetails {
+    return [[TuneManager currentManager].experimentManager getPowerHookVariableExperimentDetails];
+}
+
++ (NSDictionary *)getInAppMessageExperimentDetails {
+    return [[TuneManager currentManager].experimentManager getInAppMessageExperimentDetails];
+}
+
+#pragma mark - Playlist API
+
++ (void)onFirstPlaylistDownloaded:(void (^)())block {
+    [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:-1];
+}
+
++ (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout {
+    [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:timeout];
+}
 
 
 #pragma mark - Measure Methods
 
-+ (void)measureSession
-{
++ (void)measureSession {
     [self measureEventName:TUNE_EVENT_SESSION];
 }
 
-+ (void)measureEventName:(NSString *)eventName
-{
++ (void)measureEventName:(NSString *)eventName {
     [self measureEvent:[TuneEvent eventWithName:eventName]];
 }
 
-+ (void)measureEventId:(NSInteger)eventId
-{
++ (void)measureEventId:(NSInteger)eventId {
     [self measureEvent:[TuneEvent eventWithId:eventId]];
 }
 
-+ (void)measureEvent:(TuneEvent *)event
-{
++ (void)measureEvent:(TuneEvent *)event {
+    if (event == nil) {
+        ErrorLog(@"Events passed to 'measureEvent:' can not be nil.");
+        return;
+    }
+    
+    // Handoff to new code via CustomEvent Skyhook
+    [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCustomEventOccurred
+                                                  object:nil
+                                                userInfo:@{ TunePayloadCustomEvent: event }];
+    
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] measureEvent:event];
     }];
 }
 
-#pragma mark - MeasureAction Methods (Deprecated)
-
-+ (void)measureAction:(NSString *)eventName
-{
-    [self measureEventName:eventName];
-}
-
-+ (void)measureAction:(NSString *)eventName
-          referenceId:(NSString *)refId
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.refId = refId;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-          referenceId:(NSString *)refId
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-          referenceId:(NSString *)refId
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-          referenceId:(NSString *)refId
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-          referenceId:(NSString *)refId
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-     transactionState:(NSInteger)transactionState
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    evt.transactionState = transactionState;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureAction:(NSString *)eventName
-           eventItems:(NSArray *)eventItems
-          referenceId:(NSString *)refId
-        revenueAmount:(float)revenueAmount
-         currencyCode:(NSString *)currencyCode
-     transactionState:(NSInteger)transactionState
-              receipt:(NSData *)receipt
-{
-    TuneEvent *evt = [TuneEvent eventWithName:eventName];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    evt.transactionState = transactionState;
-    evt.receipt = receipt;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-{
-    [self measureEventId:eventId];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                     referenceId:(NSString *)refId
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.refId = refId;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                     referenceId:(NSString *)refId
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.eventItems = eventItems;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-                     referenceId:(NSString *)refId
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.refId = refId;
-    evt.eventItems = eventItems;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.eventItems = eventItems;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-                     referenceId:(NSString *)refId
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-                     referenceId:(NSString *)refId
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-                transactionState:(NSInteger)transactionState
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    evt.transactionState = transactionState;
-    
-    [self measureEvent:evt];
-}
-
-+ (void)measureActionWithEventId:(NSInteger)eventId
-                      eventItems:(NSArray *)eventItems
-                     referenceId:(NSString *)refId
-                   revenueAmount:(float)revenueAmount
-                    currencyCode:(NSString *)currencyCode
-                transactionState:(NSInteger)transactionState
-                         receipt:(NSData *)receipt
-{
-    TuneEvent *evt = [TuneEvent eventWithId:eventId];
-    evt.eventItems = eventItems;
-    evt.refId = refId;
-    evt.revenue = revenueAmount;
-    evt.currencyCode = currencyCode;
-    evt.transactionState = transactionState;
-    evt.receipt = receipt;
-    
-    [self measureEvent:evt];
-}
-
-
 #pragma mark - Other Methods
 
-+ (void)setUseCookieMeasurement:(BOOL)enable
-{
+// Helper method for testing so we hold up execution before asserts.
++ (void)waitUntilAllOperationsAreFinishedOnQueue {
+    [opQueue waitUntilAllOperationsAreFinished];
+}
+
++ (void)setUseCookieMeasurement:(BOOL)enable {
     [opQueue addOperationWithBlock:^{
         [self sharedManager].shouldUseCookieTracking = enable;
     }];
 }
 
-+ (void)setRedirectUrl:(NSString *)redirectURL
-{
++ (void)setRedirectUrl:(NSString *)redirectURL {
     [opQueue addOperationWithBlock:^{
-        [self sharedManager].parameters.redirectUrl = redirectURL;
+        [[TuneManager currentManager].userProfile setRedirectUrl:redirectURL];
     }];
 }
 
@@ -717,10 +662,12 @@ static NSOperationQueue *opQueue = nil;
     }];
 }
 
-+ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication
-{
++ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
+        
+        // Process any Marketing Automation info in deeplink url
+        [TuneDeeplink processDeeplinkURL:[NSURL URLWithString:urlString]];
     }];
 }
 
@@ -733,6 +680,20 @@ static NSOperationQueue *opQueue = nil;
     [opQueue addOperationWithBlock:^{
         [[self sharedManager].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
     }];
+}
+#endif
+
+#pragma mark - Testing Helpers
+
+#if TESTING
+static TuneTracker *_sharedManagerOverride = nil;
+
++ (void)reInitSharedManagerOverride {
+    _sharedManagerOverride = [[TuneTracker alloc] init];
+}
+
++ (void)setAllowDuplicateRequests:(BOOL)allowDup {
+    _sharedManagerOverride.allowDuplicateRequests = allowDup;
 }
 #endif
 

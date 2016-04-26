@@ -1,0 +1,52 @@
+{
+    "schema_version": "1.0",
+    "power_hooks":{},
+    "messages":{
+        "message_id_1":{
+            "triggerEvent":"88e5f8a1b3226cc141432dae9177fdd5",
+            "campaignID":"xyzzy",
+            "messageID":"8675309",
+            "startDate":"2014-01-01 02:01:19 UTC",
+            "endDate":"2024-01-01 02:01:19 UTC",
+            "lengthOfTimeToReport": "100000000",
+            "displayFrequency": {
+                "limit" : "0",
+                "scope" : "INSTALL",
+                "lifetimeMaximum" : "0"
+            },
+            "message":{
+                "messageType": "TuneMessageTypeSlideIn",
+                "messageLocationType" : "TuneMessageLocationBottom",
+                "duration" : "0",
+                "closeButtonColor" : "TuneSlideInMessageCloseButtonColorBlack",
+                "backgroundColor" : "#F04123",
+                "phoneAction" : {
+                    "powerHookName": "ShowSuccessPowerhook",
+                    "powerHookParams": {"testParam1":"Great","testParam2":"Success"}
+                },
+                "tabletAction" : {
+                    "powerHookName": "ShowSuccessPowerhook",
+                    "powerHookParams": {"testParam1":"Great","testParam2":"Success"}
+                },
+                "phonePortraitMessage": {
+                    "text": "Slide In Message Test Message phonePortrait Message",
+                    "size": "12",
+                    "textColor": "#FFFFFF",
+                    "weight": "bold"
+                },
+                "phoneLandscape480Message": {
+                    "text": "Slide In Message Test Message phoneLandscape 480Message"
+                },
+                "phoneLandscape568Message": {
+                    "text": "Slide In Message Test Message phoneLandscape 568Message"
+                },
+                "tabletPortraitMessage": {
+                    "text": "Slide In Message Test Message tabletPortrait Message"
+                },
+                "tabletLandscapeMessage": {
+                    "text": "Slide In Message Test Message tabletLandscape Message"
+                }
+            }
+        }
+    }
+}

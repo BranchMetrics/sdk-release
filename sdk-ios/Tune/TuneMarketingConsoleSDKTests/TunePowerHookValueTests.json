@@ -1,0 +1,10 @@
+{
+    "power_hooks": {
+        "couponDiscount" : {
+            "value" :  "0.35"
+        }
+    },
+    "messages": {},
+    "experiment_details": {},
+    "schema_version": "1.0"
+}

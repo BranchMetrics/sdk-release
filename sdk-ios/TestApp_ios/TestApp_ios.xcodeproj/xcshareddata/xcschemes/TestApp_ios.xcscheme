@@ -35,7 +35,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "42EAA53F1860F4B800041A8D"
                BuildableName = "MobileAppTracker Tests.xctest"
-               BlueprintName = "MobileAppTrackerTests_iOS"
+               BlueprintName = "MobileAppTrackerTests_ios"
                ReferencedContainer = "container:../Tune/MobileAppTracker.xcodeproj">
             </BuildableReference>
          </TestableReference>

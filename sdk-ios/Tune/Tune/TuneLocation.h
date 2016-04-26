@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface TuneLocation : NSObject
+@interface TuneLocation : NSObject <NSCoding>
 
 @property (nonatomic, copy) NSNumber *altitude;
 @property (nonatomic, copy) NSNumber *latitude;
