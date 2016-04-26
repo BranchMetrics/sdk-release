@@ -1,0 +1,114 @@
+import java.util.regex.Pattern
+
+apply plugin: 'com.android.library'
+
+ext {
+    PUBLISH_GROUP_ID = 'com.tune'
+    PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
+    PUBLISH_VERSION = '4.1.0'
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 23
+        versionName '4.1.0'
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "Boolean", "DEBUG_MODE", "true"
+        }
+        release {
+            buildConfigField "Boolean", "DEBUG_MODE", "false"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.android.support:support-v4:23.+'
+    // Unit testing dependencies
+    androidTestCompile 'com.android.support:support-annotations:23.1.1'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
+    testCompile 'junit:junit:4.12'
+}
+
+// Delete old jar
+task clearJar(type: Delete) {
+    delete "../dist/${project.name}-${android.defaultConfig.versionName}.jar"
+    doLast {
+        println "Deleting old /dist/${project.name}-${android.defaultConfig.versionName}.jar"
+    }
+}
+
+// Extract jar from aar
+task makeJar(type:Copy, dependsOn: [clearJar, assemble]) {
+    def manifestFile = file("src/main/AndroidManifest.xml")
+    def pattern = Pattern.compile("versionName=\"(.*)\"")
+    def manifestText = manifestFile.getText()
+    def matcher = pattern.matcher(manifestText)
+    matcher.find()
+    doLast {
+        println "Setting AndroidManifest.xml versionName to ${android.defaultConfig.versionName}"
+    }
+    def manifestContent = matcher.replaceAll("versionName=\"" + android.defaultConfig.versionName + "\"")
+    manifestFile.write(manifestContent)
+
+    String archiveName = "${project.name}-release"
+    String outputDir = "${buildDir.getPath()}/outputs"
+    String jarName = "${project.name}-${android.defaultConfig.versionName}"
+
+    doLast {
+        println "Extracting classes.jar from ${outputDir}/aar/${archiveName}.aar"
+    }
+    from(zipTree("${outputDir}/aar/${archiveName}.aar"))
+    into("../dist/")
+    include('classes.jar')
+    rename ('classes.jar', "${jarName}.jar")
+    doLast {
+        println "Created /dist/${jarName}.jar"
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    options {
+        links "http://docs.oracle.com/javase/7/docs/api/"
+        linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
+    }
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+// Allow us to build as an Android Studio library
+// https://medium.com/@tigr/how-to-publish-your-android-studio-library-to-jcenter-5384172c4739#.vg4grvo60
+apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'

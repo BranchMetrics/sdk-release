@@ -1,0 +1,139 @@
+package com.tune.ma.eventbus;
+
+import com.tune.BuildConfig;
+import com.tune.TuneUrlKeys;
+import com.tune.ma.analytics.model.TuneAnalyticsVariable;
+import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneManagerInitialized;
+import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
+import com.tune.ma.utils.TuneDebugLog;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
+
+public class TuneEventBus {
+    public static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(BuildConfig.DEBUG_MODE).build();
+
+    // Higher priorities get executed first.
+    public static final int PRIORITY_FIRST = 100;
+    public static final int PRIORITY_SECOND = 99;
+    public static final int PRIORITY_THIRD = 98;
+    public static final int PRIORITY_IRRELEVANT = 2;
+
+    // Use a queue in order to store events that occur before TuneManager is ready
+    // After TuneManager is initialized, events will be sent real-time over the bus
+    private static List<Object> eventQueue = new ArrayList<Object>();
+
+    // Event Bus is disabled by default until turnOnTMA is true
+    private static volatile boolean enabled = false;
+    private static volatile boolean managerInitialized = false;
+    private static volatile boolean gaidCompleted = false;
+
+    public static synchronized void post(Object event) {
+        if (!enabled) {
+            return;
+        }
+
+        // If event being posted is TuneManagerInitialized, set flag and return
+        // Do not propagate the current TuneManagerInitialized event to bus
+        if (event instanceof TuneManagerInitialized) {
+            managerInitialized = true;
+            // Dequeue events if GetGAIDCompleted event was already received
+            if (gaidCompleted) {
+                dequeue();
+            }
+            return;
+        }
+
+        // If event being posted is TuneGetGAIDCompleted, set flag, set GAID in user profile, and dequeue events
+        // Do not propagate the current TuneGetGAIDCompleted event to bus
+        if (event instanceof TuneGetGAIDCompleted) {
+            gaidCompleted = true;
+            TuneGetGAIDCompleted gaidEvent = (TuneGetGAIDCompleted) event;
+            // Insert device id update events into the beginning of queue so they get processed first
+            // We received a GAID, update GAID user profile values
+            if (gaidEvent.receivedGAID()) {
+                eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, gaidEvent.getGAID())));
+                eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING, gaidEvent.getLimitAdTrackingEnabled())));
+            } else {
+                // We received ANDROID ID as fallback, update ANDROID_ID user profile values
+                eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID, gaidEvent.getAndroidId())));
+            }
+            
+            // Dequeue events if ManagerInitialized event was already received
+            if (managerInitialized) {
+                dequeue();
+            }
+            return;
+        }
+
+        // Check the status of whether the two above events were received...
+        if (managerInitialized && gaidCompleted) {
+            // Post the event if both TuneManager was initialized and GetGAID completed
+            EVENT_BUS.post(event);
+        } else {
+            // Queue the event otherwise
+            TuneDebugLog.d("Adding event " + event.getClass().getName() + " to queue with current size " + eventQueue.size());
+            eventQueue.add(event);
+        }
+    }
+
+    public static void register(Object subscriber) {
+        if (!enabled) {
+            return;
+        }
+        EVENT_BUS.register(subscriber);
+    }
+
+    public static void register(Object subscriber, int priority) {
+        if (!enabled) {
+            return;
+        }
+        EVENT_BUS.register(subscriber, priority);
+    }
+
+    public static void unregister(Object subscriber) {
+        if (!enabled || subscriber == null) {
+            return;
+        }
+        EVENT_BUS.unregister(subscriber);
+    }
+
+    public static void disable() {
+        // Disable bus from being used
+        enabled = false;
+        // Remove any queued events without sending
+        eventQueue.clear();
+    }
+
+    public static void enable() {
+        enabled = true;
+    }
+
+    protected static synchronized List<Object> getQueue() {
+        return eventQueue;
+    }
+
+    public static void clearFlags() {
+        managerInitialized = false;
+        gaidCompleted = false;
+    }
+
+    private static synchronized void dequeue() {
+        // Dequeue the queued events
+        Iterator<Object> it = eventQueue.iterator();
+        while (it.hasNext()) {
+            Object queuedEvent = it.next();
+            EVENT_BUS.post(queuedEvent);
+            it.remove();
+        }
+    }
+
+    // This method is only used for the EnableDisable tests
+    public static boolean isEnabled() {
+        return enabled;
+    }
+}

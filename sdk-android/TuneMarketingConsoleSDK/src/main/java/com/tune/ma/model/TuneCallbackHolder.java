@@ -1,0 +1,92 @@
+package com.tune.ma.model;
+
+import com.tune.ma.TuneManager;
+import com.tune.ma.playlist.TunePlaylistManager;
+import com.tune.ma.session.TuneSessionManager;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+/**
+ * Created by gowie on 1/28/16.
+ */
+public class TuneCallbackHolder {
+
+    private TuneCallback callback;
+    private long timeInMillis;
+    private Timer timer;
+    private Object lock;
+    private boolean timerActive;
+    private boolean canceled;
+
+    public TuneCallbackHolder(TuneCallback callback) {
+        this.callback = callback;
+        this.lock = new Object();
+        this.timerActive = false;
+        this.canceled = false;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
+    }
+
+    public long getTimeout() {
+        return this.timeInMillis;
+    }
+
+    public void setTimeout(long timeInMillis) {
+        this.timeInMillis = timeInMillis;
+        timer = new Timer(true);
+        timerActive = true;
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    timerActive = false;
+                }
+                execute();
+            }
+        }, this.timeInMillis);
+    }
+
+    public void stopTimer() {
+        synchronized (lock) {
+            if (timer != null) {
+                if (timerActive) {
+                    timerActive = false; // timer could still fire, invalidate to stop
+                    this.timer.cancel();
+                    canceled = true;
+                }
+                timer = null;
+            }
+        }
+    }
+
+    public void executeBlock() {
+        synchronized (lock) {
+            if (timer != null) {
+                if (timerActive) {
+                    timerActive = false; // timer could still fire, invalidate to stop
+                    this.timer.cancel();
+                }
+
+                timer = null;
+            }
+            
+            execute();
+        }
+    }
+
+    private void execute() {
+        if (callback != null) {
+            TunePlaylistManager playlistManager = TuneManager.getInstance().getPlaylistManager();
+            TuneSessionManager sessionManager = TuneManager.getInstance().getSessionManager();
+            // Only execute callback and mark as executed if app is in foreground
+            if (!playlistManager.hasFirstPlaylistCallbackExecuted() && !sessionManager.isBackgrounded()) {
+                playlistManager.setFirstPlaylistCallbackExecuted(true);
+                callback.execute();
+            }
+        }
+    }
+}
