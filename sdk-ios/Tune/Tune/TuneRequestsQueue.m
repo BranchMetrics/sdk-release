@@ -153,8 +153,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     }
 }
 
-- (void)push:(NSDictionary*)object
-{
+- (void)push:(NSDictionary*)object {
     TuneRequestsQueuePart * lastPart = [self getLastPart];
     if (!lastPart || lastPart.requestsLimitReached)
         lastPart = [self addNewPart];
@@ -176,8 +175,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 #endif
 }
 
-- (void)pushToHead:(NSDictionary*)object
-{
+- (void)pushToHead:(NSDictionary*)object {
     TuneRequestsQueuePart * lastPart = [self getLastPart];
     if (!lastPart || lastPart.requestsLimitReached)
         lastPart = [self addNewPart];
@@ -199,15 +197,13 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 #endif
 }
 
-- (NSDictionary*)pop
-{
+- (NSDictionary*)pop {
     NSDictionary * object = nil;
 
     DebugLog(@"TuneReqQue: pop: start");
     
     TuneRequestsQueuePart * firstPart = [self getFirstPart];
-    if (firstPart)
-    {
+    if (firstPart) {
         object = [firstPart pop];
         DebugLog(@"TuneReqQue: pop: pass1: %@,\nfirstPart isEmpty = %d", object, firstPart.empty);
         if (firstPart.empty)
@@ -218,8 +214,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     return object;
 }
 
-- (void)save
-{
+- (void)save {
     DebugLog(@"TuneReqQue: save: %@", self.pathStorageFile);
     
     /// Save parts description file
@@ -228,8 +223,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
     NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_PARTS];
     
     @synchronized( queueParts_ ) {
-        for (TuneRequestsQueuePart *part in queueParts_)
-        {
+        for (TuneRequestsQueuePart *part in queueParts_) {
             /// If part is modified save it to file
             if (part.isModified)
                 [part save];
@@ -260,8 +254,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
         DebugLog(@"TuneReqQue: save: error = %@", [error localizedDescription]);
 }
 
-- (BOOL)load
-{
+- (BOOL)load {
     DebugLog(@"TuneReqQue: load: filePath = %@", self.pathStorageFile);
     
     BOOL result = NO;
@@ -298,8 +291,7 @@ NSString * const XML_NODE_ATTRIBUTE_REQUESTS = @"requests";
 #pragma mark - NSXMLParser Delegate Methods
 
 // sent when the parser finds an element start tag.
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
-{
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
     if(0 == [elementName compare:XML_NODE_PART]) {
         NSUInteger storedIndex = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_INDEX] intValue];
         NSUInteger requests = [[attributeDict objectForKey:XML_NODE_ATTRIBUTE_REQUESTS] intValue];

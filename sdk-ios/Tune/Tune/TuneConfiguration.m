@@ -313,11 +313,9 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
                 // update config and post a skyhook notification
                 [self updateConfigurationWithRemoteDictionary:configurationDictionary];
             }
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Error processing the configuration: %@", exception);
-        }
-        @finally {
+        } @finally {
             _updatingConfiguration = NO;
         }
     }];
@@ -600,8 +598,7 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
             }
         }
         _PIIFiltersAsNSRegularExpressions = [NSArray arrayWithArray:regexFiltersAsNSRegularExpressions];
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Exception parsing %@ %@",TUNE_TMA_PII_FILTERS_NSSTRING,exception.description);
     }
 }
@@ -609,38 +606,33 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 #pragma mark - Direct Setters (that trigger the Dictionary Setters)
 
 #if !TARGET_OS_WATCH
-- (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetectJailbroken
-{
+- (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetectJailbroken {
     _shouldAutoDetectJailbroken = shouldAutoDetectJailbroken;
 
     [self updateShouldAutoDetectJailbroken:@{TUNE_KEY_AUTOCOLLECT_JAILBROKEN: @(_shouldAutoDetectJailbroken)}];
 }
 
-- (void)setShouldAutoCollectAdvertisingIdentifier:(BOOL)shouldAutoCollectAdvertisingIdentifier
-{
+- (void)setShouldAutoCollectAdvertisingIdentifier:(BOOL)shouldAutoCollectAdvertisingIdentifier {
     _shouldAutoCollectAdvertisingIdentifier = shouldAutoCollectAdvertisingIdentifier;
     
     [self updateShouldAutoCollectAdvertisingIdentifier:@{TUNE_KEY_AUTOCOLLECT_IFA: @(_shouldAutoCollectAdvertisingIdentifier)}];
 }
 
-- (void)setShouldAutoGenerateVendorIdentifier:(BOOL)shouldAutoGenerateVendorIdentifier
-{
+- (void)setShouldAutoGenerateVendorIdentifier:(BOOL)shouldAutoGenerateVendorIdentifier {
     _shouldAutoGenerateVendorIdentifier = shouldAutoGenerateVendorIdentifier;
     
     [self updateShouldAutoGenerateVendorIdentifier:@{TUNE_KEY_AUTOCOLLECT_IFV: @(_shouldAutoGenerateVendorIdentifier)}];
 }
 #endif
 
-- (void)setDebugMode:(NSNumber *)debugMode
-{
+- (void)setDebugMode:(NSNumber *)debugMode {
     _debugMode = debugMode;
     
     [self updateDebugMode:@{TUNE_KEY_DEBUG: _debugMode}];
 }
 
 #if !TARGET_OS_WATCH
-- (void)setShouldAutomateIapMeasurement:(BOOL)shouldAutomateIapMeasurement
-{
+- (void)setShouldAutomateIapMeasurement:(BOOL)shouldAutomateIapMeasurement {
     _shouldAutomateIapMeasurement = shouldAutomateIapMeasurement;
     
     [self updateShouldAutomateIapMeasurement:@{TUNE_KEY_AUTO_IAP_MEASUREMENT: @(_shouldAutomateIapMeasurement)}];

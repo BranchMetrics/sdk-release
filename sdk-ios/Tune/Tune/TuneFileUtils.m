@@ -44,7 +44,6 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
     
     NSError *writeToFileError = nil;
     BOOL success = [plistData writeToFile:filePathName options:NSDataWritingAtomic error:&writeToFileError];
-    
     if (!success) {
         ErrorLog(@"Failed to write %@ to file.", filePathName);
     }
@@ -69,22 +68,28 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
 
 #pragma mark - File Management
 
-+ (BOOL)createDirectory:(NSString *)filePath {
++ (BOOL)createDirectory:(NSString *)folderPath {
+    return [self createDirectory:folderPath backup:NO];
+}
+
++ (BOOL)createDirectory:(NSString *)folderPath backup:(BOOL)shouldBackup {
+    BOOL success = YES;
     
-    if (nil == filePath) {
+    if (nil == folderPath) {
         DebugLog(@"Attempting to create directory with nil string.");
-        return  NO;
-    }
-    
-    if ([self fileExists:filePath]) { return YES; }
-    
-    NSError *error;
-    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:nil error:&error];
-    if ( (!success) && (error) ) {
-        if (![self fileExists:filePath]) {
-            DebugLog(@"Error creating directory at %@", filePath);
+        success = NO;
+    } else if (![self fileExists:folderPath]) {
+        NSError *error;
+        success = [[NSFileManager defaultManager] createDirectoryAtPath:folderPath withIntermediateDirectories:YES attributes:nil error:&error];
+        if ( success && !error && [self fileExists:folderPath]) {
+            if(!shouldBackup) {
+                [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:folderPath]];
+            }
+        } else {
+            DebugLog(@"Error creating directory at %@", folderPath);
         }
     }
+    
     return success;
 }
 
@@ -124,7 +129,7 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
     
     BOOL success = NO;
     
-    if([[NSFileManager defaultManager] fileExistsAtPath: [URL path]]) {
+    if([[NSFileManager defaultManager] fileExistsAtPath:[URL path]]) {
         NSError *error = nil;
         success = [URL setResourceValue:@(YES)
                                  forKey:NSURLIsExcludedFromBackupKey

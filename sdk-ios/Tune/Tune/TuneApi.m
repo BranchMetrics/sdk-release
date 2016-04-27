@@ -36,32 +36,31 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 #pragma mark - GET Requests
 
 + (TuneHttpRequest *)getConfigurationRequest {
+    TuneHttpRequest *request = nil;
+    
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
-    [request setEndpoint:TuneApiConfigEndpoint];
-    [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
-    [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
-
+    
     if ([profile hashedAppId]) {
+        TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+        [request setEndpoint:TuneApiConfigEndpoint];
+        [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
+        [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
+        
         @try {
             [request setEndpointArguments:[TuneApi buildDefaultEndpointArguments]];
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Error building configuration request %@", exception);
             return nil;
         }
 
-        [request setParameters: @{@"osVersion":[TuneDeviceUtils artisanIOSVersionString],
-                                  @"appVersion":[TuneUtils objectOrNull:profile.appVersion],
-                                  @"sdkVersion":[TuneUtils objectOrNull:profile.sdkVersion],
-                                  @"matId":[TuneUtils objectOrNull:profile.tuneId],
-                                  @"IFA":[TuneUtils objectOrNull:profile.appleAdvertisingIdentifier]}];
-
-        return request;
+        [request setParameters:@{@"osVersion":[TuneDeviceUtils artisanIOSVersionString],
+                                 @"appVersion":[TuneUtils objectOrNull:profile.appVersion],
+                                 @"sdkVersion":[TuneUtils objectOrNull:profile.sdkVersion],
+                                 @"matId":[TuneUtils objectOrNull:profile.tuneId],
+                                 @"IFA":[TuneUtils objectOrNull:profile.appleAdvertisingIdentifier]}];
     }
-    else {
-        return nil;
-    }
+    
+    return request;
 }
 
 + (TuneHttpRequest *)getPlaylistRequest {

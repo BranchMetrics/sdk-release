@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TuneFileManager.h"
-#import "TuneAnalyticsEvent.h"
+
+@class TuneManager;
+@class TuneAnalyticsEvent;
 
 @interface TuneAnalyticsDispatchToConnectedModeOperation : NSOperation {
 @private

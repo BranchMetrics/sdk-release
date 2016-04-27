@@ -134,6 +134,7 @@
 		3FD219941B98D63100626DC6 /* TuneEventItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD219931B98D63100626DC6 /* TuneEventItem+Internal.h */; };
 		3FEBF7FF1B8E5CE60030EF4D /* TunePIIUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */; };
 		3FEBF8001B8E5CE60030EF4D /* TunePIIUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */; };
+		AE89470A1CC55D5A00525862 /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		DB0FF56B1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF56A1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m */; };
 		DB0FF56D1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF56C1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m */; };
 		DB0FF5701B9107660071B996 /* TuneBlankViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF56F1B9107660071B996 /* TuneBlankViewController.m */; };
@@ -326,6 +327,8 @@
 		DBF535E91B97636C00B76885 /* TuneTriggerManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535E81B97636C00B76885 /* TuneTriggerManagerTests.m */; };
 		DBF535EB1B976C9400B76885 /* SlideInMessage1.json in Resources */ = {isa = PBXBuildFile; fileRef = DBF535EA1B976C9400B76885 /* SlideInMessage1.json */; };
 		F81985B01C8A353900AF8E87 /* TuneAutoParameterizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F4C1B66325E00C51B87 /* TuneAutoParameterizationTests.m */; };
+		F82670D91CC6C4E1007578BB /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
+		F82670DA1CC6C4E2007578BB /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		F83109951C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
 		F83109961C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
 		F8346B481CAF190800B0E7ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8346B471CAF190800B0E7ED /* UIKit.framework */; };
@@ -789,6 +792,8 @@
 		F88690661C0FD832007E2F9C /* NSObject+TuneSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB91353E1B680CB6006534E0 /* NSObject+TuneSBJSON.h */; };
 		F88690671C0FD839007E2F9C /* NSURLSession+SynchronousTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3ECD401BD6FAA70033FEB3 /* NSURLSession+SynchronousTask.m */; };
 		F88690681C0FD83D007E2F9C /* NSURLSession+SynchronousTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F3ECD441BD7FC560033FEB3 /* NSURLSession+SynchronousTask.h */; };
+		F8A8872E1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
+		F8A8872F1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
 		F8AE53A61BF3D0850055B93C /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */; };
 		F8AE53B21BF3D1230055B93C /* TuneAnalyticsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D61F1B6F1B61008101CE /* TuneAnalyticsConstants.h */; };
 		F8AE53B31BF3D15B0055B93C /* TuneExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5F11BBB6D8F009FD499 /* TuneExperimentDetails+Internal.h */; };
@@ -1081,6 +1086,7 @@
 		3FE85AF51B87F921008E706B /* TuneAnalyticsItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAnalyticsItemTests.m; sourceTree = "<group>"; };
 		3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePIIUtils.h; sourceTree = "<group>"; };
 		3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePIIUtils.m; sourceTree = "<group>"; };
+		AE8947091CC55D5A00525862 /* TuneConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneConstants.m; sourceTree = "<group>"; };
 		DB0FF56A1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSwizzleBlacklistTests.m; sourceTree = "<group>"; };
 		DB0FF56C1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+TuneAnalyticsTests.m"; sourceTree = "<group>"; };
 		DB0FF56E1B9107660071B996 /* TuneBlankViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneBlankViewController.h; sourceTree = "<group>"; };
@@ -1255,6 +1261,7 @@
 		F8868F0B1C0FC3F2007E2F9C /* Tune_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8868F0D1C0FC3F2007E2F9C /* Tune_watchOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tune_watchOS.h; sourceTree = "<group>"; };
 		F8868F0F1C0FC3F2007E2F9C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneInAppUtilsTests.m; sourceTree = "<group>"; };
 		F8B3310F1CB31D7300C954B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		F8B331111CB31D7700C954B2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		F8B331151CB31DCD00C954B2 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
@@ -1942,6 +1949,7 @@
 				DB514E411B7BDC4F000706EE /* TuneArrayUtilsTests.m */,
 				3F3290C71B9635F600C472F8 /* TunePIIUtilsTests.m */,
 				F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */,
+				F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */,
 			);
 			name = "Utility Tests";
 			sourceTree = "<group>";
@@ -2143,6 +2151,7 @@
 				3FD184B41BB3594B00AAE0E1 /* TunePowerHookExperimentDetails.m */,
 				0BCB59C81B65F922005216E2 /* TunePreloadData.h */,
 				0BCB59C91B65F922005216E2 /* TunePreloadData.m */,
+				AE8947091CC55D5A00525862 /* TuneConstants.m */,
 			);
 			name = Public;
 			sourceTree = "<group>";
@@ -2877,6 +2886,7 @@
 				0BCB5A531B65F9B8005216E2 /* TuneEncrypter.m in Sources */,
 				0BCB5A7A1B65F9FB005216E2 /* TuneRequestsQueuePart.m in Sources */,
 				0BCB5A511B65F9B8005216E2 /* TuneDeferredDplinkr.m in Sources */,
+				AE89470A1CC55D5A00525862 /* TuneConstants.m in Sources */,
 				DB91355B1B680CB6006534E0 /* TuneSBJsonParser.m in Sources */,
 				DB24D6E81B67E2A3000C7462 /* TunePowerHookValue.m in Sources */,
 				0BCB59F11B65F949005216E2 /* TuneSkyhookPayload.m in Sources */,
@@ -2998,6 +3008,7 @@
 				3F36860D1BBDB7FB0034BDAE /* TuneDeepActionTests.m in Sources */,
 				DBF535E91B97636C00B76885 /* TuneTriggerManagerTests.m in Sources */,
 				F847F4491C87BF8A009E0531 /* TuneDeferredDplinkrTests.m in Sources */,
+				F8A8872E1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */,
 				DBCA431A1B8E642300483318 /* TuneFileManagerTests.m in Sources */,
 				DBCA431B1B8E642300483318 /* TuneConfigurationTests.m in Sources */,
 				3F36860A1BBD9B4C0034BDAE /* TuneDeepActionManagerTests.m in Sources */,
@@ -3055,6 +3066,7 @@
 				F886902C1C0FD187007E2F9C /* TuneEventKeys.m in Sources */,
 				F886902D1C0FD187007E2F9C /* TuneEventQueue.m in Sources */,
 				F886902E1C0FD187007E2F9C /* TuneFBBridge.m in Sources */,
+				F82670D91CC6C4E1007578BB /* TuneConstants.m in Sources */,
 				F886902F1C0FD187007E2F9C /* TuneIfa.m in Sources */,
 				F88690301C0FD187007E2F9C /* TuneInstallReceipt.m in Sources */,
 				F88690311C0FD187007E2F9C /* TuneKeyStrings.m in Sources */,
@@ -3182,6 +3194,7 @@
 				F84661471C3B4F0C005C42CC /* TuneEventTests.m in Sources */,
 				F846613B1C3B4EFA005C42CC /* TuneTestParams.m in Sources */,
 				F846614C1C3B4F0C005C42CC /* TuneQueueTests.m in Sources */,
+				F8A8872F1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */,
 				F84661351C3B4EFA005C42CC /* DictionaryLoader.m in Sources */,
 				F84661511C3B4F0C005C42CC /* TuneUtilsTests.m in Sources */,
 				F846613C1C3B4F00005C42CC /* TuneArrayUtilsTests.m in Sources */,
@@ -3240,6 +3253,7 @@
 				F84660BD1C3B4E4E005C42CC /* TuneCampaignStateManager.m in Sources */,
 				F84660FD1C3B4EAA005C42CC /* TuneFileUtils.m in Sources */,
 				F846608E1C3B4E13005C42CC /* TuneInstallReceipt.m in Sources */,
+				F82670DA1CC6C4E2007578BB /* TuneConstants.m in Sources */,
 				F84660C21C3B4E4E005C42CC /* TuneDeepActionManager.m in Sources */,
 				F84660911C3B4E13005C42CC /* TuneReachability.m in Sources */,
 				F84660901C3B4E13005C42CC /* TuneLocationHelper.m in Sources */,
@@ -3331,10 +3345,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
-				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Debug;
@@ -3343,10 +3359,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
-				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Release;
@@ -3357,6 +3375,7 @@
 				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;
 				VALID_ARCHS = armv7k;
@@ -3369,6 +3388,7 @@
 				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;
 				VALID_ARCHS = armv7k;
@@ -3381,6 +3401,7 @@
 				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 			};
@@ -3392,6 +3413,7 @@
 				GCC_PREFIX_HEADER = "Tune/Tune-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 			};
@@ -3493,6 +3515,7 @@
 		0BCB59A91B65EF6A005216E2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3520,6 +3543,7 @@
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SEPARATE_STRIP = NO;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
@@ -3530,6 +3554,7 @@
 		0BCB59AA1B65EF6A005216E2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3556,6 +3581,7 @@
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SEPARATE_STRIP = NO;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
@@ -3600,6 +3626,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
@@ -3642,6 +3669,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
@@ -3701,6 +3729,7 @@
 		F87622301C3C72DA0072E102 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3731,6 +3760,7 @@
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SEPARATE_STRIP = NO;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
@@ -3775,6 +3805,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
@@ -3783,10 +3814,12 @@
 		F87622321C3C72DA0072E102 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREFIX_HEADER = "TuneMarketingConsoleSDKTests/TuneTests-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Test;
@@ -3797,6 +3830,7 @@
 				GCC_PREFIX_HEADER = "TuneMarketingConsoleSDK/TuneTests-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 			};
@@ -3808,6 +3842,7 @@
 				GCC_PREFIX_HEADER = "TuneMarketingConsoleSDKTests/TuneTests-Prefix.pch";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;
 				VALID_ARCHS = armv7k;
@@ -3817,6 +3852,7 @@
 		F87622351C3C72DA0072E102 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3840,6 +3876,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3877,6 +3914,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
@@ -3888,6 +3926,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3904,6 +3943,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;
@@ -3915,6 +3955,7 @@
 		F8868F001C0FC385007E2F9C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3934,6 +3975,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3946,6 +3988,7 @@
 		F8868F011C0FC385007E2F9C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -3966,6 +4009,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
@@ -4003,6 +4047,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
@@ -4039,6 +4084,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SHARED_PRECOMPS_DIR = "";
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
@@ -4050,6 +4096,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4066,6 +4113,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;
@@ -4078,6 +4126,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -4095,6 +4144,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SHARED_PRECOMPS_DIR = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
 				TARGETED_DEVICE_FAMILY = 4;

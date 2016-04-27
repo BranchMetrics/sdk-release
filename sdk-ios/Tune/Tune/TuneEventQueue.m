@@ -8,13 +8,14 @@
 
 #import "TuneEventQueue.h"
 
+#import "TuneConfiguration.h"
 #import "TuneEncrypter.h"
-#import "TuneEventQueue.h"
 #import "TuneFileUtils.h"
 #import "TuneHttpUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneLocationHelper.h"
+#import "TuneManager.h"
 #import "TuneReachability.h"
 #import "TuneRequestsQueue.h"
 #import "TuneStringUtils.h"
@@ -46,8 +47,7 @@ static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
 
 #pragma mark - Private variables
 
-@interface TuneEventQueue()
-{
+@interface TuneEventQueue() {
     /*!
      Shared NSOperationQueue.
      */
@@ -152,19 +152,7 @@ static TuneEventQueue *sharedQueue = nil;
     NSString *baseFolder = [paths objectAtIndex:0];
     storageDir = [baseFolder stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
     
-    if( ![[NSFileManager defaultManager] fileExistsAtPath:storageDir] ) {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:storageDir
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:&error];
-        if( error != nil ) {
-            ErrorLog( @"Error creating queue storage directory: %@", error );
-        }
-        else {
-            [TuneFileUtils addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:storageDir]];
-        }
-    }
+    [TuneFileUtils createDirectory:storageDir];
 }
 
 /*!
@@ -657,8 +645,7 @@ static TuneEventQueue *sharedQueue = nil;
  
  Note: Calls to saveQueue should be wrapped in @synchronized(eventLock){}
  */
-- (void)saveQueue
-{
+- (void)saveQueue {
     NSError *error = nil;
     NSData *serializedQueue = [NSJSONSerialization dataWithJSONObject:events options:0 error:&error];
     if( error != nil ) {

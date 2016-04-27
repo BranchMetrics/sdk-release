@@ -9,6 +9,8 @@
 #import "TuneInAppUtils.h"
 #import "TuneFileUtils.h"
 #import "TuneFileManager.h"
+#import "TuneManager.h"
+#import "TuneMessageAction.h"
 #import "TuneUtils.h"
 
 @implementation TuneInAppUtils
@@ -16,27 +18,18 @@
 #pragma mark - Random Helpers
 
 + (float)screenScale {
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-        return [[UIScreen mainScreen] scale];
-    } else {
-        return 1.0f;
-    }
+    return [[UIScreen mainScreen] respondsToSelector:@selector(scale)] ? [[UIScreen mainScreen] scale] : 1.0;
 }
 
 + (BOOL)propertyIsNotEmpty:(id)property {
+    BOOL notEmpty = NO;
+    
     @try {
-        if ([property isKindOfClass:[NSString class]]) {
-            return ( (property) && ([property length] > 0) );
-        }
-        else if (!property) {
-            return NO;
-        }
-        else {
-            return YES;
-        }
-    }
-    @catch (NSException *exception) {
-        return NO;
+        notEmpty = nil != property && (![property isKindOfClass:[NSString class]] || [property length] > 0);
+    } @catch (NSException *exception) {
+        // empty
+    } @finally {
+        return notEmpty;
     }
 }
 
@@ -44,14 +37,13 @@
     NSNumber *foundNumber = nil;
     
     @try {
-        NSString *stringProperty = (NSString *)property;
-        foundNumber = [[NSDecimalNumber alloc] initWithFloat:[stringProperty floatValue]];
-    }
-    @catch (NSException *exception) {
+        foundNumber = [[NSDecimalNumber alloc] initWithFloat:[(NSString *)property floatValue]];
+    } @catch (NSException *exception) {
         // can't convert string
+        // empty
+    } @finally {
+        return foundNumber;
     }
-    
-    return foundNumber;
 }
 
 + (TuneMessageLocationType)getLocationTypeByString:(NSString *)messageLocationTypeString {
@@ -59,14 +51,11 @@
     
     if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationTop"]) {
         messageLocationType = TuneMessageLocationTop;
-    }
-    else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationBottom"]) {
+    } else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationBottom"]) {
         messageLocationType = TuneMessageLocationBottom;
-    }
-    else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationCentered"]) {
+    } else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationCentered"]) {
         messageLocationType = TuneMessageLocationCentered;
-    }
-    else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationCustom"]) {
+    } else if ([messageLocationTypeString isEqualToString:@"TuneMessageLocationCustom"]) {
         messageLocationType = TuneMessageLocationCustom;
     }
     
@@ -86,14 +75,11 @@
     if ( (backgroundMaskTypeString) && ([backgroundMaskTypeString length] > 0) ) {
         if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeLight"]) {
             maskType = TuneMessageBackgroundMaskTypeLight;
-        }
-        else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeDark"]) {
+        } else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeDark"]) {
             maskType = TuneMessageBackgroundMaskTypeDark;
-        }
-        else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeBlur"]) {
+        } else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeBlur"]) {
             // NOTE: This isn't supported yet.
-        }
-        else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeNone"]) {
+        } else if ([backgroundMaskTypeString isEqualToString:@"TuneMessageBackgroundMaskTypeNone"]) {
             maskType = TuneMessageBackgroundMaskTypeNone;
         }
     }
@@ -106,11 +92,7 @@
             NSNumber *duration = [TuneInAppUtils getNumberValue:dictionary[@"duration"]];
             return [[NSDecimalNumber alloc] initWithFloat:[duration floatValue]];
         }
-        else {
-            return [[NSDecimalNumber alloc] initWithInt:0];
-        }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         // nothing
     }
     
@@ -124,21 +106,15 @@
     if ( (transitionString) && ([transitionString length] > 0) ) {
         if ([transitionString isEqualToString:@"TuneMessageTransitionFromTop"]) {
             transition = TuneMessageTransitionFromTop;
-        }
-        else if ([transitionString isEqualToString:@"TuneMessageTransitionFromBottom"]) {
+        } else if ([transitionString isEqualToString:@"TuneMessageTransitionFromBottom"]) {
             transition = TuneMessageTransitionFromBottom;
-        }
-        else if ([transitionString isEqualToString:@"TuneMessageTransitionFromLeft"]) {
+        } else if ([transitionString isEqualToString:@"TuneMessageTransitionFromLeft"]) {
             transition = TuneMessageTransitionFromLeft;
-        }
-        
-        else if ([transitionString isEqualToString:@"TuneMessageTransitionFromRight"]) {
+        } else if ([transitionString isEqualToString:@"TuneMessageTransitionFromRight"]) {
             transition = TuneMessageTransitionFromRight;
-        }
-        else if ([transitionString isEqualToString:@"TuneMessageTransitionFadeIn"]) {
+        } else if ([transitionString isEqualToString:@"TuneMessageTransitionFadeIn"]) {
             transition = TuneMessageTransitionFadeIn;
-        }
-        else if ([transitionString isEqualToString:@"TuneMessageTransitionNone"]) {
+        } else if ([transitionString isEqualToString:@"TuneMessageTransitionNone"]) {
             transition = TuneMessageTransitionNone;
         }
     }
@@ -149,6 +125,8 @@
 #pragma mark - Actions
 
 + (TuneMessageAction *)getActionFromDictionary:(NSDictionary *)dictionary {
+    TuneMessageAction *action = nil;
+    
     if (dictionary) {
         NSString *url = dictionary[@"url"];
         // TODO: They are still called 'powerHook's in the playlist, when the actually are deep actions.
@@ -156,39 +134,35 @@
         NSString *deepActionName = dictionary[@"powerHookName"];
         NSDictionary *deepActionData = dictionary[@"powerHookParams"];
         
-        TuneMessageAction *action = [[TuneMessageAction alloc] init];
+        action = [TuneMessageAction new];
         
         if ( ([url length] > 0) && (url) ) {
             // Next action is a url
             action.url = url;
-        }
-        else if ( ([deepActionName length] > 0) && (deepActionName)) {
+        } else if ( ([deepActionName length] > 0) && (deepActionName)) {
             // Next action is a powerhook
             action.deepActionName = deepActionName;
             action.deepActionData = deepActionData;
         }
-        
-        return action;
     }
-    else {
-        return nil;
-    }
+    
+    return action;
 }
 
 + (TuneMessageAction *)getDeviceAppropriateActionFromDictionary:(NSDictionary *)dictionary {
+    TuneMessageAction *action = nil;
+    
     if (dictionary) {
         NSString *deviceAppropriateActionKey;
-        if (UI_USER_INTERFACE_IDIOM()==UIUserInterfaceIdiomPhone) {
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
             deviceAppropriateActionKey = @"phone";
-        }
-        else {
+        } else {
             deviceAppropriateActionKey = @"tablet";
         }
-        return [TuneInAppUtils getActionFromDictionary:dictionary[deviceAppropriateActionKey]];
+        action = [TuneInAppUtils getActionFromDictionary:dictionary[deviceAppropriateActionKey]];
     }
-    else {
-        return nil;
-    }
+    
+    return action;
 }
 
 + (TuneMessageAction *)getTuneMessageActionFromDictionary:(NSDictionary *)dictionary {
@@ -202,12 +176,8 @@
 }
 
 + (NSString *)getTextFromDictionary:(NSDictionary *)dictionary {
-    if ([TuneInAppUtils propertyIsNotEmpty:[TuneInAppUtils getProperty:@"text" fromDictionary:dictionary]]) {
-        return [TuneInAppUtils getProperty:@"text" fromDictionary:dictionary];
-    }
-    else {
-        return @"";
-    }
+    id property = [TuneInAppUtils getProperty:@"text" fromDictionary:dictionary];
+    return [TuneInAppUtils propertyIsNotEmpty:property] ? property : @"";
 }
 
 + (NSString *)getAlignmentStringFromDictionary:(NSDictionary *)dictionary {
@@ -216,17 +186,14 @@
 
 + (NSTextAlignment)getTextAlignmentFromDictionary:(NSDictionary *)dictionary {
     NSTextAlignment alignment = NSTextAlignmentLeft;
-    
     NSString *alignmentString = [TuneInAppUtils getAlignmentStringFromDictionary:dictionary];
     
     if ([TuneInAppUtils propertyIsNotEmpty:alignmentString]) {
         if ([alignmentString isEqualToString:@"left"]) {
             alignment = NSTextAlignmentLeft;
-        }
-        else if ([alignmentString isEqualToString:@"center"]) {
+        } else if ([alignmentString isEqualToString:@"center"]) {
             alignment = NSTextAlignmentCenter;
-        }
-        else if ([alignmentString isEqualToString:@"right"]) {
+        } else if ([alignmentString isEqualToString:@"right"]) {
             alignment = NSTextAlignmentRight;
         }
     }
@@ -237,11 +204,11 @@
 + (NSTextAlignment)getNSTextAlignmentFromDictionary:(NSDictionary *)dictionary {
     NSTextAlignment alignment = NSTextAlignmentCenter;
     NSString *textAlignmentString = dictionary[@"alignment"];
+    
     if ([TuneInAppUtils propertyIsNotEmpty:textAlignmentString]) {
         if ([textAlignmentString isEqualToString:@"left"]) {
             alignment = NSTextAlignmentLeft;
-        }
-        else if ([textAlignmentString isEqualToString:@"right"]) {
+        } else if ([textAlignmentString isEqualToString:@"right"]) {
             alignment = NSTextAlignmentRight;
         }
     }
@@ -257,14 +224,11 @@
     if ( (closeButtonColorString) && ([closeButtonColorString length] > 0) ) {
         if ([closeButtonColorString isEqualToString:@"TunePopUpMessageCloseButtonColorRed"]) {
             color = TunePopUpMessageCloseButtonColorRed;
-        }
-        else if ([closeButtonColorString isEqualToString:@"TunePopUpMessageCloseButtonColorBlack"]) {
+        } else if ([closeButtonColorString isEqualToString:@"TunePopUpMessageCloseButtonColorBlack"]) {
             color = TunePopUpMessageCloseButtonColorBlack;
-        }
-        else if ([closeButtonColorString isEqualToString:@"TuneSlideInMessageCloseButtonColorWhite"]) {
+        } else if ([closeButtonColorString isEqualToString:@"TuneSlideInMessageCloseButtonColorWhite"]) {
             color = TuneSlideInMessageCloseButtonColorWhite;
-        }
-        else if ([closeButtonColorString isEqualToString:@"TuneSlideInMessageCloseButtonColorBlack"]) {
+        } else if ([closeButtonColorString isEqualToString:@"TuneSlideInMessageCloseButtonColorBlack"]) {
             color = TuneSlideInMessageCloseButtonColorBlack;
         }
     }
@@ -273,12 +237,8 @@
 }
 
 + (UIColor *)getButtonColorFromDictionary:(NSDictionary *)dictionary {
-    if ([TuneInAppUtils getProperty:@"buttonColor" fromDictionary:dictionary]) {
-        return [TuneInAppUtils colorWithString:[TuneInAppUtils getProperty:@"buttonColor" fromDictionary:dictionary]];
-    }
-    else {
-        return nil;
-    }
+    id property = [TuneInAppUtils getProperty:@"buttonColor" fromDictionary:dictionary];
+    return [TuneInAppUtils propertyIsNotEmpty:property] ? [TuneInAppUtils colorWithString:property] : nil;
 }
 
 + (UIColor *)getTextColorFromDictionary:(NSDictionary *)dictionary {
@@ -306,16 +266,13 @@
 + (UIColor *)colorWithString:(NSString *)hexString withDefault:(NSString *)defaultHexString orJustReturnNilOnError:(BOOL)justReturnNilOnError {
     CGFloat alpha, red, blue, green;
     @try {
-        
         NSString *colorString;
         if (hexString) {
             colorString = [[hexString stringByReplacingOccurrencesOfString: @"#" withString: @""] uppercaseString];
-        }
-        else {
+        } else {
             if (justReturnNilOnError) {
                 return nil;
-            }
-            else {
+            } else {
                 colorString = [[defaultHexString stringByReplacingOccurrencesOfString: @"#" withString: @""] uppercaseString];
             }
         }
@@ -323,38 +280,36 @@
         switch ([colorString length]) {
             case 3: // #RGB
                 alpha = 1.0f;
-                red   = [TuneInAppUtils colorComponentFrom: colorString start: 0 length: 1];
-                green = [TuneInAppUtils colorComponentFrom: colorString start: 1 length: 1];
-                blue  = [TuneInAppUtils colorComponentFrom: colorString start: 2 length: 1];
+                red   = [TuneInAppUtils colorComponentFrom:colorString start:0 length:1];
+                green = [TuneInAppUtils colorComponentFrom:colorString start:1 length:1];
+                blue  = [TuneInAppUtils colorComponentFrom:colorString start:2 length:1];
                 break;
             case 4: // #ARGB
-                alpha = [TuneInAppUtils colorComponentFrom: colorString start: 0 length: 1];
-                red   = [TuneInAppUtils colorComponentFrom: colorString start: 1 length: 1];
-                green = [TuneInAppUtils colorComponentFrom: colorString start: 2 length: 1];
-                blue  = [TuneInAppUtils colorComponentFrom: colorString start: 3 length: 1];
+                alpha = [TuneInAppUtils colorComponentFrom:colorString start:0 length:1];
+                red   = [TuneInAppUtils colorComponentFrom:colorString start:1 length:1];
+                green = [TuneInAppUtils colorComponentFrom:colorString start:2 length:1];
+                blue  = [TuneInAppUtils colorComponentFrom:colorString start:3 length:1];
                 break;
             case 6: // #RRGGBB
                 alpha = 1.0f;
-                red   = [TuneInAppUtils colorComponentFrom: colorString start: 0 length: 2];
-                green = [TuneInAppUtils colorComponentFrom: colorString start: 2 length: 2];
-                blue  = [TuneInAppUtils colorComponentFrom: colorString start: 4 length: 2];
+                red   = [TuneInAppUtils colorComponentFrom:colorString start:0 length:2];
+                green = [TuneInAppUtils colorComponentFrom:colorString start:2 length:2];
+                blue  = [TuneInAppUtils colorComponentFrom:colorString start:4 length:2];
                 break;
             case 8: // #AARRGGBB
-                alpha = [TuneInAppUtils colorComponentFrom: colorString start: 0 length: 2];
-                red   = [TuneInAppUtils colorComponentFrom: colorString start: 2 length: 2];
-                green = [TuneInAppUtils colorComponentFrom: colorString start: 4 length: 2];
-                blue  = [TuneInAppUtils colorComponentFrom: colorString start: 6 length: 2];
+                alpha = [TuneInAppUtils colorComponentFrom:colorString start:0 length:2];
+                red   = [TuneInAppUtils colorComponentFrom:colorString start:2 length:2];
+                green = [TuneInAppUtils colorComponentFrom:colorString start:4 length:2];
+                blue  = [TuneInAppUtils colorComponentFrom:colorString start:6 length:2];
                 break;
             default:
                 [NSException raise:@"Invalid color value" format: @"Color value %@ is invalid.  It should be a hex value of the form #RBG, #ARGB, #RRGGBB, or #AARRGGBB", hexString];
                 break;
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         if (justReturnNilOnError) {
             return nil;
-        }
-        else {
+        } else {
             // Nothing to do here
         }
     }
@@ -380,24 +335,21 @@
         NSString *weight = [TuneInAppUtils getProperty:@"weight" fromDictionary:dictionary];
         if ([weight isEqualToString:@"plain"]) {
             fontName = @"HelveticaNeue-Medium";
-        }
-        else if ([weight isEqualToString:@"bold"]) {
+        } else if ([weight isEqualToString:@"bold"]) {
             fontName = @"HelveticaNeue-Light";
         }
     }
     
     if ([TuneInAppUtils propertyIsNotEmpty:[TuneInAppUtils getProperty:@"fontName" fromDictionary:dictionary]]) {
         fontName = [TuneInAppUtils getProperty:@"fontName" fromDictionary:dictionary];
-    }
-    else {
+    } else {
         fontName = defaultFont.fontName;
     }
     
     // Try to build the UIFont
     @try {
         font = [UIFont fontWithName:fontName size:[TuneInAppUtils getFontSizeFromDictionary:dictionary withDefaultSize:defaultFont.pointSize]];
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         font = defaultFont;
     }
     
@@ -405,12 +357,8 @@
 }
 
 + (CGFloat)getFontSizeFromDictionary:(NSDictionary *)dictionary withDefaultSize:(CGFloat)defaultSize {
-    if ([TuneInAppUtils propertyIsNotEmpty:[TuneInAppUtils getProperty:@"size" fromDictionary:dictionary]]) {
-        return [[TuneInAppUtils getNumberValue:[TuneInAppUtils getProperty:@"size" fromDictionary:dictionary]] intValue];
-    }
-    else {
-        return defaultSize;
-    }
+    id property = [TuneInAppUtils getProperty:@"size" fromDictionary:dictionary];
+    return [TuneInAppUtils propertyIsNotEmpty:property] ? [TuneInAppUtils getNumberValue:property].floatValue : defaultSize;
 }
 
 // Note: if we can't find the size or weight we'll use the defaultFont
@@ -437,15 +385,12 @@
             if (overrideFont) {
                 return overrideFont;
             }
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             // Nothing, we'll just use the default font.
         }
-    }
-    else if ([fontWeightString isEqualToString:@"bold"]) {
+    } else if ([fontWeightString isEqualToString:@"bold"]) {
         return [UIFont boldSystemFontOfSize:fontSize];
-    }
-    else if ([fontWeightString isEqualToString:@"plain"]) {
+    } else if ([fontWeightString isEqualToString:@"plain"]) {
         return [UIFont systemFontOfSize:fontSize];
     }
     
@@ -453,7 +398,6 @@
 }
 
 + (UIFont *)isBoldFont:(UIFont *)font {
-    
     //First get the name of the font (unnecessary, but used for clarity)
     NSString *fontName = font.fontName;
     
@@ -477,7 +421,6 @@
 #pragma mark - Image Assets
 
 + (NSString *)getScreenAppropriateImageKey {
-    
     float scale = [TuneInAppUtils screenScale];
     if (scale == 1.0f) {
         return @"src";
@@ -506,7 +449,7 @@
         @try {
             image = [TuneInAppUtils getScreenAppropriateImageFromDictionary:imageDictionary];
         } @catch (NSException *exception) {
-            
+            // empty
         }
     }
     
@@ -519,7 +462,6 @@
 
 + (void)downloadImages:(NSMutableDictionary *)images withDispatchGroup:(dispatch_group_t)group {
     for (NSString *imageUrl in images.allKeys) {
-        
         __block NSString *_imageFileName = [TuneInAppUtils buildImageFilenameFromURL:imageUrl];
         __block NSString *_imageURL = imageUrl;
         
@@ -537,7 +479,6 @@
                     ErrorLog(@"Failed to download image from: %@", _imageURL);
                     [images setValue:@(NO) forKey:_imageURL];
                 }
-                
             }
         });
     }

@@ -9,6 +9,7 @@
 #import "TuneHttpRequest.h"
 #import "TuneHttpResponse.h"
 #import "TuneHttpUtils.h"
+#import "TuneConfiguration.h"
 #import "TuneJSONUtils.h"
 #import "TuneManager.h"
 #import "TuneUtils.h"

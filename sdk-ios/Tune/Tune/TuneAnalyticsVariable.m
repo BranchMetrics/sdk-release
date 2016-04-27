@@ -80,18 +80,15 @@
 }
 
 
-+ (NSString *)convertDateToString:(NSDate *)date
-{
++ (NSString *)convertDateToString:(NSDate *)date {
     return [[TuneDateUtils dateFormatterIso8601UTC] stringFromDate:date];
 }
 
-+ (NSString *)convertNumberToString:(NSNumber *)inputValue
-{
++ (NSString *)convertNumberToString:(NSNumber *)inputValue {
     return [inputValue stringValue];
 }
 
-+ (NSString *)convertTuneLocationToString:(TuneLocation *)location
-{
++ (NSString *)convertTuneLocationToString:(TuneLocation *)location {
     if (location == nil) {
         return nil;
     }
@@ -101,13 +98,11 @@
     return [NSString stringWithFormat:@"%0.9f,%0.9f", [location.longitude doubleValue], [location.latitude doubleValue]];
 }
 
-+ (BOOL)validateTuneLocation:(TuneLocation *)location
-{
++ (BOOL)validateTuneLocation:(TuneLocation *)location {
     return location == nil || (location.longitude != nil && location.latitude != nil);
 }
 
-+ (BOOL)validateVersion:(NSString *)value
-{
++ (BOOL)validateVersion:(NSString *)value {
     if (value == nil) {
         return YES;
     }
@@ -128,8 +123,7 @@
     return resultString;
 }
 
-+ (BOOL) validateName:(NSString *)variableName
-{
++ (BOOL) validateName:(NSString *)variableName {
     if (variableName != nil && ![variableName isEqualToString:@""]){
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:variableName];
         
@@ -189,8 +183,7 @@
     }
 }
 
-- (NSDictionary *)toDictionaryWithHash:(TuneAnalyticsVariableHashType)hashWith
-{
+- (NSDictionary *)toDictionaryWithHash:(TuneAnalyticsVariableHashType)hashWith {
     if (hashWith == TuneAnalyticsVariableHashNone) {
         return @{ @"name"  : [TuneUtils objectOrNull:name],
                   @"value" : [TuneUtils objectOrNull:[self convertValueToString]],
@@ -281,8 +274,7 @@
     return result;
 }
 
-+ (NSString *)hashTypeToString:(TuneAnalyticsVariableHashType)type
-{
++ (NSString *)hashTypeToString:(TuneAnalyticsVariableHashType)type {
     NSString *result;
     
     switch (type) {
@@ -303,8 +295,7 @@
     return result;
 }
 
-+ (TuneAnalyticsVariableHashType)stringToHashType:(NSString *)type
-{
++ (TuneAnalyticsVariableHashType)stringToHashType:(NSString *)type {
    TuneAnalyticsVariableHashType result = TuneAnalyticsVariableHashNone;
     
     if ([type isEqualToString:TUNE_HASH_TYPE_NONE]) {
@@ -340,15 +331,13 @@
 }
 
 
-- (BOOL)isEqual:(id)otherVariable
-{
+- (BOOL)isEqual:(id)otherVariable {
     NSDictionary *otherDict = [otherVariable toDictionary];
     
     return [otherDict isEqualToDictionary:[self toDictionary]];
 }
 
-- (NSUInteger)hash
-{
+- (NSUInteger)hash {
     NSUInteger prime = 31;
     NSUInteger result = 1;
     result = prime * result + [name hash] + [value hash] + type;
@@ -365,8 +354,7 @@ NSString *_Nonnull HASH_TYPE_CODING = @"hashType";
 NSString *_Nonnull SHOULD_AUTO_HASH_CODING = @"shouldAutoHash";
 NSString *_Nonnull DID_HAVE_VALUE_MANUALLY_SET_CODING = @"didHaveValueManuallySet";
 
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
+- (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super init];
     if (!self) {
         return nil;
@@ -387,8 +375,7 @@ NSString *_Nonnull DID_HAVE_VALUE_MANUALLY_SET_CODING = @"didHaveValueManuallySe
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder
-{
+- (void)encodeWithCoder:(NSCoder *)aCoder {
     [aCoder encodeObject:self.name forKey:NAME_CODING];
     [aCoder encodeObject:self.value forKey:VALUE_CODING];
     [aCoder encodeObject:[TuneAnalyticsVariable dataTypeToString:self.type] forKey:TYPE_CODING];

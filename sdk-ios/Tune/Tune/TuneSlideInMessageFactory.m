@@ -168,8 +168,7 @@
     if (message[@"duration"]) {
         NSNumber *duration = [TuneInAppUtils getMessageDurationFromDictionary:message];
         [slideInMessageView setDisplayDuration:duration];
-    }
-    else {
+    } else {
         [slideInMessageView setDisplayDuration:@0];
     }
     
@@ -233,8 +232,7 @@
             [slideInMessageView setMessageLabelLandscapeRight:phoneLandscapeRightMessageLabel];
         }
         
-    }
-    else {
+    } else {
         if (message[@"tabletPortraitMessage"]) {
             TuneMessageLabel *tabletPortraitMessageLabel = [[TuneMessageLabel alloc] initWithLabelDictionary:message[@"tabletPortraitMessage"] messageType:TuneMessageTypeSlideIn andOrientation:TuneMessageOrientationTabletPortrait];
             
@@ -263,8 +261,7 @@
         if ([ctaImageName length] > 0) {
             @try {
                 [slideInMessageView setCTAImage:[TuneInAppUtils getScreenAppropriateImageFromDictionary:message[@"tabletCTAImage"]]];
-            }
-            @catch (NSException *exception) {
+            } @catch (NSException *exception) {
                 // Nothing
             }
         }

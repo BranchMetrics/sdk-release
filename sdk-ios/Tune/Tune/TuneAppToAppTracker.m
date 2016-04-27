@@ -21,8 +21,7 @@ static NSString * const TUNE_APP_TO_APP_TRACKING_STATUS = @"TUNE_APP_TO_APP_TRAC
 static const NSInteger TUNE_APP_TO_APP_REQUEST_FAILED_ERROR_CODE = 1401;
 static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
 
-@interface TuneAppToAppTracker()
-{
+@interface TuneAppToAppTracker() {
     NSOperationQueue *sendQueue;
     void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *connectionError);
 }
@@ -31,8 +30,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
 
 @implementation TuneAppToAppTracker
 
-- (id)init
-{
+- (id)init {
     if( self = [super init] ) {
         sendQueue = [NSOperationQueue new];
     }
@@ -45,8 +43,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
                                       campaignId:(NSString*)campaignId
                                      publisherId:(NSString*)publisherId
                                         redirect:(BOOL)shouldRedirect
-                                      domainName:(NSString*)domainName
-{
+                                      domainName:(NSString*)domainName {
     if( ![TuneUtils isNetworkReachable] ) return;
     
     if (!targetBundleId) targetBundleId = TUNE_STRING_EMPTY;
@@ -91,8 +88,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
         [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
-    }
-    else {
+    } else {
         SEL ector = @selector(sendAsynchronousRequest:queue:completionHandler:);
         if( [NSURLConnection respondsToSelector:ector] ) {
             // iOS 6
@@ -111,8 +107,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     }
 }
 
-- (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error
-{
+- (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error {
     DebugLog(@"failedToRequestTrackingId: dict = %@, error = %@", params, error);
     
     NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
@@ -125,8 +120,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
         [_delegate queueRequestDidFailWithError:errorForUser];
 }
 
-- (void)storeToPasteBoardTrackingId:(NSDictionary *)params
-{
+- (void)storeToPasteBoardTrackingId:(NSDictionary *)params {
     NSString *response = [[NSString alloc] initWithData:[params valueForKey:TUNE_KEY_SERVER_RESPONSE] encoding:NSUTF8StringEncoding];
     
     DebugLog(@"TuneUtils storeToPasteBoardTrackingId: %@", response);
@@ -145,13 +139,11 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     BOOL success = [strSuccess boolValue];
     BOOL redirect = [strRedirect boolValue];
     
-    if(success)
-    {
+    if(success) {
 //#if TARGET_OS_IOS
 //        UIPasteboard * cookiePasteBoard = [UIPasteboard pasteboardWithName:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE create:YES];
 //        
-//        if (cookiePasteBoard)
-//        {
+//        if (cookiePasteBoard) {
 //            cookiePasteBoard.persistent = YES;
 //
 //            NSString *sessionDate = [NSString stringWithFormat:@"%ld", (long)round( [[NSDate date] timeIntervalSince1970] )];
@@ -173,15 +165,12 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
         if( [_delegate respondsToSelector:@selector(queueRequestDidSucceedWithData:)] )
             [_delegate queueRequestDidSucceedWithData:successData];
         
-        if(redirect && 0 < [strRedirectUrl length])
-        {
+        if(redirect && 0 < [strRedirectUrl length]) {
 #if !TARGET_OS_WATCH
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:strRedirectUrl]];
 #endif
         }
-    }
-    else
-    {
+    } else {
         NSMutableDictionary *errorDetails = [NSMutableDictionary dictionary];
         [errorDetails setValue:TUNE_KEY_ERROR_TUNE_APP_TO_APP_FAILURE forKey:NSLocalizedFailureReasonErrorKey];
         [errorDetails setValue:@"Failed to start app-to-app tracking." forKey:NSLocalizedDescriptionKey];
@@ -192,28 +181,23 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     }
 }
 
-+ (NSString*)getPublisherBundleId
-{
++ (NSString*)getPublisherBundleId {
     return [TuneUtils getStringForKey:TUNE_KEY_PACKAGE_NAME fromPasteBoard:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE];
 }
 
-+ (NSString*)getSessionDateTime
-{
++ (NSString*)getSessionDateTime {
     return [TuneUtils getStringForKey:TUNE_KEY_SESSION_DATETIME fromPasteBoard:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE];
 }
 
-+ (NSString*)getAdvertiserId
-{
++ (NSString*)getAdvertiserId {
     return [TuneUtils getStringForKey:TUNE_KEY_ADVERTISER_ID fromPasteBoard:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE];
 }
 
-+ (NSString*)getCampaignId
-{
++ (NSString*)getCampaignId {
     return [TuneUtils getStringForKey:TUNE_KEY_CAMPAIGN_ID fromPasteBoard:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE];
 }
 
-+ (NSString*)getTrackingId
-{
++ (NSString*)getTrackingId {
     return [TuneUtils getStringForKey:TUNE_KEY_TRACKING_ID fromPasteBoard:TUNE_PASTEBOARD_NAME_TRACKING_COOKIE];
 }
 

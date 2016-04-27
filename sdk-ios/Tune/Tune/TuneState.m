@@ -35,7 +35,7 @@ BOOL connectedMode = NO;
 - (void)bringDown {}
 
 + (NSDictionary *)localConfiguration {
-    // The local configuration is immutable, so it is safe to only load it from disk once.
+    // The local configuration is immutable, so it is safe to load it from disk only once.
 
     if (!localConfig) {
         localConfig = [TuneFileManager loadLocalConfigurationFromDisk];

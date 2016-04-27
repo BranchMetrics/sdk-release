@@ -6,6 +6,8 @@
 //  Copyright © 2015 Tune. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #ifndef TuneConstants_h
 #define TuneConstants_h
 
@@ -32,4 +34,7 @@ typedef NS_ENUM(NSInteger, TuneGender)
     TuneGenderUnknown    = 2
 };
 
+
 #endif /* TuneConstants_h */
+
+extern NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;

@@ -136,8 +136,7 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
         @try {
             NSString *numberOfSecondsToReportAnalyticsString = dictionary[key];
             numberOfSecondsToReportAnalytics = @([numberOfSecondsToReportAnalyticsString integerValue]);
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Parsing lengthOfTimeToReport failed: %@", exception.description);
         }
     }
@@ -161,8 +160,7 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
         if (self.variationId) {
             campaignDictionary[TUNE_CAMPAIGN_VARIATION_IDENTIFIER] = self.variationId;
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"%@",exception);
     }
     return [NSDictionary dictionaryWithDictionary:campaignDictionary];
@@ -182,19 +180,13 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
 }
 
 - (BOOL)needToReportCampaignAnalytics {
-    if (_timestampToStopReportingAnalytics) {
-        // is _timestampToStopReportingAnalytics in the past?
-        return ([_timestampToStopReportingAnalytics timeIntervalSinceDate:[NSDate date]] > 0);
-    }
-    else {
-        return NO;
-    }
+    // is _timestampToStopReportingAnalytics in the past?
+    return _timestampToStopReportingAnalytics && [_timestampToStopReportingAnalytics timeIntervalSinceDate:[NSDate date]] > 0;
 }
 
 #pragma mark - NSCoding
 
-- (void)encodeWithCoder:(NSCoder *)encoder
-{
+- (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.campaignId forKey:@"campaignId"];
     [encoder encodeObject:self.campaignSource forKey:@"campaignSource"];
     [encoder encodeObject:self.sharedUserId forKey:@"sharedUserId"];

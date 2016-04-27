@@ -68,6 +68,15 @@
 
 + (NSData *)sendSynchronousRequest:(NSURLRequest *)request response:(NSURLResponse **)response error:(NSError **)error {
     NSData *result;
+    
+#if TESTING
+    if ([request.URL.absoluteString hasPrefix:@"(null)"]) {
+        *error = nil;
+        *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:200 HTTPVersion:@"1.1" headerFields:nil];
+        return nil;
+    }
+#endif
+    
     if( [NSURLSession class] && [[NSURLSession sharedSession] respondsToSelector:@selector(sendSynchronousDataTaskWithRequest:returningResponse:error:)]) {
         result = [[NSURLSession sharedSession] sendSynchronousDataTaskWithRequest:request returningResponse:response error:error];
     } else {

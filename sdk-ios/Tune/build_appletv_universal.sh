@@ -16,7 +16,7 @@ mkdir -p "${UNIVERSAL_OUTPUT_FOLDER}"
 mkdir -p "${SRCROOT}/build/${TARGET_OS}/${CONFIGURATION}"
 
 # Step 1. Build Device and Simulator versions
-xcodebuild -project "${PROJECT_FILE_PATH}" -target "${BUILD_TARGET_NAME}" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
+xcodebuild -project "${PROJECT_FILE_PATH}" -target "${BUILD_TARGET_NAME}" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}os        ONLY_ACTIVE_ARCH=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
 xcodebuild -project "${PROJECT_FILE_PATH}" -target "${BUILD_TARGET_NAME}" -configuration ${CONFIGURATION} -sdk ${TARGET_OS}simulator ONLY_ACTIVE_ARCH=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
 
 echo "cp -R ${BUILD_DIR}/${CONFIGURATION}-${TARGET_OS}os/${UNIVERSAL_FRAMEWORK_NAME}.framework ${UNIVERSAL_OUTPUT_FOLDER}"
