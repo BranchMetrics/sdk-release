@@ -52,9 +52,7 @@ public class TuneManager {
     }
 
     public static TuneManager init(Context context, TuneConfiguration configuration) {
-//        if (ArtisanManager.ARTISAN_PERMANENTLY_DISABLED) {
-//            return;
-//        }
+
         if (instance == null) {
             instance = new TuneManager();
             // We need the filemanager to init the ConfigurationManager

@@ -1683,13 +1683,13 @@ public class Tune {
      ** On First Playlist Downloaded API *
      ************************************/
 
-    /** Register callback when the very first playlist is downloaded.
+    /** Register callback when the first playlist is downloaded for App's lifetime.
      *
      * Use this method to register a callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
      *
-     * The thread executing the callback is not guaranteed to be the main thread. If the code inside of the callback requires executing on the main thread you will need to implement this logic.
+     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
      *
-     * If the first playlist has already been downloaded when this call is made, the callback is executed immediately on a background thread.
+     * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
      *
      * Otherwise the callback will fire after {@value TuneConstants.DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
      *
@@ -1697,9 +1697,9 @@ public class Tune {
      * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
      * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
      *
-     * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+     * NOTE: Only one callback can be registered at a time. Each time a callback is registered it will fire.
      *
-     * NOTE: Only the latest callback registered will be executed. Subsequent calls to onFirstPlaylistDownloaded will replace the callback to be executed.
+     * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
      *
      * WARNING: If TMA is not enabled then this callback will never fire.
      *
@@ -1709,12 +1709,6 @@ public class Tune {
      */
     public void onFirstPlaylistDownloaded(final TuneCallback callback) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
-            pubQueue.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.execute();
-                }
-            });
             return;
         }
 
@@ -1722,15 +1716,27 @@ public class Tune {
     }
 
 
-    /** Register callback when the very first playlist is downloaded.
+    /** Register callback when the first playlist is downloaded for the App's lifetime.
      *
      * Use this method to register a callback for the first time a playlist is downloaded.  This call is non-blocking so code execution will continue immediately to the next line of code.
      *
-     * The thread executing the callback is not guaranteed to be on the main thread. If the code inside of the callback requires executing on the main thread you will need to implement this logic.
+     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
      *
-     * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the callback is executed immediately on a background thread.
+     * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
+     *
+     * Otherwise the callback will fire after the given timeout (in milliseconds) or when the first playlist is downloaded, whichever comes first.
      *
      * If the timeout is greater than zero, the callback will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
+     *
+     * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
+     * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
+     * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
+     *
+     * NOTE: Only one callback can be registered at a time. Each time a callback is registered it will fire.
+     *
+     * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+     *
+     * WARNING: If TMA is not enabled then this callback will never fire.
      *
      * @param callback A TuneCallback object that is to be executed.
      * @param timeout The number of miliseconds to wait until executing the callback regardless

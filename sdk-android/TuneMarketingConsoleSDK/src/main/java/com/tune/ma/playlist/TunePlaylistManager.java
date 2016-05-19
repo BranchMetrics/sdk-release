@@ -226,8 +226,16 @@ public class TunePlaylistManager {
 
         // Initialize callback executed to false, since this method is registering it
         setFirstPlaylistCallbackExecuted(false);
-
-        if (receivedFirstPlaylistDownload) {
+        if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
+            TuneDebugLog.i("TMA is Disabled, executing firstPlaylistDownload callback");
+            setFirstPlaylistCallbackExecuted(true);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.execute();
+                }
+            });
+        } else if (receivedFirstPlaylistDownload) {
             TuneDebugLog.i("Playlist already downloaded upon callback registration, executing firstPlaylistDownload callback");
             setFirstPlaylistCallbackExecuted(true);
             executorService.execute(new Runnable() {
