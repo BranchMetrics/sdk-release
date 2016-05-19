@@ -7,6 +7,7 @@
 //
 
 #import "TuneTriggerManager.h"
+#import "TuneConfiguration.h"
 #import "TuneSkyhookCenter.h"
 #import "TunePlaylist.h"
 #import "TuneMessageDisplayFrequency.h"

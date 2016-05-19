@@ -17,7 +17,7 @@
 #pragma mark - Initialization
 
 - (id)initWithMessageDictionary:(NSDictionary *)messageDictionary {
-    
+    self = [super init];
     if (self) {
         NSMutableDictionary *cleanDictionary = [NSMutableDictionary dictionary];
         [messageDictionary enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
@@ -32,49 +32,49 @@
 }
 
 - (BOOL)shouldDisplayBasedOnFrequencyModel:(TuneMessageDisplayFrequency *)frequencyModel {
+    BOOL shouldDisplay = YES;
+    
     // Check the dates
-    NSDate *now = [NSDate date];
-    if (![TuneDateUtils date:now isBetweenDate:self.startDate andEndDate:self.endDate]) {
-        return NO;
+    if (![TuneDateUtils date:[NSDate date] isBetweenDate:self.startDate andEndDate:self.endDate]) {
+        shouldDisplay = NO;
     }
-    
     // Check lifetime limit
-    if (self.lifetimeMaximum > 0 && frequencyModel.lifetimeShownCount >= self.lifetimeMaximum) {
-        return NO;
-    }
-    
-    // Check display frequency
-    switch (self.scope) {
-        case TuneMessageFrequencyScopeInstall:
-            if (self.limit > 0 && frequencyModel.lifetimeShownCount >= self.limit) {
-                // if it has been seen too many times, then no
-                return NO;
-            }
-            break;
-        case TuneMessageFrequencyScopeSession:
-            if (self.limit > 0 && frequencyModel.numberOfTimesShownThisSession >= self.limit) {
-                // If it has been seen too many times this session, then no
-                return NO;
-            }
-            break;
-        case TuneMessageFrequencyScopeEvents:
-            if (self.limit > 0 && frequencyModel.eventsSeenSinceShown < self.limit) {
-                // If the event hasn't happened enough times since last shown, then now
-                return NO;
-            }
-            break;
-        case TuneMessageFrequencyScopeDays:
-            if (frequencyModel.lastShownDateTime) {
-                int numberOfDaysSinceLastShown = [TuneDateUtils daysBetween:frequencyModel.lastShownDateTime and:[NSDate date]];
-                if (self.limit > 0 && numberOfDaysSinceLastShown < self.limit) {
-                    // If it hasn't been enough days since last shown, then no
-                    return NO;
+    else if (self.lifetimeMaximum > 0 && frequencyModel.lifetimeShownCount >= self.lifetimeMaximum) {
+        shouldDisplay = NO;
+    } else {
+        // Check display frequency
+        switch (self.scope) {
+            case TuneMessageFrequencyScopeInstall:
+                if (self.limit > 0 && frequencyModel.lifetimeShownCount >= self.limit) {
+                    // if it has been seen too many times, then no
+                    shouldDisplay = NO;
                 }
-            }
-            break;
+                break;
+            case TuneMessageFrequencyScopeSession:
+                if (self.limit > 0 && frequencyModel.numberOfTimesShownThisSession >= self.limit) {
+                    // If it has been seen too many times this session, then no
+                    shouldDisplay = NO;
+                }
+                break;
+            case TuneMessageFrequencyScopeEvents:
+                if (self.limit > 0 && frequencyModel.eventsSeenSinceShown < self.limit) {
+                    // If the event hasn't happened enough times since last shown, then now
+                    shouldDisplay = NO;
+                }
+                break;
+            case TuneMessageFrequencyScopeDays:
+                if (frequencyModel.lastShownDateTime) {
+                    int numberOfDaysSinceLastShown = [TuneDateUtils daysBetween:frequencyModel.lastShownDateTime and:[NSDate date]];
+                    if (self.limit > 0 && numberOfDaysSinceLastShown < self.limit) {
+                        // If it hasn't been enough days since last shown, then no
+                        shouldDisplay = NO;
+                    }
+                }
+                break;
+        }
     }
     
-    return YES;
+    return shouldDisplay;
 }
 
 
@@ -117,8 +117,7 @@
     if (![limitString isEqual:[NSNull null]] && limitString) {
         @try {
             self.limit = [limitString intValue];
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Error parsing message display frequency limit: %@", exception.description);
             self.limit = 0;
         }
@@ -146,8 +145,7 @@
     if (![lifetimeMaximumString isEqual:[NSNull null]] && lifetimeMaximumString) {
         @try {
             self.lifetimeMaximum = [lifetimeMaximumString intValue];
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Error parsing message display frequency lifetimeMaximum: %@", exception.description);
             self.lifetimeMaximum = 0;
         }
@@ -193,7 +191,6 @@
 
 - (void)buildAndShowMessage {
     if ([self messageDictionaryHasPrerequisites]) {
-
         @try{
             [self _buildAndShowMessage];
         } @catch (NSException *exception) {

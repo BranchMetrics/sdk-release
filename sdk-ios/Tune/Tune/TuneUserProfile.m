@@ -35,6 +35,8 @@
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 
+#import "TuneConstants.h"
+
 #if TARGET_OS_IOS
 static CTTelephonyNetworkInfo *netInfo;
 #endif
@@ -305,36 +307,25 @@ static NSNumber *COPPA_MIN_AGE;
 #if TARGET_OS_IOS
 
 - (void)checkIfPushIsEnabled {
-    NSString *pushEnabled;
-    if ([self tooYoungForTargetedAds]) {
-        pushEnabled = @"NO";
-    } else if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-        // iOS8 and after way to get notification types
-        UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        UIUserNotificationType types = notificationSettings.types;
-        UIUserNotificationType typesset = UIUserNotificationTypeAlert;
-        if((types & typesset) == typesset) {
-            pushEnabled = @"YES";
+    BOOL pushEnabled = NO;
+    
+    if (![self tooYoungForTargetedAds]) {
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+            // iOS8 and after way to get notification types
+            pushEnabled = UIUserNotificationTypeAlert == (UIUserNotificationTypeAlert & [UIApplication sharedApplication].currentUserNotificationSettings.types);
         } else {
-            pushEnabled = @"NO";
-        }
-    } else {
-        // Pre iOS8 way to get notification types
-        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-        UIRemoteNotificationType typesset = UIRemoteNotificationTypeAlert;
-        if((types & typesset) == typesset) {
-            pushEnabled = @"YES";
-        } else {
-            pushEnabled = @"NO";
+            // Pre iOS8 way to get notification types
+            pushEnabled = UIUserNotificationTypeAlert == (UIUserNotificationTypeAlert & [UIApplication sharedApplication].enabledRemoteNotificationTypes);
         }
     }
-    [self setPushEnabled:pushEnabled];
+    
+    [self setPushEnabled:[@(pushEnabled) stringValue]];
 }
 
 #else
 
 - (void)checkIfPushIsEnabled {
-    [self setPushEnabled:@"NO"];
+    [self setPushEnabled:[@NO stringValue]];
 }
 
 #endif

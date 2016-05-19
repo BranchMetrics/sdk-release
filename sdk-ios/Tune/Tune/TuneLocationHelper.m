@@ -9,6 +9,7 @@
 #import "TuneLocationHelper.h"
 
 #import "TuneLocation+Internal.h"
+#import "TuneManager.h"
 #import "TuneUtils.h"
 #import "TuneUserProfile.h"
 

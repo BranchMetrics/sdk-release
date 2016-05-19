@@ -646,10 +646,17 @@ BOOL isWatchAlertVisible;
 #endif
 
 + (void)innerShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
+#if TESTING
+    completionHandler();
+    return;
+#else
+    
 #if TARGET_OS_WATCH
     [self innerWatchShowAlertWithTitle:title message:message completionBlock:completionHandler];
 #else
     [self innerIosShowAlertWithTitle:title message:message completionBlock:completionHandler];
+#endif
+    
 #endif
 }
 

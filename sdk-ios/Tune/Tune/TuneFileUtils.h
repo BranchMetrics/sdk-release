@@ -20,7 +20,12 @@
 + (BOOL)saveImageData:(NSData *)data toPath:(NSString *)path;
 
 // File System Modification
-+ (BOOL)createDirectory:(NSString *)filePath;
+
+/**
+ Creates a folder if one does not exist. Does not allow iCloud backup.
+ @param filePath full path of the folder
+ */
++ (BOOL)createDirectory:(NSString *)folderPath;
 + (BOOL)fileExists:(NSString *)filePath;
 + (BOOL)deleteFileOrDirectory:(NSString *)fileOrDirectory;
 + (BOOL)moveFileOrDirectory:(NSString *)fileOrDirectory toFileOrDirectory:(NSString *)toFileOrDirectory;

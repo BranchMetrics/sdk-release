@@ -12,7 +12,6 @@
 
 #pragma mark - Initialization
 - (id)initWithURLResponse:(NSHTTPURLResponse*)response andError:(NSError*)error {
-
     self = [self init];
     if (self) {
         _urlResponse = response;

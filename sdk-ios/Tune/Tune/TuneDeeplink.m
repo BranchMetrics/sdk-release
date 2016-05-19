@@ -9,6 +9,7 @@
 #import "TuneDeeplink.h"
 #import "TuneAnalyticsConstants.h"
 #import "TuneDeepLinkConstants.h"
+#import "TuneManager.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
@@ -93,8 +94,7 @@
             // Also set this in the user profile
             [[TuneManager currentManager].userProfile setUserId:self.campaign.sharedUserId];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Failed to parse deep link %@", exception.description);
     }
 }
@@ -122,8 +122,7 @@
     } else {
         @try {
             timeToReportAnalytics = @([timeToReportAnalyticsString intValue]);
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Unable to process time to report analytics defaulting to 7 days: %@", exception.description);
             timeToReportAnalytics = timeToReportAnalyticsDefault;
         }
@@ -143,8 +142,7 @@
             if ([hexSharedUserId length] > 0) {
                 campaign.sharedUserId = [TuneStringUtils stringFromHexString:hexSharedUserId];
             }
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Couldn't decode hex shared user id %@ %@",hexSharedUserId,exception.description);
         }
     }
@@ -191,8 +189,7 @@
                 self.action.deepActionData = deepActionData;
             }
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"An exception occured while processing a url-based artisan action: %@",exception.description);
     }
 }

@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "TuneAnalyticsDispatchToConnectedModeOperation.h"
+#import "TuneManager.h"
+#import "TuneConfiguration.h"
 #import "TuneUserProfile.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneJSONUtils.h"
@@ -33,8 +35,7 @@
         if (response.error != nil) {
             DebugLog(@"Unable to send analytics information to server: %@", [response.error localizedDescription]);
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         DebugLog(@"An exception occured: %@",exception.description);
     }
 }

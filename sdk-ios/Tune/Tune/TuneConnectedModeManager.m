@@ -13,6 +13,8 @@
 #import "TuneHttpRequest.h"
 #import "TunePowerHookManager.h"
 #import "TuneDeepActionManager.h"
+#import "TuneConfiguration.h"
+#import "TuneManager.h"
 #import "TunePowerHookValue.h"
 #import "TuneDeepAction.h"
 #import "TunePlaylistManager.h"

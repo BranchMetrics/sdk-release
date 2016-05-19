@@ -48,8 +48,7 @@
                     block();
                 }
             }
-        }
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             NSLog(@"Error in executing callback block: %@",exception);
         }
     }

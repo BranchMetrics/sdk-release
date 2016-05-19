@@ -157,12 +157,9 @@ NSOperationQueue *playlistCallbackQueue;
                 // Even if the playlist manager failed to download and no new playlist was returned, we still post the Finished Download Skyhook.
                 [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistManagerFinishedPlaylistDownload object:self];
             }
-        }
-
-        @catch (NSException *exception) {
+        } @catch (NSException *exception) {
             ErrorLog(@"Error processing the playlist: %@", exception);
-        }
-        @finally {
+        } @finally {
             _self.isUpdating = NO;
         }
     }];
@@ -262,8 +259,7 @@ NSOperationQueue *playlistCallbackQueue;
                 [blockCallback executeBlock];
             }];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error in onFirstPlaylistDownloaded: %@", exception);
     }
 }

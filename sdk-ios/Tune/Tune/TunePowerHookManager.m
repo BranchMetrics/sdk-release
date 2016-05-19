@@ -31,6 +31,11 @@ NSArray *_phookChangedBlocks;
 
 NSOperationQueue *powerhooksCallbackQueue;
 
+/**
+ * Set of Power Hook IDs explicitly registered by the user.
+ */
+NSMutableSet *userRegisteredPowerHooks;
+
 #pragma mark - Initialization
 
 - (id)initWithTuneManager:(TuneManager *)tuneManager {
@@ -38,7 +43,8 @@ NSOperationQueue *powerhooksCallbackQueue;
     
     if (self) {
         powerhooksCallbackQueue = [NSOperationQueue new];
-        phookDictLock = [[NSObject alloc] init];
+        phookDictLock = [NSObject new];
+        userRegisteredPowerHooks = [NSMutableSet new];
         [self reset];
     }
     
@@ -122,7 +128,6 @@ NSOperationQueue *powerhooksCallbackQueue;
 
 
 - (void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description approvedValues:(NSArray *)approvedValues {
-    
     NSString *cleanHook = [TuneStringUtils scrubNameForMongo:hookId];
     
     if ([TuneStringUtils isBlank:cleanHook] || [TuneStringUtils isBlank:friendlyName] || defaultValue == nil) {
@@ -136,34 +141,39 @@ NSOperationQueue *powerhooksCallbackQueue;
         return;
     }
     
-    // If we've got a value during registration then that means we've loaded a power hook from disk.
-    // We want to use that value and merge it with the values supplied during registration.
-    NSString *currentValue = nil;
-    if ([TunePowerHookManager getPowerHook:cleanHook]) {
-        currentValue = [TunePowerHookManager getPowerHook:cleanHook].value;
-    }
-    
-    
-    NSMutableDictionary *dictionary = @{POWERHOOKVALUE_NAME:cleanHook,
-                                        POWERHOOKVALUE_DEFAULT_VALUE:defaultValue,
-                                        POWERHOOKVALUE_FRIENDLY_NAME:friendlyName}.mutableCopy;
-    
-    if (currentValue != nil) {
-        [dictionary setObject:currentValue forKey:POWERHOOKVALUE_VALUE];
+    if([userRegisteredPowerHooks containsObject:cleanHook]) {
+        ErrorLog(@"Invalid attempt to overwrite a previously registered Power Hook for hook ID \"%@\".", hookId);
     } else {
-        [dictionary setObject:defaultValue forKey:POWERHOOKVALUE_VALUE];
-    }
-    
-    if (description != nil) {
-        [dictionary setObject:description forKey:POWERHOOKVALUE_DESCRIPTION];
-    }
+        [userRegisteredPowerHooks addObject:cleanHook];
         
-    if (approvedValues != nil) {
-        [dictionary setObject:approvedValues forKey:POWERHOOKVALUE_APPROVED_VALUES];
-    }
+        // If we've got a value during registration then that means we've loaded a power hook from disk.
+        // We want to use that value and merge it with the values supplied during registration.
+        NSString *currentValue = nil;
+        if ([TunePowerHookManager getPowerHook:cleanHook]) {
+            currentValue = [TunePowerHookManager getPowerHook:cleanHook].value;
+        }
         
-    TunePowerHookValue *powerHookValue = [[TunePowerHookValue alloc] initWithDictionary:[NSDictionary dictionaryWithDictionary:dictionary]];
-    [TunePowerHookManager setPowerHook:powerHookValue forKey:cleanHook];
+        NSMutableDictionary *dictionary = @{POWERHOOKVALUE_NAME:cleanHook,
+                                            POWERHOOKVALUE_DEFAULT_VALUE:defaultValue,
+                                            POWERHOOKVALUE_FRIENDLY_NAME:friendlyName}.mutableCopy;
+        
+        if (currentValue != nil) {
+            [dictionary setObject:currentValue forKey:POWERHOOKVALUE_VALUE];
+        } else {
+            [dictionary setObject:defaultValue forKey:POWERHOOKVALUE_VALUE];
+        }
+        
+        if (description != nil) {
+            [dictionary setObject:description forKey:POWERHOOKVALUE_DESCRIPTION];
+        }
+        
+        if (approvedValues != nil) {
+            [dictionary setObject:approvedValues forKey:POWERHOOKVALUE_APPROVED_VALUES];
+        }
+        
+        TunePowerHookValue *powerHookValue = [[TunePowerHookValue alloc] initWithDictionary:[NSDictionary dictionaryWithDictionary:dictionary]];
+        [TunePowerHookManager setPowerHook:powerHookValue forKey:cleanHook];
+    }
 }
 
 - (NSString *)getValueForHookById:(NSString *)hookId {

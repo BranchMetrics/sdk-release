@@ -7,7 +7,8 @@
 //
 
 #import "TuneInAppMessageConstants.h"
-#import "TuneMessageAction.h"
+
+@class TuneMessageAction;
 
 @interface TuneInAppUtils : NSObject
 

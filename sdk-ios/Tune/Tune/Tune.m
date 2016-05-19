@@ -71,7 +71,7 @@ static TuneTracker *_sharedManager = nil;
             _sharedManager = [[TuneTracker alloc] init];
         });
     }
-    
+
     return _sharedManager;
 }
 
@@ -90,33 +90,33 @@ static TuneTracker *_sharedManager = nil;
     if (!configOrNil) {
         configOrNil = [NSDictionary dictionary];
     }
-    
+
     TuneManager *tuneManager = [TuneManager currentManager];
-    
+
     [tuneManager.userProfile setAdvertiserId: [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
     [tuneManager.userProfile setConversionKey: [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
     [tuneManager.userProfile setWearable:@(wearable)];
-    
+
     if(name)
     {
         [tuneManager.userProfile setPackageName:name];
     }
-    
+
     [tuneManager.configuration setupConfiguration:configOrNil];
-    
+
     // If the SDK user told us to use the PlaylistPlayer than set that up.
     if (tuneManager.configuration.usePlaylistPlayer) {
         TuneJSONPlayer *playlistPlayer = [[TuneJSONPlayer alloc] init];
         [playlistPlayer setFiles:tuneManager.configuration.playlistPlayerFilenames];
         tuneManager.playlistPlayer = playlistPlayer;
     }
-    
+
     if (tuneManager.configuration.useConfigurationPlayer) {
         TuneJSONPlayer *configurationPlayer = [[TuneJSONPlayer alloc] init];
         [configurationPlayer setFiles:tuneManager.configuration.configurationPlayerFilenames];
         tuneManager.configurationPlayer = configurationPlayer;
     }
-    
+
     [[self sharedManager] startTracker];
 }
 
@@ -215,7 +215,7 @@ static TuneTracker *_sharedManager = nil;
 + (void)setJailbroken:(BOOL)jailbroken {
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:NO];
-        
+
         [[TuneManager currentManager].userProfile setJailbroken:@(jailbroken)];
     }];
 }
@@ -590,7 +590,7 @@ static TuneTracker *_sharedManager = nil;
 #pragma mark - Playlist API
 
 + (void)onFirstPlaylistDownloaded:(void (^)())block {
-    [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:-1];
+    [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:DefaultFirstPlaylistDownloadedTimeout];
 }
 
 + (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout {
@@ -617,12 +617,12 @@ static TuneTracker *_sharedManager = nil;
         ErrorLog(@"Events passed to 'measureEvent:' can not be nil.");
         return;
     }
-    
+
     // Handoff to new code via CustomEvent Skyhook
     [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCustomEventOccurred
                                                   object:nil
                                                 userInfo:@{ TunePayloadCustomEvent: event }];
-    
+
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] measureEvent:event];
     }];
@@ -665,7 +665,7 @@ static TuneTracker *_sharedManager = nil;
 + (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
-        
+
         // Process any Marketing Automation info in deeplink url
         [TuneDeeplink processDeeplinkURL:[NSURL URLWithString:urlString]];
     }];

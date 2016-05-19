@@ -117,8 +117,7 @@
             }
 #endif
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Parsing push payload failed: %@",exception.description);
     }
     

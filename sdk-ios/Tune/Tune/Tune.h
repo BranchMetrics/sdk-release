@@ -28,7 +28,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.2.0"
+#define TUNEVERSION @"4.2.1"
 
 
 @protocol TuneDelegate;
@@ -114,10 +114,10 @@
  Check for a deferred deeplink entry point upon app installation.
  On completion, this method does not auto-open the deferred deeplink,
  only the success/failure delegate callbacks are fired.
- 
+
  This is safe to call at every app launch, since the function does nothing
  unless this is the first launch.
- 
+
  @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
  */
 + (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
@@ -526,9 +526,9 @@
 
 /*!
  Gets the current device token for push notifications.
- 
+
  NOTE: This should be called after application:didRegisterForRemoteNotificationsWithDeviceToken: finishes. If called before it will be nil.
- 
+
  @return device token, nil if there isn't one
  */
 + (NSString *)getPushToken;
@@ -612,10 +612,10 @@
 
 /**
  * Manage all Push Notification events used with TUNE.
- * 
+ *
  * Push notification events are auto-instrumented by the TUNE SDK if your UIApplicationDelegate is named 'AppDelegate',
  * or you have set the name for 'AppDelegateClassName' in 'TuneConfiguration.plist'.
- * 
+ *
  * If you are not using TUNE's auto-instrumentation setup, you may instead invoke the following methods manually from the UIApplicationDelegate methods.
  *
  * WARNING: If you enable the swizzle, do not call these methods.
@@ -662,10 +662,12 @@
 /** Register block for callback when the very first play list is downloaded.
  *
  * Use this method to register a block for callback the first time a playlist is downloaded.
- * 
+ *
  * The thread calling the block of code is not gaurenteed to be the main thread. If the code inside of the block requires executing on the main thread you will need to implement this logic.
  *
  * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the block of code is executed immediately on a background thread.
+ *
+ * Otherwise the callback will fire after 3 seconds or when the first playlist is downloaded, whichever comes first.
  *
  * WARNING: If TMA is not enabled then this callback will never fire.
  *
@@ -753,7 +755,7 @@
  @param targetAppAdvertiserId The Tune advertiser ID of the target app.
  @param targetAdvertiserOfferId The Tune offer ID of the target app.
  @param targetAdvertiserPublisherId The Tune publisher ID of the target app.
- @param shouldRedirect Should redirect to the download url if the measurement session was 
+ @param shouldRedirect Should redirect to the download url if the measurement session was
    successfully created. See setRedirectUrl:.
  */
 + (void)startAppToAppMeasurement:(NSString *)targetAppPackageName
@@ -772,7 +774,7 @@
  This typically occurs during OAUTH or when an app exits and is returned
  to via a URL. The data will be sent to the HasOffers server when the next
  measureXXX method is called so that a Re-Engagement can be recorded.
- 
+
  WARNING: You don't need to call this method if you have the swizzle enabled.
  @param urlString the url string used to open your app.
  @param sourceApplication the source used to open your app. For example, mobile safari.
@@ -788,10 +790,10 @@
 /*!
  Begin monitoring for an iBeacon region. Boundary-crossing events will be recorded
  by the Tune servers for event attribution.
- 
+
  When the first region is added, the user will immediately be prompted for use of
  their location, unless they have already granted it to the app.
- 
+
  @param UUID The region's universal unique identifier (required).
  @param nameId The region's name, as programmed into the beacon (required).
  @param majorId A subregion's major identifier (optional, send 0)

@@ -51,7 +51,7 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
     
     @try {
         NSMutableDictionary *currentAnalytics = nil;
-        [TuneFileManager createStorageDirectory];
+        [TuneFileUtils createDirectory:[self getStorageDirectory]];
         
         @synchronized(_analyticsFileLock){
             // Load the latest edition of the file
@@ -79,11 +79,9 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                                             filePathName:[TuneFileManager getPathToAnalytics]
                                              plistFormat:NSPropertyListXMLFormat_v1_0];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error saving event to path: %@. Exception: %@ Stack: %@", [TuneFileManager getPathToAnalytics], [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -92,19 +90,17 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
     BOOL returnCode = YES;
     
     @try {
-        [TuneFileManager createStorageDirectory];
+        [TuneFileUtils createDirectory:[self getStorageDirectory]];
         
         NSDictionary *dictionaryCopy = analytics;
-        @synchronized(_analyticsFileLock){
+        @synchronized(_analyticsFileLock) {
             returnCode = [TuneFileUtils savePropertyList:dictionaryCopy
                                             filePathName:[TuneFileManager getPathToAnalytics]
                                              plistFormat:NSPropertyListXMLFormat_v1_0];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error saving analytics file at path: %@. Exception: %@ Stack: %@", [TuneFileManager getPathToAnalytics], [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -128,11 +124,9 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                                                  plistFormat:NSPropertyListXMLFormat_v1_0];
             }
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error deleting analytics events (by saving over old) at path: %@. Exception: %@ Stack: %@", [TuneFileManager getPathToAnalytics], [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -186,17 +180,15 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                 result = [TuneFileUtils loadImageAtPath:imagePath];
             }
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error loading image at path: %@. Exception: %@ Stack: %@", imagePath, [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return result;
     }
 }
 
 + (BOOL)saveImageData:(NSData *)data toDiskWithName:(NSString *)name {
-    [self createImageStorageDirectory];
+    [TuneFileUtils createDirectory:[self getImageStorageDirectory]];
     
     BOOL returnCode = NO;
     NSString *imagePath = [TuneFileManager getImageFilePathForImageNamed:name];
@@ -204,11 +196,9 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
         @synchronized(_imageFileLock) {
             returnCode = [TuneFileUtils saveImageData:data toPath:imagePath];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error saving image to path: %@. Exception: %@ Stack: %@", imagePath, [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -224,18 +214,16 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                 dictionary = [TuneFileUtils loadPropertyList:path];
             }
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error loading file at path: %@. Exception: %@ Stack: %@", path, [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return dictionary;
     }
 }
 
 + (BOOL)saveDictionary:(NSDictionary *)dictionary toPath:(NSString *)path withFileLock:(NSObject *)fileLock {
     BOOL returnCode = YES;
-    [self createStorageDirectory];
+    [TuneFileUtils createDirectory:[self getStorageDirectory]];
     
     @try {
         @synchronized(fileLock){
@@ -243,11 +231,9 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                                             filePathName:path
                                              plistFormat:NSPropertyListXMLFormat_v1_0];
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error saving file at path: %@. Exception: %@ Stack: %@", path, [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -261,11 +247,9 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
                 returnCode = [TuneFileUtils deleteFileOrDirectory:path];
             }
         }
-    }
-    @catch (NSException *exception) {
+    } @catch (NSException *exception) {
         ErrorLog(@"Error deleting file at path: %@. Exception: %@ Stack: %@", path, [exception description], [exception callStackSymbols]);
-    }
-    @finally {
+    } @finally {
         return returnCode;
     }
 }
@@ -309,32 +293,8 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
     return storageDirectory;
 }
 
-+ (void)createStorageDirectory {
-    [self createStorageDirectoryAtPath:[self getStorageDirectory]];
-}
-
 + (NSString *)getImageStorageDirectory {
     return [[self getStorageDirectory] stringByAppendingPathComponent:TUNE_IMAGE_STORAGE_FOLDER];
-}
-
-+ (void)createImageStorageDirectory {
-    [self createStorageDirectoryAtPath:[self getImageStorageDirectory]];
-}
-
-+ (void)createStorageDirectoryAtPath:(NSString *)path {
-    if( ![[NSFileManager defaultManager] fileExistsAtPath:path] ) {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:path
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:&error];
-        if( error != nil ) {
-            ErrorLog(@"Tune: error creating queue storage directory: %@", error );
-        }
-        else {
-            [TuneFileUtils addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:path]];
-        }
-    }
 }
 
 @end

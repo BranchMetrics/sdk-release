@@ -93,6 +93,14 @@
     XCTAssertEqual(0 , [currentPowerHooks count]);
 }
 
+- (void)testRegisteringDuplicatePowerHook {
+    [Tune registerHookWithId:@"name" friendlyName:@"friendly" defaultValue:@"default"];
+    XCTAssertEqual(@"default", [Tune getValueForHookById:@"name"]);
+    
+    [Tune registerHookWithId:@"name" friendlyName:@"friendly" defaultValue:@"default1"];
+    XCTAssertEqual(@"default", [Tune getValueForHookById:@"name"]);
+}
+
 #pragma mark - No Power Hooks Tests
 
 - (void)testGetSingleValuePowerHooks {
