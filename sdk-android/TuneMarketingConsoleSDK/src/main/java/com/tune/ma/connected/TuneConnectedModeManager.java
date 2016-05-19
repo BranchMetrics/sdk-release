@@ -150,14 +150,18 @@ public class TuneConnectedModeManager {
     private class Connect implements Runnable {
         @Override
         public void run() {
-            TuneManager.getInstance().getApi().postConnect();
+            if (TuneManager.getInstance() != null) {
+                TuneManager.getInstance().getApi().postConnect();
+            }
         }
     }
 
     private class Disconnect implements Runnable {
         @Override
         public void run() {
-            TuneManager.getInstance().getApi().postDisconnect();
+            if (TuneManager.getInstance() != null) {
+                TuneManager.getInstance().getApi().postDisconnect();
+            }
         }
     }
 
@@ -170,7 +174,9 @@ public class TuneConnectedModeManager {
 
         @Override
         public void run() {
-            TuneManager.getInstance().getApi().postSync(syncObject);
+            if (TuneManager.getInstance() != null) {
+                TuneManager.getInstance().getApi().postSync(syncObject);
+            }
         }
     }
 }

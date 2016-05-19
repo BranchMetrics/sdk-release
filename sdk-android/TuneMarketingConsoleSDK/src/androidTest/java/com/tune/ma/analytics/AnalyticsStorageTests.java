@@ -4,7 +4,6 @@ import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
-import com.tune.ma.utils.TuneFileUtils;
 
 import org.json.JSONArray;
 
@@ -24,11 +23,17 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         // Trigger a session
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("session")));
 
+        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        assertEquals(0, storedAnalytics.length());
+
+        // Triggering directly instead of through Foreground so it doesn't get sent out
+        TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
+
         // Allow some time to write analytics to disk
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
         assertEquals(1, storedAnalytics.length());
     }
 
@@ -44,11 +49,49 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent2")));
 
+        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        assertEquals(0, storedAnalytics.length());
+
+        // Triggering directly instead of through Foreground so it doesn't get sent out
+        TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
+
         // Allow some time to write analytics to disk
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
         assertEquals(2, storedAnalytics.length());
     }
+
+    public void testAnalyticsStoredAfterCustomEventQueueTurnedOff() throws InterruptedException {
+        // Don't dispatch while we're trying to read file
+        TuneManager.getInstance().getAnalyticsManager().stopScheduledDispatch();
+
+        // Trigger events
+        TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
+        TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent2")));
+
+        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        assertEquals(0, storedAnalytics.length());
+
+        // Triggering directly instead of through Foreground so it doesn't get sent out
+        TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
+
+        // Allow some time to write analytics to disk
+        Thread.sleep(200);
+
+        // Check that analytics was written to disk in correct format
+        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        assertEquals(2, storedAnalytics.length());
+
+        TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent3")));
+        TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent4")));
+
+        Thread.sleep(200);
+
+        // Check that analytics was written to disk in correct format
+        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
+        assertEquals(4, storedAnalytics.length());
+    }
 }
+

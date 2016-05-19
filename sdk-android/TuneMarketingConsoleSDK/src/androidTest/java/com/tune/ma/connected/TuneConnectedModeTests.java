@@ -5,6 +5,7 @@ import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
+import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneConnectedModeTurnedOn;
 import com.tune.mocks.MockApi;
 import com.tune.testutils.TuneTestUtils;
@@ -55,6 +56,9 @@ public class TuneConnectedModeTests extends TuneUnitTest {
         // Spoof connected mode being turned on
         TuneEventBus.post(new TuneConnectedModeTurnedOn());
 
+        // Start sending custom events
+        TuneEventBus.post(new TuneAppForegrounded("session1", 1L));
+
         // Measure an event
         tune.measureEvent("connectedEvent");
 
@@ -62,7 +66,7 @@ public class TuneConnectedModeTests extends TuneUnitTest {
             @Override
             public void run() {
                 // Analytics event should go directly through the connected port
-                assertEquals(1, mockApi.getConnectedAnalyticsPostCount());
+                assertEquals(2, mockApi.getConnectedAnalyticsPostCount());
                 // Assert that the event name sent over connected port is the same one we just measured
                 assertEquals("connectedEvent", mockApi.getPostedConnectedEvent().optJSONObject("event").optString("action"));
             }

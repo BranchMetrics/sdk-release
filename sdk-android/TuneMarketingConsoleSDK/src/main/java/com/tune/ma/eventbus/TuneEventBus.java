@@ -102,7 +102,7 @@ public class TuneEventBus {
         EVENT_BUS.unregister(subscriber);
     }
 
-    public static void disable() {
+    public static synchronized void disable() {
         // Disable bus from being used
         enabled = false;
         // Remove any queued events without sending

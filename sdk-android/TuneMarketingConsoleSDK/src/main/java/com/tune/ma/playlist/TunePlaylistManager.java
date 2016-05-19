@@ -51,14 +51,22 @@ public class TunePlaylistManager {
     //  EventBus Events
     ////////////////////
     public synchronized void onEvent(TuneAppForegrounded event) {
-        if (TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
+        if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
             return;
         }
 
-        // If there's a callback holder that was canceled on app background,
-        // restart it with timeout
+        // If there's a callback holder that was canceled on app background, resume it
         if (onFirstPlaylistDownloadCallbackHolder != null && onFirstPlaylistDownloadCallbackHolder.isCanceled()) {
-            onFirstPlaylistDownloadCallbackHolder.setTimeout(onFirstPlaylistDownloadCallbackHolder.getTimeout());
+            // If playlist is downloaded, execute callback immediately
+            if (receivedFirstPlaylistDownload) {
+                onFirstPlaylistDownloadCallbackHolder.executeBlock();
+            } else {
+                long timeout = onFirstPlaylistDownloadCallbackHolder.getTimeout();
+                if (timeout > 0) {
+                    // Restart the canceled callback with timeout
+                    onFirstPlaylistDownloadCallbackHolder.setTimeout(timeout);
+                }
+            }
         }
 
         if (TuneManager.getInstance().getConfigurationManager().getPollForPlaylist() && !this.started) {
@@ -84,11 +92,6 @@ public class TunePlaylistManager {
     // Start/Stop Retriever Task
     /////////////////////////////
     private void startPlaylistRetriever() {
-        // If we are off then don't bother requesting anymore playlists
-        if (TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
-            return;
-        }
-        
         TuneDebugLog.i(TAG, "Starting PlaylistRetriever Schedule.");
         scheduler = new ScheduledThreadPoolExecutor(1);
         scheduler.scheduleAtFixedRate(new PlaylistRetrievalTask(), 0, TuneManager.getInstance().getConfigurationManager().getPlaylistRequestPeriod(), TimeUnit.SECONDS);
@@ -97,7 +100,7 @@ public class TunePlaylistManager {
     private void stopPlaylistRetriever() {
         if (scheduler != null) {
             TuneDebugLog.i(TAG, "Stopping PlaylistRetriever Schedule.");
-            scheduler.shutdown();
+            scheduler.shutdownNow();
             scheduler = null;
         }
     }
@@ -126,41 +129,24 @@ public class TunePlaylistManager {
 
     protected synchronized void setCurrentPlaylist(TunePlaylist newPlaylist) {
         // If TMA is disabled, the new playlist is always blank.
-        if (TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
+        if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
             newPlaylist = new TunePlaylist();
         }
 
-        if (!newPlaylist.isFromDisk() && !receivedFirstPlaylistDownload) {
-            receivedFirstPlaylistDownload = true;
+        if (currentPlaylist == null || !currentPlaylist.equals(newPlaylist)) {
+            this.currentPlaylist = newPlaylist;
 
-            // If we have a pending callback that hasn't been executed, execute it
-            if (!firstPlaylistCallbackExecuted && onFirstPlaylistDownloadCallbackHolder != null) {
-                TuneDebugLog.i("Playlist downloaded, executing firstPlaylistDownload callback");
-                try {
-                    executorService.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            onFirstPlaylistDownloadCallbackHolder.executeBlock();
-                        }
-                    });
-                } catch (Exception e) {
-                    TuneDebugLog.e(TuneStringUtils.format("Exception in executing firstPlaylistDownload callback. %s", Log.getStackTraceString(e)));
-                }
+            // Current playlist changed and not from disk, save new playlist to disk
+            if (TuneManager.getInstance() != null && !newPlaylist.isFromDisk()) {
+                TuneDebugLog.i("Saving New Playlist to Disk");
+                TuneManager.getInstance().getFileManager().writePlaylist(currentPlaylist.toJson());
             }
+
+            TuneEventBus.post(new TunePlaylistManagerCurrentPlaylistChanged(newPlaylist));
         }
 
-        if (currentPlaylist != null && currentPlaylist.equals(newPlaylist)) {
-            return;
-        }
-
-        this.currentPlaylist = newPlaylist;
-
-        TuneEventBus.post(new TunePlaylistManagerCurrentPlaylistChanged(newPlaylist));
-
-        // Current playlist changed and not from disk, save new playlist to disk
-        if (TuneManager.getInstance() != null && !newPlaylist.isFromDisk()) {
-            TuneDebugLog.i("Saving New Playlist to Disk");
-            TuneManager.getInstance().getFileManager().writePlaylist(currentPlaylist.toJson());
+        if (!newPlaylist.isFromDisk()) {
+            checkTriggerOnFirstPlaylistDownloadedCallback();
         }
     }
 
@@ -169,7 +155,7 @@ public class TunePlaylistManager {
         @Override
         public void run() {
             // If we are off then don't bother requesting anymore playlists
-            if (TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
+            if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
                 return;
             }
 
@@ -192,7 +178,20 @@ public class TunePlaylistManager {
                 }
 
                 TunePlaylist newPlaylist = null;
-                if (response != null) {
+                if (response == null) {
+                    TuneDebugLog.w("Playlist response did not have any JSON");
+                    // If we failed to get the playlist (or if it is empty) then trigger the 'onFirstPlaylistDownloaded' callback immediately
+                    // So that we don't hit the timeout.
+                    checkTriggerOnFirstPlaylistDownloadedCallback();
+                } else if (response.length() == 0) {
+                    /*
+                     *  IMPORTANT:
+                     *     An empty playlist is a signal from the server to not process anything
+                     */
+
+                    TuneDebugLog.w("Received empty playlist from the server -- not updating");
+                    checkTriggerOnFirstPlaylistDownloadedCallback();
+                } else {
                     if (configurationManager.echoPlaylists()) {
                         TuneDebugLog.alwaysLog("Got Playlist:\n" + TuneJsonUtils.getPrettyJson(response));
                     }
@@ -243,8 +242,6 @@ public class TunePlaylistManager {
             if (timeout > 0) {
                 TuneDebugLog.i("Playlist not downloaded, executing firstPlaylistDownload callback after timeout " + timeout);
                 onFirstPlaylistDownloadCallbackHolder.setTimeout(timeout);
-            } else {
-                TuneDebugLog.IAMConfigError("You passed a negative timeout value for the onFirstPlaylistDownloaded callback.");
             }
         }
     }
@@ -255,5 +252,26 @@ public class TunePlaylistManager {
 
     public void setFirstPlaylistCallbackExecuted(boolean firstPlaylistCallbackExecuted) {
         this.firstPlaylistCallbackExecuted = firstPlaylistCallbackExecuted;
+    }
+
+    private synchronized void checkTriggerOnFirstPlaylistDownloadedCallback() {
+        if (!receivedFirstPlaylistDownload) {
+            receivedFirstPlaylistDownload = true;
+
+            // If we have a pending callback that hasn't been executed, execute it
+            if (!firstPlaylistCallbackExecuted && onFirstPlaylistDownloadCallbackHolder != null) {
+                TuneDebugLog.i("Playlist downloaded, executing firstPlaylistDownload callback");
+                try {
+                    executorService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            onFirstPlaylistDownloadCallbackHolder.executeBlock();
+                        }
+                    });
+                } catch (Exception e) {
+                    TuneDebugLog.e(TuneStringUtils.format("Exception in executing firstPlaylistDownload callback. %s", Log.getStackTraceString(e)));
+                }
+            }
+        }
     }
 }

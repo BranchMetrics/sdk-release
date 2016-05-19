@@ -1,9 +1,8 @@
-package com.tune.ma;
+package com.tune;
 
 import android.test.AndroidTestCase;
 
-import com.tune.Tune;
-import com.tune.TuneTestConstants;
+import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
 

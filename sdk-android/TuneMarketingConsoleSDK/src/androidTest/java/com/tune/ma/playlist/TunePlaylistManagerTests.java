@@ -12,7 +12,6 @@ import com.tune.ma.utils.TuneFileUtils;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.mocks.MockApi;
 import com.tune.mocks.MockFileManager;
-import com.tune.testutils.SimpleCallback;
 import com.tune.testutils.TuneTestUtils;
 
 import org.json.JSONObject;
@@ -100,39 +99,6 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         playlistManager.setCurrentPlaylist(playlist2);
 
         assertFalse(changedReceiver.getEventReceived());
-    }
-
-    public void testPlaylistDownloadCallbackFires() {
-        final SimpleCallback callback = new SimpleCallback();
-        playlistManager.onFirstPlaylistDownloaded(callback, -1);
-
-        TunePlaylist diskPlaylist = new TunePlaylist(playlistJson);
-        diskPlaylist.setFromDisk(true);
-        playlistManager.setCurrentPlaylist(diskPlaylist);
-
-        assertFalse(callback.getCallbackExecuted());
-
-        TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
-        playlistManager.setCurrentPlaylist(notFromDiskPlaylist);
-
-        TuneTestUtils.assertEventually(4000, new Runnable() {
-            @Override
-            public void run() {
-                assertTrue(callback.getCallbackExecuted());
-            }
-        });
-    }
-
-    public void testPlaylistDownloadCallbackFiresAfterTimeout() {
-        final SimpleCallback callback = new SimpleCallback();
-        playlistManager.onFirstPlaylistDownloaded(callback, 3000);
-
-        TuneTestUtils.assertEventually(4000, new Runnable() {
-            @Override
-            public void run() {
-                assertTrue(callback.getCallbackExecuted());
-            }
-        });
     }
 
     // Helpers

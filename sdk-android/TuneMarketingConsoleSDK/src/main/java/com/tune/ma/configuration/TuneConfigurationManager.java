@@ -101,7 +101,16 @@ public class TuneConfigurationManager {
         @Override
         public void run() {
             JSONObject response = TuneManager.getInstance().getApi().getConfiguration();
-            if (response != null) {
+            if (response == null) {
+                TuneDebugLog.w("Configuration response did not have any JSON");
+            } else if (response.length() == 0) {
+                /*
+                 *  IMPORTANT:
+                 *     An empty configuration is a signal from the server to not process anything
+                 */
+
+                TuneDebugLog.w("Received empty configuration from the server -- not updating");
+            } else {
                 if (tuneConfiguration.echoConfigurations) {
                     TuneDebugLog.alwaysLog("Got configuration:\n" + TuneJsonUtils.getPrettyJson(response));
                 }

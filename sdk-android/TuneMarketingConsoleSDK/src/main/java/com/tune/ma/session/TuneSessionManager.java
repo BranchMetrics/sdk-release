@@ -10,9 +10,9 @@ import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * Created by kristine on 1/4/16.
@@ -26,7 +26,7 @@ public class TuneSessionManager {
     private TuneSession session;
     private ArrayList<Activity> connectedActivities = new ArrayList<Activity>();
 
-    private boolean isBackgrounded;
+    private boolean hasActivityVisible;
 
     private static TuneSessionManager instance = null;
 
@@ -84,8 +84,6 @@ public class TuneSessionManager {
         String sessionId = "t" + (currentTime / 1000L) + "-" + UUID.randomUUID().toString();
 
         TuneEventBus.post(new TuneAppForegrounded(sessionId, currentTime));
-
-        isBackgrounded = false;
     }
 
     private synchronized void endSession() {
@@ -100,8 +98,6 @@ public class TuneSessionManager {
                 // This code will be executed after SESSION_TIMEOUT ms
                 TuneEventBus.post(new TuneAppBackgrounded());
 
-                isBackgrounded = true;
-
                 // Null out the timer so we know it's finished running
                 sessionEndTimer = null;
             }
@@ -111,6 +107,7 @@ public class TuneSessionManager {
     private synchronized void connectActivity(Activity activity) {
         connectedActivities.add(activity);
         if (connectedActivities.size() == 1) {
+            hasActivityVisible = true;
             startSession();
         }
     }
@@ -118,6 +115,7 @@ public class TuneSessionManager {
     private synchronized void disconnectActivity(Activity activity) {
         connectedActivities.remove(activity);
         if(connectedActivities.size() == 0) {
+            hasActivityVisible = false;
             endSession();
         }
     }
@@ -138,7 +136,11 @@ public class TuneSessionManager {
         return (System.currentTimeMillis() - session.getCreatedDate()) / 1000.0;
     }
 
-    public synchronized boolean isBackgrounded() {
-        return isBackgrounded;
+    public synchronized boolean hasActivityVisible() {
+        return hasActivityVisible;
+    }
+
+    public synchronized void setActivityVisible(boolean hasActivityVisible) {
+        this.hasActivityVisible = hasActivityVisible;
     }
 }

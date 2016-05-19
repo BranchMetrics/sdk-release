@@ -99,7 +99,8 @@ public class TuneParameters {
             // Set the MAT ID, from existing or generate a new UUID
             String matId = getMatId();
             if (matId == null || matId.length() == 0) {
-                setMatId(UUID.randomUUID().toString());
+                matId = UUID.randomUUID().toString();
+                setMatId(matId);
             }
             TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MAT_ID, matId)));
             
@@ -442,7 +443,9 @@ public class TuneParameters {
     }
     public synchronized void setCountryCode(String countryCode) {
         mCountryCode = countryCode;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.COUNTRY_CODE, countryCode)));
+        if (countryCode != null) {
+            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.COUNTRY_CODE, countryCode.toUpperCase(Locale.ENGLISH))));
+        }
     }
 
     private String mCurrencyCode = null;

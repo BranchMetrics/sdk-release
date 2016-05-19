@@ -195,7 +195,7 @@ public class Tune {
     /**
      * Clear Tune singleton so it may be re-initialized.
      */
-    public static synchronized void clear() {
+    static synchronized void clear() {
         tune = null;
     }
 
@@ -1707,8 +1707,14 @@ public class Tune {
      *
      *
      */
-    public void onFirstPlaylistDownloaded(TuneCallback callback) {
+    public void onFirstPlaylistDownloaded(final TuneCallback callback) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
+            pubQueue.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.execute();
+                }
+            });
             return;
         }
 

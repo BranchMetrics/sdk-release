@@ -33,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -49,19 +51,49 @@ public class TuneAnalyticsManager {
     private TuneAnalyticsManagerState state;
     private Set<TuneAnalyticsVariable> sessionVariables;
 
+    private Boolean shouldQueueCustomEvents;
+    private List<TuneEvent> customEventQueue;
+
     protected Context context;
 
     public TuneAnalyticsManager(Context context) {
         this.context = context;
         this.state = TuneAnalyticsManagerState.NOT_TRACKING;
         this.sessionVariables = new HashSet<TuneAnalyticsVariable>();
+
+        this.shouldQueueCustomEvents = true;
+        this.customEventQueue = new LinkedList<TuneEvent>();
     }
 
-    public void onEvent(TuneEventOccurred event) {
+    public synchronized void onEvent(TuneEventOccurred event) {
         TuneEvent tuneEvent = event.getEvent();
         // Create TuneCustomEvent from TuneEvent
-        TuneCustomEvent customEvent = new TuneCustomEvent(tuneEvent);
-        storeAndTrackAnalyticsEvent(false, customEvent);
+        if (shouldQueueCustomEvents()) {
+            queueCustomEvent(tuneEvent);
+        } else {
+            TuneCustomEvent customEvent = new TuneCustomEvent(tuneEvent);
+            storeAndTrackAnalyticsEvent(false, customEvent);
+        }
+    }
+
+    private synchronized void queueCustomEvent(TuneEvent event) {
+        customEventQueue.add(event);
+    }
+
+    private synchronized boolean shouldQueueCustomEvents() {
+        return shouldQueueCustomEvents;
+    }
+
+    synchronized void setShouldQueueCustomEvents(Boolean newValue) {
+        shouldQueueCustomEvents = newValue;
+
+        if (!shouldQueueCustomEvents) {
+            for (TuneEvent event: customEventQueue) {
+                TuneCustomEvent customEvent = new TuneCustomEvent(event);
+                storeAndTrackAnalyticsEvent(false, customEvent);
+            }
+            customEventQueue.clear();
+        }
     }
 
     public void onEvent(TuneActivityResumed event) {
@@ -75,6 +107,7 @@ public class TuneAnalyticsManager {
     }
 
     public void onEvent(TuneAppForegrounded event) {
+        setShouldQueueCustomEvents(false);
         // Create and store Foregrounded event
         TuneForegroundEvent foregroundEvent = new TuneForegroundEvent();
         storeAndTrackAnalyticsEvent(false, foregroundEvent);
@@ -83,6 +116,7 @@ public class TuneAnalyticsManager {
     }
 
     public void onEvent(TuneAppBackgrounded event) {
+        setShouldQueueCustomEvents(true);
         // Create and store Backgrounded event
         TuneBackgroundEvent backgroundEvent = new TuneBackgroundEvent();
         storeAndTrackAnalyticsEvent(false, backgroundEvent);
@@ -193,7 +227,7 @@ public class TuneAnalyticsManager {
     // Periodic dispatcher to send analytics every 60s by default
     public void startScheduledDispatch() {
         // If we are off then don't bother sending any more analytics.
-        if (TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
+        if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
             return;
         }
 

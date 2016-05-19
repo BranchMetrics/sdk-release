@@ -79,13 +79,18 @@ public class TuneCallbackHolder {
     }
 
     private void execute() {
-        if (callback != null) {
+        if (callback != null && TuneManager.getInstance() != null) {
             TunePlaylistManager playlistManager = TuneManager.getInstance().getPlaylistManager();
             TuneSessionManager sessionManager = TuneManager.getInstance().getSessionManager();
+
             // Only execute callback and mark as executed if app is in foreground
-            if (!playlistManager.hasFirstPlaylistCallbackExecuted() && !sessionManager.isBackgrounded()) {
-                playlistManager.setFirstPlaylistCallbackExecuted(true);
-                callback.execute();
+            if (playlistManager != null && !playlistManager.hasFirstPlaylistCallbackExecuted()) {
+                if (sessionManager != null && sessionManager.hasActivityVisible()){
+                    playlistManager.setFirstPlaylistCallbackExecuted(true);
+                    callback.execute();
+                } else {
+                    canceled = true;
+                }
             }
         }
     }
