@@ -223,7 +223,7 @@ static NSSet * doNotEncryptSet;
         ADClient *adClient = [ADClient sharedClient];
         
 #ifdef __IPHONE_9_0 // if Tune is built in Xcode 7
-        if( [TuneUtils objectRespondsToSelector:adClient selector:@selector(requestAttributionDetailsWithBlock:)] ) {
+        if( [TuneUtils object:adClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)] ) {
             // iOS 9
             [adClient requestAttributionDetailsWithBlock:^(NSDictionary *attributionDetails, NSError *error) {
                 if (error.code == ADClientErrorLimitAdTracking) {
@@ -262,7 +262,7 @@ static NSSet * doNotEncryptSet;
             }];
         } else
 #endif
-        if ([TuneUtils objectRespondsToSelector:adClient selector:@selector(lookupAdConversionDetails:)]) {
+        if ([TuneUtils object:adClient respondsToSelector:@selector(lookupAdConversionDetails:)]) {
             // device is iOS 8.0
             [[ADClient sharedClient] lookupAdConversionDetails:^(NSDate *appPurchaseDate, NSDate *iAdImpressionDate) {
                 BOOL iAdOriginatedInstallation = (iAdImpressionDate != nil);
@@ -674,6 +674,7 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile advertiserId]                  forKey:TUNE_KEY_ADVERTISER_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile age]                           forKey:TUNE_KEY_AGE                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appAdTracking]                 forKey:TUNE_KEY_APP_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile appBundleId]                   forKey:TUNE_KEY_APP_BUNDLE_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appName]                       forKey:TUNE_KEY_APP_NAME                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appVersion]                    forKey:TUNE_KEY_APP_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile bluetoothState]                forKey:TUNE_KEY_BLUETOOTH_STATE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -739,6 +740,7 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile iadCreativeName]               forKey:TUNE_KEY_IAD_CREATIVE_NAME        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile installDate]                   forKey:TUNE_KEY_INSDATE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile installLogId]                  forKey:TUNE_KEY_INSTALL_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile isTestFlightBuild]             forKey:TUNE_KEY_IS_TESTFLIGHT_BUILD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled]   forKey:TUNE_KEY_IOS_AD_TRACKING      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingIdentifier]    forKey:TUNE_KEY_IOS_IFA                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleVendorIdentifier]         forKey:TUNE_KEY_IOS_IFV                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

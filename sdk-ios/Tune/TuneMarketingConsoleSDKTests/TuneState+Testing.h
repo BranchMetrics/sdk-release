@@ -10,6 +10,6 @@
 
 @interface TuneState (Testing)
 
-+(void) resetLocalConfig;
++ (void)resetLocalConfig;
 
 @end

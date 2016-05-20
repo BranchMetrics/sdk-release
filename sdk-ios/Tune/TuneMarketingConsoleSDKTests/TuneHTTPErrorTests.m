@@ -73,6 +73,7 @@
     NSError *err = nil;
     
     OCMStub([mockTuneHttpUtils sendSynchronousRequest:[OCMArg any] response:[OCMArg setTo:resp] error:[OCMArg setTo:err]]);
+    OCMStub([mockTuneHttpUtils addIdentifyingHeaders:[OCMArg any]]).andForwardToRealObject();
     
     [TuneEventQueue enqueueUrlRequest:@"http://www.tune.com"
                           eventAction:nil
@@ -114,6 +115,7 @@
     NSError *err = nil;
     
     OCMStub([mockTuneHttpUtils sendSynchronousRequest:[OCMArg any] response:[OCMArg setTo:resp] error:[OCMArg setTo:err]]);
+    OCMStub([mockTuneHttpUtils addIdentifyingHeaders:[OCMArg any]]).andForwardToRealObject();
     
     [TuneEventQueue enqueueUrlRequest:@"https://www.tune.com"
                           eventAction:nil
@@ -138,6 +140,7 @@
     NSError *err = nil;
     
     OCMStub([mockTuneHttpUtils sendSynchronousRequest:[OCMArg any] response:[OCMArg setTo:resp] error:[OCMArg setTo:err]]);
+    OCMStub([mockTuneHttpUtils addIdentifyingHeaders:[OCMArg any]]).andForwardToRealObject();
     
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                           eventAction:nil
@@ -170,6 +173,7 @@
     NSError *err = nil;
     
     OCMStub([mockTuneHttpUtils sendSynchronousRequest:[OCMArg any] response:[OCMArg setTo:resp] error:[OCMArg setTo:err]]);
+    OCMStub([mockTuneHttpUtils addIdentifyingHeaders:[OCMArg any]]).andForwardToRealObject();
     
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Server%20Error"
                           eventAction:nil
@@ -204,6 +208,7 @@
     NSError *err = nil;
     
     OCMStub([mockTuneHttpUtils sendSynchronousRequest:[OCMArg any] response:[OCMArg setTo:resp] error:[OCMArg setTo:err]]);
+    OCMStub([mockTuneHttpUtils addIdentifyingHeaders:[OCMArg any]]).andForwardToRealObject();
     
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.0%20500%20Bad%"
                           eventAction:nil

@@ -37,8 +37,7 @@ static NSString* const testKey = @"fakeTuneKey";
     [super tearDown];
 }
 
-- (void)testNewKeyRead
-{
+- (void)testNewKeyRead {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *oldTuneId = [defaults valueForKey:@"_TUNE_mat_id"];
     
@@ -57,8 +56,7 @@ static NSString* const testKey = @"fakeTuneKey";
 }
 
 
-- (void)testHashMd5
-{
+- (void)testHashMd5 {
     static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
     static NSString* const expected = @"a346e5dc2a8d22f2733af9740c5a8756";
     
@@ -67,8 +65,7 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
 }
 
-- (void)testHashSha1
-{
+- (void)testHashSha1 {
     static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
     static NSString* const expected = @"310fd0f3e8716db8bb44f474b5fe4bc2336ad967";
     
@@ -77,8 +74,7 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
 }
 
-- (void)testHashSha256
-{
+- (void)testHashSha256 {
     static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
     static NSString* const expected = @"36e75466833deaf7fbce4780ed813707a83c261876d2a7f08115d5cb6842b0c4";
     
@@ -88,36 +84,55 @@ static NSString* const testKey = @"fakeTuneKey";
 }
 
 
-- (void)testUrlEncodeQueryParamValue
-{
+- (void)testUrlEncodeQueryParamValue {
     id input = nil;
-    NSString * expected = nil;
-    NSString * actual = nil;
+    NSString *expected = nil;
+    NSString *actual = nil;
     
     input = nil;
     expected = nil;
     actual = [TuneUtils urlEncodeQueryParamValue:input];
-    XCTAssert(actual == expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    XCTAssertEqual(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
     
     input = [NSNull null];
     expected = nil;
     actual = [TuneUtils urlEncodeQueryParamValue:input];
-    XCTAssert(actual == expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    XCTAssertEqual(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
     
     input = @123.456;
     expected = @"123.456";
     actual = [TuneUtils urlEncodeQueryParamValue:input];
-    XCTAssert([actual isEqualToString:expected], @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
     
     input = @"abc.pqr@xyz.com";
     expected = @"abc.pqr%40xyz.com";
     actual = [TuneUtils urlEncodeQueryParamValue:input];
-    XCTAssert([actual isEqualToString:expected], @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
     
     input = [NSDate dateWithTimeIntervalSince1970:1420099201];
     expected = @"1420099201";
     actual = [TuneUtils urlEncodeQueryParamValue:input];
-    XCTAssert([actual isEqualToString:expected], @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = @"Hello Günter";
+    expected = @"Hello%20G%C3%BCnter";
+    actual = [TuneUtils urlEncodeQueryParamValue:input];
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = @"dict[key]=val";
+    expected = @"dict%5Bkey%5D%3Dval";
+    actual = [TuneUtils urlEncodeQueryParamValue:input];
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = @"dict[\"key\"]=\"val\"";
+    expected = @"dict%5B%22key%22%5D%3D%22val%22";
+    actual = [TuneUtils urlEncodeQueryParamValue:input];
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
+    
+    input = @"!*'\"();:@&=+$,/?%#[] \n";
+    expected = @"%21%2A%27%22%28%29%3B%3A%40%26%3D%2B%24%2C%2F%3F%25%23%5B%5D%20%0A";
+    actual = [TuneUtils urlEncodeQueryParamValue:input];
+    XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
 }
 
 - (void)testDontCrashIfCantDownloadImages {
@@ -134,19 +149,19 @@ static NSString* const testKey = @"fakeTuneKey";
 - (void)testObjectRespondsToSelector {
     id inputObject = [NSString class];
     SEL inputSEL = @selector(stringWithFormat:);
-    XCTAssertTrue([TuneUtils objectRespondsToSelector:inputObject selector:inputSEL]);
+    XCTAssertTrue([TuneUtils object:inputObject respondsToSelector:inputSEL]);
     
     inputObject = [NSString class];
     inputSEL = NSSelectorFromString(@"kjahduhifawejh");
-    XCTAssertFalse([TuneUtils objectRespondsToSelector:inputObject selector:inputSEL]);
+    XCTAssertFalse([TuneUtils object:inputObject respondsToSelector:inputSEL]);
     
     inputObject = nil;
     inputSEL = NSSelectorFromString(@"stringWithFormat:");
-    XCTAssertFalse([TuneUtils objectRespondsToSelector:inputObject selector:inputSEL]);
+    XCTAssertFalse([TuneUtils object:inputObject respondsToSelector:inputSEL]);
     
     inputObject = nil;
     inputSEL = NSSelectorFromString(@"kjahduhifawejh:");
-    XCTAssertFalse([TuneUtils objectRespondsToSelector:inputObject selector:inputSEL]);
+    XCTAssertFalse([TuneUtils object:inputObject respondsToSelector:inputSEL]);
 }
 
 @end

@@ -211,6 +211,14 @@ BOOL isWatchAlertVisible;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleIdentifierKey];
 }
 
++ (NSString *)bundleName {
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleNameKey];
+}
+
++ (NSString *)bundleVersion {
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleVersionKey];
+}
+
 + (NSDate *)installDate {
     // Determine install date from app bundle
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -562,7 +570,6 @@ BOOL isWatchAlertVisible;
         [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
     } else {
         isWatchAlertVisible = YES;
-        __weak typeof(self) weakSelf = self;
         
         WKAlertAction *alertAction = [WKAlertAction actionWithTitle:@"OK" style:WKAlertActionStyleCancel handler:^{
             isWatchAlertVisible = NO;
@@ -571,7 +578,7 @@ BOOL isWatchAlertVisible;
             void (^nextBlock)(void) = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
             
             if(nextTitle && nextMessage) {
-                [weakSelf showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
+                [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
                 [alertTitles removeObjectAtIndex:0];
                 [alertMessages removeObjectAtIndex:0];
                 [alertCompletionBlocks removeObjectAtIndex:0];
@@ -608,8 +615,6 @@ BOOL isWatchAlertVisible;
                                                                            message:message
                                                                     preferredStyle:UIAlertControllerStyleAlert];
             
-            __weak typeof(self) weakSelf = self;
-            
             [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                                       style:UIAlertActionStyleDefault
                                                     handler:^(UIAlertAction * _Nonnull action) {
@@ -618,7 +623,7 @@ BOOL isWatchAlertVisible;
                                                         void (^nextBlock)(void) = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
                                                         
                                                         if(nextTitle && nextMessage) {
-                                                            [weakSelf showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
+                                                            [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
                                                             [alertTitles removeObjectAtIndex:0];
                                                             [alertMessages removeObjectAtIndex:0];
                                                             [alertCompletionBlocks removeObjectAtIndex:0];
@@ -630,7 +635,8 @@ BOOL isWatchAlertVisible;
                                                         }
                                                     }]];
             
-            [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:YES completion:nil];
+            // do not animate the alert view display, so as to reduce the time required and avoid clash with client app UI operations
+            [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:NO completion:nil];
         }
     } else {
         Class classUIAlertView = NSClassFromString(@"UIAlertView");
@@ -662,7 +668,7 @@ BOOL isWatchAlertVisible;
 
 #pragma mark - NSObject Helpers
 
-+ (BOOL)objectRespondsToSelector:(id)receiver selector:(SEL)aSelector {
++ (BOOL)object:(id)receiver respondsToSelector:(SEL)aSelector {
     return [receiver respondsToSelector:aSelector];
 }
 

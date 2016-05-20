@@ -60,7 +60,7 @@
     deviceDetailsMock = OCMClassMock([TuneDeviceDetails class]);
     
     NSArray *supportedOrientations = @[@"UIInterfaceOrientationPortrait", @"UIInterfaceOrientationPortraitUpsideDown", @"UIInterfaceOrientationLandscapeLeft", @"UIInterfaceOrientationLandscapeRight" ];
-    OCMStub([deviceDetailsMock getSupportedDeviceOrientations]).andReturn(supportedOrientations);
+    OCMStub(ClassMethod([deviceDetailsMock getSupportedDeviceOrientations])).andReturn(supportedOrientations);
 }
 
 - (void)tearDown {
@@ -88,6 +88,8 @@
     [skyhookCenter postSkyhook:TunePlaylistManagerFirstPlaylistDownloaded object:nil userInfo:@{TunePayloadFirstPlaylistDownloaded: newPlaylist }];
     
     XCTAssertTrue(firstPlaylistDownloadedEventTriggeredMessage);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 #pragma mark - Different Frequencies
@@ -116,6 +118,8 @@
     }
     
     XCTAssertEqual(callCount, 8);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersOnlyOnceFrequency {
@@ -147,6 +151,8 @@
     [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
     
     XCTAssertEqual(callCount, 1);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXTimesPerSessionFrequency {
@@ -178,6 +184,8 @@
     [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
     
     XCTAssertEqual(callCount, 5);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXTimesAnEventHappensFrequency {
@@ -209,6 +217,8 @@
     [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
     
     XCTAssertEqual(callCount, 2);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXDaysSinceEventHappensFrequency {
@@ -236,7 +246,7 @@
     
     NSDate *threeDaysFromNow = [[NSDate date] dateByAddingTimeInterval:60 * 60 * 24 * 4];
     id nsDateMock = OCMClassMock([NSDate class]);
-    OCMStub([nsDateMock date]).andReturn(threeDaysFromNow);
+    OCMStub(ClassMethod([nsDateMock date])).andReturn(threeDaysFromNow);
     
     [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
     [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
@@ -244,6 +254,8 @@
     XCTAssertEqual(callCount, 2);
     
     [nsDateMock stopMocking];
+    
+    [slideInFactoryMock stopMocking];
 }
 
 - (void)testDontShowIfNotAllImagesDownloaded {
@@ -271,6 +283,8 @@
     }
     
     XCTAssertEqual(callCount, 0);
+    
+    [slideInFactoryMock stopMocking];
 }
 
 @end

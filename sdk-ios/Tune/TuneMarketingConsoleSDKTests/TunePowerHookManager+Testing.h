@@ -7,6 +7,7 @@
 //
 
 #import "TunePowerHookManager.h"
+#import "TunePlaylistManager+Testing.h"
 
 @interface TunePowerHookManager (Testing)
 - (void)reset;
@@ -15,4 +16,7 @@
 //- (NSArray*)_getBlocks;
 //- (void)registerBlockWithId:(NSString *)blockId data:(NSDictionary *)data andBlock:(void (^)(NSDictionary *extra_data, id context))block;
 //- (void)executeBlockWithId:(NSString *)blockId data:(NSDictionary *)data context:(id)context andBlock:(void (^)(NSDictionary *, id))block;
+
+- (void)updatePowerHooksFromPlaylist:(TunePlaylist *)playlist playlistFromDisk:(BOOL)playlistFromDisk;
+
 @end

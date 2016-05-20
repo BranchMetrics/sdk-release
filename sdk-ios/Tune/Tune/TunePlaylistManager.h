@@ -16,4 +16,6 @@
 - (void)didEnterBackgroundSkyhook:(TuneSkyhookPayload *)payload;
 - (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout;
 
+- (BOOL)loadPlaylistFromDisk;
+
 @end

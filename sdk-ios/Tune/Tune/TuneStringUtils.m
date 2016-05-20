@@ -8,8 +8,17 @@
 
 #import "TuneStringUtils.h"
 #import "TuneDateUtils.h"
+#import "TuneDeviceDetails.h"
+
+static NSMutableCharacterSet *tune_urlEncodingAllowedCharacterSet;
+static NSString *tune_ignoredCharacters = @"!*'\"();:@&=+$,/?%#[] \n";
 
 @implementation TuneStringUtils
+
++ (void)initialize {
+    tune_urlEncodingAllowedCharacterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+    [tune_urlEncodingAllowedCharacterSet removeCharactersInString:tune_ignoredCharacters];
+}
 
 + (NSString *)scrubNameForMongo:(NSString *)name {
     NSString *trimmedExperimentName = [name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -24,21 +33,61 @@
            [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]].length == 0;
 }
 
-+ (NSString *)urlEncodeString:(NSString *)unencodedString {
-    if (unencodedString == nil) return @"";
++ (NSString *)urlEncodeString:(NSString *)unEncodedString {
+    if (unEncodedString == nil) return @"";
+
+    NSString *encodedString = nil;
     
-    // Ref: http://stackoverflow.com/questions/8086584/objective-c-url-encoding
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
+        encodedString = [unEncodedString stringByAddingPercentEncodingWithAllowedCharacters:tune_urlEncodingAllowedCharacterSet];
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        // Ref: http://stackoverflow.com/questions/8086584/objective-c-url-encoding
+        encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                                              (__bridge CFStringRef)unEncodedString,
+                                                                                              NULL,
+                                                                                              (CFStringRef)tune_ignoredCharacters,
+                                                                                              kCFStringEncodingUTF8));
+#pragma clang diagnostic pop
+    }
     
-    NSString *encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                                                    (__bridge CFStringRef)unencodedString,
-                                                                                                    NULL,
-                                                                                                    (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ",
-                                                                                                    kCFStringEncodingUTF8));
     return encodedString;
 }
 
-+ (NSString *)humanizeString:(NSString *)string {
++ (NSString *)removePercentEncoding:(NSString *)string {
+    if (string == nil) return nil;
     
+    NSString *output = nil;
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
+        output = [string stringByRemovingPercentEncoding];
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        output = [string stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+#pragma clang diagnostic pop
+    }
+    
+    return output;
+}
+
++ (NSString *)addPercentEncoding:(NSString *)string {
+    if (string == nil) return nil;
+    
+    NSString *output = nil;
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
+        output = [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        output = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+#pragma clang diagnostic pop
+    }
+    
+    return output;
+}
+
++ (NSString *)humanizeString:(NSString *)string {
     if (!string) { return @""; }
     
     // We only want what's before the ::

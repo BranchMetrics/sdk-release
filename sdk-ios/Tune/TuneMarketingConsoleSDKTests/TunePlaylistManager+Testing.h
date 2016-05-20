@@ -13,4 +13,6 @@
 @property (strong, nonatomic) TunePlaylist *currentPlaylist;
 @property (assign, nonatomic) BOOL isUpdating;
 
+- (void)handleOnFirstPlaylistDownloaded:(TuneSkyhookPayload *)payload;
+
 @end

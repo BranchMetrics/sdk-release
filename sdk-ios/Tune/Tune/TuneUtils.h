@@ -34,6 +34,9 @@
 + (nullable Class)getClassFromString:(nonnull NSString *)className;
 
 + (nonnull NSString *)bundleId;
++ (nonnull NSString *)bundleName;
++ (nonnull NSString *)bundleVersion;
+
 + (nonnull NSDate *)installDate;
 
 + (BOOL)isNetworkReachable;
@@ -124,6 +127,6 @@
 
 #pragma mark -
 
-+ (BOOL)objectRespondsToSelector:(nullable id)receiver selector:(nonnull SEL)aSelector;
++ (BOOL)object:(nullable id)receiver respondsToSelector:(nonnull SEL)aSelector;
 
 @end

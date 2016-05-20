@@ -12,7 +12,7 @@
 #import "TuneDateUtils.h"
 
 @protocol TunePowerHookValueTestsSelectors <NSObject>
--(BOOL) hasExperimentValue;
+- (BOOL)hasExperimentValue;
 @end
 
 @interface TunePowerHookValueTests : XCTestCase {

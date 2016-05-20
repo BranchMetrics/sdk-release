@@ -12,15 +12,20 @@ typedef void(^CodeBlockCallback)();
 
 @interface TuneCallbackBlock : NSObject {
     NSTimer *timer;
+    NSTimeInterval delay;
     NSObject *lock;
     BOOL fireOnce;
     BOOL blockFired;
+    BOOL canceled;
     CodeBlockCallback block;
 }
 
 - (id)initWithCallbackBlock:(void(^)())callbackBlock fireOnce:(BOOL)shouldFireOnce;
 
-- (void)setDelay:(NSTimeInterval)timeInterval;
+- (NSTimeInterval)getDelay;
 - (void)executeBlock;
+- (void)startTimer:(NSTimeInterval)timeInterval;
+- (void)stopTimer;
+- (BOOL)isCanceled;
 
 @end

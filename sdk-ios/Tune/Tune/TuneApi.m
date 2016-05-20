@@ -36,8 +36,6 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 #pragma mark - GET Requests
 
 + (TuneHttpRequest *)getConfigurationRequest {
-    TuneHttpRequest *request = nil;
-    
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
     
     if ([profile hashedAppId]) {
@@ -58,9 +56,10 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
                                  @"sdkVersion":[TuneUtils objectOrNull:profile.sdkVersion],
                                  @"matId":[TuneUtils objectOrNull:profile.tuneId],
                                  @"IFA":[TuneUtils objectOrNull:profile.appleAdvertisingIdentifier]}];
+        return request;
+    } else {
+        return nil;
     }
-    
-    return request;
 }
 
 + (TuneHttpRequest *)getPlaylistRequest {

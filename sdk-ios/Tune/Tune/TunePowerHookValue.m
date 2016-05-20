@@ -33,7 +33,7 @@ NSString *const POWERHOOKVALUE_APPROVED_VALUES = @"approved_values";
     return self;
 }
 
--(void) setupWithDictionary:(NSDictionary *)dictionary {
+- (void)setupWithDictionary:(NSDictionary *)dictionary {
     _name = dictionary[POWERHOOKVALUE_NAME];
     _defaultValue = dictionary[POWERHOOKVALUE_DEFAULT_VALUE];
     value = dictionary[POWERHOOKVALUE_VALUE];

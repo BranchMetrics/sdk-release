@@ -10,10 +10,11 @@
 #import "TuneHttpResponse.h"
 #import "TuneHttpUtils.h"
 #import "TuneConfiguration.h"
+#import "TuneDeviceDetails.h"
 #import "TuneJSONUtils.h"
 #import "TuneManager.h"
+#import "TuneStringUtils.h"
 #import "TuneUtils.h"
-#import "TuneDeviceDetails.h"
 #import "NSURLSession+SynchronousTask.h"
 
 NSString *const TuneHttpRequestMethodTypeGet = @"GET";
@@ -67,18 +68,20 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
 
 - (NSString*)urlEndpoint {
     NSArray *chunks = [_endpoint componentsSeparatedByString:@"/"];
-    NSString *url = [NSString stringWithString:_endpoint];
+    NSString *urlPath = [NSString stringWithString:_endpoint];
 
     for (NSString *string in chunks) {
         if ([string hasPrefix:@"{"]) {
             NSString *key = [self stripMustache:string];
             NSString *replaceValue = _endpointArguments[key];
+            
             if (replaceValue) {
-                url = [url stringByReplacingOccurrencesOfString:string withString:replaceValue];
+                urlPath = [urlPath stringByReplacingOccurrencesOfString:string withString:replaceValue];
             }
         }
     }
-    return [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    return [TuneStringUtils addPercentEncoding:urlPath];
 }
 
 #pragma mark - Parameter Processing
@@ -154,10 +157,10 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
         ErrorLog(@"Error parsing HTTP response: %@", error);
     }
     
-    TuneHttpResponse *artisanResponse = [[TuneHttpResponse alloc] initWithURLResponse:response andError:error];
-    [artisanResponse setResponseDictionary:responseDictionary];
+    TuneHttpResponse *tuneResponse = [[TuneHttpResponse alloc] initWithURLResponse:response andError:error];
+    [tuneResponse setResponseDictionary:responseDictionary];
     
-    return artisanResponse;
+    return tuneResponse;
 }
 
 - (void)performAsynchronousRequestWithCompletionBlock:(void (^)(TuneHttpResponse* response))completionBlock {

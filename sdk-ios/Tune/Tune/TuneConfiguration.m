@@ -152,7 +152,6 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 }
 
 - (void)setupConfiguration:(NSDictionary *)configuration {
-    
     // load the saved config
     NSDictionary *dictStoredConfig = [TuneFileManager loadRemoteConfigurationFromDisk];
     
@@ -302,7 +301,15 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
                 }
             }
             
-            if (configurationDictionary != nil) {
+            if (configurationDictionary == nil) {
+                WarnLog(@"Configuration response did not have any JSON");
+            } else if (configurationDictionary.count == 0) {
+                /*
+                 *  IMPORTANT:
+                 *      An empty configuration is a signal from the server to not process anything
+                 */
+                WarnLog(@"Received empty configuration from the server -- not updating");
+            } else {
                 if (_echoConfigurations) {
                     NSLog(@"Got configuration:\n%@", [TuneJSONUtils createPrettyJSONFromDictionary:configurationDictionary withSecretTMADepth:nil]);
                 }

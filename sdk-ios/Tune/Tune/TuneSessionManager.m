@@ -72,7 +72,7 @@
 
 #pragma mark - Private Methods
 
--(void) applicationWillEnterForeground {
+- (void)applicationWillEnterForeground {
 
 }
 

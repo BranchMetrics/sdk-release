@@ -1,9 +1,12 @@
 /*
-     File: Reachability.h
- Abstract: Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
-  Version: 3.5
+ Sample code project: Reachability
+ Version: 5.0
+ Date: 2016-05-05
  
- Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
+ Abstract:
+ Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
+ 
+ IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
  terms, and your use, installation, modification or redistribution of
  this Apple software constitutes acceptance of these terms.  If you do
@@ -41,8 +44,7 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2014 Apple Inc. All Rights Reserved.
- 
+ Copyright (C) 2016 Apple Inc. All Rights Reserved.
  */
 
 #import <Foundation/Foundation.h>
@@ -54,6 +56,9 @@ typedef enum : NSInteger {
     TuneReachableViaWiFi,
     TuneReachableViaWWAN
 } TuneNetworkStatus;
+
+#pragma mark - IPv6 Support
+//Reachability fully support IPv6.  For full details, see ReadMe.md.
 
 
 extern NSString *kTuneReachabilityChangedNotification;
@@ -70,17 +75,18 @@ extern NSString *kTuneReachabilityChangedNotification;
 /*!
  * Use to check the reachability of a given IP address.
  */
-+ (instancetype)reachabilityWithAddress:(const struct sockaddr_in *)hostAddress;
++ (instancetype)reachabilityWithAddress:(const struct sockaddr *)hostAddress;
 
 /*!
  * Checks whether the default route is available. Should be used by applications that do not connect to a particular host.
+ * This monitors the address 0.0.0.0, which reachability treats as a special token that causes it to actually monitor the general routing status of the device, both IPv4 and IPv6.
  */
 + (instancetype)reachabilityForInternetConnection;
 
-/*!
- * Checks whether a local WiFi connection is available.
- */
-+ (instancetype)reachabilityForLocalWiFi;
+
+#pragma mark - reachabilityForLocalWiFi
+//reachabilityForLocalWiFi has been removed from the sample.  See ReadMe.md for more information.
+//+ (instancetype)reachabilityForLocalWiFi;
 
 /*!
  * Start listening for reachability notifications on the current run loop.
@@ -98,5 +104,3 @@ extern NSString *kTuneReachabilityChangedNotification;
 #endif
 
 @end
-
-

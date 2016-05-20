@@ -53,8 +53,7 @@
     [super tearDown];
 }
 
-- (void)testInstall
-{
+- (void)testInstall {
     [Tune measureSession];
     waitForQueuesToFinish();
     XCTAssertTrue( callSuccess, @"measureSession should have succeeded" );
@@ -62,8 +61,7 @@
     XCTAssertFalse( callFailedDuplicate, @"measureSession should have succeeded" );
 }
 
-- (void)testInstallPostConversion
-{
+- (void)testInstallPostConversion {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     id tune = [[Tune class] performSelector:@selector(sharedManager)];
@@ -77,8 +75,7 @@
     XCTAssertFalse( callFailedDuplicate, @"measureInstallPostConversion should have succeeded" );
 }
 
-- (void)testUpdate
-{
+- (void)testUpdate {
     [Tune setExistingUser:YES];
     [Tune measureSession];
     waitForQueuesToFinish();
@@ -87,8 +84,7 @@
     XCTAssertFalse( callFailedDuplicate, @"trackUpdate should have succeeded" );
 }
 
-- (void)testActionNameEvent
-{
+- (void)testActionNameEvent {
     static NSString* const eventName = @"testEventName";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -116,8 +112,7 @@
 //    XCTAssertTrue( callFailedDuplicate, @"measureEventName duplicate should not have succeeded" );
 //}
 
-- (void)testActionNameIdItemsRevenue
-{
+- (void)testActionNameIdItemsRevenue {
     static NSString* const eventName = @"testEventName";
     static NSString* const itemName = @"testItemName";
     static CGFloat const itemPrice = 2.71828;
@@ -141,8 +136,7 @@
     XCTAssertFalse( callFailedDuplicate, @"measureEventName with items should have succeeded" );
 }
 
-- (void)testPurchaseDuplicates
-{
+- (void)testPurchaseDuplicates {
     TuneEvent *evt = [TuneEvent eventWithName:@"purchase" ];
     evt.refId = [[NSUUID UUID] UUIDString];
     evt.revenue = 1.;

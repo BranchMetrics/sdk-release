@@ -117,8 +117,7 @@
 
 #pragma mark - Automatic queueing
 
-- (void)testOfflineFailureQueued
-{
+- (void)testOfflineFailureQueued {
     networkOffline();
     XCTAssertFalse( [TuneUtils isNetworkReachable], @"connection status should be not reachable" );
     [Tune measureSession];
@@ -131,8 +130,7 @@
     [self checkAndClearExpectedQueueSize:1];
 }
 
-- (void)testOfflineFailureQueuedRetried
-{
+- (void)testOfflineFailureQueuedRetried {
     networkOffline();
     [Tune measureEventName:@"registration"];
     
@@ -152,8 +150,7 @@
     XCTAssertEqual( [successMessages count], 1, @"call should have succeeded, actual value = %d", (unsigned int)[successMessages count] );
 }
 
-- (void)testEnqueue2
-{
+- (void)testEnqueue2 {
     networkOffline();
     [Tune measureSession];
     waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
@@ -165,8 +162,7 @@
     [self checkAndClearExpectedQueueSize:2];
 }
 
-- (void)testEnqueue2Retried
-{
+- (void)testEnqueue2Retried {
     [Tune setAllowDuplicateRequests:YES];
     [Tune setDebugMode:NO];
     
@@ -206,8 +202,7 @@
     [Tune setAllowDuplicateRequests:NO];
 }
 
-- (void)testEnqueue2RetriedOrder
-{
+- (void)testEnqueue2RetriedOrder {
 #if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain event event name param
     [Tune setDebugMode:YES];
 
@@ -240,8 +235,7 @@
 #endif
 }
 
-- (void)testSessionQueue
-{
+- (void)testSessionQueue {
     [Tune setAllowDuplicateRequests:YES];
     networkOnline();
     
@@ -265,8 +259,7 @@
     [Tune setAllowDuplicateRequests:NO];
 }
 
-- (void)testSessionQueueOrder
-{
+- (void)testSessionQueueOrder {
     networkOnline();
     
     params2 = [TuneTestParams new];
@@ -302,8 +295,7 @@
     XCTAssertTrue( [params2 checkKey:TUNE_KEY_ACTION isEqualToValue:TUNE_EVENT_CONVERSION], @"second call should be \"conversion\"" );
 }
 
-- (void)testNoDuplicateParamsInRetriedRequest
-{
+- (void)testNoDuplicateParamsInRetriedRequest {
     networkOnline();
     
     [TuneEventQueue setForceNetworkError:YES code:500];
@@ -346,8 +338,7 @@
     XCTAssertEqual(count, 1, @"duplicate 'response_format' param should not exist in retried request url" );
 }
 
-- (void)testRetryCount
-{
+- (void)testRetryCount {
     networkOnline();
     
     [TuneEventQueue setForceNetworkError:YES code:500];
@@ -406,8 +397,7 @@
 
 #pragma mark - Requests queue behaviors
 
-- (void)testRequestsQueueSerialize
-{
+- (void)testRequestsQueueSerialize {
     static NSString* const testUrl = @"fakeUrl";
     static NSString* const testPostData = @"someTestJson";
     NSDate *testDate = [NSDate date];

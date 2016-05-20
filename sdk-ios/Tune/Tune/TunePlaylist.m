@@ -48,13 +48,13 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     
     NSMutableDictionary *inAppMessages = [NSMutableDictionary dictionary];
     
-    [playlistDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary *dictionary, BOOL *stop) {
+    [playlistDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary *dictionary, BOOL *stopPlaylist) {
         if ([key isEqualToString:TunePlaylistPowerHooksKey]) {
             self.powerHooks = dictionary;
         } else if ([key isEqualToString:TunePlaylistExperimentDetailsKey]) {
             self.experimentDetails = dictionary;
         } else if ([key isEqualToString:TunePlaylistInAppMessagesKey]) {
-            [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *messageID, NSDictionary *messageDictionary, BOOL *stop) {
+            [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *messageID, NSDictionary *messageDictionary, BOOL *stopDict) {
                 TuneBaseMessageFactory *messageFactory = [TuneInAppMessageFactory buildMessageFromMessageDictionary:messageDictionary];
                 // Do we have a valid factory?
                 if (messageFactory) {

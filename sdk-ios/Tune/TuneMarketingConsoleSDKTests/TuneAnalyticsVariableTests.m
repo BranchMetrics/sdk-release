@@ -19,26 +19,23 @@
 @end
 
 @implementation TuneAnalyticsVariableTests
-- (void)setUp
-{
+
+- (void)setUp {
     [super setUp];
     
     RESET_EVERYTHING();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [super tearDown];
 }
 
-- (BOOL) isValidVersionString:(NSString *)version
-{
+- (BOOL)isValidVersionString:(NSString *)version {
     BOOL isValid = [TuneAnalyticsVariable validateVersion:version];
     XCTAssertTrue(isValid, @"Version should be valid.");
 }
 
-- (BOOL) isNotValidVersionString:(NSString *)version
-{
+- (BOOL)isNotValidVersionString:(NSString *)version {
     BOOL isValid = [TuneAnalyticsVariable validateVersion:version];
     XCTAssertFalse(isValid, @"Version should not be valid.");
 }
@@ -122,8 +119,7 @@
     [self isNotValidVersionString:@"99%"];
 }
 
-- (void)testValidateVersionUsingApacheMavenExamples
-{
+- (void)testValidateVersionUsingApacheMavenExamples {
     // these values are numerically comparable
     [self isValidVersionString:@"1"];
     [self isValidVersionString:@"1.2"];
@@ -291,8 +287,7 @@
     XCTAssertNil(var);
 }
 
-- (void)testHashType
-{
+- (void)testHashType {
     TuneAnalyticsVariable *var = [TuneAnalyticsVariable analyticsVariableWithName:@"foobar" value:@"2063c1608d6e0baf80249c42e2be5804" type:TuneAnalyticsVariableStringType hashType:TuneAnalyticsVariableHashMD5Type shouldAutoHash:NO];
     NSDictionary *converted = [var toDictionary];
     NSDictionary *expected = @{ @"name" : @"foobar", @"value" : @"2063c1608d6e0baf80249c42e2be5804", @"type" : @"string", @"hash": @"md5"};
@@ -322,8 +317,7 @@
     XCTAssertTrue([converted isEqualToDictionary:[var toArrayOfDicts][0]]);
 }
 
-- (void)testAutoHash
-{
+- (void)testAutoHash {
     TuneAnalyticsVariable *var = [TuneAnalyticsVariable analyticsVariableWithName:@"foobar" value:@"value" type:TuneAnalyticsVariableStringType hashType:TuneAnalyticsVariableHashNone shouldAutoHash:YES];
     NSArray *converted = [var toArrayOfDicts];
     NSArray *expected = @[ @{ @"name" : @"foobar", @"value" : @"2063c1608d6e0baf80249c42e2be5804", @"type" : @"string", @"hash": @"md5"},

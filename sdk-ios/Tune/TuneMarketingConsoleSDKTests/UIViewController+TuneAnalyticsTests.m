@@ -37,7 +37,7 @@
     RESET_EVERYTHING();
     
     tuneStateMock = OCMClassMock([TuneState class]);
-    OCMStub([tuneStateMock doSendScreenViews]).andReturn(YES);
+    OCMStub(ClassMethod([tuneStateMock doSendScreenViews])).andReturn(YES);
     
     [TuneBlankViewController load];
     

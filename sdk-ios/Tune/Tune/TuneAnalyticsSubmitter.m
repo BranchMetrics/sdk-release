@@ -13,17 +13,22 @@
 #import "TuneManager.h"
 #import "TuneUserProfile.h"
 #import "TuneUtils.h"
+#import "TuneDeviceUtils.h"
 
 @implementation TuneAnalyticsSubmitter
 
-- (id)init
-{
+- (id)init {
     self = [super init];
     
     if (self) {
         self.sessionId = [[TuneManager currentManager].userProfile sessionId];
         self.deviceId = [TuneManager currentManager].userProfile.deviceId;
-        self.ifa = [[TuneManager currentManager].userProfile appleAdvertisingIdentifier];
+        if ([TuneDeviceUtils currentDeviceIsTestFlight]) {
+            self.ifa = [TuneManager currentManager].userProfile.deviceId;
+        } else {
+            self.ifa = [[TuneManager currentManager].userProfile appleAdvertisingIdentifier];
+            
+        }
     }
     return self;
 }
@@ -41,10 +46,10 @@
     return self;
 }
 
-- (NSDictionary *) toDictionary {
+- (NSDictionary *)toDictionary {
     return @{ @"sessionId" : [TuneUtils objectOrNull:self.sessionId],
               @"deviceId" : [TuneUtils objectOrNull:self.deviceId],
-              @"ifa"  : [TuneUtils objectOrNull:self.ifa], };
+              @"ifa"  : [TuneUtils objectOrNull:self.ifa] };
 }
 
 @end

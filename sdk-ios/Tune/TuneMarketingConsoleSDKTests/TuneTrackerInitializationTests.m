@@ -58,8 +58,7 @@
     [super tearDown];
 }
 
-- (void)testAutodetectJailbroken
-{
+- (void)testAutodetectJailbroken {
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [Tune measureEvent:event];
     
@@ -68,8 +67,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_OS_JAILBROKE, @"0" );
 }
 
-- (void)testNotAutodetectJailbroken
-{
+- (void)testNotAutodetectJailbroken {
     [Tune setShouldAutoDetectJailbroken:NO];
 
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
@@ -80,8 +78,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_OS_JAILBROKE );
 }
 
-- (void)testAutogenerateIFV
-{
+- (void)testAutogenerateIFV {
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [Tune measureEvent:event];
     
@@ -90,8 +87,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
 }
 
-- (void)testNotAutogenerateIFV
-{
+- (void)testNotAutogenerateIFV {
     [Tune setShouldAutoGenerateAppleVendorIdentifier:NO];
 
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
@@ -102,8 +98,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IOS_IFV );
 }
 
-- (void)testSendInstallReceipt
-{
+- (void)testSendInstallReceipt {
     static NSString* const eventName = @"fakeEventName";
     NSData *receiptData = [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -120,8 +115,7 @@
     XCTAssertTrue( [params checkAppleReceiptEquals:receiptData], @"Apple receipt value mismatch" );
 }
 
-- (void)testStoreUserIds
-{
+- (void)testStoreUserIds {
     static NSString *const testId = @"testid";
     
     static NSString* const EMAIL_ID_MD5 = @"10ae7c7ac7335ceb633761b90d515698";
@@ -176,8 +170,7 @@
 }
 
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-- (void)testWearableDevice
-{
+- (void)testWearableDevice {
     [[TuneManager currentManager].userProfile setWearable:@(YES)];
 
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];

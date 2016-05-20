@@ -57,7 +57,7 @@
 
 - (NSString *)debugDescription
 {
-    return [NSString stringWithFormat:@"<%@: %p> %@, %@, %@, %@, %@, %@", [self class], self, self.latitude, self.longitude, self.altitude, self.horizontalAccuracy, self.verticalAccuracy, self.timestamp];
+    return [NSString stringWithFormat:@"<%@: %p> %@, %@, %@, %@, %@, %@", [self class], (void *)self, self.latitude, self.longitude, self.altitude, self.horizontalAccuracy, self.verticalAccuracy, self.timestamp];
 }
 
 @end

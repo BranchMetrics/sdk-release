@@ -58,7 +58,7 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
 }
 
 + (BOOL)saveImageData:(NSData *)data toPath:(NSString *)path {
-    NSError *error = [[NSError alloc] init];
+    NSError *error = nil;
     BOOL success = [data writeToFile:path options:NSDataWritingAtomic error:&error];
     if (!success) {
         ErrorLog(@"Failed to write image %@ to file. Error: %@", path, [error description]);

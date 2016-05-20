@@ -96,9 +96,15 @@ BOOL swizzleSuccess = NO;
         [TuneAppDelegate swizzleTheirSelector:@selector(application:handleOpenURL:)
                                      withOurs:@selector(application:tune_handleOpenURL:)
                                           for:delegateClass];
-        [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:sourceApplication:annotation:)
-                                     withOurs:@selector(application:tune_openURL:sourceApplication:annotation:)
-                                          for:delegateClass];
+        
+        // application:openURL:sourceApplication:annotation: is a special case to swizzle on.
+        // If it wasn't implemented, don't swizzle on it
+        // so that iOS can fall back to application:handleOpenURL:
+        if ((BOOL)[delegateClass instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
+            [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:sourceApplication:annotation:)
+                                         withOurs:@selector(application:tune_openURL:sourceApplication:annotation:)
+                                              for:delegateClass];
+        }
         
         if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
             [TuneAppDelegate swizzleTheirSelector:@selector(application:continueUserActivity:restorationHandler:)
@@ -108,9 +114,14 @@ BOOL swizzleSuccess = NO;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 #endif
-            [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:options:)
-                                         withOurs:@selector(application:tune_openURL:options:)
-                                              for:delegateClass];
+            // application:openURL:options: is a special case to swizzle on.
+            // If it wasn't implemented, don't swizzle on it
+            // so that iOS can fall back to openURL:sourceApplication:
+            if ((BOOL)[delegateClass instancesRespondToSelector:@selector(application:openURL:options:)]) {
+                [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:options:)
+                                             withOurs:@selector(application:tune_openURL:options:)
+                                                  for:delegateClass];
+            }
 #if !IDE_XCODE_7_OR_HIGHER
 #pragma clang diagnostic pop
 #endif

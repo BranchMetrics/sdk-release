@@ -72,8 +72,7 @@
 //    XCTAssertFalse( callSuccess, @"preload data request with invalid publisher id should have failed" );
 //}
 
-- (void)testValidPublisherId
-{
+- (void)testValidPublisherId {
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"112233"];
     [Tune setPreloadData:pd];
     [Tune measureEventName:@"event2"];
@@ -85,8 +84,7 @@
     XCTAssertTrue( callSuccess, @"preload data request with valid publisher id should have succeeded" );
 }
 
-- (void)testPreloadDataParams
-{
+- (void)testPreloadDataParams {
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"112233"];
     pd.offerId = @"offer_id";
     pd.agencyId = @"agency_id";

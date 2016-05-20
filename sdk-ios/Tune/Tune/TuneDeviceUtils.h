@@ -34,5 +34,6 @@ BOOL tune_isPad();
 + (BOOL)currentDeviceIsIpadSimulator;
 + (BOOL)currentDeviceIsIphoneSimulator;
 + (BOOL)currentDeviceIsSimulator;
++ (BOOL)currentDeviceIsTestFlight;
 
 @end

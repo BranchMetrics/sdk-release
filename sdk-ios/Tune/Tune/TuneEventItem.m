@@ -121,7 +121,7 @@
 }
 
 - (NSString *)debugDescription {
-    return [NSString stringWithFormat:@"<%@: %p> %@", [self class], self, [self toDictionary]];
+    return [NSString stringWithFormat:@"<%@: %p> %@", [self class], (void *)self, [self toDictionary]];
 }
 
 - (void)addTag:(NSString *)name withStringValue:(NSString *)value {

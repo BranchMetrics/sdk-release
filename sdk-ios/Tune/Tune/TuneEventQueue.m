@@ -352,10 +352,14 @@ static TuneEventQueue *sharedQueue = nil;
         if ([self.delegate isiAdAttribution]) {
             searchString = [NSString stringWithFormat:@"&%@=0", TUNE_KEY_IAD_ATTRIBUTION];
             NSString *replaceString = [NSString stringWithFormat:@"&%@=1", TUNE_KEY_IAD_ATTRIBUTION];
-            if ([encryptParams rangeOfString:searchString].location != NSNotFound) {
-                encryptParams = [encryptParams stringByReplacingOccurrencesOfString:searchString withString:replaceString];
-            } else {
-                encryptParams = [encryptParams stringByAppendingString:replaceString];
+            
+            // make sure iad_attribution=1 key-value is included only once
+            if([encryptParams rangeOfString:replaceString].location == NSNotFound) {
+                if ([encryptParams rangeOfString:searchString].location != NSNotFound) {
+                    encryptParams = [encryptParams stringByReplacingOccurrencesOfString:searchString withString:replaceString];
+                } else {
+                    encryptParams = [encryptParams stringByAppendingString:replaceString];
+                }
             }
         }
         

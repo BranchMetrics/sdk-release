@@ -19,20 +19,17 @@
 
 @implementation TuneEncrypterTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
     
     RESET_EVERYTHING();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [super tearDown];
 }
 
-- (void)testEncryptNonASCII
-{
+- (void)testEncryptNonASCII {
     [self checkEncryption:@"&app_name=돔스돔타돔돔&revenue=0.12&ios_ifa=12345678-1234-1234-1234-123456789012"];
     
     [self checkEncryption:@"&revenue=0.12&ios_ifa=12345678-1234-1234-1234-123456789012&app_name=돔스돔타돔돔"];
@@ -66,13 +63,11 @@
     [self checkEncryption:(id)[NSNull null] expectedOutput:TUNE_STRING_EMPTY];
 }
 
-- (void)checkEncryption:(NSString *)input
-{
+- (void)checkEncryption:(NSString *)input {
     [self checkEncryption:input expectedOutput:input];
 }
 
-- (void)checkEncryption:(NSString *)input expectedOutput:(NSString *)expectedOutput
-{
+- (void)checkEncryption:(NSString *)input expectedOutput:(NSString *)expectedOutput {
     NSString *key = @"12345678901234567890123456789012";
     
     NSString *encryptedStr = [TuneEncrypter encryptString:input withKey:key];
@@ -82,8 +77,7 @@
     XCTAssertTrue([expectedOutput isEqualToString:decryptedStr], @"Encryption failed: expected = %@, actual = %@", expectedOutput, decryptedStr);
 }
 
-- (void)testNoEncryptTransaction
-{
+- (void)testNoEncryptTransaction {
     TuneTracker *tracker = [TuneTracker new];
     NSString *trackingLink, *encryptedParams;
     [tracker urlStringForEvent:[TuneEvent eventWithName:@"event1"]
@@ -93,7 +87,6 @@
 }
 
 + (NSData *)decodeHexData:(NSData *)input {
-    
     NSMutableData *resultData = [NSMutableData dataWithLength:([input length]) / 2];
     
     const unsigned char *hexBytes = [input bytes];
@@ -106,11 +99,9 @@
     return resultData;
 }
 
-+ (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
-{
++ (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str {
     long keyLength = [mykey length];
-    if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
-    {
+    if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256) {
         return nil;
     }
     

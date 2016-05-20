@@ -77,19 +77,22 @@ BOOL tune_isPad() {
 
 #pragma mark -
 
-+ (BOOL)currentDeviceIsIpadSimulator
-{
++ (BOOL)currentDeviceIsIpadSimulator {
     return [[[UIDevice currentDevice] model] isEqualToString:@"iPad Simulator"];
 }
 
-+ (BOOL)currentDeviceIsIphoneSimulator
-{
++ (BOOL)currentDeviceIsIphoneSimulator {
     return [[[UIDevice currentDevice] model] isEqualToString:@"iPhone Simulator"];
 }
 
-+ (BOOL)currentDeviceIsSimulator
-{
++ (BOOL)currentDeviceIsSimulator {
     return ([self currentDeviceIsIphoneSimulator] || [self currentDeviceIsIpadSimulator]);
+}
+
++ (BOOL)currentDeviceIsTestFlight {
+    BOOL hasEmbeddedMobileProvision = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
+    BOOL isSandboxReceipt = [[[[NSBundle mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:@"sandboxReceipt"];
+    return isSandboxReceipt && !hasEmbeddedMobileProvision;
 }
 
 @end

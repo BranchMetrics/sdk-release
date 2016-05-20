@@ -62,14 +62,13 @@
 }
 
 - (void)testEmptyConfiguration {
-    XCTAssert(!configuration.debugLoggingOn, @"debugLoggingOn is NO");
+    XCTAssertFalse(configuration.debugLoggingOn, @"debugLoggingOn is NO");
     
-    XCTAssert(TuneConfiguration.frameworkVersion != nil, @"configuration.frameworkVersion is not nil");
-    XCTAssert([configuration.apiVersion isEqualToString:@"3"], @"apiVersion is 3");
+    XCTAssertNotNil(TuneConfiguration.frameworkVersion, @"configuration.frameworkVersion is not nil");
+    XCTAssertEqualObjects(configuration.apiVersion, @"3", @"apiVersion is 3");
 }
 
 - (void)testEachConfigurationParameter {
-    
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
     
     [options setValue:@{@"server_configuration":@"value"} forKey:@"server_configuration"];
@@ -87,7 +86,7 @@
     
     [configuration updateConfigurationWithLocalDictionary:options postSkyhook:NO];
     
-    XCTAssert([configuration.apiHostPort isEqualToString:@"api_host_port URL"], @"apiHostPort is empty");
+    XCTAssertEqualObjects(configuration.apiHostPort, @"api_host_port URL", @"apiHostPort is empty");
     
     XCTAssertEqualObjects(configuration.staticContentHostPort, @"static_content_host_port URL", @"staticContentHostPort is static_content_host_port URL");
     XCTAssertTrue(configuration.debugLoggingOn, @"debugLoggingOn is YES");
@@ -99,10 +98,10 @@
 - (void)testStartupConfiguration{
     [configuration setupConfiguration:@{}.mutableCopy];
 
-    XCTAssert(!configuration.debugLoggingOn, @"debugLoggingOn is NO");
+    XCTAssertFalse(configuration.debugLoggingOn, @"debugLoggingOn is NO");
     
-    XCTAssert(TuneConfiguration.frameworkVersion != nil, @"configuration.frameworkVersion is not nil");
-    XCTAssert([configuration.apiVersion isEqualToString:@"3"], @"apiVersion is 3");
+    XCTAssertNotNil(TuneConfiguration.frameworkVersion, @"configuration.frameworkVersion is not nil");
+    XCTAssertEqualObjects(configuration.apiVersion, @"3", @"apiVersion is 3");
 }
 
 - (void)testStartupWithRemoteConfiguration{
@@ -115,12 +114,12 @@
     
     [configuration updateConfigurationWithLocalDictionary:remoteDictionary postSkyhook:NO];
     
-    XCTAssert([configuration.apiHostPort isEqualToString:@"api_host_port URL"], @"apiHostPort is api_host_port URL");
-    XCTAssert([configuration.staticContentHostPort isEqualToString:@"static_content_host_port URL"], @"staticContentHostPort is static_content_host_port URL");
-    XCTAssert(!configuration.debugLoggingOn, @"debugLoggingOn is NO");
+    XCTAssertEqualObjects(configuration.apiHostPort, @"api_host_port URL", @"apiHostPort is api_host_port URL");
+    XCTAssertEqualObjects(configuration.staticContentHostPort, @"static_content_host_port URL", @"staticContentHostPort is static_content_host_port URL");
+    XCTAssertFalse(configuration.debugLoggingOn, @"debugLoggingOn is NO");
     
-    XCTAssert(TuneConfiguration.frameworkVersion != nil, @"configuration.frameworkVersion is not nil");
-    XCTAssert([configuration.apiVersion isEqualToString:@"3"], @"apiVersion is 3");
+    XCTAssertNotNil(TuneConfiguration.frameworkVersion, @"configuration.frameworkVersion is not nil");
+    XCTAssertEqualObjects(configuration.apiVersion, @"3", @"apiVersion is 3");
 }
 
 - (void)testSetupConfigurationNoneSaved {

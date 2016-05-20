@@ -10,6 +10,8 @@
 
 @interface TuneUserProfile (Testing)
 
-- (void) storeProfileKey:(NSString *)key value:(id)value;
+- (void)storeProfileKey:(NSString *)key value:(id)value;
+- (void)initiateSession:(TuneSkyhookPayload *)payload;
+- (NSSet *)getCustomProfileVariables;
 
 @end

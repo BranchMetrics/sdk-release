@@ -17,6 +17,7 @@
 #import "SimpleObserver.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneFileManager.h"
+#import "TunePowerHookManager+Testing.h"
 #import "TuneSkyhookCenter.h"
 #import "Tune+Testing.h"
 
@@ -75,7 +76,7 @@ TunePlaylistManager *playlistManager;
         TunePlaylist *instance = [[TunePlaylist alloc] initWithDictionary:dictionaryArg];
 
         playlistInstanceMock = OCMPartialMock(instance);
-        OCMStub([playlistInstanceMock retrieveInAppMessageAssets]).andDo(^(NSInvocation *invocation) {
+        OCMStub([playlistInstanceMock retrieveInAppMessageAssets]).andDo(^(NSInvocation *retrieveInvocation) {
             [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistAssetsDownloaded object:playlistInstanceMock userInfo:nil];
         });
         
@@ -178,10 +179,6 @@ TunePlaylistManager *playlistManager;
         i += 1;
     }];
     
-    [Tune onFirstPlaylistDownloaded:^(){
-        i += 1;
-    }];
-    
     XCTAssertTrue(i == 0);
     
     TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
@@ -189,15 +186,7 @@ TunePlaylistManager *playlistManager;
     
     waitFor(0.1);
     
-    XCTAssertTrue(i == 2);
-    
-    [Tune onFirstPlaylistDownloaded:^(){
-        i += 1;
-    }];
-    
-    waitFor(0.1);
-    
-    XCTAssertTrue(i == 3);
+    XCTAssertTrue(i == 1);
 }
 
 - (void)testOnPlaylistFirstDownloadedCallbackTriggersOnlyOnVeryFirstTime {
@@ -240,6 +229,141 @@ TunePlaylistManager *playlistManager;
 
 -(void)performAsynchronousRequestWithCompletionBlock:(void(^)(TuneHttpResponse* response))completionBlock {
     completionBlock(newResponse);
+}
+
+- (void)testOnPlaylistFirstDownloadIsCalledAfterPowerHookUpdate {
+    __block BOOL powerHooksUpdated = NO;
+    __block BOOL onFirstPlaylistDownloadCalled = NO;
+    
+    id mockPowerHookManager = OCMPartialMock([TuneManager currentManager].powerHookManager);
+    OCMStub([mockPowerHookManager updatePowerHooksFromPlaylist:[OCMArg any] playlistFromDisk:NO]).andDo(^(NSInvocation *invocation) {
+        XCTAssertFalse(onFirstPlaylistDownloadCalled, @"OnFirstPlaylistDownload notification should not have been fired before PowerHooks were updated.");
+        powerHooksUpdated = YES;
+    });
+    
+    id mockPlaylistManager = OCMPartialMock([TuneManager currentManager].playlistManager);
+    OCMStub([mockPlaylistManager handleOnFirstPlaylistDownloaded:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+        XCTAssertTrue(powerHooksUpdated, @"PowerHooks should have been updated before OnFirstPlaylistDownload notification was fired.");
+        onFirstPlaylistDownloadCalled = YES;
+    });
+    
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    XCTAssertTrue(powerHooksUpdated);
+    XCTAssertTrue(onFirstPlaylistDownloadCalled);
+    
+    [mockPowerHookManager stopMocking];
+    [mockPlaylistManager stopMocking];
+}
+
+- (void)testPlaylistCallbackIsCalledWhenPlaylistIsNotUpdated {
+    __block NSUInteger i = 0;
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    }];
+    
+    XCTAssertTrue(i == 0);
+    
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    waitFor(0.1);
+    
+    XCTAssertTrue(i == 1);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart];
+    
+    // Re-register callback to simulate app being started again
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    }];
+    
+    // Downloading same playlist that is already on disk
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    waitFor(0.1);
+    
+    XCTAssertTrue(i == 2);
+}
+
+- (void)testPlaylistCallbackCanceledAfterBackground {
+    __block NSUInteger i = 0;
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    } withTimeout:0.3];
+    
+    XCTAssertTrue(i == 0);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd];
+    
+    waitFor(0.31);
+    
+    XCTAssertTrue(i == 0);
+}
+
+- (void)testPlaylistCallbackCanceledAndResumedAfterBackgroundForeground {
+    __block NSUInteger i = 0;
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    } withTimeout:0.3];
+    
+    XCTAssertTrue(i == 0);
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart];
+    
+    waitFor(0.31);
+    
+    XCTAssertTrue(i == 1);
+}
+
+- (void)testSecondCallbackExecutedAfterTimeoutWhenRegisteredTwice {
+    __block NSUInteger i = 0;
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    }];
+    
+    // Second callback should override first
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 5;
+    }];
+    
+    XCTAssertTrue(i == 0);
+    
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    waitFor(0.1);
+    
+    XCTAssertTrue(i == 5);
+}
+
+- (void)testBothCallbacksExecutedWhenRegisteredTwice {
+    __block NSUInteger i = 0;
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 1;
+    }];
+    
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    waitFor(0.1);
+    
+    XCTAssertTrue(i == 1);
+    
+    // Second callback should override first
+    [Tune onFirstPlaylistDownloaded:^(){
+        i += 5;
+    }];
+    
+    playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    waitFor(0.1);
+    
+    XCTAssertTrue(i == 6);
 }
 
 @end

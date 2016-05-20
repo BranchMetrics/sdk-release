@@ -24,8 +24,7 @@
 
 @implementation TuneAnalyticsEvent
 
-- (id)initWithBaseInfo
-{
+- (id)initWithBaseInfo {
     self = [super init];
     
     if (self) {
@@ -47,8 +46,7 @@
     return self;
 }
 
-- (id)initCustomEventWithAction:(NSString *)action
-{
+- (id)initCustomEventWithAction:(NSString *)action {
     self = [self initWithBaseInfo];
     
     if (self) {
@@ -65,8 +63,7 @@
                 control:(NSString *)control
            controlEvent:(NSString *)controlEvent
                    tags:(NSArray *)tags
-                  items:(NSArray *)items
-{
+                  items:(NSArray *)items {
     self = [self initWithBaseInfo];
     
     if (self) {
@@ -177,8 +174,7 @@
     return self;
 }
 
-- (id)initAsTracerEvent
-{
+- (id)initAsTracerEvent {
     self = [self initWithBaseInfo];
     
     if (self) {
@@ -188,7 +184,6 @@
 }
 
 - (NSString *)getFiveline {
-
     NSMutableString *fiveLine =  [NSMutableString stringWithString:@""];
 
     if(self.category) {
@@ -223,7 +218,6 @@
 }
 
 - (NSDictionary *)toDictionary {
-    
     NSMutableArray *tagsConv = [[NSMutableArray alloc] init];
     for (TuneAnalyticsVariable *tag in self.tags) {
         [tagsConv addObjectsFromArray:[tag toArrayOfDicts]];

@@ -62,6 +62,7 @@
 
 - (void)preparePlaylistWith:(NSDictionary *)d {
     [apiMock stopMocking];
+    [request stopMocking];
     
     playlistDictionary = d.copy;
     
@@ -79,6 +80,7 @@
 
 - (void)prepareConfigWith:(NSDictionary *)d {
     [apiMock stopMocking];
+    [request stopMocking];
     
     playlistDictionary = d.copy;
     
@@ -86,7 +88,7 @@
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     [newResponse setResponseDictionary:playlistDictionary];
     
-     request = OCMClassMock([TuneHttpRequest class]);
+    request = OCMClassMock([TuneHttpRequest class]);
     
     OCMStub([request performAsynchronousRequestWithCompletionBlock:OCMOCK_ANY]).andCall(self, @selector(performAsynchronousRequestWithCompletionBlock:));
     

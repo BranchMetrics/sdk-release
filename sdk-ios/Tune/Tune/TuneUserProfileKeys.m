@@ -109,6 +109,7 @@ NSString *const TUNE_KEY_BLUETOOTH_STATE                = @"bluetooth_state";
 
 NSString *const TUNE_KEY_SITE_EVENT_ID                  = @"site_event_id";
 NSString *const TUNE_KEY_SITE_EVENT_NAME                = @"site_event_name";
+NSString *const TUNE_KEY_APP_BUNDLE_ID                  = @"bundle_id";
 NSString *const TUNE_KEY_APP_NAME                       = @"app_name";
 NSString *const TUNE_KEY_APP_VERSION                    = @"app_version";
 NSString *const TUNE_KEY_ADVERTISER_ID                  = @"advertiser_id";
@@ -156,6 +157,7 @@ NSString *const TUNE_KEY_DEVICE_TOKEN                   = @"deviceToken";
 NSString *const TUNE_KEY_PUSH_ENABLED                   = @"pushEnabled";
 
 NSString *const TUNE_KEY_GEO_COORDINATE                 = @"geo_coordinate";
+NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build";
 
 @implementation TuneUserProfileKeys
 
@@ -312,6 +314,7 @@ NSString *const TUNE_KEY_GEO_COORDINATE                 = @"geo_coordinate";
             TUNE_KEY_PUSH_ENABLED,
             
             TUNE_KEY_GEO_COORDINATE,
+            TUNE_KEY_IS_TESTFLIGHT_BUILD,
             nil];
 }
 

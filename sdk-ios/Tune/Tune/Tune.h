@@ -28,7 +28,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.2.1"
+#define TUNEVERSION @"4.3.0"
 
 
 @protocol TuneDelegate;
@@ -659,15 +659,23 @@
 
 #pragma mark - Playlist API
 
-/** Register block for callback when the very first play list is downloaded.
+/** Register block for callback when the very first playlist is downloaded.
  *
- * Use this method to register a block for callback the first time a playlist is downloaded.
- *
- * The thread calling the block of code is not gaurenteed to be the main thread. If the code inside of the block requires executing on the main thread you will need to implement this logic.
+ * Use this method to register a block for callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
  *
  * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the block of code is executed immediately on a background thread.
  *
  * Otherwise the callback will fire after 3 seconds or when the first playlist is downloaded, whichever comes first.
+ *
+ * <b>IMPORTANT</b>: The thread calling the block of code is not guaranteed to be the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+ *
+ * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
+ * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
+ * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
+ *
+ * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+ *
+ * NOTE: Only the latest callback registered will be executed. Subsequent calls to onFirstPlaylistDownloaded will replace the callback to be executed.
  *
  * WARNING: If TMA is not enabled then this callback will never fire.
  *
@@ -676,17 +684,28 @@
  */
 + (void)onFirstPlaylistDownloaded:(void (^)())block;
 
-/** Register block for callback when the very first play list is downloaded.
+/** Register block for callback when the very first playlist is downloaded.
  *
- * Use this method to register a block for callback the first time a playlist is downloaded.  This call is non-blocking so code execution will continue immediately to the next line of code.
- *
- * The thread calling the block of code is not gaurenteed to be the main thread. If the code inside of the block requires executing on the main thread you will need to implement this logic.
+ * Use this method to register a block for callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
  *
  * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the block of code is executed immediately on a background thread.
  *
- * If the timeout is greater than zero, the block of code will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
+ * The timeout provided overrides the default timeout of 3 seconds. If the given timeout is greater than zero, the block of code will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
+ *
+ * <b>IMPORTANT</b>: The thread calling the block of code is not guaranteed to be the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+ *
+ * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
+ * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
+ * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
+ *
+ * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+ *
+ * NOTE: Only the latest callback registered will be executed. Subsequent calls to onFirstPlaylistDownloaded will replace the callback to be executed.
+ *
+ * WARNING: If TMA is not enabled then this callback will never fire.
  *
  * @param block The block of code to be executed.
+ * @param timeout The amount of time in seconds to wait before executing the callback if the Playlist hasn't been downloaded yet. We recommend this is not over 5 seconds at a maximum and is over 1 second at a minimum.
  *
  */
 + (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout;

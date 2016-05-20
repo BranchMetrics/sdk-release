@@ -125,6 +125,11 @@ static NSNumber *COPPA_MIN_AGE;
             NSString *uuid = [TuneUtils getUUID];
             [self setTuneId:uuid];
         }
+        
+        [self setIsTestFlightBuild:@([TuneDeviceUtils currentDeviceIsTestFlight])];
+        if ([[self isTestFlightBuild] boolValue]) {
+            NSLog(@"Detected TestFlight build, using \"%@\" as deviceId", [self deviceId]);
+        }
 
         NSString *strOsType = @"iOS";
 #if TARGET_OS_TV
@@ -186,7 +191,8 @@ static NSNumber *COPPA_MIN_AGE;
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(initiateSession:)
                                               name:TuneSessionManagerSessionDidStart
-                                            object:nil];
+                                            object:nil
+                                          priority:TuneSkyhookPrioritySecond];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleAddSessionProfileVariable:)
@@ -344,7 +350,9 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (NSString *)deviceId {
-    if (self.appleAdvertisingIdentifier && ![self.appleAdvertisingIdentifier isEqualToString:@""]) {
+    if ([self.isTestFlightBuild boolValue]) {
+        return self.tuneId;
+    } else if (self.appleAdvertisingIdentifier && ![self.appleAdvertisingIdentifier isEqualToString:@""]) {
         return self.appleAdvertisingIdentifier;
     } else {
         return self.tuneId;
@@ -353,11 +361,10 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (void)setAppParams {
     // App params
-    NSBundle *mainBundle = [NSBundle mainBundle];
-    
     [self setPackageName:[TuneUtils bundleId]];
-    [self setAppName:[mainBundle objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleNameKey]];
-    [self setAppVersion:[mainBundle objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleVersionKey]];
+    [self setAppBundleId:[TuneUtils bundleId]];
+    [self setAppName:[TuneUtils bundleName]];
+    [self setAppVersion:[TuneUtils bundleVersion]];
 
 #if TESTING
     // should only happen during unit tests
@@ -872,6 +879,13 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (NSString *)conversionKey {
     return [self getProfileValue:TUNE_KEY_KEY];
+}
+
+- (void)setAppBundleId:(NSString *)bId {
+    [self storeProfileKey:TUNE_KEY_APP_BUNDLE_ID value:bId];
+}
+- (NSString *)appBundleId {
+    return [self getProfileValue:TUNE_KEY_APP_BUNDLE_ID];
 }
 
 - (void)setAppName:(NSString *)appName {
@@ -1572,6 +1586,13 @@ static NSNumber *COPPA_MIN_AGE;
     location.altitude = [self getProfileValue:TUNE_KEY_ALTITUDE];
     
     return location;
+}
+
+- (void)setIsTestFlightBuild:(NSNumber *)isTestFlightBuild {
+    [self storeProfileKey:TUNE_KEY_IS_TESTFLIGHT_BUILD value:isTestFlightBuild type:TuneAnalyticsVariableBooleanType];
+}
+- (NSNumber *)isTestFlightBuild {
+    return [self getProfileValue:TUNE_KEY_IS_TESTFLIGHT_BUILD];
 }
 
 - (void)setPreloadData:(TunePreloadData *)preloadData {

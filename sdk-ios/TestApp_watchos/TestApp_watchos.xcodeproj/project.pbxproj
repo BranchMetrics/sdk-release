@@ -536,6 +536,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/watch/Release;
+				GCC_WARN_SHADOW = YES;
 				INFOPLIST_FILE = TestApp_watchos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos";
@@ -550,6 +551,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = ../Tune/build/watch/Release;
+				GCC_WARN_SHADOW = YES;
 				INFOPLIST_FILE = TestApp_watchos/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-watchos";

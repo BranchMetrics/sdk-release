@@ -140,8 +140,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
     [_skyhookQueue addOperation:operation];
 }
 
-- (void)postSkyhookOperation:(TuneSkyhookPayload *)payload
-{
+- (void)postSkyhookOperation:(TuneSkyhookPayload *)payload {
     [self postSkyhook:payload.skyhookName object:payload.object userInfo:payload.userInfo];
 }
 
@@ -200,7 +199,6 @@ static TuneSkyhookCenter *defaultCenter = nil;
 }
 
 - (void)removeObserver:(id)hookObserver {
-    
     for (NSString *hookName in [_hooks allKeys]) {
         [self removeObserver:hookObserver name:hookName object:nil];
     }

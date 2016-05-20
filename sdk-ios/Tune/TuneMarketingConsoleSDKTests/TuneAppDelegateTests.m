@@ -36,6 +36,8 @@ static NSString *tune_swizzledMethod;
 @implementation TuneAppDelegateTests
 
 - (void)setUp {
+    [super setUp];
+    
     RESET_EVERYTHING();
     
     pushObserver = [[SimpleObserver alloc] init];
@@ -46,8 +48,6 @@ static NSString *tune_swizzledMethod;
     appDelegate = [[TuneBlankAppDelegate alloc] init];
     mockApplication = OCMClassMock([UIApplication class]);
     tune_swizzledMethod = nil;
-    
-    [super setUp];
 }
 
 - (void)tearDown {

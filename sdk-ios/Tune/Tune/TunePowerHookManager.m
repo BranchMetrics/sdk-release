@@ -27,7 +27,7 @@ NSDictionary *_phookHash;
 
 NSObject *phookDictLock;
 
-NSArray *_phookChangedBlocks;
+TuneCallbackBlock *phookChangedBlock;
 
 NSOperationQueue *powerhooksCallbackQueue;
 
@@ -74,7 +74,6 @@ NSMutableSet *userRegisteredPowerHooks;
 - (void)reset {
     @synchronized(phookDictLock){
         _phookHash = [[NSDictionary alloc] init];
-        _phookChangedBlocks = [[NSArray alloc] init];
     }
 }
 
@@ -269,7 +268,7 @@ NSMutableSet *userRegisteredPowerHooks;
     
     if(!playlistFromDisk){
       if(notifyOnPowerHookChanges){
-          [self executeOnPowerHooksChangedBlocks];
+          [self executeOnPowerHooksChangedBlock];
       }
     }
 }
@@ -289,22 +288,14 @@ NSMutableSet *userRegisteredPowerHooks;
     TuneCallbackBlock *blockCallback = [[TuneCallbackBlock alloc] initWithCallbackBlock:block fireOnce:NO];
     
     @synchronized(phookDictLock){
-        NSMutableArray *updatedPowerHooksChangedBlocks = _phookChangedBlocks.mutableCopy;
-        [updatedPowerHooksChangedBlocks addObject:blockCallback];
-        _phookChangedBlocks = [NSArray arrayWithArray:updatedPowerHooksChangedBlocks];
+        phookChangedBlock = blockCallback;
     }
 }
 
-- (void)executeOnPowerHooksChangedBlocks {
-    NSArray *callbacks;
-    
+- (void)executeOnPowerHooksChangedBlock {
     @synchronized(phookDictLock) {
-        callbacks = _phookChangedBlocks.copy;
-    }
-    
-    for (TuneCallbackBlock *callback in callbacks) {
         [powerhooksCallbackQueue addOperationWithBlock:^{
-            [callback executeBlock];
+            [phookChangedBlock executeBlock];
         }];
     }
 }

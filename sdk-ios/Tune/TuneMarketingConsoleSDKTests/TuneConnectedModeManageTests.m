@@ -20,6 +20,7 @@
 @interface TuneConnectedModeManageTests : XCTestCase {
     id request;
     id tuneState;
+    id api;
     BOOL requestSentOut;
     NSDictionary *toSyncDictionary;
 }
@@ -37,7 +38,7 @@
     
     tuneState = OCMClassMock([TuneState class]);
     
-    id api = OCMClassMock([TuneApi class]);
+    api = OCMClassMock([TuneApi class]);
     OCMStub(ClassMethod([api getConnectDeviceRequest])).andCall(self, @selector(getRequest));
     OCMStub(ClassMethod([api getDisconnectDeviceRequest])).andCall(self, @selector(getRequest));
     OCMStub(ClassMethod([api getSyncSDKRequest:OCMOCK_ANY])).andCall(self, @selector(getSyncSDKRequestMock:));
@@ -46,6 +47,7 @@
 - (void)tearDown {
     [request stopMocking];
     [tuneState stopMocking];
+    [api stopMocking];
     
     request = nil;
     tuneState = nil;
@@ -129,6 +131,8 @@
     XCTAssertNotNil(toSyncDictionary[@"device_info"]);
     XCTAssertEqualObjects(@"expected1", toSyncDictionary[@"device_info"][@"supported_orientations"]);
     XCTAssertEqualObjects(@"expected2", toSyncDictionary[@"device_info"][@"supported_devices"]);
+    
+    [deviceDetailsMock stopMocking];
 }
 
 #pragma mark - Helpers

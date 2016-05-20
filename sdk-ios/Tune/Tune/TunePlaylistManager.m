@@ -33,8 +33,8 @@ static BOOL startedScheduledDispatch = NO;
 static BOOL receivedFirstPlaylistDownload = NO;
 
 static BOOL gotVeryFirstPlaylist = NO;
-NSArray *firstPlaylistDownloadedBlocks;
-NSObject *firstPlaylistDownloadedBlocksLock;
+TuneCallbackBlock *firstPlaylistDownloadedBlock;
+NSObject *firstPlaylistDownloadedBlockLock;
 NSOperationQueue *playlistCallbackQueue;
 
 #pragma mark - Initialization / Deallocation
@@ -44,8 +44,7 @@ NSOperationQueue *playlistCallbackQueue;
     
     if (self) {
         playlistCallbackQueue = [NSOperationQueue new];
-        firstPlaylistDownloadedBlocks = [[NSArray alloc] init];
-        firstPlaylistDownloadedBlocksLock = [[NSObject alloc] init];
+        firstPlaylistDownloadedBlockLock = [[NSObject alloc] init];
         
         startedScheduledDispatch = NO;
         receivedFirstPlaylistDownload = NO;
@@ -81,8 +80,11 @@ NSOperationQueue *playlistCallbackQueue;
 - (void)didEnterForegroundSkyhook:(TuneSkyhookPayload*)payload {
     if ([TuneState isTMADisabled]) { return; }
     
-    // Pull our playlist from disk before our first download
-    [self loadPlaylistFromDisk];
+    // If there's a callback holder that was canceled on app background,
+    // restart it with timeout
+    if (firstPlaylistDownloadedBlock != nil && [firstPlaylistDownloadedBlock isCanceled]) {
+        [firstPlaylistDownloadedBlock startTimer:[firstPlaylistDownloadedBlock getDelay]];
+    }
     
     [self fetchAndUpdatePlaylist];
     
@@ -105,6 +107,11 @@ NSOperationQueue *playlistCallbackQueue;
         [playlistScheduler invalidate];
         playlistScheduler = nil;
         startedScheduledDispatch = NO;
+    }
+    
+    // If there's a currently pending callback, stop it upon background
+    if (firstPlaylistDownloadedBlock != nil) {
+        [firstPlaylistDownloadedBlock stopTimer];
     }
 }
 
@@ -144,7 +151,19 @@ NSOperationQueue *playlistCallbackQueue;
             }
             
             TunePlaylist *newPlaylist = nil;
-            if (playlistDictionary) {
+            if (playlistDictionary == nil) {
+                WarnLog(@"Playlist response did not have any JSON");
+                // If we failed to get the playlist (or if it is empty) then trigger the 'onFirstPlaylistDownloaded' callback immediately
+                // So that we don't hit the timeout.
+                [self handleOnFirstPlaylistDownloaded:nil];
+            } else if (playlistDictionary.count == 0) {
+                /*
+                 *  IMPORTANT:
+                 *      An empty playlist is a signal from the server to not process anything
+                 */
+                WarnLog(@"Received empty playlist from the server -- not updating");
+                [self handleOnFirstPlaylistDownloaded:nil];
+            } else {
                 newPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
                 if ([TuneManager currentManager].configuration.echoPlaylists) {
                     NSLog(@"Got playlist:\n%@", [TuneJSONUtils createPrettyJSONFromDictionary:playlistDictionary withSecretTMADepth:nil]);
@@ -166,7 +185,6 @@ NSOperationQueue *playlistCallbackQueue;
 }
 
 - (void)playlistProcessed:(TuneSkyhookPayload *)payload {
-    
     TunePlaylist *processedPlaylist = payload.object;
     if (processedPlaylist) {
         [self setCurrentPlaylist:processedPlaylist];
@@ -183,32 +201,30 @@ NSOperationQueue *playlistCallbackQueue;
         newPlaylist = [TunePlaylist playlistWithDictionary:@{}];
     }
 
-    // If this is the first playlist we've downloaded this session then send off the FirstPlaylistDownloaded hook
+    if (_currentPlaylist == nil || ![_currentPlaylist isEqual:newPlaylist]) {
+        _currentPlaylist = newPlaylist;
+        
+        // Only save this playlist if it is not from disk and it is not from connected mode
+        // This could be our first install playlist download or a new playlist that is different than the one on disk.
+        if (!newPlaylist.fromDisk && !newPlaylist.fromConnectedMode) {
+            [TuneFileManager savePlaylistToDisk:newPlaylist];
+        }
+        
+        NSMutableDictionary *userInfo = @{}.mutableCopy;
+        if (newPlaylist) {
+            userInfo[TunePayloadNewPlaylist] = newPlaylist;
+            userInfo[TunePayloadPlaylistLoadedFromDisk] = @(newPlaylist.fromDisk);
+        }
+        
+        // Allow internal state to be updated after playlist download, e.g. power hooks
+        [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:self userInfo:userInfo];
+    }
+    
+    // Once the internal state is updated, if this is the first playlist we've downloaded this session then send off the FirstPlaylistDownloaded hook
     if (!newPlaylist.fromDisk && !receivedFirstPlaylistDownload) {
         receivedFirstPlaylistDownload = YES;
         [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistManagerFirstPlaylistDownloaded object:self userInfo:@{ TunePayloadFirstPlaylistDownloaded:newPlaylist }];
     }
-    
-    
-    if ([_currentPlaylist isEqual:newPlaylist]) {
-        return;
-    }
-
-    _currentPlaylist = newPlaylist;
-    
-    // Only save this playlist if it is not from disk and it is not from connected mode
-    // This could be our first install playlist download or a new playlist that is different than the one on disk.
-    if (!newPlaylist.fromDisk && !newPlaylist.fromConnectedMode) {
-        [TuneFileManager savePlaylistToDisk:newPlaylist];
-    }
-    
-    NSMutableDictionary *userInfo = @{}.mutableCopy;
-    if (newPlaylist) {
-        userInfo[TunePayloadNewPlaylist] = newPlaylist;
-        userInfo[TunePayloadPlaylistLoadedFromDisk] = @(newPlaylist.fromDisk);
-    }
-    
-    [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:self userInfo:userInfo];
 }
 
 #pragma mark - Load / Save Playlist to Disk
@@ -241,16 +257,19 @@ NSOperationQueue *playlistCallbackQueue;
         
         BOOL executeBlock = NO;
         
-        @synchronized(firstPlaylistDownloadedBlocksLock) {
-            if (gotVeryFirstPlaylist) {
+        @synchronized(firstPlaylistDownloadedBlockLock) {
+            // If there's a currently pending callback, stop it
+            if (firstPlaylistDownloadedBlock != nil) {
+                [firstPlaylistDownloadedBlock stopTimer];
+            }
+            
+            if (gotVeryFirstPlaylist || [TuneState isTMADisabled]) {
                 executeBlock = YES;
             } else {
                 if (timeout > 0) {
-                    [blockCallback setDelay:timeout];
+                    [blockCallback startTimer:timeout];
                 }
-                NSMutableArray *updatedFirstPlaylistdownloadedBlocks = firstPlaylistDownloadedBlocks.mutableCopy;
-                [updatedFirstPlaylistdownloadedBlocks addObject:blockCallback];
-                firstPlaylistDownloadedBlocks = [NSArray arrayWithArray:updatedFirstPlaylistdownloadedBlocks];
+                firstPlaylistDownloadedBlock = blockCallback;
             }
         }
         
@@ -265,21 +284,15 @@ NSOperationQueue *playlistCallbackQueue;
 }
 
 - (void)handleOnFirstPlaylistDownloaded:(TuneSkyhookPayload *)payload {
-    NSArray *blockArray = nil;
-    
-    @synchronized(firstPlaylistDownloadedBlocksLock) {
+    @synchronized(firstPlaylistDownloadedBlockLock) {
         if (!gotVeryFirstPlaylist) {
             gotVeryFirstPlaylist = YES;
             
-            blockArray = firstPlaylistDownloadedBlocks.copy;
-        }
-    }
-    
-    if ((blockArray != nil) && ([blockArray count] > 0)) {
-        for (TuneCallbackBlock *blockCallback in blockArray) {
-            [playlistCallbackQueue addOperationWithBlock:^{
-                [blockCallback executeBlock];
-            }];
+            if (firstPlaylistDownloadedBlock != nil) {
+                [playlistCallbackQueue addOperationWithBlock:^{
+                    [firstPlaylistDownloadedBlock executeBlock];
+                }];
+            }
         }
     }
 }

@@ -28,8 +28,7 @@
 
 @implementation TuneParametersTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
     
     RESET_EVERYTHING();
@@ -44,8 +43,7 @@
     networkOnline();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [Tune setCurrencyCode:nil];
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
@@ -58,8 +56,7 @@
 
 #pragma mark - Age
 
-- (void)testAgeValid
-{
+- (void)testAgeValid {
     static const NSInteger age = 35;
     NSString *expectedAge = [@(age) stringValue];
 
@@ -73,8 +70,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
 }
 
-- (void)testAgeYoung
-{
+- (void)testAgeYoung {
     static const NSInteger age = 6;
     NSString *expectedAge = [@(age) stringValue];
     
@@ -88,8 +84,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
 }
 
-- (void)testAgeOld
-{
+- (void)testAgeOld {
     static const NSInteger age = 65536;
     NSString *expectedAge = [@(age) stringValue];
     
@@ -101,8 +96,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
 }
 
-- (void)testAgeZero
-{
+- (void)testAgeZero {
     static const NSInteger age = 0;
     NSString *expectedAge = [@(age) stringValue];
     
@@ -114,8 +108,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
 }
 
-- (void)testAgeNegative
-{
+- (void)testAgeNegative {
     static const NSInteger age = -304;
     NSString *expectedAge = [@(age) stringValue];
     
@@ -130,8 +123,7 @@
 
 #pragma mark - Gender
 
-- (void)testGenderMale
-{
+- (void)testGenderMale {
     static const TuneGender gender = TuneGenderMale;
     NSString *expectedGender = [@(gender) stringValue];
     
@@ -143,8 +135,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
 }
 
-- (void)testGenderFemale
-{
+- (void)testGenderFemale {
     static const TuneGender gender = TuneGenderFemale;
     NSString *expectedGender = [@(gender) stringValue];
     
@@ -156,8 +147,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
 }
 
-- (void)testGenderUnknown
-{
+- (void)testGenderUnknown {
     static const TuneGender gender = TuneGenderUnknown;
     
     [Tune setGender:gender];
@@ -168,8 +158,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
 }
 
-- (void)testGenderLarge
-{
+- (void)testGenderLarge {
     static const TuneGender gender = (TuneGender)65536;
     
     [Tune setGender:gender];
@@ -180,8 +169,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
 }
 
-- (void)testGenderNegative
-{
+- (void)testGenderNegative {
     static const TuneGender gender = (TuneGender)-304;
     
     [Tune setGender:gender];
@@ -195,8 +183,7 @@
 
 #pragma mark - Geolocation
 
-- (void)testLatLongValid
-{
+- (void)testLatLongValid {
     static const double lat = 47.;
     static const double lon = -122.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -215,8 +202,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongZero
-{
+- (void)testLatLongZero {
     static const CGFloat lat = 0.;
     static const CGFloat lon = 0.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -235,8 +221,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongSmall
-{
+- (void)testLatLongSmall {
     static const CGFloat lat = -190.;
     static const CGFloat lon = -190.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -255,8 +240,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongVerySmall
-{
+- (void)testLatLongVerySmall {
     static const CGFloat lat = -370.;
     static const CGFloat lon = -370.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -275,8 +259,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongOneSmall
-{
+- (void)testLatLongOneSmall {
     static const CGFloat lat = -190.;
     static const CGFloat lon = 1.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -295,8 +278,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongLarge
-{
+- (void)testLatLongLarge {
     static const CGFloat lat = 190.;
     static const CGFloat lon = 190.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -315,8 +297,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongVeryLarge
-{
+- (void)testLatLongVeryLarge {
     static const CGFloat lat = 370.;
     static const CGFloat lon = 370.;
     NSString *expectedLat = [@(lat) stringValue];
@@ -335,8 +316,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
 }
 
-- (void)testLatLongAltValid
-{
+- (void)testLatLongAltValid {
     static const CGFloat lat = 47.;
     static const CGFloat lon = -122.;
     static const CGFloat alt = 41.;
@@ -359,8 +339,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
 }
 
-- (void)testLatLongAltZero
-{
+- (void)testLatLongAltZero {
     static const CGFloat lat = 47.;
     static const CGFloat lon = -122.;
     static const CGFloat alt = 0.;
@@ -383,8 +362,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
 }
 
-- (void)testLatLongAltVeryLarge
-{
+- (void)testLatLongAltVeryLarge {
     static const CGFloat lat = 47.;
     static const CGFloat lon = -122.;
     static const CGFloat alt = 999999.;
@@ -407,8 +385,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
 }
 
-- (void)testLatLongAltVerySmall
-{
+- (void)testLatLongAltVerySmall {
     static const CGFloat lat = 47.;
     static const CGFloat lon = -122.;
     static const CGFloat alt = -999999.;
@@ -434,8 +411,7 @@
 
 #pragma mark - Currency code
 
-- (void)testCurrencyCode
-{
+- (void)testCurrencyCode {
     static NSString* const currency = @"CAD";
     
     [Tune setCurrencyCode:currency];
@@ -446,8 +422,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
 }
 
-- (void)testCurrencyCodeDefault
-{
+- (void)testCurrencyCodeDefault {
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
     
@@ -456,8 +431,7 @@
     //ASSERT_KEY_VALUE( KEY_CURRENCY_CODE, @"USD" );
 }
 
-- (void)testCurrencyCodeEmpty
-{
+- (void)testCurrencyCodeEmpty {
     NSString* const currency = TUNE_STRING_EMPTY;
     
     [Tune setCurrencyCode:currency];
@@ -468,8 +442,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
 }
 
-- (void)testCurrencyCodeNil
-{
+- (void)testCurrencyCodeNil {
     [Tune setCurrencyCode:nil];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -478,8 +451,7 @@
     XCTAssertFalse( [params checkKeyHasValue:@"currency_code"], @"should not have set currency code" );
 }
 
-- (void)testCurrencyCodeLong
-{
+- (void)testCurrencyCodeLong {
     static NSString* const currency = @"0000000000000000000000000000000000000000000";
     
     [Tune setCurrencyCode:currency];
@@ -493,8 +465,7 @@
 
 #pragma mark - Package name
 
-- (void)testPackageName
-{
+- (void)testPackageName {
     static NSString* const package = @"yourMom";
     
     [Tune setPackageName:package];
@@ -505,8 +476,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
 }
 
-- (void)testPackageNameEmpty
-{
+- (void)testPackageNameEmpty {
     NSString* const package = TUNE_STRING_EMPTY;
     
     [Tune setPackageName:package];
@@ -517,8 +487,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
 }
 
-- (void)testPackageNil
-{
+- (void)testPackageNil {
     [Tune setPackageName:nil];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -527,8 +496,7 @@
     XCTAssertFalse( [params checkKeyHasValue:@"package_name"], @"should not have set package name" );
 }
 
-- (void)testPackageName256
-{
+- (void)testPackageName256 {
     static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     
     [Tune setPackageName:package];
@@ -539,8 +507,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
 }
 
-- (void)testPackageName257
-{
+- (void)testPackageName257 {
     static NSString* const package = @"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     
     [Tune setPackageName:package];
@@ -551,8 +518,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
 }
 
-- (void)testPackageName1000
-{
+- (void)testPackageName1000 {
     static NSString* const package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     [Tune setPackageName:package];
@@ -566,8 +532,7 @@
 
 #pragma mark - Plugin name
 
-- (void)testPluginNameInvalid
-{
+- (void)testPluginNameInvalid {
     static NSString* const plugin = @"yourMom";
     
     [Tune setPluginName:plugin];
@@ -578,8 +543,7 @@
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
-- (void)testPluginNameEmpty
-{
+- (void)testPluginNameEmpty {
     NSString* const plugin = TUNE_STRING_EMPTY;
 
     [Tune setPluginName:plugin];
@@ -590,8 +554,7 @@
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
-- (void)testPluginNameNil
-{
+- (void)testPluginNameNil {
     [Tune setPluginName:nil];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -600,8 +563,7 @@
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
-- (void)testPluginNameAir
-{
+- (void)testPluginNameAir {
     static NSString* const plugin = @"air";
     
     [Tune setPluginName:plugin];
@@ -612,8 +574,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNameAirUppercase
-{
+- (void)testPluginNameAirUppercase {
     static NSString* const plugin = @"AIR";
     
     [Tune setPluginName:plugin];
@@ -624,8 +585,7 @@
     XCTAssertFalse( [params checkKeyHasValue:TUNE_KEY_SDK_PLUGIN], @"should have no value for sdk_plugin" );
 }
 
-- (void)testPluginNameCocos
-{
+- (void)testPluginNameCocos {
     static NSString* const plugin = @"cocos2dx";
     
     [Tune setPluginName:plugin];
@@ -636,8 +596,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNameMarmalade
-{
+- (void)testPluginNameMarmalade {
     static NSString* const plugin = @"marmalade";
     
     [Tune setPluginName:plugin];
@@ -648,8 +607,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNamePhoneGap
-{
+- (void)testPluginNamePhoneGap {
     static NSString* const plugin = @"phonegap";
     
     [Tune setPluginName:plugin];
@@ -660,8 +618,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNameTitanium
-{
+- (void)testPluginNameTitanium {
     static NSString* const plugin = @"titanium";
     
     [Tune setPluginName:plugin];
@@ -672,8 +629,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNameUnity
-{
+- (void)testPluginNameUnity {
     static NSString* const plugin = @"unity";
     
     [Tune setPluginName:plugin];
@@ -684,8 +640,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_SDK_PLUGIN, plugin );
 }
 
-- (void)testPluginNameXamarin
-{
+- (void)testPluginNameXamarin {
     static NSString* const plugin = @"xamarin";
     
     [Tune setPluginName:plugin];
@@ -699,8 +654,7 @@
 
 #pragma mark - User identifiers
 
-- (void)testTrusteTPID
-{
+- (void)testTrusteTPID {
     static NSString* const ID = @"testId";
     
     [Tune setTRUSTeId:ID];
@@ -711,8 +665,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_TRUSTE_TPID, ID );
 }
 
-- (void)testExistingUser
-{
+- (void)testExistingUser {
     [Tune setExistingUser:YES];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -721,8 +674,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_EXISTING_USER, [@TRUE stringValue] );
 }
 
-- (void)testUserEmail
-{
+- (void)testUserEmail {
     static NSString* const EMAIL_ID = @"tempUserEmail@tempUserCompany.com";
     static NSString* const EMAIL_ID_MD5 = @"d76acab60fbd9bf136f79dafb6e79a3b";
     static NSString* const EMAIL_ID_SHA1 = @"e6c76b523cee03fd0dfea0d769a40d1a798dd522";
@@ -750,8 +702,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testUserEmailEmpty
-{
+- (void)testUserEmailEmpty {
     NSString* const USER_EMAIL = TUNE_STRING_EMPTY; // empty
     static NSString* const USER_EMAIL_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
     static NSString* const USER_EMAIL_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
@@ -779,8 +730,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testUserEmailNil
-{
+- (void)testUserEmailNil {
     static NSString* const USER_EMAIL = nil;
     
     [Tune setUserEmail:USER_EMAIL];
@@ -794,8 +744,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
 }
 
-- (void)testUserId
-{
+- (void)testUserId {
     static NSString* const USER_ID = @"testId";
     
     [Tune setUserId:USER_ID];
@@ -806,8 +755,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_USER_ID, USER_ID );
 }
 
-- (void)testUserName
-{
+- (void)testUserName {
     static NSString* const USER_NAME = @"testName";
     static NSString* const USER_NAME_MD5 = @"f0f7b7b21cfd4f60934753232a0049f6";
     static NSString* const USER_NAME_SHA1 = @"0025dd9f850ce7889cf3e79e64328d0c4957751a";
@@ -835,8 +783,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testUserNameEmpty
-{
+- (void)testUserNameEmpty {
     NSString* const USER_NAME = TUNE_STRING_EMPTY; // empty
     static NSString* const USER_NAME_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
     static NSString* const USER_NAME_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
@@ -864,8 +811,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testUserNameNil
-{
+- (void)testUserNameNil {
     static NSString* const USER_NAME = nil;
     
     [Tune setUserName:USER_NAME];
@@ -879,8 +825,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
 }
 
-- (void)testPhoneNumber
-{
+- (void)testPhoneNumber {
     static NSString* const USER_PHONE = @"1234567890";
     static NSString* const USER_PHONE_MD5 = @"e807f1fcf82d132f9bb018ca6738a19f";
     static NSString* const USER_PHONE_SHA1 = @"01b307acba4f54f55aafc33bb06bbbf6ca803e9a";
@@ -908,8 +853,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testPhoneNumberEmpty
-{
+- (void)testPhoneNumberEmpty {
     NSString* const USER_PHONE = TUNE_STRING_EMPTY; // empty
     static NSString* const USER_PHONE_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
     static NSString* const USER_PHONE_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
@@ -937,8 +881,7 @@
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
 }
 
-- (void)testPhoneNumberNil
-{
+- (void)testPhoneNumberNil {
     static NSString* const USER_PHONE = nil;
     
     [Tune setPhoneNumber:USER_PHONE];
@@ -952,8 +895,7 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
 }
 
-- (void)testPhoneNumberNonEnglishCharacters
-{
+- (void)testPhoneNumberNonEnglishCharacters {
     TuneUserProfile *userProfile = [TuneManager currentManager].userProfile;
 
     NSString *expected = nil;
@@ -1038,8 +980,7 @@
     XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
 }
 
-- (void)testFacebookUserId
-{
+- (void)testFacebookUserId {
     static NSString* const ID = @"testId";
     
     [Tune setFacebookUserId:ID];
@@ -1050,8 +991,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_FACEBOOK_USER_ID, ID );
 }
 
-- (void)testTwitterUserId
-{
+- (void)testTwitterUserId {
     static NSString* const ID = @"testId";
     
     [Tune setTwitterUserId:ID];
@@ -1062,8 +1002,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_TWITTER_USER_ID, ID );
 }
 
-- (void)testGoogleUserId
-{
+- (void)testGoogleUserId {
     static NSString* const ID = @"testId";
     
     [Tune setGoogleUserId:ID];
@@ -1074,8 +1013,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_GOOGLE_USER_ID, ID );
 }
 
-- (void)testPayingUser
-{
+- (void)testPayingUser {
     [Tune setPayingUser:YES];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -1085,8 +1023,7 @@
     XCTAssertTrue( [Tune isPayingUser], @"should be a paying user" );
 }
 
-- (void)testPayingUserAutomatic
-{
+- (void)testPayingUserAutomatic {
     [Tune setPayingUser:NO];
     
     TuneEvent *evt = [TuneEvent eventWithName:@"testEvent"];
@@ -1102,8 +1039,7 @@
     XCTAssertTrue( [Tune isPayingUser], @"should be a paying user" );
 }
 
-- (void)testPayingUserFalse
-{
+- (void)testPayingUserFalse {
     [Tune setPayingUser:NO];
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -1118,8 +1054,7 @@
 // TODO: move this to new class for internal params testing
 #pragma mark - iAd attribution
 
-- (void)testiAdAttribution
-{
+- (void)testiAdAttribution {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     TuneUserProfile *userProfile = [TuneManager currentManager].userProfile;
@@ -1135,8 +1070,7 @@
 }
 
 
-- (void)testiAdAttributionAppendTrue
-{
+- (void)testiAdAttributionAppendTrue {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     TuneUserProfile *userProfile = [TuneManager currentManager].userProfile;

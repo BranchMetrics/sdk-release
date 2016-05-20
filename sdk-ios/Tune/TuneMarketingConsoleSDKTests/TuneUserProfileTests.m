@@ -445,7 +445,6 @@
 - (BOOL)checkArrayOfDictionaries:(NSArray *)inputArray key:(NSString *)key expectedValue:(id)value {
     for (NSDictionary *dict in inputArray) {
         if ([[dict objectForKey:@"name"] isEqualToString:key]) {
-            
             NSString *stored = [dict objectForKey:@"value"];
             XCTAssertTrue(stored == value || [stored isEqualToString:value], @"Unexpected value stored for key %@: %@", key, stored);
             

@@ -12,4 +12,6 @@
 
 + (void)nilDefaultCenter;
 
+- (void)handleSessionStart;
+
 @end

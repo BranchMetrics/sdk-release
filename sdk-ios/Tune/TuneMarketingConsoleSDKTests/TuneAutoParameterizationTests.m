@@ -15,8 +15,7 @@
 #import "TuneUserProfileKeys.h"
 #import "TuneManager.h"
 
-@interface TuneAutoParameterizationTests : XCTestCase <TuneDelegate>
-{
+@interface TuneAutoParameterizationTests : XCTestCase <TuneDelegate> {
     TuneTestParams *params;
     
     BOOL finished;
@@ -27,8 +26,7 @@
 
 @implementation TuneAutoParameterizationTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
     
     RESET_EVERYTHING();
@@ -41,8 +39,7 @@
     emptyRequestQueue();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     emptyRequestQueue();
     
     [super tearDown];

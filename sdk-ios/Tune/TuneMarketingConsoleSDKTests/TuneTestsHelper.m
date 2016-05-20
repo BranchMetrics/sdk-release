@@ -31,7 +31,6 @@ NSString* const kTestBundleId = @"com.mobileapptracking.iosunittest";
 const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.;
 
 void RESET_EVERYTHING() {
-
 #if TARGET_OS_IOS || TARGET_OS_IPHONE
     [TuneState updateTMADisabledState:NO];
     [UIViewController load];
@@ -82,8 +81,7 @@ void pointMAUrlsToNothing() {
     [[TuneManager currentManager].configuration setConnectedModeHostPort:nil];
 }
 
-void clearUserDefaults()
-{
+void clearUserDefaults() {
     NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
     NSDictionary *dict = [defs dictionaryRepresentation];
     for (id key in dict) {
@@ -102,40 +100,34 @@ void clearUserDefaults()
     }
 }
 
-void waitFor1( NSTimeInterval duration, BOOL* finished )
-{
+void waitFor1( NSTimeInterval duration, BOOL* finished ) {
     // block test thread while app executes
     NSDate *stopDate = [[NSDate date] dateByAddingTimeInterval:duration];
     do [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:stopDate];
     while( [stopDate timeIntervalSinceNow] > 0 && !(*finished) );
 }
 
-void waitFor( NSTimeInterval duration )
-{
+void waitFor( NSTimeInterval duration ) {
     // block test thread while app executes
     NSDate *stopDate = [[NSDate date] dateByAddingTimeInterval:duration];
     do [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:stopDate];
     while( [stopDate timeIntervalSinceNow] > 0 );
 }
 
-void waitForQueuesToFinish()
-{
+void waitForQueuesToFinish() {
     [Tune waitUntilAllOperationsAreFinishedOnQueue];
     [[TuneEventQueue sharedInstance] waitUntilAllOperationsAreFinishedOnQueue];
 }
 
-void emptyRequestQueue()
-{
+void emptyRequestQueue() {
     [TuneEventQueue drainQueue];
 }
 
-void networkOffline()
-{
+void networkOffline() {
     [TuneUtils overrideNetworkReachability:[@NO stringValue]];
 }
 
-void networkOnline()
-{
+void networkOnline() {
     [TuneUtils overrideNetworkReachability:[@YES stringValue]];
 }
 

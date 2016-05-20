@@ -13,6 +13,7 @@
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
 #import "TuneKeyStrings.h"
+#import "TuneStringUtils.h"
 #import "TuneTestParams.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
@@ -73,8 +74,9 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
                 }
                 
                 NSString *unencodedValue = keyValue[1];
-                if( ![unencodedValue isEqualToString:@""] )
-                    unencodedValue = [unencodedValue stringByRemovingPercentEncoding];
+                if( ![unencodedValue isEqualToString:@""] ) {
+                    unencodedValue = [TuneStringUtils removePercentEncoding:unencodedValue];
+                }
 
                 if( _params == nil )
                     _params = [NSMutableDictionary dictionary];

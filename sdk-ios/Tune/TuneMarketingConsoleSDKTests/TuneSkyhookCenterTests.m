@@ -4,8 +4,12 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <OCMock/OCMock.h>
 
-#import "TuneSkyhookCenter.h"
+#import "Tune+Internal.h"
+#import "TuneSkyhookCenter+Testing.h"
+#import "TuneUserProfile+Testing.h"
+
 #import "SimpleObserver.h"
 
 @interface TuneSkyhookCenterTests : XCTestCase
@@ -43,7 +47,7 @@
 
         [center postSkyhook:@"testskyhook"];
         XCTAssertTrue([center hasObserverForHook:@"testskyhook"], @"There should be an observer for testskyhook");
-        XCTAssert(simpleObserver.skyhookPostCount == 1, @"Observer should have received a post");
+        XCTAssertEqual(simpleObserver.skyhookPostCount, 1, @"Observer should have received a post");
         
         simpleObserver = nil;
     }
@@ -62,7 +66,6 @@
         SimpleObserver *simpleObserver = [[SimpleObserver alloc] init];
         
         XCTAssertFalse([center hasObserverForHook:@"testqueuedskyhook"], @"There should not be an observer for testqueuedskyhook");
-        NSLog(@"%@", center);
         
         [center addObserver:simpleObserver selector:@selector(skyhookPosted:) name:@"testqueuedskyhook" object:nil];
         
@@ -74,10 +77,35 @@
         [NSThread sleepForTimeInterval:2.0f];
         
         XCTAssertTrue([center hasObserverForHook:@"testqueuedskyhook"], @"There should be an observer for testqueuedskyhook");
-        XCTAssert(simpleObserver.skyhookPostCount == 1, @"Observer should have received a post");
+        XCTAssertEqual(simpleObserver.skyhookPostCount, 1, @"Observer should have received a post");
         
         simpleObserver = nil;
     }
+}
+
+- (void)testQueuedSkyhooksFireAfterProfileUpdates {
+    __block BOOL updatedProfile = NO;
+    __block BOOL firedQueuedSkyhooks = NO;
+    
+    id mockProfile = OCMPartialMock([TuneManager currentManager].userProfile);
+    OCMStub([mockProfile initiateSession:[OCMArg isKindOfClass:[TuneSkyhookPayload class]]]).andDo(^(NSInvocation *invocation){
+        XCTAssertFalse(firedQueuedSkyhooks, @"Fired queued skyhooks before updating the UserProfile.");
+        updatedProfile = YES;
+    });
+    
+    id mockSkyhookCenter = OCMPartialMock([TuneSkyhookCenter defaultCenter]);
+    OCMStub([mockSkyhookCenter handleSessionStart]).andDo(^(NSInvocation *invocation){
+        XCTAssertTrue(updatedProfile, @"UserProfile should have been updated before queued skyhooks were fired.");
+        firedQueuedSkyhooks = YES;
+    });
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self userInfo:@{@"sessionId": @"foobar", @"sessionStartTime": @100}];
+    
+    XCTAssertTrue(updatedProfile);
+    XCTAssertTrue(firedQueuedSkyhooks);
+    
+    [mockProfile stopMocking];
+    [mockSkyhookCenter stopMocking];
 }
 
 @end

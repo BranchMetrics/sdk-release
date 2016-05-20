@@ -30,8 +30,7 @@
     [super tearDown];
 }
 
-- (void)testConvertingToTuneAnalyticsItemAndToDictionary
-{
+- (void)testConvertingToTuneAnalyticsItemAndToDictionary {
     TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
     tuneEventItem.attribute1 = @"I'm attribute1!";
     [tuneEventItem addTag:@"tag1" withStringValue:@"value1"];
@@ -64,8 +63,7 @@
     XCTAssertTrue([dict isEqualToDictionary:expected]);
 }
 
-- (void)testConvertingToTuneAnalyticsItemAndToDictionaryWithNilItemName
-{
+- (void)testConvertingToTuneAnalyticsItemAndToDictionaryWithNilItemName {
     TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:nil unitPrice:2.5 quantity:10];
     tuneEventItem.attribute1 = @"I'm attribute1!";
     [tuneEventItem addTag:@"tag1" withStringValue:@"value1"];
@@ -98,8 +96,7 @@
     XCTAssertTrue([dict isEqualToDictionary:expected]);
 }
 
-- (void)testAddingAutoHashingStrings
-{
+- (void)testAddingAutoHashingStrings {
     TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
     [tuneEventItem addTag:@"tag1" withStringValue:@"value" hashed:YES];
     [tuneEventItem addTag:@"tag2" withStringValue:@"value2"];

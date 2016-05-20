@@ -128,6 +128,9 @@ static dispatch_once_t onceToken;
     } else {
         [_tuneManager.campaignStateManager bringUp];
     }
+    
+    // Load the playlist for disk before we give control to the user
+    [_tuneManager.playlistManager loadPlaylistFromDisk];
 }
 
 #pragma mark - Handle Enable/Disable

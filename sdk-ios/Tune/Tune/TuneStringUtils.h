@@ -35,6 +35,24 @@
 + (NSString *)urlEncodeString:(NSString *)unencodedString;
 
 /**
+ Removes percent-encoding from given string.
+ 
+ @param string encoded string
+ 
+ @returns NSString* un-encoded string
+ */
++ (NSString *)removePercentEncoding:(NSString *)string;
+
+/**
+ Adds percent-encoding to given string.
+ 
+ @param string un-encoded string
+ 
+ @returns NSString* encoded string
+ */
++ (NSString *)addPercentEncoding:(NSString *)string;
+
+/**
  Humanize a string by removing components after a double colon, decamelcasing the string and removing
  any instances of the word controller.
  

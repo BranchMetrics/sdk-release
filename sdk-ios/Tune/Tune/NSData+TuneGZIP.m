@@ -40,6 +40,9 @@
 
 @implementation NSData (TuneGZIP)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-arith"
+
 - (NSData *)tuneGzippedDataWithCompressionLevel:(float)level
 {
     if ([self length])
@@ -118,5 +121,7 @@
     }
     return nil;
 }
+
+#pragma GCC diagnostic pop
 
 @end

@@ -488,7 +488,7 @@ static NSOperationQueue *_operationQueue = nil;
 
 - (NSOperationQueue *)operationQueue {
     if (_operationQueue == nil) {
-        _operationQueue = [[NSOperationQueue alloc] init];
+        _operationQueue = [NSOperationQueue new];
         [_operationQueue setMaxConcurrentOperationCount:1];
     }
     

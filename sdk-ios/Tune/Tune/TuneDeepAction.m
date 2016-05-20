@@ -67,7 +67,7 @@ NSString *const DEEPACTION_DEFAULT_DATA = @"default_data";
 
 #pragma mark - Misc.
 
-- (NSDictionary *)toDictionary{
+- (NSDictionary *)toDictionary {
     return @{ DEEPACTION_ID: [TuneUtils objectOrNull:_deepActionId],
               DEEPACTION_FRIENDLY_NAME: [TuneUtils objectOrNull:_friendlyName],
               DEEPACTION_DESCRIPTION: [TuneUtils objectOrNull:_deepActionDescription],
@@ -75,8 +75,8 @@ NSString *const DEEPACTION_DEFAULT_DATA = @"default_data";
               DEEPACTION_APPROVED_VALUES: [TuneUtils objectOrNull:_approvedValues] };
 }
 
-- (NSString *)description{
-    return [NSString stringWithFormat:@"deepActionId: %@, friendlyName: %@, block:%p, defaultData: %@", self.deepActionId, self.friendlyName, self.action, self.defaultData];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"deepActionId: %@, friendlyName: %@, block:%p, defaultData: %@", self.deepActionId, self.friendlyName, (void *)self.action, self.defaultData];
 }
 
 @end

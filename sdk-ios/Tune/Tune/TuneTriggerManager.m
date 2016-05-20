@@ -49,25 +49,25 @@ static NSString *MessageDisplayFrequencyDictionaryKey = @"tune-message-display-f
                                           selector:@selector(handleTrackedEvent:)
                                               name:TuneEventTracked
                                             object:nil
-                                          priority:1];
+                                          priority:TuneSkyhookPriorityFirst];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleFirstPlaylistDownloaded:)
                                               name:TunePlaylistManagerFirstPlaylistDownloaded
                                             object:nil
-                                          priority:1];
+                                          priority:TuneSkyhookPriorityFirst];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleCurrentPlaylistUpdated:)
                                               name:TunePlaylistManagerCurrentPlaylistChanged
                                             object:nil
-                                          priority:1];
+                                          priority:TuneSkyhookPriorityFirst];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleSessionStarted:)
                                               name:TuneSessionManagerSessionDidStart
                                             object:nil
-                                          priority:1];
+                                          priority:TuneSkyhookPriorityFirst];
     
     
 }

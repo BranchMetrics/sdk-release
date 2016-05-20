@@ -9,6 +9,7 @@
 #import "TuneDeeplink.h"
 #import "TuneAnalyticsConstants.h"
 #import "TuneDeepLinkConstants.h"
+#import "TuneDeviceDetails.h"
 #import "TuneManager.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
@@ -214,9 +215,11 @@
                 // Make sure that there is a "="-separated key-value pair before reading
                 if ([pairComponents count] > 1) {
                     NSString *key = pairComponents[0];
+                    
                     NSString *value = pairComponents[1];
-                    value = [value stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    value = [TuneStringUtils removePercentEncoding:value];
                     value = [value stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+                    
                     [_parameterDictionary setValue:value forKey:key];
                 }
             }

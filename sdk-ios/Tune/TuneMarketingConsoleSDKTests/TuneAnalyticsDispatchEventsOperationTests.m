@@ -71,7 +71,7 @@
     [[TuneManager currentManager] setUserProfile:userProfile];
     
     if (trackEventOpQueue == nil) {
-        trackEventOpQueue = [[NSOperationQueue alloc] init];
+        trackEventOpQueue = [NSOperationQueue new];
         [trackEventOpQueue setMaxConcurrentOperationCount:1];
     }
     
@@ -219,7 +219,7 @@
     receivedRequest = request;
     
     if (error != NULL) {
-        *error = returnError ? [NSError new] : nil;
+        *error = returnError ? [NSError errorWithDomain:@"TuneTestsMock" code:-1 userInfo:nil] : nil;
     }
     
     return [[NSData alloc] init];

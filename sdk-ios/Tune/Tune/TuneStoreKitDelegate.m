@@ -36,8 +36,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 
 @implementation TuneStoreKitProductRequester
 
-- (void)requestProductWithId:(NSString *)productId completion:(RequestCompletionBlock)completionBlock
-{
+- (void)requestProductWithId:(NSString *)productId completion:(RequestCompletionBlock)completionBlock {
     self.customBlock = completionBlock;
     
     NSSet *setProducts = [NSSet setWithObject:productId];
@@ -51,13 +50,11 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 
 #pragma mark SKProductsRequestDelegate Methods
 
-- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
-{
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
     NSArray *arrProducts = response.products;
     
     // store the downloaded in-app purchase products
-    for(SKProduct *prod in arrProducts)
-    {
+    for(SKProduct *prod in arrProducts) {
         // run the completion block
         self.customBlock(prod);
     }
@@ -71,13 +68,11 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 
 #pragma mark - Init
 
-+ (void)initialize
-{
++ (void)initialize {
     shared = [TuneStoreKitDelegate new];
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
     if (self) {
         _products = [NSMutableDictionary dictionary];
@@ -86,55 +81,45 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
     return self;
 }
 
-+ (void)startObserver
-{
++ (void)startObserver {
     [[SKPaymentQueue defaultQueue] addTransactionObserver:shared];
 }
 
-+ (void)stopObserver
-{
++ (void)stopObserver {
     [[SKPaymentQueue defaultQueue] removeTransactionObserver:shared];
 }
 
 
 #pragma mark SKPaymentTransactionObserver Methods
 
-- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
-{
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions {
     // handle each transaction
-    for (SKPaymentTransaction *transaction in transactions)
-    {
-        switch (transaction.transactionState)
-        {
-            case SKPaymentTransactionStatePurchased:
-            {
+    for (SKPaymentTransaction *transaction in transactions) {
+        switch (transaction.transactionState) {
+            case SKPaymentTransactionStatePurchased: {
                 // purchase successful
-                
-                if(transaction.transactionIdentifier)
-                {
+                if(transaction.transactionIdentifier) {
                     // ref: Apple Receipt Validation Programming Guide
                     // https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html#//apple_ref/doc/uid/TP40010573-CH104-SW2
                     // we do not use the receipt stored in the file [[NSBundle mainBundle] appStoreReceiptURL]
                     // because in case of consumable IAP transactions, if some other SKPaymentTransactionObserver
                     // calls finishTransaction then the receipt may be removed from the file before this code
                     // has a chance to retrieve the IAP transaction receipt
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                     NSData *receipt = transaction.transactionReceipt;
+#pragma clang diagnostic pop
                     
                     // extract the stored product with given product id
                     SKProduct *product = self.products[transaction.payment.productIdentifier];
                     
                     // cached product info is available
-                    if(product)
-                    {
+                    if(product) {
                         // fire a Tune purchase request
                         [self measurePurchaseEvent:transaction product:product receipt:receipt];
-                    }
-                    else
-                    {
-                        @synchronized(self.productRequests)
-                        {
-                            if(!self.productRequests[transaction.transactionIdentifier])
-                            {
+                    } else {
+                        @synchronized(self.productRequests) {
+                            if(!self.productRequests[transaction.transactionIdentifier]) {
                                 // download the product info using the given product id
                                 TuneStoreKitProductRequester *prodReq = [TuneStoreKitProductRequester new];
                                 
@@ -144,13 +129,10 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
                                 
                                 // fire the product info download request
                                 [prodReq requestProductWithId:transaction.payment.productIdentifier completion:^(SKProduct *pr){
-                                    
                                     // if the product info is successfully downloaded
-                                    if(pr)
-                                    {
+                                    if(pr) {
                                         // store the downloaded product for future reference
-                                        @synchronized(self.products)
-                                        {
+                                        @synchronized(self.products) {
                                             self.products[pr.productIdentifier] = pr;
                                         }
                                     }
@@ -160,22 +142,17 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
                                     
                                     // if current iOS version is less than 8.0, then use an async call to
                                     // avoid possible app crash due to premature prodReq object release
-                                    if (SYSTEM_VERSION_LESS_THAN(@"8.0"))
-                                    {
+                                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
                                         // asynchronously execute code to remove the used productRequest object from storage
                                         // so that the current method exits before productRequest is removed
                                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                                            @synchronized(self.productRequests)
-                                            {
+                                            @synchronized(self.productRequests) {
                                                 // remove the stored reference to the product request
                                                 [self.productRequests removeObjectForKey:transaction.transactionIdentifier];
                                             }
                                         });
-                                    }
-                                    else
-                                    {
-                                        @synchronized(self.productRequests)
-                                        {
+                                    } else {
+                                        @synchronized(self.productRequests) {
                                             // remove the stored reference to the product request
                                             [self.productRequests removeObjectForKey:transaction.transactionIdentifier];
                                         }
@@ -199,8 +176,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 
 #pragma mark - Event Measurement
 
-- (void)measurePurchaseEvent:(SKPaymentTransaction *)transaction product:(SKProduct *)product receipt:(NSData *)receipt
-{
+- (void)measurePurchaseEvent:(SKPaymentTransaction *)transaction product:(SKProduct *)product receipt:(NSData *)receipt {
     // assign the currency code extracted from the transaction
     NSString *currencyCode = [product.priceLocale objectForKey:NSLocaleCurrencyCode];
     

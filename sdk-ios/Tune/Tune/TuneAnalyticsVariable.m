@@ -327,7 +327,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@: %p> (%@, %@)", NSStringFromClass(self.class), self, self.name, self.value];
+    return [NSString stringWithFormat:@"<%@: %p> (%@, %@)", NSStringFromClass(self.class), (void *)self, self.name, self.value];
 }
 
 

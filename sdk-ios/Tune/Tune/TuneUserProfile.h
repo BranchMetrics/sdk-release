@@ -136,6 +136,9 @@
 - (void)setConversionKey:(NSString *)conversionKey;
 - (NSString *)conversionKey;
 
+- (void)setAppBundleId:(NSString *)bId;
+- (NSString *)appBundleId;
+
 - (void)setAppName:(NSString *)appName;
 - (NSString *)appName;
 
@@ -390,6 +393,9 @@
 
 - (void)setLocation:(TuneLocation *)location;
 - (TuneLocation *)location;
+
+- (void)setIsTestFlightBuild:(NSNumber *)isTestFlightBuild;
+- (NSNumber *)isTestFlightBuild;
 
 - (void)setPreloadData:(TunePreloadData *)preloadData;
 

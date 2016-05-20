@@ -29,8 +29,7 @@
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneState.h"
 
-@interface TuneAnalyticsManagerTests : XCTestCase
-{
+@interface TuneAnalyticsManagerTests : XCTestCase {
     id mockApplication;
     id mockTimer;
     id mockOperationQueue;
@@ -145,8 +144,8 @@
     clearProfileEvent.category = @"variable1,variable2";
     
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneUserProfileVariablesCleared
-                                                     object:self
-                                                   userInfo:@{ TunePayloadProfileVariablesToClear: analyticsToClear }];
+                                            object:self
+                                          userInfo:@{ TunePayloadProfileVariablesToClear: analyticsToClear }];
     
     XCTAssertTrue(dispatchCount == 1, @"Actually: %lu", (unsigned long)dispatchCount);
     

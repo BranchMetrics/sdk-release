@@ -39,8 +39,7 @@ static NSString* const testKey = @"fakeTuneKey";
     [super tearDown];
 }
 
-- (void)testNewKeyStored
-{
+- (void)testNewKeyStored {
     static NSString* const testValue = @"fakeValue";
     
     // write a string using old-style key name
@@ -51,8 +50,7 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue( [testValue isEqualToString:readValue], @"stored %@, read %@", testValue, readValue );
 }
 
-- (void)testOldKeyRead
-{
+- (void)testOldKeyRead {
     static NSString* const testValue = @"fakeValue";
     
     // write a string to old-style key
@@ -65,8 +63,7 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue( [testValue isEqualToString:readValue], @"stored %@, read %@", testValue, readValue );
 }
 
-- (void)testNewKeyReadPreferentially
-{
+- (void)testNewKeyReadPreferentially {
     static NSString* const testValueOld = @"fakeValue1";
     static NSString* const testValueNew = @"fakeValue2";
     
@@ -81,8 +78,7 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue( [testValueNew isEqualToString:readValue], @"stored %@, read %@", testValueNew, readValue );
 }
 
-- (void)testLoadStoreCustomVariable
-{
+- (void)testLoadStoreCustomVariable {
     TuneAnalyticsVariable *var = [TuneAnalyticsVariable analyticsVariableWithName:@"foobar"
                                                                             value:@"bingbang"
                                                                              type:TuneAnalyticsVariableStringType
