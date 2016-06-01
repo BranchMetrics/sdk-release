@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Windows.Networking.Connectivity;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MobileAppTracking
 {
@@ -33,7 +34,7 @@ namespace MobileAppTracking
         }
 
         // Add a url to event queue to send later
-        protected internal void AddToQueue(Object url, Object attempt)
+        protected internal void AddToQueue(Object url, Object postData, Object attempt)
         {
             lock (syncLock)
             {
@@ -41,8 +42,10 @@ namespace MobileAppTracking
 
                 // Save url as value for key "mat_event_queue_(index)"
                 string eventQueueKey = MATConstants.SETTINGS_MATEVENTQUEUE_KEY + "_" + eventQueueSize.ToString();
+                string eventQueueDataKey = MATConstants.SETTINGS_MATEVENTQUEUE_DATA_KEY + "_" + eventQueueSize.ToString();
                 string eventQueueAttempt = MATConstants.SETTINGS_MATEVENTQUEUE_ATTEMPT_KEY + "_" + eventQueueSize.ToString();
                 SaveLocalSetting(eventQueueKey, url);
+                SaveLocalSetting(eventQueueDataKey, postData);
                 SaveLocalSetting(eventQueueAttempt, (int)attempt); //increment attempt number by one
                 eventQueueSize++;
                 SaveLocalSetting(MATConstants.SETTINGS_MATEVENTQUEUESIZE_KEY, eventQueueSize);
@@ -53,8 +56,10 @@ namespace MobileAppTracking
         {
             SaveLocalSetting(MATConstants.SETTINGS_MATEVENTQUEUESIZE_KEY, GetQueueSize() - 1);
             string eventQueueKey = MATConstants.SETTINGS_MATEVENTQUEUE_KEY + "_" + key.ToString();
+            string eventQueueDataKey = MATConstants.SETTINGS_MATEVENTQUEUE_DATA_KEY + "_" + key.ToString();
             string eventqueueAttemptKey = MATConstants.SETTINGS_MATEVENTQUEUE_ATTEMPT_KEY + "_" + key.ToString();
             parameters.localSettings.Values.Remove(eventQueueKey);
+            parameters.localSettings.Values.Remove(eventQueueDataKey);
             parameters.localSettings.Values.Remove(eventqueueAttemptKey);
         }
 
@@ -68,7 +73,10 @@ namespace MobileAppTracking
                 {
                     DumpQueue();
                     string url = MATUrlBuilder.BuildUrl(action, eventName, revenue, currency, refId, eventItems, paramCopy);
-                    AddToQueue(url, 0);
+                    // Convert event items to correct JSON
+                    var jsonData = JsonConvert.SerializeObject(new { data = eventItems }, Formatting.None);
+
+                    AddToQueue(url, jsonData, 0);
                     DumpQueue();
                 });
            }
@@ -90,15 +98,17 @@ namespace MobileAppTracking
                     for (int i = 0; i < eventQueueSize; i++)
                     {
                         string eventQueueKey = MATConstants.SETTINGS_MATEVENTQUEUE_KEY + "_" + i.ToString();
+                        string eventQueueDataKey = MATConstants.SETTINGS_MATEVENTQUEUE_DATA_KEY + "_" + i.ToString();
                         string eventQueueAttemptKey = MATConstants.SETTINGS_MATEVENTQUEUE_ATTEMPT_KEY + "_" + i.ToString();
                         if (parameters.localSettings.Values.ContainsKey(eventQueueKey))
                         {
                             string url = (string)parameters.localSettings.Values[eventQueueKey];
+                            string postData = (string)parameters.localSettings.Values[eventQueueDataKey];
                             int urlAttempt = (int)parameters.localSettings.Values[eventQueueAttemptKey];
                             if (parameters.DebugMode)
                                 Debug.WriteLine("Sending MAT event to server...");
                             MATUrlRequester urlRequester = new MATUrlRequester(parameters, this);
-                            urlRequester.SendRequest(url, urlAttempt);
+                            urlRequester.SendRequest(url, postData, urlAttempt);
                             if (parameters.DebugMode)
                                 Debug.WriteLine("MAT request sent");
                             // Decrement queue size

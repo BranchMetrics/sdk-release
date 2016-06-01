@@ -136,16 +136,11 @@ namespace MobileAppTracking
                 data.Append("&user_name_sha256=").Append(Uri.EscapeUriString(parameters.UserNameSha256));
             }
 
-            // Add event items to url as json string
-            if (eventItems != null)
-                data.Append("&site_event_items=").Append(Uri.EscapeUriString(JsonConvert.SerializeObject(eventItems)));
-
             if (parameters.matRequest != null)
                 parameters.matRequest.ParamsToBeEncrypted(data.ToString());
 
-            // Encrypt data string
-            string dataStr = parameters.urlEncrypter.Encrypt(data.ToString());
-            url.Append("&data=").Append(dataStr);
+            // Add data string
+            url.Append("&data=").Append(data.ToString());
 
             url.Append("&response_format=json");
 

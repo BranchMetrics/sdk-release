@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
 namespace MobileAppTracking
@@ -15,6 +17,7 @@ namespace MobileAppTracking
         MATParameters parameters;
         MATEventQueue eventQueue;
         string currentUrl;
+        string currentPostData;
         int currentUrlAttempt;
 
         internal MATUrlRequester(MATParameters parameters, MATEventQueue eventQueue) 
@@ -23,15 +26,30 @@ namespace MobileAppTracking
             this.eventQueue = eventQueue;
         }
 
-        internal void SendRequest(string urlInfo, int urlAttempt)
+        internal void SendRequest(string urlInfo, string postData, int urlAttempt)
         {
             this.currentUrl = urlInfo;
+            this.currentPostData = postData;
             this.currentUrlAttempt = urlAttempt;
             string url = urlInfo + "&sdk_retry_attempt=" + urlAttempt;
 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url); 
-            request.BeginGetResponse(GetUrlCallback, request);
+            var request = (HttpWebRequest)HttpWebRequest.Create(url);
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.AllowReadStreamBuffering = false;
+            request.BeginGetRequestStream(GetRequestStreamCallback, request);
         }
+
+        private void GetRequestStreamCallback(IAsyncResult callbackResult)
+        {
+            HttpWebRequest request = (HttpWebRequest)callbackResult.AsyncState;
+            using (Stream postStream = request.EndGetRequestStream(callbackResult))
+            {
+                byte[] byteArray = Encoding.UTF8.GetBytes(currentPostData);
+                postStream.Write(byteArray, 0, byteArray.Length);
+            }
+            request.BeginGetResponse(new AsyncCallback(GetUrlCallback), request);
+        } 
 
         private void GetUrlCallback(IAsyncResult result)
         {
@@ -39,9 +57,9 @@ namespace MobileAppTracking
             {
                 return;
             }
-            HttpWebRequest request = result.AsyncState as HttpWebRequest;
             try
             {
+                HttpWebRequest request = result.AsyncState as HttpWebRequest;
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(result);
 
                 using (Stream stream = response.GetResponseStream())
@@ -90,7 +108,7 @@ namespace MobileAppTracking
                             if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                             {
                                 Debug.WriteLine("MAT request failed, will be queued");
-                                eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
+                                eventQueue.AddToQueue(currentUrl, currentPostData, ++currentUrlAttempt);
                             }
                             else
                             {
@@ -106,7 +124,7 @@ namespace MobileAppTracking
                         if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                         {
                             Debug.WriteLine("MAT request failed, will be queued");
-                            eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
+                            eventQueue.AddToQueue(currentUrl, currentPostData, ++currentUrlAttempt);
                         }
                         else
                         {
@@ -114,6 +132,9 @@ namespace MobileAppTracking
                         }
                     }
                 }
+
+                request = null;
+                response = null;
             }
             catch (WebException e)
             {
@@ -125,7 +146,7 @@ namespace MobileAppTracking
                     if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                     {
                         Debug.WriteLine("SSL error, will be queued");
-                        eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
+                        eventQueue.AddToQueue(currentUrl, currentPostData, ++currentUrlAttempt);
                     }
                     else
                     {
@@ -164,7 +185,7 @@ namespace MobileAppTracking
                                 if (currentUrlAttempt < MAX_NUMBER_OF_RETRY_ATTEMPTS)
                                 {
                                     Debug.WriteLine("MAT request failed, will be queued");
-                                    eventQueue.AddToQueue(currentUrl, ++currentUrlAttempt);
+                                    eventQueue.AddToQueue(currentUrl, currentPostData, ++currentUrlAttempt);
                                 }
                                 else
                                 {
