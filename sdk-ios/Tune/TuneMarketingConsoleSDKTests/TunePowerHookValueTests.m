@@ -14,8 +14,9 @@
 @protocol TunePowerHookValueTestsSelectors <NSObject>
 - (BOOL)hasExperimentValue;
 @end
+#import "TuneXCTestCase.h"
 
-@interface TunePowerHookValueTests : XCTestCase {
+@interface TunePowerHookValueTests : TuneXCTestCase {
     NSMutableDictionary *dict;
 }
 
@@ -24,12 +25,9 @@
 
 @implementation TunePowerHookValueTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     dict = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePowerHookValueTests"].mutableCopy;
     
     dict[@"power_hooks"][@"couponDiscount"][@"experiment_value"] = @"0.30";

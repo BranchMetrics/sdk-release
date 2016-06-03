@@ -32,16 +32,14 @@
 
 @implementation NSString (NSString_TuneSBJSON)
 
-- (id)TuneJSONFragmentValue
-{
+- (id)TuneJSONFragmentValue {
     TuneSBJsonParser *jsonParser = [TuneSBJsonParser new];
     id repr = [jsonParser fragmentWithString:self];
     
     return repr;
 }
 
-- (id)TuneJSONValue
-{
+- (id)TuneJSONValue {
     TuneSBJsonParser *jsonParser = [TuneSBJsonParser new];
     id repr = [jsonParser objectWithString:self];
 

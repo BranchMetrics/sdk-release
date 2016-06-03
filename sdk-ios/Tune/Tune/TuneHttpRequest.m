@@ -110,7 +110,6 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
     if ([TuneHttpRequestMethodTypePost isEqualToString:[self HTTPMethod]] && self.bodyOverride)  {
         [self applyPostBody];
     }
-
 }
 
 - (void)updateURL {
@@ -120,7 +119,6 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
     }
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", _domain, urlString]];
     [self setURL:url];
-
 }
 
 #pragma mark - Helper Methods

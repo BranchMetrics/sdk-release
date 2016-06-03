@@ -17,8 +17,9 @@
 #import "TuneInAppMessageExperimentDetails+Internal.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneSkyhookPayload.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneExperimentManagerTests : XCTestCase {
+@interface TuneExperimentManagerTests : TuneXCTestCase {
     BOOL hasVariation_abc;
     BOOL hasVariation_def;
     id fileManagerMock;
@@ -29,9 +30,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     fileManagerMock = OCMClassMock([TuneFileManager class]);
     OCMStub([fileManagerMock loadPlaylistFromDisk]).andReturn(nil);
     

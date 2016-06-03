@@ -10,32 +10,23 @@
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneUserProfile+Testing.h"
 
-#import "SimpleObserver.h"
+#import "TuneManager+Testing.h"
 
-@interface TuneSkyhookCenterTests : XCTestCase
+#import "SimpleObserver.h"
+#import "TuneXCTestCase.h"
+
+@interface TuneSkyhookCenterTests : TuneXCTestCase {
+
+}
 
 @end
 
 @implementation TuneSkyhookCenterTests
 
-- (void)setUp
-{
-    [super setUp];
-    
-    RESET_EVERYTHING();
-}
-
-- (void)tearDown
-{
-    [super tearDown];
-}
-
-- (void)testDeallocatedObserverIsRemovedWhenPostingSkyhook
-{
+- (void)testDeallocatedObserverIsRemovedWhenPostingSkyhook {
     TuneSkyhookCenter *center = [[TuneSkyhookCenter alloc] init];
     
     @autoreleasepool {
-        
         SimpleObserver *simpleObserver = [[SimpleObserver alloc] init];
 
         XCTAssertFalse([center hasObserverForHook:@"testskyhook"], @"There should not be an observer for testskyhook");
@@ -57,12 +48,10 @@
     XCTAssertFalse([center hasObserverForHook:@"testskyhook"], @"There should not be an observer for testskyhook");
 }
 
-- (void)testQueuedSkyhook
-{
+- (void)testQueuedSkyhook {
     TuneSkyhookCenter *center = [[TuneSkyhookCenter alloc] init];
     
     @autoreleasepool {
-        
         SimpleObserver *simpleObserver = [[SimpleObserver alloc] init];
         
         XCTAssertFalse([center hasObserverForHook:@"testqueuedskyhook"], @"There should not be an observer for testqueuedskyhook");
@@ -88,13 +77,15 @@
     __block BOOL firedQueuedSkyhooks = NO;
     
     id mockProfile = OCMPartialMock([TuneManager currentManager].userProfile);
-    OCMStub([mockProfile initiateSession:[OCMArg isKindOfClass:[TuneSkyhookPayload class]]]).andDo(^(NSInvocation *invocation){
+    OCMStub([mockProfile initiateSession:[OCMArg isKindOfClass:[TuneSkyhookPayload class]]]).andDo(^(NSInvocation *invocation) {
         XCTAssertFalse(firedQueuedSkyhooks, @"Fired queued skyhooks before updating the UserProfile.");
         updatedProfile = YES;
     });
     
+    OCMStub([mockProfile toArrayOfDictionaries]).andReturn(@[]);
+    
     id mockSkyhookCenter = OCMPartialMock([TuneSkyhookCenter defaultCenter]);
-    OCMStub([mockSkyhookCenter handleSessionStart]).andDo(^(NSInvocation *invocation){
+    OCMStub([mockSkyhookCenter handleSessionStart]).andDo(^(NSInvocation *invocation) {
         XCTAssertTrue(updatedProfile, @"UserProfile should have been updated before queued skyhooks were fired.");
         firedQueuedSkyhooks = YES;
     });

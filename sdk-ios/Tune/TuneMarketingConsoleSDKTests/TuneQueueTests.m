@@ -20,9 +20,9 @@
 #import "TuneUtils.h"
 #import "TuneSkyhookCenter+Testing.h"
 
+#import "TuneXCTestCase.h"
 
-@interface TuneQueueTests : XCTestCase <TuneDelegate>
-{
+@interface TuneQueueTests : TuneXCTestCase <TuneDelegate> {
     NSNumber *callSuccess;
     NSNumber *callFailed;
     
@@ -39,11 +39,8 @@
 
 @implementation TuneQueueTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-
-    RESET_EVERYTHING();
     
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
@@ -65,8 +62,7 @@
     params = [TuneTestParams new];
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     networkOnline();
     
     finished = NO;
@@ -83,8 +79,7 @@
     [super tearDown];
 }
 
-- (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize
-{
+- (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize {
     NSLog(@"checkAndClearExpectedQueueSize: cur queue size = %d", (unsigned int)[TuneEventQueue queueSize]);
     
     XCTAssertEqual( [TuneEventQueue queueSize], queueSize, @"expected %d queued requests, found %d", (int)queueSize, (unsigned int)[TuneEventQueue queueSize] );
@@ -95,8 +90,7 @@
     XCTAssertEqual( [TuneEventQueue queueSize], count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)[TuneEventQueue queueSize] );
 }
 
-- (NSUInteger)countOccurrencesOfSubstring:(NSString *)searchString inString:(NSString *)mainString
-{
+- (NSUInteger)countOccurrencesOfSubstring:(NSString *)searchString inString:(NSString *)mainString {
     NSUInteger count = 0, length = [mainString length];
     NSRange range = NSMakeRange(0, length);
     
@@ -203,7 +197,7 @@
 }
 
 - (void)testEnqueue2RetriedOrder {
-#if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain event event name param
+#if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain "site_event_name" param
     [Tune setDebugMode:YES];
 
     networkOffline();
@@ -429,8 +423,7 @@
 
 #pragma mark - Tune delegate
 
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     [successMessages addObject:data];
     //NSLog( @"TuneQueueTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = @(YES);
@@ -439,8 +432,7 @@
     finished = YES;
 }
 
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     //NSLog( @"TuneQueueTests: test received failure with %@\n", error );
     callFailed = @(YES);
     callSuccess = @(NO);
@@ -451,8 +443,7 @@
 
 #pragma mark - Tune delegate
 
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     TuneTestParams *p = params;
     if( params2 && ![p isEmpty] )
         p = params2;

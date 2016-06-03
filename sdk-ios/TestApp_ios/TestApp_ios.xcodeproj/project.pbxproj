@@ -328,7 +328,7 @@
 					"-ObjC",
 					"-lz",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tune.TestApp;
 				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -350,7 +350,7 @@
 					"-ObjC",
 					"-lz",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.TestApp-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tune.TestApp;
 				PRODUCT_NAME = TestApp_iOS;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

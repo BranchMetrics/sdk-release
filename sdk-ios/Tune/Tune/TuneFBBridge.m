@@ -68,8 +68,6 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     SEL selLimitMethod = @selector(setLimitEventAndDataUsage:);
 #pragma clang diagnostic pop
     
-#pragma clang diagnostic pop
-    
     if([FBSettings class] && [FBSettings respondsToSelector:selLimitMethod])
     {
         // use NSInvocation since performSelector only allows params with type 'id'

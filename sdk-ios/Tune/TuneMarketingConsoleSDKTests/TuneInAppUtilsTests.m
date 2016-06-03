@@ -9,8 +9,9 @@
 #import <XCTest/XCTest.h>
 
 #import "TuneInAppUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneInAppUtilsTests : XCTestCase
+@interface TuneInAppUtilsTests : TuneXCTestCase
 
 @end
 

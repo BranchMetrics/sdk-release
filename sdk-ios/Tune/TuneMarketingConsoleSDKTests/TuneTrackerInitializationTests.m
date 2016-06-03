@@ -27,8 +27,9 @@
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 
+#import "TuneXCTestCase.h"
 
-@interface TuneTrackerInitializationTests : XCTestCase <TuneDelegate, TuneTrackerDelegate>
+@interface TuneTrackerInitializationTests : TuneXCTestCase <TuneDelegate, TuneTrackerDelegate>
 {
     TuneTestParams *params;
 }
@@ -37,12 +38,9 @@
 
 @implementation TuneTrackerInitializationTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     // Wait for everything to be set
@@ -51,8 +49,7 @@
     params = [TuneTestParams new];
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     emptyRequestQueue();
     
     [super tearDown];
@@ -185,8 +182,7 @@
 #pragma mark - Tune delegate
 
 // secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );

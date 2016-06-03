@@ -18,8 +18,9 @@
 #import "TuneSkyhookCenter.h"
 #import "TuneFileManager.h"
 #import "TunePowerHookExperimentDetails+Internal.h"
+#import "TuneXCTestCase.h"
 
-@interface TunePowerHookManagerTests : XCTestCase
+@interface TunePowerHookManagerTests : TuneXCTestCase
 {
     id fileManagerMock;
 }
@@ -29,9 +30,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     fileManagerMock = OCMClassMock([TuneFileManager class]);
     OCMStub([fileManagerMock loadPlaylistFromDisk]).andReturn(nil);
     

@@ -39,7 +39,7 @@ static NSString *MessageDisplayFrequencyDictionaryKey = @"tune-message-display-f
     [self handleSessionStarted:nil];
 }
 
--(void)bringDown{
+-(void)bringDown {
     [self unregisterSkyhooks];
 }
 

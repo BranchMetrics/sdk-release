@@ -27,7 +27,7 @@
     return delay;
 }
 
-- (void)executeBlock{
+- (void)executeBlock {
     @synchronized(lock) {
         @try {
             if (timer != nil) {

@@ -12,6 +12,7 @@
 #import "Tune+Testing.h"
 #import "TuneFileManager.h"
 #import "TuneFileUtils.h"
+#import "TunePlaylistManager+Testing.h"
 #import "TuneUserProfile.h"
 #import "TuneManager+Testing.h"
 #import "TuneAnalyticsDispatchEventsOperation.h"
@@ -22,8 +23,9 @@
 #import "TuneAnalyticsEvent.h"
 #import "TuneConfiguration+Testing.h"
 #import "TuneAnalyticsManager.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAnalyticsDispatchEventsOperationsTest : XCTestCase
+@interface TuneAnalyticsDispatchEventsOperationsTest : TuneXCTestCase
 {
     TuneFileManager *fileManager;
     TuneConfiguration *configuration;
@@ -49,9 +51,8 @@
 @implementation TuneAnalyticsDispatchEventsOperationsTest
 
 - (void)setUp {
-    [super setUp];
-    
-    RESET_EVERYTHING();
+    [super setUpWithMocks:@[[TunePlaylistManager class]]];
+
     // This suite expects nothing else running in the background
     [TuneManager nilModules];
     

@@ -13,9 +13,9 @@
 #import "TuneEventItem+Internal.h"
 #import "TuneTracker.h"
 
+#import "TuneXCTestCase.h"
 
-@interface TuneServerTests : XCTestCase <TuneDelegate>
-{
+@interface TuneServerTests : TuneXCTestCase <TuneDelegate> {
     BOOL callSuccess;
     BOOL callFailed;
     BOOL callFailedDuplicate;
@@ -26,12 +26,9 @@
 
 @implementation TuneServerTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     callSuccess = NO;
     callFailed = NO;
     callFailedDuplicate = NO;
@@ -44,8 +41,7 @@
     emptyRequestQueue();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [Tune setDebugMode:NO];
 
     emptyRequestQueue();
@@ -167,15 +163,13 @@
 
 #pragma mark - Tune delegate
 
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     //NSLog( @"test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
 }
 
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     callFailed = YES;
     callSuccess = NO;
     
@@ -188,13 +182,11 @@
 }
 
 // secret functions to test server URLs
-- (void)_tuneURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext
-{
+- (void)_tuneURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext {
     //NSLog( @"plaintext params %@, encrypted params %@\n", paramsPlaintext, paramsEncrypted );
 }
 
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     //NSLog( @"requesting with url %@ and post data %@\n", trackingUrl, postData );
 }
 

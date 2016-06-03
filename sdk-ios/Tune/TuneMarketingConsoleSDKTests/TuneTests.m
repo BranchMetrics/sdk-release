@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 #import "Tune+Testing.h"
+#import "TuneAnalyticsManager+Testing.h"
 #import "TuneBlankAppDelegate.h"
 #import "TuneDeviceDetails.h"
 #import "TuneEvent+Internal.h"
@@ -26,19 +27,16 @@
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 #import <iAd/iAd.h>
 #endif
+#import "TuneXCTestCase.h"
 
-@interface TuneTests : XCTestCase <TuneDelegate>
-{
+@interface TuneTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
     
     BOOL finished;
     BOOL failed;
     TuneErrorCode tuneErrorCode;
     TuneBlankAppDelegate *appDelegate;
-    OCMockObject *mockApplication;
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-    OCMockObject *mockADClient;
-#endif
+    id mockApplication;
 }
 
 @end
@@ -46,17 +44,17 @@
 
 @implementation TuneTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     // Wait for everything to be set
     waitForQueuesToFinish();
+    
+    mockApplication = OCMClassMock([UIApplication class]);
+    OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);
     
     finished = NO;
     failed = NO;
@@ -64,44 +62,33 @@
     tuneErrorCode = -1;
     
     appDelegate = [[TuneBlankAppDelegate alloc] init];
-    mockApplication = OCMClassMock([UIApplication class]);
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-    mockADClient = OCMClassMock([ADClient class]);
-#endif
     
     params = [TuneTestParams new];
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     emptyRequestQueue();
     
-    finished = NO;
-    
     [mockApplication stopMocking];
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-    [mockADClient stopMocking];
-#endif
+    
+    finished = NO;
     
     [super tearDown];
 }
 
-- (void)testInitialization
-{
+- (void)testInitialization {
     XCTAssertTrue( TRUE );
 }
 
 
 #pragma mark - TuneDelegate Methods
 
--(void)tuneDidSucceedWithData:(NSData *)data
-{
+-(void)tuneDidSucceedWithData:(NSData *)data {
     finished = YES;
     failed = NO;
 }
 
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     finished = YES;
     failed = YES;
     
@@ -111,8 +98,7 @@
 
 #pragma mark - Install/update
 
-- (void)testInstall
-{
+- (void)testInstall {
     [Tune measureSession];
     waitForQueuesToFinish();
     
@@ -120,8 +106,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
 }
 
-- (void)testUpdate
-{
+- (void)testUpdate {
     [Tune setExistingUser:YES];
     [Tune measureSession];
     waitForQueuesToFinish();
@@ -131,8 +116,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_EXISTING_USER, [@TRUE stringValue] );
 }
 
-- (void)testDuplicateOpenIgnored
-{
+- (void)testDuplicateOpenIgnored {
     [Tune measureSession];
     waitForQueuesToFinish();
     
@@ -151,8 +135,7 @@
     XCTAssertEqual(tuneErrorCode, TuneInvalidDuplicateSession, @"Duplicate session request should have been ignored.");
 }
 
-- (void)testAllowOpenAfterAppBackgroundForeground
-{
+- (void)testAllowOpenAfterAppBackgroundForeground {
     [Tune measureSession];
     waitForQueuesToFinish();
     
@@ -175,8 +158,7 @@
     XCTAssertNotEqual(tuneErrorCode, TuneInvalidDuplicateSession, @"First session request fired after the app was re-opened should not have been ignored.");
 }
 
-- (void)testInstallPostConversion
-{
+- (void)testInstallPostConversion {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     id tune = [[Tune class] performSelector:@selector(sharedManager)];
@@ -190,8 +172,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_POST_CONVERSION, @"1" );
 }
 
-- (void)testURLOpen
-{
+- (void)testURLOpen {
     static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
     static NSString* const sourceApplication = @"Mail";
     [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
@@ -205,8 +186,6 @@
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
 }
 
-/* Temporarily disabled to avoid Jenkins failure
- 
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 - (void)testContinueUserActivityWeb {
     if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
@@ -250,8 +229,6 @@
     }
 }
 #endif
- 
-*/
 
 - (void)testDeferredDeepLink {
     [Tune measureSession];
@@ -281,10 +258,10 @@
     
     if(classADClient && [classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
         id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(mockApplication);
+        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
         
-        id classMockADClient = OCMClassMock([ADClient class]);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(mockADClient);
+        id classMockADClient = OCMClassMock(classADClient);
+        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
         
 //        // sample response from iAd Attribution v3 API document
 //        NSDictionary *attributionDetails1 = @{@"Version3.1":@{
@@ -301,27 +278,26 @@
         
         // actual response from production test app
         NSDictionary *attributionDetails = @{@"Version3.1":@{
-                                                     @"iad-lineitem-id":@"15325601",
-                                                     @"iad-org-name":@"TUNE, Inc.",
-                                                     @"iad-creative-name":@"ad new",
-                                                     @"iad-conversion-date":@"2016-03-23T07:55:50Z",
-                                                     @"iad-campaign-id":@"15222869",
                                                      @"iad-attribution":@"true",
-                                                     @"iad-lineitem-name":@"2000 banner",
-                                                     @"iad-creative-id":@"226713",
+                                                     @"iad-campaign-id":@"15222869",
                                                      @"iad-campaign-name":@"atomic new 13",
-                                                     @"iad-click-date":@"2016-03-23T07:55:00Z"}
+                                                     @"iad-click-date":@"2016-03-23T07:55:00Z",
+                                                     @"iad-conversion-date":@"2016-03-23T07:55:50Z",
+                                                     @"iad-creative-id":@"226713",
+                                                     @"iad-creative-name":@"ad new",
+                                                     @"iad-lineitem-id":@"15325601",
+                                                     @"iad-lineitem-name":@"2000 banner",
+                                                     @"iad-org-name":@"TUNE, Inc."}
                                              };
         
         NSError *error = nil;
         
-        void (^completionHandlerBlock)(NSInvocation *) = ^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDictionary *attributionDetails, NSError *error );
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
             [invocation getArgument:&passedBlock atIndex:2];
             
             passedBlock(attributionDetails, error);
-        };
-        [[[mockADClient stub] andDo:completionHandlerBlock] requestAttributionDetailsWithBlock:[OCMArg any]];
+        });
         
         [Tune measureSession];
         waitForQueuesToFinish();
@@ -351,13 +327,13 @@
     
     if(classADClient && [classADClient instancesRespondToSelector:@selector(lookupAdConversionDetails:)]) {
         id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(mockApplication);
+        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
         
-        id classMockADClient = OCMClassMock([ADClient class]);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(mockADClient);
+        id classMockADClient = OCMClassMock(classADClient);
+        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
         
         id classMockTuneUtils = OCMClassMock([TuneUtils class]);
-        OCMStub(ClassMethod([classMockTuneUtils object:mockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
+        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
         OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
         
         NSDateFormatter *formatter = [NSDateFormatter new];
@@ -365,14 +341,12 @@
         NSDate *purchaseDate = [formatter dateFromString:@"2016-03-23T07:45:50Z"];
         NSDate *impressionDate = [formatter dateFromString:@"2016-03-23T07:55:50Z"];
         
-        void (^completionHandlerBlock)(NSInvocation *) = ^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDate *appPurchaseDate, NSDate *iAdImpressionDate );
+        OCMStub([classMockADClient lookupAdConversionDetails:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDate *dtAppPurchase, NSDate *dtIAdImpression );
             [invocation getArgument:&passedBlock atIndex:2];
             
             passedBlock(purchaseDate, impressionDate);
-        };
-        
-        [[[mockADClient stub] andDo:completionHandlerBlock] lookupAdConversionDetails:[OCMArg any]];
+        });
         
         [Tune measureSession];
         waitForQueuesToFinish();
@@ -393,26 +367,24 @@
     
     if(classADClient && [classADClient instancesRespondToSelector:@selector(determineAppInstallationAttributionWithCompletionHandler:)]) {
         id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(mockApplication);
+        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
         
-        id classMockADClient = OCMClassMock([ADClient class]);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(mockADClient);
+        id classMockADClient = OCMClassMock(classADClient);
+        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
         
         id classMockTuneUtils = OCMClassMock([TuneUtils class]);
-        OCMStub(ClassMethod([classMockTuneUtils object:mockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
-        OCMStub(ClassMethod([classMockTuneUtils object:mockADClient respondsToSelector:@selector(lookupAdConversionDetails:)])).andReturn(NO);
+        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
+        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(lookupAdConversionDetails:)])).andReturn(NO);
         OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
         
         BOOL attributed = YES;
         
-        void (^completionHandlerBlock)(NSInvocation *) = ^(NSInvocation *invocation) {
+        OCMStub([classMockADClient determineAppInstallationAttributionWithCompletionHandler:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
             void (^passedBlock)( BOOL appInstallationWasAttributedToiAd );
             [invocation getArgument:&passedBlock atIndex:2];
             
             passedBlock( attributed );
-        };
-        
-        [[[mockADClient stub] andDo:completionHandlerBlock] determineAppInstallationAttributionWithCompletionHandler:[OCMArg any]];
+        });
         
         [Tune measureSession];
         waitForQueuesToFinish();
@@ -430,8 +402,7 @@
 
 #pragma mark - Arbitrary actions
 
-- (void)testActionNameEvent
-{
+- (void)testActionNameEvent {
     static NSString* const eventName = @"testEventName";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -442,8 +413,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testActionEventId
-{
+- (void)testActionEventId {
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
@@ -456,8 +426,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testActionEventNameAllDigits
-{
+- (void)testActionEventNameAllDigits {
     static NSString* const eventName = @"103";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -468,8 +437,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testActionEventIdReference
-{
+- (void)testActionEventIdReference {
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
@@ -488,8 +456,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testActionEventNameRevenueCurrency
-{
+- (void)testActionEventNameRevenueCurrency {
     static NSString* const eventName = @"103";
     static CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
@@ -511,8 +478,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testActionEventIdReferenceRevenue
-{
+- (void)testActionEventIdReferenceRevenue {
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
@@ -539,8 +505,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testEventNameSpaces
-{
+- (void)testEventNameSpaces {
     static NSString* const eventName = @"test event name";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -551,8 +516,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testEventNameApostrophe
-{
+- (void)testEventNameApostrophe {
     static NSString* const eventName = @"I'm an event name";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -566,8 +530,7 @@
 
 #pragma mark - Reserved actions
 
-- (void)testInstallActionEvent
-{
+- (void)testInstallActionEvent {
     [Tune measureEventName:TUNE_EVENT_INSTALL];
     waitForQueuesToFinish();
     
@@ -577,8 +540,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testUpdateActionEvent
-{
+- (void)testUpdateActionEvent {
     [Tune measureEventName:TUNE_EVENT_UPDATE];
     waitForQueuesToFinish();
     
@@ -588,8 +550,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testCloseActionEvent
-{
+- (void)testCloseActionEvent {
     [Tune measureEventName:TUNE_EVENT_CLOSE];
     waitForQueuesToFinish();
     
@@ -598,8 +559,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
 }
 
-- (void)testOpenActionEvent
-{
+- (void)testOpenActionEvent {
     [Tune measureEventName:TUNE_EVENT_OPEN];
     waitForQueuesToFinish();
     
@@ -609,8 +569,7 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testSessionActionEvent
-{
+- (void)testSessionActionEvent {
     [Tune measureEventName:TUNE_EVENT_SESSION];
     waitForQueuesToFinish();
     
@@ -621,8 +580,7 @@
 }
 
 // "click" events are treated the same as arbitrary event names
-- (void)testClickActionEvent
-{
+- (void)testClickActionEvent {
     [Tune measureEventName:TUNE_EVENT_CLICK];
     waitForQueuesToFinish();
     
@@ -633,8 +591,7 @@
 }
 
 // "conversion" events are treated the same as arbitrary event names
-- (void)testConversionActionEvent
-{
+- (void)testConversionActionEvent {
     [Tune measureEventName:TUNE_EVENT_CONVERSION];
     waitForQueuesToFinish();
     
@@ -645,8 +602,7 @@
 }
 
 // "registration" events are treated the same as arbitrary event names
-- (void)testRegistrationActionEvent
-{
+- (void)testRegistrationActionEvent {
     static NSString* const eventName = @"registration";
     
     [Tune measureEventName:eventName];
@@ -659,8 +615,7 @@
 }
 
 // "purchase" events are treated the same as arbitrary event names
-- (void)testPurchaseActionEvent
-{
+- (void)testPurchaseActionEvent {
     static NSString* const eventName = @"purchase";
     static CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
@@ -681,8 +636,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currencyCode );
 }
 
-- (void)testTwoEvents
-{
+- (void)testTwoEvents {
     static NSString* const eventName1 = @"testEventName1";
     [Tune measureEventName:eventName1];
     waitForQueuesToFinish();
@@ -707,8 +661,7 @@
 #pragma mark - Tune delegate
 
 // secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );

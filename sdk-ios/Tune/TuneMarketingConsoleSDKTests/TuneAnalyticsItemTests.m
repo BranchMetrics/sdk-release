@@ -13,8 +13,9 @@
 #import "TuneAnalyticsVariable.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAnalyticsItemTests : XCTestCase
+@interface TuneAnalyticsItemTests : TuneXCTestCase
 
 @end
 
@@ -22,8 +23,6 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
 - (void)tearDown {

@@ -331,6 +331,8 @@
 		F82670DA1CC6C4E2007578BB /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		F83109951C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
 		F83109961C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
+		F83419CB1CE3F4CC00142934 /* TuneXCTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = F83419CA1CE3F4CC00142934 /* TuneXCTestCase.m */; };
+		F83419CC1CE3F4CC00142934 /* TuneXCTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = F83419CA1CE3F4CC00142934 /* TuneXCTestCase.m */; };
 		F8346B481CAF190800B0E7ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8346B471CAF190800B0E7ED /* UIKit.framework */; };
 		F8346B4A1CAF192600B0E7ED /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8346B491CAF192600B0E7ED /* AdSupport.framework */; };
 		F8346B4C1CAF194D00B0E7ED /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8346B4B1CAF194D00B0E7ED /* QuartzCore.framework */; };
@@ -1227,6 +1229,9 @@
 		F81985C01C8A413A00AF8E87 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
 		F81985C11C8A413A00AF8E87 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDateUtilsTests.m; sourceTree = "<group>"; };
+		F83419C41CE3C28800142934 /* TuneAnalyticsDispatchEventsOperation+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TuneAnalyticsDispatchEventsOperation+Testing.h"; sourceTree = "<group>"; };
+		F83419C91CE3F4CC00142934 /* TuneXCTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneXCTestCase.h; sourceTree = "<group>"; };
+		F83419CA1CE3F4CC00142934 /* TuneXCTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneXCTestCase.m; sourceTree = "<group>"; };
 		F8346B471CAF190800B0E7ED /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		F8346B491CAF192600B0E7ED /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		F8346B4B1CAF194D00B0E7ED /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1753,6 +1758,7 @@
 			isa = PBXGroup;
 			children = (
 				3F4AA7661BB5C69B0084BE24 /* Tune+Testing.h */,
+				F83419C41CE3C28800142934 /* TuneAnalyticsDispatchEventsOperation+Testing.h */,
 				3F4AA76C1BB5CB2D0084BE24 /* TuneAnalyticsManager+Testing.h */,
 				3F4AA76D1BB5CC210084BE24 /* TuneConfiguration+Testing.h */,
 				3F4AA7651BB5C6050084BE24 /* TuneEventQueue+Testing.h */,
@@ -1844,6 +1850,8 @@
 				0B770F421B66325E00C51B87 /* TuneTestsHelper.m */,
 				0B770F681B66343400C51B87 /* TuneTestParams.h */,
 				0B770F671B66343400C51B87 /* TuneTestParams.m */,
+				F83419C91CE3F4CC00142934 /* TuneXCTestCase.h */,
+				F83419CA1CE3F4CC00142934 /* TuneXCTestCase.m */,
 			);
 			name = "Test Utils";
 			sourceTree = "<group>";
@@ -3001,6 +3009,7 @@
 				DB10086B1BCC310C00C7F7F3 /* TuneConnectedModeManageTests.m in Sources */,
 				DBCA43161B8E642300483318 /* TuneAnalyticsEventTests.m in Sources */,
 				3F06E4811BA75D3100CCB45A /* TuneStateTests.m in Sources */,
+				F83419CB1CE3F4CC00142934 /* TuneXCTestCase.m in Sources */,
 				DBCA43171B8E642300483318 /* TuneAnalyticsManagerTests.m in Sources */,
 				32AC66B01BA8F39E0069B549 /* TuneBlankAppDelegate.m in Sources */,
 				DBCA43181B8E642300483318 /* TunePowerHookValueTests.m in Sources */,
@@ -3202,6 +3211,7 @@
 				F8C81C071CA6060E005C7B5D /* TuneBlankAppDelegate.m in Sources */,
 				F83109961C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */,
 				F84661491C3B4F0C005C42CC /* TuneMeasureEventTests.m in Sources */,
+				F83419CC1CE3F4CC00142934 /* TuneXCTestCase.m in Sources */,
 				F84661371C3B4EFA005C42CC /* SimpleObserver.m in Sources */,
 				F846614D1C3B4F0C005C42CC /* TuneServerTests.m in Sources */,
 				F84661461C3B4F0C005C42CC /* TuneEventItemTests.m in Sources */,
@@ -3958,7 +3968,6 @@
 					"-Qunused-arguments",
 				);
 				OTHER_LDFLAGS = "-lz";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SHARED_PRECOMPS_DIR = "";
@@ -4142,7 +4151,6 @@
 					"-Qunused-arguments",
 				);
 				OTHER_LDFLAGS = "-lz";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SHARED_PRECOMPS_DIR = "";
@@ -4177,7 +4185,6 @@
 					"-Qunused-arguments",
 				);
 				OTHER_LDFLAGS = "-lz";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-watchOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SHARED_PRECOMPS_DIR = "";

@@ -16,8 +16,7 @@
     return [[TunePreloadData alloc] initWithPublisherId:publisherId];
 }
 
-- (instancetype)initWithPublisherId:(NSString *)pubId
-{
+- (instancetype)initWithPublisherId:(NSString *)pubId {
     self = [super init];
     if (self) {
         _publisherId = pubId;

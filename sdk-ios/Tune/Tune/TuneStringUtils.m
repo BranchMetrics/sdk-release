@@ -111,7 +111,7 @@ static NSString *tune_ignoredCharacters = @"!*'\"();:@&=+$,/?%#[] \n";
     NSString *buffer = nil;
     NSUInteger lastScanLocation = 0;
     
-    while ([scanner isAtEnd] == NO) {
+    while (![scanner isAtEnd]) {
         if ([scanner scanCharactersFromSet:[[NSCharacterSet uppercaseLetterCharacterSet] invertedSet] intoString:&buffer]) {
             builder = [builder stringByAppendingString:buffer];
             

@@ -21,8 +21,9 @@
 #import "TuneAnalyticsEvent.h"
 #import "TuneManager.h"
 #import "TuneEvent+Internal.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneEventTests : XCTestCase <TuneDelegate> {
+@interface TuneEventTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
 }
 
@@ -32,9 +33,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     // Wait for everything to be set

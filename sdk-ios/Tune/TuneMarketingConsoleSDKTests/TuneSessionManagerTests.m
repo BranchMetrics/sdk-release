@@ -14,11 +14,12 @@
 #import "TuneFileManager.h"
 #import "TuneFileUtils.h"
 #import "TuneManager.h"
+#import "TunePlaylistManager+Testing.h"
 #import "TuneSessionManager+Testing.h"
 #import "TuneSkyhookCenter.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneSessionManagerTests : XCTestCase
-{
+@interface TuneSessionManagerTests : TuneXCTestCase {
     id mockApplication;
     
     TuneSessionManager *sessionManager;
@@ -29,8 +30,6 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
     
     mockApplication = OCMClassMock([UIApplication class]);
     OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);

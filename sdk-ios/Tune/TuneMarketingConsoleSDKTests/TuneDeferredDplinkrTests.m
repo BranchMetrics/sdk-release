@@ -9,9 +9,9 @@
 #import <XCTest/XCTest.h>
 #import "Tune+Testing.h"
 #import "TuneDeferredDplinkr.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneDeferredDplinkrTests : XCTestCase <TuneDelegate>
-{
+@interface TuneDeferredDplinkrTests : TuneXCTestCase <TuneDelegate> {
     BOOL finished;
     
     TuneDeepLinkError deepLinkErrorCode;
@@ -22,9 +22,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     finished = NO;
 }
 

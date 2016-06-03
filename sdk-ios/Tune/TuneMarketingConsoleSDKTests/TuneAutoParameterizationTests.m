@@ -14,8 +14,9 @@
 #import "TuneTestParams.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneManager.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAutoParameterizationTests : XCTestCase <TuneDelegate> {
+@interface TuneAutoParameterizationTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
     
     BOOL finished;
@@ -28,9 +29,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
 

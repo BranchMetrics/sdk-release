@@ -8,8 +8,9 @@
 
 #import <XCTest/XCTest.h>
 #import "TuneDeepAction.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneDeepActionTests : XCTestCase
+@interface TuneDeepActionTests : TuneXCTestCase
 
 @end
 
@@ -17,7 +18,6 @@
 
 - (void)setUp {
     [super setUp];
-    RESET_EVERYTHING();
 }
 
 - (void)tearDown {

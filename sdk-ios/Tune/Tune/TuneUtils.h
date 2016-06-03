@@ -36,6 +36,7 @@
 + (nonnull NSString *)bundleId;
 + (nonnull NSString *)bundleName;
 + (nonnull NSString *)bundleVersion;
++ (nonnull NSString *)stringVersion;
 
 + (nonnull NSDate *)installDate;
 

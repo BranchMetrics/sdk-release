@@ -191,7 +191,7 @@
 
 - (void)buildAndShowMessage {
     if ([self messageDictionaryHasPrerequisites]) {
-        @try{
+        @try {
             [self _buildAndShowMessage];
         } @catch (NSException *exception) {
             ErrorLog(@"Error trying to show Tune In-App Message %@", exception.description);

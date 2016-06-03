@@ -18,8 +18,9 @@
 #import "TuneManager.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneState.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneConfigurationTests : XCTestCase
+@interface TuneConfigurationTests : TuneXCTestCase
 {
     SimpleObserver *simpleObserver;
     TuneConfiguration *configuration;
@@ -33,7 +34,6 @@
 - (void)setUp {
     [super setUp];
     
-    RESET_EVERYTHING();
     // We don't want to accidently bring down everything when testing the enable/disable stuff
     [[TuneSkyhookCenter defaultCenter] removeObserver:[TuneManager currentManager]];
     
@@ -95,7 +95,7 @@
     XCTAssertEqualObjects(configuration.apiVersion, @"3", @"apiVersion is 3");
 }
 
-- (void)testStartupConfiguration{
+- (void)testStartupConfiguration {
     [configuration setupConfiguration:@{}.mutableCopy];
 
     XCTAssertFalse(configuration.debugLoggingOn, @"debugLoggingOn is NO");
@@ -104,7 +104,7 @@
     XCTAssertEqualObjects(configuration.apiVersion, @"3", @"apiVersion is 3");
 }
 
-- (void)testStartupWithRemoteConfiguration{
+- (void)testStartupWithRemoteConfiguration {
     [configuration setupConfiguration:@{}.mutableCopy];
     
     NSDictionary *remoteDictionary = @{@"permanently_disabled": @"0"}.mutableCopy;

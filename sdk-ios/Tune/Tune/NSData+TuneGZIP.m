@@ -43,8 +43,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 
-- (NSData *)tuneGzippedDataWithCompressionLevel:(float)level
-{
+- (NSData *)tuneGzippedDataWithCompressionLevel:(float)level {
     if ([self length])
     {
         z_stream stream;
@@ -78,13 +77,11 @@
     return nil;
 }
 
-- (NSData *)tuneGzippedData
-{
+- (NSData *)tuneGzippedData {
     return [self tuneGzippedDataWithCompressionLevel:-1.0f];
 }
 
-- (NSData *)tuneGunzippedData
-{
+- (NSData *)tuneGunzippedData {
     if ([self length])
     {
         z_stream stream;

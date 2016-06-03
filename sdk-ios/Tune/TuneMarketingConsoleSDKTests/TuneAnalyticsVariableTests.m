@@ -13,8 +13,9 @@
 #import "TuneUserProfile.h"
 #import "TuneAnalyticsVariable.h"
 #import "TuneLocation.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAnalyticsVariableTests : XCTestCase
+@interface TuneAnalyticsVariableTests : TuneXCTestCase
 
 @end
 
@@ -22,8 +23,6 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
 - (void)tearDown {

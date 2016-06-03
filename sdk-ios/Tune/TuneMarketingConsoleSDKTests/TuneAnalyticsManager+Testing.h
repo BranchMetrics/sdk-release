@@ -8,10 +8,16 @@
 
 #import "TuneAnalyticsManager.h"
 
-@interface TuneAnalyticsManager()
+@interface TuneAnalyticsManager (Testing)
 
-- (NSOperationQueue *) operationQueue;
+- (NSOperationQueue *)operationQueue;
 - (void)waitForOperationsToFinish;
 - (void)setDispatchScheduler:(NSTimer *)timer;
+- (void)startScheduledDispatch;
+- (void)dispatchAnalytics;
+- (void)dispatchAnalytics:(BOOL)includeTracer;
+- (void)storeAndTrackAnalyticsEvent:(TuneAnalyticsEvent *)event;
+
+@property (retain) NSTimer *dispatchScheduler;
 
 @end

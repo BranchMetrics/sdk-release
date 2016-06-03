@@ -39,7 +39,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
     
     if ([profile hashedAppId]) {
-        TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+        TuneHttpRequest *request = [TuneHttpRequest new];
         [request setEndpoint:TuneApiConfigEndpoint];
         [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
         [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -63,7 +63,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getPlaylistRequest {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setEndpoint:TuneApiPlaylistEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
     [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -73,7 +73,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getConnectedPlaylistRequest {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setEndpoint:TuneApiConnectedPlaylistEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
     [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -83,7 +83,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getGeocodeRequest {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setEndpoint:TuneApiGeocodeEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
     [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -93,7 +93,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 #pragma mark - POST Requests
 
 + (TuneHttpRequest *)getSyncSDKRequest:(NSDictionary *)toSync {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setDomain:[TuneManager currentManager].configuration.connectedModeHostPort];
     [request setEndpoint:TuneApiSyncSDKEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypePost];
@@ -109,7 +109,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getDiscoverEventRequest:(NSDictionary *)eventDictionary {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     request.bodyOverride = NO;
     [request setDomain:[TuneManager currentManager].configuration.connectedModeHostPort];
     [request setEndpoint:TuneApiDiscoveryModeEndpoint];
@@ -130,7 +130,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getConnectDeviceRequest {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setDomain:[TuneManager currentManager].configuration.connectedModeHostPort];
     [request setEndpoint:TuneApiConnectEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypePost];
@@ -144,7 +144,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 }
 
 + (TuneHttpRequest *)getDisconnectDeviceRequest {
-    TuneHttpRequest *request = [[TuneHttpRequest alloc] init];
+    TuneHttpRequest *request = [TuneHttpRequest new];
     [request setDomain:[TuneManager currentManager].configuration.connectedModeHostPort];
     [request setEndpoint:TuneApiDisconnectEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypePost];

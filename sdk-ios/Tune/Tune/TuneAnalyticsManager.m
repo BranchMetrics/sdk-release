@@ -26,8 +26,6 @@
 #import "TuneState.h"
 #import "TuneEvent+Internal.h"
 
-static NSOperationQueue *_operationQueue = nil;
-
 // Class extension to store the private properties.
 @interface TuneAnalyticsManager() {
 #if !TARGET_OS_WATCH
@@ -37,8 +35,9 @@ static NSOperationQueue *_operationQueue = nil;
     NSObject *sessionVariablesLock;
 }
 
-@property (retain) NSTimer *dispatchScheduler;
+@property (nonatomic, strong) NSTimer *dispatchScheduler;
 @property (nonatomic, assign) BOOL scheduledDispatchOn;
+@property (nonatomic, strong) NSOperationQueue *operationQueue;
 
 @end
 
@@ -50,9 +49,12 @@ static NSOperationQueue *_operationQueue = nil;
     self = [super initWithTuneManager:tuneManager];
     
     if (self) {
-        [self setScheduledDispatchOn:NO];
+        _scheduledDispatchOn = NO;
         sessionVariables = [[NSMutableSet alloc] init];
         sessionVariablesLock = [[NSObject alloc] init];
+        
+        _operationQueue = [NSOperationQueue new];
+        _operationQueue.maxConcurrentOperationCount = 1;
     }
     
     return self;
@@ -223,7 +225,6 @@ static NSOperationQueue *_operationQueue = nil;
     
     [self storeAndTrackAnalyticsEvent:analyticsEvent];
     
-    
     // Stop the periodic analytics transmissions.
     [self stopScheduledDispatch];
     
@@ -356,6 +357,7 @@ static NSOperationQueue *_operationQueue = nil;
         if ([tuneNotification.campaign isTest]) {
             return;
         }
+        
         NSDictionary *campaignDictionary = [tuneNotification.campaign toDictionary];
         for (NSString *key in [campaignDictionary allKeys]) {
             [analyticsVars addObject:[TuneAnalyticsVariable analyticsVariableWithName:key value:[NSString stringWithFormat:@"%@",campaignDictionary[key]]]];
@@ -461,14 +463,15 @@ static NSOperationQueue *_operationQueue = nil;
             // Add session variables to event now as they might be gone by the time the operation runs (happens w/ Backgrounded)
             [self addSessionVariablesToEvent:event];
             
-            [[self operationQueue] addOperationWithBlock:^{
-                
-                // Post Skyhook so TriggerManager can track this event for In-App purposes.
-                [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent:event }];
-                
-                NSString *eventJSON = [TuneJSONUtils createJSONStringFromDictionary:[event toDictionary]];
-                [TuneFileManager saveAnalyticsEventToDisk:eventJSON withId:[event eventId]];
-            }];
+            @synchronized (self) {
+                [self.operationQueue addOperationWithBlock:^{
+                    // Post Skyhook so TriggerManager can track this event for In-App purposes.
+                    [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent:event }];
+                    
+                    NSString *eventJSON = [TuneJSONUtils createJSONStringFromDictionary:[event toDictionary]];
+                    [TuneFileManager saveAnalyticsEventToDisk:eventJSON withId:[event eventId]];
+                }];
+            }
         }
     } @catch (NSException *exception) {
         ErrorLog(@"Failed to store analytics event: %@", exception);
@@ -477,44 +480,37 @@ static NSOperationQueue *_operationQueue = nil;
 
 #pragma mark - Builders
 
-- (TuneAnalyticsEvent *)buildTracerEvent  {
+- (TuneAnalyticsEvent *)buildTracerEvent {
     TuneAnalyticsEvent *tracer = [[TuneAnalyticsEvent alloc] initAsTracerEvent];
     [self addSessionVariablesToEvent:tracer];
     
     return tracer;
 }
 
-#pragma mark - Queue Management
-
-- (NSOperationQueue *)operationQueue {
-    if (_operationQueue == nil) {
-        _operationQueue = [NSOperationQueue new];
-        [_operationQueue setMaxConcurrentOperationCount:1];
-    }
-    
-    return _operationQueue;
-}
-
 # pragma mark - Transmission management
 - (void)startScheduledDispatch {
-    // Don't start to send out analytics if Disabled
-    if ([TuneState isTMADisabled]) { return; }
-    
-    if (![self scheduledDispatchOn]) {
-        [self setDispatchScheduler: [NSTimer scheduledTimerWithTimeInterval:[self.tuneManager.configuration.analyticsDispatchPeriod doubleValue]
-                                                                     target:self
-                                                                   selector:@selector(dispatchAnalytics)
-                                                                   userInfo:nil
-                                                                    repeats:YES]];
+    @synchronized (self) {
+        // Don't start to send out analytics if Disabled
+        if ([TuneState isTMADisabled]) { return; }
+        
+        if (!self.scheduledDispatchOn) {
+            [self setDispatchScheduler:[NSTimer scheduledTimerWithTimeInterval:[self.tuneManager.configuration.analyticsDispatchPeriod doubleValue]
+                                                                        target:self
+                                                                      selector:@selector(dispatchAnalytics)
+                                                                      userInfo:nil
+                                                                       repeats:YES]];
+        }
+        
+        self.scheduledDispatchOn = YES;
     }
-    
-    [self setScheduledDispatchOn:YES];
 }
 
 - (void)stopScheduledDispatch {
-    if ([self scheduledDispatchOn]) {
-        [[self dispatchScheduler] invalidate];
-        [self setScheduledDispatchOn:NO];
+    @synchronized (self) {
+        if (self.scheduledDispatchOn) {
+            [[self dispatchScheduler] invalidate];
+            self.scheduledDispatchOn = NO;
+        }
     }
 }
 
@@ -530,7 +526,10 @@ static NSOperationQueue *_operationQueue = nil;
     
     if (dispatchOperation) {
         dispatchOperation.includeTracer = includeTracer;
-        [[self operationQueue] addOperation:dispatchOperation];
+        
+        @synchronized (self) {
+            [self.operationQueue addOperation:dispatchOperation];
+        }
     }
 }
 
@@ -547,7 +546,9 @@ static NSOperationQueue *_operationQueue = nil;
                                                                                                                                                 event:event];
         
         if (dispatchOperation) {
-            [[self operationQueue] addOperation:dispatchOperation];
+            @synchronized (self) {
+                [self.operationQueue addOperation:dispatchOperation];
+            }
         }
     }
 }
@@ -561,11 +562,23 @@ static NSOperationQueue *_operationQueue = nil;
 }
 #endif
 
+-(void)setDispatchScheduler:(NSTimer *)dispatchScheduler {
+    // stop the existing timer before discarding the object reference
+    if(_dispatchScheduler.isValid) {
+        [_dispatchScheduler invalidate];
+    }
+    _dispatchScheduler = nil;
+    
+    _dispatchScheduler = dispatchScheduler;
+}
+
 #pragma mark - Testing
 
 #if TESTING
 - (void)waitForOperationsToFinish {
-    [[self operationQueue] waitUntilAllOperationsAreFinished];
+    @synchronized (self) {
+        [self.operationQueue waitUntilAllOperationsAreFinished];
+    }
 }
 #endif
 

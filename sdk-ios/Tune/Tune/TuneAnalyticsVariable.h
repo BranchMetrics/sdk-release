@@ -41,13 +41,13 @@ typedef enum { TuneAnalyticsVariableHashNone,
 + (instancetype)analyticsVariableWithName:(NSString *)name
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type
-                               shouldAutoHash:(BOOL)shouldAutoHash;
+                           shouldAutoHash:(BOOL)shouldAutoHash;
 
 + (instancetype)analyticsVariableWithName:(NSString *)name
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type
                                  hashType:(TuneAnalyticsVariableHashType)hashType
-                               shouldAutoHash:(BOOL)newshouldAutoHash;
+                           shouldAutoHash:(BOOL)newshouldAutoHash;
 
 
 + (NSString *)convertDateToString:(NSDate *)date;

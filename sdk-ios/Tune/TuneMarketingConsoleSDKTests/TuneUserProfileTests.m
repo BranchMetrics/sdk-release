@@ -18,8 +18,9 @@
 #import "TuneUserProfileKeys.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneUserProfileTests : XCTestCase {
+@interface TuneUserProfileTests : TuneXCTestCase {
     TuneUserProfile *userProfile;
     SimpleObserver *simpleObserver;
 }
@@ -28,8 +29,6 @@
 @implementation TuneUserProfileTests
 - (void)setUp {
     [super setUp];
-
-    RESET_EVERYTHING();
     
     simpleObserver = [[SimpleObserver alloc] init];
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];

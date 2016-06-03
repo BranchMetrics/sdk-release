@@ -18,8 +18,7 @@
 
 @implementation TunePopUpMessageView
 
-- (id)initWithPopUpMessageEdgeStyle:(TunePopUpMessageEdgeStyle)edgeStyle
-{
+- (id)initWithPopUpMessageEdgeStyle:(TunePopUpMessageEdgeStyle)edgeStyle {
 #if TARGET_OS_IOS
     [TuneMessageOrientationState startTrackingOrientation];
 

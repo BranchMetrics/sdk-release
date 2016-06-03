@@ -13,8 +13,9 @@
 #import "TuneCWorks.h"
 #import "TuneManager.h"
 #import "TuneInAppUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneUtilsTests : XCTestCase
+@interface TuneUtilsTests : TuneXCTestCase
 
 @end
 
@@ -25,15 +26,11 @@ static NSString* const testKey = @"fakeTuneKey";
 #define expectedKey [NSString stringWithFormat:@"_TUNE_%@", testKey]
 
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [super tearDown];
 }
 
@@ -48,13 +45,12 @@ static NSString* const testKey = @"fakeTuneKey";
     [defaults synchronize];
     
     // assert that the new-style key is read by TuneSettings
-    TuneUserProfile *userProfile = [[TuneUserProfile new] initWithTuneManager:[TuneManager currentManager]];
+    TuneUserProfile *userProfile = [[TuneUserProfile alloc] initWithTuneManager:[TuneManager currentManager]];
     NSString *readTuneId = userProfile.tuneId;
     XCTAssertTrue( [readTuneId isEqualToString:newTuneId], @"stored %@, read %@", newTuneId, readTuneId );
     
     [defaults setValue:oldTuneId forKey:@"_TUNE_mat_id"];
 }
-
 
 - (void)testHashMd5 {
     static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
@@ -82,7 +78,6 @@ static NSString* const testKey = @"fakeTuneKey";
     
     XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
 }
-
 
 - (void)testUrlEncodeQueryParamValue {
     id input = nil;

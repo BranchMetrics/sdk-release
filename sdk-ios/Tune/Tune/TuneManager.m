@@ -1,5 +1,5 @@
 //
-//  TuneManager.h
+//  TuneManager.m
 //  MobileAppTracker
 //
 //  Created by Matt Gowie on 7/22/15.
@@ -183,6 +183,19 @@ static dispatch_once_t onceToken;
      +                since they need a fresh slate for each test.
      +     */
     TuneManager *_tuneManager = [TuneManager currentManager];
+
+    [_tuneManager.analyticsManager unregisterSkyhooks];
+    [_tuneManager.configuration unregisterSkyhooks];
+    [_tuneManager.powerHookManager unregisterSkyhooks];
+    [_tuneManager.state unregisterSkyhooks];
+    [_tuneManager.userProfile unregisterSkyhooks];
+    [_tuneManager.playlistManager unregisterSkyhooks];
+    [_tuneManager.sessionManager unregisterSkyhooks];
+    [_tuneManager.triggerManager unregisterSkyhooks];
+    [_tuneManager.campaignStateManager unregisterSkyhooks];
+    [_tuneManager.experimentManager unregisterSkyhooks];
+    [_tuneManager.deepActionManager unregisterSkyhooks];
+    [_tuneManager.connectedModeManager unregisterSkyhooks];
     
     _tuneManager.analyticsManager = nil;
     _tuneManager.configuration = nil;

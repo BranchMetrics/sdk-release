@@ -20,7 +20,7 @@
     return self;
 }
 
--(void)setFiles:(NSArray *)filenames{
+-(void)setFiles:(NSArray *)filenames {
     if(filenames==nil) {
         filenames = @[];
     }
@@ -28,7 +28,7 @@
     _files = [self buildArrayWithFilenames:filenames];
 }
 
--(void)incrementDownload{
+-(void)incrementDownload {
     if([self.files count] > 0){
         if (counter + 1 < [self.files count]) {
             counter++;

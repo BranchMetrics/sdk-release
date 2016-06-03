@@ -31,8 +31,6 @@
 - (void)setUp {
     [super setUp];
     
-    RESET_EVERYTHING();
-    
     mockApplication = OCMClassMock([UIApplication class]);
     OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);
     

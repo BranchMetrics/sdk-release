@@ -213,7 +213,7 @@
     return [TuneUtils hashMd5:[self getFiveline]];
 }
 
-- (NSString *) eventId {
+- (NSString *)eventId {
     return [NSString stringWithFormat:@"%f-%@", [self.timestamp timeIntervalSince1970], self.uuid];
 }
 

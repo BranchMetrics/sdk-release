@@ -9,8 +9,9 @@
 #import <XCTest/XCTest.h>
 
 #import "TuneDateUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneDateUtilsTests : XCTestCase
+@interface TuneDateUtilsTests : TuneXCTestCase
 
 @end
 

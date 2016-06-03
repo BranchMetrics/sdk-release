@@ -157,15 +157,15 @@
     _messageLabelPortrait = labelModel;
 }
 
-- (void)setMessageLabelPortraitUpsideDown:(TuneMessageLabel *)labelModel{
+- (void)setMessageLabelPortraitUpsideDown:(TuneMessageLabel *)labelModel {
     _messageLabelPortraitUpsideDown = labelModel;
 }
 
-- (void)setMessageLabelLandscapeRight:(TuneMessageLabel *)labelModel{
+- (void)setMessageLabelLandscapeRight:(TuneMessageLabel *)labelModel {
     _messageLabelLandscapeRight = labelModel;
 }
 
-- (void)setMessageLabelLandscapeLeft:(TuneMessageLabel *)labelModel{
+- (void)setMessageLabelLandscapeLeft:(TuneMessageLabel *)labelModel {
     _messageLabelLandscapeLeft = labelModel;
 }
 

@@ -43,8 +43,7 @@
 
 @implementation TuneRegionMonitor
 
-- (void)startLocationManager
-{
+- (void)startLocationManager {
 #ifdef TUNE_USE_LOCATION
     startCalled = TRUE;
 
@@ -109,8 +108,7 @@
 }
 
 #ifdef TUNE_USE_LOCATION
-- (void)setDelegate:(id<TuneRegionDelegate>)delegate
-{
+- (void)setDelegate:(id<TuneRegionDelegate>)delegate {
     _delegate = delegate;
 
     delegateRespondsToDidEnter = [delegate respondsToSelector:@selector(tuneDidEnterRegion:)];
@@ -125,15 +123,13 @@
 }
 
 #if DEBUG_REGION
-- (void)printRegions
-{
+- (void)printRegions {
     for( CLRegion *region in locationManager.monitoredRegions )
         NSLog( @"monitoring region %@", region.identifier );
 }
 #endif
 
-- (void)measureEventForRegion:(CLRegion*)region
-{
+- (void)measureEventForRegion:(CLRegion*)region {
     TuneEvent *event = [TuneEvent eventWithName:TUNE_EVENT_GEOFENCE];
     event.iBeaconRegionId = region.identifier;
     
@@ -146,32 +142,27 @@
 
 #pragma mark - Location manager delegate
 
-- (void)locationManager:(CLLocationManager*)lm didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
+- (void)locationManager:(CLLocationManager*)lm didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     [Tune setLocationAuthorizationStatus:status];
     if( delegateRespondsToAuthStatus )
         [self.delegate tuneChangedAuthStatusTo:status];
 }
 
 #if DEBUG_REGION
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
-{
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog( @"location manager did fail with error %@", error );
 }
 
-- (void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
-{
+- (void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region {
     NSLog( @"did start monitoring for region %@", region.identifier );
 }
 
-- (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
-{
+- (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error {
     NSLog( @"monitoring did fail for region %@", region.identifier );
 }
 #endif
 
-- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
-{
+- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
 #if DEBUG_REGION
     NSLog( @"did enter region %@", region.identifier );
     if( delegateRespondsToRanging )
@@ -180,8 +171,7 @@
     [self measureEventForRegion:region];
 }
 
-- (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
-{
+- (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
 #if DEBUG_REGION
     NSLog( @"did exit region %@", region.identifier );
     if( delegateRespondsToRanging )
@@ -191,8 +181,7 @@
         [self.delegate tuneDidExitRegion:region];
 }
 
-- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
-{
+- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
     static CLRegionState prevState = CLRegionStateUnknown;
     
 #if DEBUG_REGION
@@ -211,15 +200,13 @@
 }
 
 #if DEBUG_REGION
-- (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region
-{
+- (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region {
     if( delegateRespondsToRanging ) {
         [self.delegate performSelector:@selector(tuneDidRangeBeacons:inRegion:) withObject:beacons withObject:region];
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
-{
+- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error {
     NSLog( @"ranging beacons failed for %@", region.identifier );
 }
 #endif
@@ -227,8 +214,7 @@
 
 #pragma mark - Bluetooth manager delegate
 
-- (void)centralManagerDidUpdateState:(CBCentralManager *)central
-{
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     [Tune setBluetoothState:central.state];
     if( delegateRespondsToBTState )
         [self.delegate tuneChangedBluetoothStateTo:central.state];

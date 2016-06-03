@@ -17,8 +17,9 @@
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneTestsHelper.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAppDelegateTests : XCTestCase {
+@interface TuneAppDelegateTests : TuneXCTestCase {
     SimpleObserver *pushObserver;
     SimpleObserver *campaignObserver;
     SimpleObserver *deeplinkObserver;
@@ -37,9 +38,7 @@ static NSString *tune_swizzledMethod;
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     pushObserver = [[SimpleObserver alloc] init];
     campaignObserver = [[SimpleObserver alloc] init];
     deeplinkObserver = [[SimpleObserver alloc] init];

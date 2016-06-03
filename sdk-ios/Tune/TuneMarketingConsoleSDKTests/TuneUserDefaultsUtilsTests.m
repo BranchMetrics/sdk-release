@@ -15,8 +15,9 @@
 #import "TuneCWorks.h"
 #import "Tunemanager.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneUserDefaultsUtilsTests : XCTestCase
+@interface TuneUserDefaultsUtilsTests : TuneXCTestCase
 
 @end
 
@@ -27,15 +28,11 @@ static NSString* const testKey = @"fakeTuneKey";
 #define expectedKey [NSString stringWithFormat:@"_TUNE_%@", testKey]
 
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [super tearDown];
 }
 
