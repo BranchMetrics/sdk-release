@@ -21,6 +21,7 @@ public class TunePlaylist {
     private JSONObject inAppMessages;
     private JSONObject experimentDetails;
     private boolean fromDisk;
+    private boolean fromConnectedMode;
 
     public TunePlaylist(JSONObject playlistJson) {
         this.schemaVersion = TuneJsonUtils.getString(playlistJson, SCHEMA_VERSION_KEY);
@@ -71,6 +72,14 @@ public class TunePlaylist {
 
     public void setFromDisk(boolean fromDisk) {
         this.fromDisk = fromDisk;
+    }
+
+    public boolean isFromConnectedMode() {
+        return fromConnectedMode;
+    }
+
+    public void setFromConnectedMode(boolean fromConnectedMode) {
+        this.fromConnectedMode = fromConnectedMode;
     }
 
     @Override

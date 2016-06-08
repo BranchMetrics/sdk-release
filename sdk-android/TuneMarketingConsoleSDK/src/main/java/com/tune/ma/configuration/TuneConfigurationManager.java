@@ -47,6 +47,7 @@ public class TuneConfigurationManager {
     private List<String> configurationPlayerFilenames;
 
     private boolean enabledTMA;
+    private boolean gotFirstConfiguration;
 
     private boolean shouldAutoCollectDeviceLocation;
     private boolean shouldSendScreenViews;
@@ -78,7 +79,11 @@ public class TuneConfigurationManager {
     }
 
     public void onEvent(TuneAppForegrounded event) {
-        updateConfigurationFromServer();
+        // Update configuration from app foreground event only if TMA is enabled
+        // as configuration update will be handled from TuneActivity.onStart if disabled
+        if (!isTMADisabled()) {
+            updateConfigurationFromServer();
+        }
     }
 
     public void setupConfiguration(TuneConfiguration configuration) {
@@ -89,6 +94,12 @@ public class TuneConfigurationManager {
             updateConfigurationFromJson(storedConfig);
         } else {
             updateConfigurationFromTuneConfigurationObject(configuration);
+        }
+    }
+
+    public void getConfigurationIfDisabled() {
+        if (isTMADisabled() && !isTMAPermanentlyDisabled() && !gotFirstConfiguration) {
+            updateConfigurationFromServer();
         }
     }
 
@@ -120,7 +131,7 @@ public class TuneConfigurationManager {
         }
     }
 
-    public void updateConfigurationFromTuneConfigurationObject(TuneConfiguration config) {
+    public synchronized void updateConfigurationFromTuneConfigurationObject(TuneConfiguration config) {
         analyticsDispatchPeriod = config.getAnalyticsDispatchPeriod();
         analyticsMessageStorageLimit = config.getAnalyticsMessageStorageLimit();
         playlistRequestPeriod = config.getPlaylistRequestPeriod();
@@ -151,7 +162,7 @@ public class TuneConfigurationManager {
         configurationPlayerFilenames = config.getConfigurationPlayerFilenames();
     }
 
-    public void updateConfigurationFromJson(JSONObject configuration) {
+    public synchronized void updateConfigurationFromJson(JSONObject configuration) {
         try {
             if (configuration.has(TuneConfigurationConstants.TUNE_ANALYTICS_DISPATCH_PERIOD)) {
                 analyticsDispatchPeriod = configuration.getInt(TuneConfigurationConstants.TUNE_ANALYTICS_DISPATCH_PERIOD);
@@ -187,7 +198,7 @@ public class TuneConfigurationManager {
         }
     }
 
-    public void updateConfigurationFromRemoteJson(JSONObject configuration) {
+    public synchronized void updateConfigurationFromRemoteJson(JSONObject configuration) {
         updateConfigurationFromJson(configuration);
 
         updateConnectedModeState(configuration);
@@ -201,11 +212,13 @@ public class TuneConfigurationManager {
         }
     }
 
-    public void updateConfigurationFromServer() {
+    public synchronized void updateConfigurationFromServer() {
         // Unlike most downloads we actually *do* want to download the configuration if Tune is off (inactive but not permakilled)
         if (isTMAPermanentlyDisabled()) {
             return;
         }
+
+        gotFirstConfiguration = true;
 
         if (useConfigurationPlayer) {
             JSONObject configuration = TuneManager.getInstance().getConfigurationPlayer().getNext();

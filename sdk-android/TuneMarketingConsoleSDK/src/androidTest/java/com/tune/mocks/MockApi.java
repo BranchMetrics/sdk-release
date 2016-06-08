@@ -86,6 +86,12 @@ public class MockApi implements Api {
         return postResult;
     }
 
+    @Override
+    public JSONObject getConnectedPlaylist() {
+        playlistRequestCount++;
+        return playlistResponse;
+    }
+
     // Mock Methods
     ////////////////
 

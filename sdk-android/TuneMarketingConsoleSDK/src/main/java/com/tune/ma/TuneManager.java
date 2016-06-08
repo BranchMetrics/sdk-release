@@ -12,7 +12,6 @@ import com.tune.ma.configuration.TuneConfigurationManager;
 import com.tune.ma.connected.TuneConnectedModeManager;
 import com.tune.ma.deepactions.TuneDeepActionManager;
 import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.experiments.TuneExperimentManager;
 import com.tune.ma.file.FileManager;
@@ -109,10 +108,6 @@ public class TuneManager {
                 // After everything has been registered, post that the TuneManager is initialized
                 TuneEventBus.post(new TuneManagerInitialized());
             } else {
-                if (!instance.getConfigurationManager().isTMAPermanentlyDisabled()) {
-                    // When we are disabled, but not permanently disabled, we still want to see if we should become enabled again.
-                    instance.configurationManager.onEvent(new TuneAppForegrounded("not used", 1L));
-                }
                 // If we are off then we aren't going to be using the eventbus at all.
                 TuneEventBus.disable();
             }

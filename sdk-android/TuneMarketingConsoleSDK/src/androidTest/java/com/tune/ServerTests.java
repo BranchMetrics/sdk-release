@@ -2,9 +2,9 @@ package com.tune;
 
 import com.tune.mocks.MockUrlRequester;
 
-import java.util.ArrayList;
-
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class ServerTests extends TuneUnitTest implements TuneListener {
     private boolean callSuccess;

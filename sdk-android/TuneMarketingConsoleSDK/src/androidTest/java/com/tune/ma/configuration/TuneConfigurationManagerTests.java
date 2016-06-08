@@ -1,10 +1,13 @@
 package com.tune.ma.configuration;
 
+import com.tune.TuneConstants;
 import com.tune.TuneTestConstants;
 import com.tune.TuneUnitTest;
+import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.file.FileManager;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -221,5 +224,76 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertTrue(config.echoPlaylists());
         assertTrue(config.echoAnalytics());
         assertEquals(200, config.getAnalyticsMessageStorageLimit());
+    }
+
+    // Tests that app ID is never "null|null|android"
+    // This case happens when TMA is disabled in the config when the app was opened,
+    // then the EventBus gets disabled and cannot get updated with newer advertiser id and package name values
+    public void testForNullNullAndroidAppId() {
+        // Let Tune pubQueue finish executing setPackageName
+        sleep(50);
+
+        TuneSharedPrefsDelegate prefsDelegate = new TuneSharedPrefsDelegate(getContext(), TuneConstants.PREFS_TUNE);
+        // Manually disable TMA to mock downloading disabled config
+        prefsDelegate.saveBooleanToSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED, true);
+
+        String expectedAppId = TuneUtils.md5("877|com.mobileapptracker.test|android");
+        // Check that app id was initialized to md5 of "877|com.mobileapptracker.test|android"
+        assertEquals(expectedAppId, tune.getAppId());
+
+        // Clear and re-init TuneManager, to mock killing and starting the app that causes this state
+        TuneManager.destroy();
+        TuneManager.init(getContext(), null);
+
+        // Let config download
+        sleep(500);
+
+        String appId = tune.getAppId();
+        // Check that app id is still the expected value on re-init
+        assertEquals(expectedAppId, tune.getAppId());
+        // Check that app id is not the md5 of the infamous "null|null|android"
+        assertFalse(appId.equals("a3095d6697f9d75815a50a9feb36812c"));
+
+        // Restore TMA disabled status
+        prefsDelegate.saveBooleanToSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED, false);
+    }
+
+    // Tests that app ID is updated correctly if user calls setPackageName with a different value
+    public void testAppIdUpdatedAfterSetPackageName() {
+        // Let Tune pubQueue finish executing setPackageName
+        sleep(50);
+
+        TuneSharedPrefsDelegate prefsDelegate = new TuneSharedPrefsDelegate(getContext(), TuneConstants.PREFS_TUNE);
+        // Manually disable TMA to mock downloading disabled config
+        prefsDelegate.saveBooleanToSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED, true);
+
+        // Check that app id was initialized to default value, md5 of "877|com.mobileapptracker.test|android"
+        assertEquals(TuneUtils.md5("877|com.mobileapptracker.test|android"), tune.getAppId());
+
+        // Change the package name via setter
+        tune.setPackageName("com.test");
+
+        // Let Tune pubQueue finish executing setPackageName
+        sleep(50);
+
+        String expectedAppId = TuneUtils.md5("877|com.test|android");
+        // Check that app id was updated to md5 of "877|com.test|android"
+        assertEquals(expectedAppId, tune.getAppId());
+
+        // Clear and re-init TuneManager, to mock a new startup
+        TuneManager.destroy();
+        TuneManager.init(getContext(), null);
+
+        // Let config download
+        sleep(500);
+
+        String appId = tune.getAppId();
+        // Check that app id is still the expected value on next session
+        assertEquals(expectedAppId, tune.getAppId());
+
+        // Restore TMA disabled status
+        prefsDelegate.saveBooleanToSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED, false);
+        // Restore package name
+        tune.setPackageName("com.mobileapptracker.test");
     }
 }

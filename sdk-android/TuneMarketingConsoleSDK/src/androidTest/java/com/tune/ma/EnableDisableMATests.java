@@ -51,6 +51,7 @@ public class EnableDisableMATests extends TuneUnitTest {
         assertNotNull(TuneManager.getInstance().getSessionManager());
         assertTrue(TuneEventBus.isEnabled());
 
+        TuneManager.getInstance().getConfigurationManager().getConfigurationIfDisabled();
         TuneManager.getInstance().getConfigurationManager().onEvent(new TuneAppForegrounded("not used", 1L));
 
         // Disabling us doesn't immediately shut us down
@@ -89,6 +90,9 @@ public class EnableDisableMATests extends TuneUnitTest {
 
         // Simulate a fresh restart
         initWith(Arrays.asList("configuration_enabled.json"));
+
+        TuneManager.getInstance().getConfigurationManager().getConfigurationIfDisabled();
+        TuneManager.getInstance().getConfigurationManager().onEvent(new TuneAppForegrounded("not used", 1L));
 
         assertNotNull(TuneManager.getInstance());
         assertNull(TuneManager.getInstance().getAnalyticsManager());

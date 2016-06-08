@@ -795,22 +795,6 @@ public class Tune {
     }
 
     /**
-     * Gets the advertiser ref ID.
-     * @return advertiser ref ID set by SDK
-     */
-    public String getRefId() {
-        return params.getRefId();
-    }
-
-    /**
-     * Gets the revenue amount set
-     * @return revenue amount
-     */
-    public Double getRevenue() {
-        return Double.parseDouble(params.getRevenue());
-    }
-
-    /**
      * Gets the screen density of the device
      * @return 0.75/1.0/1.5/2.0/3.0/4.0 for ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi
      */
@@ -1860,7 +1844,6 @@ public class Tune {
         return TuneManager.getInstance().getPushManager().didUserManuallyDisablePush();
     }
 
-
     /**
      * Checks for a deferred deeplink if exists
      * Opens deferred deeplink if found and returns value in TuneDeeplinkListener
@@ -2409,6 +2392,18 @@ public class Tune {
         } else {
             return TuneAnalyticsVariable.stringToGeolocation(var.getValue());
         }
+    }
+
+    /**
+     * Returns In-App Marketing's generated app ID value
+     * @return App ID in In-App Marketing, or null if IAM was not enabled
+     */
+    public String getAppId() {
+        if (TuneManager.getProfileForUser("getAppId") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getProfileManager().getAppId();
     }
 
     // Clear

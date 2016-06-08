@@ -58,6 +58,8 @@ public class TuneConnectedModeManager {
         sendConnectDeviceRequest();
         // Sync power hooks and deep actions
         sendSyncRequest();
+
+        TuneManager.getInstance().getPlaylistManager().getConnectedPlaylist();
     }
 
     public void handleDisconnection() {

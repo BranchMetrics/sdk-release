@@ -117,4 +117,23 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
         }
     }
 
+    // Test that the public getter's experiment details match that of the experiment manager's
+    public void testPublicGetPowerHookExperimentDetails() {
+        mockFileManager.setPlaylistResult(playlistJson);
+        playlistManager = new TunePlaylistManager();
+
+        Map<String, TunePowerHookExperimentDetails> experimentDetails = experimentManager.getPhookExperimentDetails();
+        Map<String, TunePowerHookExperimentDetails> experimentDetailsPublic = tune.getPowerHookExperimentDetails();
+        assertEquals(experimentDetails, experimentDetailsPublic);
+    }
+
+    // Test that the public getter's experiment details match that of the experiment manager's
+    public void testPublicGetInAppExperimentDetails() {
+        mockFileManager.setPlaylistResult(playlistJson);
+        playlistManager = new TunePlaylistManager();
+
+        Map<String, TuneInAppMessageExperimentDetails> experimentDetails = experimentManager.getInAppExperimentDetails();
+        Map<String, TuneInAppMessageExperimentDetails> experimentDetailsPublic = tune.getInAppMessageExperimentDetails();
+        assertEquals(experimentDetails, experimentDetailsPublic);
+    }
 }

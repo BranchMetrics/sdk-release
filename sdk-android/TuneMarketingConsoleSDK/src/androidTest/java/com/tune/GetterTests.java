@@ -5,137 +5,82 @@ public class GetterTests extends TuneUnitTest {
         String action = tune.getAction();
         assertNull( "action was not null, was " + action, action );
     }
+
+    public void testAdvertiserId() {
+        assertEquals(TuneTestConstants.advertiserId, tune.getAdvertiserId());
+    }
+
+    public void testAppName() {
+        assertNotNull(tune.getAppName());
+    }
+
+    public void testAppVersion() {
+        assertNotNull(tune.getAppVersion());
+    }
+
+    public void testConnectionType() {
+        assertNotNull(tune.getConnectionType());
+    }
+
+    public void testCountryCode() {
+        assertNotNull(tune.getCountryCode());
+    }
+
+    public void testDeviceBrand() {
+        assertNotNull(tune.getDeviceBrand());
+    }
+
+    public void testDeviceCarrier() {
+        assertNotNull(tune.getDeviceCarrier());
+    }
+
+    public void testDeviceModel() {
+        assertNotNull(tune.getDeviceModel());
+    }
+
+    public void testInstallDate() {
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+        assertNotNull(tune.getInstallDate());
+    }
+
+    public void testLanguage() {
+        assertNotNull(tune.getLanguage());
+    }
     
     public void testMatId() {
         String matId = tune.getMatId();
         assertNotNull( "MAT ID was null", matId );
     }
 
-    /* TODO: test these too
-     * 
+    public void testMCC() {
+        assertNotNull(tune.getMCC());
+    }
 
-    public String getAction() {
+    public void testMNC() {
+        assertNotNull(tune.getMNC());
+    }
 
-    public String getAdvertiserId() {
+    public void testOsVersion() {
+        assertNotNull(tune.getOsVersion());
+    }
 
-    public int getAge() {
+    public void testScreenDensity() {
+        assertNotNull(tune.getScreenDensity());
+    }
 
-    public double getAltitude() {
+    public void testScreenHeight() {
+        assertNotNull(tune.getScreenHeight());
+    }
 
-    public String getAndroidId() {
+    public void testScreenWidth() {
+        assertNotNull(tune.getScreenWidth());
+    }
 
-    public String getAndroidIdMd5() {
-        
-    public String getAndroidIdSha1() {
+    public void testSdkVersion() {
+        assertEquals(TuneConstants.SDK_VERSION, tune.getSDKVersion());
+    }
 
-    public String getAndroidIdSha256() {
-
-    public boolean getAppAdTrackingEnabled() {
-
-    public String getAppName() {
-
-    public int getAppVersion() {
-
-    public String getConnectionType() {
-
-    public String getCountryCode() {
-
-    public String getDeviceBrand() {
-
-    public String getDeviceId() {
-
-    public String getDeviceModel() {
-
-    public String getCurrencyCode() {
-
-    public String getDeviceCarrier() {
-
-    public String getEventAttribute1() {
-
-    public String getEventAttribute2() {
-
-    public String getEventAttribute3() {
-
-    public String getEventAttribute4() {
-
-    public String getEventAttribute5() {
-
-    public String getEventId() {
-
-    public String getEventName() {
-
-    public boolean getExistingUser() {
-
-    public String getFacebookUserId() {
-
-    public int getGender() {
-
-    public String getGoogleAdvertisingId() {
-
-    public boolean getGoogleAdTrackingLimited() {
-
-    public String getGoogleUserId() {
-
-    public long getInstallDate() {
-
-    public String getInstallLogId() {
-
-    public String getInstallReferrer() {
-
-    public boolean getIsPayingUser() {
-
-    public String getLanguage() {
-
-    public String getLastOpenLogId() {
-
-    public double getLatitude() {
-
-    public double getLongitude() {
-
-    public String getMacAddress() {
-
-    public String getMatId() {
-
-    public String getMCC() {
-
-    public String getMNC() {
-
-    public String getOpenLogId() {
-
-    public String getOsVersion() {
-
-    public String getPackageName() {
-
-    public String getPluginName() {
-
-    public String getReferralSource() {
-
-    public String getReferralUrl() {
-
-    public String getRefId() {
-
-    public Double getRevenue() {
-
-    public String getScreenDensity() {
-
-    public String getScreenSize() {
-
-    public String getSDKVersion() {
-
-    public String getSiteId() {
-
-    public String getTRUSTeId() {
-
-    public String getTwitterUserId() {
-
-    public String getUpdateLogId() {
-
-    public String getUserAgent() {
-
-    public String getUserEmail() {
-
-    public String getUserId() {
-
-    public String getUserName() {
-*/
+    public void testUserAgent() {
+        assertNotNull(tune.getUserAgent());
+    }
 }

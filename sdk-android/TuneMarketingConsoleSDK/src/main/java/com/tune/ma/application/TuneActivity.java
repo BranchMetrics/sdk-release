@@ -53,11 +53,10 @@ public class TuneActivity extends Activity {
      */
     public static void onStart(Activity activity) {
         TuneDebugLog.i(activity.getClass().getSimpleName(), "onStart()");
-//            if (ArtisanManager.ARTISAN_PERMANENTLY_DISABLED) {
-//                return;
-//            }
 
-//            ArtisanServiceClientManager.getInstance().connect(activity);
+        if (TuneManager.getInstance() != null && TuneManager.getInstance().getConfigurationManager() != null) {
+            TuneManager.getInstance().getConfigurationManager().getConfigurationIfDisabled();
+        }
 
         TuneOptional<TunePushMessage> possibleMessage = null;
         if (TuneManager.getInstance() != null && TuneManager.getInstance().getPushManager() != null) {
@@ -108,8 +107,6 @@ public class TuneActivity extends Activity {
      */
     public static void onStop(Activity activity) {
         TuneDebugLog.i(activity.getClass().getSimpleName(), "onStop()");
-
-        //ArtisanServiceClientManager.getInstance().disconnect(activity);
 
         TuneEventBus.post(new TuneActivityDisconnected(activity));
     }

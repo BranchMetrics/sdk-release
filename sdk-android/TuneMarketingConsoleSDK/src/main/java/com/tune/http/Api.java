@@ -1,7 +1,5 @@
 package com.tune.http;
 
-import android.content.Context;
-
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
 
 import org.json.JSONObject;
@@ -24,4 +22,6 @@ public interface Api {
     boolean postDisconnect();
 
     boolean postSync(JSONObject syncObject);
+
+    JSONObject getConnectedPlaylist();
 }

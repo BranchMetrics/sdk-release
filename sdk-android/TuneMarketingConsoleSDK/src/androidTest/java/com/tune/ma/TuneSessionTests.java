@@ -3,16 +3,16 @@ package com.tune.ma;
 import android.content.Context;
 
 import com.tune.TuneUnitTest;
-import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
+import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneActivityConnected;
 import com.tune.ma.eventbus.event.TuneActivityDisconnected;
-import com.tune.ma.profile.TuneProfileKeys;
-import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
+import com.tune.ma.profile.TuneProfileKeys;
+import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.session.TuneSessionManager;
 
 import org.json.JSONArray;
@@ -41,7 +41,9 @@ public class TuneSessionTests extends TuneUnitTest {
         context = getContext();
 
         sessionManager = TuneManager.getInstance().getSessionManager();
+        assertNotNull(sessionManager);
         userProfile = TuneManager.getInstance().getProfileManager();
+        assertNotNull(userProfile);
         
         foregroundedCount = 0;
         backgroundedCount = 0;

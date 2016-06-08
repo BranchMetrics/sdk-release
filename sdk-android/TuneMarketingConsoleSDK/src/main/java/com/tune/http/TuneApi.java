@@ -38,6 +38,7 @@ public class TuneApi implements Api {
     private static final String DISCONNECT_ENDPOINT_TEMPLATE = "/sdk_api/%s/apps/%s/devices/%s/disconnect";
     private static final String DISCOVERY_ENDPOINT_TEMPLATE = "/sdk_api/%s/apps/%s/devices/%s/discovery";
     private static final String SYNC_ENDPOINT_TEMPLATE = "/sdk_api/%s/apps/%s/sync";
+    private static final String CONNECTED_PLAYLIST_ENDPOINT_TEMPLATE = "/sdk_api/%s/apps/%s/devices/%s/connected_playlist";
 
     private static final String REQUEST_METHOD_GET  = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -58,22 +59,7 @@ public class TuneApi implements Api {
 
     @Override
     public JSONObject getPlaylist() {
-        TuneConfigurationManager configManager = TuneManager.getInstance().getConfigurationManager();
-        TuneUserProfile profile = TuneManager.getInstance().getProfileManager();
-        JSONObject response = null;
-
-        Uri.Builder uriBuilder = new Uri.Builder();
-        uriBuilder.encodedPath(TuneStringUtils.format(PLAYLIST_ENDPOINT_TEMPLATE, configManager.getApiVersion(), profile.getAppId(), profile.getDeviceId()));
-        String path = uriBuilder.build().toString();
-
-        HttpURLConnection urlConnection = buildUrlConnection(configManager.getApiHostPort() + path, REQUEST_METHOD_GET);
-        urlConnection.setRequestProperty("Accept", "application/json");
-
-        if (urlConnection != null) {
-            response = sendRequestAndReadResponse(urlConnection);
-        }
-
-        return response;
+        return getPlaylistBase(PLAYLIST_ENDPOINT_TEMPLATE);
     }
 
     @Override
@@ -316,8 +302,31 @@ public class TuneApi implements Api {
         return result;
     }
 
+    @Override
+    public JSONObject getConnectedPlaylist() {
+        return getPlaylistBase(CONNECTED_PLAYLIST_ENDPOINT_TEMPLATE);
+    }
+
     // Helper Methods
     //////////////////
+
+    private JSONObject getPlaylistBase(String endpoint) {
+        TuneConfigurationManager configManager = TuneManager.getInstance().getConfigurationManager();
+        TuneUserProfile profile = TuneManager.getInstance().getProfileManager();
+        JSONObject response = null;
+
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.encodedPath(TuneStringUtils.format(endpoint, configManager.getApiVersion(), profile.getAppId(), profile.getDeviceId()));
+        String path = uriBuilder.build().toString();
+
+        HttpURLConnection urlConnection = buildUrlConnection(configManager.getApiHostPort() + path, REQUEST_METHOD_GET);
+        urlConnection.setRequestProperty("Accept", "application/json");
+
+        if (urlConnection != null) {
+            response = sendRequestAndReadResponse(urlConnection);
+        }
+        return response;
+    }
 
     /**
      * Sets up a HTTPUrlConnection.

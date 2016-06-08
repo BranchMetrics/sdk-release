@@ -123,6 +123,14 @@ public class TunePlaylistManager {
         }
     }
 
+    public synchronized void getConnectedPlaylist() {
+        if (TuneManager.getInstance().getConfigurationManager().getPollForPlaylist() && this.started) {
+            stopPlaylistRetriever();
+            this.started = false;
+        }
+        executorService.execute(new PlaylistRetrievalTask());
+    }
+
     public TunePlaylist getCurrentPlaylist() {
         return currentPlaylist;
     }
@@ -137,7 +145,7 @@ public class TunePlaylistManager {
             this.currentPlaylist = newPlaylist;
 
             // Current playlist changed and not from disk, save new playlist to disk
-            if (TuneManager.getInstance() != null && !newPlaylist.isFromDisk()) {
+            if (TuneManager.getInstance() != null && !newPlaylist.isFromDisk() && !newPlaylist.isFromConnectedMode()) {
                 TuneDebugLog.i("Saving New Playlist to Disk");
                 TuneManager.getInstance().getFileManager().writePlaylist(currentPlaylist.toJson());
             }
@@ -170,9 +178,13 @@ public class TunePlaylistManager {
             try {
                 TuneConfigurationManager configurationManager = TuneManager.getInstance().getConfigurationManager();
 
+                boolean fromConnectedMode = false;
                 JSONObject response = null;
                 if (configurationManager.usePlaylistPlayer()) {
                     response = TuneManager.getInstance().getPlaylistPlayer().getNext();
+                } else if (TuneManager.getInstance().getConnectedModeManager().isInConnectedMode()){
+                    response = TuneManager.getInstance().getApi().getConnectedPlaylist();
+                    fromConnectedMode = true;
                 } else {
                     response = TuneManager.getInstance().getApi().getPlaylist();
                 }
@@ -196,6 +208,7 @@ public class TunePlaylistManager {
                         TuneDebugLog.alwaysLog("Got Playlist:\n" + TuneJsonUtils.getPrettyJson(response));
                     }
                     newPlaylist = new TunePlaylist(response);
+                    newPlaylist.setFromConnectedMode(fromConnectedMode);
                 }
 
                 if (newPlaylist != null) {

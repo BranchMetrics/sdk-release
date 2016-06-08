@@ -27,6 +27,7 @@ import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.profile.TuneProfileKeys;
+import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONArray;
@@ -329,6 +330,8 @@ public class TuneParameters {
     public synchronized void setAdvertiserId(String advertiserId) {
         mAdvertiserId = advertiserId;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ADVERTISER_ID, advertiserId)));
+        // Save advertiser ID to SharedPreferences for IAM App ID
+        new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.ADVERTISER_ID, advertiserId);
     }
     
     private String mAge = null;
@@ -728,6 +731,8 @@ public class TuneParameters {
     public synchronized void setPackageName(String packageName) {
         mPackageName = packageName;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PACKAGE_NAME, packageName)));
+        // Save package name to SharedPreferences for IAM App ID
+        new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.PACKAGE_NAME, packageName);
     }
     
     public synchronized String getPhoneNumber() {
@@ -823,24 +828,6 @@ public class TuneParameters {
     public synchronized void setReferrerDelay(long referrerDelay) {
         mReferrerDelay = Long.toString(referrerDelay);
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRER_DELAY, referrerDelay)));
-    }
-
-    private String mRefId = null;
-    public synchronized String getRefId() {
-        return mRefId;
-    }
-    public synchronized void setRefId(String refId) {
-        mRefId = refId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REF_ID, refId)));
-    }
-
-    private String mRevenue = null;
-    public synchronized String getRevenue() {
-        return mRevenue;
-    }
-    public synchronized void setRevenue(String revenue) {
-        mRevenue = revenue;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REVENUE, revenue)));
     }
 
     private String mScreenDensity = null;

@@ -297,7 +297,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add a String tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated String tag
      */
@@ -310,7 +310,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add an int tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated int tag
      */
@@ -323,7 +323,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add a double tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated double tag
      */
@@ -336,7 +336,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add a float tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated float tag
      */
@@ -349,7 +349,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add a date tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated Date tag
      */
@@ -362,7 +362,7 @@ public class TuneEvent implements Serializable {
 
     /**
      * Add a location tag
-     * @param name Tag name
+     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated location tag
      */
@@ -395,7 +395,13 @@ public class TuneEvent implements Serializable {
 
             // Add tag
             this.addedTags.add(prettyName);
-            this.tags.add(tag);
+            this.tags.add(
+                    TuneAnalyticsVariable.Builder(prettyName)
+                            .withValue(tag.getValue())
+                            .withType(tag.getType())
+                            .withHash(tag.getHashType())
+                            .withShouldAutoHash(tag.getShouldAutoHash())
+                            .build());
         }
         return this;
     }
