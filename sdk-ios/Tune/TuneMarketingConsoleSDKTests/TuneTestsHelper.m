@@ -6,12 +6,16 @@
 //  Copyright (c) 2013 Tune. All rights reserved.
 //
 
+#import <OCMock/OCMock.h>
+
 #import "TuneTestsHelper.h"
 
 #import "TuneManager+Testing.h"
 #import "Tune+Testing.h"
+#import "TuneAnalyticsManager+Testing.h"
 #import "TuneFileManager.h"
 #import "TuneEventQueue+Testing.h"
+#import "TunePlaylistManager+Testing.h"
 #import "TuneUtils+Testing.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneState+Testing.h"
@@ -30,7 +34,18 @@ NSString* const kTestBundleId = @"com.mobileapptracking.iosunittest";
 
 const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.;
 
+id classMockTuneManager;
+id mockTuneManager;
+id newAM;
+id newPM;
+
+BOOL shouldCreateMocks = YES;
+
 void RESET_EVERYTHING() {
+    RESET_EVERYTHING_OPTIONAL_MOCKING(YES, YES);
+}
+
+void RESET_EVERYTHING_OPTIONAL_MOCKING(BOOL shouldMockPlaylistManager, BOOL shouldMockAnalyticsManager) {
 #if TARGET_OS_IOS || TARGET_OS_IPHONE
     [TuneState updateTMADisabledState:NO];
     [UIViewController load];
@@ -70,8 +85,79 @@ void RESET_EVERYTHING() {
     [TuneEventQueue resetSharedInstance];
     [Tune reInitSharedManagerOverride];
     
+    if(shouldCreateMocks && (shouldMockPlaylistManager || shouldMockAnalyticsManager)) {
+        mockTuneManager = OCMPartialMock([TuneManager currentManager]);
+        classMockTuneManager = OCMClassMock([TuneManager class]);
+        OCMStub([classMockTuneManager currentManager]).andReturn(mockTuneManager);
+        
+        if (shouldMockAnalyticsManager) {
+            // remove the original analytics manager skyhook registration
+            [[TuneManager currentManager].analyticsManager unregisterSkyhooks];
+            
+            // make sure that the skyhook is registered for the mocked instance of TuneAnalyticsManager
+            newAM = OCMPartialMock([TuneAnalyticsManager moduleWithTuneManager:mockTuneManager]);
+            [newAM registerSkyhooks];
+            
+            OCMStub([newAM startScheduledDispatch]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TuneAnalyticsManager: ignoring startScheduledDispatch call");
+            });
+            
+            OCMStub([newAM storeAndTrackAnalyticsEvent:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TuneAnalyticsManager: ignoring storeAndTrackAnalyticsEvent: call");
+            });
+            
+            OCMStub([newAM dispatchAnalytics]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TuneAnalyticsManager: ignoring dispatchAnalytics() call");
+            });
+            
+            OCMStub([newAM dispatchAnalytics:NO]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TuneAnalyticsManager: ignoring dispatchAnalytics(BOOL)NO call");
+            });
+            
+            OCMStub([newAM dispatchAnalytics:YES]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TuneAnalyticsManager: ignoring dispatchAnalytics(BOOL)YES call");
+            });
+            
+            OCMStub([mockTuneManager analyticsManager]).andReturn(newAM);
+        }
+        
+        if (shouldMockPlaylistManager) {
+            // remove the original playlist manager skyhook registration
+            [[TuneManager currentManager].playlistManager unregisterSkyhooks];
+            
+            // make sure that the skyhook is registered for the mocked instance of TunePlaylistManager
+            newPM = OCMPartialMock([TunePlaylistManager moduleWithTuneManager:mockTuneManager]);
+            [newPM registerSkyhooks];
+            
+            OCMStub([newPM fetchAndUpdatePlaylist]).andDo(^(NSInvocation *invocation) {
+                DebugLog(@"mock TunePlaylistManager: ignoring fetchAndUpdatePlaylist call");
+            });
+            
+            OCMStub([mockTuneManager playlistManager]).andReturn(newPM);
+        }
+        
+        shouldCreateMocks = NO;
+    }
+    
     emptyRequestQueue();
     waitForQueuesToFinish();
+}
+
+void REMOVE_MOCKS() {
+    if(newAM) {
+        [[newAM dispatchScheduler] invalidate];
+        
+        [newAM stopMocking];
+    }
+    
+    if(newPM) {
+        [newPM stopMocking];
+    }
+    
+    [mockTuneManager stopMocking];
+    [classMockTuneManager stopMocking];
+    
+    shouldCreateMocks = YES;
 }
 
 void pointMAUrlsToNothing() {

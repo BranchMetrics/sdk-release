@@ -25,16 +25,18 @@
 #import "TuneFileManager.h"
 #import "TuneJSONUtils.h"
 #import "TuneManager.h"
+#import "TunePlaylistManager+Testing.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneState.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAnalyticsManagerTests : XCTestCase {
+@interface TuneAnalyticsManagerTests : TuneXCTestCase {
     id mockApplication;
     id mockTimer;
     id mockOperationQueue;
     
-    TuneAnalyticsManager *analyticsManager;
+    id analyticsManager;
     id fileManagerMock;
     TuneConfiguration *configuration;
     
@@ -48,9 +50,8 @@
 @implementation TuneAnalyticsManagerTests
 
 - (void)setUp {
-    [super setUp];
-    
-    RESET_EVERYTHING();
+    [super setUpWithMocks:@[[TunePlaylistManager class]]];
+
     // Don't let the automatically made analyticsmanager act on any skyhooks
     [[TuneSkyhookCenter defaultCenter] removeObserver:[TuneManager currentManager].analyticsManager];
 
@@ -68,7 +69,7 @@
     
     fileManagerMock = OCMClassMock([TuneFileManager class]);
     
-    [analyticsManager.tuneManager setAnalyticsManager:analyticsManager];
+    [[analyticsManager tuneManager] setAnalyticsManager:analyticsManager];
     [analyticsManager registerSkyhooks];
     
     configuration = [[TuneConfiguration alloc] initWithTuneManager:[TuneManager currentManager]];
@@ -82,10 +83,15 @@
 }
 
 - (void)tearDown {
+    // make sure that the timer is invalidated
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self];
     [TuneState updateConnectedMode: NO];
     
     [analyticsManager waitForOperationsToFinish];
     
+    [mockTimer invalidate];
+    
+    [analyticsManager stopMocking];
     [mockTimer stopMocking];
     [mockOperationQueue stopMocking];
     [mockApplication stopMocking];
@@ -242,6 +248,9 @@
 
 #pragma mark - Session Variables
 
+/***************************************
+ Temporarily disabled failing unit tests
+ ***************************************/
 //- (void)testSessionVariablesAreAddedToEvents {
 //    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableName: @"VAR_NAME", TunePayloadSessionVariableValue: @"VAR_VALUE", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeTag }];
 //    
@@ -255,7 +264,7 @@
 //    
 //    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: event }];
 //}
-
+//
 //- (void)testSessionVariablesAreResetAtEndOfSession {
 //    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableName: @"VAR_NAME", TunePayloadSessionVariableValue: @"VAR_VALUE", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeTag }];
 //    
@@ -263,7 +272,6 @@
 //    
 //    __block int saveCount = 0;
 //    OCMStub([fileManagerMock saveAnalyticsEventToDisk:OCMOCK_ANY withId:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
-//        
 //        if (saveCount == 0) {
 //            NSString *eventToSaveJSON;
 //            [invocation getArgument:&eventToSaveJSON atIndex:2];
@@ -328,11 +336,11 @@
 #pragma mark - Helpers
 
 - (void)addedDispatchOperation:(NSOperation *) operation {
-    dispatchCount ++;
+    ++dispatchCount;
 }
 
 - (void)addedConnectedDispatchOperation:(NSOperation *) operation {
-    connectedModeDispatchCount ++;
+    ++connectedModeDispatchCount;
 }
 
 @end

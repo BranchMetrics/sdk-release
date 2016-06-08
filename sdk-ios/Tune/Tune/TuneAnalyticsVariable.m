@@ -23,14 +23,12 @@
 
 + (instancetype)analyticsVariableWithName:(NSString *)name
                                     value:(id)value {
-    
     return [self analyticsVariableWithName:name value:value type:TuneAnalyticsVariableStringType];
 }
 
 + (instancetype)analyticsVariableWithName:(NSString *)name
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type {
-    
     return [[[self class] alloc] initWithName:name value:value type:type hashType:TuneAnalyticsVariableHashNone shouldAutoHash:NO];
 }
 
@@ -38,15 +36,13 @@
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type
                                  hashType:(TuneAnalyticsVariableHashType)hashType {
-    
     return [[[self class] alloc] initWithName:name value:value type:type hashType:hashType shouldAutoHash:NO];
 }
 
 + (instancetype)analyticsVariableWithName:(NSString *)name
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type
-                                 shouldAutoHash:(BOOL)shouldAutoHash {
-    
+                           shouldAutoHash:(BOOL)shouldAutoHash {
     return [[[self class] alloc] initWithName:name value:value type:type hashType:TuneAnalyticsVariableHashNone shouldAutoHash:shouldAutoHash];
 }
 
@@ -54,8 +50,7 @@
                                     value:(id)value
                                      type:(TuneAnalyticsVariableDataType)type
                                  hashType:(TuneAnalyticsVariableHashType)hashType
-                               shouldAutoHash:(BOOL)shouldAutoHash {
-    
+                           shouldAutoHash:(BOOL)shouldAutoHash {
     return [[[self class] alloc] initWithName:name value:value type:type hashType:hashType shouldAutoHash:shouldAutoHash];
 }
 
@@ -63,8 +58,7 @@
                        value:(id)newValue
                         type:(TuneAnalyticsVariableDataType)newType
                     hashType:(TuneAnalyticsVariableHashType)newHashType
-                  shouldAutoHash:(BOOL)newShouldAutoHash{
-    
+              shouldAutoHash:(BOOL)newShouldAutoHash {
     self = [self init];
     
     if (self) {

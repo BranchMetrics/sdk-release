@@ -459,8 +459,7 @@ static NSSet * doNotEncryptSet;
 }
 
 // Includes the eventItems and referenceId and fires the tracking request
-- (void)sendRequestWithEvent:(TuneEvent *)event
-{
+- (void)sendRequestWithEvent:(TuneEvent *)event {
 #if TARGET_OS_IOS
     //----------------------------
     // Always look for a facebook cookie because it could change often.

@@ -325,7 +325,6 @@ static TuneEventQueue *sharedQueue = nil;
     // Add/update tracked values that are determined asynchronously.
     
     if( encryptParams != nil ) {
-        
         NSString *searchString = nil;
         
         // append referral_url if not present
@@ -527,7 +526,6 @@ static TuneEventQueue *sharedQueue = nil;
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
                 if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
-                    
                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                     userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
                     userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
@@ -593,7 +591,7 @@ static TuneEventQueue *sharedQueue = nil;
             if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
                 [_delegate queueRequestDidFailWithError:error];
             }
-            urlResp = nil; // set response to nil and make sure that the request is retried
+            urlResp = nil; // set response to nil to make sure that the request is retried
         }
         
         handlerBlock(data, urlResp, error);
@@ -658,7 +656,7 @@ static TuneEventQueue *sharedQueue = nil;
     }
     
     NSString *path = [storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
-    if( [serializedQueue writeToFile:path atomically:YES] == NO ) {
+    if( ![serializedQueue writeToFile:path atomically:YES] ) {
         ErrorLog( @"Error writing event queue to file: %@", error );
         return;
     }

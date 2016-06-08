@@ -12,8 +12,9 @@
 #import "TuneFileManager.h"
 #import "TuneState+Testing.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneSwizzleBlacklistTests : XCTestCase {
+@interface TuneSwizzleBlacklistTests : TuneXCTestCase {
     id fileManagerMock;
 }
 
@@ -22,13 +23,10 @@
 @implementation TuneSwizzleBlacklistTests
 
 - (void)setUp {
-    
-    RESET_EVERYTHING();
+    [super setUp];
     
     fileManagerMock = OCMClassMock([TuneFileManager class]);
     [TuneState resetLocalConfig];
-    
-    [super setUp];
 }
 
 - (void)tearDown {

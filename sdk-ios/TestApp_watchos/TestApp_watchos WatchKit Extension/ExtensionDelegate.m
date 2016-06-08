@@ -42,8 +42,7 @@
 #pragma mark - TuneDelegate Methods
 
 // Tune success callback
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     //NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     //NSLog(@"Tune watch success: %@", dict);
 
@@ -51,14 +50,12 @@
 }
 
 // Tune failure callback
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     NSLog(@"Tune watchos error: %@", error);
 }
 
 // Tune request enqueued
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
-{
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId {
     NSLog(@"Tune watchos enqueued request: refId = %@", referenceId);
 }
 

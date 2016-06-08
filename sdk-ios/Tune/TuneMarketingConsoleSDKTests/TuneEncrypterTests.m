@@ -12,8 +12,9 @@
 #import "TuneEvent+Internal.h"
 #import "TuneKeyStrings.h"
 #import "TuneTracker.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneEncrypterTests : XCTestCase
+@interface TuneEncrypterTests : TuneXCTestCase
 
 @end
 
@@ -21,8 +22,6 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
 - (void)tearDown {

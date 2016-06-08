@@ -32,14 +32,14 @@
     return jsonString;
 }
 
-+ (NSString *)createJSONStringFromDictionary:(NSDictionary *)dict{
++ (NSString *)createJSONStringFromDictionary:(NSDictionary *)dict {
   TuneSBJsonWriter *jsonWriter = [TuneSBJsonWriter new];
     
   NSString *jsonString = [jsonWriter stringWithObject:dict];
   return jsonString;
 }
 
-+ (NSDictionary *)createDictionaryFromJSONString:(NSString *)json{
++ (NSDictionary *)createDictionaryFromJSONString:(NSString *)json {
   TuneSBJSON *jsonParser = [TuneSBJSON new];
 	
   id jsonData = [jsonParser objectWithString:json];
@@ -49,7 +49,7 @@
   return jsonDict;
 }
 
-+ (NSArray *)createArrayFromJSONString:(NSString *)json{
++ (NSArray *)createArrayFromJSONString:(NSString *)json {
     TuneSBJSON *jsonParser = [TuneSBJSON new];
 	
     id jsonData = [jsonParser objectWithString:json];
@@ -59,7 +59,7 @@
     return jsonDict;
 }
 
-+ (NSString *)createJSONStringFromArray:(NSArray *)array{
++ (NSString *)createJSONStringFromArray:(NSArray *)array {
     TuneSBJsonWriter *jsonWriter = [TuneSBJsonWriter new];
     
     NSString *jsonString = [jsonWriter stringWithObject:array];

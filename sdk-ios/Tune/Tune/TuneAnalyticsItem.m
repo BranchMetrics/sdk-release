@@ -20,7 +20,7 @@
     return [[[self class] alloc] initWithTuneEventItem:event];
 }
 
-- (id)initWithTuneEventItem:(TuneEventItem *)eventItem{
+- (id)initWithTuneEventItem:(TuneEventItem *)eventItem {
     self = [super init];
     
     if (self) {

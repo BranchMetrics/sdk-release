@@ -115,8 +115,7 @@ static char ctrl[0x22];
 /*
  In contrast to the public methods, it is an error to omit the error parameter here.
  */
-- (BOOL)scanValue:(NSObject **)o
-{
+- (BOOL)scanValue:(NSObject **)o {
     skipWhitespace(c);
     
     switch (*c++) {
@@ -161,8 +160,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanRestOfTrue:(NSNumber **)o
-{
+- (BOOL)scanRestOfTrue:(NSNumber **)o {
     if (!strncmp(c, "rue", 3)) {
         c += 3;
         *o = @(YES);
@@ -172,8 +170,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanRestOfFalse:(NSNumber **)o
-{
+- (BOOL)scanRestOfFalse:(NSNumber **)o {
     if (!strncmp(c, "alse", 4)) {
         c += 4;
         *o = @(NO);
@@ -231,8 +228,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanRestOfDictionary:(NSMutableDictionary **)o 
-{
+- (BOOL)scanRestOfDictionary:(NSMutableDictionary **)o {
     if (maxDepth && ++depth > maxDepth) {
         [self addErrorWithCode:AREDEPTH description: @"Nested too deep"];
         return NO;
@@ -283,8 +279,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanRestOfString:(NSMutableString **)o 
-{
+- (BOOL)scanRestOfString:(NSMutableString **)o {
     *o = [NSMutableString stringWithCapacity:16];
     do {
         // First see if there's a portion we can grab in one go. 
@@ -351,8 +346,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanUnicodeChar:(unichar *)x
-{
+- (BOOL)scanUnicodeChar:(unichar *)x {
     unichar hi, lo = 0;
     
     if (![self scanHexQuad:&hi]) {
@@ -385,8 +379,7 @@ static char ctrl[0x22];
     return YES;
 }
 
-- (BOOL)scanHexQuad:(unichar *)x
-{
+- (BOOL)scanHexQuad:(unichar *)x {
     *x = 0;
     for (int i = 0; i < 4; i++) {
         unichar uc = *c;
@@ -405,8 +398,7 @@ static char ctrl[0x22];
     return YES;
 }
 
-- (BOOL)scanNumber:(NSNumber **)o
-{
+- (BOOL)scanNumber:(NSNumber **)o {
     const char *ns = c;
     
     // The logic to test for validity of the number formatting is relicensed
@@ -466,8 +458,7 @@ static char ctrl[0x22];
     return NO;
 }
 
-- (BOOL)scanIsAtEnd
-{
+- (BOOL)scanIsAtEnd {
     skipWhitespace(c);
     return !*c;
 }

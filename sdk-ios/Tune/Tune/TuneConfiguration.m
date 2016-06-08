@@ -105,8 +105,7 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 
 #pragma mark - Action requests
 
-- (NSString*)domainName
-{
+- (NSString*)domainName {
     if(_staging) {
         return TUNE_SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
     } else {

@@ -24,20 +24,17 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
 
 @implementation TuneTestParams
 
-- (NSString*)description
-{
+- (NSString*)description {
     return [_params description];
 }
 
-- (id)copy
-{
+- (id)copy {
     id new = [[self class] new];
     ((TuneTestParams*)new).params = [self.params mutableCopy];
     return new;
 }
 
-- (BOOL)isEqualToParams:(TuneTestParams*)other
-{
+- (BOOL)isEqualToParams:(TuneTestParams*)other {
     if( _params == nil ) return FALSE;
     
     for( NSString *key in _params ) {
@@ -50,16 +47,14 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return TRUE;
 }
 
-- (BOOL)isEmpty
-{
+- (BOOL)isEmpty {
     return (_params == nil);
 }
 
 
 #pragma mark - Data extractors
 
-- (BOOL)extractParamsFromQueryString:(NSString*)string
-{
+- (BOOL)extractParamsFromQueryString:(NSString*)string {
     //NSLog( @"params from string %@", string );
     NSArray *components = [string componentsSeparatedByString:@"&"];
     for( NSString *component in components ) {
@@ -88,8 +83,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return TRUE;
 }
 
-- (BOOL)extractParamsFromJson:(NSString*)json
-{
+- (BOOL)extractParamsFromJson:(NSString*)json {
     //NSLog( @"params from JSON %@", json );
     NSError *error = nil;
     NSDictionary *data = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
@@ -133,8 +127,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return TRUE;
 }
 
-- (NSString*)valueForKey:(NSString*)key
-{
+- (NSString*)valueForKey:(NSString*)key {
     return _params[key];
 }
 
@@ -155,8 +148,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return resultData;
 }
 
-- (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str
-{
+- (NSData *)aesDecrypt:(NSString *)mykey data:(NSData *)str {
     long keyLength = [mykey length];
     if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
     {
@@ -193,23 +185,19 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
 
 #pragma mark - Value assertions
 
-- (BOOL)checkIsEmpty
-{
+- (BOOL)checkIsEmpty {
     return (_params == nil);
 }
 
-- (BOOL)checkKeyHasValue:(NSString*)key
-{
+- (BOOL)checkKeyHasValue:(NSString*)key {
     return (_params[key] != nil);
 }
 
-- (BOOL)checkKey:(NSString*)key isEqualToValue:(NSString*)value
-{
+- (BOOL)checkKey:(NSString*)key isEqualToValue:(NSString*)value {
     return [self checkKeyHasValue:key] && [_params[key] isEqualToString:value];
 }
 
-- (BOOL)checkAppValues
-{
+- (BOOL)checkAppValues {
     BOOL retval =
     [self checkKey:@"advertiser_id" isEqualToValue:kTestAdvertiserId] &&
     [self checkKey:@"package_name" isEqualToValue:kTestBundleId] &&
@@ -221,8 +209,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return retval;
 }
 
-- (BOOL)checkSdkValues
-{
+- (BOOL)checkSdkValues {
     NSString *sdkPlatform = @"ios";
     NSString *deviceForm = nil;
 #if TARGET_OS_TV
@@ -245,8 +232,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return retval;
 }
 
-- (BOOL)checkDeviceValues
-{
+- (BOOL)checkDeviceValues {
     BOOL retval =
     
     // NOTE: temporarily disabled "conversion_user_agent" check, since the user-agent string is never populated when running test cases
@@ -284,16 +270,14 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return retval;
 }
 
-- (BOOL)checkDefaultValues
-{
+- (BOOL)checkDefaultValues {
     return
     [self checkAppValues] &&
     [self checkSdkValues] &&
     [self checkDeviceValues];
 }
 
-- (BOOL)checkDataItems:(NSArray*)items
-{
+- (BOOL)checkDataItems:(NSArray*)items {
     NSArray *foundItems = _params[kDataItemKey];
     if( [items count] != [foundItems count] )
         return FALSE;
@@ -325,18 +309,15 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     return TRUE;
 }
 
-- (BOOL)checkNoDataItems
-{
+- (BOOL)checkNoDataItems {
     return (_params[kDataItemKey] == nil);
 }
 
-- (BOOL)checkReceiptEquals:(NSData*)receiptValue
-{
+- (BOOL)checkReceiptEquals:(NSData*)receiptValue {
     return [_params[kReceiptItemKey] isEqualToString:[TuneUtils tuneBase64EncodedStringFromData:receiptValue]];
 }
 
-- (BOOL)checkAppleReceiptEquals:(NSData*)receiptValue
-{
+- (BOOL)checkAppleReceiptEquals:(NSData*)receiptValue {
     return [_params[kAppleReceiptItemKey] isEqualToString:[TuneUtils tuneBase64EncodedStringFromData:receiptValue]];
 }
 

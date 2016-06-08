@@ -8,8 +8,9 @@
 
 #import <XCTest/XCTest.h>
 #import "TuneArrayUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneArrayUtilsTests : XCTestCase
+@interface TuneArrayUtilsTests : TuneXCTestCase
 
 @end
 
@@ -17,8 +18,6 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
 }
 
 - (void)tearDown {

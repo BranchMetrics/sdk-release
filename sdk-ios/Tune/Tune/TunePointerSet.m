@@ -33,7 +33,7 @@
 
 #pragma mark - Manage collection
 // add pointer at index 'count'
-- (void)addPointer:(void *)pointer{
+- (void)addPointer:(void *)pointer {
 //    if ([self isIOS5]) {
 //        [self addIOS5View:pointer];
 //        return;
@@ -54,7 +54,7 @@
 }
 
 // remove pointer if it is in the set
-- (void)removePointer:(void *)pointer{
+- (void)removePointer:(void *)pointer {
     
 //    if ([self isIOS5]) {
 //        [self removeIOS5View:pointer];
@@ -67,13 +67,13 @@
     }
 }
 
-- (void *)pointerAtIndex:(NSUInteger)index{
+- (void *)pointerAtIndex:(NSUInteger)index {
 //    if ([self isIOS5]) { return (__bridge void *)(self.ios5views[index]); }
     return [self.pointers pointerAtIndex:index];
 }
 
 // eliminate NULLs
-- (void)compact{
+- (void)compact {
     [self.pointers compact];
 }
 
@@ -82,8 +82,7 @@
     return [self.pointers allObjects];
 }
 
-- (NSUInteger) count
-{
+- (NSUInteger) count {
 //    if ([self isIOS5]) { return self.capacity; }
     return [self.pointers count];
 }

@@ -16,8 +16,9 @@
 #import "TuneDeepActionManager.h"
 #import "TunePowerHookManager.h"
 #import "TuneDeviceDetails.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneConnectedModeManageTests : XCTestCase {
+@interface TuneConnectedModeManageTests : TuneXCTestCase {
     id request;
     id tuneState;
     id api;
@@ -31,9 +32,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     requestSentOut = false;
     
     tuneState = OCMClassMock([TuneState class]);

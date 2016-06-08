@@ -34,7 +34,7 @@
     [self handleSessionStarted:nil];
 }
 
--(void)bringDown{
+-(void)bringDown {
     [self unregisterSkyhooks];
 }
 

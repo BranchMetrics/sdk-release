@@ -16,8 +16,9 @@
 #import "TuneSkyhookPayload.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "Tune+Testing.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneMeasureEventTests : XCTestCase {
+@interface TuneMeasureEventTests : TuneXCTestCase {
     TuneEvent* customEventFromSkyhook;
     TuneSkyhookCenter *skyhookCenter;
 }
@@ -28,9 +29,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     skyhookCenter = [TuneSkyhookCenter defaultCenter];
 }

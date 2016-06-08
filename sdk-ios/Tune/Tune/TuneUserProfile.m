@@ -275,28 +275,24 @@ static NSNumber *COPPA_MIN_AGE;
 #endif
 
 #if !TARGET_OS_WATCH
-- (void)updateIFA
-{
+- (void)updateIFA {
     if (self.tuneManager.configuration.shouldAutoCollectAdvertisingIdentifier) {
         TuneIfa *ifaInfo = [TuneIfa ifaInfo];
         
-        if(ifaInfo)
-        {
+        if(ifaInfo) {
             [self setAppleAdvertisingIdentifier:ifaInfo.ifa];
             [self setAppleAdvertisingTrackingEnabled:@(ifaInfo.trackingEnabled)];
         }
     }
 }
 
-- (void)clearIFA
-{
+- (void)clearIFA {
     [self setAppleAdvertisingIdentifier:nil];
     [self setAppleAdvertisingTrackingEnabled:@(NO)];
 }
 #endif
 
-- (void)setDeviceToken:(NSString *)deviceToken
-{
+- (void)setDeviceToken:(NSString *)deviceToken {
     [self storeProfileKey:TUNE_KEY_DEVICE_TOKEN value:deviceToken];
     [self checkIfPushIsEnabled];
 }
@@ -365,7 +361,8 @@ static NSNumber *COPPA_MIN_AGE;
     [self setAppBundleId:[TuneUtils bundleId]];
     [self setAppName:[TuneUtils bundleName]];
     [self setAppVersion:[TuneUtils bundleVersion]];
-
+    [self setAppVersionName:[TuneUtils stringVersion]];
+    
 #if TESTING
     // should only happen during unit tests
     if( [self packageName] == nil && [UIApplication sharedApplication] == nil ) {
@@ -777,49 +774,49 @@ static NSNumber *COPPA_MIN_AGE;
 - (void)setSessionId:(NSString *)sessionId {
     [self storeProfileKey:TUNE_KEY_SESSION_ID value:sessionId];
 }
-- (NSString *)sessionId{
+- (NSString *)sessionId {
     return [self getProfileValue:TUNE_KEY_SESSION_ID];
 }
 
 - (void)setLastSessionDate:(NSDate *)lastSessionDate {
     [self storeProfileKey:TUNE_KEY_SESSION_LAST_DATE value:lastSessionDate type:TuneAnalyticsVariableDateTimeType];
 }
-- (NSDate *)lastSessionDate{
+- (NSDate *)lastSessionDate {
     return [self getProfileValue:TUNE_KEY_SESSION_LAST_DATE];
 }
 
 - (void)setCurrentSessionDate:(NSDate *)currentSessionDate {
     [self storeProfileKey:TUNE_KEY_SESSION_CURRENT_DATE value:currentSessionDate type:TuneAnalyticsVariableDateTimeType];
 }
-- (NSDate *)currentSessionDate{
+- (NSDate *)currentSessionDate {
     return [self getProfileValue:TUNE_KEY_SESSION_CURRENT_DATE];
 }
 
 - (void)setSessionCount:(NSNumber *)count {
     [self storeProfileKey:TUNE_KEY_SESSION_COUNT value:count type:TuneAnalyticsVariableNumberType];
 }
-- (NSNumber *)sessionCount{
+- (NSNumber *)sessionCount {
     return [self getProfileValue:TUNE_KEY_SESSION_COUNT];
 }
 
 - (void)setInstallDate:(NSDate *)installDate {
     [self storeProfileKey:TUNE_KEY_INSDATE value:installDate type:TuneAnalyticsVariableDateTimeType];
 }
-- (NSDate *)installDate{
+- (NSDate *)installDate {
     return [self getProfileValue:TUNE_KEY_INSDATE];
 }
 
 - (void)setSessionDate:(NSString *)sessionDate {
     [self storeProfileKey:TUNE_KEY_SESSION_DATETIME value:sessionDate type:TuneAnalyticsVariableDateTimeType];
 }
-- (NSString *)sessionDate{
+- (NSString *)sessionDate {
     return [self getProfileValue:TUNE_KEY_SESSION_DATETIME];
 }
 
 - (void)setSystemDate:(NSDate *)systemDate {
     [self storeProfileKey:TUNE_KEY_SYSTEM_DATE value:systemDate type:TuneAnalyticsVariableDateTimeType];
 }
-- (NSDate *)systemDate{
+- (NSDate *)systemDate {
     return [self getProfileValue:TUNE_KEY_SYSTEM_DATE];
 }
 
@@ -900,6 +897,13 @@ static NSNumber *COPPA_MIN_AGE;
 }
 - (NSString *)appVersion {
     return [self getProfileValue:TUNE_KEY_APP_VERSION];
+}
+
+- (void)setAppVersionName:(NSString *)appVersionName {
+    [self storeProfileKey:TUNE_KEY_APP_VERSION_NAME value:appVersionName type:TuneAnalyticsVariableVersionType];
+}
+- (NSString *)appVersionName {
+    return [self getProfileValue:TUNE_KEY_APP_VERSION_NAME];
 }
 
 - (void)setWearable:(NSNumber *)wearable {
@@ -1650,6 +1654,7 @@ static NSNumber *COPPA_MIN_AGE;
     
     for (NSString *key in variables) {
         TuneAnalyticsVariable *var = [variables objectForKey:key];
+        
         if (![profileVariablesToNotSendToMA containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
             [result addObjectsFromArray:[var toArrayOfDicts]];
         }

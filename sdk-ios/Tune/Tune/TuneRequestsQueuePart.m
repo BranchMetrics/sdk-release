@@ -46,34 +46,29 @@ NSString * const XML_NODE_REQUEST = @"Request";
 @synthesize shouldLoadOnRequest = shouldLoadOnRequest_;
 @synthesize loadedRequestsCount = loadedRequestsCount_;
 
-- (NSInteger)index
-{
+- (NSInteger)index {
     return index_;
 }
 
-- (void)setIndex:(NSInteger)targetIndex
-{
+- (void)setIndex:(NSInteger)targetIndex {
     index_ = targetIndex;
     [self generateFileName];
     self.modified = YES;
 }
 
-- (BOOL)requestsLimitReached
-{
+- (BOOL)requestsLimitReached {
     @synchronized( requests_ ) {
         return ([self.requests count] >= REQUESTS_MAX_COUNT_IN_PART);
     }
 }
 
-- (BOOL)empty
-{
+- (BOOL)empty {
     @synchronized( requests_ ) {
         return ([self.requests count] == 0);
     }
 }
 
-- (NSUInteger)queuedRequestsCount
-{
+- (NSUInteger)queuedRequestsCount {
     @synchronized( requests_ ) {
         if (self.requests && [self.requests count] > 0)
         {
@@ -84,8 +79,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return self.loadedRequestsCount;
 }
 
-- (void)setQueuedRequestsCount:(NSUInteger)count
-{
+- (void)setQueuedRequestsCount:(NSUInteger)count {
     self.loadedRequestsCount = count;
 }
 
@@ -94,8 +88,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return [[TuneRequestsQueuePart alloc] initWithIndex:targetIndex parentFolder:parentFolder];
 }
 
-- (id)initWithIndex:(NSInteger)targetIndex parentFolder:(NSString *)parentDir
-{
+- (id)initWithIndex:(NSInteger)targetIndex parentFolder:(NSString *)parentDir {
     self = [super init];
     
     if (self)
@@ -111,8 +104,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
 }
 
 
-- (BOOL)push:(NSDictionary*)requestData
-{
+- (BOOL)push:(NSDictionary*)requestData {
     DebugLog(@"TuneReqQuePart: push: %@", requestData);
     
     if (self.requestsLimitReached)
@@ -127,8 +119,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return YES;
 }
 
-- (BOOL)pushToHead:(NSDictionary*)requestData
-{
+- (BOOL)pushToHead:(NSDictionary*)requestData {
     DebugLog(@"TuneReqQuePart: pushToHead: %@", requestData);
     
     if (self.requestsLimitReached) return NO;
@@ -142,8 +133,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return YES;
 }
 
-- (NSDictionary*)pop
-{
+- (NSDictionary*)pop {
     NSDictionary * requestData = nil;
     
     DebugLog(@"TuneReqQuePart: pop: filePath      = %@", self.filePathName);
@@ -173,8 +163,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return requestData;
 }
 
-- (BOOL)load
-{
+- (BOOL)load {
     DebugLog(@"TuneReqQuePart: load: fileName = %@, is already loaded: %d", self.fileName, self.loaded);
     if (!self.loaded)
     {
@@ -212,8 +201,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return self.loaded;
 }
 
-- (NSString*)serialize
-{
+- (NSString*)serialize {
     NSMutableString *strDescr = [NSMutableString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%@>", XML_NODE_QUEUEPART];
     
     @synchronized( requests_ ) {
@@ -247,8 +235,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return strDescr;
 }
 
-- (void)save
-{
+- (void)save {
     DebugLog(@"TuneReqQuePart save");
     NSError * error = nil;
     NSString *strDescr = [self serialize];
@@ -273,14 +260,12 @@ NSString * const XML_NODE_REQUEST = @"Request";
     self.modified = NO;
 }
 
-- (NSString*)description
-{
+- (NSString*)description {
     return [self serialize];
 }
 
 
-- (NSString*)generateFileName
-{
+- (NSString*)generateFileName {
     self.fileName = [NSString stringWithFormat:@"queue_part_%ld.xml", (long)self.index];
     
     DebugLog(@"TuneReqQuePart: generateFileName: dir  = %@", self.parentFolder);
@@ -304,8 +289,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
     return self.fileName;
 }
 
-- (NSComparisonResult)indexComparator:(TuneRequestsQueuePart*)other
-{
+- (NSComparisonResult)indexComparator:(TuneRequestsQueuePart*)other {
     if (self.index < other.index)
     {
         return NSOrderedAscending;
@@ -321,8 +305,7 @@ NSString * const XML_NODE_REQUEST = @"Request";
 #pragma mark mark - NSXMLParser Delegate Methods
 
 // sent when the parser finds an element start tag.
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
-{
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
     DebugLog(@"TuneReqQuePart: parser: elementName = %@", elementName);
     
     if([elementName isEqualToString:XML_NODE_REQUEST])

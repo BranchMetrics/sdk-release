@@ -24,8 +24,7 @@
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)encoder
-{
+- (void)encodeWithCoder:(NSCoder *)encoder {
     //Encode properties, other class variables, etc
     /*
      @property (nonatomic, copy) NSString *campaignID;
@@ -44,8 +43,7 @@
     [encoder encodeObject:@(self.numberOfTimesShownThisSession) forKey:@"numberOfTimesShownThisSession"];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
-{
+- (id)initWithCoder:(NSCoder *)decoder {
     self = [super init];
     if( self != nil )
     {

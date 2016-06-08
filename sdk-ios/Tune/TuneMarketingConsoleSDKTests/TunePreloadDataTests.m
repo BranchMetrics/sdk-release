@@ -16,9 +16,9 @@
 #import "TuneTestParams.h"
 #import "TuneTracker.h"
 #import "TuneUserProfileKeys.h"
+#import "TuneXCTestCase.h"
 
-@interface TunePreloadDataTests : XCTestCase <TuneDelegate>
-{
+@interface TunePreloadDataTests : TuneXCTestCase <TuneDelegate> {
     BOOL callSuccess;
     BOOL callFailed;
     
@@ -30,12 +30,9 @@
 
 @implementation TunePreloadDataTests
 
-- (void)setUp
-{
+- (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
@@ -46,8 +43,7 @@
     networkOnline();
 }
 
-- (void)tearDown
-{
+- (void)tearDown {
     [Tune setCurrencyCode:nil];
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
@@ -142,15 +138,13 @@
 
 #pragma mark - Tune delegate
 
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     //NSLog( @"TunePreloadDataTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
     callSuccess = YES;
     callFailed = NO;
 }
 
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     //NSLog( @"TunePreloadDataTests: test received failure with %@\n", error );
     callFailed = YES;
     callSuccess = NO;
@@ -160,8 +154,7 @@
 #pragma mark - Tune delegate
 
 // secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );

@@ -72,8 +72,7 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation
-{
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(id)annotation {
     NSLog(@"application:openURL:sourceApplication: %@", url.absoluteString);
     
     [Tune applicationDidOpenURL:url.absoluteString sourceApplication:sourceApplication];
@@ -81,8 +80,7 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options
-{
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options {
     NSLog(@"application:openURL:options: %@", url.absoluteString);
     
     NSString *sourceApplication = options[UIApplicationLaunchOptionsSourceApplicationKey];
@@ -96,8 +94,7 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 #pragma mark - TuneDelegate Methods
 
 // Tune success callback
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     NSLog(@"Tune ios success");
 //    NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 //    
@@ -105,20 +102,17 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 }
 
 // Tune failure callback
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     NSLog(@"Tune ios error: %@", error);
 }
 
 // Tune request enqueued
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
-{
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId {
     NSLog(@"Tune ios enqueued request: refId = %@", referenceId);
 }
 
 // Tune deeplink received
-- (void)tuneDidReceiveDeeplink:(NSString *)deeplink
-{
+- (void)tuneDidReceiveDeeplink:(NSString *)deeplink {
     NSLog(@"Tune ios deferred deeplink = %@", deeplink);
     
     if(deeplink)

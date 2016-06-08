@@ -10,9 +10,11 @@
 #import <OCMock/OCMock.h>
 #import "TunePlaylistManager+Testing.h"
 #import "TuneManager.h"
+#import "TuneAnalyticsManager+Testing.h"
 #import "TuneApi.h"
 #import "TuneHttpRequest.h"
 #import "TuneHttpResponse.h"
+#import "TuneHttpUtils.h"
 #import "DictionaryLoader.h"
 #import "SimpleObserver.h"
 #import "TuneSkyhookConstants.h"
@@ -20,8 +22,9 @@
 #import "TunePowerHookManager+Testing.h"
 #import "TuneSkyhookCenter.h"
 #import "Tune+Testing.h"
+#import "TuneXCTestCase.h"
 
-@interface TunePlaylistManagerTests : XCTestCase {
+@interface TunePlaylistManagerTests : TuneXCTestCase {
     id apiMock;
     id fileManagerMock;
     
@@ -29,6 +32,7 @@
     id playlistInstanceMock;
     
     id httpRequestMock;
+    id httpUtilsMock;
     
     TuneHttpResponse *newResponse;
     TuneManager *tuneManager;
@@ -45,9 +49,7 @@
 TunePlaylistManager *playlistManager;
 
 - (void)setUp {
-    [super setUp];
-    
-    RESET_EVERYTHING();
+    [super setUpWithMocks:@[[TuneAnalyticsManager class]]];
     
     tuneManager = [TuneManager currentManager];
     
@@ -59,7 +61,7 @@ TunePlaylistManager *playlistManager;
     
     playlistManager = tuneManager.playlistManager;
     
-    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.2" headerFields:@{}];
+    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     [newResponse setResponseDictionary:playlistDictionary];
     
@@ -74,7 +76,7 @@ TunePlaylistManager *playlistManager;
         
         [invocation getArgument:&dictionaryArg atIndex:2];
         TunePlaylist *instance = [[TunePlaylist alloc] initWithDictionary:dictionaryArg];
-
+        
         playlistInstanceMock = OCMPartialMock(instance);
         OCMStub([playlistInstanceMock retrieveInAppMessageAssets]).andDo(^(NSInvocation *retrieveInvocation) {
             [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistAssetsDownloaded object:playlistInstanceMock userInfo:nil];
@@ -85,6 +87,17 @@ TunePlaylistManager *playlistManager;
     
     httpRequestMock = OCMClassMock([TuneHttpRequest class]);
     OCMStub([httpRequestMock performAsynchronousRequestWithCompletionBlock:OCMOCK_ANY]).andCall(self, @selector(performAsynchronousRequestWithCompletionBlock:));
+    
+    httpUtilsMock = OCMClassMock([TuneHttpUtils class]);
+    
+    NSHTTPURLResponse *dummyResp = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://www.tune.com"] statusCode:200 HTTPVersion:@"1.1" headerFields:nil];
+    NSError *dummyError = nil;
+    OCMStub(ClassMethod([httpUtilsMock addIdentifyingHeaders:OCMOCK_ANY])).andDo(^(NSInvocation *invocation) {
+        DebugLog(@"mock TuneHttpUtils: ignoring addIdentifyingHeaders: call");
+    });
+    OCMStub(ClassMethod([httpUtilsMock sendSynchronousRequest:OCMOCK_ANY response:[OCMArg setTo:dummyResp] error:[OCMArg setTo:dummyError]])).andDo(^(NSInvocation *invocation) {
+        DebugLog(@"mock TuneHttpUtils: ignoring sendSynchronousRequest:response:error: call");
+    });
     
     apiMock = OCMClassMock([TuneApi class]);
     OCMStub([apiMock getPlaylistRequest]).andReturn(httpRequestMock);
@@ -105,6 +118,7 @@ TunePlaylistManager *playlistManager;
     [apiMock stopMocking];
     [fileManagerMock stopMocking];
     [httpRequestMock stopMocking];
+    [httpUtilsMock stopMocking];
     
     [super tearDown];
 }
@@ -127,7 +141,7 @@ TunePlaylistManager *playlistManager;
     
     [[TuneSkyhookCenter defaultCenter] addObserver:simpleObserver selector:@selector(skyhookPosted:) name:TunePlaylistManagerFinishedPlaylistDownload object:nil];
     
-    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:400 HTTPVersion:@"1.2" headerFields:@{}];
+    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:400 HTTPVersion:@"1.1" headerFields:@{}];
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart];
@@ -225,10 +239,6 @@ TunePlaylistManager *playlistManager;
     waitFor(0.31);
     
     XCTAssertTrue(i == 1);
-}
-
--(void)performAsynchronousRequestWithCompletionBlock:(void(^)(TuneHttpResponse* response))completionBlock {
-    completionBlock(newResponse);
 }
 
 - (void)testOnPlaylistFirstDownloadIsCalledAfterPowerHookUpdate {
@@ -364,6 +374,13 @@ TunePlaylistManager *playlistManager;
     waitFor(0.1);
     
     XCTAssertTrue(i == 6);
+}
+
+#pragma mark - Helper Methods
+
+-(void)performAsynchronousRequestWithCompletionBlock:(void(^)(TuneHttpResponse* response))completionBlock {
+    DebugLog(@"TunePlaylistManagerTests: dummy performAsynchronousRequestWithCompletionBlock: method called");
+    completionBlock(newResponse);
 }
 
 @end

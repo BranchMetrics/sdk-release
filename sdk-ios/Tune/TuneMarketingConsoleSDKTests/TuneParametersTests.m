@@ -18,10 +18,14 @@
 #import "TuneTracker.h"
 #import "TuneUserProfile.h"
 #import "TuneUserProfileKeys.h"
+#import "TuneXCTestCase.h"
+#import "TuneHttpUtils.h"
 
-@interface TuneParametersTests : XCTestCase <TuneDelegate>
-{
+#import <OCMock/OCMock.h>
+
+@interface TuneParametersTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
+    id httpUtilsMock;
 }
 
 @end
@@ -30,9 +34,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
     [Tune setDelegate:self];
     
@@ -41,6 +43,17 @@
     params = [TuneTestParams new];
     
     networkOnline();
+    
+    httpUtilsMock = OCMClassMock([TuneHttpUtils class]);
+    
+    NSHTTPURLResponse *dummyResp = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://www.tune.com"] statusCode:200 HTTPVersion:@"1.1" headerFields:nil];
+    NSError *dummyError = nil;
+    OCMStub(ClassMethod([httpUtilsMock addIdentifyingHeaders:OCMOCK_ANY])).andDo(^(NSInvocation *invocation) {
+        DebugLog(@"mock TuneHttpUtils: ignoring addIdentifyingHeaders: call");
+    });
+    OCMStub(ClassMethod([httpUtilsMock sendSynchronousRequest:OCMOCK_ANY response:[OCMArg setTo:dummyResp] error:[OCMArg setTo:dummyError]])).andDo(^(NSInvocation *invocation) {
+        DebugLog(@"mock TuneHttpUtils: ignoring sendSynchronousRequest:response:error: call");
+    });
 }
 
 - (void)tearDown {
@@ -48,6 +61,8 @@
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
 
+    [httpUtilsMock stopMocking];
+    
     emptyRequestQueue();
 
     [super tearDown];
@@ -1095,8 +1110,7 @@
 #pragma mark - Tune delegate
 
 // secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData
-{
+- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
     if( postData )
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );

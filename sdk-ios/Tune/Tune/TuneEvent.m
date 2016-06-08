@@ -47,8 +47,7 @@ static const int TUNE_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
     return [[TuneEvent alloc] initWithEventId:eventId];
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
     if (self) {
         _transactionState = TUNE_IGNORE_IOS_PURCHASE_STATUS;

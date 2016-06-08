@@ -47,8 +47,7 @@ CLLocationManager *singleLocationManager;
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)tapClick:(id)sender
-{
+- (IBAction)tapClick:(id)sender {
     NSLog(@"click fired");
     
     NSURL *urlClick = [NSURL URLWithString:@"<insert_a_measurement_url>"];
@@ -58,15 +57,13 @@ CLLocationManager *singleLocationManager;
     }] resume];
 }
 
-- (IBAction)tapSession:(id)sender
-{
+- (IBAction)tapSession:(id)sender {
     NSLog(@"event fired from TV app");
     
     [Tune measureSession];
 }
 
-- (IBAction)tapEvent:(id)sender
-{
+- (IBAction)tapEvent:(id)sender {
     NSLog(@"event fired from TV app");
     
     TuneEvent *event1 = [TuneEvent eventWithName:@"event1"];

@@ -24,7 +24,7 @@
     return array;
 }
 
-+(NSDictionary *) dictionaryFromJSONFileNamed:(NSString *)fileName{
++(NSDictionary *) dictionaryFromJSONFileNamed:(NSString *)fileName {
     NSString *path = [[NSBundle bundleForClass:[self class]] pathForResource:fileName ofType:@"json"];
     
     NSString *playlistData = [NSString stringWithContentsOfFile:path

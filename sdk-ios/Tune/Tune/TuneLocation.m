@@ -26,8 +26,7 @@
 
 #pragma mark - NSCoding
 
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
+- (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super init];
     if (!self) {
         return nil;
@@ -43,8 +42,7 @@
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder
-{
+- (void)encodeWithCoder:(NSCoder *)aCoder {
     [aCoder encodeObject:self.longitude forKey:@"longitude"];
     [aCoder encodeObject:self.latitude forKey:@"latitude"];
     [aCoder encodeObject:self.altitude forKey:@"altitude"];
@@ -55,8 +53,7 @@
 
 #pragma mark -
 
-- (NSString *)debugDescription
-{
+- (NSString *)debugDescription {
     return [NSString stringWithFormat:@"<%@: %p> %@, %@, %@, %@, %@, %@", [self class], (void *)self, self.latitude, self.longitude, self.altitude, self.horizontalAccuracy, self.verticalAccuracy, self.timestamp];
 }
 

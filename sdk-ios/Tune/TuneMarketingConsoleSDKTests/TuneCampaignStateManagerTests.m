@@ -15,8 +15,9 @@
 #import "TuneStorageKeys.h"
 #import "TuneManager+Testing.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneCampaignStateManagerTests : XCTestCase {
+@interface TuneCampaignStateManagerTests : TuneXCTestCase {
     TuneCampaignStateManager *campaignStateManager;
     SimpleObserver *simpleObserver;
     TuneSkyhookCenter *skyhookCenter;
@@ -28,8 +29,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
+
     // This suite expects nothing else running in the background
     [TuneManager nilModules];
     

@@ -39,9 +39,9 @@ static TuneUserAgentCollector *collector;
 {
     @synchronized( collector ) {
 #if !TARGET_OS_WATCH
-        if( collector.hasStarted == NO && [UIApplication sharedApplication] != nil ) {
+        if( !collector.hasStarted && [UIApplication sharedApplication] != nil ) {
 #else
-        if( collector.hasStarted == NO ) {
+        if( !collector.hasStarted ) {
 #endif
             collector.hasStarted = YES;
             

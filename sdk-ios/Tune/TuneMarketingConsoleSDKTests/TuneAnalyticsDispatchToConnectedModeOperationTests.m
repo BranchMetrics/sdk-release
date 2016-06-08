@@ -22,8 +22,9 @@
 #import "TuneConfiguration+Testing.h"
 #import "TuneHttpRequest.h"
 #import "TuneApi.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneAnalyticsDispatchToConnectedModeOperationTests : XCTestCase
+@interface TuneAnalyticsDispatchToConnectedModeOperationTests : TuneXCTestCase
 {
     TuneConfiguration *configuration;
     TuneUserProfile *userProfile;
@@ -49,7 +50,6 @@
 - (void)setUp {
     [super setUp];
     
-    RESET_EVERYTHING();
     // This suite expects nothing else running in the background
     [TuneManager nilModules];
     

@@ -1,5 +1,5 @@
 //
-//  TuneFileManager.m
+//  TuneFileManager.h
 //  TuneMarketingConsoleSDK
 //
 //  Created by Daniel Koch on 8/12/15.

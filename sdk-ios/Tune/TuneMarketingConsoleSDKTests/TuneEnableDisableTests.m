@@ -19,16 +19,17 @@
 #import "TuneState.h"
 #import "TuneUserDefaultsUtils.h"
 #import "TuneStorageKeys.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneEnableDisableTests : XCTestCase {
+@interface TuneEnableDisableTests : TuneXCTestCase {
     id apiMock;
-    id fileManagerMock;
     id request;
     id tuneStateMock;
     
     TuneHttpResponse *newResponse;
     NSDictionary *playlistDictionary;
     
+    SimpleObserver *observer;
     SimpleObserver *activatedObserver;
     SimpleObserver *deactivatedObserver;
     SimpleObserver *permanentlyDeactivatedObserver;
@@ -39,10 +40,11 @@
 @implementation TuneEnableDisableTests
 
 - (void)setUp {
-    [super setUp];
-    RESET_EVERYTHING();
+    [super setUpWithMocks:@[]];
+    
     [TuneManager nilModules];
     
+    observer = [[SimpleObserver alloc] init];
     activatedObserver = [[SimpleObserver alloc] init];
     deactivatedObserver  = [[SimpleObserver alloc] init];
     permanentlyDeactivatedObserver  = [[SimpleObserver alloc] init];
@@ -54,7 +56,6 @@
 - (void)tearDown {
     [request stopMocking];
     [apiMock stopMocking];
-    [fileManagerMock stopMocking];
     [tuneStateMock stopMocking];
 
     [super tearDown];
@@ -66,7 +67,7 @@
     
     playlistDictionary = d.copy;
     
-    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.2" headerFields:@{}];
+    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     [newResponse setResponseDictionary:playlistDictionary];
     
@@ -84,7 +85,7 @@
     
     playlistDictionary = d.copy;
     
-    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.2" headerFields:@{}];
+    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     [newResponse setResponseDictionary:playlistDictionary];
     
@@ -103,7 +104,6 @@
     tuneStateMock = OCMClassMock([TuneState class]);
     OCMStub([tuneStateMock didOptIntoTMA]).andReturn(NO);
     
-    SimpleObserver *observer = [[SimpleObserver alloc] init];
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneConfigurationUpdated object:nil];
@@ -139,7 +139,6 @@
 #if !TARGET_OS_TV
     [TuneUserDefaultsUtils clearUserDefaultValue:TMAStateDisabled];
     
-    SimpleObserver *observer = [[SimpleObserver alloc] init];
     // Should not send this since we start in the Active state when opted in (and no need for this Activated skyhook)
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     
@@ -200,7 +199,7 @@
     [[TuneSkyhookCenter defaultCenter] addObserver:deactivatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];
     
     /*
-     DISABELD AT BOOT ==> DISABLED
+     DISABLED AT BOOT ==> DISABLED
      Nothing should happen.
      */
     
@@ -224,7 +223,7 @@
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
     
     /*
-     DISABELD AT BOOT ==> ENABLED
+     DISABLED AT BOOT ==> ENABLED
      TMA should come online.
      */
     
@@ -446,7 +445,7 @@
     
     
     ////////// Should immediately trigger a playlist download //////////
-    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.2" headerFields:@{}];
+    NSHTTPURLResponse *urlResponse = [[NSHTTPURLResponse alloc] initWithURL:[[NSURL alloc] init] statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
     newResponse = [[TuneHttpResponse alloc] initWithURLResponse:urlResponse andError:nil];
     [newResponse setResponseDictionary:playlistDictionary];
     

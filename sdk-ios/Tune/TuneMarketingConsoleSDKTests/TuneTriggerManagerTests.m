@@ -18,8 +18,9 @@
 #import "TuneAnalyticsConstants.h"
 #import "TuneDeviceDetails.h"
 #import "TuneSlideInMessageFactory.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneTriggerManagerTests : XCTestCase {
+@interface TuneTriggerManagerTests : TuneXCTestCase {
     NSDictionary *slideInDictionary;
     TunePlaylist *slideInPlaylist;
     
@@ -38,9 +39,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     [TuneManager currentManager].configuration.debugLoggingOn = YES;
     
     skyhookCenter = [TuneSkyhookCenter defaultCenter];

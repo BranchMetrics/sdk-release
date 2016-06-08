@@ -17,7 +17,7 @@
 
 @implementation TuneAnalyticsDispatchToConnectedModeOperation
 
-- (id)initWithTuneManager:(TuneManager *)manager event:(TuneAnalyticsEvent *) eventToSend {
+- (id)initWithTuneManager:(TuneManager *)manager event:(TuneAnalyticsEvent *)eventToSend {
     self = [self init];
     if (self) {
         echoAnalytics = manager.configuration.echoAnalytics;
@@ -28,7 +28,12 @@
 
 - (void)main {
     @try {
-        DebugLog(@"Dispatching the analytics events.");
+        DebugLog(@"Dispatching the connected mode analytics events.");
+        
+        if(self.isCancelled) {
+            ErrorLog(@"TuneAnalyticsDispatchToConnectedModeOperation has already been cancelled");
+            return;
+        }
         
         TuneHttpResponse *response = [self postAnalytics:event];
         

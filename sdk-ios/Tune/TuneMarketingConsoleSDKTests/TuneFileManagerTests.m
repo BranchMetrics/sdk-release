@@ -15,8 +15,9 @@
 #import "TuneManager.h"
 #import "TuneConfiguration.h"
 #import "DictionaryLoader.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneFileManagerTests : XCTestCase
+@interface TuneFileManagerTests : TuneXCTestCase
 {
     NSString *directoryPath;
     NSString *remoteConfigPath;
@@ -33,9 +34,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     configuration = [[TuneConfiguration alloc] initWithTuneManager:[TuneManager currentManager]];
     [TuneManager currentManager].configuration = configuration;
     pointMAUrlsToNothing();

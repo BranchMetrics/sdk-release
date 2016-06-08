@@ -236,8 +236,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
     [tuneSharedLocationHelper startLocationUpdates];
 }
 
-- (void)startLocationUpdates
-{
+- (void)startLocationUpdates {
     if ([[self class] createLocationManager])
     {
 #pragma clang diagnostic push
@@ -252,13 +251,11 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 
 #pragma mark - CLLocationManagerDelegate
 
-- (void)locationManager:(id)manager didFailWithError:(NSError *)error
-{
+- (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     DebugLog(@"location: didFailWithError: error = %@", error);
 }
 
-- (void)locationManager:(id)manager didUpdateToLocation:(id)newLocation fromLocation:(id)oldLocation
-{
+- (void)locationManager:(id)manager didUpdateToLocation:(id)newLocation fromLocation:(id)oldLocation {
     DebugLog(@"location: didUpdateToLocation: newLocation = %@", newLocation);
     
     if(newLocation)

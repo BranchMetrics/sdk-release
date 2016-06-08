@@ -9,8 +9,9 @@
 #import <XCTest/XCTest.h>
 #import "TuneSkyhookCenter.h"
 #import "TuneDeepActionManager+Testing.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneDeepActionManagerTests : XCTestCase {
+@interface TuneDeepActionManagerTests : TuneXCTestCase {
     TuneDeepActionManager *deepActionManager;
 }
 
@@ -20,9 +21,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     deepActionManager = [TuneManager currentManager].deepActionManager;
 }
 

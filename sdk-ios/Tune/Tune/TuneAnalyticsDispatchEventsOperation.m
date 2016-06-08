@@ -40,6 +40,11 @@
     @try {
         DebugLog(@"Dispatching the analytics events.");
         
+        if(self.isCancelled) {
+            ErrorLog(@"TuneAnalyticsDispatchEventsOperation has already been cancelled: do not read events from disk");
+            return;
+        }
+        
         NSError *error = nil;
         BOOL success = NO;
         
@@ -62,6 +67,11 @@
                 NSString *tracerJSON = [TuneJSONUtils createJSONStringFromDictionary:[tracer toDictionary]];
                 [eventsToSend addObject: tracerJSON];
             }
+        }
+        
+        if(self.isCancelled) {
+            ErrorLog(@"TuneAnalyticsDispatchEventsOperation has already been cancelled: do not fire request");
+            return;
         }
         
         success = [self postAnalytics:eventsToSend toURL:[NSURL URLWithString:urlString] error:&error];
@@ -93,7 +103,7 @@
     NSData *zippedPostPayload = [self zipAndEncodeData:[eventsPostString dataUsingEncoding:NSUTF8StringEncoding] withFileBoundary:boundary];
     NSString *requestDataLengthString = [[NSString alloc] initWithFormat:@"%lu", (unsigned long)[zippedPostPayload length]];
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
-
+    
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:zippedPostPayload];
@@ -109,7 +119,7 @@
     return (*error == nil);
 }
 
-- (NSString *)outboundMessageStringFromEventArray:(NSArray*) eventArray {
+- (NSString *)outboundMessageStringFromEventArray:(NSArray*)eventArray {
     // We'll create the JSON string manually since the eventArray contains strings already in JSON format
     // (and we don't want to risk double-encoding via SBJSON)
     

@@ -21,6 +21,8 @@
 #include <net/if.h>
 #include <net/if_dl.h>
 
+#import <UIKit/UIKit.h>
+
 #if TARGET_OS_IOS
 NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
 #endif
@@ -35,7 +37,9 @@ NSMutableArray *alertTitles;
 NSMutableArray *alertMessages;
 NSMutableArray *alertCompletionBlocks;
 
-BOOL isWatchAlertVisible;
+UIWindow *tuneAlertWindow;
+
+BOOL isAlertVisible;
 
 @implementation TuneUtils
 
@@ -217,6 +221,10 @@ BOOL isWatchAlertVisible;
 
 + (NSString *)bundleVersion {
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleVersionKey];
+}
+
++ (NSString *)stringVersion {
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
 }
 
 + (NSDate *)installDate {
@@ -559,20 +567,17 @@ BOOL isWatchAlertVisible;
 #if TARGET_OS_WATCH
 
 + (void)innerWatchShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    BOOL isAlertVisible = isWatchAlertVisible;
-    
     __block id block = completionHandler ? [completionHandler copy] : nil;
     
     if(isAlertVisible) {
         [alertTitles addObject:title];
         [alertMessages addObject:message];
-        
         [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
     } else {
-        isWatchAlertVisible = YES;
+        isAlertVisible = YES;
         
         WKAlertAction *alertAction = [WKAlertAction actionWithTitle:@"OK" style:WKAlertActionStyleCancel handler:^{
-            isWatchAlertVisible = NO;
+            isAlertVisible = NO;
             NSString *nextTitle = [alertTitles firstObject];
             NSString *nextMessage = [alertMessages firstObject];
             void (^nextBlock)(void) = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
@@ -597,20 +602,71 @@ BOOL isWatchAlertVisible;
     }
 }
 
-#else
+#elif TARGET_OS_TV
 
-+ (void)innerIosShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    if(NSClassFromString(@"UIAlertController")) {
-        BOOL isAlertVisible = nil != [[UIApplication sharedApplication].delegate.window.rootViewController presentedViewController];
++ (void)innerTvosShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
+    if(isAlertVisible) {
+        [alertTitles addObject:title];
+        [alertMessages addObject:message];
+        [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
+    } else {
+        isAlertVisible = YES;
         
         __block id block = completionHandler ? [completionHandler copy] : nil;
         
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                       message:message
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * _Nonnull action) {
+                                                    isAlertVisible = NO;
+                                                    NSString *nextTitle = [alertTitles firstObject];
+                                                    NSString *nextMessage = [alertMessages firstObject];
+                                                    id blk = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
+                                                    void (^nextBlock)(void) = [NSNull null] == blk ? nil : blk;
+                                                    
+                                                    if(nextTitle && nextMessage) {
+                                                        [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
+                                                        [alertTitles removeObjectAtIndex:0];
+                                                        [alertMessages removeObjectAtIndex:0];
+                                                        [alertCompletionBlocks removeObjectAtIndex:0];
+                                                    }
+                                                    
+                                                    if(block && (id)[NSNull null] != (id)block) {
+                                                        void (^curBlock)(void) = (void (^)(void))block;
+                                                        curBlock();
+                                                    }
+                                                }]];
+        
+        // do not animate the alert view display, so as to reduce the time required and avoid clash with client app UI operations
+        [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:NO completion:nil];
+    }
+}
+
+#elif TARGET_OS_IOS
+
++ (void)innerIosShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
+    if(NSClassFromString(@"UIAlertController")) {
         if(isAlertVisible) {
             [alertTitles addObject:title];
             [alertMessages addObject:message];
-            
             [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
         } else {
+            isAlertVisible = YES;
+            
+            __block id block = completionHandler ? [completionHandler copy] : nil;
+            
+            static dispatch_once_t tuneAlertWindowOnceToken;
+            dispatch_once(&tuneAlertWindowOnceToken, ^{
+                tuneAlertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+                tuneAlertWindow.windowLevel = UIWindowLevelAlert;
+                tuneAlertWindow.rootViewController = [UIViewController new];
+            });
+            
+            tuneAlertWindow.hidden = NO;
+            
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                            message:message
                                                                     preferredStyle:UIAlertControllerStyleAlert];
@@ -618,15 +674,19 @@ BOOL isWatchAlertVisible;
             [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                                       style:UIAlertActionStyleDefault
                                                     handler:^(UIAlertAction * _Nonnull action) {
+                                                        isAlertVisible = NO;
                                                         NSString *nextTitle = [alertTitles firstObject];
                                                         NSString *nextMessage = [alertMessages firstObject];
-                                                        void (^nextBlock)(void) = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
+                                                        id blk = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
+                                                        void (^nextBlock)(void) = [NSNull null] == blk ? nil : blk;
                                                         
                                                         if(nextTitle && nextMessage) {
                                                             [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
                                                             [alertTitles removeObjectAtIndex:0];
                                                             [alertMessages removeObjectAtIndex:0];
                                                             [alertCompletionBlocks removeObjectAtIndex:0];
+                                                        } else {
+                                                            tuneAlertWindow.hidden = YES;
                                                         }
                                                         
                                                         if(block && (id)[NSNull null] != (id)block) {
@@ -636,7 +696,7 @@ BOOL isWatchAlertVisible;
                                                     }]];
             
             // do not animate the alert view display, so as to reduce the time required and avoid clash with client app UI operations
-            [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:NO completion:nil];
+            [tuneAlertWindow.rootViewController presentViewController:alert animated:NO completion:nil];
         }
     } else {
         Class classUIAlertView = NSClassFromString(@"UIAlertView");
@@ -659,6 +719,8 @@ BOOL isWatchAlertVisible;
     
 #if TARGET_OS_WATCH
     [self innerWatchShowAlertWithTitle:title message:message completionBlock:completionHandler];
+#elif TARGET_OS_TV
+    [self innerTvosShowAlertWithTitle:title message:message completionBlock:completionHandler];
 #else
     [self innerIosShowAlertWithTitle:title message:message completionBlock:completionHandler];
 #endif

@@ -12,8 +12,9 @@
 #import "TuneState+Testing.h"
 #import "TuneFileManager.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneXCTestCase.h"
 
-@interface TuneStateTests : XCTestCase {
+@interface TuneStateTests : TuneXCTestCase {
     id fileManagerMock;
 }
 
@@ -23,9 +24,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     fileManagerMock = OCMClassMock([TuneFileManager class]);
     [TuneState resetLocalConfig];
     

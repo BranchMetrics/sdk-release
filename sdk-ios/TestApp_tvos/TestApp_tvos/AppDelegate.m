@@ -70,28 +70,24 @@ NSString * const TUNE_PACKAGE_NAME   = @"com.tune.tvostestapp1";
 #pragma mark - TuneDelegate Methods
 
 // Tune success callback
-- (void)tuneDidSucceedWithData:(NSData *)data
-{
+- (void)tuneDidSucceedWithData:(NSData *)data {
     NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 
     NSLog(@"Tune tvos success: %@", dict);
 }
 
 // Tune failure callback
-- (void)tuneDidFailWithError:(NSError *)error
-{
+- (void)tuneDidFailWithError:(NSError *)error {
     NSLog(@"Tune tvos error: %@", error);
 }
 
 // Tune request enqueued
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId
-{
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId {
     NSLog(@"Tune tvos enqueued request: refId = %@", referenceId);
 }
 
 // Tune deeplink received
-- (void)tuneDidReceiveDeeplink:(NSString *)deeplink
-{
+- (void)tuneDidReceiveDeeplink:(NSString *)deeplink {
     NSLog(@"Tune tvos deferred deeplink = %@", deeplink);
 
     if(deeplink)

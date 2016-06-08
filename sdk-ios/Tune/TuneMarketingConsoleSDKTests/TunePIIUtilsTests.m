@@ -14,8 +14,9 @@
 #import "TuneConfigurationKeys.h"
 #import "Tune+Testing.h"
 #import "TuneManager.h"
+#import "TuneXCTestCase.h"
 
-@interface TunePIIUtilsTests : XCTestCase
+@interface TunePIIUtilsTests : TuneXCTestCase
 
 @end
 
@@ -23,9 +24,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     NSDictionary *config = @{TUNE_TMA_PII_FILTERS_NSSTRING: @[@"^[1-9][0-9]{5,50}$",@"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$"]};
     [Tune initializeWithTuneAdvertiserId:@"foobar" tuneConversionKey:@"bingband" tunePackageName:@"com.foo" wearable:NO configuration:config];
 }

@@ -17,9 +17,9 @@
 #import "UIViewController+NameTag.h"
 #import "TuneState+Testing.h"
 #import "TuneState.h"
+#import "TuneXCTestCase.h"
 
-
-@interface UIViewController_TuneAnalyticsTests : XCTestCase {
+@interface UIViewController_TuneAnalyticsTests : TuneXCTestCase {
     SimpleObserver *simpleObserver;
     id swizzleBlacklistMock;
     id tuneStateMock;
@@ -33,9 +33,7 @@
 
 - (void)setUp {
     [super setUp];
-    
-    RESET_EVERYTHING();
-    
+
     tuneStateMock = OCMClassMock([TuneState class]);
     OCMStub(ClassMethod([tuneStateMock doSendScreenViews])).andReturn(YES);
     
