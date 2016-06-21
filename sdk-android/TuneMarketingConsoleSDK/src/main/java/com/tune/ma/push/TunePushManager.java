@@ -13,6 +13,7 @@ import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
+import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.profile.TuneProfileKeys;
@@ -53,6 +54,8 @@ public class TunePushManager {
 
     private Set<String> processedMessages;
 
+    private TunePushMessage lastOpenedPushMessage;
+
     public TunePushManager(Context context) {
         this(context, TuneManager.getInstance().getProfileManager().getProfileVariableValue(TuneProfileKeys.APP_BUILD));
     }
@@ -82,6 +85,10 @@ public class TunePushManager {
                 }
             });
         }
+    }
+
+    public synchronized void onEvent(TuneAppBackgrounded event) {
+        lastOpenedPushMessage = null;
     }
 
     public void onEvent(TuneUpdateUserProfile event) {
@@ -246,7 +253,7 @@ public class TunePushManager {
         sharedPrefs.saveToSharedPreferences(PROPERTY_GCM_SENDER, pushSenderId);
     }
 
-    public TuneOptional<TunePushMessage> checkGetPushFromActivity(Activity activity) {
+    public synchronized TuneOptional<TunePushMessage> checkGetPushFromActivity(Activity activity) {
         Intent intent = activity.getIntent();
         if (intent == null) {
             return TuneOptional.empty();
@@ -278,6 +285,7 @@ public class TunePushManager {
             processedMessages.add(message.getMessageIdentifier());
         }
 
+        lastOpenedPushMessage = message;
         return TuneOptional.of(message);
     }
 
@@ -369,6 +377,22 @@ public class TunePushManager {
     // returns the stored registration id (device token), otherwise null
     public String getDeviceToken() {
         return sharedPrefs.getStringFromSharedPreferences(PROPERTY_REG_ID, null);
+    }
+
+    public synchronized boolean didOpenFromTunePushThisSession() {
+        return lastOpenedPushMessage != null;
+    }
+
+    public synchronized TunePushInfo getLastOpenedPushInfo() {
+        if (lastOpenedPushMessage == null) {
+            return null;
+        }
+
+        TunePushInfo info = new TunePushInfo();
+        info.setCampaignId(lastOpenedPushMessage.getCampaign().getCampaignId());
+        info.setPushId(lastOpenedPushMessage.getCampaign().getVariationId());
+        info.setExtrasPayload(lastOpenedPushMessage.getPayload().getUserExtraPayloadParams());
+        return info;
     }
 
     public boolean didUserManuallyDisablePush() {

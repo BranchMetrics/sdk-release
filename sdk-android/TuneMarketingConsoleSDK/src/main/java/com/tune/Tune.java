@@ -33,6 +33,7 @@ import com.tune.ma.experiments.model.TuneInAppMessageExperimentDetails;
 import com.tune.ma.experiments.model.TunePowerHookExperimentDetails;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneDeepActionCallback;
+import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
 
 import org.json.JSONArray;
@@ -1842,6 +1843,40 @@ public class Tune {
         }
 
         return TuneManager.getInstance().getPushManager().didUserManuallyDisablePush();
+    }
+
+    /**
+     * Returns if the current session is because the user opened a push notification.
+     * <br/>
+     * This status is reset to false when the application becomes backgrounded.
+     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
+     * <br/>
+     *
+     * @return true if this session was started because the user opened a push message, otherwise false.
+     */
+    public boolean didSessionStartFromTunePush() {
+        if (TuneManager.getPushManagerForUser("didSessionStartFromTunePush") == null) {
+            return false;
+        }
+
+        return TuneManager.getInstance().getPushManager().didOpenFromTunePushThisSession();
+    }
+
+    /**
+     * Returns a POJO containing information about the push message that started the current session.
+     * <br/>
+     * This is reset to null when the application becomes backgrounded.
+     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
+     * <br/>
+     *
+     * @return Information about the last opened push if {@link Tune#didSessionStartFromTunePush()} is true, otherwise null.
+     */
+    public TunePushInfo getTunePushInfoForSession() {
+        if (TuneManager.getPushManagerForUser("getTunePushInfoForSession") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getPushManager().getLastOpenedPushInfo();
     }
 
     /**
