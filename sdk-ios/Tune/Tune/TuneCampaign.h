@@ -1,5 +1,5 @@
 //
-//  TuneInAppCampaign.h
+//  TuneCampaign.h
 //  TuneMarketingConsoleSDK
 //
 //  Created by Matt Gowie on 8/31/15.
@@ -13,7 +13,6 @@
 }
 
 @property (nonatomic, copy) NSString *campaignId;
-@property (nonatomic, copy) NSString *sharedUserId;
 @property (nonatomic, copy) NSString *campaignSource;
 @property (nonatomic, copy) NSString *variationId;
 @property (strong, nonatomic) NSDate *lastViewed;
@@ -24,7 +23,6 @@
 andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics;
 
 - (id)initWithNotificationUserInfo:(NSDictionary *)userInfo;
-- (id)initWithInteractiveNotificationPlaylistDictionary:(NSDictionary *)notificationDictionary;
 
 - (void)markCampaignViewed;
 - (BOOL)needToReportCampaignAnalytics;

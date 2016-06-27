@@ -14,12 +14,12 @@
 
 + (NSDictionary *)loadAnalyticsFromDisk;
 + (BOOL)saveAnalyticsEventToDisk:(NSString *)eventJSON withId:(NSString *)eventId;
-+ (BOOL)saveAnalyticsToDisk: (NSDictionary *)analytics;
-+ (BOOL)deleteAnalyticsEventsFromDisk:(NSArray *) eventsToDelete;
++ (BOOL)saveAnalyticsToDisk:(NSDictionary *)analytics;
++ (BOOL)deleteAnalyticsEventsFromDisk:(NSArray *)eventsToDelete;
 + (BOOL)deleteAnalyticsFromDisk;
 
 + (NSDictionary *)loadRemoteConfigurationFromDisk;
-+ (BOOL)saveRemoteConfigurationToDisk: (NSDictionary*)config;
++ (BOOL)saveRemoteConfigurationToDisk:(NSDictionary*)config;
 + (BOOL)deleteRemoteConfigurationFromDisk;
 
 + (NSDictionary *)loadPlaylistFromDisk;

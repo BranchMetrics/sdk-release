@@ -48,7 +48,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 }
 
 
-#pragma mark SKProductsRequestDelegate Methods
+#pragma mark - SKProductsRequestDelegate Methods
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
     NSArray *arrProducts = response.products;
@@ -90,9 +90,13 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 }
 
 
-#pragma mark SKPaymentTransactionObserver Methods
+#pragma mark - SKPaymentTransactionObserver Methods
 
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions {
+    // empty
+}
+
+- (void)paymentQueue:(SKPaymentQueue *)queue removedTransactions:(NSArray *)transactions {
     // handle each transaction
     for (SKPaymentTransaction *transaction in transactions) {
         switch (transaction.transactionState) {
@@ -194,14 +198,19 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
     
     // create the event item, unitPrice and revenue will be zero if the product info download fails
     TuneEventItem *eventItem = [TuneEventItem eventItemWithName:productTitle unitPrice:unitPrice quantity:quantity revenue:revenue];
+    eventItem.attribute1 = product.priceLocale.localeIdentifier;
     
     // Measure the in-app-purchase event
     TuneEvent *event = [TuneEvent eventWithName:@"purchase"];
     event.currencyCode = currencyCode;
-    event.receipt = receipt;
-    event.eventItems = @[eventItem];
-    event.transactionState = transaction.transactionState;
     event.date1 = transaction.transactionDate;
+    event.eventItems = @[eventItem];
+    event.receipt = receipt;
+    event.refId = transaction.transactionIdentifier;
+    event.transactionState = transaction.transactionState;
+    event.contentId = transaction.payment.productIdentifier;
+    event.contentType = @"tune_iap_auto_event";
+    
     [Tune measureEvent:event];
 }
 

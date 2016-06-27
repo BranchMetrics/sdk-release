@@ -172,7 +172,7 @@
     ASSERT_KEY_VALUE( TUNE_KEY_POST_CONVERSION, @"1" );
 }
 
-- (void)testURLOpen {
+- (void)testUrlOpen {
     static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
     static NSString* const sourceApplication = @"Mail";
     [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];

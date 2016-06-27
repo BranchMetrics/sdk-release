@@ -161,7 +161,8 @@ void REMOVE_MOCKS() {
 }
 
 void pointMAUrlsToNothing() {
-    [[TuneManager currentManager].configuration setApiHostPort:nil];
+    [[TuneManager currentManager].configuration setPlaylistHostPort:nil];
+    [[TuneManager currentManager].configuration setConfigurationHostPort:nil];
     [[TuneManager currentManager].configuration setAnalyticsHostPort:nil];
     [[TuneManager currentManager].configuration setStaticContentHostPort:nil];
     [[TuneManager currentManager].configuration setConnectedModeHostPort:nil];

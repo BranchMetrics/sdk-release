@@ -29,7 +29,7 @@
 + (BOOL)fileExists:(NSString *)filePath;
 + (BOOL)deleteFileOrDirectory:(NSString *)fileOrDirectory;
 + (BOOL)moveFileOrDirectory:(NSString *)fileOrDirectory toFileOrDirectory:(NSString *)toFileOrDirectory;
-+ (BOOL)addSkipBackupAttributeToItemAtURL: (NSURL *)url;
++ (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)url;
 + (NSString *)pathToConfiguration;
 
 @end

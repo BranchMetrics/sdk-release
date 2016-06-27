@@ -86,7 +86,7 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
     }
 }
 
-+ (BOOL)saveAnalyticsToDisk: (NSDictionary *)analytics {
++ (BOOL)saveAnalyticsToDisk:(NSDictionary *)analytics {
     BOOL returnCode = YES;
     
     @try {
@@ -105,7 +105,7 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
     }
 }
 
-+ (BOOL)deleteAnalyticsEventsFromDisk:(NSArray *) eventsToDelete {
++ (BOOL)deleteAnalyticsEventsFromDisk:(NSArray *)eventsToDelete {
     BOOL returnCode = YES;
     NSMutableDictionary *currentAnalytics = nil;
     

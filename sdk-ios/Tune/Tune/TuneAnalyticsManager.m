@@ -312,7 +312,7 @@
                                                                                     value:campaign.campaignSource]];
             }
             if (campaign.campaignId && [campaign.campaignId length] > 0) {
-                [analyticsVars addObject:[TuneAnalyticsVariable analyticsVariableWithName:TUNE_CAMPAIGN_IDENTIFIER
+                [analyticsVars addObject:[TuneAnalyticsVariable analyticsVariableWithName:TUNE_ANALYTICS_CAMPAIGN_IDENTIFIER
                                                                                     value:campaign.campaignId]];
             }
             if (campaign.variationId && [campaign.variationId length] > 0) {
@@ -540,7 +540,7 @@
 }
 #endif
 
-- (void)dispatchToConnectedEndpoint: (TuneAnalyticsEvent *)event {
+- (void)dispatchToConnectedEndpoint:(TuneAnalyticsEvent *)event {
     if ([TuneState isInConnectedMode]) {
         TuneAnalyticsDispatchToConnectedModeOperation *dispatchOperation = [[TuneAnalyticsDispatchToConnectedModeOperation alloc] initWithTuneManager:self.tuneManager
                                                                                                                                                 event:event];
@@ -567,6 +567,7 @@
     if(_dispatchScheduler.isValid) {
         [_dispatchScheduler invalidate];
     }
+    // explicitly nil the old NSTimer reference
     _dispatchScheduler = nil;
     
     _dispatchScheduler = dispatchScheduler;

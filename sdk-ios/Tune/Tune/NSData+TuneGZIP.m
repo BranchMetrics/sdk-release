@@ -55,7 +55,7 @@
         stream.total_out = 0;
         stream.avail_out = 0;
         
-        int compression = (level < 0.0f)? Z_DEFAULT_COMPRESSION: (int)roundf(level * 9);
+        int compression = (level < 0.0f) ? Z_DEFAULT_COMPRESSION : (int)roundf(level * 9);
         if (deflateInit2(&stream, compression, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) == Z_OK)
         {
             NSMutableData *data = [NSMutableData dataWithLength:CHUNK_SIZE];

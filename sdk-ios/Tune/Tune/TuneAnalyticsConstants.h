@@ -64,6 +64,7 @@ extern NSString *const TUNE_SUB_SUB_CATEGORY_PARAMETER;
 
 #pragma mark - Campaign IDs
 extern NSString *const TUNE_CAMPAIGN_IDENTIFIER;
+extern NSString *const TUNE_ANALYTICS_CAMPAIGN_IDENTIFIER;
 extern NSString *const TUNE_CAMPAIGN_STEP_IDENTIFIER;
 extern NSString *const TUNE_CAMPAIGN_VARIATION_IDENTIFIER;
 

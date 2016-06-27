@@ -38,7 +38,8 @@ extern NSString *const TuneConfigurationPreviewModeKey;
 
 @property (nonatomic, assign) BOOL shouldAutoCollectDeviceLocation;        // KEY_AUTOCOLLECT_LOCATION
 
-@property (nonatomic, copy) NSString *apiHostPort;                     // TUNE_TMA_API_HOST_PORT
+@property (nonatomic, copy) NSString *playlistHostPort;                // TUNE_TMA_PLAYLIST_HOST_PORT
+@property (nonatomic, copy) NSString *configurationHostPort;           // TUNE_TMA_CONFIGURATION_HOST_PORT
 @property (nonatomic, copy) NSString *analyticsHostPort;               // TUNE_TMA_ANALYTICS_HOST_PORT
 @property (nonatomic, copy) NSString *connectedModeHostPort;           // TUNE_TMA_CONNECTED_MODE_HOST_PORT
 @property (nonatomic, copy) NSString *staticContentHostPort;           // TUNE_TMA_STATIC_CONTENT_HOST_PORT

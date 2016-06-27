@@ -134,7 +134,8 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
     self.shouldAutoGenerateVendorIdentifier = YES;
 #endif
     
-    _apiHostPort = @"https://services.ma.tune.com";
+    _playlistHostPort = @"https://playlist.ma.tune.com";
+    _configurationHostPort = @"https://configuration.ma.tune.com";
     _analyticsHostPort = @"https://analytics.ma.tune.com/analytics";
     _staticContentHostPort = @"https://s3.amazonaws.com/uploaded-assets-production";
     _connectedModeHostPort = @"https://connected.ma.tune.com";
@@ -196,7 +197,8 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
     [self updateDebugLogging:configuration];
     [self updateDebugMode:configuration];
     
-    [self updateApiHostPort:configuration];
+    [self updatePlaylistHostPort:configuration];
+    [self updateConfigurationHostPort:configuration];
     [self updateAnalyticsHostPort:configuration];
     [self updateConnectedModeHostPort:configuration];
     [self updateStaticContentHostPort:configuration];
@@ -241,7 +243,8 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 - (NSDictionary *)toDictionary {
     
     return @{TUNE_DEBUG_LOGGING_ON:@(_debugLoggingOn),
-             TUNE_TMA_API_HOST_PORT:[TuneUtils objectOrNull:_apiHostPort],
+             TUNE_TMA_PLAYLIST_HOST_PORT:[TuneUtils objectOrNull:_playlistHostPort],
+             TUNE_TMA_CONFIGURATION_HOST_PORT:[TuneUtils objectOrNull:_configurationHostPort],
              TUNE_TMA_ANALYTICS_HOST_PORT:[TuneUtils objectOrNull:_analyticsHostPort],
              TUNE_KEY_AUTOCOLLECT_LOCATION:@(_shouldAutoCollectDeviceLocation),
 #if !TARGET_OS_WATCH
@@ -329,9 +332,15 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 
 #pragma mark - Dictionary Setters
 
-- (void)updateApiHostPort:(NSDictionary *)configurationDictionary {
-    if(configurationDictionary[TUNE_TMA_API_HOST_PORT]) {
-        _apiHostPort = configurationDictionary[TUNE_TMA_API_HOST_PORT];
+- (void)updatePlaylistHostPort:(NSDictionary *)configurationDictionary {
+    if(configurationDictionary[TUNE_TMA_PLAYLIST_HOST_PORT]) {
+        _playlistHostPort = configurationDictionary[TUNE_TMA_PLAYLIST_HOST_PORT];
+    }
+}
+
+- (void)updateConfigurationHostPort:(NSDictionary *)configurationDictionary {
+    if(configurationDictionary[TUNE_TMA_CONFIGURATION_HOST_PORT]) {
+        _configurationHostPort = configurationDictionary[TUNE_TMA_CONFIGURATION_HOST_PORT];
     }
 }
 

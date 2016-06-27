@@ -323,10 +323,6 @@
     [tuneEvent addTag:@"booleanValue" withBooleanValue:@(1)];
     [tuneEvent addTag:@"datetimeValue" withDateTimeValue:[NSDate dateWithTimeIntervalSince1970:0]];
     [tuneEvent addTag:@"numberValue" withNumberValue:@(10)];
-    TuneLocation *loc = [TuneLocation alloc];
-    loc.longitude = @(50.2);
-    loc.latitude = @(60.9);
-    [tuneEvent addTag:@"geolocationValue" withGeolocationValue:loc];
     [tuneEvent addTag:@"versionValue" withVersionValue:@"6.6.7"];
 
     TuneAnalyticsEvent *item = [[TuneAnalyticsEvent alloc] initWithTuneEvent:tuneEvent];
@@ -335,7 +331,6 @@
     XCTAssertTrue([item.tags containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"booleanValue" value:@(1) type:TuneAnalyticsVariableBooleanType]]);
     XCTAssertTrue([item.tags containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"datetimeValue" value:[NSDate dateWithTimeIntervalSince1970:0] type:TuneAnalyticsVariableDateTimeType]]);
     XCTAssertTrue([item.tags containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"numberValue" value:@(10) type:TuneAnalyticsVariableNumberType]]);
-    XCTAssertTrue([item.tags containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"geolocationValue" value:loc type:TuneAnalyticsVariableCoordinateType]]);
     XCTAssertTrue([item.tags containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"versionValue" value:@"6.6.7" type:TuneAnalyticsVariableVersionType]]);
 }
 

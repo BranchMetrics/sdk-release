@@ -191,15 +191,6 @@ static const int TUNE_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
     [self addTag:name value:value type:TuneAnalyticsVariableNumberType hashed:NO];
 }
 
-- (void)addTag:(NSString *)name withGeolocationValue:(TuneLocation *)value {
-    if (![TuneAnalyticsVariable validateTuneLocation:value]) {
-        ErrorLog(@"Both the longitude and latitude properties must be set for TuneLocation objects.");
-        return;
-    }
-    
-    [self addTag:name value:value type:TuneAnalyticsVariableCoordinateType hashed:NO];
-}
-
 - (void)addTag:(NSString *)name withVersionValue:(NSString *)value {
     if (![TuneAnalyticsVariable validateVersion:value]) {
         ErrorLog(@"The given version format is not valid. Got: %@", value);

@@ -10,6 +10,8 @@
 
 @interface TuneExperimentDetails ()
 
+- (instancetype)initWithDictionary:(NSDictionary *)detailsDictionary;
+
 - (void)copyPropertiesFromDictionary:(NSDictionary *)detailsDictionary;
 
 @end

@@ -159,4 +159,9 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertFalse([TuneUtils object:inputObject respondsToSelector:inputSEL]);
 }
 
+- (void)testGetClassFromString {
+    NSString *strObjcClassName = @"TuneUtilsTests";
+    XCTAssertEqual([TuneUtilsTests class], [TuneUtils getClassFromString:strObjcClassName]);
+}
+
 @end

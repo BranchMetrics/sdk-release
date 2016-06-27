@@ -95,7 +95,8 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 
 // Tune success callback
 - (void)tuneDidSucceedWithData:(NSData *)data {
-    NSLog(@"Tune ios success");
+//    NSLog(@"Tune ios success");
+    NSLog(@"Tune ios success: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
 //    NSDictionary *dict = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 //    
 //    NSLog(@"Tune ios success: %@", dict);

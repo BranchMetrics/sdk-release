@@ -15,8 +15,6 @@ NSString *const TuneDeeplinkDeepActionNameKey = @"DA";
 NSString *const TuneDeeplinkDeepActionDataKey = @"ARDAD_";
 
 NSString *const TuneDeeplinkArtisanCampaignIDKey = @"ACID";
-NSString *const TuneDeeplinkSharedUserIDKey = @"SUID";
-NSString *const TuneDeeplinkSharedUserIDInHexKey = @"HSUID";
 NSString *const TuneDeeplinkTimeToReportAnalyticsKey = @"TTR";
 NSString *const TuneDeeplinkVariationIDKey = @"VID";
 

@@ -1,5 +1,5 @@
 //
-//  TuneInAppCampaign.m
+//  TuneCampaign.m
 //  TuneMarketingConsoleSDK
 //
 //  Created by Matt Gowie on 8/31/15.
@@ -65,38 +65,6 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
     }
 }
 
-- (id)initWithInteractiveNotificationPlaylistDictionary:(NSDictionary *)notificationDictionary {
-    self = [super init];
-    if (self) {
-        
-        // Look for campaign info
-        NSString *variationId = @"";
-        NSString *campaignId = @"";
-        
-        // Find campaignID if present
-        campaignId = [TuneCampaign parseCampaignIdFromInteractivePushNotificationPlaylistDictionary:notificationDictionary];
-        
-        if (campaignId) {
-            // interactiveNotificationID
-            if (notificationDictionary[@"interactiveNotificationID"]) {
-                variationId = notificationDictionary[@"interactiveNotificationID"];
-            }
-            
-            NSNumber *numberOfSecondsToReportAnalytics = [TuneCampaign parseNumberOfSecondsToReportAnalyticsFromNotificationDictionary:notificationDictionary];
-            
-            return [[TuneCampaign alloc] initWithCampaignId:campaignId
-                                                variationId:variationId
-                        andNumberOfSecondsToReportAnalytics:numberOfSecondsToReportAnalytics];
-        }
-        else {
-            return nil;
-        }
-    }
-    else {
-        return nil;
-    }
-}
-
 #pragma mark - Dictionary Parsing
 
 + (NSString *)parseCampaignIdFromPlaylistDictionary:(NSDictionary *)dictionary {
@@ -108,11 +76,7 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
 }
 
 + (NSString *)parseCampaignIdFromNotificationDictionary:(NSDictionary *)dictionary {
-    return [self parseCampaignIdFromDictionary:dictionary withKey:@"CAMPAIGN_ID"];
-}
-
-+ (NSString *)parseCampaignIdFromInteractivePushNotificationPlaylistDictionary:(NSDictionary *)dictionary {
-    return [self parseCampaignIdFromDictionary:dictionary withKey:@"campaignID"];
+    return [self parseCampaignIdFromDictionary:dictionary withKey:TUNE_CAMPAIGN_IDENTIFIER];
 }
 
 + (NSNumber *)parseNumberOfSecondsToReportAnalyticsFromNotificationDictionary:(NSDictionary *)dictionary {
@@ -154,7 +118,7 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
     NSMutableDictionary *campaignDictionary = [[NSMutableDictionary alloc] init];
     @try {
         if (self.campaignId) {
-            campaignDictionary[TUNE_CAMPAIGN_IDENTIFIER] = self.campaignId;
+            campaignDictionary[TUNE_ANALYTICS_CAMPAIGN_IDENTIFIER] = self.campaignId;
         }
         
         if (self.variationId) {
@@ -189,7 +153,6 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.campaignId forKey:@"campaignId"];
     [encoder encodeObject:self.campaignSource forKey:@"campaignSource"];
-    [encoder encodeObject:self.sharedUserId forKey:@"sharedUserId"];
     [encoder encodeObject:self.variationId forKey:@"variationId"];
     [encoder encodeObject:self.lastViewed forKey:@"lastViewed"];
     [encoder encodeObject:self.numberOfSecondsToReportAnalytics forKey:@"numberOfSecondsToReportAnalytics"];
@@ -200,7 +163,6 @@ andNumberOfSecondsToReportAnalytics:(NSNumber*)numberOfSecondsToReportAnalytics 
     if (self) {
         self.campaignId = [decoder decodeObjectForKey:@"campaignId"];
         self.campaignSource = [decoder decodeObjectForKey:@"campaignSource"];
-        self.sharedUserId = [decoder decodeObjectForKey:@"sharedUserId"];
         self.variationId = [decoder decodeObjectForKey:@"variationId"];
         self.lastViewed = [decoder decodeObjectForKey:@"lastViewed"];
         self.numberOfSecondsToReportAnalytics = [decoder decodeObjectForKey:@"numberOfSecondsToReportAnalytics"];

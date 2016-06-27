@@ -40,6 +40,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
     
     if ([profile hashedAppId]) {
         TuneHttpRequest *request = [TuneHttpRequest new];
+        [request setDomain:[TuneManager currentManager].configuration.configurationHostPort];
         [request setEndpoint:TuneApiConfigEndpoint];
         [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
         [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -64,6 +65,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 
 + (TuneHttpRequest *)getPlaylistRequest {
     TuneHttpRequest *request = [TuneHttpRequest new];
+    [request setDomain:[TuneManager currentManager].configuration.playlistHostPort];
     [request setEndpoint:TuneApiPlaylistEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
     [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];
@@ -74,6 +76,7 @@ NSString *const TuneApiDeviceIdKey = @"device_id";
 
 + (TuneHttpRequest *)getConnectedPlaylistRequest {
     TuneHttpRequest *request = [TuneHttpRequest new];
+    [request setDomain:[TuneManager currentManager].configuration.playlistHostPort];
     [request setEndpoint:TuneApiConnectedPlaylistEndpoint];
     [request setHTTPMethod:TuneHttpRequestMethodTypeGet];
     [request addValue:TuneHttpRequestHeaderJSON forHTTPHeaderField:TuneHttpRequestHeaderAccept];

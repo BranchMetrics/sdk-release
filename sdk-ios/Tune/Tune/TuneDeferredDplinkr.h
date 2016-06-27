@@ -21,5 +21,8 @@ typedef NS_ENUM(NSInteger, TuneDeepLinkError) {
 
 + (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
 + (void)setDelegate:(id<TuneDelegate>)tuneDelegate;
++ (void)setTuneAdvertiserId:(NSString *)adId tuneConversionKey:(NSString *)convKey;
++ (void)setTunePackageName:(NSString *)pkgName;
++ (void)setAppleIfa:(NSString *)ifa appleAdTrackingEnabled:(BOOL)enabled;
 
 @end

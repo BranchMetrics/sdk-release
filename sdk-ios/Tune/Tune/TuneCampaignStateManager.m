@@ -127,7 +127,7 @@
 }
 
 - (void)addViewedCampaignIdToSession:(NSString *)campaignId {
-    [self queueProfileVariable:TUNE_CAMPAIGN_IDENTIFIER withValue:campaignId];
+    [self queueProfileVariable:TUNE_ANALYTICS_CAMPAIGN_IDENTIFIER withValue:campaignId];
 }
 
 - (void)addViewedVariationIdsToSession {

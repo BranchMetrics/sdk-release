@@ -22,10 +22,6 @@ NSString *const DetailDictionaryTypeInApp = @"in_app";
 
 @implementation TuneExperimentDetails
 
-+ (TuneExperimentDetails *)detailsWithDictionary:(NSDictionary *)detailsDictionary {
-    return [[TuneExperimentDetails alloc] initWithDictionary:detailsDictionary];
-}
-
 - (instancetype)initWithDictionary:(NSDictionary *)detailsDictionary {
     self = [super init];
     if (self) {

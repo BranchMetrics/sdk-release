@@ -11,6 +11,7 @@
 #import "TuneCampaign.h"
 #import "TuneNotification.h"
 #import "TuneSkyhookConstants.h"
+#import "TuneSessionManager.h"
 
 @implementation TuneNotificationProcessing
 
@@ -123,6 +124,9 @@
     
     tuneNotification.analyticsReportingAction = pushNotificationAction;
     tuneNotification.userInfo = userInfo;
+    
+    // Update this ASAP since the user will need to know immediately if they have gotten a Tune push
+    [TuneManager currentManager].sessionManager.lastOpenedPushNotification = tuneNotification;
     
     return tuneNotification;
 }

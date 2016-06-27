@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 #import "SimpleObserver.h"
+#import "Tune+Testing.h"
 #import "TuneAppDelegate.h"
 #import "TuneBlankAppDelegate.h"
 #import "TuneDeviceDetails.h"
@@ -61,7 +62,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
-    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"TUNE_CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     
     // Flush Skyhook queue
@@ -81,7 +82,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
-    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"TUNE_CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     
     // Flush Skyhook queue
@@ -101,7 +102,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
-    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"TUNE_CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication handleActionWithIdentifier:@"id" forRemoteNotification:userInfo completionHandler:^(UIBackgroundFetchResult result){}];
     
     // Flush Skyhook queue
@@ -290,7 +291,7 @@ static NSString *tune_swizzledMethod;
     
     [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
     
-    NSDictionary *userInfo = @{@"ANAF":@{@"DA":@"myBlankAppDelegatesDeepAction", @"DAD":@{@"message":@"Received deep action!"}}, @"ARTPID": @"TEST", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    NSDictionary *userInfo = @{@"ANAF":@{@"DA":@"myBlankAppDelegatesDeepAction", @"DAD":@{@"message":@"Received deep action!"}}, @"ARTPID": @"TEST", @"aps": @{ @"alert":@"Pushy pow wow! A", @"LENGTH_TO_REPORT":@(20000)}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     
     // Flush queues
@@ -310,12 +311,50 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] removeObserver:deepActionObserver name:TuneDeepActionTriggered object:nil];
 }
 
+#pragma mark - Test TunePushInfo
+
+- (void)testPushInfoFromPushNotification {
+    [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
+    [[TuneSkyhookCenter defaultCenter] addObserver:deepActionObserver selector:@selector(skyhookPosted:) name:TuneDeepActionTriggered object:nil];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    
+    [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
+    
+    TunePushInfo *pushInfoBefore = [Tune getTunePushInfoForSession];
+    XCTAssertNil(pushInfoBefore.pushId);
+    XCTAssertNil(pushInfoBefore.campaignId);
+    XCTAssertNil(pushInfoBefore.extrasPayload);
+    
+    NSString *pushId = @"TEST_PUSH_ID";
+    NSString *campaignId = @"TEST_CAMPAIGN_ID";
+    NSDictionary *extrasPayload = @{@"DA":@"myBlankAppDelegatesDeepAction", @"DAD":@{@"message":@"Received deep action!"}};
+    
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ANAF":extrasPayload, @"ARTPID":pushId, @"CAMPAIGN_ID":campaignId, @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    
+    // Flush queues
+    waitForQueuesToFinish();
+    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
+    
+    TunePushInfo *pushInfoAfter = [Tune getTunePushInfoForSession];
+    
+    XCTAssertEqualObjects(pushInfoAfter.pushId, pushId);
+    XCTAssertEqualObjects(pushInfoAfter.campaignId, campaignId);
+    XCTAssertEqualObjects(pushInfoAfter.extrasPayload, @{@"ANAF":extrasPayload});
+    
+    [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
+    [[TuneSkyhookCenter defaultCenter] removeObserver:deepActionObserver name:TuneDeepActionTriggered object:nil];
+}
+
+#pragma mark - Test TuneAppDelegate UIApplicationDelegate Swizzles
 
 /**
  Helps test TuneAppDelegate swizzleTheirSelector: functionality.
  */
 - (void)testSwizzling {
-    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"TUNE_CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     [self checkSwizzledMethod:@"application:didReceiveRemoteNotification:fetchCompletionHandler:"];
     tune_swizzledMethod = nil;

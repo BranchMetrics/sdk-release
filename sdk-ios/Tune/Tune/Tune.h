@@ -15,6 +15,7 @@
 #import "TuneEventItem.h"
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
+#import "TunePushInfo.h"
 
 #if TARGET_OS_IOS
 
@@ -28,7 +29,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.3.1"
+#define TUNEVERSION @"4.4.0"
 
 
 @protocol TuneDelegate;
@@ -609,6 +610,18 @@
 + (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction;
 
 #pragma mark - Push Notifications API
+
+/**
+ * Returns true if the current session is because the user opened a Tune push notification. Otherwise returns false.
+ * This is set back to false on application background.
+ */
++ (BOOL)didSessionStartFromTunePush;
+
+/**
+ * Returns information about the received Tune push if this session was started through opening a Tune push. Otherwise returns nil.
+ * This is set back to nil on application background.
+ */
++ (TunePushInfo *)getTunePushInfoForSession;
 
 /**
  * Manage all Push Notification events used with TUNE.

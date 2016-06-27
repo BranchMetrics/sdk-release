@@ -264,16 +264,4 @@ FOUNDATION_EXPORT NSString *const TUNE_EVENT_TUTORIAL_COMPLETE;
  */
 - (void)addTag:(NSString *)name withNumberValue:(NSNumber *)value;
 
-/** Tag this event with a location.
- *
- * Tags can be used to add additional event data for filtering and targeting within Tune In-App Marketing.
- *
- * You may not tag the same event with with the same tag name more than once.
- *
- * @param name Name of the tag.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
- *
- * @param value Value for the tag.
- */
-- (void)addTag:(NSString *)name withGeolocationValue:(TuneLocation *)value;
-
 @end

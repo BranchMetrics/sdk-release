@@ -51,11 +51,11 @@ extern NSString *const TuneHttpRequestHeaderOsType;
 
 @interface TuneHttpRequest : NSMutableURLRequest
 
-/** The domain to send the request to. Without the endpoint specified. 
-        Defaults to the current 'apiHostPort' in TuneConfiguration. */
+/** The domain to send the request to. Without the endpoint specified.
+    Defaults to the current 'playlistHostPort' in TuneConfiguration.*/
 @property (nonatomic, copy) NSString *domain;
 
-/** An optionally mustachioed url string, without domain information. */
+/** An optionally mustachioed url string, without domain information. Defaults to an empty string. */
 @property (nonatomic, copy) NSString *endpoint;
 
 /** Key-value pairs for parameters to be passed in through a GET or POST method. */

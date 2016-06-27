@@ -73,11 +73,11 @@
 + (NSString *)fromCamelCaseToUnderscore:(NSString *)string;
 
 /**
- Strip all non-alphanumeric characters from a string (save for the underscore and dash)
+ Strip all non-alphanumeric characters from a string (save for the underscore '_' and dash '-')
  
  @param string The string from which special characters should be stripped.
  
- @returns NSString* The newly underscored string.
+ @returns NSString* A new string created by removing non-alphanumeric characters from the input string.
  */
 + (NSString *)stripSpecialCharacters:(NSString *)string;
 

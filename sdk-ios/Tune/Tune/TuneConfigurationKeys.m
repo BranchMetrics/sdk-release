@@ -24,7 +24,8 @@ NSString *const TUNE_KEY_AUTOCOLLECT_LOCATION          = @"autocollect_location"
 NSString *const TUNE_KEY_AUTOCOLLECT_IFA               = @"autocollect_ifa";
 NSString *const TUNE_KEY_AUTOCOLLECT_IFV               = @"autocollect_ifv";
 
-NSString *const TUNE_TMA_API_HOST_PORT                 = @"api_host_port";
+NSString *const TUNE_TMA_PLAYLIST_HOST_PORT            = @"playlist_host_port";
+NSString *const TUNE_TMA_CONFIGURATION_HOST_PORT       = @"configuration_host_port";
 NSString *const TUNE_TMA_ANALYTICS_HOST_PORT           = @"analytics_host_port";
 NSString *const TUNE_TMA_STATIC_CONTENT_HOST_PORT      = @"static_content_host_port";
 NSString *const TUNE_TMA_CONNECTED_MODE_HOST_PORT      = @"connected_mode_host_port";

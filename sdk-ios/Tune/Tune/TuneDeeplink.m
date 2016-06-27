@@ -89,12 +89,6 @@
         
         // Figure out event type
         [self determineEventType];
-        
-        // Add sharedUserId to User Profile if found
-        if (self.campaign && self.campaign.sharedUserId && [self.campaign.sharedUserId length] > 0) {
-            // Also set this in the user profile
-            [[TuneManager currentManager].userProfile setUserId:self.campaign.sharedUserId];
-        }
     } @catch (NSException *exception) {
         ErrorLog(@"Failed to parse deep link %@", exception.description);
     }
@@ -132,21 +126,6 @@
     TuneCampaign *campaign = [[TuneCampaign alloc] initWithCampaignId:artisanCampaignId
                                                           variationId:variationId
                                   andNumberOfSecondsToReportAnalytics:timeToReportAnalytics];
-    // Shared user id
-    NSString *sharedUserId = [self checkForKeyInParameterDictionaryThenRemove:TuneDeeplinkSharedUserIDKey];
-    if ([sharedUserId length] > 0) {
-        campaign.sharedUserId = sharedUserId;
-    } else {
-        // Check for hex formatted shared user id
-        NSString *hexSharedUserId = [self checkForKeyInParameterDictionaryThenRemove:TuneDeeplinkSharedUserIDInHexKey];
-        @try {
-            if ([hexSharedUserId length] > 0) {
-                campaign.sharedUserId = [TuneStringUtils stringFromHexString:hexSharedUserId];
-            }
-        } @catch (NSException *exception) {
-            ErrorLog(@"Couldn't decode hex shared user id %@ %@",hexSharedUserId,exception.description);
-        }
-    }
     
     // Source
     NSString *source = [self checkForKeyInParameterDictionaryThenRemove:TuneDeeplinkSourceKey];

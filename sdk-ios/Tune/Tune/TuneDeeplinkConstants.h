@@ -15,8 +15,6 @@ extern NSString *const TuneDeeplinkDeepActionNameKey;
 extern NSString *const TuneDeeplinkDeepActionDataKey;
 
 extern NSString *const TuneDeeplinkArtisanCampaignIDKey;
-extern NSString *const TuneDeeplinkSharedUserIDKey;
-extern NSString *const TuneDeeplinkSharedUserIDInHexKey;
 extern NSString *const TuneDeeplinkTimeToReportAnalyticsKey;
 extern NSString *const TuneDeeplinkVariationIDKey;
 

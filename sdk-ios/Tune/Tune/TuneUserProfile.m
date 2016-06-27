@@ -22,6 +22,7 @@
 #import "TuneAnalyticsConstants.h"
 #import "TuneAnalyticsVariable.h"
 #import "TuneConfiguration.h"
+#import "TuneDeferredDplinkr.h"
 #import "TuneIfa.h"
 #import "TuneInstallReceipt.h"
 #import "TuneKeyStrings.h"

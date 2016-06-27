@@ -76,7 +76,8 @@
     [options setValue:@{@"feature_flags":@"value"} forKey:@"feature_flags"];
     [options setValue:@{@"context_tags":@"value"} forKey:@"context_tags"];
     
-    [options setValue:@"api_host_port URL" forKey:@"api_host_port"];
+    [options setValue:@"playlist_host_port URL" forKey:@"playlist_host_port"];
+    [options setValue:@"configuration_host_port URL" forKey:@"configuration_host_port"];
     [options setValue:@"static_content_host_port URL" forKey:@"static_content_host_port"];
     
     [options setValue:@"45" forKey:@"analytics_tracer_dispatch_period"];
@@ -86,8 +87,8 @@
     
     [configuration updateConfigurationWithLocalDictionary:options postSkyhook:NO];
     
-    XCTAssertEqualObjects(configuration.apiHostPort, @"api_host_port URL", @"apiHostPort is empty");
-    
+    XCTAssertEqualObjects(configuration.playlistHostPort, @"playlist_host_port URL", @"playlistHostPort is empty");
+    XCTAssertEqualObjects(configuration.configurationHostPort, @"configuration_host_port URL", @"configurationHostPort is empty");
     XCTAssertEqualObjects(configuration.staticContentHostPort, @"static_content_host_port URL", @"staticContentHostPort is static_content_host_port URL");
     XCTAssertTrue(configuration.debugLoggingOn, @"debugLoggingOn is YES");
     
@@ -109,12 +110,14 @@
     
     NSDictionary *remoteDictionary = @{@"permanently_disabled": @"0"}.mutableCopy;
     
-    [remoteDictionary setValue:@"api_host_port URL" forKey:@"api_host_port"];
+    [remoteDictionary setValue:@"playlist_host_port URL" forKey:@"playlist_host_port"];
+    [remoteDictionary setValue:@"configuration_host_port URL" forKey:@"configuration_host_port"];
     [remoteDictionary setValue:@"static_content_host_port URL" forKey:@"static_content_host_port"];
     
     [configuration updateConfigurationWithLocalDictionary:remoteDictionary postSkyhook:NO];
     
-    XCTAssertEqualObjects(configuration.apiHostPort, @"api_host_port URL", @"apiHostPort is api_host_port URL");
+    XCTAssertEqualObjects(configuration.playlistHostPort, @"playlist_host_port URL", @"playlistHostPort is playlist_host_port URL");
+    XCTAssertEqualObjects(configuration.configurationHostPort, @"configuration_host_port URL", @"configurationHostPort is configuration_host_port URL");
     XCTAssertEqualObjects(configuration.staticContentHostPort, @"static_content_host_port URL", @"staticContentHostPort is static_content_host_port URL");
     XCTAssertFalse(configuration.debugLoggingOn, @"debugLoggingOn is NO");
     
@@ -124,8 +127,7 @@
 
 - (void)testSetupConfigurationNoneSaved {
     
-    NSDictionary *testDictionary = @{TUNE_TMA_API_HOST_PORT:@"testApiPort",
-                                     TUNE_TMA_ANALYTICS_HOST_PORT:@"analyticsPort",
+    NSDictionary *testDictionary = @{TUNE_TMA_ANALYTICS_HOST_PORT:@"analyticsPort",
                                      TUNE_KEY_AUTOCOLLECT_JAILBROKEN:@(YES),
                                      TUNE_KEY_AUTOCOLLECT_LOCATION:@(YES),
                                      TUNE_KEY_AUTOCOLLECT_IFA:@(YES),
@@ -134,7 +136,8 @@
     
     [configuration setupConfiguration:testDictionary];
     
-    XCTAssertEqualObjects(testDictionary[TUNE_TMA_API_HOST_PORT], configuration.apiHostPort, @"unsaved api host property does not match");
+    XCTAssertEqualObjects(testDictionary[TUNE_TMA_PLAYLIST_HOST_PORT], configuration.playlistHostPort, @"unsaved playlist host property does not match");
+    XCTAssertEqualObjects(testDictionary[TUNE_TMA_CONFIGURATION_HOST_PORT], configuration.configurationHostPort, @"unsaved configuration host property does not match");
     XCTAssertEqualObjects(testDictionary[TUNE_TMA_ANALYTICS_HOST_PORT], configuration.analyticsHostPort, @"unsaved  property does not match");
     XCTAssertEqualObjects(testDictionary[TUNE_KEY_AUTOCOLLECT_JAILBROKEN], @(configuration.shouldAutoDetectJailbroken), @"unsaved  property does not match");
     XCTAssertEqualObjects(testDictionary[TUNE_KEY_AUTOCOLLECT_LOCATION], @(configuration.shouldAutoCollectDeviceLocation), @"unsaved  property does not match");
@@ -144,8 +147,7 @@
 }
 
 - (void)testSetupConfigurationWithSaved {
-    NSDictionary *testDictionary = @{TUNE_TMA_API_HOST_PORT:@"testApiPort",
-                                     TUNE_TMA_ANALYTICS_HOST_PORT:@"analyticsPort",
+    NSDictionary *testDictionary = @{TUNE_TMA_ANALYTICS_HOST_PORT:@"analyticsPort",
                                      TUNE_KEY_AUTOCOLLECT_JAILBROKEN:@(YES),
                                      TUNE_KEY_AUTOCOLLECT_LOCATION:@(YES),
                                      TUNE_KEY_AUTOCOLLECT_IFA:@(YES),

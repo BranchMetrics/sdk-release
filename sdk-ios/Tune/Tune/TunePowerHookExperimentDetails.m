@@ -19,9 +19,8 @@ NSString *const DetailDictionaryExperimentIsRunningKey = @"is_running";
 @implementation TunePowerHookExperimentDetails
 
 - (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary andPowerHookValue:(TunePowerHookValue *)variable andHookId:(NSString *)hookId {
-    self = [super init];
+    self = [super initWithDictionary:detailsDictionary];
     
-    [(TuneExperimentDetails *)self performSelector:@selector(copyPropertiesFromDictionary:) withObject:detailsDictionary];
     if (self) {
         _hookId = hookId;
         if (variable.startDate != nil) {

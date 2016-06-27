@@ -1,5 +1,5 @@
 //
-//  TuneSessionModule.m
+//  TuneSessionManager.m
 //  TuneMarketingConsoleSDK
 //
 //  Created by Daniel Koch on 8/17/15.
@@ -116,6 +116,8 @@
 - (void)endSession {
     @synchronized(self) {
         if (!self.sessionStarted) return;
+        
+        self.lastOpenedPushNotification = nil;
         
         NSString *currentId = self.sessionId;
         NSTimeInterval sessionLength = [self timeSinceSessionStart];

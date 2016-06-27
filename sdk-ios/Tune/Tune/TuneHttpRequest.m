@@ -49,15 +49,14 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
 - (id)init {
     self = [super init];
     if (self) {
-        _domain = [TuneManager currentManager].configuration.apiHostPort;
+        _domain = [TuneManager currentManager].configuration.playlistHostPort;
         _endpoint = @"";
         _endpointArguments = @{};
         _parameters = @{};
         _authenticated = YES;
         _bodyOverride = YES;
-        return self;
     }
-    return nil;
+    return self;
 }
 
 #pragma mark - End Point Processing

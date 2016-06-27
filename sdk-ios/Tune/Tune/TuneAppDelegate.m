@@ -143,15 +143,18 @@ BOOL swizzleSuccess = NO;
                     method_getImplementation(swizzledMethod),
                     method_getTypeEncoding(swizzledMethod));
     
-    if (didAddMethod) {
-        // If we had to add method, there was no prior implementation, so have swizzled method do a no-op
+    // Check whether method was added (class did not implement it)
+    // and whether class_getInstanceMethod is NULL (superclass did not implement it either)
+    if (didAddMethod && originalMethod == NULL) {
+        // If we successfully added method, and there was no superclass implementation,
+        // have swizzled method do a no-op
         Method noOpMethod = class_getClassMethod([self class], @selector(tune_noOp));
         class_addMethod(delegateClass,
                         swizzledSelector,
                         method_getImplementation(noOpMethod),
                         method_getTypeEncoding(noOpMethod));
     } else {
-        // If method existed, we just have to add the swizzled version and swap implementations
+        // If method existed in class or superclass, we just have to add the swizzled version and swap implementations
         class_addMethod(delegateClass,
                         swizzledSelector,
                         method_getImplementation(originalMethod),

@@ -13,12 +13,8 @@
 @implementation TuneInAppMessageExperimentDetails
 
 - (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary {
-    self = [super init];
+    self = [super initWithDictionary:detailsDictionary];
     
-    [(TuneExperimentDetails *)self performSelector:@selector(copyPropertiesFromDictionary:) withObject:detailsDictionary];
-    if (self) {
-
-    }
     return self;
 }
 

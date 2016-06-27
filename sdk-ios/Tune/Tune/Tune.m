@@ -30,6 +30,8 @@
 #import "TuneDeepActionManager.h"
 #import "TunePlaylistManager.h"
 #import "TuneState.h"
+#import "TuneSessionManager.h"
+#import "TunePushInfo+Internal.h"
 
 #ifdef TUNE_USE_LOCATION
 #import "TuneRegionMonitor.h"
@@ -87,6 +89,9 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary *)configOrNil {
+    [TuneDeferredDplinkr setTuneAdvertiserId:aid tuneConversionKey:key];
+    [TuneDeferredDplinkr setTunePackageName:name ?: [TuneUtils bundleId]];
+    
     if (!configOrNil) {
         configOrNil = [NSDictionary dictionary];
     }
@@ -189,6 +194,8 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setPackageName:(NSString *)packageName {
+    [TuneDeferredDplinkr setTunePackageName:packageName];
+    
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPackageName:packageName];
     }];
@@ -196,8 +203,9 @@ static TuneTracker *_sharedManager = nil;
 
 #if !TARGET_OS_WATCH
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
-           advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
-{
+           advertisingTrackingEnabled:(BOOL)adTrackingEnabled {
+    [TuneDeferredDplinkr setAppleIfa:appleAdvertisingIdentifier.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
+    
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:NO];
         [[TuneManager currentManager].userProfile setAppleAdvertisingIdentifier: [appleAdvertisingIdentifier UUIDString]];
@@ -235,6 +243,10 @@ static TuneTracker *_sharedManager = nil;
 
 #if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect {
+    if(!autoCollect) {
+        [TuneDeferredDplinkr setAppleIfa:nil appleAdTrackingEnabled:NO];
+    }
+    
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:autoCollect];
     }];
@@ -467,23 +479,23 @@ static TuneTracker *_sharedManager = nil;
 #pragma mark - Getter Methods
 
 + (NSString*)appleAdvertisingIdentifier {
-    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_IOS_IFA];
+    return [[TuneManager currentManager].userProfile appleAdvertisingIdentifier];
 }
 
 + (NSString*)tuneId {
-    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_MAT_ID];
+    return [[TuneManager currentManager].userProfile tuneId];
 }
 
 + (NSString*)openLogId {
-    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_OPEN_LOG_ID];
+    return [[TuneManager currentManager].userProfile openLogId];
 }
 
 + (BOOL)isPayingUser {
-    return [[[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_IS_PAYING_USER] boolValue];
+    return [[[TuneManager currentManager].userProfile payingUser] boolValue];
 }
 
 + (NSString *)getPushToken {
-    return [[TuneManager currentManager].userProfile getProfileValue:TUNE_KEY_DEVICE_TOKEN];
+    return [[TuneManager currentManager].userProfile deviceToken];
 }
 
 
@@ -518,22 +530,13 @@ static TuneTracker *_sharedManager = nil;
 #pragma mark - Deep Action API
 
 + (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
-    [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
-                                                                friendlyName:friendlyName
-                                                                 description:nil
-                                                                        data:data
-                                                              approvedValues:nil
-                                                                   andAction:deepAction];
+    [self registerDeepActionWithId:deepActionId friendlyName:friendlyName description:nil data:data andAction:deepAction];
 }
 
 + (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
-    [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
-                                                                friendlyName:friendlyName
-                                                                 description:description
-                                                                        data:data
-                                                              approvedValues:nil
-                                                                   andAction:deepAction];
+    [self registerDeepActionWithId:deepActionId friendlyName:friendlyName description:description data:data approvedValues:nil andAction:deepAction];
 }
+
 + (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data approvedValues:(NSDictionary *)approvedValues andAction:(void (^)(NSDictionary *extra_data))deepAction  {
     [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
                                                                 friendlyName:friendlyName
@@ -545,6 +548,19 @@ static TuneTracker *_sharedManager = nil;
 
 
 #pragma mark - Push Notifications API
+
++ (BOOL)didSessionStartFromTunePush {
+    return [TuneManager currentManager].sessionManager.lastOpenedPushNotification != nil;
+}
+
++ (TunePushInfo *)getTunePushInfoForSession {
+    TuneNotification *msg = [TuneManager currentManager].sessionManager.lastOpenedPushNotification;
+    if (msg == nil) {
+        return nil;
+    } else {
+        return [[TunePushInfo alloc] initWithNotification:msg];
+    }
+}
 
 #if TARGET_OS_IOS
 
