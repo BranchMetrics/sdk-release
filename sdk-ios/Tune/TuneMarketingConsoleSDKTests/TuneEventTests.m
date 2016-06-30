@@ -34,7 +34,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
     // Wait for everything to be set
     waitForQueuesToFinish();

@@ -7,6 +7,7 @@
 //
 
 #import "TuneInstallReceipt.h"
+#import "TuneDeviceDetails.h"
 //#import <MessageUI/MessageUI.h> // just for emailing receipt files, has no effect
 
 @implementation TuneInstallReceipt
@@ -16,16 +17,12 @@
 #if TESTING
     return [@"fakeReceiptDataString" dataUsingEncoding:NSUTF8StringEncoding];
 #else
-
-    // This is the correct way to detect whether the `appStoreReceiptURL` selector is available.
-    // https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSBundle_Class/Reference/Reference.html#//apple_ref/occ/instm/NSBundle/appStoreReceiptURL
-    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
-        // Load resources for iOS 6.1 or earlier
-        return nil;
-    } else {
+    NSData *receiptData = nil;
+    
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
         // Load resources for iOS 7 or later
         NSURL *appStoreReceiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-        NSData *receiptData = [NSData dataWithContentsOfURL:appStoreReceiptURL];
+        receiptData = [NSData dataWithContentsOfURL:appStoreReceiptURL];
 
         // if you delete the below code, you can also delete the MessageUI import above
         /*
@@ -36,9 +33,9 @@
             [[[[UIApplication sharedApplication] keyWindow] rootViewController] presentViewController:mailer animated:YES completion:nil];
         }];
          */
-
-        return receiptData;
     }
+    
+    return receiptData;
 #endif
 }
 

@@ -41,7 +41,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
     // Wait for everything to be set
     waitForQueuesToFinish();
@@ -141,7 +141,7 @@
     // NOTE: We need to instantiate everything again here since the only time things are loaded from
     //       NSUserDefaults for the UserProfile is on instantiation
     [TuneManager instantiateModules];
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
     waitForQueuesToFinish();
 

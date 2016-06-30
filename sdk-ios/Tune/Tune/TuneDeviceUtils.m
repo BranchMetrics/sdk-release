@@ -7,7 +7,11 @@
 //
 
 #import "TuneDeviceUtils.h"
+#import "TuneDeviceDetails.h"
+#import "TuneUtils.h"
+
 #include <sys/sysctl.h>
+
 
 #if TARGET_OS_IOS
 //-----------------------------------------------------------------------------
@@ -25,8 +29,8 @@ BOOL tune_isPad() {
 #if TESTING
     return YES;
 #else
-    NSDictionary *infoPlistDict = [[NSBundle mainBundle] infoDictionary];
-    if (infoPlistDict[@"UIBackgroundModes"]!=nil) {
+    NSDictionary *infoPlistDict = [[TuneUtils currentBundle] infoDictionary];
+    if (infoPlistDict[@"UIBackgroundModes"] != nil) {
         for (NSString *value in infoPlistDict[@"UIBackgroundModes"]) {
             if ([value isEqualToString:@"remote-notification"]) {
                 return YES;
@@ -90,9 +94,13 @@ BOOL tune_isPad() {
 }
 
 + (BOOL)currentDeviceIsTestFlight {
-    BOOL hasEmbeddedMobileProvision = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
-    BOOL isSandboxReceipt = [[[[NSBundle mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:@"sandboxReceipt"];
-    return isSandboxReceipt && !hasEmbeddedMobileProvision;
+    BOOL isTestFlight = NO;
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
+        BOOL hasEmbeddedMobileProvision = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
+        BOOL isSandboxReceipt = [[[[NSBundle mainBundle] appStoreReceiptURL] lastPathComponent] isEqualToString:@"sandboxReceipt"];
+        isTestFlight = isSandboxReceipt && !hasEmbeddedMobileProvision;
+    }
+    return isTestFlight;
 }
 
 @end

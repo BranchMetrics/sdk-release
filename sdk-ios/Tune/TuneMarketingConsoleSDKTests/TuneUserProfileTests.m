@@ -31,7 +31,7 @@
     [super setUp];
     
     simpleObserver = [[SimpleObserver alloc] init];
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     
     // Wait for everything to be set
     waitForQueuesToFinish();

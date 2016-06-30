@@ -87,7 +87,7 @@ BOOL isAlertVisible;
     }
     
     // Otherwise, try looking for the Swift class name
-    NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    NSString *appName = [[TuneUtils currentBundle] objectForInfoDictionaryKey:(__bridge NSString *)kCFBundleNameKey];
     // CFBundleName not found, return
     if (!appName) {
         return nil;
@@ -210,27 +210,36 @@ BOOL isAlertVisible;
 #endif
 }
 
++ (NSBundle *)currentBundle {
+    NSBundle *currentBundle = nil;
+#if TESTING
+    currentBundle = [NSBundle bundleForClass:[self class]];
+#else
+    currentBundle = [NSBundle mainBundle];
+#endif
+    return currentBundle;
+}
 
 + (NSString *)bundleId {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleIdentifierKey];
+    return [[TuneUtils currentBundle] objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleIdentifierKey];
 }
 
 + (NSString *)bundleName {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleNameKey];
+    return [[TuneUtils currentBundle] objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleNameKey];
 }
 
 + (NSString *)bundleVersion {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleVersionKey];
+    return [[TuneUtils currentBundle] objectForInfoDictionaryKey:(__bridge NSString*)kCFBundleVersionKey];
 }
 
 + (NSString *)stringVersion {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    return [[TuneUtils currentBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 }
 
 + (NSDate *)installDate {
     // Determine install date from app bundle
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *bundlePath = [[TuneUtils currentBundle] bundlePath];
     NSDictionary *appAttrs = [fileManager attributesOfItemAtPath:bundlePath error:nil];
     return appAttrs[NSFileCreationDate];
 }

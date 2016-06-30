@@ -202,6 +202,9 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     [self checkKey:@"advertiser_id" isEqualToValue:kTestAdvertiserId] &&
     [self checkKey:@"package_name" isEqualToValue:kTestBundleId] &&
     [self checkKeyHasValue:@"ios_ifv"];
+    [self checkKeyHasValue:@"app_name"];
+    [self checkKeyHasValue:@"app_version"];
+    [self checkKeyHasValue:@"app_version_name"];
     
     if( !retval )
         NSLog( @"app values failed: %d %d %d", [self checkKey:@"advertiser_id" isEqualToValue:kTestAdvertiserId], [self checkKey:@"package_name" isEqualToValue:kTestBundleId], [self checkKeyHasValue:@"ios_ifv"] );

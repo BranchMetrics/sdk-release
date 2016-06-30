@@ -130,4 +130,8 @@
 
 + (BOOL)object:(nullable id)receiver respondsToSelector:(nonnull SEL)aSelector;
 
+#pragma mark - NSBundle Helper
+
++ (nullable NSBundle *)currentBundle;
+
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "TuneDeviceDetails.h"
-
+#import "TuneUtils.h"
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
 #endif
@@ -32,7 +32,7 @@
 #pragma mark - Supported Devices
 
 - (void)findDeviceAppCanRunOn {
-    NSArray *deviceFamily = [[NSBundle mainBundle] infoDictionary][@"UIDeviceFamily"];
+    NSArray *deviceFamily = [[TuneUtils currentBundle] objectForInfoDictionaryKey:@"UIDeviceFamily"];
     _canRunOniPhone = NO;
     _canRunOniPad = NO;
     for (NSString *deviceFamilyKey in deviceFamily) {
@@ -144,7 +144,7 @@
 
 + (NSArray *)getSupportedDeviceOrientations {
 
-    NSMutableArray *rawSupportedDeviceOrientations = [[NSBundle mainBundle] infoDictionary][@"UISupportedInterfaceOrientations"];
+    NSMutableArray *rawSupportedDeviceOrientations = [[TuneUtils currentBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
 
     [rawSupportedDeviceOrientations removeObject:@"UIDeviceOrientationFaceUp"];
     [rawSupportedDeviceOrientations removeObject:@"UIDeviceOrientationFaceDown"];

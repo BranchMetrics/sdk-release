@@ -676,6 +676,7 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile appBundleId]                   forKey:TUNE_KEY_APP_BUNDLE_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appName]                       forKey:TUNE_KEY_APP_NAME                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appVersion]                    forKey:TUNE_KEY_APP_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile appVersionName]                forKey:TUNE_KEY_APP_VERSION_NAME         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile bluetoothState]                forKey:TUNE_KEY_BLUETOOTH_STATE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #if TARGET_OS_IOS
     [self addValue:[[TuneManager currentManager].userProfile mobileCountryCode]             forKey:TUNE_KEY_CARRIER_COUNTRY_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

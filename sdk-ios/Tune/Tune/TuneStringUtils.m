@@ -16,8 +16,10 @@ static NSString *tune_ignoredCharacters = @"!*'\"();:@&=+$,/?%#[] \n";
 @implementation TuneStringUtils
 
 + (void)initialize {
-    tune_urlEncodingAllowedCharacterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-    [tune_urlEncodingAllowedCharacterSet removeCharactersInString:tune_ignoredCharacters];
+    if ([TuneDeviceDetails appIsRunningIniOS7OrAfter]) {
+        tune_urlEncodingAllowedCharacterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+        [tune_urlEncodingAllowedCharacterSet removeCharactersInString:tune_ignoredCharacters];
+    }
 }
 
 + (NSString *)scrubNameForMongo:(NSString *)name {

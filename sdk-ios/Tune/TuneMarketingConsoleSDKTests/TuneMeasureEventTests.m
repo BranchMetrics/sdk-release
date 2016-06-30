@@ -30,7 +30,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     skyhookCenter = [TuneSkyhookCenter defaultCenter];
 }
 
