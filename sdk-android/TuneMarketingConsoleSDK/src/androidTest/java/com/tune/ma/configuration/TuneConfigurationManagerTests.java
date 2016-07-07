@@ -41,7 +41,11 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertEquals(config.getAnalyticsMessageStorageLimit(), 250);
         assertEquals(config.getPlaylistRequestPeriod(), TuneTestConstants.PLAYLIST_REQUEST_PERIOD);
         assertNull(config.getPluginName());
-        assertEquals("https://qa.ma.tune.com", config.getApiHostPort());
+        assertEquals("https://qa.ma.tune.com", config.getPlaylistHostPort());
+        assertEquals("https://qa.ma.tune.com", config.getConfigurationHostPort());
+        assertEquals("https://qa.ma.tune.com", config.getConnectedModeHostPort());
+        assertEquals("https://qa.ma.tune.com:8443/analytics-receiver/analytics", config.getAnalyticsHostPort());
+        assertEquals("https://s3.amazonaws.com/uploaded-assets-qa2", config.getStaticContentHostPort());
     }
 
     public void testIgnoresValuesForUnknownKeys() {
@@ -65,7 +69,8 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         JSONObject fakeRemoteJson = new JSONObject();
         try {
             //Local only values
-            fakeRemoteJson.put("api_host_port", "testApiHostPort");
+            fakeRemoteJson.put("playlist_host_port", "testPlaylistHostPort");
+            fakeRemoteJson.put("configuration_host_port", "testConfigurationHostPort");
             fakeRemoteJson.put("analytics_host_port", "testAnalyticsHostPort");
             fakeRemoteJson.put("static_content_host_port", "testStaticContentHostPort");
             fakeRemoteJson.put("connected_mode_host_port", "testConnectedModeHostPort");
@@ -83,7 +88,8 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertEquals(120, config.getAnalyticsDispatchPeriod());
         assertTrue(config.echoConfigurations());
 
-        assertNotSame("testApiHostPort", config.getApiHostPort());
+        assertNotSame("testPlaylistHostPort", config.getPlaylistHostPort());
+        assertNotSame("testConfigurationHostPort", config.getConfigurationHostPort());
         assertNotSame("testAnalyticsHostPort", config.getAnalyticsHostPort());
         assertNotSame("testStaticContentHostPort", config.getStaticContentHostPort());
         assertNotSame("testConnectedModeHostPort", config.getConnectedModeHostPort());

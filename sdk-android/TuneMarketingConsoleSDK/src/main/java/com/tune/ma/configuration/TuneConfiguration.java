@@ -11,7 +11,8 @@ public class TuneConfiguration {
     private boolean debugLoggingOn;
     private boolean debugMode;
 
-    private String apiHostPort;
+    private String playlistHostPort;
+    private String configurationHostPort;
     private String analyticsHostPort;
     private String connectedModeHostPort;
     private String staticContentHostPort;
@@ -53,7 +54,8 @@ public class TuneConfiguration {
         echoPushes = false;
         usePlaylistPlayer = false;
 
-        apiHostPort = "https://services.ma.tune.com";
+        playlistHostPort = "https://playlist.ma.tune.com";
+        configurationHostPort = "https://configuration.ma.tune.com";
         analyticsHostPort = "https://analytics.ma.tune.com/analytics";
         staticContentHostPort = "https://s3.amazonaws.com/uploaded-assets-production";
         connectedModeHostPort = "https://connected.ma.tune.com";
@@ -93,12 +95,20 @@ public class TuneConfiguration {
         this.debugMode = debugMode;
     }
 
-    public String getApiHostPort() {
-        return apiHostPort;
+    public String getPlaylistHostPort() {
+        return playlistHostPort;
     }
 
-    public void setApiHostPort(String apiHostPort) {
-        this.apiHostPort = apiHostPort;
+    public void setPlaylistHostPort(String playlistHostPort) {
+        this.playlistHostPort = playlistHostPort;
+    }
+
+    public String getConfigurationHostPort() {
+        return configurationHostPort;
+    }
+
+    public void setConfigurationHostPort(String configurationHostPort) {
+        this.configurationHostPort = configurationHostPort;
     }
 
     public String getAnalyticsHostPort() {

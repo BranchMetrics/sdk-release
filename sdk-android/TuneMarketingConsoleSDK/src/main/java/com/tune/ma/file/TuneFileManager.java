@@ -199,7 +199,7 @@ public class TuneFileManager implements FileManager {
                 while ((line = bufferedReader.readLine()) != null) {
                     // If the line is not in the lines to delete, add it to the events to save
                     if (lineCount > numEventsToDelete) {
-                        eventsToSave.append(line);
+                        eventsToSave.append(line + "\n");
                     }
                     lineCount++;
                 }

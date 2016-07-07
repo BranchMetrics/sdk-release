@@ -740,7 +740,6 @@ public class TuneParameters {
     }
     public synchronized void setPhoneNumber(String phoneNumber) {
         mPrefs.saveToSharedPreferences(TuneConstants.KEY_PHONE_NUMBER, phoneNumber);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.USER_PHONE, phoneNumber)));
         setPhoneNumberMd5(TuneUtils.md5(phoneNumber));
         setPhoneNumberSha1(TuneUtils.sha1(phoneNumber));
         setPhoneNumberSha256(TuneUtils.sha256(phoneNumber));
@@ -914,7 +913,6 @@ public class TuneParameters {
     }
     public synchronized void setUserEmail(String userEmail) {
         mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAIL, userEmail);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.USER_EMAIL, userEmail)));
         setUserEmailMd5(TuneUtils.md5(userEmail));
         setUserEmailSha1(TuneUtils.sha1(userEmail));
         setUserEmailSha256(TuneUtils.sha256(userEmail));
@@ -927,7 +925,7 @@ public class TuneParameters {
     public synchronized void setUserEmailMd5(String userEmailMd5) {
         mUserEmailMd5 = userEmailMd5;
         TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_MD5)
+                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_MD5)
                         .withValue(userEmailMd5)
                         .withHash(TuneHashType.MD5)
                         .build()));
@@ -991,7 +989,6 @@ public class TuneParameters {
     }
     public synchronized void setUserName(String userName) {
         mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_NAME, userName);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.USER_NAME, userName)));
         setUserNameMd5(TuneUtils.md5(userName));
         setUserNameSha1(TuneUtils.sha1(userName));
         setUserNameSha256(TuneUtils.sha256(userName));

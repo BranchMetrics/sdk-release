@@ -68,7 +68,8 @@ public class TuneTestWrapper extends Tune {
     public static TuneConfiguration getTestingConfig(List<String> configurationPlayerFilenames) {
         TuneConfiguration config = new TuneConfiguration();
         config.setAnalyticsHostPort("https://qa.ma.tune.com:8443/analytics-receiver/analytics");
-        config.setApiHostPort("https://qa.ma.tune.com");
+        config.setPlaylistHostPort("https://qa.ma.tune.com");
+        config.setConfigurationHostPort("https://qa.ma.tune.com");
         config.setConnectedModeHostPort("https://qa.ma.tune.com");
         config.setStaticContentHostPort("https://s3.amazonaws.com/uploaded-assets-qa2");
         config.setAnalyticsDispatchPeriod(TuneTestConstants.ANALYTICS_DISPATCH_PERIOD);

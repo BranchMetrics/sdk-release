@@ -1,14 +1,11 @@
 package com.tune;
 
-import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.utils.TuneDebugLog;
 
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -96,123 +93,6 @@ public class TuneEventItem implements Serializable {
     public TuneEventItem withAttribute5(String attribute) {
         this.attribute5 = attribute;
         return this;
-    }
-
-    // Methods for tagging key-value pairs to event items
-
-    /**
-     * Add a String tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEventItem with updated String tag
-     */
-    public TuneEventItem withTagAsString(String name, String value) {
-        if (TuneManager.getProfileForUser("withTagAsString") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add an int tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEventItem with updated int tag
-     */
-    public TuneEventItem withTagAsNumber(String name, int value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a double tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEventItem with updated double tag
-     */
-    public TuneEventItem withTagAsNumber(String name, double value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a float tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEventItem with updated float tag
-     */
-    public TuneEventItem withTagAsNumber(String name, float value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a Date tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEventItem with updated Date tag
-     */
-    public TuneEventItem withTagAsDate(String name, Date value) {
-        if (TuneManager.getProfileForUser("withTagAsDate") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a location tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated location tag
-     */
-    public TuneEventItem withTagAsGeolocation(String name, TuneLocation value) {
-        if (TuneManager.getProfileForUser("withTagAsGeolocation") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    private TuneEventItem addTag(TuneAnalyticsVariable tag) {
-        // Do validation on tag name
-        if (TuneAnalyticsVariable.validateName(tag.getName())) {
-            String prettyName = TuneAnalyticsVariable.cleanVariableName(tag.getName());
-            // Don't allow tags that would duplicate event data keys
-            if (invalidTags.contains(prettyName)) {
-                TuneDebugLog.IAMConfigError(prettyName + " is a property, please use the appropriate setter instead.");
-                return this;
-            }
-
-            if (prettyName.startsWith("TUNE_")) {
-                TuneDebugLog.IAMConfigError("Tags starting with 'TUNE_' are reserved, not registering " + prettyName);
-                return this;
-            }
-
-            if (addedTags.contains(prettyName)) {
-                TuneDebugLog.IAMConfigError("The tag " + prettyName + " has already been added to this event, not adding duplicate tag");
-                return this;
-            }
-
-            // Add tag
-            this.addedTags.add(prettyName);
-            this.tags.add(
-                    TuneAnalyticsVariable.Builder(prettyName)
-                            .withValue(tag.getValue())
-                            .withType(tag.getType())
-                            .withHash(tag.getHashType())
-                            .withShouldAutoHash(tag.getShouldAutoHash())
-                            .build());
-        }
-        return this;
-    }
-
-    public Set<TuneAnalyticsVariable> getTags() {
-        return this.tags;
     }
     
     public String getAttrStringByName(String name) {

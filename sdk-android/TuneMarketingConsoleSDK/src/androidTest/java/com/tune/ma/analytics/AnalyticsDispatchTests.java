@@ -9,7 +9,9 @@ import com.tune.ma.eventbus.event.TuneActivityResumed;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
+import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.file.FileManager;
+import com.tune.ma.push.model.TunePushMessage;
 import com.tune.mocks.MockApi;
 
 import org.json.JSONArray;
@@ -201,6 +203,53 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertEquals(3, eventJson.length());
         // Check that a screen view event was sent
         assertTrue(eventString.contains("\"type\":\"PAGEVIEW\"") && eventString.contains("\"category\":\"MockActivity\""));
+        // Check that a background event was sent
+        assertTrue(eventString.contains("\"type\":\"SESSION\"") && eventString.contains("\"action\":\"" + TuneSessionEvent.BACKGROUNDED + "\""));
+        // Check that a tracer event was sent
+        assertTrue(eventString.contains("\"type\":\"TRACER\""));
+    }
+
+    /**
+     * Test that all push opened events are sent when a TunePushOpened event is received
+     */
+    public void testPushEventsDispatch() throws JSONException {
+        TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
+
+        // Wait for foreground to be dispatched
+        while (mockApi.getAnalyticsPostCount() <= 0) {
+            sleep(WAIT_TIME);
+        }
+
+        TuneEventBus.post(new TunePushOpened(new TunePushMessage("{\"appName\":\"test\"," +
+                "\"local_message_id\": \"test_message_id\"," +
+                "\"app_id\": \"c50e7eb0eb83b22131e8f791abc77329\"," +
+                "\"payload\":{\"ANA\":{\"D\":\"1\",\"CS\":\"MOCK_CAMPAIGN_STEP_ID\",\"URL\":\"demoapp://deeplink\"}}," +
+                "\"CAMPAIGN_ID\":\"MOCK_CAMPAIGN_ID\"," +
+                "\"key\":\"AIzaSyAtR4SljwU0_v1jxOltOAYCr9ktX43mR3s\"," +
+                "\"from\":\"303334013783\"," +
+                "\"type\":\"android\"," +
+                "\"alert\":\"deep link test\"," +
+                "\"style\":\"regular\"," +
+                "\"LENGTH_TO_REPORT\":604800," +
+                "\"ARTPID\":\"TEST_MESSAGE\"}")));
+
+        // Trigger an event dispatch
+        TuneEventBus.post(new TuneAppBackgrounded());
+
+        // Wait for first tracer to be dispatched
+        while (mockApi.getAnalyticsPostCount() <= 1) {
+            sleep(WAIT_TIME);
+        }
+
+        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
+        String eventString = eventJson.toString();
+
+        // Check that 4 events were sent - one push opened, one push action, background, one tracer
+        assertEquals(4, eventJson.length());
+        // Check that a NotificationOpened event was sent
+        assertTrue(eventString.contains("\"type\":\"PUSH_NOTIFICATION\"") && eventString.contains("\"action\":\"NotificationOpened\""));
+        // Check that a push action event was sent
+        assertTrue(eventString.contains("\"type\":\"PUSH_NOTIFICATION\"") && eventString.contains("\"action\":\"INAPP_OPEN_URL\""));
         // Check that a background event was sent
         assertTrue(eventString.contains("\"type\":\"SESSION\"") && eventString.contains("\"action\":\"" + TuneSessionEvent.BACKGROUNDED + "\""));
         // Check that a tracer event was sent

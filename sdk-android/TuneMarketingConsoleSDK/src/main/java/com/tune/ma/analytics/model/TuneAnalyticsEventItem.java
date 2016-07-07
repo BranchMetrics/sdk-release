@@ -29,10 +29,6 @@ public class TuneAnalyticsEventItem {
         this.revenue = Double.toString(eventItem.revenue);
         this.attributes = new HashSet<TuneAnalyticsVariable>();
 
-        // Populate attributes with event item's tags
-        if (!eventItem.getTags().isEmpty()) {
-            this.attributes.addAll(eventItem.getTags());
-        }
         // Convert event item attributes to TuneAnalyticsVariables
         if (!TextUtils.isEmpty(eventItem.attribute1)) {
             this.attributes.add(new TuneAnalyticsVariable(TuneEventItem.ATTRIBUTE1, eventItem.attribute1));

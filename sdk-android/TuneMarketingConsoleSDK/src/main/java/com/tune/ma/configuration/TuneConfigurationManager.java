@@ -31,7 +31,8 @@ public class TuneConfigurationManager {
     private boolean debugLoggingOn;
     private boolean debugMode;
 
-    private String apiHostPort;
+    private String playlistHostPort;
+    private String configurationHostPort;
     private String analyticsHostPort;
     private String connectedModeHostPort;
     private String staticContentHostPort;
@@ -152,7 +153,8 @@ public class TuneConfigurationManager {
             TuneDebugLog.setLogLevel(TuneDebugLog.DEBUG);
         }
         debugMode = config.debugMode(); //TODO Show an alert if debug mode is enabled?
-        apiHostPort = config.getApiHostPort();
+        playlistHostPort = config.getPlaylistHostPort();
+        configurationHostPort = config.getConfigurationHostPort();
         analyticsHostPort = config.getAnalyticsHostPort();
         connectedModeHostPort = config.getConnectedModeHostPort();
         staticContentHostPort = config.getStaticContentHostPort();
@@ -300,8 +302,12 @@ public class TuneConfigurationManager {
         return debugMode;
     }
 
-    public String getApiHostPort() {
-        return apiHostPort;
+    public String getPlaylistHostPort() {
+        return playlistHostPort;
+    }
+
+    public String getConfigurationHostPort() {
+        return configurationHostPort;
     }
 
     public String getAnalyticsHostPort() {

@@ -78,9 +78,9 @@ public class TuneApi implements Api {
         builder.appendQueryParameter("GAID", profileManager.getProfileVariableValue(TuneUrlKeys.GOOGLE_AID));
         String pathWithQuery = builder.build().toString();
 
-        String apiHostPort = TuneManager.getInstance().getConfigurationManager().getApiHostPort();
+        String configHostPort = TuneManager.getInstance().getConfigurationManager().getConfigurationHostPort();
 
-        HttpURLConnection urlConnection = buildUrlConnection(apiHostPort + pathWithQuery, REQUEST_METHOD_GET);
+        HttpURLConnection urlConnection = buildUrlConnection(configHostPort + pathWithQuery, REQUEST_METHOD_GET);
         urlConnection.setRequestProperty("Accept", "application/json");
 
         if (urlConnection != null) {
@@ -319,7 +319,7 @@ public class TuneApi implements Api {
         uriBuilder.encodedPath(TuneStringUtils.format(endpoint, configManager.getApiVersion(), profile.getAppId(), profile.getDeviceId()));
         String path = uriBuilder.build().toString();
 
-        HttpURLConnection urlConnection = buildUrlConnection(configManager.getApiHostPort() + path, REQUEST_METHOD_GET);
+        HttpURLConnection urlConnection = buildUrlConnection(configManager.getPlaylistHostPort() + path, REQUEST_METHOD_GET);
         urlConnection.setRequestProperty("Accept", "application/json");
 
         if (urlConnection != null) {

@@ -360,19 +360,6 @@ public class TuneEvent implements Serializable {
         return addTag(new TuneAnalyticsVariable(name, value));
     }
 
-    /**
-     * Add a location tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated location tag
-     */
-    public TuneEvent withTagAsGeolocation(String name, TuneLocation value) {
-        if (TuneManager.getProfileForUser("withTagAsGeolocation") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
     private TuneEvent addTag(TuneAnalyticsVariable tag) {
         // Do validation on tag name
         if (TuneAnalyticsVariable.validateName(tag.getName())) {
