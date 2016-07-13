@@ -47,7 +47,6 @@ public class TunePushManager {
     protected String currentAppVersion;
     // Storing this as an object since we get it as the result of an invocation
     private Object gcm;
-    private String registrationId;
     private ExecutorService executorService;
 
     private String pushSenderId;
@@ -224,7 +223,7 @@ public class TunePushManager {
                         msg = "Successfully unregistered device. Re-registering now... ";
                     }
                     if (pushSenderId != null) {
-                        registrationId = TuneGooglePlayServicesDelegate.registerGCM(gcm, pushSenderId);
+                        String registrationId = TuneGooglePlayServicesDelegate.registerGCM(gcm, pushSenderId);
                         msg += "Successful registration: " + registrationId;
 
                         storePushPrefs(registrationId);
@@ -352,8 +351,9 @@ public class TunePushManager {
             TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.IS_PUSH_ENABLED, TuneAnalyticsVariable.IOS_BOOLEAN_TRUE)));
         }
 
+        storePushPrefs(registrationId);
         TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneProfileKeys.DEVICE_TOKEN).withValue(this.registrationId).build()));
+                TuneAnalyticsVariable.Builder(TuneProfileKeys.DEVICE_TOKEN).withValue(registrationId).build()));
     }
 
     public void setTuneNotificationBuilder(TuneNotificationBuilder toStore) {

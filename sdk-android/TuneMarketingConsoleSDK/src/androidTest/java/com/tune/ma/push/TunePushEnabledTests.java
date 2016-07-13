@@ -278,4 +278,11 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
         assertEquals(TuneAnalyticsVariable.IOS_BOOLEAN_TRUE, userProfile.getProfileVariableValue(TuneProfileKeys.IS_PUSH_ENABLED));
     }
+
+    public void testSetRegistrationId() throws Exception {
+        pushManager.setPushNotificationRegistrationId("FAKE_REGISTRATION_ID");
+
+        assertNotNull(userProfile.getProfileVariableValue(TuneProfileKeys.DEVICE_TOKEN));
+        assertEquals("FAKE_REGISTRATION_ID", userProfile.getProfileVariableValue(TuneProfileKeys.DEVICE_TOKEN));
+    }
 }
