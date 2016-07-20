@@ -388,6 +388,7 @@ public class Tune {
 
         if (tuneListener != null) {
             tuneListener.enqueuedActionWithRefId(eventData.getRefId());
+            tuneListener.enqueuedRequest(link + "&data=" + data, postBody);
         }
 
         return;

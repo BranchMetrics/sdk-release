@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class ServerTests extends TuneUnitTest implements TuneListener {
     private boolean callSuccess;
     private boolean callFailed;
+    private boolean enqueuedSession;
+    private boolean enqueuedEvent;
     private JSONObject serverResponse;
     private MockUrlRequester mockUrlRequester;
 
@@ -18,7 +20,8 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
         callSuccess = false;
         callFailed = false;
-
+        enqueuedSession = false;
+        enqueuedEvent = false;
 
         tune.setDebugMode( true );
         tune.setListener(this);
@@ -29,6 +32,11 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     public void testSession() {
         tune.measureSession();
+
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+
+        assertTrue(enqueuedSession);
+        assertFalse(enqueuedEvent);
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         
         assertTrue( "session should have succeeded", callSuccess );
@@ -56,6 +64,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     public void testUpdate() {
         tune.setExistingUser( true );
         tune.measureSession();
+
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         
         assertTrue( "update should have succeeded", callSuccess );
@@ -64,6 +73,11 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     public void testEventName() {
         tune.measureEvent( "testEventName" );
+
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+
+        assertTrue(enqueuedEvent);
+        assertFalse(enqueuedSession);
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         
         assertTrue( "action should have succeeded", callSuccess );
@@ -143,7 +157,17 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     @Override
     public void enqueuedActionWithRefId(String refId) {
     }
-    
+
+    @Override
+    public void enqueuedRequest(String url, JSONObject postData) {
+        if (url.contains("action=session")) {
+            enqueuedSession = true;
+        }
+        if (url.contains("action=conversion")) {
+            enqueuedEvent = true;
+        }
+    }
+
     @Override
     public void didSucceedWithData(JSONObject data) {
         Log("test succeeded");

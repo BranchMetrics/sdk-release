@@ -2,10 +2,10 @@ package com.tune;
 
 import com.tune.mocks.MockUrlRequester;
 
-import java.util.ArrayList;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class QueueTests extends TuneUnitTest implements TuneListener {
     private ArrayList<JSONObject> successResponses;
@@ -159,6 +159,11 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
     @Override
     public void enqueuedActionWithRefId(String refId) {
         Log("enqueued with ref id " + refId);
+    }
+
+    @Override
+    public void enqueuedRequest(String url, JSONObject postData) {
+        Log("enqueued with url " + url + ", postData " + postData.toString());
     }
 
     @Override
