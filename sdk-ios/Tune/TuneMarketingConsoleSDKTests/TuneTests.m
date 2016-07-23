@@ -37,6 +37,9 @@
     TuneErrorCode tuneErrorCode;
     TuneBlankAppDelegate *appDelegate;
     id mockApplication;
+    
+    BOOL enqueuedSession;
+    BOOL enqueuedEvent;
 }
 
 @end
@@ -64,6 +67,9 @@
     appDelegate = [[TuneBlankAppDelegate alloc] init];
     
     params = [TuneTestParams new];
+    
+    enqueuedSession = NO;
+    enqueuedEvent = NO;
 }
 
 - (void)tearDown {
@@ -93,6 +99,11 @@
     failed = YES;
     
     tuneErrorCode = error.code;
+}
+
+- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
+    enqueuedSession = [url containsString:@"&action=session"];
+    enqueuedEvent = [url containsString:@"&action=conversion"];
 }
 
 
@@ -655,6 +666,23 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
     ASSERT_KEY_VALUE( TUNE_KEY_SITE_EVENT_NAME, eventName2 );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
+}
+
+- (void)testRequestEnqueuedCallback {
+    enqueuedSession = NO;
+    enqueuedEvent = YES;
+    [Tune measureSession];
+    waitForQueuesToFinish();
+    XCTAssertTrue( enqueuedSession );
+    XCTAssertFalse( enqueuedEvent );
+    
+    enqueuedSession = YES;
+    enqueuedEvent = NO;
+    static NSString* const eventName1 = @"testEventName1";
+    [Tune measureEventName:eventName1];
+    waitForQueuesToFinish();
+    XCTAssertFalse( enqueuedSession );
+    XCTAssertTrue( enqueuedEvent );
 }
 
 

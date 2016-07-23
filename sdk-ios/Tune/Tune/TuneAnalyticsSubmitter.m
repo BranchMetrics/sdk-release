@@ -17,32 +17,15 @@
 
 @implementation TuneAnalyticsSubmitter
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
     
-    if (self) {
-        self.sessionId = [[TuneManager currentManager].userProfile sessionId];
-        self.deviceId = [TuneManager currentManager].userProfile.deviceId;
-        if ([TuneDeviceUtils currentDeviceIsTestFlight]) {
-            self.ifa = [TuneManager currentManager].userProfile.deviceId;
-        } else {
-            self.ifa = [[TuneManager currentManager].userProfile appleAdvertisingIdentifier];
-            
-        }
+    if(self) {
+        _sessionId = [[TuneManager currentManager].userProfile.sessionId copy];
+        _deviceId = [[TuneManager currentManager].userProfile.deviceId copy];
+        _ifa = [TuneDeviceUtils currentDeviceIsTestFlight] ? _deviceId : [[TuneManager currentManager].userProfile.appleAdvertisingIdentifier copy];
     }
-    return self;
-}
-
-- (id)initWithSessionId:(NSString *)sessionId
-               deviceId:(NSString *)deviceId
-                    ifa:(NSString *)ifa {
-    self = [super init];
     
-    if( self ) {
-        self.sessionId = sessionId;
-        self.deviceId = deviceId;
-        self.ifa = ifa;
-    }
     return self;
 }
 

@@ -9,7 +9,12 @@
 #import "TuneCampaign.h"
 #import "TuneInAppMessageConstants.h"
 
+#if IDE_XCODE_8_OR_HIGHER
+#import <QuartzCore/QuartzCore.h>
+@interface TuneBaseInAppMessageView : UIView <CAAnimationDelegate> {
+#else
 @interface TuneBaseInAppMessageView : UIView {
+#endif
     NSString *_messageID;
     NSString *_campaignStepID;
     

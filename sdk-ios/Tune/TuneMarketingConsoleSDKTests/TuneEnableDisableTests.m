@@ -98,7 +98,8 @@
 }
 
 - (void)testTMANotTurnedOnViaConfiguration {
-    [TuneUserDefaultsUtils clearUserDefaultValue:TMAStateDisabled];
+    id tuneUtilsMock = OCMClassMock([TuneUserDefaultsUtils class]);
+    OCMStub([tuneUtilsMock userDefaultValueforKey:TMAStateDisabled]).andReturn(nil);
     
     [tuneStateMock stopMocking];
     tuneStateMock = OCMClassMock([TuneState class]);
@@ -133,10 +134,15 @@
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
     
     XCTAssertEqual(0, [observer skyhookPostCount]);
+    
+    [tuneUtilsMock stopMocking];
 }
 
 - (void)testTMATurnedOnViaConfiguration {
 #if !TARGET_OS_TV
+    id tuneUtilsMock = OCMClassMock([TuneUserDefaultsUtils class]);
+    OCMStub([tuneUtilsMock userDefaultValueforKey:TMAStateDisabled]).andReturn(nil);
+    
     [TuneUserDefaultsUtils clearUserDefaultValue:TMAStateDisabled];
     
     // Should not send this since we start in the Active state when opted in (and no need for this Activated skyhook)
@@ -174,16 +180,18 @@
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
     
     XCTAssertEqual(1, [observer skyhookPostCount]);
+    
+    [tuneUtilsMock stopMocking];
 #endif
 }
 
 
 - (void)testStartDisabled {
 #if !TARGET_OS_TV
+    [TuneUserDefaultsUtils clearUserDefaultValue:TMAStatePermanentlyDisabled];
     [TuneState updateTMADisabledState:YES];
     
     [TuneManager instantiateModules];
-    
     
     XCTAssertNotNil([TuneManager currentManager].userProfile);
     XCTAssertNotNil([TuneManager currentManager].configuration);
@@ -320,7 +328,9 @@
 }
 
 - (void)testStartPermanentlyDisabled {
-    [TuneUserDefaultsUtils clearUserDefaultValue:@"TMAStateDisabled"];
+    id tuneUtilsMock = OCMClassMock([TuneUserDefaultsUtils class]);
+    OCMStub([tuneUtilsMock userDefaultValueforKey:TMAStateDisabled]).andReturn(nil);
+    
     [TuneState updateTMAPermanentlyDisabledState:YES];
     
     [TuneManager instantiateModules];
@@ -430,6 +440,8 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    
+    [tuneUtilsMock stopMocking];
 }
 
 /*

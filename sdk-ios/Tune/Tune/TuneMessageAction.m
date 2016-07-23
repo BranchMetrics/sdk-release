@@ -7,6 +7,7 @@
 //
 
 #import "TuneMessageAction.h"
+#import "TuneDeviceDetails.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
@@ -24,9 +25,30 @@
 }
 
 - (void)gotoURL {
-    NSURL *url = [NSURL URLWithString:_url];
+    __block NSURL *url = [NSURL URLWithString:_url];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication] openURL:url];
+        if ([TuneDeviceDetails appIsRunningIniOS10OrAfter]) {
+#if IDE_XCODE_8_OR_HIGHER
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+#else
+            // The openURL:options:completionHandler: method is not visible during
+            // compile time when base iOS SDK < iOS 10.0, i.e. prior to Xcode 8.
+            NSDictionary *dictOptions = @{};
+            id dummyCompletionHandler = nil;
+
+            SEL selOpenUrl = NSSelectorFromString(@"openURL:options:completionHandler:");
+            NSMethodSignature *signature = [[UIApplication sharedApplication] methodSignatureForSelector:selOpenUrl];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:[UIApplication sharedApplication]];
+            [invocation setSelector:selOpenUrl];
+            [invocation setArgument:&url atIndex:2];
+            [invocation setArgument:&dictOptions atIndex:3];
+            [invocation setArgument:&dummyCompletionHandler atIndex:4];
+            [invocation invoke];
+#endif
+        } else {
+            [[UIApplication sharedApplication] openURL:url];
+        }
     });
 }
 

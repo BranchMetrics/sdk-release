@@ -20,6 +20,50 @@
 #import "TuneTestsHelper.h"
 #import "TuneXCTestCase.h"
 
+@import UIKit;
+
+#if IDE_XCODE_8_OR_HIGHER
+#import <UserNotifications/UserNotifications.h>
+#endif
+
+@interface UIApplication (TuneTestAppDelegateTests)
+
+@property(nonatomic, readonly) UIApplication *sharedApplication;
+
+@end
+
+#if IDE_XCODE_8_OR_HIGHER
+
+@interface TuneUNNotification : UNNotification
+
+@property (nonatomic, readwrite, copy) NSDate *date;
+
+// The notification request that caused the notification to be delivered.
+@property (nonatomic, readwrite, copy) UNNotificationRequest *request;
+
+@end
+
+@implementation TuneUNNotification
+
+@synthesize date, request;
+
+@end
+
+@interface TuneUNNotificationResponse : UNNotificationResponse
+
+@property (NS_NONATOMIC_IOSONLY, readwrite, copy) UNNotification *notification;
+@property (NS_NONATOMIC_IOSONLY, readwrite, copy) NSString *actionIdentifier;
+
+@end
+
+@implementation TuneUNNotificationResponse
+
+@synthesize notification, actionIdentifier;
+
+@end
+
+#endif
+
 @interface TuneAppDelegateTests : TuneXCTestCase {
     SimpleObserver *pushObserver;
     SimpleObserver *campaignObserver;
@@ -47,6 +91,7 @@ static NSString *tune_swizzledMethod;
     deviceTokenObserver = [[SimpleObserver alloc] init];
     appDelegate = [[TuneBlankAppDelegate alloc] init];
     mockApplication = OCMClassMock([UIApplication class]);
+    OCMStub([(UIApplication *)mockApplication sharedApplication]).andReturn(mockApplication);
     tune_swizzledMethod = nil;
 }
 
@@ -71,7 +116,6 @@ static NSString *tune_swizzledMethod;
     
     XCTAssertEqual([pushObserver skyhookPostCount], 2);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.didReceiveCount, 1);
     
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
@@ -81,6 +125,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledDidReceiveRemoteNotificationSendsOpenAndViewSkyhooksFromForeground {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
+    
     [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
@@ -91,12 +136,83 @@ static NSString *tune_swizzledMethod;
     
     XCTAssertEqual([pushObserver skyhookPostCount], 1);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.didReceiveCount, 1);
     
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
 }
+
+#if IDE_XCODE_8_OR_HIGHER
+- (void)testSwizzledUNUserNotificationDidReceiveRemoteNotificationSendsOpenAndViewSkyhooksFromBackground {
+    [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    
+    UNMutableNotificationContent *cont = [UNMutableNotificationContent new];
+    cont.userInfo = userInfo;
+    
+    UNNotificationRequest *req = [UNNotificationRequest requestWithIdentifier:@"" content:cont trigger:nil];
+    
+    TuneUNNotification *notif = [TuneUNNotification new];
+    notif.request = req;
+    notif.date = [NSDate date];
+    
+    TuneUNNotificationResponse *resp = [TuneUNNotificationResponse new];
+    resp.actionIdentifier = UNNotificationDefaultActionIdentifier;
+    resp.notification = notif;
+    
+    [appDelegate userNotificationCenter:(id)[NSObject new] didReceiveNotificationResponse:resp withCompletionHandler:^{
+        NSLog(@"TuneAppDelegateTests: userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: called");
+    }];
+    
+    // Flush Skyhook queue
+    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
+    [[TuneSkyhookCenter defaultCenter] waitTilQueueFinishes];
+    
+    XCTAssertEqual([pushObserver skyhookPostCount], 2);
+    XCTAssertEqual([campaignObserver skyhookPostCount], 1);
+    XCTAssertEqual(appDelegate.didReceiveCount, 1);
+    
+    [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
+}
+
+- (void)testSwizzledUNUserNotificationDidReceiveRemoteNotificationSendsOpenAndViewSkyhooksFromForeground {
+    [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
+    
+    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
+    UNMutableNotificationContent *cont = [UNMutableNotificationContent new];
+    cont.userInfo = userInfo;
+    
+    UNNotificationRequest *req = [UNNotificationRequest requestWithIdentifier:@"" content:cont trigger:nil];
+    
+    TuneUNNotification *notif = [TuneUNNotification new];
+    notif.request = req;
+    notif.date = [NSDate date];
+    
+    TuneUNNotificationResponse *resp = [TuneUNNotificationResponse new];
+    resp.actionIdentifier = UNNotificationDefaultActionIdentifier;
+    resp.notification = notif;
+    
+    [appDelegate userNotificationCenter:(id)[NSObject new] didReceiveNotificationResponse:resp withCompletionHandler:^{
+        NSLog(@"TuneAppDelegateTests: userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: called");
+    }];
+    
+    // Flush Skyhook queue
+    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
+    [[TuneSkyhookCenter defaultCenter] waitTilQueueFinishes];
+    
+    XCTAssertEqual([pushObserver skyhookPostCount], 1);
+    XCTAssertEqual([campaignObserver skyhookPostCount], 1);
+    XCTAssertEqual(appDelegate.didReceiveCount, 1);
+    
+    [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
+    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
+}
+#endif
 
 - (void)testSwizzledHandleActionWithIdentifierSendsOpenAndViewSkyhooksFromHandleAction {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
@@ -111,7 +227,6 @@ static NSString *tune_swizzledMethod;
     
     XCTAssertEqual([pushObserver skyhookPostCount], 1);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.handleActionCount, 1);
     
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
@@ -238,6 +353,7 @@ static NSString *tune_swizzledMethod;
 - (void)testDeeplinkOpenedFromPushNotificationFromBackground {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
+    
     [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
     
     NSDictionary *userInfo = @{@"ANA":@{@"URL":@"artisan://cart?SRC=EMAIL&ACID=278730"}, @"ARTPID": @"test", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
@@ -250,7 +366,6 @@ static NSString *tune_swizzledMethod;
     
     XCTAssertEqual([pushObserver skyhookPostCount], 2);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.didReceiveCount, 1);
     
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
@@ -272,7 +387,6 @@ static NSString *tune_swizzledMethod;
     
     XCTAssertEqual([pushObserver skyhookPostCount], 1);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.didReceiveCount, 1);
     
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
@@ -302,7 +416,6 @@ static NSString *tune_swizzledMethod;
     XCTAssertEqual([pushObserver skyhookPostCount], 2);
     XCTAssertEqual([campaignObserver skyhookPostCount], 1);
     XCTAssertEqual([deepActionObserver skyhookPostCount], 1);
-    XCTAssertEqual([campaignObserver lastPayload].object, appDelegate);
     XCTAssertEqual(appDelegate.deepActionCount, 1);
     XCTAssertEqual(appDelegate.deepActionValue, @"Received deep action!");
     
@@ -366,6 +479,27 @@ static NSString *tune_swizzledMethod;
     [appDelegate application:(UIApplication *)mockApplication didRegisterForRemoteNotificationsWithDeviceToken:[@"testToken" dataUsingEncoding:NSUTF8StringEncoding]];
     [self checkSwizzledMethod:@"application:didRegisterForRemoteNotificationsWithDeviceToken:"];
     tune_swizzledMethod = nil;
+    
+#if IDE_XCODE_8_OR_HIGHER
+    UNMutableNotificationContent *cont = [UNMutableNotificationContent new];
+    cont.userInfo = userInfo;
+    
+    UNNotificationRequest *req = [UNNotificationRequest requestWithIdentifier:@"" content:cont trigger:nil];
+    
+    TuneUNNotification *notif = [TuneUNNotification new];
+    notif.request = req;
+    notif.date = [NSDate date];
+    
+    TuneUNNotificationResponse *resp = [TuneUNNotificationResponse new];
+    resp.actionIdentifier = UNNotificationDefaultActionIdentifier;
+    resp.notification = notif;
+    
+    [appDelegate userNotificationCenter:(id)[NSObject new] didReceiveNotificationResponse:resp withCompletionHandler:^{
+        NSLog(@"TuneAppDelegateTests: userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: called");
+    }];
+    [self checkSwizzledMethod:@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
+    tune_swizzledMethod = nil;
+#endif
     
     NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
     

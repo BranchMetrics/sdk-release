@@ -8,7 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+#if IDE_XCODE_8_OR_HIGHER
+#import <UserNotifications/UserNotifications.h>
+#endif
+
+#if IDE_XCODE_8_OR_HIGHER
+@interface TuneBlankAppDelegate : UIResponder <UIApplicationDelegate, UNUserNotificationCenterDelegate>
+#else
 @interface TuneBlankAppDelegate : UIResponder <UIApplicationDelegate>
+#endif
 
 @property (nonatomic) int didRegisterCount;
 @property (nonatomic) int didReceiveCount;

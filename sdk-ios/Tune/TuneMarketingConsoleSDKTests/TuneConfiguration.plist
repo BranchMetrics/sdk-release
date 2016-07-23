@@ -4,6 +4,8 @@
 <dict>
 	<key>AppDelegateClassName</key>
 	<string>TuneBlankAppDelegate</string>
+	<key>UserNotificationDelegateClassName</key>
+	<string>TuneBlankAppDelegate</string>
 	<key>DisabledClasses</key>
 	<array>
 		<string>DisabledInPlist</string>

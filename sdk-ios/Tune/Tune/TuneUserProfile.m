@@ -924,7 +924,7 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (void)setAppleAdvertisingIdentifier:(NSString *)advertisingId {
-    [self storeProfileKey:TUNE_KEY_IOS_IFA value:advertisingId];
+    [self storeProfileKey:TUNE_KEY_IOS_IFA value:([advertisingId isEqualToString:TUNE_KEY_GUID_EMPTY] ? nil : advertisingId)];
 }
 
 - (NSString *)appleAdvertisingIdentifier {
@@ -1466,15 +1466,11 @@ static NSNumber *COPPA_MIN_AGE;
     NSString* userEmailSha1 = [TuneUtils hashSha1:userEmail];
     NSString* userEmailSha256 = [TuneUtils hashSha256:userEmail];
     
-    [self storeProfileKey:TUNE_KEY_USER_EMAIL value:userEmail type: TuneAnalyticsVariableStringType];
     [self storeProfileKey:TUNE_KEY_USER_EMAIL_MD5 value:userEmailMd5 hashType:TuneAnalyticsVariableHashMD5Type];
     [self storeProfileKey:TUNE_KEY_USER_EMAIL_SHA1 value:userEmailSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_EMAIL_SHA256 value:userEmailSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)userEmail {
-    return [self getProfileValue:TUNE_KEY_USER_EMAIL];
-}
 - (NSString *)userEmailMd5 {
     return [self getProfileValue:TUNE_KEY_USER_EMAIL_MD5];
 }
@@ -1491,15 +1487,11 @@ static NSNumber *COPPA_MIN_AGE;
     NSString* userNameSha1 = [TuneUtils hashSha1:userName];
     NSString* userNameSha256 = [TuneUtils hashSha256:userName];
     
-    [self storeProfileKey:TUNE_KEY_USER_NAME value:userName type: TuneAnalyticsVariableStringType];
     [self storeProfileKey:TUNE_KEY_USER_NAME_MD5 value:userNameMd5 hashType:TuneAnalyticsVariableHashMD5Type];
     [self storeProfileKey:TUNE_KEY_USER_NAME_SHA1 value:userNameSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_NAME_SHA256 value:userNameSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)userName {
-    return [self getProfileValue:TUNE_KEY_USER_NAME];
-}
 - (NSString *)userNameMd5 {
     return [self getProfileValue:TUNE_KEY_USER_NAME_MD5];
 }
@@ -1552,15 +1544,11 @@ static NSNumber *COPPA_MIN_AGE;
     NSString *cleanPhoneSha1 = [TuneUtils hashSha1:cleanPhone];
     NSString *cleanPhoneSha256 = [TuneUtils hashSha256:cleanPhone];
     
-    [self storeProfileKey:TUNE_KEY_USER_PHONE value:cleanPhone type: TuneAnalyticsVariableStringType];
     [self storeProfileKey:TUNE_KEY_USER_PHONE_MD5 value:cleanPhoneMd5 hashType:TuneAnalyticsVariableHashMD5Type];
     [self storeProfileKey:TUNE_KEY_USER_PHONE_SHA1 value:cleanPhoneSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_PHONE_SHA256 value:cleanPhoneSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)phoneNumber {
-    return [self getProfileValue:TUNE_KEY_USER_PHONE];
-}
 - (NSString *)phoneNumberMd5 {
     return [self getProfileValue:TUNE_KEY_USER_PHONE_MD5];
 }

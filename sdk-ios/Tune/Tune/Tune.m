@@ -15,6 +15,7 @@
 #import "TuneDeferredDplinkr.h"
 #endif
 #import "TuneEvent+Internal.h"
+#import "TuneIfa.h"
 #import "TuneKeyStrings.h"
 #import "TuneManager.h"
 #import "TunePowerHookManager.h"
@@ -37,7 +38,7 @@
 #import "TuneRegionMonitor.h"
 #endif
 
-#define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"marmalade", @"phonegap", @"titanium", @"unity", @"xamarin"])
+#define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"corona", @"marmalade", @"phonegap", @"react-native", @"titanium", @"unity", @"xamarin"])
 
 static NSOperationQueue *opQueue = nil;
 static TuneManager *_tuneManager;
@@ -202,13 +203,13 @@ static TuneTracker *_sharedManager = nil;
 }
 
 #if !TARGET_OS_WATCH
-+ (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
++ (void)setAppleAdvertisingIdentifier:(NSUUID *)ifa
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled {
-    [TuneDeferredDplinkr setAppleIfa:appleAdvertisingIdentifier.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
+    [TuneDeferredDplinkr setAppleIfa:ifa.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
     
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:NO];
-        [[TuneManager currentManager].userProfile setAppleAdvertisingIdentifier: [appleAdvertisingIdentifier UUIDString]];
+        [[TuneManager currentManager].userProfile setAppleAdvertisingIdentifier:ifa.UUIDString];
         [[TuneManager currentManager].userProfile setAppleAdvertisingTrackingEnabled:@(adTrackingEnabled)];
     }];
 }
@@ -243,9 +244,17 @@ static TuneTracker *_sharedManager = nil;
 
 #if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect {
-    if(!autoCollect) {
-        [TuneDeferredDplinkr setAppleIfa:nil appleAdTrackingEnabled:NO];
+    NSString *strIfa = nil;
+    BOOL trackEnabled = NO;
+    
+    if(autoCollect) {
+        TuneIfa *ifaInfo = [TuneIfa ifaInfo];
+        strIfa = ifaInfo.ifa;
+        trackEnabled = ifaInfo.trackingEnabled;
     }
+    
+    [TuneDeferredDplinkr setAppleIfa:strIfa
+              appleAdTrackingEnabled:trackEnabled];
     
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:autoCollect];

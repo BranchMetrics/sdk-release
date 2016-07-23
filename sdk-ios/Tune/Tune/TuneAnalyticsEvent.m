@@ -30,10 +30,7 @@
     if (self) {
         self.uuid = [TuneUtils getUUID];
         
-        self.submitter = [[TuneAnalyticsSubmitter alloc] init];
-        self.submitter.deviceId = [TuneManager currentManager].userProfile.deviceId;
-        self.submitter.ifa = [[TuneManager currentManager].userProfile appleAdvertisingIdentifier];
-        self.submitter.sessionId = [[TuneManager currentManager].userProfile sessionId];
+        self.submitter = [TuneAnalyticsSubmitter new];
         
         self.appId = [[TuneManager currentManager].userProfile hashedAppId];
         

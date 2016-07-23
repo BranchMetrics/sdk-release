@@ -525,8 +525,17 @@ static NSSet * doNotEncryptSet;
     // fire the event tracking request
     [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName encryptParams:encryptParams postData:strPost runDate:runDate];
     
+    if([self.delegate respondsToSelector:@selector(tuneEnqueuedRequest:postData:)]) {
+        NSString *reqUrl = [NSString stringWithFormat:@"%@%@", trackingLink, encryptParams];
+        
+        [self.delegate tuneEnqueuedRequest:reqUrl postData:strPost];
+    }
+    
     if([self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [self.delegate tuneEnqueuedActionWithReferenceId:event.refId];
+#pragma clang diagnostic pop
     }
 }
 
@@ -838,8 +847,6 @@ static NSSet * doNotEncryptSet;
     }
 #endif
     
-    DLLog(@"Tune urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
-    
     if( [_trackerDelegate respondsToSelector:@selector(_tuneURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [_trackerDelegate _tuneURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
     
@@ -849,6 +856,10 @@ static NSSet * doNotEncryptSet;
                      [[TuneManager currentManager].configuration domainName],
                      TUNE_SERVER_PATH_TRACKING_ENGINE,
                      nonEncryptedParams];
+    
+    DLLog(@"Tune urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
+    DLLog(@"Tune urlStringForServerUrl: tracking url: %@", *trackingLink);
+    
     *encryptParams = encryptedParams;
 }
 

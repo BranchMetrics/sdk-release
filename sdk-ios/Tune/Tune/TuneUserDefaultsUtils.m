@@ -16,7 +16,7 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
 + (id)userDefaultValueforKey:(NSString *)key
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *newKey = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_KEY_PREFIX, key];
+    NSString *newKey = [self tunePrefixedKey:key];
     
     id value = [defaults valueForKey:newKey];
     
@@ -32,7 +32,7 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
     }
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    key = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_KEY_PREFIX, key];
+    key = [self tunePrefixedKey:key];
     [defaults setValue:value forKey:key];
     
     // Note: Moved this synchronize call to Tune handleNotification: -- UIApplicationWillResignActiveNotification notification,
@@ -41,17 +41,12 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
 }
 
 + (void)clearUserDefaultValue:(NSString *)key {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    key = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_KEY_PREFIX, key];
-    [defaults removeObjectForKey:key];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:[self tunePrefixedKey:key]];
 }
 
 + (TuneAnalyticsVariable *)userDefaultCustomVariableforKey:(NSString *)key
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *newKey = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX, key];
-
-    NSData *data = (NSData *)[defaults valueForKey:newKey];
+    NSData *data = (NSData *)[[NSUserDefaults standardUserDefaults] valueForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
     
     if (!data) {
         return nil;
@@ -66,16 +61,21 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
 {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    key = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX, key];
-    [defaults setValue:data forKey:key];
+    [[NSUserDefaults standardUserDefaults] setValue:data forKey:[self tunePrefixedKey:key isCustomVariable:YES]];
 }
 
 + (void)clearCustomVariable:(NSString *)key
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    key = [NSString stringWithFormat:@"%@%@", USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX, key];
-    [defaults removeObjectForKey:key];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
+}
+
++ (NSString *)tunePrefixedKey:(NSString *)key {
+    return [self tunePrefixedKey:key isCustomVariable:NO];
+}
+
++ (NSString *)tunePrefixedKey:(NSString *)key isCustomVariable:(BOOL)custom {
+    NSString *prefix = custom ? USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX : USER_DEFAULT_KEY_PREFIX;
+    return [NSString stringWithFormat:@"%@%@", prefix, key];
 }
 
 + (void)synchronizeUserDefaults

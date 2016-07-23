@@ -270,6 +270,10 @@
     return [self appIsRunningIniOSVersionOrAfter:9.0];
 }
 
++ (BOOL)appIsRunningIniOS10OrAfter {
+    return [self appIsRunningIniOSVersionOrAfter:10.0];
+}
+
 + (BOOL)appIsRunningIniOSVersionOrAfter:(CGFloat)version {
     return [[UIDevice currentDevice].systemVersion floatValue] >= version;
 }

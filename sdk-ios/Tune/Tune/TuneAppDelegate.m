@@ -27,8 +27,11 @@
 
 @implementation TuneAppDelegate
 
-NSString * const TuneAppDelegateClassNameDefault = @"AppDelegate";
-NSString * const TuneAppDelegateClassNameKey   = @"AppDelegateClassName";
+NSString * const TuneAppDelegateClassNameDefault              = @"AppDelegate";
+NSString * const TuneAppDelegateClassNameKey                  = @"AppDelegateClassName";
+
+NSString * const TuneUserNotificationDelegateClassNameDefault = @"AppDelegate";
+NSString * const TuneUserNotificationDelegateClassNameKey     = @"UserNotificationDelegateClassName";
 
 // If swizzle succeeded
 BOOL swizzleSuccess = NO;
@@ -48,6 +51,7 @@ BOOL swizzleSuccess = NO;
         // Read custom UIApplicationDelegate class name from local configuration plist,
         // if not found then by default use "AppDelegate" class name to swizzle on
         NSString *appDelegateClassName = [[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneAppDelegateClassNameKey] ?: TuneAppDelegateClassNameDefault;
+        NSString *userNotificationDelegateClassName = [[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneUserNotificationDelegateClassNameKey] ?: TuneUserNotificationDelegateClassNameDefault;
         
         // Check if class is on swizzle blacklist
         if ([TuneState isDisabledClass:appDelegateClassName]) {
@@ -61,6 +65,15 @@ BOOL swizzleSuccess = NO;
             WarnLog(@"Class `%@` not found. Please set your UIApplicationDelegate class name in TuneConfiguration.plist for key `%@`",
                     appDelegateClassName,
                     TuneAppDelegateClassNameKey);
+            return;
+        }
+        
+        // Check if class for the user notification delegate name exists
+        Class userNotificationDelegateClass = [TuneUtils getClassFromString:userNotificationDelegateClassName];
+        if (!userNotificationDelegateClass && !delegateClass) {
+            WarnLog(@"Class `%@` not found. Please set your UNUserNotificationCenterDelegate class name in TuneConfiguration.plist for key `%@`",
+                    userNotificationDelegateClassName,
+                    TuneUserNotificationDelegateClassNameKey);
             return;
         }
         
@@ -92,6 +105,14 @@ BOOL swizzleSuccess = NO;
         [TuneAppDelegate swizzleTheirSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
                                      withOurs:@selector(application:tune_handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
                                           for:delegateClass];
+        
+#if IDE_XCODE_8_OR_HIGHER
+        if([TuneDeviceDetails appIsRunningIniOS10OrAfter]) {
+            [TuneAppDelegate swizzleTheirSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)
+                                         withOurs:@selector(userNotificationCenter:tune_didReceiveNotificationResponse:withCompletionHandler:)
+                                              for:userNotificationDelegateClass];
+        }
+#endif
 #endif
         [TuneAppDelegate swizzleTheirSelector:@selector(application:handleOpenURL:)
                                      withOurs:@selector(application:tune_handleOpenURL:)
@@ -202,7 +223,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo {
     InfoLog(@"application:didReceiveRemoteNotification: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application appDelegate:self];
+    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -217,7 +238,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     InfoLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application appDelegate:self];
+    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -226,6 +247,29 @@ BOOL swizzleSuccess = NO;
         [self application:application tune_didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     }
 }
+
+#pragma mark - UNUserNotificationCenter Methods
+
+#if IDE_XCODE_8_OR_HIGHER
+
++ (void)userNotificationCenter:(UNUserNotificationCenter *)center tune_didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
+    InfoLog(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
+    
+    [TuneAppDelegate handleRecievedMessage:response.notification.request.content.userInfo
+                               application:[UIApplication sharedApplication]
+                                identifier:response.actionIdentifier];
+    
+    if (swizzleSuccess) {
+#if TESTING
+        [TuneAppDelegate unitTestingHelper:@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
+#endif
+        [self userNotificationCenter:center tune_didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    }
+}
+
+#endif
+
+#pragma mark -
 
 + (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
     InfoLog(@"application:handleActionWithIdentifier:forRemoteNotification:completionHandler: intercept successful -- %@", NSStringFromClass([self class]));
@@ -239,7 +283,7 @@ BOOL swizzleSuccess = NO;
         
         // Report on campaign
         if (tuneNotification.campaign) {
-            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:self userInfo:@{TunePayloadCampaign : tuneNotification.campaign}];
+            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:nil userInfo:@{TunePayloadCampaign : tuneNotification.campaign}];
         }
     }
     
@@ -263,7 +307,7 @@ BOOL swizzleSuccess = NO;
         
         // Report on campaign
         if (tuneNotification.campaign) {
-            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:self userInfo:@{TunePayloadCampaign : tuneNotification.campaign}];
+            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:nil userInfo:@{TunePayloadCampaign : tuneNotification.campaign}];
         }
     }
     
@@ -274,6 +318,7 @@ BOOL swizzleSuccess = NO;
         [self application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
     }
 }
+
 #endif
 
 #pragma mark - UIApplicationDelegate methods for handling deeplinks
@@ -353,8 +398,12 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - Helper functions
 
-+ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application appDelegate:(id)appDelegate {
-    TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo.copy withIdentifier:nil];
++ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
+    [self handleRecievedMessage:userInfo application:application identifier:nil];
+}
+
++ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application identifier:(NSString *)identifier {
+    TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo.copy withIdentifier:identifier];
     
     if (tuneNotification) {
         if ([application applicationState] != UIApplicationStateActive) {
@@ -375,7 +424,7 @@ BOOL swizzleSuccess = NO;
         
         // Report on campaign
         if (tuneNotification.campaign) {
-            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:appDelegate userInfo:@{TunePayloadCampaign:tuneNotification.campaign}];
+            [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCampaignViewed object:nil userInfo:@{TunePayloadCampaign:tuneNotification.campaign}];
         }
     }
 }

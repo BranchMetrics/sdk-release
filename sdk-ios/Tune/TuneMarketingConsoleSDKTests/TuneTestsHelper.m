@@ -179,11 +179,11 @@ void clearUserDefaults() {
     [NSUserDefaults resetStandardUserDefaults];
     
     // Check to make sure that NSUserDefaults is really cleared.
-    for (NSString *key in [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]) {
-        if ([key containsString:@"_TUNE_"] && ![key isEqualToString:@"_TUNE_mat_id"]) {
-            ErrorLog(@"ARGH, NSUserDefaults was not cleared properly. Still has: %@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
-            break;
-        }
+    NSArray *tuneKeys = [[[[NSUserDefaults standardUserDefaults] dictionaryRepresentation] allKeys] filteredArrayUsingPredicate:
+                         [NSPredicate predicateWithFormat:@"SELF beginswith '_TUNE_' and not SELF matches '_TUNE_mat_id'"]
+                         ];
+    if (tuneKeys.count > 0) {
+        ErrorLog(@"ARGH, NSUserDefaults was not cleared properly. Still has: %@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
     }
 }
 

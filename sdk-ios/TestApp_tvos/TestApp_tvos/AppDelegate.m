@@ -82,8 +82,8 @@ NSString * const TUNE_PACKAGE_NAME   = @"com.tune.tvostestapp1";
 }
 
 // Tune request enqueued
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId {
-    NSLog(@"Tune tvos enqueued request: refId = %@", referenceId);
+- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
+    NSLog(@"Tune tvos enqueued request: url = %@, post data = %@", url, post);
 }
 
 // Tune deeplink received

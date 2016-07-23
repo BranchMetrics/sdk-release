@@ -24,7 +24,8 @@
         #define DRLog(...)
     #endif
 
-    #define IDE_XCODE_7_OR_HIGHER (__IPHONE_OS_VERSION_MAX_ALLOWED >= 90000)
+    #define IDE_XCODE_7_OR_HIGHER (defined (__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0) || (defined (__TVOS_9_0) && __TV_OS_VERSION_MAX_ALLOWED >= __TVOS_9_0)
+    #define IDE_XCODE_8_OR_HIGHER (defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0) || (defined (__TVOS_10_0) && __TV_OS_VERSION_MAX_ALLOWED >= __TVOS_10_0)
 
     #if !IDE_XCODE_7_OR_HIGHER
         #ifndef TARGET_OS_IOS

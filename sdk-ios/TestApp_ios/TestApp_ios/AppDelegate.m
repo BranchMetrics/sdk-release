@@ -108,8 +108,8 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 }
 
 // Tune request enqueued
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId {
-    NSLog(@"Tune ios enqueued request: refId = %@", referenceId);
+- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
+    NSLog(@"Tune ios enqueued request: url = %@, post data = %@", url, post);
 }
 
 // Tune deeplink received

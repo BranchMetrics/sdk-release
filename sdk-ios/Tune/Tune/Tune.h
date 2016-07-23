@@ -29,7 +29,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.5.0"
+#define TUNEVERSION @"4.6.0"
 
 
 @protocol TuneDelegate;
@@ -856,7 +856,14 @@
  Delegate method called when an action is enqueued.
  @param referenceId The reference ID of the enqueue action.
  */
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId;
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use - (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post");
+
+/*!
+ Delegate method called when Tune SDK enqueues a web request.
+ @param url The request url string.
+ @param post The request post data string.
+ */
+- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post;
 
 /*!
  Delegate method called when an action succeeds.

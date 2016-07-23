@@ -82,11 +82,11 @@ static TuneDeferredDplinkr *dplinkr;
     
     id<TuneDelegate> deepDelegate = dplinkr.deeplinkDelegate ?: dplinkr.delegate;
     
-    if( dplinkr.tuneAdvId == nil || dplinkr.appleIfa == nil) {
+    if ( [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_DEEPLINK_CHECKED] != nil ) {
         if ([deepDelegate respondsToSelector:@selector(tuneDidFailDeeplinkWithError:)]) {
             NSError *error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
-                                                 code:TuneDeepLinkErrorMissingIdentifiers
-                                             userInfo:@{NSLocalizedDescriptionKey:@"Please make sure that TUNE Advertiser ID and Apple Advertising Identifier (IDFA) values have been set before calling this method."}];
+                                                 code:TuneDeepLinkErrorDuplicateCall
+                                             userInfo:@{NSLocalizedDescriptionKey:@"Ignoring duplicate call to check deferred deep link."}];
             
             [deepDelegate tuneDidFailDeeplinkWithError:error];
         }
@@ -94,11 +94,11 @@ static TuneDeferredDplinkr *dplinkr;
         return;
     }
     
-    if ( [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_DEEPLINK_CHECKED] != nil ) {
+    if( dplinkr.tuneAdvId == nil ) {
         if ([deepDelegate respondsToSelector:@selector(tuneDidFailDeeplinkWithError:)]) {
             NSError *error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
-                                                 code:TuneDeepLinkErrorDuplicateCall
-                                             userInfo:@{NSLocalizedDescriptionKey:@"Ignoring duplicate call to check deferred deep link."}];
+                                                 code:TuneDeepLinkErrorMissingIdentifiers
+                                             userInfo:@{NSLocalizedDescriptionKey:@"Please make sure that TUNE Advertiser ID has been set before calling this method."}];
             
             [deepDelegate tuneDidFailDeeplinkWithError:error];
         }
@@ -126,7 +126,11 @@ static TuneDeferredDplinkr *dplinkr;
     [TuneUtils addUrlQueryParamValue:dplinkr.tuneAdvId                  forKey:TUNE_KEY_ADVERTISER_ID            queryParams:urlString];
     [TuneUtils addUrlQueryParamValue:TUNEVERSION                        forKey:TUNE_KEY_VER                      queryParams:urlString];
     [TuneUtils addUrlQueryParamValue:dplinkr.tunePackageName            forKey:TUNE_KEY_PACKAGE_NAME             queryParams:urlString];
-    [TuneUtils addUrlQueryParamValue:dplinkr.appleIfa                   forKey:TUNE_KEY_IOS_IFA_DEEPLINK         queryParams:urlString];
+    
+    if( ![dplinkr.appleIfa isEqualToString:TUNE_KEY_GUID_EMPTY] ) {
+        [TuneUtils addUrlQueryParamValue:dplinkr.appleIfa               forKey:TUNE_KEY_IOS_IFA_DEEPLINK         queryParams:urlString];
+    }
+    
     [TuneUtils addUrlQueryParamValue:@(dplinkr.appleAdTrackingEnabled)  forKey:TUNE_KEY_IOS_AD_TRACKING          queryParams:urlString];
     [TuneUtils addUrlQueryParamValue:[TuneUserAgentCollector userAgent] forKey:TUNE_KEY_CONVERSION_USER_AGENT    queryParams:urlString];
     

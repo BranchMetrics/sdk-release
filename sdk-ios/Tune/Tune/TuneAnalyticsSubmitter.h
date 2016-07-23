@@ -8,16 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+/*!
+ A class with sessionId, deviceId, IFA properties with default values derived from TuneUserProfile.
+ */
 @interface TuneAnalyticsSubmitter : NSObject
 
 @property (nonatomic, copy) NSString *sessionId;
 @property (nonatomic, copy) NSString *deviceId;
 @property (nonatomic, copy) NSString *ifa;
 
-- (id)initWithSessionId:(NSString *)sessionId
-               deviceId:(NSString *)deviceId
-                    ifa:(NSString *)ifa;
-
-- (NSDictionary *) toDictionary;
+- (NSDictionary *)toDictionary;
 
 @end

@@ -377,19 +377,16 @@
 - (NSString *)sdkVersion;
 
 - (void)setUserEmail:(NSString *)email;
-- (NSString *)userEmail;
 - (NSString *)userEmailMd5;
 - (NSString *)userEmailSha1;
 - (NSString *)userEmailSha256;
 
 - (void)setUserName:(NSString *)name;
-- (NSString *)userName;
 - (NSString *)userNameMd5;
 - (NSString *)userNameSha1;
 - (NSString *)userNameSha256;
 
 - (void)setPhoneNumber:(NSString *)number;
-- (NSString *)phoneNumber;
 - (NSString *)phoneNumberMd5;
 - (NSString *)phoneNumberSha1;
 - (NSString *)phoneNumberSha256;

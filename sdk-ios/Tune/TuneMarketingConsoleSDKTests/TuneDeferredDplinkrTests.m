@@ -95,20 +95,6 @@
     XCTAssertTrue([currentRequestUrl rangeOfString:([NSString stringWithFormat:@"%@", realIFA])].location != NSNotFound);
 }
 
-- (void)testCheckForDeferredDeepLinkMissingIdentifier {
-    [Tune setShouldAutoCollectAppleAdvertisingIdentifier:NO];
-    
-    waitFor(0.05);
-    
-    [Tune checkForDeferredDeeplink:self];
-    
-    waitFor(0.1);
-    
-    XCTAssertEqual(TuneDeepLinkErrorMissingIdentifiers, deepLinkErrorCode);
-    
-    XCTAssertTrue(finished);
-}
-
 - (void)testCheckForDeferredDeepLinkDuplicate {
     [Tune checkForDeferredDeeplink:self];
     

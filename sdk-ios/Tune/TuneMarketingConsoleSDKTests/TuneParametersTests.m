@@ -706,6 +706,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
@@ -734,6 +736,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
@@ -787,6 +791,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
@@ -815,6 +821,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
@@ -857,6 +865,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
@@ -885,6 +895,8 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
     
     TuneAnalyticsVariable *var = nil;
+    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
+    XCTAssertNil(var);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_MD5];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);

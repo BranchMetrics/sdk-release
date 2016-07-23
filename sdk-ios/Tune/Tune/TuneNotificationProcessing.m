@@ -13,6 +13,10 @@
 #import "TuneSkyhookConstants.h"
 #import "TuneSessionManager.h"
 
+#if IDE_XCODE_8_OR_HIGHER
+#import <UserNotifications/UserNotifications.h>
+#endif
+
 @implementation TuneNotificationProcessing
 
 // This handles dealing with the next action in the push payload if neccessary and stripping out the ANA dictionary if there
@@ -44,7 +48,12 @@
         
         NSDictionary *nextAction = nil;
         
-        if (identifier) {
+        BOOL isDefaultAction = NO;
+#if (!TARGET_OS_TV) && (IDE_XCODE_8_OR_HIGHER)
+        isDefaultAction = [identifier isEqualToString:UNNotificationDefaultActionIdentifier];
+#endif
+        
+        if (identifier && !isDefaultAction) {
             // Since there's identifier user has selected an interactive button
             tuneNotification.interactivePushIdentifierSelected = identifier;
             

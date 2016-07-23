@@ -1145,13 +1145,6 @@
 			remoteGlobalIDString = F8868EEE1C0FC385007E2F9C;
 			remoteInfo = "Tune-tvos";
 		};
-		F8F693C41CFFC0FA00B453D9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0BCB598C1B65EF6A005216E2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0BCB59951B65EF6A005216E2;
-			remoteInfo = Tune;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -2942,7 +2935,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				F8F693C51CFFC0FA00B453D9 /* PBXTargetDependency */,
 			);
 			name = TuneTests;
 			productName = TuneMarketingConsoleSDKTests;
@@ -3018,18 +3010,28 @@
 					};
 					0BCB59951B65EF6A005216E2 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = MN489GLUZK;
+						DevelopmentTeamName = "TUNE, Inc.";
 					};
 					0BCB5AAD1B660747005216E2 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = MN489GLUZK;
+						DevelopmentTeamName = "TUNE, Inc.";
 					};
 					F8868EEE1C0FC385007E2F9C = {
 						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = MN489GLUZK;
+						DevelopmentTeamName = "TUNE, Inc.";
 					};
 					F8868EF71C0FC385007E2F9C = {
 						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = MN489GLUZK;
+						DevelopmentTeamName = "TUNE, Inc.";
 					};
 					F8868F0A1C0FC3F2007E2F9C = {
 						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = MN489GLUZK;
+						DevelopmentTeamName = "TUNE, Inc.";
 					};
 				};
 			};
@@ -3877,11 +3879,6 @@
 			isa = PBXTargetDependency;
 			target = F8868EEE1C0FC385007E2F9C /* Tune_tvOS */;
 			targetProxy = F8868EFA1C0FC385007E2F9C /* PBXContainerItemProxy */;
-		};
-		F8F693C51CFFC0FA00B453D9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0BCB59951B65EF6A005216E2 /* Tune */;
-			targetProxy = F8F693C41CFFC0FA00B453D9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

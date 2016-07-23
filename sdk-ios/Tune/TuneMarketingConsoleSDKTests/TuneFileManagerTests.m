@@ -277,6 +277,7 @@
 - (void)testLoadLocalConfigurationFromDiskWhenItExists {
     // NOTE: These contents are stored in TuneConfiguration.plist in the Resources folder
     NSDictionary *knownDictionary = @{ @"AppDelegateClassName": @"TuneBlankAppDelegate",
+                                       @"UserNotificationDelegateClassName": @"TuneBlankAppDelegate",
                                        @"DisabledClasses": @[ @"DisabledInPlist" ] };
     
     NSDictionary *loadedDictionary = [TuneFileManager loadLocalConfigurationFromDisk];

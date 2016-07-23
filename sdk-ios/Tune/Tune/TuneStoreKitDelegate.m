@@ -23,6 +23,8 @@
 
 static TuneStoreKitDelegate *shared;
 
+static BOOL startedObserver;
+
 
 typedef void(^RequestCompletionBlock)(SKProduct *);
 
@@ -70,6 +72,7 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 
 + (void)initialize {
     shared = [TuneStoreKitDelegate new];
+    startedObserver = NO;
 }
 
 - (instancetype)init {
@@ -82,11 +85,17 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
 }
 
 + (void)startObserver {
-    [[SKPaymentQueue defaultQueue] addTransactionObserver:shared];
+    if(!startedObserver) {
+        [[SKPaymentQueue defaultQueue] addTransactionObserver:shared];
+        startedObserver = YES;
+    }
 }
 
 + (void)stopObserver {
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:shared];
+    if(startedObserver) {
+        [[SKPaymentQueue defaultQueue] removeTransactionObserver:shared];
+        startedObserver = NO;
+    }
 }
 
 

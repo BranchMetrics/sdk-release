@@ -125,6 +125,7 @@
 }
 
 - (void)testOfflineFailureQueuedRetried {
+    [Tune setAllowDuplicateRequests:YES];
     networkOffline();
     [Tune measureEventName:@"registration"];
     
@@ -197,6 +198,7 @@
 }
 
 - (void)testEnqueue2RetriedOrder {
+    [Tune setAllowDuplicateRequests:YES];
 #if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain "site_event_name" param
     [Tune setDebugMode:YES];
 
@@ -254,6 +256,7 @@
 }
 
 - (void)testSessionQueueOrder {
+    [Tune setAllowDuplicateRequests:YES];
     networkOnline();
     
     params2 = [TuneTestParams new];

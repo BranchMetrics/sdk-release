@@ -167,7 +167,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFA, TUNE_KEY_GUID_EMPTY );
+    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IOS_IFA );
 }
 
 

@@ -67,6 +67,7 @@
 + (BOOL)appIsRunningIniOS7OrAfter;
 + (BOOL)appIsRunningIniOS8OrAfter;
 + (BOOL)appIsRunningIniOS9OrAfter;
++ (BOOL)appIsRunningIniOS10OrAfter;
 + (BOOL)appIsRunningIniOSVersionOrAfter:(CGFloat)version;
 #endif
 
