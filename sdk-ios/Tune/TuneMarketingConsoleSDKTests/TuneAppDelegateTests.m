@@ -106,7 +106,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledDidReceiveRemoteNotificationSendsOpenAndViewSkyhooksFromBackground {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     
@@ -126,7 +126,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
     
@@ -146,7 +146,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledUNUserNotificationDidReceiveRemoteNotificationSendsOpenAndViewSkyhooksFromBackground {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     
     UNMutableNotificationContent *cont = [UNMutableNotificationContent new];
@@ -182,7 +182,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     UNMutableNotificationContent *cont = [UNMutableNotificationContent new];
     cont.userInfo = userInfo;
@@ -217,7 +217,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledHandleActionWithIdentifierSendsOpenAndViewSkyhooksFromHandleAction {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     NSDictionary *userInfo = @{@"ANA":@{@"CS" :@"54da8cd07d891c23a0000016",@"D":@"0"}, @"ARTPID":@"54da8cd07d891c23a0000017", @"CAMPAIGN_ID": @"54da85647d891c629c000011", @"LENGTH_TO_REPORT":@"604800", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication handleActionWithIdentifier:@"id" forRemoteNotification:userInfo completionHandler:^(UIBackgroundFetchResult result){}];
     
@@ -236,7 +236,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledNotHandlingNonIAMPush0 {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     NSDictionary *userInfo = @{ @"aps": @{ @"alert": @"OTHER PUSH PROVIDER"}};
     [appDelegate application:(UIApplication *)mockApplication handleActionWithIdentifier:@"id" forRemoteNotification:userInfo completionHandler:^(UIBackgroundFetchResult result){}];
     
@@ -269,7 +269,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledOpenUrlSendsOpenAndViewSkyhooksFromBackground {
     [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     
     NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
 
@@ -296,7 +296,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledOpenUrlSendsOpenAndViewSkyhooksFromForeground {
     [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     
     NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
     
@@ -324,7 +324,7 @@ static NSString *tune_swizzledMethod;
 - (void)testSwizzledOpenUrlParsesBadDeeplink {
     [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     
     NSURL *url = [NSURL URLWithString:@"vk://authorize?#"];
     
@@ -354,7 +354,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     
     NSDictionary *userInfo = @{@"ANA":@{@"URL":@"artisan://cart?SRC=EMAIL&ACID=278730"}, @"ARTPID": @"test", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
@@ -375,7 +375,7 @@ static NSString *tune_swizzledMethod;
 - (void)testDeeplinkOpenedFromPushNotificationFromForeground {
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateActive]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
     
     NSDictionary *userInfo = @{@"ANA":@{@"URL":@"artisan://cart?SRC=EMAIL&ACID=278730"}, @"ARTPID": @"test", @"aps": @{ @"alert":@"Pushy pow wow! A"}};
     [appDelegate application:(UIApplication *)mockApplication didReceiveRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
@@ -401,7 +401,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:deepActionObserver selector:@selector(skyhookPosted:) name:TuneDeepActionTriggered object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     
     [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
     
@@ -430,7 +430,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] addObserver:pushObserver selector:@selector(skyhookPosted:) name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:deepActionObserver selector:@selector(skyhookPosted:) name:TuneDeepActionTriggered object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:[NSNumber numberWithLong:UIApplicationStateBackground]] applicationState];
+    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
     
     [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
     

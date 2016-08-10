@@ -557,7 +557,7 @@
             self.frame = CGRectMake(0,0,[UIScreen mainScreen].bounds.size.width,[UIScreen mainScreen].bounds.size.height);
             [self dismissOrientation:_lastOrientation];
             
-            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:[NSNumber numberWithInt:currentOrientation] afterDelay:0.2];
+            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:@(currentOrientation) afterDelay:0.2];
         }
     }
     

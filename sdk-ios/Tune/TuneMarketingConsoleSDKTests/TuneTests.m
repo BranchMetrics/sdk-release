@@ -263,7 +263,6 @@
 
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 
-// NOTE: Temporarily stopped pending TRAC-1061
 - (void)testCheckIadAttributioniOS9 {
     id classADClient = NSClassFromString(@"ADClient");
     
@@ -274,7 +273,7 @@
         id classMockADClient = OCMClassMock(classADClient);
         OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
         
-//        // sample response from iAd Attribution v3 API document
+//        // sample response from iAd Attribution v3.1 API document
 //        NSDictionary *attributionDetails1 = @{@"Version3.1":@{
 //                                                      @"iad-attribution" : @true,
 //                                                      @"iad-campaign-id" : @"15292426",
@@ -285,7 +284,9 @@
 //                                                      @"iad-impression-date" : @"2015-08-19T17:17:00Z",
 //                                                      @"iad-lineitem-id" : @"15307675",
 //                                                      @"iad-lineitem-name" : @"TestCA2_L1",
-//                                                      @"iad-org-name" : @"Zion_1412_org1"}};
+//                                                      @"iad-org-name" : @"Zion_1412_org1",
+//                                                      @"iad-keyword" : @"boxflip"}
+//                                            };
         
         // actual response from production test app
         NSDictionary *attributionDetails = @{@"Version3.1":@{
@@ -298,7 +299,8 @@
                                                      @"iad-creative-name":@"ad new",
                                                      @"iad-lineitem-id":@"15325601",
                                                      @"iad-lineitem-name":@"2000 banner",
-                                                     @"iad-org-name":@"TUNE, Inc."}
+                                                     @"iad-org-name":@"TUNE, Inc.",
+                                                     @"iad-keyword":@"dodgeball"}
                                              };
         
         NSError *error = nil;
@@ -316,13 +318,74 @@
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
         ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
         ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_CAMPAIGN_ID, @"15222869");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_CAMPAIGN_NAME, @"atomic new 13");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_CREATIVE_ID, @"226713");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_CREATIVE_NAME, @"ad new");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_LINE_ID, @"15325601");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_LINE_NAME, @"2000 banner");
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_CAMPAIGN_ORG_NAME, @"TUNE, Inc.");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF, @"15222869");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME, @"atomic new 13");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF, @"226713");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME, @"ad new");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_REF, @"15325601");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_NAME, @"2000 banner");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF, @"TUNE, Inc.");
+        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF, @"dodgeball");
+        
+        // other iAd params currently ignored by Measurement Engine
+        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
+        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CONVERSION_DATE, @"2016-03-23T07:55:50Z");
+        
+        [classMockUIApplication stopMocking];
+        [classMockADClient stopMocking];
+    }
+}
+
+- (void)testIgnoreFakeIadAttributioniOS9 {
+    id classADClient = NSClassFromString(@"ADClient");
+    
+    if(classADClient && [classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        id classMockUIApplication = OCMClassMock([UIApplication class]);
+        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
+        
+        id classMockADClient = OCMClassMock(classADClient);
+        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
+        
+        // actual response from production test app
+        NSDictionary *attributionDetails = @{@"Version3.1":@{
+                                                     @"iad-adgroup-name":@"AdGroupName",
+                                                     @"iad-attribution":@"true",
+                                                     @"iad-campaign-id":@"1234567890",
+                                                     @"iad-campaign-name":@"CampaignName",
+                                                     @"iad-click-date":@"2016-08-09T22:13:23Z",
+                                                     @"iad-conversion-date":@"2016-08-09T22:13:23Z",
+                                                     @"iad-creative-id":@"1234567890",
+                                                     @"iad-creative-name":@"CreativeName",
+                                                     @"iad-group-id":@"1234567890",
+                                                     @"iad-keyword":@"Keyword",
+                                                     @"iad-lineitem-id":@"1234567890",
+                                                     @"iad-lineitem-name":@"LineName",
+                                                     @"iad-org-name":@"OrgName"}
+                                             };
+        
+        NSError *error = nil;
+        
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
+            [invocation getArgument:&passedBlock atIndex:2];
+            
+            passedBlock(attributionDetails, error);
+        });
+        
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"session" );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IAD_ATTRIBUTION );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_REF );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_NAME );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF );
+        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF );
         
         // other iAd params currently ignored by Measurement Engine
         //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
@@ -428,7 +491,11 @@
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [Tune measureEventId:eventId];
+#pragma clang diagnostic pop
+    
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
@@ -453,8 +520,10 @@
     NSString *strEventId = [@(eventId) stringValue];
     
     static NSString* const referenceId = @"abcdefg";
-    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *evt = [TuneEvent eventWithId:eventId];
+#pragma clang diagnostic pop
     evt.refId = referenceId;
     
     [Tune measureEvent:evt];
@@ -498,7 +567,10 @@
     NSString *expectedRevenue = [@(revenue) stringValue];
     static NSString* const currencyCode = @"XXX";
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *evt = [TuneEvent eventWithId:eventId];
+#pragma clang diagnostic pop
     evt.refId = referenceId;
     evt.revenue = revenue;
     evt.currencyCode = currencyCode;

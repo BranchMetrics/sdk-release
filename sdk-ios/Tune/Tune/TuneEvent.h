@@ -116,7 +116,7 @@ FOUNDATION_EXPORT NSString *const TUNE_EVENT_TUTORIAL_COMPLETE;
 /*!
  Event ID of the event as defined on the MobileAppTracking dashboard
  */
-@property(nonatomic, assign, readonly) NSInteger eventId;
+@property(nonatomic, assign, readonly) NSInteger eventId DEPRECATED_MSG_ATTRIBUTE("Tune does not support measuring events using event IDs. Please use eventName instead.");
 
 /*!
  An array of TuneEventItem items
@@ -226,7 +226,7 @@ FOUNDATION_EXPORT NSString *const TUNE_EVENT_TUTORIAL_COMPLETE;
  
  @param eventId Event ID of the event as defined on the MobileAppTracking dashboard
  */
-+ (instancetype)eventWithId:(NSInteger)eventId;
++ (instancetype)eventWithId:(NSInteger)eventId DEPRECATED_MSG_ATTRIBUTE("Tune does not support measuring events using event IDs. Please use eventWithName: instead.");
 
 /** Tag this event with a string.
  *

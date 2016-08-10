@@ -111,6 +111,7 @@ static NSSet * doNotEncryptSet;
             // initiate collection of user agent string
             [TuneUserAgentCollector startCollection];
         });
+        
 #if TARGET_OS_IOS
         // provide access to location when available
         [TuneLocationHelper class];
@@ -237,23 +238,31 @@ static NSSet * doNotEncryptSet;
                 } else {
                     // Ref: iAd Attribution v3 API
                     NSDictionary *iAdCampaignInfo = attributionDetails[@"Version3.1"];
-                    
+
                     if (iAdCampaignInfo[@"iad-attribution"]) { [[TuneManager currentManager].userProfile setIadAttribution:@([iAdCampaignInfo[@"iad-attribution"] boolValue])]; }
                     
                     if ([iAdCampaignInfo[@"iad-attribution"] boolValue]) {
-                        if (iAdCampaignInfo[@"iad-campaign-id"])   { [[TuneManager currentManager].userProfile setIadCampaignId:iAdCampaignInfo[@"iad-campaign-id"]]; }
-                        if (iAdCampaignInfo[@"iad-campaign-name"]) { [[TuneManager currentManager].userProfile setIadCampaignName:iAdCampaignInfo[@"iad-campaign-name"]]; }
-                        if (iAdCampaignInfo[@"iad-org-name"])      { [[TuneManager currentManager].userProfile setIadCampaignOrgName:iAdCampaignInfo[@"iad-org-name"]]; }
-                        if (iAdCampaignInfo[@"iad-lineitem-id"])   { [[TuneManager currentManager].userProfile setIadLineId:iAdCampaignInfo[@"iad-lineitem-id"]]; }
-                        if (iAdCampaignInfo[@"iad-lineitem-name"]) { [[TuneManager currentManager].userProfile setIadLineName:iAdCampaignInfo[@"iad-lineitem-name"]]; }
-                        if (iAdCampaignInfo[@"iad-creative-id"])   { [[TuneManager currentManager].userProfile setIadCreativeId:iAdCampaignInfo[@"iad-creative-id"]]; }
-                        if (iAdCampaignInfo[@"iad-creative-name"]) { [[TuneManager currentManager].userProfile setIadCreativeName:iAdCampaignInfo[@"iad-creative-name"]]; }
-                        
-                        NSDateFormatter *formatter = [NSDateFormatter new];
-                        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZ";
-                        if (iAdCampaignInfo[@"iad-click-date"]) { [[TuneManager currentManager].userProfile setIadClickDate:[formatter dateFromString:iAdCampaignInfo[@"iad-click-date"]]]; }
-                        if (iAdCampaignInfo[@"iad-conversion-date"]) { [[TuneManager currentManager].userProfile setIadConversionDate:[formatter dateFromString:iAdCampaignInfo[@"iad-conversion-date"]]]; }
-                        if (iAdCampaignInfo[@"iad-impression-date"]) { [[TuneManager currentManager].userProfile setIadImpressionDate:[formatter dateFromString:iAdCampaignInfo[@"iad-impression-date"]]]; }
+                        if ([(NSString *)iAdCampaignInfo[@"iad-campaign-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID]
+                            || [(NSString *)iAdCampaignInfo[@"iad-lineitem-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID]
+                            || [(NSString *)iAdCampaignInfo[@"iad-creative-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID]) {
+                            InfoLog(@"Ignoring fake iAd campaign attribution info: %@", iAdCampaignInfo);
+                            [[TuneManager currentManager].userProfile setIadAttribution:@NO];
+                        } else {
+                            if (iAdCampaignInfo[@"iad-campaign-id"])   { [[TuneManager currentManager].userProfile setPublisherSubCampaignRef:iAdCampaignInfo[@"iad-campaign-id"]]; }
+                            if (iAdCampaignInfo[@"iad-campaign-name"]) { [[TuneManager currentManager].userProfile setPublisherSubCampaignName:iAdCampaignInfo[@"iad-campaign-name"]]; }
+                            if (iAdCampaignInfo[@"iad-org-name"])      { [[TuneManager currentManager].userProfile setPublisherSubPublisherRef:iAdCampaignInfo[@"iad-org-name"]]; }
+                            if (iAdCampaignInfo[@"iad-lineitem-id"])   { [[TuneManager currentManager].userProfile setPublisherSubAdRef:iAdCampaignInfo[@"iad-lineitem-id"]]; }
+                            if (iAdCampaignInfo[@"iad-lineitem-name"]) { [[TuneManager currentManager].userProfile setPublisherSubAdName:iAdCampaignInfo[@"iad-lineitem-name"]]; }
+                            if (iAdCampaignInfo[@"iad-creative-id"])   { [[TuneManager currentManager].userProfile setPublisherSubPlacementRef:iAdCampaignInfo[@"iad-creative-id"]]; }
+                            if (iAdCampaignInfo[@"iad-creative-name"]) { [[TuneManager currentManager].userProfile setPublisherSubPlacementName:iAdCampaignInfo[@"iad-creative-name"]]; }
+                            if (iAdCampaignInfo[@"iad-keyword"])       { [[TuneManager currentManager].userProfile setPublisherSubKeywordRef:iAdCampaignInfo[@"iad-keyword"]]; }
+                            
+                            NSDateFormatter *formatter = [NSDateFormatter new];
+                            formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZ";
+                            if (iAdCampaignInfo[@"iad-click-date"]) { [[TuneManager currentManager].userProfile setIadClickDate:[formatter dateFromString:iAdCampaignInfo[@"iad-click-date"]]]; }
+                            if (iAdCampaignInfo[@"iad-conversion-date"]) { [[TuneManager currentManager].userProfile setIadConversionDate:[formatter dateFromString:iAdCampaignInfo[@"iad-conversion-date"]]]; }
+                            if (iAdCampaignInfo[@"iad-impression-date"]) { [[TuneManager currentManager].userProfile setIadImpressionDate:[formatter dateFromString:iAdCampaignInfo[@"iad-impression-date"]]]; }
+                        }
                     }
                 }
                 
@@ -650,7 +659,10 @@ static NSSet * doNotEncryptSet;
     BOOL isActionGeofence = [event.actionName isEqualToString:TUNE_EVENT_GEOFENCE];
     
     if (!isActionInstall && !isActionSession && !isActionGeofence) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         eventNameOrId = event.eventName ? event.eventName : [@(event.eventId) stringValue];
+#pragma clang diagnostic pop
     }
     
     // part of the url that does not need encryption
@@ -740,13 +752,14 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile googleUserId]                  forKey:TUNE_KEY_GOOGLE_USER_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile iadAttribution]                forKey:TUNE_KEY_IAD_ATTRIBUTION          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile iadImpressionDate]             forKey:TUNE_KEY_IAD_IMPRESSION_DATE      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadCampaignId]                 forKey:TUNE_KEY_IAD_CAMPAIGN_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadCampaignName]               forKey:TUNE_KEY_IAD_CAMPAIGN_NAME        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadCampaignOrgName]            forKey:TUNE_KEY_IAD_CAMPAIGN_ORG_NAME    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadLineId]                     forKey:TUNE_KEY_IAD_LINE_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadLineName]                   forKey:TUNE_KEY_IAD_LINE_NAME            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadCreativeId]                 forKey:TUNE_KEY_IAD_CREATIVE_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile iadCreativeName]               forKey:TUNE_KEY_IAD_CREATIVE_NAME        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubCampaignRef]       forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubCampaignName]      forKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubPublisherRef]      forKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubAdRef]             forKey:TUNE_KEY_PUBLISHER_SUB_AD_REF            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubAdName]            forKey:TUNE_KEY_PUBLISHER_SUB_AD_NAME           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubPlacementRef]      forKey:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubPlacementName]     forKey:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME    encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile publisherSubKeywordRef]        forKey:TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF       encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile installDate]                   forKey:TUNE_KEY_INSDATE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile installLogId]                  forKey:TUNE_KEY_INSTALL_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile isTestFlightBuild]             forKey:TUNE_KEY_IS_TESTFLIGHT_BUILD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

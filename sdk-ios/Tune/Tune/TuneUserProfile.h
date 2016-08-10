@@ -274,32 +274,11 @@
 - (void)setIadImpressionDate:(NSDate *)iadImpressionDate;
 - (NSDate *)iadImpressionDate;
 
-- (void)setIadCampaignId:(NSString *)iadCampaignId;
-- (NSString *)iadCampaignId;
-
-- (void)setIadCampaignName:(NSString *)iadCampaignName;
-- (NSString *)iadCampaignName;
-
-- (void)setIadCampaignOrgName:(NSString *)iadCampaignOrgName;
-- (NSString *)iadCampaignOrgName;
-
 - (void)setIadClickDate:(NSDate *)iadClickDate;
 - (NSDate *)iadClickDate;
 
 - (void)setIadConversionDate:(NSDate *)iadConversionDate;
 - (NSDate *)iadConversionDate;
-
-- (void)setIadLineId:(NSString *)iadLineId;
-- (NSString *)iadLineId;
-
-- (void)setIadLineName:(NSString *)iadLineName;
-- (NSString *)iadLineName;
-
-- (void)setIadCreativeId:(NSString *)iadCreativeId;
-- (NSString *)iadCreativeId;
-
-- (void)setIadCreativeName:(NSString *)iadCreativeName;
-- (NSString *)iadCreativeName;
 
 - (void)setAdvertiserSubAd:(NSString *)advertiserSubAd;
 - (NSString *)advertiserSubAd;
@@ -334,17 +313,41 @@
 - (void)setPublisherSubAd:(NSString *)publisherSubAd;
 - (NSString *)publisherSubAd;
 
+- (void)setPublisherSubAdName:(NSString *)publisherSubAdName;
+- (NSString *)publisherSubAdName;
+
+- (void)setPublisherSubAdRef:(NSString *)publisherSubAdRef;
+- (NSString *)publisherSubAdRef;
+
 - (void)setPublisherSubAdgroup:(NSString *)publisherSubAdgroup;
 - (NSString *)publisherSubAdgroup;
 
 - (void)setPublisherSubCampaign:(NSString *)publisherSubCampaign;
 - (NSString *)publisherSubCampaign;
 
+- (void)setPublisherSubCampaignName:(NSString *)publisherSubCampaignName;
+- (NSString *)publisherSubCampaignName;
+
+- (void)setPublisherSubCampaignRef:(NSString *)publisherSubCampaignRef;
+- (NSString *)publisherSubCampaignRef;
+
 - (void)setPublisherSubKeyword:(NSString *)publisherSubKeyword;
 - (NSString *)publisherSubKeyword;
 
+- (void)setPublisherSubKeywordRef:(NSString *)publisherSubKeywordRef;
+- (NSString *)publisherSubKeywordRef;
+
+- (void)setPublisherSubPlacementName:(NSString *)publisherSubPlacementName;
+- (NSString *)publisherSubPlacementName;
+
+- (void)setPublisherSubPlacementRef:(NSString *)publisherSubPlacementRef;
+- (NSString *)publisherSubPlacementRef;
+
 - (void)setPublisherSubPublisher:(NSString *)publisherSubPublisher;
 - (NSString *)publisherSubPublisher;
+
+- (void)setPublisherSubPublisherRef:(NSString *)publisherSubPublisherRef;
+- (NSString *)publisherSubPublisherRef;
 
 - (void)setPublisherSubSite:(NSString *)publisherSubSite;
 - (NSString *)publisherSubSite;

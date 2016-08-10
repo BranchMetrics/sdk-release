@@ -14,6 +14,7 @@
 NSString *const TunePlaylistExperimentDetailsKey = @"experiment_details";
 NSString *const TunePlaylistPowerHooksKey = @"power_hooks";
 NSString *const TunePlaylistInAppMessagesKey = @"messages";
+NSString *const TunePlaylistSegmentsKey = @"segments";
 NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
 
 @implementation TunePlaylist
@@ -25,6 +26,7 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     self.experimentDetails = [[NSDictionary alloc] init];
     self.powerHooks = [[NSDictionary alloc] init];
     self.inAppMessages = [[NSDictionary alloc] init];
+    self.segments = [[NSDictionary alloc] init];
     self.schemaVersion = nil;
     return self;
 }
@@ -63,6 +65,8 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
                     ErrorLog(@"Ignoring Message ID:%@. Unable to create factory.", messageID);
                 }
             }];
+        } else if ([key isEqualToString:TunePlaylistSegmentsKey]) {
+            self.segments = dictionary;
         }
     }];
     
@@ -105,6 +109,7 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     return  [self.experimentDetails isEqualToDictionary:playlist.experimentDetails] &&
             [self.powerHooks isEqualToDictionary:playlist.powerHooks] &&
             [self.inAppMessages isEqualToDictionary:playlist.inAppMessages] &&
+            [self.segments isEqualToDictionary:playlist.segments] &&
             [self.schemaVersion isEqualToString:playlist.schemaVersion];
 }
 
@@ -115,6 +120,7 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     result = prime * result + [self.experimentDetails hash];
     result = prime * result + [self.powerHooks hash];
     result = prime * result + [self.inAppMessages hash];
+    result = prime * result + [self.segments hash];
     result = prime * result + [self.schemaVersion hash];
     
     return result;
@@ -142,6 +148,12 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
         playlist[TunePlaylistExperimentDetailsKey] = self.experimentDetails;
     } else {
         playlist[TunePlaylistExperimentDetailsKey] = @{};
+    }
+    
+    if (self.segments) {
+        playlist[TunePlaylistSegmentsKey] = self.segments;
+    } else {
+        playlist[TunePlaylistSegmentsKey] = @{};
     }
     
     NSMutableDictionary *inAppMessageDictionary = [NSMutableDictionary dictionary];

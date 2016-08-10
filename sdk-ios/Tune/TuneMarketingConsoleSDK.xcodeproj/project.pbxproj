@@ -104,6 +104,14 @@
 		323040061B97A80500DD8E65 /* TuneNotificationProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040041B97A80500DD8E65 /* TuneNotificationProcessing.m */; };
 		323040301B98C9EF00DD8E65 /* TuneAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3230402E1B98C9EF00DD8E65 /* TuneAppDelegate.h */; };
 		323040311B98C9EF00DD8E65 /* TuneAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3230402F1B98C9EF00DD8E65 /* TuneAppDelegate.m */; };
+		3263C3121D5156FD0035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3263C31B1D516ADE0035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
+		3263C31C1D516B390035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
+		3263C31D1D516B3A0035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
+		3263C31E1D516B3B0035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
+		3263C31F1D516B590035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
+		3263C3201D516B5A0035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
+		3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */ = {isa = PBXBuildFile; fileRef = 3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */; };
 		32AC66AD1BA8F38E0069B549 /* TuneAppDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AC1BA8F38E0069B549 /* TuneAppDelegateTests.m */; };
 		32AC66B01BA8F39E0069B549 /* TuneBlankAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */; };
 		32B9A4301BBB3703006E3D4F /* TuneDeeplink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9A42C1BBB3703006E3D4F /* TuneDeeplink.h */; };
@@ -1283,6 +1291,9 @@
 		323040041B97A80500DD8E65 /* TuneNotificationProcessing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotificationProcessing.m; sourceTree = "<group>"; };
 		3230402E1B98C9EF00DD8E65 /* TuneAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneAppDelegate.h; sourceTree = "<group>"; };
 		3230402F1B98C9EF00DD8E65 /* TuneAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAppDelegate.m; sourceTree = "<group>"; };
+		3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDebugUtilities.h; sourceTree = "<group>"; };
+		3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDebugUtilities.m; sourceTree = "<group>"; };
+		3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TunePlaylistEmptySegmentTests.json; sourceTree = "<group>"; };
 		32AC66AC1BA8F38E0069B549 /* TuneAppDelegateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAppDelegateTests.m; sourceTree = "<group>"; };
 		32AC66AE1BA8F39E0069B549 /* TuneBlankAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneBlankAppDelegate.h; sourceTree = "<group>"; };
 		32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneBlankAppDelegate.m; sourceTree = "<group>"; };
@@ -2246,6 +2257,7 @@
 				DB9135671B68114B006534E0 /* TunePowerHookValueTests.json */,
 				3F1BC5F61BBC59DB009FD499 /* TuneExperimentManagerTests.json */,
 				DBF535EA1B976C9400B76885 /* SlideInMessage1.json */,
+				3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -2398,6 +2410,8 @@
 				0BCB59BB1B65F922005216E2 /* Tune.h */,
 				0BCB59BC1B65F922005216E2 /* Tune.m */,
 				F8868EE01C0FA880007E2F9C /* TuneConstants.h */,
+				3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */,
+				3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */,
 				0BCB59C21B65F922005216E2 /* TuneEvent.h */,
 				0BCB59C31B65F922005216E2 /* TuneEvent.m */,
 				0BCB59C41B65F922005216E2 /* TuneEventItem.h */,
@@ -2518,6 +2532,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3263C3121D5156FD0035DBDB /* TuneDebugUtilities.h in Headers */,
 				3F7522AC1D0B2D1F00E65703 /* TunePushInfo.h in Headers */,
 				DB9226091BB11903003ACA12 /* UIViewController+NameTag.h in Headers */,
 				3FD184AF1BB3594000AAE0E1 /* TuneExperimentDetails.h in Headers */,
@@ -2719,6 +2734,7 @@
 				F8C81C0A1CA60C92005C7B5D /* TuneAppDelegate.h in Headers */,
 				F8868F571C0FC5C5007E2F9C /* TuneBaseSlideInMessageView.h in Headers */,
 				F8868F581C0FC5C5007E2F9C /* TuneSlideInMessageView.h in Headers */,
+				3263C31F1D516B590035DBDB /* TuneDebugUtilities.h in Headers */,
 				F8868F591C0FC5C5007E2F9C /* TuneBaseTakeOverMessageView.h in Headers */,
 				F8868F5A1C0FC5C6007E2F9C /* TuneTakeOverMessageView.h in Headers */,
 				F8868F5C1C0FC5C6007E2F9C /* TunePopUpMessageView.h in Headers */,
@@ -2850,6 +2866,7 @@
 				F8B0F1381CA8DAE20051D079 /* Tune.h in Headers */,
 				F88690621C0FD80E007E2F9C /* TuneSBJsonParser.h in Headers */,
 				F846605D1C3B4CED005C42CC /* TuneManager.h in Headers */,
+				3263C3201D516B5A0035DBDB /* TuneDebugUtilities.h in Headers */,
 				F846601D1C3B4C50005C42CC /* TuneDeeplink.h in Headers */,
 				F88690681C0FD83D007E2F9C /* NSURLSession+SynchronousTask.h in Headers */,
 				F846603C1C3B4C74005C42CC /* TuneEventItem+Internal.h in Headers */,
@@ -3065,6 +3082,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BCB59AD1B65F864005216E2 /* InfoPlist.strings in Resources */,
+				3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3263,6 +3281,7 @@
 				DB0FF57F1B94C2F50071B996 /* TuneBaseMessageFactory.m in Sources */,
 				DB92260A1BB11903003ACA12 /* UIViewController+NameTag.m in Sources */,
 				DB0FF5761B941ED90071B996 /* TuneCallbackBlock.m in Sources */,
+				3263C31B1D516ADE0035DBDB /* TuneDebugUtilities.m in Sources */,
 				DBD84FFC1B98B6CB00C39A95 /* TuneSlideInMessageView.m in Sources */,
 				F83B85131B7C0EC200994318 /* TuneHttpResponse.m in Sources */,
 				0BCB59EF1B65F949005216E2 /* TuneSkyhookCenter.m in Sources */,
@@ -3298,6 +3317,7 @@
 				F8F694031CFFC15B00B453D9 /* TuneAnalyticsSubmitter.m in Sources */,
 				F8F6940C1CFFC15B00B453D9 /* TuneConnectedModeManager.m in Sources */,
 				F8F6941E1CFFC15B00B453D9 /* TuneState.m in Sources */,
+				3263C31E1D516B3B0035DBDB /* TuneDebugUtilities.m in Sources */,
 				F8F693D31CFFC15B00B453D9 /* TuneCallbackBlock.m in Sources */,
 				F8F693D61CFFC15B00B453D9 /* TuneEventKeys.m in Sources */,
 				F8F6940B1CFFC15B00B453D9 /* TuneConfigurationKeys.m in Sources */,
@@ -3594,6 +3614,7 @@
 				F886900A1C0FD145007E2F9C /* TuneXmlUtils.m in Sources */,
 				F886900B1C0FD145007E2F9C /* Tune.m in Sources */,
 				F886900C1C0FD145007E2F9C /* TuneEvent.m in Sources */,
+				3263C31C1D516B390035DBDB /* TuneDebugUtilities.m in Sources */,
 				F886900D1C0FD145007E2F9C /* TuneEventItem.m in Sources */,
 				F886900F1C0FD145007E2F9C /* TuneLocation.m in Sources */,
 				F88690111C0FD145007E2F9C /* TunePreloadData.m in Sources */,
@@ -3821,6 +3842,7 @@
 				F84660881C3B4E13005C42CC /* TuneCWorks.m in Sources */,
 				F84660D51C3B4E7A005C42CC /* TuneHttpRequest.m in Sources */,
 				F84660951C3B4E13005C42CC /* TuneUserAgentCollector.m in Sources */,
+				3263C31D1D516B3A0035DBDB /* TuneDebugUtilities.m in Sources */,
 				F84660D71C3B4E7A005C42CC /* TuneHttpUtils.m in Sources */,
 				F84660B51C3B4E41005C42CC /* TuneAnalyticsEvent.m in Sources */,
 				F84660C51C3B4E66005C42CC /* TuneFileManager.m in Sources */,

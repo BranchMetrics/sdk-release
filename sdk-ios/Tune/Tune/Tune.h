@@ -19,6 +19,7 @@
 
 #if TARGET_OS_IOS
 
+#import "TuneDebugUtilities.h"
 #import "TuneInAppMessageExperimentDetails.h"
 #import "TunePowerHookExperimentDetails.h"
 
@@ -29,7 +30,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.6.0"
+#define TUNEVERSION @"4.7.0"
 
 
 @protocol TuneDelegate;
@@ -614,12 +615,16 @@
 /**
  * Returns true if the current session is because the user opened a Tune push notification. Otherwise returns false.
  * This is set back to false on application background.
+ *
+ * NOTE: This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
  */
 + (BOOL)didSessionStartFromTunePush;
 
 /**
  * Returns information about the received Tune push if this session was started through opening a Tune push. Otherwise returns nil.
  * This is set back to nil on application background.
+ *
+ * NOTE: This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
  */
 + (TunePushInfo *)getTunePushInfoForSession;
 
@@ -723,6 +728,22 @@
  */
 + (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout;
 
+#pragma mark - User in Segment API
+
+/*!
+ * Returns whether the user belongs to the given segment
+ * @param segmentId Segment ID to check for a match
+ * @return whether the user belongs to the given segment
+ */
++ (BOOL)isUserInSegmentId:(NSString *)segmentId;
+
+/*!
+ * Returns whether the user belongs to any of the given segments
+ * @param segmentIds Segment IDs to check for a match
+ * @return whether the user belongs to any of the given segments
+ */
++ (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds;
+
 #endif
 
 #pragma mark - Measuring Sessions
@@ -749,7 +770,7 @@
  Record an event by providing the equivalent Event ID defined on the TUNE dashboard.
  @param eventId The event ID.
  */
-+ (void)measureEventId:(NSInteger)eventId;
++ (void)measureEventId:(NSInteger)eventId DEPRECATED_MSG_ATTRIBUTE("Tune does not support measuring events using event IDs. Please use measureEventName: or measureEvent: instead.");
 
 /*!
  Record an event with a TuneEvent.
@@ -856,7 +877,7 @@
  Delegate method called when an action is enqueued.
  @param referenceId The reference ID of the enqueue action.
  */
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use - (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post");
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use tuneEnqueuedRequest:postData: instead.");
 
 /*!
  Delegate method called when Tune SDK enqueues a web request.

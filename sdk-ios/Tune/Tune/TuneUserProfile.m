@@ -25,6 +25,7 @@
 #import "TuneDeferredDplinkr.h"
 #import "TuneIfa.h"
 #import "TuneInstallReceipt.h"
+#import "TuneJSONUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneManager.h"
@@ -196,6 +197,11 @@ static NSNumber *COPPA_MIN_AGE;
                                           priority:TuneSkyhookPrioritySecond];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
+                                          selector:@selector(endSession:)
+                                              name:TuneSessionManagerSessionDidEnd
+                                            object:nil];
+    
+    [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleAddSessionProfileVariable:)
                                               name:TuneSessionVariableToSet
                                             object:nil];
@@ -233,10 +239,33 @@ static NSNumber *COPPA_MIN_AGE;
                 [self storeProfileKey:TUNE_KEY_SESSION_CURRENT_DATE value:sessionStartTime type:TuneAnalyticsVariableDateTimeType];
             }
         }
+        
+        @synchronized(userCustomVariablesLock) {
+            // Restore saved custom profile variable names
+            NSString *customVariablesJson = (NSString *)[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_CUSTOM_VARIABLES];
+            [_userCustomVariables addObjectsFromArray:[TuneJSONUtils createArrayFromJSONString:customVariablesJson]];
+            
+            // Restore variable values for each name in custom variables
+            for (NSString *variableName in _userCustomVariables) {
+                TuneAnalyticsVariable *storedVariable = [TuneUserDefaultsUtils userDefaultCustomVariableforKey:variableName];
+                // If stored variable exists, restore it to _userVariables
+                if (storedVariable) {
+                    [self storeProfileVar:storedVariable];
+                }
+            }
+        }
     }
     
     // Update this at the beginning of each of the sessions since this can change without our notification.
     [self checkIfPushIsEnabled];
+}
+
+- (void)endSession:(TuneSkyhookPayload *)payload {
+    // Save custom profile variable names
+    @synchronized(userCustomVariablesLock) {
+        NSString *customVariablesJson = [TuneJSONUtils createJSONStringFromArray:[_userCustomVariables allObjects]];
+        [TuneUserDefaultsUtils setUserDefaultValue:customVariablesJson forKey:TUNE_KEY_CUSTOM_VARIABLES];
+    }
 }
 
 #pragma mark - Current Variation Helpers
@@ -528,11 +557,6 @@ static NSNumber *COPPA_MIN_AGE;
         
         if ([prettyName hasPrefix:@"TUNE_"]) {
             ErrorLog(@"Profile variables starting with 'TUNE_' are reserved. Not registering: %@", prettyName);
-            return;
-        }
-        
-        if([[self getCustomProfileVariables] containsObject:prettyName]){
-            ErrorLog(@"The variable '%@' has already been registered.", prettyName);
             return;
         }
         
@@ -1222,27 +1246,6 @@ static NSNumber *COPPA_MIN_AGE;
     return [self getProfileValue:TUNE_KEY_IAD_IMPRESSION_DATE];
 }
 
-- (void)setIadCampaignId:(NSString *)iadCampaignId {
-    [self storeProfileKey:TUNE_KEY_IAD_CAMPAIGN_ID value:iadCampaignId];
-}
-- (NSString *)iadCampaignId {
-    return [self getProfileValue:TUNE_KEY_IAD_CAMPAIGN_ID];
-}
-
-- (void)setIadCampaignName:(NSString *)iadCampaignName {
-    [self storeProfileKey:TUNE_KEY_IAD_CAMPAIGN_NAME value:iadCampaignName];
-}
-- (NSString *)iadCampaignName {
-    return [self getProfileValue:TUNE_KEY_IAD_CAMPAIGN_NAME];
-}
-
-- (void)setIadCampaignOrgName:(NSString *)iadCampaignOrgName {
-    [self storeProfileKey:TUNE_KEY_IAD_CAMPAIGN_ORG_NAME value:iadCampaignOrgName];
-}
-- (NSString *)iadCampaignOrgName {
-    return [self getProfileValue:TUNE_KEY_IAD_CAMPAIGN_ORG_NAME];
-}
-
 - (void)setIadClickDate:(NSDate *)iadClickDate {
     [self storeProfileKey:TUNE_KEY_IAD_CLICK_DATE value:iadClickDate type:TuneAnalyticsVariableDateTimeType];
 }
@@ -1255,34 +1258,6 @@ static NSNumber *COPPA_MIN_AGE;
 }
 - (NSDate *)iadConversionDate {
     return [self getProfileValue:TUNE_KEY_IAD_CONVERSION_DATE];
-}
-
-- (void)setIadLineId:(NSString *)iadLineId {
-    [self storeProfileKey:TUNE_KEY_IAD_LINE_ID value:iadLineId];
-}
-- (NSString *)iadLineId {
-    return [self getProfileValue:TUNE_KEY_IAD_LINE_ID];
-}
-
-- (void)setIadLineName:(NSString *)iadLineName {
-    [self storeProfileKey:TUNE_KEY_IAD_LINE_NAME value:iadLineName];
-}
-- (NSString *)iadLineName {
-    return [self getProfileValue:TUNE_KEY_IAD_LINE_NAME];
-}
-
-- (void)setIadCreativeId:(NSString *)iadCreativeId {
-    [self storeProfileKey:TUNE_KEY_IAD_CREATIVE_ID value:iadCreativeId];
-}
-- (NSString *)iadCreativeId {
-    return [self getProfileValue:TUNE_KEY_IAD_CREATIVE_ID];
-}
-
-- (void)setIadCreativeName:(NSString *)iadCreativeName {
-    [self storeProfileKey:TUNE_KEY_IAD_CREATIVE_NAME value:iadCreativeName];
-}
-- (NSString *)iadCreativeName {
-    return [self getProfileValue:TUNE_KEY_IAD_CREATIVE_NAME];
 }
 
 - (void)setAdvertiserSubAd:(NSString *)advertiserSubAd {
@@ -1369,11 +1344,39 @@ static NSNumber *COPPA_MIN_AGE;
     return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_ADGROUP];
 }
 
+- (void)setPublisherSubAdName:(NSString *)publisherSubAdName {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_AD_NAME value:publisherSubAdName];
+}
+- (NSString *)publisherSubAdName {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_AD_NAME];
+}
+
+- (void)setPublisherSubAdRef:(NSString *)publisherSubAdRef {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_AD_REF value:publisherSubAdRef];
+}
+- (NSString *)publisherSubAdRef {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_AD_REF];
+}
+
 - (void)setPublisherSubCampaign:(NSString *)publisherSubCampaign {
     [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN value:publisherSubCampaign];
 }
 - (NSString *)publisherSubCampaign {
     return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN];
+}
+
+- (void)setPublisherSubCampaignName:(NSString *)publisherSubCampaignName {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME value:publisherSubCampaignName];
+}
+- (NSString *)publisherSubCampaignName {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME];
+}
+
+- (void)setPublisherSubCampaignRef:(NSString *)publisherSubCampaignRef {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF value:publisherSubCampaignRef];
+}
+- (NSString *)publisherSubCampaignRef {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF];
 }
 
 - (void)setPublisherSubKeyword:(NSString *)publisherSubKeyword {
@@ -1383,11 +1386,39 @@ static NSNumber *COPPA_MIN_AGE;
     return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_KEYWORD];
 }
 
+- (void)setPublisherSubKeywordRef:(NSString *)publisherSubKeywordRef {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF value:publisherSubKeywordRef];
+}
+- (NSString *)publisherSubKeywordRef {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF];
+}
+
+- (void)setPublisherSubPlacementName:(NSString *)publisherSubPlacementName {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME value:publisherSubPlacementName];
+}
+- (NSString *)publisherSubPlacementName {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME];
+}
+
+- (void)setPublisherSubPlacementRef:(NSString *)publisherSubPlacementRef {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF value:publisherSubPlacementRef];
+}
+- (NSString *)publisherSubPlacementRef {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF];
+}
+
 - (void)setPublisherSubPublisher:(NSString *)publisherSubPublisher {
     [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER value:publisherSubPublisher];
 }
 - (NSString *)publisherSubPublisher {
     return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_PUBLISHER];
+}
+
+- (void)setPublisherSubPublisherRef:(NSString *)publisherSubPublisherRef {
+    [self storeProfileKey:TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF value:publisherSubPublisherRef];
+}
+- (NSString *)publisherSubPublisherRef {
+    return [self getProfileValue:TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF];
 }
 
 - (void)setPublisherSubSite:(NSString *)publisherSubSite {
@@ -1618,7 +1649,7 @@ static NSNumber *COPPA_MIN_AGE;
 #pragma mark - Persistence
 
 - (void)loadSavedProfile {
-    // We don't load custom variables because they are loaded on registration
+    // We don't load custom variables because they are loaded on app foreground
     
     for (NSString *profileKey in profileVariablesToSave) {
         NSString *value = [TuneUserDefaultsUtils userDefaultValueforKey:profileKey];

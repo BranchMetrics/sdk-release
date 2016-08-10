@@ -123,7 +123,10 @@
 - (void)testHandleCustomEventWithId {
     [TuneFileManager deleteAnalyticsFromDisk];
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *event = [TuneEvent eventWithId:123];
+#pragma clang diagnostic pop
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneCustomEventOccurred object:self userInfo:@{ TunePayloadCustomEvent: event }];
     
     [analyticsManager waitForOperationsToFinish];
