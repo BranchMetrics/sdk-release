@@ -5,7 +5,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.4.0'
+    PUBLISH_VERSION = '4.5.0'
 }
 
 android {
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 24
-        versionName '4.4.0'
+        versionName '4.5.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -108,6 +108,33 @@ task javadoc(type: Javadoc) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+task grantDebugPermissions {
+    String applicationId = 'com.tune.test'
+    def adb = android.getAdbExe().toString()
+    "${adb} devices".execute().text.eachLine {
+        if (it.endsWith("device")) {
+            def device = it.split()[0]
+            println "Granting permissions on devices ${device}"
+            def permissions = [
+                    'ACCESS_COARSE_LOCATION',
+                    'ACCESS_FINE_LOCATION',
+                    'ACCESS_MOCK_LOCATION'
+            ]
+            permissions.each {
+                String cmd = "${adb} -s ${device} shell pm grant ${applicationId} android.permission.${it}"
+                println "Grant permission to ${it}"
+                def process = cmd.execute()
+                process.waitFor()
+                def exitValue = process.exitValue()
+                if (!exitValue) {
+                    println "Failed to grant permission ${it}"
+                }
+                process.text.each { println it }
+            }
+        }
+    }
 }
 
 artifacts {

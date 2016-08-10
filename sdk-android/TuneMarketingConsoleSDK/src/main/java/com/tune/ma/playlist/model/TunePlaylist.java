@@ -15,11 +15,13 @@ public class TunePlaylist {
     public static final String POWER_HOOKS_KEY = "power_hooks";
     public static final String IN_APP_MESSAGES_KEY = "messages";
     public static final String EXPERIMENT_DETAILS_KEY = "experiment_details";
+    public static final String SEGMENTS_KEY = "segments";
 
     private String schemaVersion;
     private JSONObject powerHooks;
     private JSONObject inAppMessages;
     private JSONObject experimentDetails;
+    private JSONObject segments;
     private boolean fromDisk;
     private boolean fromConnectedMode;
 
@@ -28,10 +30,10 @@ public class TunePlaylist {
         this.experimentDetails = TuneJsonUtils.getJSONObject(playlistJson, EXPERIMENT_DETAILS_KEY);
         this.powerHooks = TuneJsonUtils.getJSONObject(playlistJson, POWER_HOOKS_KEY);
         this.inAppMessages = TuneJsonUtils.getJSONObject(playlistJson, IN_APP_MESSAGES_KEY);
+        this.segments = TuneJsonUtils.getJSONObject(playlistJson, SEGMENTS_KEY);
     }
 
     public TunePlaylist() {
-
     }
 
     public String getSchemaVersion() {
@@ -66,6 +68,14 @@ public class TunePlaylist {
         this.experimentDetails = experimentDetails;
     }
 
+    public JSONObject getSegments() {
+        return segments;
+    }
+
+    public void setSegments(JSONObject segments) {
+        this.segments = segments;
+    }
+
     public boolean isFromDisk() {
         return fromDisk;
     }
@@ -92,6 +102,7 @@ public class TunePlaylist {
         if (schemaVersion != null ? !schemaVersion.equals(that.schemaVersion) : that.schemaVersion != null) return false;
         if (powerHooks != null ? !powerHooks.equals(that.powerHooks) : that.powerHooks != null) return false;
         if (inAppMessages != null ? !inAppMessages.equals(that.inAppMessages) : that.inAppMessages != null) return false;
+        if (segments != null ? !segments.equals(that.segments) : that.segments != null) return false;
         return !(experimentDetails != null ? !experimentDetails.equals(that.experimentDetails) : that.experimentDetails != null);
 
     }
@@ -102,6 +113,7 @@ public class TunePlaylist {
         result = 31 * result + (powerHooks != null ? powerHooks.hashCode() : 0);
         result = 31 * result + (inAppMessages != null ? inAppMessages.hashCode() : 0);
         result = 31 * result + (experimentDetails != null ? experimentDetails.hashCode() : 0);
+        result = 31 * result * (segments != null ? segments.hashCode() : 0);
         return result;
     }
 
@@ -112,6 +124,7 @@ public class TunePlaylist {
             playlistJson.put(EXPERIMENT_DETAILS_KEY, experimentDetails);
             playlistJson.put(POWER_HOOKS_KEY, powerHooks);
             playlistJson.put(IN_APP_MESSAGES_KEY, inAppMessages);
+            playlistJson.put(SEGMENTS_KEY, segments);
         } catch (JSONException e) {
             e.printStackTrace();
         }

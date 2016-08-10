@@ -15,8 +15,13 @@ import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -120,6 +125,45 @@ public class TunePlaylistManager {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public synchronized boolean isUserInSegmentId(String segmentId) {
+        JSONObject segments = currentPlaylist.getSegments();
+        JSONArray segmentIds = segments.names();
+        // Check if playlist segment ids contains the one in question
+        for (int i = 0; i < segmentIds.length(); i++) {
+            if (segmentIds.optString(i).equals(segmentId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public synchronized boolean isUserInAnySegmentIds(List<String> segmentIdsToCheck) {
+        JSONObject segments = currentPlaylist.getSegments();
+        JSONArray segmentIds = segments.names();
+
+        // Convert JSONArray to List
+        List<String> segmentIdsList = new ArrayList<String>();
+        for (int i = 0; i < segmentIds.length(); i++) {
+            segmentIdsList.add(segmentIds.optString(i));
+        }
+        
+        // Return whether the two lists share any elements in common
+        return (!Collections.disjoint(segmentIdsList, segmentIdsToCheck));
+    }
+
+    public synchronized void forceSetUserInSegmentId(String segmentId, boolean isInSegment) {
+        try {
+            // If true, add it with a dummy value to segments
+            if (isInSegment) {
+                currentPlaylist.getSegments().put(segmentId, "Set by forceSetUserInSegmentId");
+            } else {
+                // Otherwise, try to remove it from segments
+                currentPlaylist.getSegments().remove(segmentId);
+            }
+        } catch (JSONException e) {
         }
     }
 

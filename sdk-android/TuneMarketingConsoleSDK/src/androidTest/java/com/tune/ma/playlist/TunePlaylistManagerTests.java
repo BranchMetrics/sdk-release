@@ -1,6 +1,8 @@
 package com.tune.ma.playlist;
 
+import com.tune.TuneDebugUtilities;
 import com.tune.TuneTestConstants;
+import com.tune.TuneTestWrapper;
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -15,6 +17,9 @@ import com.tune.mocks.MockFileManager;
 import com.tune.testutils.TuneTestUtils;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -99,6 +104,48 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         playlistManager.setCurrentPlaylist(playlist2);
 
         assertFalse(changedReceiver.getEventReceived());
+    }
+
+    public void testIsUserInSegment() {
+        TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
+        playlistManager.setCurrentPlaylist(playlistWithSegments);
+
+        assertTrue(playlistManager.isUserInSegmentId("abc"));
+        assertFalse(playlistManager.isUserInSegmentId("xyz"));
+    }
+
+    public void testIsUserInAnySegments() {
+        TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
+        playlistManager.setCurrentPlaylist(playlistWithSegments);
+
+        // Add some segment ids that aren't in the playlist
+        List<String> segmentIds = new ArrayList<String>();
+        segmentIds.add("asdf");
+        segmentIds.add("xyz");
+
+        // User should not be found in any of the segments
+        assertFalse(playlistManager.isUserInAnySegmentIds(segmentIds));
+
+        // Add a segment id that IS in the playlist
+        segmentIds.add("def");
+
+        // User should now be found in a segment
+        assertTrue(playlistManager.isUserInAnySegmentIds(segmentIds));
+    }
+
+    public void testForceSetUserInSegment() {
+        TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
+        playlistManager.setCurrentPlaylist(playlistWithSegments);
+
+        String segmentId = "localTestSegmentId";
+
+        TuneDebugUtilities.forceSetUserInSegmentId(segmentId, true);
+
+        assertTrue(TuneTestWrapper.getInstance().isUserInSegmentId(segmentId));
+
+        TuneDebugUtilities.forceSetUserInSegmentId(segmentId, false);
+
+        assertFalse(TuneTestWrapper.getInstance().isUserInSegmentId(segmentId));
     }
 
     // Helpers

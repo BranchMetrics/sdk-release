@@ -35,7 +35,11 @@ public class TuneEvent implements Serializable {
     public static final String SHARE = "share";
     
     private String eventName;
-    private int eventId;
+
+    /**
+     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #eventName }instead.
+     */
+    @Deprecated private int eventId;
     private double revenue;
     private String currencyCode;
     private String refId;
@@ -96,8 +100,9 @@ public class TuneEvent implements Serializable {
     /**
      * Initialize TuneEvent with an event ID
      * @param eventId Event ID in TUNE system
+     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #TuneEvent(String eventName)} instead.
      */
-    public TuneEvent(int eventId) {
+    @Deprecated public TuneEvent(int eventId) {
         this.eventId = eventId;
     }
     
@@ -397,7 +402,10 @@ public class TuneEvent implements Serializable {
         return eventName;
     }
 
-    public int getEventId() {
+    /**
+     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #getEventName()}instead.
+     */
+    @Deprecated public int getEventId() {
         return eventId;
     }
 

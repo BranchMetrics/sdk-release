@@ -219,4 +219,8 @@ public class TuneUtils {
 
         return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
+
+    public static boolean convertToBoolean(String booleanString) {
+        return ("1".equalsIgnoreCase(booleanString) || "yes".equalsIgnoreCase(booleanString) || "true".equalsIgnoreCase(booleanString));
+    }
 }

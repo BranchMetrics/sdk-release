@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
+import com.tune.ma.utils.TuneDebugLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -320,8 +322,9 @@ public class Tune {
     /**
      * Event measurement function that measures an event for the given eventId.
      * @param eventId event ID in TUNE system
+     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #measureEvent(String)} or {@link #measureEvent(TuneEvent)} methods.
      */
-    public void measureEvent(int eventId) {
+    @Deprecated public void measureEvent(int eventId) {
         measureEvent(new TuneEvent(eventId));
     }
 
@@ -1373,7 +1376,7 @@ public class Tune {
     }
 
     /**
-     * Turns debug mode on or off, under tag "Tune".
+     * Turns debug mode on or off, under tag "TUNE".
      *
      * Additionally, setting this to 'true' will cause two exceptions to be thrown to aid in debugging the IAM configuration.
      * Normally IAM will log an error to the console when you misconfigure or misuse a method, but this way an exception is thrown to
@@ -1390,12 +1393,15 @@ public class Tune {
             params.setDebugMode(debug);
         }});
         if (debug) {
+            TuneDebugLog.setLogLevel(Log.DEBUG);
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
                     Toast.makeText(mContext, "TUNE Debug Mode Enabled, do not release with this enabled!!", Toast.LENGTH_LONG).show();
                 }
             });
+        } else {
+            TuneDebugLog.setLogLevel(Log.ERROR);
         }
     }
 
@@ -1878,6 +1884,36 @@ public class Tune {
         }
 
         return TuneManager.getInstance().getPushManager().getLastOpenedPushInfo();
+    }
+
+    /*************
+     ** Segment API *
+     *************/
+
+    /**
+     * Returns whether the user belongs to the given segment
+     * @param segmentId Segment ID to check for a match
+     * @return whether the user belongs to the given segment
+     */
+    public boolean isUserInSegmentId(String segmentId) {
+        if (TuneManager.getPlaylistManagerForUser("isUserInSegmentId") == null) {
+            return false;
+        }
+
+        return TuneManager.getInstance().getPlaylistManager().isUserInSegmentId(segmentId);
+    }
+
+    /**
+     * Returns whether the user belongs to any of the given segments
+     * @param segmentIds Segment IDs to check for a match
+     * @return whether the user belongs to any of the given segments
+     */
+    public boolean isUserInAnySegmentIds(List<String> segmentIds) {
+        if (TuneManager.getPlaylistManagerForUser("isUserInAnySegmentIds") == null) {
+            return false;
+        }
+
+        return TuneManager.getInstance().getPlaylistManager().isUserInAnySegmentIds(segmentIds);
     }
 
     /**

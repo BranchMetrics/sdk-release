@@ -33,7 +33,6 @@ import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -114,17 +113,6 @@ public class TuneParameters {
             try {
                 final ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
                 setAppName(pm.getApplicationLabel(ai).toString());
-
-                // Access lastModified asynchronously
-                new Thread(new Runnable() {
-                    public void run() {
-                        // Get last modified date of app file as install date
-                        String appFile = ai.sourceDir;
-                        long insdate = new File(appFile).lastModified();
-                        long installDate = new Date(insdate).getTime() / 1000;  // convert ms to s
-                        setInstallDate(Long.toString(installDate));
-                    }
-                }).start();
             } catch (NameNotFoundException e) {
             }
 
@@ -133,6 +121,7 @@ public class TuneParameters {
                 PackageInfo pi = pm.getPackageInfo(packageName, 0);
                 setAppVersion(Integer.toString(pi.versionCode));
                 setAppVersionName(pi.versionName);
+                setInstallDate(Long.toString(pi.firstInstallTime / 1000));
             } catch (NameNotFoundException e) {
                 setAppVersion("0");
             }
@@ -530,7 +519,7 @@ public class TuneParameters {
     }
     public synchronized void setExistingUser(String existingUser) {
         mExistingUser = existingUser;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.EXISTING_USER, Boolean.parseBoolean(existingUser))));
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.EXISTING_USER, TuneUtils.convertToBoolean(existingUser))));
     }
     
     private String mFbUserId = null;
@@ -617,7 +606,7 @@ public class TuneParameters {
     }
     public synchronized void setIsPayingUser(String isPayingUser) {
         mPrefs.saveToSharedPreferences(TuneConstants.KEY_PAYING_USER, isPayingUser);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_PAYING_USER, Boolean.parseBoolean(isPayingUser))));
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_PAYING_USER, TuneUtils.convertToBoolean(isPayingUser))));
     }
 
     private String mLanguage = null;
