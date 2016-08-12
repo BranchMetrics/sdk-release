@@ -11,7 +11,6 @@ build/*
 *.xcworkspace
 !default.xcworkspace
 xcuserdata
-profile
 *.moved-aside
 Resources/Configuration/Private.xcconfig
 
