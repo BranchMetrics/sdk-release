@@ -432,7 +432,7 @@
         if ([TuneDeviceDetails orientationIsSupportedByApp:currentOrientation]) {
             [self dismissOrientation:_lastOrientation];
             
-            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:[NSNumber numberWithInt:currentOrientation] afterDelay:0.2];
+            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:@(currentOrientation) afterDelay:0.2];
         }
     }
     

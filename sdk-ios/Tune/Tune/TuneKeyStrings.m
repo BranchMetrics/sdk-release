@@ -108,5 +108,5 @@ NSString * const TUNE_SERVER_PATH_TRACKING_ENGINE                = @"serve";
 NSString * const TUNE_SERVER_DOMAIN_DEEPLINK                     = @"deeplink.mobileapptracking.com";
 NSString * const TUNE_SERVER_PATH_DEEPLINK                       = @"v1/link.txt";
 
-NSString * const TUNE_URL_SESSION_ID                     = @"TuneURLSession";
+NSString * const TUNE_FAKE_IAD_CAMPAIGN_ID                       = @"1234567890";
 

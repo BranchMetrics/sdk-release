@@ -297,4 +297,33 @@ NSOperationQueue *playlistCallbackQueue;
     }
 }
 
+#pragma mark - User in Segment API
+
+- (BOOL)isUserInSegmentId:(NSString *)segmentId {
+    // If the segments dictionary from the playlist has a value for the segment id, then user is in this segment
+    return [_currentPlaylist.segments objectForKey:segmentId] != nil;
+}
+
+- (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds {
+    NSSet* inputSegmentIds = [NSSet setWithArray:segmentIds];
+    NSSet* playlistSegmentIds = [NSSet setWithArray:[_currentPlaylist.segments allKeys]];
+    return [inputSegmentIds intersectsSet:playlistSegmentIds]; // Return whether any segment ids are found in both sets
+}
+
+- (void)forceSetUserInSegment:(BOOL)isInSegment forSegmentId:(NSString *)segmentId {
+    // Get NSMutableDictionary of playlist's segments so we can add our force set value
+    NSMutableDictionary *modifiedSegments = [NSMutableDictionary dictionaryWithDictionary:_currentPlaylist.segments];
+    
+    // If user should be in segment, add them to the playlist's segments dictionary
+    if (isInSegment) {
+        [modifiedSegments setValue:@"Set by forceSetUserInSegmentId" forKey:segmentId];
+    } else {
+        // Else remove any existing segment key-values
+        [modifiedSegments removeObjectForKey:segmentId];
+    }
+    
+    // Convert the NSMutableDictionary back to NSDictionary and set it as the playlist's segments
+    _currentPlaylist.segments = [NSDictionary dictionaryWithDictionary:modifiedSegments];
+}
+
 @end

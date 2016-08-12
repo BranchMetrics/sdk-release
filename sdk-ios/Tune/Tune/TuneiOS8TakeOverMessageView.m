@@ -293,7 +293,7 @@
             self.frame = CGRectMake(0,0,[UIScreen mainScreen].bounds.size.width,[UIScreen mainScreen].bounds.size.height);
             [self updateBackgroundMask];
             [self dismissOrientation:_lastOrientation];
-            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:[NSNumber numberWithInt:currentDeviceOrientation] afterDelay:0.2];
+            [self performSelector:@selector(handleTransitionToCurrentOrientation:) withObject:@(currentDeviceOrientation) afterDelay:0.2];
         }
     }
 }

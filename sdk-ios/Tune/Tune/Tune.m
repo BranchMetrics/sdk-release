@@ -622,6 +622,15 @@ static TuneTracker *_sharedManager = nil;
     [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:timeout];
 }
 
+#pragma mark - User in Segment API
+
++ (BOOL)isUserInSegmentId:(NSString *)segmentId {
+    return [[TuneManager currentManager].playlistManager isUserInSegmentId:segmentId];
+}
+
++ (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds {
+    return [[TuneManager currentManager].playlistManager isUserInAnySegmentIds:segmentIds];
+}
 
 #pragma mark - Measure Methods
 

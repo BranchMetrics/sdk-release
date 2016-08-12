@@ -35,7 +35,7 @@
         self.appId = [[TuneManager currentManager].userProfile hashedAppId];
         
         self.timestamp = [NSDate date];
-        self.sessionTime = [NSNumber numberWithDouble:[[TuneManager currentManager].sessionManager timeSinceSessionStart]];
+        self.sessionTime = @([[TuneManager currentManager].sessionManager timeSinceSessionStart]);
         
         self.schemaVersion = TUNE_SCHEMA_VERSION;
     }

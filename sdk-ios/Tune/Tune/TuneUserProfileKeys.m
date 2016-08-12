@@ -13,6 +13,7 @@ NSString *const TUNE_KEY_SESSION_LAST_DATE              = @"last_session_date";
 NSString *const TUNE_KEY_SESSION_CURRENT_DATE           = @"current_session_date";
 NSString *const TUNE_KEY_SESSION_COUNT                  = @"session_count";
 NSString *const TUNE_KEY_IS_FIRST_SESSION               = @"is_first_session";
+NSString *const TUNE_KEY_CUSTOM_VARIABLES               = @"custom_variables";
 
 NSString *const TUNE_KEY_INSTALL_RECEIPT                = @"apple_receipt";
 
@@ -43,15 +44,8 @@ NSString *const TUNE_KEY_IOS_AD_TRACKING                = @"ios_ad_tracking";
 
 NSString *const TUNE_KEY_IAD_ATTRIBUTION                = @"iad_attribution";
 NSString *const TUNE_KEY_IAD_IMPRESSION_DATE            = @"impression_datetime";
-NSString *const TUNE_KEY_IAD_CAMPAIGN_ID                = @"iad_campaign_id";
-NSString *const TUNE_KEY_IAD_CAMPAIGN_NAME              = @"iad_campaign_name";
-NSString *const TUNE_KEY_IAD_CAMPAIGN_ORG_NAME          = @"iad_campaign_org_name";
 NSString *const TUNE_KEY_IAD_CLICK_DATE                 = @"iad_click_date";
 NSString *const TUNE_KEY_IAD_CONVERSION_DATE            = @"iad_conversion_date";
-NSString *const TUNE_KEY_IAD_LINE_ID                    = @"iad_line_id";
-NSString *const TUNE_KEY_IAD_LINE_NAME                  = @"iad_line_name";
-NSString *const TUNE_KEY_IAD_CREATIVE_ID                = @"iad_creative_id";
-NSString *const TUNE_KEY_IAD_CREATIVE_NAME              = @"iad_creative_name";
 
 NSString *const TUNE_KEY_APP_AD_TRACKING                = @"app_ad_tracking";
 
@@ -139,6 +133,7 @@ NSString *const TUNE_KEY_PUBLISHER_SUB_CAMPAIGN         = @"publisher_sub_campai
 NSString *const TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF     = @"publisher_sub_campaign_ref";
 NSString *const TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME    = @"publisher_sub_campaign_name";
 NSString *const TUNE_KEY_PUBLISHER_SUB_KEYWORD          = @"publisher_sub_keyword";
+NSString *const TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF      = @"publisher_sub_keyword_ref";
 NSString *const TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF    = @"publisher_sub_placement_ref";
 NSString *const TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME   = @"publisher_sub_placement_name";
 NSString *const TUNE_KEY_PUBLISHER_SUB_PUBLISHER        = @"publisher_sub_publisher";
@@ -211,13 +206,8 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
             
             TUNE_KEY_IAD_ATTRIBUTION,
             TUNE_KEY_IAD_IMPRESSION_DATE,
-            TUNE_KEY_IAD_CAMPAIGN_ID,
-            TUNE_KEY_IAD_CAMPAIGN_NAME,
-            TUNE_KEY_IAD_CAMPAIGN_ORG_NAME,
-            TUNE_KEY_IAD_LINE_ID,
-            TUNE_KEY_IAD_LINE_NAME,
-            TUNE_KEY_IAD_CREATIVE_ID,
-            TUNE_KEY_IAD_CREATIVE_NAME,
+            TUNE_KEY_IAD_CLICK_DATE,
+            TUNE_KEY_IAD_CONVERSION_DATE,
             
             TUNE_KEY_APP_AD_TRACKING,
             
@@ -297,10 +287,18 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
             TUNE_KEY_PRELOAD_DATA,
             TUNE_KEY_PUBLISHER_REF_ID,
             TUNE_KEY_PUBLISHER_SUB_AD,
+            TUNE_KEY_PUBLISHER_SUB_AD_NAME,
+            TUNE_KEY_PUBLISHER_SUB_AD_REF,
             TUNE_KEY_PUBLISHER_SUB_ADGROUP,
             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN,
+            TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME,
+            TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF,
             TUNE_KEY_PUBLISHER_SUB_KEYWORD,
+            TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF,
+            TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME,
+            TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF,
             TUNE_KEY_PUBLISHER_SUB_PUBLISHER,
+            TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF,
             TUNE_KEY_PUBLISHER_SUB_SITE,
             TUNE_KEY_PUBLISHER_SUB1,
             TUNE_KEY_PUBLISHER_SUB2,

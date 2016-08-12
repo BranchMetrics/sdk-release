@@ -59,17 +59,6 @@
     clearUserDefaults();
 }
 
-- (void)testRegisterProfileVariableTwiceShouldNOTUpdateValue {
-    [[TuneManager currentManager].userProfile registerString:@"test" withDefault:@"initial"];
-    [[TuneManager currentManager].userProfile registerString:@"test" withDefault:@"second"];
-    
-    TuneAnalyticsVariable *var = [[TuneManager currentManager].userProfile getProfileVariable:@"test"];
-    
-    XCTAssertTrue([var.name isEqualToString:@"test"], @"variable name should be set, got: %@", var.name);
-    XCTAssertTrue([var.value isEqualToString:@"initial"], @"variable value should be set");
-    XCTAssertEqual(var.type, TuneAnalyticsVariableStringType, @"variable type should be set");
-}
-
 - (void)testSetVariableValueShouldUpdateValue {
     [[TuneManager currentManager].userProfile registerString:@"test"];
     [[TuneManager currentManager].userProfile setStringValue:@"updated" forVariable:@"test"];
@@ -650,6 +639,24 @@
     
     [profile registerString:@"myString" withDefault:@"default two"];
     XCTAssertTrue([@"not default" isEqualToString:[profile getCustomProfileString:@"myString"]]);
+}
+
+- (void)testCustomProfileVariablesPersistBetweenSessions {
+    [[TuneManager currentManager].userProfile registerString:@"persistingString" withDefault:@"persistingValue"];
+    
+    // Trigger a save of the custom variable names
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidEnd object:self userInfo:nil];
+    waitForQueuesToFinish();
+    
+    // Re-init profile manager
+    TuneUserProfile *profile = [[TuneManager currentManager].userProfile initWithTuneManager:[TuneManager currentManager]];
+    
+    // Trigger a load of the custom variable names
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self userInfo:@{@"sessionId": @"123", @"sessionStartTime": [NSDate date]}];
+    waitForQueuesToFinish();
+    
+    // Check that previously registered profile variable persists
+    XCTAssertEqualObjects(@"persistingValue", [profile getCustomProfileString:@"persistingString"]);
 }
 
 @end

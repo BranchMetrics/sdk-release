@@ -60,7 +60,10 @@
     TuneEventItem *item = [TuneEventItem eventItemWithName:itemName unitPrice:itemPrice quantity:itemQuantity];
     NSArray *items = @[item];
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *evt = [TuneEvent eventWithId:eventId];
+#pragma clang diagnostic pop
     evt.eventItems = items;
     
     [Tune measureEvent:evt];
@@ -190,7 +193,10 @@
     static NSInteger const transactionState = 98101;
     NSString *expectedTransactionState = [@(transactionState) stringValue];
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *evt = [TuneEvent eventWithId:eventId];
+#pragma clang diagnostic pop
     evt.eventItems = items;
     evt.refId = referenceId;
     evt.revenue = revenue;

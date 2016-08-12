@@ -148,7 +148,7 @@
 }
 
 - (int)findIndexOfOrientation:(UIDeviceOrientation)orientation {
-    return (int)[_orientations indexOfObject:[NSNumber numberWithInt:orientation]];
+    return (int)[_orientations indexOfObject:@(orientation)];
 }
 
 + (BOOL)currentOrientationIsSupportedByApp {

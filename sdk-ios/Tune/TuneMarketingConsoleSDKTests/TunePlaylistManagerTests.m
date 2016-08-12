@@ -376,6 +376,75 @@ TunePlaylistManager *playlistManager;
     XCTAssertTrue(i == 6);
 }
 
+#pragma mark - User in Segment API
+
+- (void)testIsUserInSegment {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    XCTAssertTrue([playlistManager isUserInSegmentId:@"abc"]);
+    XCTAssertFalse([playlistManager isUserInSegmentId:@"xyz"]);
+}
+
+- (void)testIsUserInAnySegments {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    // Add some segment ids that aren't in the playlist
+    NSMutableArray *segmentIds = [NSMutableArray arrayWithArray:@[@"asdf", @"xyz"]];
+    
+    // User should not be found in any of the segments
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:segmentIds]);
+    
+    // Add a segment id that IS in the playlist
+    [segmentIds addObject:@"def"];
+
+    // User should now be found in a segment
+    XCTAssertTrue([playlistManager isUserInAnySegmentIds:segmentIds]);
+}
+
+- (void)testEmptySegmentsFromPlaylist {
+    playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePlaylistEmptySegmentTests"].mutableCopy;
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    // Should handle if segments in playlist is empty
+    XCTAssertFalse([playlistManager isUserInSegmentId:@"abc"]);
+    NSArray *segmentIds = @[@"abc", @"def"];
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:segmentIds]);
+}
+
+- (void)testIsUserInAnySegmentsWithEmptyArray {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    // isUserInAnySegmentIds should handle nil for segmentIds array
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:@[]]);
+}
+
+- (void)testIsUserInAnySegmentsWithNil {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    // isUserInAnySegmentIds should handle nil for segmentIds array
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:nil]);
+}
+
+- (void)testForceSetUserInSegment {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    NSString *segmentId = @"localTestSegmentId";
+    
+    [TuneDebugUtilities forceSetUserInSegment:YES forSegmentId:segmentId];
+    
+    XCTAssertTrue([playlistManager isUserInSegmentId:segmentId]);
+    
+    [TuneDebugUtilities forceSetUserInSegment:NO forSegmentId:segmentId];
+    
+    XCTAssertFalse([playlistManager isUserInSegmentId:segmentId]);
+}
+
 #pragma mark - Helper Methods
 
 -(void)performAsynchronousRequestWithCompletionBlock:(void(^)(TuneHttpResponse* response))completionBlock {

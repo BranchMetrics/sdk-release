@@ -6,9 +6,6 @@
     },
     "messages": {},
     "experiment_details": {},
-    "segments": {
-        "abc" : "Segment Name 1",
-        "def" : "Segment Name 2"
-    },
+    "segments": {},
     "schema_version": "1.0"
 }

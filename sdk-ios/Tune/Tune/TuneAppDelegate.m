@@ -33,6 +33,9 @@ NSString * const TuneAppDelegateClassNameKey                  = @"AppDelegateCla
 NSString * const TuneUserNotificationDelegateClassNameDefault = @"AppDelegate";
 NSString * const TuneUserNotificationDelegateClassNameKey     = @"UserNotificationDelegateClassName";
 
+NSString * const TuneShowDelegateWarningsKey                  = @"ShowDelegateWarnings";
+BOOL const TuneShowDelegateWarningsDefault                    = YES;
+
 // If swizzle succeeded
 BOOL swizzleSuccess = NO;
 
@@ -53,6 +56,10 @@ BOOL swizzleSuccess = NO;
         NSString *appDelegateClassName = [[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneAppDelegateClassNameKey] ?: TuneAppDelegateClassNameDefault;
         NSString *userNotificationDelegateClassName = [[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneUserNotificationDelegateClassNameKey] ?: TuneUserNotificationDelegateClassNameDefault;
         
+        // Read whether AppDelegate warnings should be shown from local configuration plist,
+        // if not found then show by default
+        BOOL showDelegateWarnings = [[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneShowDelegateWarningsKey] != nil ? [[[TuneFileManager loadLocalConfigurationFromDisk] valueForKey:TuneShowDelegateWarningsKey] boolValue] : TuneShowDelegateWarningsDefault;
+        
         // Check if class is on swizzle blacklist
         if ([TuneState isDisabledClass:appDelegateClassName]) {
             DebugLog(@"`%@` on Blacklist, Skipping the `UIApplicationDelegate` Swizzle.", appDelegateClassName);
@@ -62,18 +69,22 @@ BOOL swizzleSuccess = NO;
         // Check if class for the app delegate name exists
         Class delegateClass = [TuneUtils getClassFromString:appDelegateClassName];
         if (!delegateClass) {
-            WarnLog(@"Class `%@` not found. Please set your UIApplicationDelegate class name in TuneConfiguration.plist for key `%@`",
-                    appDelegateClassName,
-                    TuneAppDelegateClassNameKey);
+            if (showDelegateWarnings) {
+                WarnLog(@"Class `%@` not found. Please set your UIApplicationDelegate class name in TuneConfiguration.plist for key `%@`",
+                        appDelegateClassName,
+                        TuneAppDelegateClassNameKey);
+            }
             return;
         }
         
         // Check if class for the user notification delegate name exists
         Class userNotificationDelegateClass = [TuneUtils getClassFromString:userNotificationDelegateClassName];
         if (!userNotificationDelegateClass && !delegateClass) {
-            WarnLog(@"Class `%@` not found. Please set your UNUserNotificationCenterDelegate class name in TuneConfiguration.plist for key `%@`",
-                    userNotificationDelegateClassName,
-                    TuneUserNotificationDelegateClassNameKey);
+            if (showDelegateWarnings) {
+                WarnLog(@"Class `%@` not found. Please set your UNUserNotificationCenterDelegate class name in TuneConfiguration.plist for key `%@`",
+                        userNotificationDelegateClassName,
+                        TuneUserNotificationDelegateClassNameKey);
+            }
             return;
         }
         
