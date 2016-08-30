@@ -15,6 +15,7 @@ import com.tune.ma.analytics.model.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
+import com.tune.ma.eventbus.event.push.TunePushEnabled;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.push.model.TunePushMessage;
@@ -304,17 +305,27 @@ public class TunePushManager {
         }
     }
 
+    private boolean isPushStatusDetermined() {
+        return sharedPrefs.contains(PROPERTY_DEVELOPER_PUSH_ENABLED) || sharedPrefs.contains(PROPERTY_END_USER_PUSH_ENABLED) || sharedPrefs.contains(PROPERTY_IS_COPPA);
+    }
+
     synchronized void updatePushEnabled(String key, boolean newKeyValue) {
         boolean keyExisted = sharedPrefs.contains(key);
         boolean oldKeyValue = sharedPrefs.getBooleanFromSharedPreferences(key);
 
+        boolean pushPreviouslyDetermined = isPushStatusDetermined();
+        boolean oldPushEnabled = isPushEnabled();
+
         sharedPrefs.saveBooleanToSharedPreferences(key, newKeyValue);
 
         if (!keyExisted || oldKeyValue != newKeyValue) {
-            if (isPushEnabled()) {
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.IS_PUSH_ENABLED, TuneAnalyticsVariable.IOS_BOOLEAN_TRUE)));
-            } else {
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.IS_PUSH_ENABLED, TuneAnalyticsVariable.IOS_BOOLEAN_FALSE)));
+            boolean newPushEnabled = isPushEnabled();
+            String varValue = newPushEnabled ? TuneAnalyticsVariable.IOS_BOOLEAN_TRUE : TuneAnalyticsVariable.IOS_BOOLEAN_FALSE;
+            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.IS_PUSH_ENABLED, varValue)));
+
+            // if push-enabled status has changed
+            if (!pushPreviouslyDetermined || oldPushEnabled != newPushEnabled) {
+                TuneEventBus.post(new TunePushEnabled(newPushEnabled));
             }
         }
     }
@@ -347,6 +358,7 @@ public class TunePushManager {
             TuneDebugLog.IAMConfigError("The device token can not be null in 'setPushNotificationRegistrationId'");
         }
 
+        // If we don't have anything stored for push then this will return true
         if (isPushEnabled()) {
             TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.IS_PUSH_ENABLED, TuneAnalyticsVariable.IOS_BOOLEAN_TRUE)));
         }

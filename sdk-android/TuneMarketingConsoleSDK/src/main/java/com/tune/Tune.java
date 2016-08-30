@@ -335,6 +335,11 @@ public class Tune {
      * @param eventData custom data to associate with the event
      */
     public void measureEvent(final TuneEvent eventData) {
+        if (TextUtils.isEmpty(eventData.getEventName()) && eventData.getEventId() == 0) {
+            Log.w(TuneConstants.TAG, "Event name or ID cannot be null, empty, or zero");
+            return;
+        }
+
         // Post event to TuneEventBus for TMA
         TuneEventBus.post(new TuneEventOccurred(eventData));
 
@@ -1886,9 +1891,9 @@ public class Tune {
         return TuneManager.getInstance().getPushManager().getLastOpenedPushInfo();
     }
 
-    /*************
+    /****************
      ** Segment API *
-     *************/
+     ****************/
 
     /**
      * Returns whether the user belongs to the given segment

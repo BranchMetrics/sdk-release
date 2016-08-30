@@ -5,7 +5,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.5.0'
+    PUBLISH_VERSION = '4.5.1'
 }
 
 android {
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 24
-        versionName '4.5.0'
+        versionName '4.5.1'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

@@ -55,6 +55,14 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should have dequeued request", queue.getQueueSize() == 0 );
     }
 
+    public void testEmptyEventNotEnqueued() {
+        tune.setOnline( false );
+        tune.measureEvent("");
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+        assertNotNull( "queue hasn't been initialized yet", queue );
+        assertTrue( "should have enqueued zero requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
+    }
+
     public void testEnqueue2() {
         tune.setOnline( false );
         tune.measureEvent("registration");

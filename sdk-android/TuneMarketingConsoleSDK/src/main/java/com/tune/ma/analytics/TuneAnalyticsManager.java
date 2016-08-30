@@ -11,6 +11,7 @@ import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 import com.tune.ma.analytics.model.event.TuneCustomEvent;
 import com.tune.ma.analytics.model.event.TuneScreenViewEvent;
 import com.tune.ma.analytics.model.event.push.TunePushActionEvent;
+import com.tune.ma.analytics.model.event.push.TunePushEnabledEvent;
 import com.tune.ma.analytics.model.event.push.TunePushOpenedEvent;
 import com.tune.ma.analytics.model.event.session.TuneBackgroundEvent;
 import com.tune.ma.analytics.model.event.session.TuneForegroundEvent;
@@ -21,6 +22,7 @@ import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
+import com.tune.ma.eventbus.event.push.TunePushEnabled;
 import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
 import com.tune.ma.push.model.TunePushMessage;
@@ -142,6 +144,11 @@ public class TuneAnalyticsManager {
 
         storeAndTrackAnalyticsEvent(false, new TunePushOpenedEvent(message));
         storeAndTrackAnalyticsEvent(false, new TunePushActionEvent(message));
+    }
+
+    public void onEvent(TunePushEnabled event) {
+        boolean status = event.isEnabled();
+        storeAndTrackAnalyticsEvent(false, new TunePushEnabledEvent(status));
     }
 
     public void onEvent(TuneSessionVariableToSet event) {
