@@ -307,7 +307,7 @@ BOOL isAlertVisible;
 + (NSString *)jsonSerialize:(id)object {
     NSString *output = nil;
     
-    if(object) {
+    if(object && (id)[NSNull null] != object) {
         NSError *error;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object
                                                            options:0
@@ -321,6 +321,27 @@ BOOL isAlertVisible;
     }
     
     return output;
+}
+
++ (id)jsonDeserializeData:(NSData *)jsonData {
+    id object = nil;
+    
+    if(jsonData && (id)[NSNull null] != jsonData && jsonData.length > 0) {
+        NSError *error;
+        object = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                 options:0
+                                                   error:&error];
+        
+        if (error) {
+            DebugLog(@"JSON de-serializer: error = %@, input = %@", error, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
+        }
+    }
+    
+    return object;
+}
+
++ (id)jsonDeserializeString:(NSString *)jsonString {
+    return jsonString && (id)[NSNull null] != jsonString ? [self jsonDeserializeData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]] : nil;
 }
 
 
@@ -751,6 +772,7 @@ NSString *overrideNetworkStatus;
 + (void)overrideNetworkReachability:(NSString *)reachable {
     overrideNetworkStatus = reachable;
 }
+
 #endif
 
 @end

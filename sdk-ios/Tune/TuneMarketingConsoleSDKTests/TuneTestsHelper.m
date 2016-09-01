@@ -32,7 +32,7 @@ NSString* const kTestConversionKey = @"8c14d6bbe466b65211e781d62e301eec";
 NSString* const kTestBundleId = @"com.mobileapptracking.iosunittest";
 #endif
 
-const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.;
+const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.5;
 
 id classMockTuneManager;
 id mockTuneManager;

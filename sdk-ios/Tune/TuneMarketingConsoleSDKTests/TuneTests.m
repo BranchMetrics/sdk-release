@@ -40,6 +40,10 @@
     
     BOOL enqueuedSession;
     BOOL enqueuedEvent;
+    
+    NSString *enqueuedRequestPostData;
+    
+    NSString *webRequestPostData;
 }
 
 @end
@@ -70,6 +74,9 @@
     
     enqueuedSession = NO;
     enqueuedEvent = NO;
+    enqueuedRequestPostData = nil;
+    
+    webRequestPostData = nil;
 }
 
 - (void)tearDown {
@@ -104,6 +111,7 @@
 - (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
     enqueuedSession = [url containsString:@"&action=session"];
     enqueuedEvent = [url containsString:@"&action=conversion"];
+    enqueuedRequestPostData = post;
 }
 
 
@@ -318,18 +326,28 @@
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
         ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
         ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF, @"15222869");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME, @"atomic new 13");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF, @"226713");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME, @"ad new");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_REF, @"15325601");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_NAME, @"2000 banner");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF, @"TUNE, Inc.");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF, @"dodgeball");
         
-        // other iAd params currently ignored by Measurement Engine
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CONVERSION_DATE, @"2016-03-23T07:55:50Z");
+        XCTAssertNotNil(enqueuedRequestPostData);
+        NSDictionary *dict = nil;
+        if(enqueuedRequestPostData) {
+            NSError *jsonError;
+            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
+        }
+        
+        XCTAssertNotNil(dict);
+        XCTAssertNotNil(dict[@"iad"]);
+        XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
+        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
         
         [classMockUIApplication stopMocking];
         [classMockADClient stopMocking];
@@ -349,6 +367,7 @@
         // actual response from production test app
         NSDictionary *attributionDetails = @{@"Version3.1":@{
                                                      @"iad-adgroup-name":@"AdGroupName",
+                                                     @"iad-adgroup-id":@"1234567890",
                                                      @"iad-attribution":@"true",
                                                      @"iad-campaign-id":@"1234567890",
                                                      @"iad-campaign-name":@"CampaignName",
@@ -356,7 +375,6 @@
                                                      @"iad-conversion-date":@"2016-08-09T22:13:23Z",
                                                      @"iad-creative-id":@"1234567890",
                                                      @"iad-creative-name":@"CreativeName",
-                                                     @"iad-group-id":@"1234567890",
                                                      @"iad-keyword":@"Keyword",
                                                      @"iad-lineitem-id":@"1234567890",
                                                      @"iad-lineitem-name":@"LineName",
@@ -374,10 +392,21 @@
         
         [Tune measureSession];
         waitForQueuesToFinish();
-        
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
         ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"session" );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IAD_ATTRIBUTION );
+        
+        [Tune measureEventName:@"event1"];
+        waitForQueuesToFinish();
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"conversion" );
+        
+        if(webRequestPostData) {
+            NSError *jsonError;
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:[webRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
+            XCTAssertNil(dict[@"iad"]);
+        }
+        
+        ASSERT_KEY_VALUE(TUNE_KEY_IAD_ATTRIBUTION, [@NO stringValue] );
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF );
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME );
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF );
@@ -386,10 +415,6 @@
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_NAME );
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF );
         ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF );
-        
-        // other iAd params currently ignored by Measurement Engine
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CONVERSION_DATE, @"2016-03-23T07:55:50Z");
         
         [classMockUIApplication stopMocking];
         [classMockADClient stopMocking];
@@ -763,8 +788,10 @@
 // secret functions to test server URLs
 - (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
-    if( postData )
+    if( postData ) {
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
+        webRequestPostData = postData;
+    }
 }
 
 @end

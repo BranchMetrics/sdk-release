@@ -25,6 +25,10 @@
 
 @interface TuneEventTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
+    
+    BOOL finished;
+    BOOL failed;
+    TuneErrorCode tuneErrorCode;
 }
 
 @end
@@ -36,6 +40,12 @@
 
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
+    
+    finished = NO;
+    failed = NO;
+    
+    tuneErrorCode = -1;
+    
     // Wait for everything to be set
     waitForQueuesToFinish();
     
@@ -49,7 +59,55 @@
     [super tearDown];
 }
 
+#pragma mark - TuneDelegate Methods
+
+- (void)tuneDidSucceedWithData:(NSData *)data {
+    finished = YES;
+    failed = NO;
+}
+
+- (void)tuneDidFailWithError:(NSError *)error {
+    finished = YES;
+    failed = YES;
+    
+    tuneErrorCode = error.code;
+}
+
 #pragma mark - Event parameters
+
+- (void)testNilEventName {
+    static NSString* const eventName = nil;
+    
+    TuneEvent *evt = [TuneEvent eventWithName:eventName];
+    
+    XCTAssertFalse(finished);
+    XCTAssertFalse(failed);
+    XCTAssertEqual(tuneErrorCode, -1, @"Error code should default to -1.");
+    
+    [Tune measureEvent:evt];
+    waitForQueuesToFinish();
+    
+    XCTAssertTrue(finished);
+    XCTAssertTrue(failed);
+    XCTAssertEqual(tuneErrorCode, TuneInvalidEvent, @"Measurement of nil event name should have failed.");
+}
+
+- (void)testEmptyEventName {
+    static NSString* const eventName = @"";
+    
+    TuneEvent *evt = [TuneEvent eventWithName:eventName];
+    
+    XCTAssertFalse(finished);
+    XCTAssertFalse(failed);
+    XCTAssertEqual(tuneErrorCode, -1, @"Error code should default to -1.");
+    
+    [Tune measureEvent:evt];
+    waitForQueuesToFinish();
+    
+    XCTAssertTrue(finished);
+    XCTAssertTrue(failed);
+    XCTAssertEqual(tuneErrorCode, TuneInvalidEvent, @"Measurement of empty event name should have failed.");
+}
 
 - (void)testContentType {
     static NSString* const contentType = @"atrnoeiarsdneiofphyou";

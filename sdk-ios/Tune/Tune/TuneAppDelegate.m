@@ -223,6 +223,10 @@ BOOL swizzleSuccess = NO;
     InfoLog(@"application:didFailToRegisterForRemoteNotificationsWithError: intercept successful -- %@", NSStringFromClass([self class]));
     
     DebugLog(@"Failed To Register Device For Push %@", error.description);
+    
+    // Send out a skyhook for failure to register device for remote notifications
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneFailedToRegisterForRemoteNotifications object:self userInfo:@{@"error" : error}];
+    
     if (swizzleSuccess) {
 #if TESTING
         [TuneAppDelegate unitTestingHelper:@"application:didFailToRegisterForRemoteNotificationsWithError:"];

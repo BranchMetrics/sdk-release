@@ -54,6 +54,8 @@
 + (float)numericiOSSystemVersion;
 
 + (nullable NSString *)jsonSerialize:(nullable id)object;
++ (nullable id)jsonDeserializeData:(nullable NSData *)jsonData;
++ (nullable id)jsonDeserializeString:(nullable NSString *)jsonString;
 
 + (nullable NSString *)parseXmlString:(nullable NSString *)strXml forTag:(nullable NSString *)tag;
 

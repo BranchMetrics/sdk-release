@@ -15,6 +15,8 @@ extern const int TuneSkyhookPriorityLast;
 #pragma mark - Analytics Hooks
 extern NSString *const TuneCustomEventOccurred;
 extern NSString *const TunePushNotificationOpened;
+extern NSString *const TunePushEnabled;
+extern NSString *const TunePushDisabled;
 extern NSString *const TuneAppOpenedFromURL;
 extern NSString *const TuneEventTracked;
 extern NSString *const TuneSessionVariableToSet;
@@ -52,6 +54,7 @@ extern NSString *const TunePlaylistAssetsDownloaded;
 
 #pragma mark - Device Token
 extern NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken;
+extern NSString *const TuneFailedToRegisterForRemoteNotifications;
 
 #pragma mark - Force update from Tune
 extern NSString *const TuneDispatchNow;

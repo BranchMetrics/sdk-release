@@ -11,8 +11,11 @@
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsVariable.h"
 #import "TuneDeeplink.h"
+#import "TuneDeviceDetails.h"
+#import "TuneKeyStrings.h"
 #import "TuneManager.h"
 #import "TuneNotification.h"
+#import "TunePushUtils.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
@@ -20,6 +23,7 @@
 #import "TuneAnalyticsDispatchEventsOperation.h"
 #import "TuneAnalyticsDispatchToConnectedModeOperation.h"
 #import "TuneConfiguration.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneTriggerManager.h"
 #import "UIViewController+TuneAnalytics.h"
@@ -142,6 +146,18 @@
                                           selector:@selector(handleInAppMessageDismissed:)
                                               name:TuneInAppMessageDismissed
                                             object:nil];
+    
+    // Listen for registration of device with APN
+    [[TuneSkyhookCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleRemoteNotificationRegistrationUpdated:)
+                                              name:TuneRegisteredForRemoteNotificationsWithDeviceToken
+                                            object:nil];
+    
+    // Listen for failure to register device with APN
+    [[TuneSkyhookCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleRemoteNotificationRegistrationUpdated:)
+                                              name:TuneFailedToRegisterForRemoteNotifications
+                                            object:nil];
 }
 
 #pragma mark - Custom Event
@@ -203,6 +219,9 @@
     
     // Force through an initial dispatch of leftovers from last session.
     [self dispatchAnalytics];
+    
+    // Fire an analytics event if push notification status has changed since the last session
+    [self handleRemoteNotificationAuthStatus];
 }
 
 - (void)handleSessionEnd:(TuneSkyhookPayload *)payload {
@@ -409,6 +428,36 @@
     
     // Log the event
     [self storeAndTrackAnalyticsEvent:analyticsEvent];
+}
+
+- (void)handleRemoteNotificationRegistrationUpdated:(TuneSkyhookPayload *)payload {
+    // Fire an analytics event if push notification status has changed during the current session
+    [self handleRemoteNotificationAuthStatus];
+}
+
+- (void)handleRemoteNotificationAuthStatus {
+    BOOL newStatus = [TunePushUtils isAlertPushNotificationEnabled];
+    
+    if (nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS]) {
+        BOOL oldStatus = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS] boolValue];
+        
+        if (oldStatus != newStatus) {
+            // Create the push notification registration status changed event.
+            NSString *eventAction = newStatus ? TunePushEnabled : TunePushDisabled;
+            TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
+                                                                                        action:eventAction
+                                                                                      category:TUNE_EVENT_CATEGORY_APPLICATION
+                                                                                       control:nil
+                                                                                  controlEvent:nil
+                                                                                          tags:nil
+                                                                                         items:nil];
+            
+            // Log the event
+            [self storeAndTrackAnalyticsEvent:analyticsEvent];
+        }
+    }
+    
+    [TuneUserDefaultsUtils setUserDefaultValue:@(newStatus) forKey:TUNE_KEY_PUSH_ENABLED_STATUS];
 }
 
 #pragma mark - In App Messages

@@ -109,7 +109,8 @@ NSString * const TUNE_PACKAGE_NAME   = @"edu.self.AtomicDodgeBallLite";
 
 // Tune request enqueued
 - (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
-    NSLog(@"Tune ios enqueued request: url = %@, post data = %@", url, post);
+    NSLog(@"Tune ios enqueued request: url = %@", url);
+    NSLog(@"Tune ios enqueued request: post data = %@", post);
 }
 
 // Tune deeplink received

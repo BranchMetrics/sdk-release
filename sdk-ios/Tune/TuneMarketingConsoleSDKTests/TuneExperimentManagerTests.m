@@ -58,7 +58,6 @@
     XCTAssertTrue([details.experimentType isEqualToString:@"power_hook"]);
     XCTAssertTrue([details.currentVariantId isEqualToString:@"abc"]);
     XCTAssertTrue([details.currentVariantName isEqualToString:@"Variation A"]);
-    XCTAssertTrue([details.hookId isEqualToString:@"itemsToDisplay"]);
     XCTAssertTrue(details.isRunning);
     
     details = experimentDetails[@"showMainScreen"];
@@ -67,7 +66,6 @@
     XCTAssertTrue([details.experimentType isEqualToString:@"power_hook"]);
     XCTAssertTrue([details.currentVariantId isEqualToString:@"def"]);
     XCTAssertTrue([details.currentVariantName isEqualToString:@"Variation B"]);
-    XCTAssertTrue([details.hookId isEqualToString:@"showMainScreen"]);
     XCTAssertTrue(details.isRunning);
 }
 

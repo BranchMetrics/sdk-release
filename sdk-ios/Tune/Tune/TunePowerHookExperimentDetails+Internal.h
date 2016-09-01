@@ -12,6 +12,6 @@
 
 @interface TunePowerHookExperimentDetails ()
 
-- (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary andPowerHookValue:(TunePowerHookValue *)variable andHookId:(NSString *)hookId;
+- (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary andPowerHookValue:(TunePowerHookValue *)variable;
 
 @end

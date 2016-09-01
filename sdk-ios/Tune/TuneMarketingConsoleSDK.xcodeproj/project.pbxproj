@@ -991,6 +991,13 @@
 		F8C81C071CA6060E005C7B5D /* TuneBlankAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */; };
 		F8C81C081CA60C77005C7B5D /* TuneAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3230402F1B98C9EF00DD8E65 /* TuneAppDelegate.m */; };
 		F8C81C0A1CA60C92005C7B5D /* TuneAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3230402E1B98C9EF00DD8E65 /* TuneAppDelegate.h */; };
+		F8E39FDE1D622284008D4794 /* TunePushUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8E39FDC1D622284008D4794 /* TunePushUtils.h */; };
+		F8E39FDF1D622284008D4794 /* TunePushUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E39FDD1D622284008D4794 /* TunePushUtils.m */; };
+		F8E39FE01D622325008D4794 /* TunePushUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8E39FDC1D622284008D4794 /* TunePushUtils.h */; };
+		F8E39FE11D622326008D4794 /* TunePushUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8E39FDC1D622284008D4794 /* TunePushUtils.h */; };
+		F8E39FE21D62232A008D4794 /* TunePushUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E39FDD1D622284008D4794 /* TunePushUtils.m */; };
+		F8E39FE61D6227FD008D4794 /* TunePushUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E39FDD1D622284008D4794 /* TunePushUtils.m */; };
+		F8E39FE71D6227FE008D4794 /* TunePushUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E39FDD1D622284008D4794 /* TunePushUtils.m */; };
 		F8E57BDC1D062F6A0064C0A6 /* TuneExperimentDetailsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E57BDB1D062F6A0064C0A6 /* TuneExperimentDetailsTests.m */; };
 		F8F076E91C8A524700AEF991 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BCB5AD21B660CEB005216E2 /* CoreTelephony.framework */; };
 		F8F0772C1C8A5AFD00AEF991 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8F077201C8A5AFD00AEF991 /* libOCMock.a */; };
@@ -1542,6 +1549,8 @@
 		F8B331191CB31DCD00C954B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		F8B3311A1CB31DCD00C954B2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F8C4DFC41C8E68E200931118 /* OCMock.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCMock.framework; path = Tune_tvOSTests/OCMock.framework; sourceTree = "<group>"; };
+		F8E39FDC1D622284008D4794 /* TunePushUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePushUtils.h; sourceTree = "<group>"; };
+		F8E39FDD1D622284008D4794 /* TunePushUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePushUtils.m; sourceTree = "<group>"; };
 		F8E57BDB1D062F6A0064C0A6 /* TuneExperimentDetailsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneExperimentDetailsTests.m; sourceTree = "<group>"; };
 		F8F077201C8A5AFD00AEF991 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		F8F077221C8A5AFD00AEF991 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
@@ -2203,6 +2212,8 @@
 				DBA92CA01BA21FDD00150B12 /* TuneLabelUtils.m */,
 				3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */,
 				3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */,
+				F8E39FDC1D622284008D4794 /* TunePushUtils.h */,
+				F8E39FDD1D622284008D4794 /* TunePushUtils.m */,
 				DB24D6E11B66CA0B000C7462 /* TuneStringUtils.h */,
 				DB24D6E21B66CA0B000C7462 /* TuneStringUtils.m */,
 				3F4BB1E81B824B0A0084864D /* TuneUserDefaultsUtils.h */,
@@ -2545,6 +2556,7 @@
 				DBA92CA11BA21FDD00150B12 /* TuneLabelUtils.h in Headers */,
 				0B42D6321B6F1B61008101CE /* TuneAnalyticsVariable.h in Headers */,
 				3F7522AB1D0B2D1700E65703 /* TunePushInfo+Internal.h in Headers */,
+				F8E39FDE1D622284008D4794 /* TunePushUtils.h in Headers */,
 				0BCB59DD1B65F922005216E2 /* TuneEvent.h in Headers */,
 				DBCA434B1B8E8E1200483318 /* TuneSwizzleBlacklist.h in Headers */,
 				3FD184B51BB3594B00AAE0E1 /* TunePowerHookExperimentDetails.h in Headers */,
@@ -2749,6 +2761,7 @@
 				F8868F681C0FC5C9007E2F9C /* TuneAnalyticsSubmitter.h in Headers */,
 				F8868F691C0FC5CA007E2F9C /* TuneAnalyticsItem.h in Headers */,
 				F8868F6A1C0FC5CA007E2F9C /* TuneAnalyticsManager.h in Headers */,
+				F8E39FE11D622326008D4794 /* TunePushUtils.h in Headers */,
 				F8868F6B1C0FC5CA007E2F9C /* TuneAnalyticsDispatchEventsOperation.h in Headers */,
 				F8868F6C1C0FC5CB007E2F9C /* TuneAnalyticsDispatchToConnectedModeOperation.h in Headers */,
 				F8868F6D1C0FC5CB007E2F9C /* TuneApi.h in Headers */,
@@ -2819,6 +2832,7 @@
 			files = (
 				F846600E1C3B4C50005C42CC /* TuneEventKeys.h in Headers */,
 				F846601C1C3B4C50005C42CC /* TuneStorageKeys.h in Headers */,
+				F8E39FE01D622325008D4794 /* TunePushUtils.h in Headers */,
 				F846601B1C3B4C50005C42CC /* TuneInAppMessageConstants.h in Headers */,
 				F88690611C0FD803007E2F9C /* TuneSBJsonWriter.h in Headers */,
 				F84660601C3B4CED005C42CC /* TunePreloadData.h in Headers */,
@@ -3183,6 +3197,7 @@
 				0BCB5A611B65F9B8005216E2 /* TuneRegionMonitor.m in Sources */,
 				0BECFE9C1B7DA93400501733 /* NSData+TuneGZIP.m in Sources */,
 				0BCB5A691B65F9B8005216E2 /* TuneUserAgentCollector.m in Sources */,
+				F8E39FDF1D622284008D4794 /* TunePushUtils.m in Sources */,
 				0B42D6471B6F433C008101CE /* TuneUserProfile.m in Sources */,
 				3FD184B01BB3594000AAE0E1 /* TuneExperimentDetails.m in Sources */,
 				0BCB5A651B65F9B8005216E2 /* TuneStoreKitDelegate.m in Sources */,
@@ -3483,6 +3498,7 @@
 				F8F693FC1CFFC15B00B453D9 /* TuneBaseTakeOverMessageView.m in Sources */,
 				F8F694091CFFC15B00B453D9 /* TuneCampaignStateManager.m in Sources */,
 				F8F693D41CFFC15B00B453D9 /* TuneCWorks.m in Sources */,
+				F8E39FE21D62232A008D4794 /* TunePushUtils.m in Sources */,
 				F8F6942E1CFFC15B00B453D9 /* TuneConstants.m in Sources */,
 				DBCA433A1B8E642300483318 /* TuneUtilsTests.m in Sources */,
 				F8F6942C1CFFC15B00B453D9 /* TunePowerHookExperimentDetails.m in Sources */,
@@ -3605,6 +3621,7 @@
 				F88690011C0FD145007E2F9C /* TuneImageAssets.m in Sources */,
 				F88690021C0FD145007E2F9C /* TuneImageUtils.m in Sources */,
 				F88690031C0FD145007E2F9C /* TuneJSONPlayer.m in Sources */,
+				F8E39FE61D6227FD008D4794 /* TunePushUtils.m in Sources */,
 				F88690041C0FD145007E2F9C /* TuneLabelUtils.m in Sources */,
 				F88690051C0FD145007E2F9C /* TunePIIUtils.m in Sources */,
 				F88690061C0FD145007E2F9C /* TuneStringUtils.m in Sources */,
@@ -3730,6 +3747,7 @@
 				F853CFBD1D00C982006CCC98 /* TuneTracker.m in Sources */,
 				F846614D1C3B4F0C005C42CC /* TuneServerTests.m in Sources */,
 				F853CFC71D00C998006CCC98 /* TuneInAppUtils.m in Sources */,
+				F8E39FE71D6227FE008D4794 /* TunePushUtils.m in Sources */,
 				F84661461C3B4F0C005C42CC /* TuneEventItemTests.m in Sources */,
 				F84661501C3B4F0C005C42CC /* TuneUserDefaultsUtilsTests.m in Sources */,
 				F853D01D1D00C9FD006CCC98 /* TuneUtils.m in Sources */,

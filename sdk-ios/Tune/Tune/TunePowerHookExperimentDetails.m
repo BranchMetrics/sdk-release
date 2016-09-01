@@ -18,11 +18,10 @@ NSString *const DetailDictionaryExperimentIsRunningKey = @"is_running";
 
 @implementation TunePowerHookExperimentDetails
 
-- (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary andPowerHookValue:(TunePowerHookValue *)variable andHookId:(NSString *)hookId {
+- (instancetype)initWithDetailsDictionary:(NSDictionary *)detailsDictionary andPowerHookValue:(TunePowerHookValue *)variable {
     self = [super initWithDictionary:detailsDictionary];
     
     if (self) {
-        _hookId = hookId;
         if (variable.startDate != nil) {
             _experimentStartDate = [[TuneDateUtils dateFormatterIso8601UTC] dateFromString:variable.startDate];
         }
@@ -47,7 +46,7 @@ NSString *const DetailDictionaryExperimentIsRunningKey = @"is_running";
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Power Hook Experiment Details { Hook ID: %@ | Experiment ID: %@ | Experiment Name: %@ | Current Variation ID: %@ | Current Variation Name: %@ | isRunning: %@ }", self.hookId, self.experimentId, self.experimentName, self.currentVariantId, self.currentVariantName, ([self isRunning] ? @"YES" : @"NO")];
+    return [NSString stringWithFormat:@"Power Hook Experiment Details { Experiment ID: %@ | Experiment Name: %@ | Current Variation ID: %@ | Current Variation Name: %@ | isRunning: %@ }", self.experimentId, self.experimentName, self.currentVariantId, self.currentVariantName, ([self isRunning] ? @"YES" : @"NO")];
 }
 
 - (NSDictionary *)toDictionary {
