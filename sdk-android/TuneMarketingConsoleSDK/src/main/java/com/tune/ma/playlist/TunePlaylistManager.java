@@ -1,5 +1,6 @@
 package com.tune.ma.playlist;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.tune.ma.TuneManager;
@@ -129,8 +130,24 @@ public class TunePlaylistManager {
     }
 
     public synchronized boolean isUserInSegmentId(String segmentId) {
+        // If segment id is null or empty, return false
+        if (TextUtils.isEmpty(segmentId)) {
+            return false;
+        }
+
         JSONObject segments = currentPlaylist.getSegments();
+        // Segments key wasn't found in playlist, return false
+        if (segments == null) {
+            return false;
+        }
+
         JSONArray segmentIds = segments.names();
+
+        // Segments was empty, return false
+        if (segmentIds == null) {
+            return false;
+        }
+
         // Check if playlist segment ids contains the one in question
         for (int i = 0; i < segmentIds.length(); i++) {
             if (segmentIds.optString(i).equals(segmentId)) {
@@ -141,20 +158,41 @@ public class TunePlaylistManager {
     }
 
     public synchronized boolean isUserInAnySegmentIds(List<String> segmentIdsToCheck) {
+        // Input is null, return false
+        if (segmentIdsToCheck == null) {
+            return false;
+        }
+
         JSONObject segments = currentPlaylist.getSegments();
+        // Segments key wasn't found in playlist, return false
+        if (segments == null) {
+            return false;
+        }
+
         JSONArray segmentIds = segments.names();
+
+        // Segments was empty, return false
+        if (segmentIds == null) {
+            return false;
+        }
 
         // Convert JSONArray to List
         List<String> segmentIdsList = new ArrayList<String>();
         for (int i = 0; i < segmentIds.length(); i++) {
             segmentIdsList.add(segmentIds.optString(i));
         }
-        
+
         // Return whether the two lists share any elements in common
         return (!Collections.disjoint(segmentIdsList, segmentIdsToCheck));
     }
 
     public synchronized void forceSetUserInSegmentId(String segmentId, boolean isInSegment) {
+        // If segment key wasn't found in playlist, playlist segments is null
+        // Initialize it so that we can add dummy values
+        if (currentPlaylist.getSegments() == null) {
+            currentPlaylist.setSegments(new JSONObject());
+        }
+
         try {
             // If true, add it with a dummy value to segments
             if (isInSegment) {

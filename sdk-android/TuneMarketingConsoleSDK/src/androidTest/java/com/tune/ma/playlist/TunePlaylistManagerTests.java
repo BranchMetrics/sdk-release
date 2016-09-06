@@ -133,9 +133,75 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertTrue(playlistManager.isUserInAnySegmentIds(segmentIds));
     }
 
+    // If segments in playlist is empty, should not crash
+    public void testIsUserInEmptySegment() throws Exception {
+        TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_default.json"));
+        playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
+
+        assertFalse(playlistManager.isUserInSegmentId("abc"));
+        assertFalse(playlistManager.isUserInSegmentId("xyz"));
+        assertFalse(playlistManager.isUserInSegmentId(""));
+    }
+
+    // If user passes null or empty params, should not crash
+    public void testIsUserInSegmentWithNullOrEmpty() throws Exception {
+        TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_default.json"));
+        playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
+
+        assertFalse(playlistManager.isUserInSegmentId(""));
+        assertFalse(playlistManager.isUserInSegmentId(null));
+
+        List<String> emptySegmentIds = new ArrayList<String>();
+        emptySegmentIds.add("");
+        emptySegmentIds.add("");
+
+        assertFalse(playlistManager.isUserInAnySegmentIds(emptySegmentIds));
+        assertFalse(playlistManager.isUserInAnySegmentIds(null));
+    }
+
+    // If playlist doesn't contain "segments" key, should not crash
+    public void testIsUserInSegmentWithPlaylistMissingSegments() throws Exception {
+        TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_without_segments.json"));
+        playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
+
+        assertFalse(playlistManager.isUserInSegmentId("abc"));
+        assertFalse(playlistManager.isUserInSegmentId("xyz"));
+        assertFalse(playlistManager.isUserInSegmentId(""));
+        assertFalse(playlistManager.isUserInSegmentId(null));
+
+        // Create a list of segment ids
+        List<String> segmentIds = new ArrayList<String>();
+        segmentIds.add("asdf");
+        segmentIds.add("xyz");
+
+        List<String> emptySegmentIds = new ArrayList<String>();
+        emptySegmentIds.add("");
+        emptySegmentIds.add("");
+
+        assertFalse(playlistManager.isUserInAnySegmentIds(segmentIds));
+        assertFalse(playlistManager.isUserInAnySegmentIds(emptySegmentIds));
+        assertFalse(playlistManager.isUserInAnySegmentIds(null));
+    }
+
     public void testForceSetUserInSegment() {
         TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
         playlistManager.setCurrentPlaylist(playlistWithSegments);
+
+        String segmentId = "localTestSegmentId";
+
+        TuneDebugUtilities.forceSetUserInSegmentId(segmentId, true);
+
+        assertTrue(TuneTestWrapper.getInstance().isUserInSegmentId(segmentId));
+
+        TuneDebugUtilities.forceSetUserInSegmentId(segmentId, false);
+
+        assertFalse(TuneTestWrapper.getInstance().isUserInSegmentId(segmentId));
+    }
+
+    // If playlist doesn't contain "segments" key, we should still be able to force set values
+    public void testForceSetUserInSegmentWithPlaylistMissingSegments() throws Exception {
+        TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_without_segments.json"));
+        playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
 
         String segmentId = "localTestSegmentId";
 

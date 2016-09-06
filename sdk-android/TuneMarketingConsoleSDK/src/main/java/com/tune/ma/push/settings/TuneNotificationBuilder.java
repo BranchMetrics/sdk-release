@@ -3,11 +3,13 @@ package com.tune.ma.push.settings;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
 import com.tune.ma.utils.TuneDebugLog;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,12 +26,18 @@ public class TuneNotificationBuilder {
     private String groupKey;
     private int colorARGB;
     private int visibility;
+    private Uri sound;
+    private long[] vibratePattern;
+    private boolean onlyAlertOnce;
     private boolean isSmallIconSet;
     private boolean isLargeIconSet;
     private boolean isSortKeySet;
     private boolean isGroupKeySet;
     private boolean isColorSet;
     private boolean isVisibilitySet;
+    private boolean isSoundSet;
+    private boolean isVibrateSet;
+    private boolean isOnlyAlertOnceSet;
 
     /**
      * Creates a new TuneNotificationBuilder to pass into {@link com.tune.Tune#setPushNotificationBuilder(com.tune.ma.push.settings.TuneNotificationBuilder)}. <br>
@@ -126,6 +134,51 @@ public class TuneNotificationBuilder {
     }
 
     /**
+     * Sets the sound to use for Tune Push Notifications. <br>
+     * <br>
+     * @param sound Uri to a sound to play for the notification.
+     * @return TuneNotificationBuilder with sound set.
+     */
+    public TuneNotificationBuilder setSound(Uri sound) {
+        isSoundSet = true;
+        this.sound = sound;
+        return this;
+    }
+
+    /**
+     * Sets the vibration pattern for Tune Push Notifications. <br>
+     * <br>
+     * Pass in an array of ints that are the durations for which to turn on or off the vibrator in milliseconds. The first value indicates the number of milliseconds to wait before turning the vibrator on.
+     * The next value indicates the number of milliseconds for which to keep the vibrator on before turning it off.
+     * Subsequent values alternate between durations in milliseconds to turn the vibrator off or to turn the vibrator on.
+     * <br>
+     * Note: This method requires the caller to hold the permission VIBRATE.
+     *
+     * @param pattern vibration pattern to use when Tune push notification is received.
+     * @return TuneNotificationBuilder with vibration pattern set.
+     */
+    public TuneNotificationBuilder setVibrate(long[] pattern) {
+        isVibrateSet = true;
+        this.vibratePattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the only alert once setting for Tune Push Notifications. <br>
+     * <br>
+     * If set to true, then the sound and vibration will not play again while one notification is already showing and another is received.
+     * <br>
+     *
+     * @param onlyAlertOnce Whether sound and vibrate should be played only if the notification is not already showing.
+     * @return TuneNotificationBuilder with alert only once set.
+     */
+    public TuneNotificationBuilder setOnlyAlertOnce(boolean onlyAlertOnce) {
+        isOnlyAlertOnceSet = true;
+        this.onlyAlertOnce = onlyAlertOnce;
+        return this;
+    }
+
+    /**
      * Builds a NotificationCompat.Builder from the provided push notification settings.
      */
     public NotificationCompat.Builder build(Context context) {
@@ -163,11 +216,24 @@ public class TuneNotificationBuilder {
                 TuneDebugLog.e("Cannot set visibility on notification builder. Make sure you have the latest revision of the Android Support Library v4 (22.+)", e);
             }
         }
+
+        if (isSoundSet) {
+            builder.setSound(sound);
+        }
+
+        if (isVibrateSet) {
+            builder.setVibrate(vibratePattern);
+        }
+
+        if (isOnlyAlertOnceSet) {
+            builder.setOnlyAlertOnce(onlyAlertOnce);
+        }
+
         return builder;
     }
 
     public boolean hasCustomization() {
-        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet;
+        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet || isSoundSet || isVibrateSet || isOnlyAlertOnceSet;
     }
 
     private static final String JSON_SMALL_ICON_ID = "smallIconId";
@@ -177,6 +243,9 @@ public class TuneNotificationBuilder {
     private static final String JSON_GROUP_KEY = "groupKey";
     private static final String JSON_COLOR_ARGB = "colorARGB";
     private static final String JSON_VISIBILITY = "visibility";
+    private static final String JSON_SOUND = "sound";
+    private static final String JSON_VIBRATE = "vibrate";
+    private static final String JSON_ONLY_ALERT_ONCE = "onlyAlertOnce";
 
     // TODO: These two methods should not be exposed to the end user.
     public JSONObject toJson() throws JSONException {
@@ -206,6 +275,18 @@ public class TuneNotificationBuilder {
             result.put(JSON_VISIBILITY, visibility);
         }
 
+        if (isSoundSet) {
+            result.put(JSON_SOUND, sound.toString());
+        }
+
+        if (isVibrateSet) {
+            result.put(JSON_VIBRATE, new JSONArray(vibratePattern));
+        }
+
+        if (isOnlyAlertOnceSet) {
+            result.put(JSON_ONLY_ALERT_ONCE, onlyAlertOnce);
+        }
+
         return result;
     }
 
@@ -233,6 +314,24 @@ public class TuneNotificationBuilder {
 
         if (j.has(JSON_VISIBILITY)) {
             result.setVisibility(j.getInt(JSON_VISIBILITY));
+        }
+
+        if (j.has(JSON_SOUND)) {
+            result.setSound(Uri.parse(j.getString(JSON_SOUND)));
+        }
+
+        if (j.has(JSON_VIBRATE)) {
+            // Convert JSONArray to long[]
+            JSONArray patternJson = j.getJSONArray(JSON_VIBRATE);
+            long[] pattern = new long[patternJson.length()];
+            for (int i = 0; i < patternJson.length(); i++) {
+                pattern[i] = patternJson.getLong(i);
+            }
+            result.setVibrate(pattern);
+        }
+
+        if (j.has(JSON_ONLY_ALERT_ONCE)) {
+            result.setOnlyAlertOnce(j.getBoolean(JSON_ONLY_ALERT_ONCE));
         }
 
         return result;

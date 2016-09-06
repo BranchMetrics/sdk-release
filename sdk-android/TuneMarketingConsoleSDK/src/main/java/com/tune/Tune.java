@@ -505,23 +505,48 @@ public class Tune {
     }
 
     /**
-     * Gets the user age set.
-     * @return age
+     * Gets the user age.
+     *
+     * NOTE: this value must be set with {@link Tune#setAge(int)} otherwise this method will return 0.
+     *
+     * @return age, if set. If no value is set this method returns 0.
      */
     public int getAge() {
-        return Integer.parseInt(params.getAge());
+        String ageString = params.getAge();
+        int age = 0;
+        if (ageString != null) {
+            try {
+                age = Integer.parseInt(ageString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing age value " + ageString, e);
+            }
+        }
+
+        return age;
     }
 
     /**
-     * Gets the device altitude. Must be set, not automatically retrieved.
-     * @return device altitude
+     * Gets the device altitude.
+     *
+     * NOTE: this value must be set with {@link Tune#setAltitude(double)} otherwise this method will return 0.
+     *
+     * @return device altitude, if set. If no value is set returns 0.0
      */
     public double getAltitude() {
-        return Double.parseDouble(params.getAltitude());
+        String altitudeString = params.getAltitude();
+        double altitude = 0.0d;
+        if (altitudeString != null) {
+            try {
+                altitude = Double.parseDouble(altitudeString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing altitude value " + altitudeString, e);
+            }
+        }
+        return altitude;
     }
 
     /**
-     * Gets the ANDROID_ID of the device
+     * Gets the ANDROID_ID of the device that was set with {@link Tune#setAndroidId(String)}
      * @return ANDROID_ID
      */
     public String getAndroidId() {
@@ -533,7 +558,16 @@ public class Tune {
      * @return app-level ad tracking enabled or not
      */
     public boolean getAppAdTrackingEnabled() {
-        int adTrackingEnabled = Integer.parseInt(params.getAppAdTrackingEnabled());
+        String appAdTrackingEnabledString = params.getAppAdTrackingEnabled();
+        int adTrackingEnabled = 0;
+        if (appAdTrackingEnabledString != null) {
+            try {
+                adTrackingEnabled = Integer.parseInt(appAdTrackingEnabledString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
+            }
+        }
+
         return (adTrackingEnabled == 1);
     }
 
@@ -550,7 +584,17 @@ public class Tune {
      * @return app version
      */
     public int getAppVersion() {
-        return Integer.parseInt(params.getAppVersion());
+        String appVersionString = params.getAppVersion();
+        int appVersion = 0;
+        if (appVersionString != null) {
+            try {
+                appVersion = Integer.parseInt(appVersionString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing appVersion value " + appVersionString, e);
+            }
+
+        }
+        return appVersion;
     }
 
     /**
@@ -627,14 +671,14 @@ public class Tune {
     }
 
     /**
-     * Gets the user gender set.
+     * Gets the user gender set with {@link Tune#setGender(TuneGender)}.
      * @return gender
      */
     public TuneGender getGender() {
         String gender = params.getGender();
-        if (gender.equals("0")) {
+        if ("0".equals(gender)) {
             return TuneGender.MALE;
-        } else if (gender.equals("1")) {
+        } else if ("1".equals(gender)) {
             return TuneGender.FEMALE;
         } else {
             return TuneGender.UNKNOWN;
@@ -654,8 +698,15 @@ public class Tune {
      * @return whether tracking is limited
      */
     public boolean getGoogleAdTrackingLimited() {
-        int intLimited = Integer.parseInt(params.getGoogleAdTrackingLimited());
-        return intLimited == 0 ? false : true;
+        String googleAdTrackingLimitedString = params.getGoogleAdTrackingLimited();
+        int googleAdTrackingLimited = 0;
+        try {
+            googleAdTrackingLimited = Integer.parseInt(googleAdTrackingLimitedString);
+        } catch (NumberFormatException e) {
+            TuneDebugLog.e(TuneConstants.TAG, "Error parsing googleAdTrackingLimited value " + googleAdTrackingLimitedString, e);
+        }
+
+        return (googleAdTrackingLimited != 0);
     }
 
     /**
@@ -671,7 +722,16 @@ public class Tune {
      * @return date that app was installed, epoch seconds
      */
     public long getInstallDate() {
-        return Long.parseLong(params.getInstallDate());
+        String installDateString = params.getInstallDate();
+        long installDate = 0l;
+        if (installDateString != null) {
+            try {
+                installDate = Long.parseLong(installDateString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing installDate value " + installDateString, e);
+            }
+        }
+        return installDate;
     }
 
     /**
@@ -688,7 +748,7 @@ public class Tune {
      */
     public boolean getIsPayingUser() {
         String isPayingUser = params.getIsPayingUser();
-        return isPayingUser.equals("1");
+        return "1".equals(isPayingUser);
     }
 
     /**
@@ -708,19 +768,43 @@ public class Tune {
     }
 
     /**
-     * Gets the device latitude. Must be set, not automatically retrieved.
+     * Gets the device latitude.
+     *
+     * NOTE: Must be set by {@link Tune#setLatitude(double)}. This value is not automatically retrieved.
      * @return device latitude
      */
     public double getLatitude() {
-        return Double.parseDouble(params.getLatitude());
+        String latitudeString = params.getLatitude();
+        double latitude = 0d;
+        if (latitudeString != null) {
+            try {
+                latitude = Double.parseDouble(latitudeString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing latitude value " + latitudeString, e);
+            }
+        }
+
+        return latitude;
     }
 
     /**
-     * Gets the device longitude. Must be set, not automatically retrieved.
+     * Gets the device longitude.
+     *
+     * NOTE: This value must be set by {@link Tune#setLongitude(double)}. This value is not automatically retrieved.
      * @return device longitude
      */
     public double getLongitude() {
-        return Double.parseDouble(params.getLongitude());
+        String longitudeString = params.getLongitude();
+        double longitude = 0d;
+        if (longitudeString != null) {
+            try {
+                longitude = Double.parseDouble(longitudeString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing longitude value " + longitudeString, e);
+            }
+        }
+
+        return longitude;
     }
 
     /**
@@ -899,7 +983,8 @@ public class Tune {
     }
 
     /**
-     * Sets the user's age.
+     * Sets the user's age. When age is set to a value less than 13 IAM push notifications will not be sent to this device, in order to comply with COPPA.
+     * See https://www.ftc.gov/enforcement/rules/rulemaking-regulatory-reform-proceedings/childrens-online-privacy-protection-rule
      * @param age User age
      */
     public void setAge(final int age) {
@@ -1161,6 +1246,10 @@ public class Tune {
      * @param location the device location
      */
     public void setLocation(final Location location) {
+        if (location == null) {
+            TuneDebugLog.e(TuneConstants.TAG, "Location may not be null");
+            return;
+        }
         pubQueue.execute(new Runnable() { public void run() {
             params.setLocation(new TuneLocation(location));
         }});
@@ -1171,6 +1260,10 @@ public class Tune {
      * @param location the device location as a TuneLocation
      */
     public void setLocation(final TuneLocation location) {
+        if (location == null) {
+            TuneDebugLog.e(TuneConstants.TAG, "Location may not be null");
+            return;
+        }
         pubQueue.execute(new Runnable() {
             @Override
             public void run() {
@@ -1461,7 +1554,7 @@ public class Tune {
      */
     public void setFacebookEventLogging(boolean logging, Context context, boolean limitEventAndDataUsage) {
         fbLogging = logging;
-        if (logging) {
+        if (logging && (context != null)) {
             TuneFBBridge.startLogger(context, limitEventAndDataUsage);
         }
     }
@@ -1688,7 +1781,7 @@ public class Tune {
      *
      * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
      *
-     * Otherwise the callback will fire after {@value TuneConstants.DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
+     * Otherwise the callback will fire after {@value TuneConstants#DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
      *
      * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
      * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
