@@ -34,7 +34,7 @@ static NSString * kConversionWorksDomain = @"Conversionworks.org";
 //private utility functions
 @interface TuneCWorks (Private)
 
-+ (NSString *)TUNE_getMD5:(NSString *) str;
++ (NSString *)TUNE_getMD5:(NSString *)str;
 + (NSMutableDictionary *)TUNE_getDictFromPasteBoard:(id)pboard;
 + (void)TUNE_setDict:(id)dict forPasteboard:(id)pboard;
 

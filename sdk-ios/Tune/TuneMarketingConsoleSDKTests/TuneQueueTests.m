@@ -12,6 +12,7 @@
 #import "TuneEvent+Internal.h"
 #import "TuneEventQueue+Testing.h"
 #import "TuneKeyStrings.h"
+#import "TuneNetworkUtils.h"
 #import "TuneReachability.h"
 #import "TuneRequestsQueue.h"
 #import "TuneTestParams.h"
@@ -21,6 +22,10 @@
 #import "TuneSkyhookCenter+Testing.h"
 
 #import "TuneXCTestCase.h"
+
+#import <OCMock/OCMock.h>
+
+static BOOL forcedNetworkStatus;
 
 @interface TuneQueueTests : TuneXCTestCase <TuneDelegate> {
     NSNumber *callSuccess;
@@ -34,6 +39,8 @@
     TuneTestParams *params2;
     
     BOOL finished;
+    
+    id classMockTuneNetworkUtils;
 }
 @end
 
@@ -60,10 +67,16 @@
     successMessages = [NSMutableArray array];
     
     params = [TuneTestParams new];
+    
+    forcedNetworkStatus = YES;
+    classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
 }
 
 - (void)tearDown {
-    networkOnline();
+    [classMockTuneNetworkUtils stopMocking];
     
     finished = NO;
     
@@ -112,12 +125,12 @@
 #pragma mark - Automatic queueing
 
 - (void)testOfflineFailureQueued {
-    networkOffline();
-    XCTAssertFalse( [TuneUtils isNetworkReachable], @"connection status should be not reachable" );
+    forcedNetworkStatus = NO;
+    XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
     [Tune measureSession];
     
     waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
-    XCTAssertFalse( [TuneUtils isNetworkReachable], @"connection status should be not reachable" );
+    XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
     
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     XCTAssertNil( callSuccess, @"offline call should not have received a success notification" );
@@ -126,14 +139,14 @@
 
 - (void)testOfflineFailureQueuedRetried {
     [Tune setAllowDuplicateRequests:YES];
-    networkOffline();
+    forcedNetworkStatus = NO;
     [Tune measureEventName:@"registration"];
     
     waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     
     finished = NO;
-    networkOnline();
+    forcedNetworkStatus = YES;
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished ); // wait for server response
 
@@ -146,7 +159,7 @@
 }
 
 - (void)testEnqueue2 {
-    networkOffline();
+    forcedNetworkStatus = NO;
     [Tune measureSession];
     waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
@@ -161,7 +174,7 @@
     [Tune setAllowDuplicateRequests:YES];
     [Tune setDebugMode:NO];
     
-    networkOffline();
+    forcedNetworkStatus = NO;
     [Tune measureSession];
     waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
 
@@ -173,7 +186,7 @@
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
     XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests" );
-    networkOnline();
+    forcedNetworkStatus = YES;
 
 //    [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
 //    waitFor( 5. );
@@ -202,14 +215,14 @@
 #if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain "site_event_name" param
     [Tune setDebugMode:YES];
 
-    networkOffline();
+    forcedNetworkStatus = NO;
     [Tune measureEventName:@"event1"];
     [Tune measureEventName:@"event2"];
     waitFor( 1. );
     
     XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests" );
     
-    networkOnline();
+    forcedNetworkStatus = YES;
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
     // wait for event1
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
@@ -233,7 +246,7 @@
 
 - (void)testSessionQueue {
     [Tune setAllowDuplicateRequests:YES];
-    networkOnline();
+    forcedNetworkStatus = YES;
     
 #if !TARGET_OS_TV
     [Tune setDebugMode:YES];
@@ -257,7 +270,7 @@
 
 - (void)testSessionQueueOrder {
     [Tune setAllowDuplicateRequests:YES];
-    networkOnline();
+    forcedNetworkStatus = YES;
     
     params2 = [TuneTestParams new];
 
@@ -293,7 +306,7 @@
 }
 
 - (void)testNoDuplicateParamsInRetriedRequest {
-    networkOnline();
+    forcedNetworkStatus = YES;
     
     [TuneEventQueue setForceNetworkError:YES code:500];
     
@@ -336,7 +349,7 @@
 }
 
 - (void)testRetryCount {
-    networkOnline();
+    forcedNetworkStatus = YES;
     
     [TuneEventQueue setForceNetworkError:YES code:500];
     

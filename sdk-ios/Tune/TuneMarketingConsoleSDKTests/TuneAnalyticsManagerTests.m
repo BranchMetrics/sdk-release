@@ -31,7 +31,6 @@
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneState.h"
 #import "TuneUserDefaultsUtils.h"
-#import "TuneUtils+Testing.h"
 #import "TuneXCTestCase.h"
 
 @interface TuneAnalyticsManagerTests : TuneXCTestCase {
@@ -443,11 +442,11 @@
 
 #pragma mark - Helpers
 
-- (void)addedDispatchOperation:(NSOperation *) operation {
+- (void)addedDispatchOperation:(NSOperation *)operation {
     ++dispatchCount;
 }
 
-- (void)addedConnectedDispatchOperation:(NSOperation *) operation {
+- (void)addedConnectedDispatchOperation:(NSOperation *)operation {
     ++connectedModeDispatchCount;
 }
 

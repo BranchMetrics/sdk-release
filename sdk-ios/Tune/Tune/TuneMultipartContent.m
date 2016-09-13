@@ -7,6 +7,7 @@
 //
 
 #import "TuneMultipartContent.h"
+#import "TuneHttpRequest.h"
 
 NSString *const TuneMultipartContentDispositionFormData = @"form-data";
 
@@ -52,16 +53,16 @@ NSString *const TuneMultipartContentDispositionFormData = @"form-data";
 - (NSString *)contentDispositionString {
 
     if (self.shouldAddData) {
-        return [NSString stringWithFormat:@"Content-Disposition: %@; name=\"%@\"; filename=\"%@\"\r\n", self.disposition, self.contentName, self.fileName];
+        return [NSString stringWithFormat:@"%@: %@; name=\"%@\"; filename=\"%@\"\r\n", TuneHttpRequestHeaderContentDisposition, self.disposition, self.contentName, self.fileName];
     } else {
-        return [NSString stringWithFormat:@"Content-Disposition: %@; name=\"%@\";\r\n", self.disposition, self.contentName];
+        return [NSString stringWithFormat:@"%@: %@; name=\"%@\";\r\n", TuneHttpRequestHeaderContentDisposition, self.disposition, self.contentName];
     }
 }
 - (NSString *)contentTypeString {
-    return [NSString stringWithFormat:@"Content-Type: %@\r\n", self.contentType];
+    return [NSString stringWithFormat:@"%@: %@\r\n", TuneHttpRequestHeaderContentType, self.contentType];
 }
 - (NSString *)contentEncodingString {
-    return [NSString stringWithFormat:@"Content-Transfer-Encoding: %@\r\n", self.encoding];
+    return [NSString stringWithFormat:@"%@: %@\r\n", TuneHttpRequestHeaderContentTransferEncoding, self.encoding];
 }
 - (NSString *)contentValueString {
     return [NSString stringWithFormat:@"\r\n%@\r\n", self.contentValue];

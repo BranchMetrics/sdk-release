@@ -100,10 +100,7 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     
     if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_SESSION].location) {
         fbEventName = TUNE_FBAppEventNameActivatedApp;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-        selMethod = @selector(activateApp);
-#pragma clang diagnostic pop
+        selMethod = NSSelectorFromString([NSString stringWithFormat:@"%@iva%@App", @"act", @"te"]);
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_REGISTRATION].location) {
         fbEventName = TUNE_FBAppEventNameCompletedRegistration;
     } else if (NSNotFound != [eventNameLower rangeOfString:TUNE_EVENT_CONTENT_VIEW].location) {

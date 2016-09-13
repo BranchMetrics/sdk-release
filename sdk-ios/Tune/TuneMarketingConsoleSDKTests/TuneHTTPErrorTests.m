@@ -7,12 +7,16 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TuneEventQueue+Testing.h"
-#import "TuneKeyStrings.h"
-#import "TuneTracker.h"
+
 #import "Tune+Testing.h"
+#import "TuneEventQueue+Testing.h"
 #import "TuneHttpUtils.h"
+#import "TuneKeyStrings.h"
+#import "TuneNetworkUtils.h"
+#import "TuneTracker.h"
 #import "TuneXCTestCase.h"
+
+#import <OCMock/OCMock.h>
 
 @interface TuneHTTPErrorTests : TuneXCTestCase
 {
@@ -86,7 +90,11 @@
  */
 
 - (void)test500Retry {
-    networkOnline();
+    __block BOOL forcedNetworkStatus = YES;
+    id classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
     
 #if !TARGET_OS_TV
     [Tune setDebugMode:YES];
@@ -100,6 +108,8 @@
     waitFor( .1 );
     
     [self checkAndClearExpectedQueueSize:1];
+    
+    [classMockTuneNetworkUtils stopMocking];
 }
 
 //- (void)test500RetryCount {

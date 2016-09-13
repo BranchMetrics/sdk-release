@@ -9,12 +9,12 @@
 #import <Foundation/Foundation.h>
 
 #import <XCTest/XCTest.h>
-#import "TuneUtils+Testing.h"
-#import "TuneUserProfile.h"
-#import "TuneModule.h"
+
 #import "TuneCWorks.h"
-#import "Tunemanager.h"
+#import "TuneManager.h"
+#import "TuneModule.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneUserProfile.h"
 #import "TuneXCTestCase.h"
 
 @interface TuneUserDefaultsUtilsTests : TuneXCTestCase

@@ -13,15 +13,16 @@
 #import "Tune+Testing.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsVariable.h"
+#import "TuneEvent+Internal.h"
 #import "TuneEventKeys.h"
 #import "TuneKeyStrings.h"
+#import "TuneManager.h"
+#import "TuneNetworkUtils.h"
 #import "TuneTestParams.h"
 #import "TuneTracker.h"
-#import "TuneEventKeys.h"
-#import "TuneAnalyticsEvent.h"
-#import "TuneManager.h"
-#import "TuneEvent+Internal.h"
 #import "TuneXCTestCase.h"
+
+#import <OCMock/OCMock.h>
 
 @interface TuneEventTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
@@ -29,6 +30,8 @@
     BOOL finished;
     BOOL failed;
     TuneErrorCode tuneErrorCode;
+    
+    id classMockTuneNetworkUtils;
 }
 
 @end
@@ -51,11 +54,18 @@
     
     params = [TuneTestParams new];
     
-    networkOnline();
+    __block BOOL forcedNetworkStatus = YES;
+    classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
 }
 
 - (void)tearDown {
+    [classMockTuneNetworkUtils stopMocking];
+    
     emptyRequestQueue();
+    
     [super tearDown];
 }
 

@@ -31,7 +31,7 @@ NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
 #import <WatchKit/WatchKit.h>
 #endif
 
-TuneReachability *reachability;
+
 
 NSMutableArray *alertTitles;
 NSMutableArray *alertMessages;
@@ -44,11 +44,6 @@ BOOL isAlertVisible;
 @implementation TuneUtils
 
 +(void)initialize {
-#if !TARGET_OS_WATCH
-    reachability = [TuneReachability reachabilityForInternetConnection];
-    [reachability startNotifier];
-#endif
-    
     alertTitles = [NSMutableArray array];
     alertMessages = [NSMutableArray array];
     alertCompletionBlocks = [NSMutableArray array];
@@ -237,41 +232,32 @@ BOOL isAlertVisible;
 }
 
 + (NSDate *)installDate {
-    // Determine install date from app bundle
+    NSDate *date = nil;
+    NSDictionary *appAttrs = nil;
+    
+    // Use NSDocumentDirectory / NSCachesDirectory folder creation date as the app install date because this value persists across updates
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *bundlePath = [[TuneUtils currentBundle] bundlePath];
-    NSDictionary *appAttrs = [fileManager attributesOfItemAtPath:bundlePath error:nil];
-    return appAttrs[NSFileCreationDate];
-}
-
-#if !TARGET_OS_WATCH
-+ (TuneNetworkStatus)networkReachabilityStatus {
-    TuneNetworkStatus stat = [reachability currentReachabilityStatus];
+    NSSearchPathDirectory targetFolder = NSDocumentDirectory;
+#if TARGET_OS_TV // || TARGET_OS_WATCH
+    targetFolder = NSCachesDirectory;
+#endif
     
-#if TESTING
-    if(nil != overrideNetworkStatus) {
-        stat = [overrideNetworkStatus boolValue] ? TuneReachableViaWiFi : TuneNotReachable;
+    @try {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(targetFolder, NSUserDomainMask, YES);
+        NSString *path = nil;
+        if (paths.count > 0) {
+            path = [paths objectAtIndex:0];
+        } else {
+            DebugLog(@"NSDocumentDirectory / NSCachesDirectory not found, falling back to NSBundle creation date.");
+            path = [[TuneUtils currentBundle] bundlePath];
+        }
+        appAttrs = [fileManager attributesOfItemAtPath:path error:nil];
+        date = appAttrs[NSFileCreationDate];
+    } @catch (NSException *exception) {
+        ErrorLog(@"An exception occurred while trying to extract folder creation date. Exception: %@", exception);
     }
-#endif
     
-    return stat;
-}
-#endif
-
-+ (BOOL)isNetworkReachable {
-    BOOL reachable = 
-#if TARGET_OS_WATCH
-    YES;
-#else
-    TuneNotReachable != [self networkReachabilityStatus];
-    
-#if TESTING
-    reachable = overrideNetworkStatus ? [overrideNetworkStatus boolValue] : TuneNotReachable != [reachability currentReachabilityStatus];
-#endif
-#endif
-    DebugLog(@"TuneUtils: isNetworkReachable: status = %d", reachable);
-    
-    return reachable;
+    return date;
 }
 
 /*!
@@ -758,21 +744,12 @@ BOOL isAlertVisible;
 #endif
 }
 
+
 #pragma mark - NSObject Helpers
 
 + (BOOL)object:(id)receiver respondsToSelector:(SEL)aSelector {
     return [receiver respondsToSelector:aSelector];
 }
 
-#pragma mark - Testing Helpers
-
-#if TESTING
-NSString *overrideNetworkStatus;
-
-+ (void)overrideNetworkReachability:(NSString *)reachable {
-    overrideNetworkStatus = reachable;
-}
-
-#endif
 
 @end

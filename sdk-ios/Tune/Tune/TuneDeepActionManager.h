@@ -14,4 +14,6 @@
 
 - (NSArray *)getDeepActions;
 
+- (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data;
+
 @end

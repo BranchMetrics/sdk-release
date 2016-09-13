@@ -37,4 +37,4 @@ typedef NS_ENUM(NSInteger, TuneGender)
 
 #endif /* TuneConstants_h */
 
-extern NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;
+FOUNDATION_EXPORT NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;

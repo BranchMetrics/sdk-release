@@ -10,6 +10,7 @@
 #import "TuneAnalyticsDispatchEventsOperation.h"
 #import "TuneManager.h"
 #import "TuneConfiguration.h"
+#import "TuneHttpRequest.h"
 #import "TuneUserProfile.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsManager.h"
@@ -105,11 +106,11 @@
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    [request setHTTPMethod:@"POST"];
+    [request setHTTPMethod:TuneHttpRequestMethodTypePost];
     [request setHTTPBody:zippedPostPayload];
-    [request setValue:contentType forHTTPHeaderField: @"Content-Type"];
-    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-    [request setValue:requestDataLengthString forHTTPHeaderField:@"Content-Length"];
+    [request setValue:contentType forHTTPHeaderField:TuneHttpRequestHeaderContentType];
+    [request setValue:@"gzip" forHTTPHeaderField:TuneHttpRequestHeaderContentEncoding];
+    [request setValue:requestDataLengthString forHTTPHeaderField:TuneHttpRequestHeaderContentLength];
     [request setTimeoutInterval:[timeoutInterval doubleValue]];
     [TuneHttpUtils addIdentifyingHeaders:request];
     
@@ -133,8 +134,8 @@
     
     // wrap the zipped data in a file boundary for multi-part transmission
     [compressedData appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    [compressedData appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"analytics.gzip\"\r\n", @"analytics"] dataUsingEncoding:NSUTF8StringEncoding]];
-    [compressedData appendData:[@"Content-Type: application/gzip\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [compressedData appendData:[[NSString stringWithFormat:@"%@: form-data; name=\"%@\"; filename=\"analytics.gzip\"\r\n", TuneHttpRequestHeaderContentDisposition, @"analytics"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [compressedData appendData:[[NSString stringWithFormat:@"%@: application/gzip\r\n\r\n", TuneHttpRequestHeaderContentType] dataUsingEncoding:NSUTF8StringEncoding]];
     [compressedData appendData:zippedData];
     [compressedData appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
     [compressedData appendData:[[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];

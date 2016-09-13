@@ -11,7 +11,7 @@
 
 @protocol TuneConfigurationDelegate;
 
-extern NSString *const TuneConfigurationPreviewModeKey;
+FOUNDATION_EXPORT NSString *const TuneConfigurationPreviewModeKey;
 
 @interface TuneConfiguration : TuneModule
 

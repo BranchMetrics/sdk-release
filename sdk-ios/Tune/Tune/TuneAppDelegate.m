@@ -90,7 +90,7 @@ BOOL swizzleSuccess = NO;
         
         // Commence swizzling!
         
-        // NOTE: We are building this selector through concatination since Apple does a static code analysis to see
+        // NOTE: We are building this selector through concatenation since Apple does a static code analysis to see
         //        if this selector exists. If it does, Apple will then send out a warning email if push is not enabled.
         //        Since we only swizzle as an opt-in for explicitly handling push messages, we felt it was appropriate
         //        to not trigger the warning email through this selector.
@@ -238,7 +238,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo {
     InfoLog(@"application:didReceiveRemoteNotification: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
+    [TuneAppDelegate handleReceivedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -253,7 +253,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     InfoLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
+    [TuneAppDelegate handleReceivedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -270,7 +270,7 @@ BOOL swizzleSuccess = NO;
 + (void)userNotificationCenter:(UNUserNotificationCenter *)center tune_didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
     InfoLog(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:response.notification.request.content.userInfo
+    [TuneAppDelegate handleReceivedMessage:response.notification.request.content.userInfo
                                application:[UIApplication sharedApplication]
                                 identifier:response.actionIdentifier];
     
@@ -413,11 +413,11 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - Helper functions
 
-+ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
-    [self handleRecievedMessage:userInfo application:application identifier:nil];
++ (void)handleReceivedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
+    [self handleReceivedMessage:userInfo application:application identifier:nil];
 }
 
-+ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application identifier:(NSString *)identifier {
++ (void)handleReceivedMessage:(NSDictionary *)userInfo application:(UIApplication *)application identifier:(NSString *)identifier {
     TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo.copy withIdentifier:identifier];
     
     if (tuneNotification) {

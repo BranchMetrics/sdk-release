@@ -555,6 +555,9 @@ static TuneTracker *_sharedManager = nil;
                                                                    andAction:deepAction];
 }
 
++ (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data {
+    [[TuneManager currentManager].deepActionManager executeDeepActionWithId:deepActionId andData:data];
+}
 
 #pragma mark - Push Notifications API
 

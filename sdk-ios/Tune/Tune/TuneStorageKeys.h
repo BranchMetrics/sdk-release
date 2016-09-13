@@ -8,12 +8,12 @@
 
 #pragma mark - NSUserDefaults
 
-extern NSString *const TuneViewedCampaignsKey;
-extern NSString *const TMASwizzleDisabled;
-extern NSString *const TMAStateDisabled;
-extern NSString *const TMAStatePermanentlyDisabled;
+FOUNDATION_EXPORT NSString *const TuneViewedCampaignsKey;
+FOUNDATION_EXPORT NSString *const TMASwizzleDisabled;
+FOUNDATION_EXPORT NSString *const TMAStateDisabled;
+FOUNDATION_EXPORT NSString *const TMAStatePermanentlyDisabled;
 
 #pragma mark - Local Configration (TuneConfiguration.plist)
 
-extern NSString *const TurnOnTMA;
-extern NSString *const TMASendScreenViews;
+FOUNDATION_EXPORT NSString *const TurnOnTMA;
+FOUNDATION_EXPORT NSString *const TMASendScreenViews;

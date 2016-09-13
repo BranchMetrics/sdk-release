@@ -7,6 +7,7 @@
 //
 
 #import "TuneHttpUtils.h"
+#import "TuneHttpRequest.h"
 #import "TuneManager.h"
 #import "TuneUserProfile.h"
 #import "TuneConfiguration.h"
@@ -25,7 +26,7 @@
         [urlString appendString:action];
         
         // TODO: validate incoming method parameter
-        method = method ?: @"GET";
+        method = method ?: TuneHttpRequestMethodTypeGet;
         
         if(data) {
             NSInteger location = [action rangeOfString:@"?"].location;

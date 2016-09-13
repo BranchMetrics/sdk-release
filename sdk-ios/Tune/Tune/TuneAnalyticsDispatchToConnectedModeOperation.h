@@ -18,6 +18,6 @@
     TuneAnalyticsEvent *event;
 }
 
-- (id)initWithTuneManager:(TuneManager *)manager event:(TuneAnalyticsEvent *) eventToSend;
+- (id)initWithTuneManager:(TuneManager *)manager event:(TuneAnalyticsEvent *)eventToSend;
 
 @end

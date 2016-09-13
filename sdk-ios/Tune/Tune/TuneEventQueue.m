@@ -12,10 +12,12 @@
 #import "TuneEncrypter.h"
 #import "TuneFileUtils.h"
 #import "TuneHttpUtils.h"
+#import "TuneHttpRequest.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneLocationHelper.h"
 #import "TuneManager.h"
+#import "TuneNetworkUtils.h"
 #import "TuneReachability.h"
 #import "TuneRequestsQueue.h"
 #import "TuneStringUtils.h"
@@ -428,7 +430,7 @@ static TuneEventQueue *sharedQueue = nil;
  Fires each enqueued event until the queue is emptied. Fires the next event only when the previous event request has finished.
  */
 - (void)dumpQueue {
-    if( ![TuneUtils isNetworkReachable] ) return;
+    if( ![TuneNetworkUtils isNetworkReachable] ) return;
     
     [requestOpQueue addOperationWithBlock:^{
         // get first request
@@ -473,12 +475,12 @@ static TuneEventQueue *sharedQueue = nil;
 #if TESTING
         // These calls require the URL to be a GET
         if ([fullRequestString rangeOfString:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode"].location != NSNotFound) {
-            [urlReq setHTTPMethod:@"GET"];
+            [urlReq setHTTPMethod:TuneHttpRequestMethodTypeGet];
         } else {
-            [urlReq setHTTPMethod:TUNE_HTTP_METHOD_POST];
+            [urlReq setHTTPMethod:TuneHttpRequestMethodTypePost];
         }
 #else
-        [urlReq setHTTPMethod:TUNE_HTTP_METHOD_POST];
+        [urlReq setHTTPMethod:TuneHttpRequestMethodTypePost];
 #endif
         [urlReq setValue:TUNE_HTTP_CONTENT_TYPE_APPLICATION_JSON forHTTPHeaderField:TUNE_HTTP_CONTENT_TYPE];
         [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)post.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];

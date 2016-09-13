@@ -39,7 +39,7 @@
 {
 }
 
-+ (NSString *)TUNE_getMD5:(NSString *) str;
++ (NSString *)TUNE_getMD5:(NSString *)str;
 
 + (NSDictionary*) TUNE_getClicks:(NSString*) appID;
 + (NSDictionary*) TUNE_getImpressions:(NSString*) appID;

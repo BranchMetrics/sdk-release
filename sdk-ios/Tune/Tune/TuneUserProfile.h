@@ -48,7 +48,7 @@
 - (void) registerVersion:(NSString *)variableName;
 
 - (void) registerString:(NSString *)variableName withDefault:(NSString *)value;
-- (void) registerString:(NSString *)variableName withDefault:(NSString *) value hashed:(BOOL)shouldAutoHash;
+- (void) registerString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldAutoHash;
 - (void) registerBoolean:(NSString *)variableName withDefault:(NSNumber *)value;
 - (void) registerDateTime:(NSString *)variableName withDefault:(NSDate *)value;
 - (void) registerNumber:(NSString *)variableName withDefault:(NSNumber *)value;

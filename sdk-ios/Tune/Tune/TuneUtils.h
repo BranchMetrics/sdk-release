@@ -17,8 +17,6 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
-#import "TuneReachability.h"
-
 @interface TuneUtils : NSObject
 
 #if TARGET_OS_IOS
@@ -39,12 +37,6 @@
 + (nonnull NSString *)stringVersion;
 
 + (nonnull NSDate *)installDate;
-
-+ (BOOL)isNetworkReachable;
-
-#if !TARGET_OS_WATCH
-+ (TuneNetworkStatus)networkReachabilityStatus;
-#endif
 
 + (nullable NSString*)getStringForKey:(nonnull NSString*)key fromPasteBoard:(nonnull NSString *)pasteBoardName;
 

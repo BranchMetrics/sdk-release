@@ -65,10 +65,10 @@ typedef enum { TuneAnalyticsVariableHashNone,
 - (NSDictionary *) toDictionary;
 - (NSArray *) toArrayOfDicts;
 
-+ (NSString *) dataTypeToString:(TuneAnalyticsVariableDataType) dataType;
-+ (TuneAnalyticsVariableDataType) stringToDataType:(NSString *) dataTypeString;
++ (NSString *) dataTypeToString:(TuneAnalyticsVariableDataType)dataType;
++ (TuneAnalyticsVariableDataType) stringToDataType:(NSString *)dataTypeString;
 
-+ (NSString *) hashTypeToString:(TuneAnalyticsVariableHashType) hashType;
-+ (TuneAnalyticsVariableHashType) stringToHashType:(NSString *) hashTypeString;
++ (NSString *) hashTypeToString:(TuneAnalyticsVariableHashType)hashType;
++ (TuneAnalyticsVariableHashType) stringToHashType:(NSString *)hashTypeString;
 
 @end

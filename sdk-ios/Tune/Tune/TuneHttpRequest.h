@@ -20,31 +20,34 @@
  TuneApi.
  */
 
-extern NSString *const TuneHttpRequestMethodTypeGet;
-extern NSString *const TuneHttpRequestMethodTypePost;
-extern NSString *const TuneHttpRequestMethodTypeHead;
-extern NSString *const TuneHttpRequestMethodTypePut;
-extern NSString *const TuneHttpRequestMethodTypeDelete;
-extern NSString *const TuneHttpRequestMethodTypeTrace;
-extern NSString *const TuneHttpRequestMethodTypeOptions;
-extern NSString *const TuneHttpRequestMethodTypeConnect;
-extern NSString *const TuneHttpRequestMethodTypePatch;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeGet;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypePost;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeHead;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypePut;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeDelete;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeTrace;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeOptions;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypeConnect;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestMethodTypePatch;
 
-extern NSString *const TuneHttpRequestHeaderPList;
-extern NSString *const TuneHttpRequestHeaderJSON;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderPList;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderJSON;
 
-extern NSString *const TuneHttpRequestHeaderContentTypeApplicationUrlEncoded;
-extern NSString *const TuneHttpRequestHeaderContentType;
-extern NSString *const TuneHttpRequestHeaderContentLength;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentTypeApplicationUrlEncoded;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentDisposition;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentEncoding;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentType;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentLength;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderContentTransferEncoding;
 
-extern NSString *const TuneHttpRequestHeaderAccept;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderAccept;
 
-extern NSString *const TuneHttpRequestHeaderDeviceID;
-extern NSString *const TuneHttpRequestHeaderAppID;
-extern NSString *const TuneHttpRequestHeaderSdkVersion;
-extern NSString *const TuneHttpRequestHeaderAppVersion;
-extern NSString *const TuneHttpRequestHeaderOsVersion;
-extern NSString *const TuneHttpRequestHeaderOsType;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderDeviceID;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderAppID;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderSdkVersion;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderAppVersion;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderOsVersion;
+FOUNDATION_EXPORT NSString *const TuneHttpRequestHeaderOsType;
 
 @class TuneHttpResponse;
 @class TuneManager;
