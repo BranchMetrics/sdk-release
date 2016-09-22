@@ -117,13 +117,11 @@ BOOL swizzleSuccess = NO;
                                      withOurs:@selector(application:tune_handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
                                           for:delegateClass];
         
-#if IDE_XCODE_8_OR_HIGHER
         if([TuneDeviceDetails appIsRunningIniOS10OrAfter]) {
-            [TuneAppDelegate swizzleTheirSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)
+            [TuneAppDelegate swizzleTheirSelector:NSSelectorFromString(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:")
                                          withOurs:@selector(userNotificationCenter:tune_didReceiveNotificationResponse:withCompletionHandler:)
                                               for:userNotificationDelegateClass];
         }
-#endif
 #endif
         [TuneAppDelegate swizzleTheirSelector:@selector(application:handleOpenURL:)
                                      withOurs:@selector(application:tune_handleOpenURL:)
@@ -265,14 +263,22 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - UNUserNotificationCenter Methods
 
-#if IDE_XCODE_8_OR_HIGHER
-
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center tune_didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
++ (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
     InfoLog(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleReceivedMessage:response.notification.request.content.userInfo
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    
+    SEL selNotification = NSSelectorFromString(@"notification");
+    SEL selRequest = NSSelectorFromString(@"request");
+    SEL selContent = NSSelectorFromString(@"content");
+    SEL selUserInfo = NSSelectorFromString(@"userInfo");
+    SEL selActionIdentifier = NSSelectorFromString(@"actionIdentifier");
+    
+    [TuneAppDelegate handleReceivedMessage:[[[[response performSelector:selNotification] performSelector:selRequest] performSelector:selContent] performSelector:selUserInfo]
                                application:[UIApplication sharedApplication]
-                                identifier:response.actionIdentifier];
+                                identifier:[response performSelector:selActionIdentifier]];
+#pragma clang diagnostic pop
     
     if (swizzleSuccess) {
 #if TESTING
@@ -282,7 +288,6 @@ BOOL swizzleSuccess = NO;
     }
 }
 
-#endif
 
 #pragma mark -
 

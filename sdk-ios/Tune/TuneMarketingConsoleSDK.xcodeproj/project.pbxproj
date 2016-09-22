@@ -111,8 +111,6 @@
 		3263C31E1D516B3B0035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
 		3263C31F1D516B590035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
 		3263C3201D516B5A0035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
-		3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */ = {isa = PBXBuildFile; fileRef = 3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */; };
-		3277D3811D78A628006A57DB /* TunePlaylistMissingSegmentTests.json in Resources */ = {isa = PBXBuildFile; fileRef = 3277D3801D78A628006A57DB /* TunePlaylistMissingSegmentTests.json */; };
 		32AC66AD1BA8F38E0069B549 /* TuneAppDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AC1BA8F38E0069B549 /* TuneAppDelegateTests.m */; };
 		32AC66B01BA8F39E0069B549 /* TuneBlankAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */; };
 		32B9A4301BBB3703006E3D4F /* TuneDeeplink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9A42C1BBB3703006E3D4F /* TuneDeeplink.h */; };
@@ -3049,7 +3047,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Tune;
 				TargetAttributes = {
 					0B3389C61BB32D2C00405AFD = {
@@ -3069,6 +3067,7 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = MN489GLUZK;
 						DevelopmentTeamName = "TUNE, Inc.";
+						ProvisioningStyle = Automatic;
 					};
 					F8868EF71C0FC385007E2F9C = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -3079,6 +3078,7 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = MN489GLUZK;
 						DevelopmentTeamName = "TUNE, Inc.";
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -3112,8 +3112,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BCB59AD1B65F864005216E2 /* InfoPlist.strings in Resources */,
-				3277D3811D78A628006A57DB /* TunePlaylistMissingSegmentTests.json in Resources */,
-				3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4049,8 +4047,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4101,8 +4101,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4324,8 +4326,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4503,6 +4507,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4586,6 +4591,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4620,6 +4626,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4659,6 +4666,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -4779,6 +4787,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4814,6 +4823,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
