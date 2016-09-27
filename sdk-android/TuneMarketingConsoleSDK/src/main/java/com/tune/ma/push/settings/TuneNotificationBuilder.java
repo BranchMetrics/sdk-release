@@ -38,6 +38,8 @@ public class TuneNotificationBuilder {
     private boolean isSoundSet;
     private boolean isVibrateSet;
     private boolean isOnlyAlertOnceSet;
+    private boolean isNoSoundSet;
+    private boolean isNoVibrateSet;
 
     /**
      * Creates a new TuneNotificationBuilder to pass into {@link com.tune.Tune#setPushNotificationBuilder(com.tune.ma.push.settings.TuneNotificationBuilder)}. <br>
@@ -141,6 +143,7 @@ public class TuneNotificationBuilder {
      */
     public TuneNotificationBuilder setSound(Uri sound) {
         isSoundSet = true;
+        isNoSoundSet = false;
         this.sound = sound;
         return this;
     }
@@ -159,6 +162,7 @@ public class TuneNotificationBuilder {
      */
     public TuneNotificationBuilder setVibrate(long[] pattern) {
         isVibrateSet = true;
+        isNoVibrateSet = false;
         this.vibratePattern = pattern;
         return this;
     }
@@ -175,6 +179,34 @@ public class TuneNotificationBuilder {
     public TuneNotificationBuilder setOnlyAlertOnce(boolean onlyAlertOnce) {
         isOnlyAlertOnceSet = true;
         this.onlyAlertOnce = onlyAlertOnce;
+        return this;
+    }
+
+    /**
+     * Sets that no sound should be played for Tune Push Notifications. <br>
+     * <br>
+     * If set, notifications will not be accompanied with any sound, not even default system sounds.
+     * <br>
+     * @return TuneNotificationBuilder with no sound set.
+     */
+    public TuneNotificationBuilder setNoSound() {
+        isNoSoundSet = true;
+        isSoundSet = false;
+        this.sound = null;
+        return this;
+    }
+
+    /**
+     * Sets that no vibrate pattern should be played for Tune Push Notifications. <br>
+     * br>
+     * If set, notifications will not be accompanied with any vibration, not even default system vibration.
+     * <br>
+     * @return TuneNotificationBuilder with no vibrate pattern set.
+     */
+    public TuneNotificationBuilder setNoVibrate() {
+        isNoVibrateSet = true;
+        isVibrateSet = false;
+        this.vibratePattern = null;
         return this;
     }
 
@@ -232,8 +264,44 @@ public class TuneNotificationBuilder {
         return builder;
     }
 
+    /**
+     * Returns whether the TuneNotificationBuilder has any customized fields.
+     * @return whether TuneNotificationBuilder has any customized fields
+     */
     public boolean hasCustomization() {
-        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet || isSoundSet || isVibrateSet || isOnlyAlertOnceSet;
+        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet || isSoundSet || isVibrateSet || isOnlyAlertOnceSet || isNoSoundSet || isNoVibrateSet;
+    }
+
+    /**
+     * Returns whether the TuneNotificationBuilder has a custom sound set
+     * @return whether TuneNotificationBuilder has a custom sound set
+     */
+    public boolean isSoundSet() {
+        return isSoundSet;
+    }
+
+    /**
+     * Returns whether the TuneNotificationBuilder has a custom vibrate pattern set
+     * @return whether TuneNotificationBuilder has a custom vibrate pattern set
+     */
+    public boolean isVibrateSet() {
+        return isVibrateSet;
+    }
+
+    /**
+     * Returns whether the TuneNotificationBuilder should explicitly not play any sounds
+     * @return whether TuneNotificationBuilder has "no-sound" set
+     */
+    public boolean isNoSoundSet() {
+        return isNoSoundSet;
+    }
+
+    /**
+     * Returns whether the TuneNotificationBuilder should explicitly not play any vibration
+     * @return whether TuneNotificationBuilder has "no-vibrate" set
+     */
+    public boolean isNoVibrateSet() {
+        return isNoVibrateSet;
     }
 
     private static final String JSON_SMALL_ICON_ID = "smallIconId";
@@ -245,6 +313,8 @@ public class TuneNotificationBuilder {
     private static final String JSON_VISIBILITY = "visibility";
     private static final String JSON_SOUND = "sound";
     private static final String JSON_VIBRATE = "vibrate";
+    private static final String JSON_NO_SOUND = "noSound";
+    private static final String JSON_NO_VIBRATE = "noVibrate";
     private static final String JSON_ONLY_ALERT_ONCE = "onlyAlertOnce";
 
     // TODO: These two methods should not be exposed to the end user.
@@ -285,6 +355,14 @@ public class TuneNotificationBuilder {
 
         if (isOnlyAlertOnceSet) {
             result.put(JSON_ONLY_ALERT_ONCE, onlyAlertOnce);
+        }
+
+        if (isNoSoundSet) {
+            result.put(JSON_NO_SOUND, isNoSoundSet);
+        }
+
+        if (isNoVibrateSet) {
+            result.put(JSON_NO_VIBRATE, isNoVibrateSet);
         }
 
         return result;
@@ -332,6 +410,14 @@ public class TuneNotificationBuilder {
 
         if (j.has(JSON_ONLY_ALERT_ONCE)) {
             result.setOnlyAlertOnce(j.getBoolean(JSON_ONLY_ALERT_ONCE));
+        }
+
+        if (j.has(JSON_NO_SOUND)) {
+            result.setNoSound();
+        }
+
+        if (j.has(JSON_NO_VIBRATE)) {
+            result.setNoVibrate();
         }
 
         return result;

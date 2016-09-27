@@ -2,7 +2,6 @@ package com.tune.ma.deepactions;
 
 import android.app.Activity;
 
-import com.tune.Tune;
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.deepactions.model.TuneDeepAction;
@@ -74,6 +73,69 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(0, deepActionManager.getDeepActions().size());
     }
 
+    public void testExecuteDeepActionInvalidActionName() {
+        SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
+        assertEquals(0, callback.executionCount);
+
+        tune.registerDeepAction("action1", "a deep action", getDefaultData(), callback);
+
+        tune.executeDeepAction(null, "incorrectAction2",  null);
+        assertEquals(0, callback.executionCount);
+    }
+
+    public void testExecuteDeepActionNullData() {
+        SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
+        assertEquals(0, callback.executionCount);
+
+        tune.registerDeepAction("action1", "a deep action", getDefaultData(), callback);
+
+        tune.executeDeepAction(null, "action1", null);
+        assertEquals(1, callback.executionCount);
+    }
+
+    public void testExecuteDeepActionEmptyData() {
+        SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
+        assertEquals(0, callback.executionCount);
+
+        tune.registerDeepAction("action1", "a deep action", getDefaultData(), callback);
+
+        tune.executeDeepAction(null, "action1", new HashMap<String, String>());
+        assertEquals(1, callback.executionCount);
+    }
+
+    public void testExecuteDeepActionNormalStringData() {
+        SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
+        assertEquals(0, callback.executionCount);
+
+        tune.registerDeepAction("action1", "a deep action", getDefaultData(), callback);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("key", "def");
+        assertEquals("abc", callback.value.toString());
+        tune.executeDeepAction(null, "action1", data);
+        assertEquals(1, callback.executionCount);
+        assertEquals("abcdef", callback.value.toString());
+    }
+
+    public void testExecuteDeepActionDataOverride() {
+        SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
+        assertEquals(0, callback.executionCount);
+
+        Map<String, String> defaultData = new HashMap<>();
+        defaultData.put("prefix", "abc");
+        defaultData.put("key", "key");
+        defaultData.put("suffix", "xyz");
+
+        tune.registerDeepAction("action1", "a deep action", defaultData, callback);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("suffix", "def");
+        assertEquals("abc", callback.value.toString());
+        tune.executeDeepAction(null, "action1", data);
+        assertEquals(1, callback.executionCount);
+        assertEquals("abcabckeydef", callback.value.toString());
+    }
+
     // helper methods //
     private Map<String, String> getDefaultData() {
         Map<String, String> defaultData = new HashMap<>();
@@ -87,9 +149,23 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
     }
 
     private class SomeDeepActionCallbackImplementation implements TuneDeepActionCallback {
+        public int executionCount = 0;
+        public StringBuilder value = new StringBuilder("abc");
 
         @Override
         public void execute(Activity activity, Map<String, String> extraData) {
+            ++executionCount;
+            if (null != extraData && extraData.containsKey("key")) {
+                value.append(extraData.get("key"));
+            }
+
+            if (null != extraData && extraData.containsKey("prefix")) {
+                value.insert(0, extraData.get("prefix"));
+            }
+
+            if (null != extraData && extraData.containsKey("suffix")) {
+                value.append(extraData.get("suffix"));
+            }
         }
     }
 }

@@ -124,6 +124,15 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
+     * Checks if this listener is current listening for location changes.
+     *
+     * @return true if listening, false otherwise
+     */
+    public boolean isListening() {
+        return listening;
+    }
+
+    /**
      * Code from http://developer.android.com/guide/topics/location/strategies.html#BestEstimate
      * Determines whether one Location reading is better than the current Location fix
      * @param location The new Location that you want to evaluate
@@ -244,19 +253,21 @@ public class TuneLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        // New location is found by the location provider
-        TuneDebugLog.d("Received new location " + location.toString());
+        if (location != null) {
+            // New location is found by the location provider
+            TuneDebugLog.d("Received new location " + location.toString());
 
-        // Update the lastLocation if the new one is better
-        if (isBetterLocation(location, lastLocation)) {
-            TuneDebugLog.d("New location is better, saving");
-            lastLocation = location;
-        }
+            // Update the lastLocation if the new one is better
+            if (isBetterLocation(location, lastLocation)) {
+                TuneDebugLog.d("New location is better, saving");
+                lastLocation = location;
+            }
 
-        // If we got a location of less than 1km accuracy, stop listening
-        // Otherwise keep listening for new location updates
-        if (location.getAccuracy() <= DESIRED_ACCURACY) {
-            stopListening();
+            // If we got a location of less than 1km accuracy, stop listening
+            // Otherwise keep listening for new location updates
+            if (location.getAccuracy() <= DESIRED_ACCURACY) {
+                stopListening();
+            }
         }
     }
 

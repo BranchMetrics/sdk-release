@@ -1264,6 +1264,9 @@ public class Tune {
             TuneDebugLog.e(TuneConstants.TAG, "Location may not be null");
             return;
         }
+
+        setShouldAutoCollectDeviceLocation(false);
+
         pubQueue.execute(new Runnable() {
             @Override
             public void run() {
@@ -1686,6 +1689,21 @@ public class Tune {
         }
 
         TuneManager.getInstance().getDeepActionManager().registerDeepAction(actionId, friendlyName, null, defaultData, null, action);
+    }
+
+    /**
+     * Executes a previously registered Deep Action code-block. The data to be used by the current execution of the deep action code-block is derived by merging the Map provided here with the default Map provided during deep action registration. Also, the new values take preference over the default values when the keys match.
+     *
+     * @param activity Activity object to be made available to the deep action code-block. This object may be null depending on its usage in the code-block.
+     * @param actionId Non-empty non-null name of a previously registered deep action code-block.
+     * @param data Values to be used with the deep action. This Map may be null or empty or contain string keys and values.
+     */
+    public void executeDeepAction(Activity activity, String actionId, Map<String, String> data) {
+        if (TuneManager.getDeepActionManagerForUser("executeDeepAction") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getDeepActionManager().executeDeepAction(activity, actionId, data);
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.tune.ma.deepactions;
 
+import android.app.Activity;
+
 import com.tune.ma.deepactions.model.TuneDeepAction;
 import com.tune.ma.eventbus.event.deepaction.TuneDeepActionCalled;
 import com.tune.ma.model.TuneDeepActionCallback;
@@ -50,15 +52,15 @@ public class TuneDeepActionManager {
         return new ArrayList<TuneDeepAction>(this.actionMap.values());
     }
 
-    public void clearDeepActions() {
+    public synchronized void clearDeepActions() {
         this.actionMap = new HashMap<String, TuneDeepAction>();
     }
 
-    public void onEvent(TuneDeepActionCalled event) {
-        String scrubbedActionId = TuneStringUtils.scrubStringForMongo(event.getDeepActionId());
+    public void executeDeepAction(Activity activity, String actionId, Map<String, String> data) {
+        String scrubbedActionId = TuneStringUtils.scrubStringForMongo(actionId);
         TuneDeepAction action = getDeepAction(scrubbedActionId);
         if (action == null) {
-            TuneDebugLog.e(TuneStringUtils.format("Could not execute DeepAction with id %s because it was not registered. Make sure to register your Deep Actions in Application#onCreate.", event.getDeepActionId()));
+            TuneDebugLog.e(TuneStringUtils.format("Could not execute DeepAction with id %s because it was not registered. Make sure to register your Deep Actions in Application#onCreate.", actionId));
             return;
         }
         Map<String, String> extraData = new HashMap<String, String>();
@@ -66,12 +68,16 @@ public class TuneDeepActionManager {
         for (Map.Entry<String, String> e : action.getDefaultData().entrySet()) {
             extraData.put(e.getKey(), e.getValue());
         }
-        if (event.getDeepActionParams() != null) {
-            for (Map.Entry<String, String> e : event.getDeepActionParams().entrySet()) {
+        if (data != null) {
+            for (Map.Entry<String, String> e : data.entrySet()) {
                 extraData.put(e.getKey(), e.getValue());
             }
         }
-        action.getAction().execute(event.getActivity(), extraData);
+        action.getAction().execute(activity, extraData);
+    }
+
+    public void onEvent(TuneDeepActionCalled event) {
+        executeDeepAction(event.getActivity(), event.getDeepActionId(), event.getDeepActionParams());
     }
 
 }

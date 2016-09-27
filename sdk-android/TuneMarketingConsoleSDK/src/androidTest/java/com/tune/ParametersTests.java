@@ -705,6 +705,17 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.getAppAdTrackingEnabled());
     }
 
+    public void testTuneSetLocationDisableAutoCollect() {
+        final double latitude = 87;
+        final double longitude = -122;
+
+        tune.setShouldAutoCollectDeviceLocation(true);
+        assertTrue(tune.locationListener.isListening());
+
+        tune.setLocation(new TuneLocation(longitude, latitude));
+        assertFalse(tune.locationListener.isListening());
+    }
+
     public void testTuneLocation() {
         final double latitude = 87;
         final double longitude = -122;
