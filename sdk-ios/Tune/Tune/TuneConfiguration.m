@@ -56,7 +56,7 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
         [self setDefaultConfiguration];
         
 #if DEBUG_STAGING
-        _staging = @(YES);
+        _staging = YES;
 #endif
         
         _updatingConfiguration = NO;

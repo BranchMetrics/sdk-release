@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const TuneMultipartContentDispositionFormData;
+FOUNDATION_EXPORT NSString *const TuneMultipartContentDispositionFormData;
 
 @interface TuneMultipartContent : NSObject
 

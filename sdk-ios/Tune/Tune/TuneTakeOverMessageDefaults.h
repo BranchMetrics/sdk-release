@@ -15,12 +15,12 @@
 + (CGFloat)takeOverMessageDefaultWidthByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;
 
 // Background Mask Type
-extern TuneMessageBackgroundMaskType const TakeOverMessageDefaultBackgroundMaskColor;
+FOUNDATION_EXPORT TuneMessageBackgroundMaskType const TakeOverMessageDefaultBackgroundMaskColor;
 
 // Close button
-extern TuneMessageCloseButtonColor const TakeOverMessageDefaultCloseButtonColor;
-extern TuneTakeOverMessageCloseButtonLocationType const TuneTakeOverMessageDefaultCloseButtonLocation;
-extern CGFloat const TakeOverMessageCloseButtonSize;
+FOUNDATION_EXPORT TuneMessageCloseButtonColor const TakeOverMessageDefaultCloseButtonColor;
+FOUNDATION_EXPORT TuneTakeOverMessageCloseButtonLocationType const TuneTakeOverMessageDefaultCloseButtonLocation;
+FOUNDATION_EXPORT CGFloat const TakeOverMessageCloseButtonSize;
 + (CGFloat)takeOverMessageCloseButtonPaddingByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;
 + (CGRect)takeOverMessageCloseButtonFrameByDeviceOrientation:(TuneMessageDeviceOrientation)orientation
                                       andCloseButtonLocation:(TuneTakeOverMessageCloseButtonLocationType)closeButtonLocation;
@@ -28,6 +28,6 @@ extern CGFloat const TakeOverMessageCloseButtonSize;
                                                   andCloseButtonLocation:(TuneTakeOverMessageCloseButtonLocationType)closeButtonLocation;
 
 // Transition
-extern TuneMessageTransition const DefaultTakeOverTransitionType;
+FOUNDATION_EXPORT TuneMessageTransition const DefaultTakeOverTransitionType;
 
 @end

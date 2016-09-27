@@ -11,6 +11,7 @@
 #import "TuneAppToAppTracker.h"
 #import "TuneHttpRequest.h"
 #import "TuneKeyStrings.h"
+#import "TuneNetworkUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 
@@ -44,7 +45,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
                                      publisherId:(NSString*)publisherId
                                         redirect:(BOOL)shouldRedirect
                                       domainName:(NSString*)domainName {
-    if( ![TuneUtils isNetworkReachable] ) return;
+    if( ![TuneNetworkUtils isNetworkReachable] ) return;
     
     if (!targetBundleId) targetBundleId = TUNE_STRING_EMPTY;
     if (!advertiserId) advertiserId = TUNE_STRING_EMPTY;

@@ -10,24 +10,24 @@
 
 @interface TuneDeeplinkConstants : NSObject
 
-extern NSString *const TuneDeeplinkDeepActionPrefixKey;
-extern NSString *const TuneDeeplinkDeepActionNameKey;
-extern NSString *const TuneDeeplinkDeepActionDataKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkDeepActionPrefixKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkDeepActionNameKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkDeepActionDataKey;
 
-extern NSString *const TuneDeeplinkArtisanCampaignIDKey;
-extern NSString *const TuneDeeplinkTimeToReportAnalyticsKey;
-extern NSString *const TuneDeeplinkVariationIDKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkArtisanCampaignIDKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkTimeToReportAnalyticsKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkVariationIDKey;
 
-extern NSString *const TuneDeeplinkCategoryKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkCategoryKey;
 
 // Source
-extern NSString *const TuneDeeplinkSourceKey;
-extern NSString *const TuneDeeplinkSourceWeb;
-extern NSString *const TuneDeeplinkSourceEmail;
-extern NSString *const TuneDeeplinkSourceSMS;
-extern NSString *const TuneDeeplinkSourceApp;
-extern NSString *const TuneDeeplinkSourceAd;
-extern NSString *const TuneDeeplinkTodayExtension;
-extern NSString *const TuneDeeplinkSourceUnknown;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceKey;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceWeb;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceEmail;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceSMS;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceApp;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceAd;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkTodayExtension;
+FOUNDATION_EXPORT NSString *const TuneDeeplinkSourceUnknown;
 
 @end

@@ -83,4 +83,175 @@
     XCTAssertTrue([result isEqualToString:@"foobang"], @"Got: %@", result);
 }
 
+- (void)testExecuteDeepActionInvalidActionName {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    [deepActionManager executeDeepActionWithId:@"incorrectAction" andData:nil];
+    XCTAssertEqual(i, 0);
+}
+
+- (void)testExecuteDeepActionNilData {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    isMainThread = NO;
+    [deepActionManager executeDeepActionWithId:@"testAction" andData:nil];
+    XCTAssertEqual(i, 1);
+    XCTAssertTrue(isMainThread);
+}
+
+- (void)testExecuteDeepActionEmptyData {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    isMainThread = NO;
+    [deepActionManager executeDeepActionWithId:@"testAction" andData:@{}];
+    XCTAssertEqual(i, 1);
+    XCTAssertTrue(isMainThread);
+}
+
+- (void)testExecuteDeepActionNormalStringData {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    isMainThread = NO;
+    XCTAssertEqualObjects(str, @"abc");
+    [deepActionManager executeDeepActionWithId:@"testAction" andData:@{@"suffix":@"def"}];
+    XCTAssertEqual(i, 1);
+    XCTAssertEqualObjects(str, @"abcdef");
+    XCTAssertTrue(isMainThread);
+}
+
+- (void)testExecuteDeepActionDataOverride {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{@"prefix":@"123", @"suffix":@"xyz"}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"prefix"]) {
+                                              [str insertString:extra_data[@"prefix"] atIndex:0];
+                                          }
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    isMainThread = NO;
+    XCTAssertEqualObjects(str, @"abc");
+    [deepActionManager executeDeepActionWithId:@"testAction" andData:@{@"suffix":@"def"}];
+    XCTAssertEqual(i, 1);
+    XCTAssertEqualObjects(str, @"123abcdef");
+    XCTAssertTrue(isMainThread);
+}
+
+- (void)testExecuteDeepActionMainThread {
+    __block NSUInteger i = 0;
+    __block NSMutableString *str = @"abc".mutableCopy;
+    __block BOOL isMainThread = NO;
+    [deepActionManager registerDeepActionWithId:@"testAction"
+                                   friendlyName:@"A sample test action!"
+                                    description:nil
+                                           data:@{}
+                                 approvedValues:nil
+                                      andAction:^(NSDictionary *extra_data) {
+                                          i += 1;
+                                          if (extra_data[@"suffix"]) {
+                                              [str appendString:extra_data[@"suffix"]];
+                                          }
+                                          isMainThread = [NSThread isMainThread];
+                                      }];
+    
+    XCTAssertEqual(i, 0);
+    
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"DeepActionBlockCalledFromMainThread"];
+    
+    isMainThread = NO;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, kNilOptions);
+    dispatch_async(backgroundQueue, ^{
+        XCTAssertFalse([NSThread isMainThread]);
+        [deepActionManager executeDeepActionWithId:@"testAction" andData:@{@"suffix":@"def"}];
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"XCTestExpectation error = %@", error);
+        }
+        XCTAssertNil(error);
+        
+        XCTAssertEqual(i, 1);
+        XCTAssertEqualObjects(str, @"abcdef");
+        XCTAssertTrue(isMainThread);
+    }];
+}
+
 @end

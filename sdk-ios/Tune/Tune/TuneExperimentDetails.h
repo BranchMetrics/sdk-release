@@ -7,15 +7,15 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const DetailDictionaryExperimentNameKey;
-extern NSString *const DetailDictionaryExperimentIdKey;
-extern NSString *const DetailDictionaryExperimentTypeKey;
-extern NSString *const DetailDictionaryCurrentVariationKey;
-extern NSString *const DetailDictionaryCurrentVariationIdKey;
-extern NSString *const DetailDictionaryCurrentVariationNameKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentNameKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentIdKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentTypeKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationIdKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationNameKey;
 
-extern NSString *const DetailDictionaryTypePowerHook;
-extern NSString *const DetailDictionaryTypeInApp;
+FOUNDATION_EXPORT NSString *const DetailDictionaryTypePowerHook;
+FOUNDATION_EXPORT NSString *const DetailDictionaryTypeInApp;
 
 /**
  * An object containing useful information about an experiment

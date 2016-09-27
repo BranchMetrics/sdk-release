@@ -11,38 +11,38 @@
 @interface TunePopUpMessageDefaults : NSObject
 
 // Transition
-extern TuneMessageTransition const TunePopUpMessageDefaultTransition;
+FOUNDATION_EXPORT TuneMessageTransition const TunePopUpMessageDefaultTransition;
 
 // Padding
-extern int const TunePopUpMessageDefaultPaddingVertical;
-extern int const TunePopUpMessageDefaultPaddingHorizontal;
-extern int const TunePopUpMessageDefaultContentPadding;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultPaddingVertical;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultPaddingHorizontal;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultContentPadding;
 
 // Shadow
-extern int const TunePopUpMessageShadowHeight;
+FOUNDATION_EXPORT int const TunePopUpMessageShadowHeight;
 
 // Size
-extern int const TunePopUpMessageDefaultWidthOnPhone;
-extern int const TunePopUpMessageDefaultWidthOnTablet;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultWidthOnPhone;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultWidthOnTablet;
 // These heights exclude the bottom buttons
-extern int const TunePopUpMessageDefaultHeightOnPhone;
-extern int const TunePopUpMessageDefaultHeightOnTablet;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultHeightOnPhone;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultHeightOnTablet;
 
 // Corners
-extern int const TunePopUpMessageDefaultCornerRadius;
-extern TunePopUpMessageEdgeStyle const TunePopUpMessageDefaultEdgeStyle;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultCornerRadius;
+FOUNDATION_EXPORT TunePopUpMessageEdgeStyle const TunePopUpMessageDefaultEdgeStyle;
 
 // Buttons
-extern int const TunePopUpMessageButtonHeight;
-extern int const TunePopUpMessageButtonBorderWidth;
+FOUNDATION_EXPORT int const TunePopUpMessageButtonHeight;
+FOUNDATION_EXPORT int const TunePopUpMessageButtonBorderWidth;
 
 // Image
-extern int const TunePopUpMessageDefaultImageHeight;
+FOUNDATION_EXPORT int const TunePopUpMessageDefaultImageHeight;
 
 // Close button
-extern int const TunePopUpCloseButtonOffset;
-extern int const TunePopUpCloseButtonSize;
-extern TuneMessageCloseButtonColor const TunePopUpdateCloseButtonDefaultColor;
+FOUNDATION_EXPORT int const TunePopUpCloseButtonOffset;
+FOUNDATION_EXPORT int const TunePopUpCloseButtonSize;
+FOUNDATION_EXPORT TuneMessageCloseButtonColor const TunePopUpdateCloseButtonDefaultColor;
 
 // Background color
 + (UIColor *)defaultPopUpBackgroundColor;

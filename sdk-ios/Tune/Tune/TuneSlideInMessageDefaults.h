@@ -15,15 +15,15 @@
 + (CGFloat)slideInMessageDefaultWidthByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;
 
 // Location
-extern TuneMessageLocationType const SlideInMessageDefaultLocationType;
+FOUNDATION_EXPORT TuneMessageLocationType const SlideInMessageDefaultLocationType;
 
 // Background Color
 + (UIColor *)slideInMessageDefaultMessageBackgroundColor;
 
 // Close button
-extern TuneMessageCloseButtonColor const SlideInMessageDefaultCloseButtonColor;
-extern BOOL const SlideInMessageDefaultCloseButtonHidden;
-extern CGFloat const SlideInMessageCloseButtonSize;
+FOUNDATION_EXPORT TuneMessageCloseButtonColor const SlideInMessageDefaultCloseButtonColor;
+FOUNDATION_EXPORT BOOL const SlideInMessageDefaultCloseButtonHidden;
+FOUNDATION_EXPORT CGFloat const SlideInMessageCloseButtonSize;
 + (CGFloat)slideInMessageCloseButtonPaddingByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;
 + (CGRect)slideInMessageCloseButtonFrameByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;
 + (CGRect)slideInMessageCloseButtonClickOverlayFrameByDeviceOrientation:(TuneMessageDeviceOrientation)orientation;

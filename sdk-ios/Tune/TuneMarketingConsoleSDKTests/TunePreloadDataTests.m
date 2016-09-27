@@ -12,17 +12,22 @@
 
 #import "Tune+Testing.h"
 #import "TuneKeyStrings.h"
+#import "TuneNetworkUtils.h"
 #import "TunePreloadData.h"
 #import "TuneTestParams.h"
 #import "TuneTracker.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneXCTestCase.h"
 
+#import <OCMock/OCMock.h>
+
 @interface TunePreloadDataTests : TuneXCTestCase <TuneDelegate> {
     BOOL callSuccess;
     BOOL callFailed;
     
     TuneTestParams *params;
+    
+    id classMockTuneNetworkUtils;
 }
 
 @end
@@ -40,13 +45,19 @@
     
     emptyRequestQueue();
     
-    networkOnline();
+    __block BOOL forcedNetworkStatus = YES;
+    classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
 }
 
 - (void)tearDown {
     [Tune setCurrencyCode:nil];
     [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
+    
+    [classMockTuneNetworkUtils stopMocking];
     
     emptyRequestQueue();
     

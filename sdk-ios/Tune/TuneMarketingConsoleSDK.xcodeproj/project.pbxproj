@@ -111,7 +111,6 @@
 		3263C31E1D516B3B0035DBDB /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
 		3263C31F1D516B590035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
 		3263C3201D516B5A0035DBDB /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; };
-		3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */ = {isa = PBXBuildFile; fileRef = 3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */; };
 		32AC66AD1BA8F38E0069B549 /* TuneAppDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AC1BA8F38E0069B549 /* TuneAppDelegateTests.m */; };
 		32AC66B01BA8F39E0069B549 /* TuneBlankAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */; };
 		32B9A4301BBB3703006E3D4F /* TuneDeeplink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9A42C1BBB3703006E3D4F /* TuneDeeplink.h */; };
@@ -934,6 +933,14 @@
 		F88690661C0FD832007E2F9C /* NSObject+TuneSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB91353E1B680CB6006534E0 /* NSObject+TuneSBJSON.h */; };
 		F88690671C0FD839007E2F9C /* NSURLSession+SynchronousTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3ECD401BD6FAA70033FEB3 /* NSURLSession+SynchronousTask.m */; };
 		F88690681C0FD83D007E2F9C /* NSURLSession+SynchronousTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F3ECD441BD7FC560033FEB3 /* NSURLSession+SynchronousTask.h */; };
+		F8A6A9EE1D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */; };
+		F8A6A9EF1D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */; };
+		F8A6A9F01D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */; };
+		F8A6A9F11D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
+		F8A6A9F21D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
+		F8A6A9F31D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
+		F8A6A9F41D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
+		F8A6A9F51D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
 		F8A8872E1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
 		F8A8872F1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
 		F8AE53A61BF3D0850055B93C /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */; };
@@ -1301,6 +1308,7 @@
 		3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDebugUtilities.h; sourceTree = "<group>"; };
 		3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDebugUtilities.m; sourceTree = "<group>"; };
 		3263C3211D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TunePlaylistEmptySegmentTests.json; sourceTree = "<group>"; };
+		3277D3801D78A628006A57DB /* TunePlaylistMissingSegmentTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TunePlaylistMissingSegmentTests.json; sourceTree = "<group>"; };
 		32AC66AC1BA8F38E0069B549 /* TuneAppDelegateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAppDelegateTests.m; sourceTree = "<group>"; };
 		32AC66AE1BA8F39E0069B549 /* TuneBlankAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneBlankAppDelegate.h; sourceTree = "<group>"; };
 		32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneBlankAppDelegate.m; sourceTree = "<group>"; };
@@ -1391,7 +1399,6 @@
 		DB24D6F11B680079000C7462 /* DictionaryLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DictionaryLoader.m; sourceTree = "<group>"; };
 		DB40D2E61B86515C0034F218 /* TunePlaylistManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePlaylistManager.h; sourceTree = "<group>"; };
 		DB40D2E71B86515C0034F218 /* TunePlaylistManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePlaylistManager.m; sourceTree = "<group>"; };
-		DB40D2F11B8664D40034F218 /* TuneUtils+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TuneUtils+Testing.h"; path = "../Tune/TuneUtils+Testing.h"; sourceTree = "<group>"; };
 		DB40D32D1B8690E20034F218 /* TuneJSONPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneJSONPlayer.h; sourceTree = "<group>"; };
 		DB40D32E1B8690E20034F218 /* TuneJSONPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneJSONPlayer.m; sourceTree = "<group>"; };
 		DB40D3391B87D0440034F218 /* SimpleObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleObserver.h; sourceTree = "<group>"; };
@@ -1539,6 +1546,8 @@
 		F8868F0B1C0FC3F2007E2F9C /* Tune_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8868F0D1C0FC3F2007E2F9C /* Tune_watchOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tune_watchOS.h; sourceTree = "<group>"; };
 		F8868F0F1C0FC3F2007E2F9C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNetworkUtils.h; sourceTree = "<group>"; };
+		F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNetworkUtils.m; sourceTree = "<group>"; };
 		F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneInAppUtilsTests.m; sourceTree = "<group>"; };
 		F8B3310F1CB31D7300C954B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		F8B331111CB31D7700C954B2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
@@ -2045,7 +2054,6 @@
 				3F4AA76A1BB5C9E10084BE24 /* TuneSwizzleBlacklist+Testing.h */,
 				3F4AA7671BB5C84B0084BE24 /* TuneTriggerManager+Testing.h */,
 				3F4AA76F1BB5CD5D0084BE24 /* TuneUserProfile+Testing.h */,
-				DB40D2F11B8664D40034F218 /* TuneUtils+Testing.h */,
 			);
 			name = "Categories for Exposing Test Helpers";
 			sourceTree = "<group>";
@@ -2211,6 +2219,8 @@
 				DBA92C9F1BA21FDD00150B12 /* TuneLabelUtils.h */,
 				DBA92CA01BA21FDD00150B12 /* TuneLabelUtils.m */,
 				3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */,
+				F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */,
+				F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */,
 				3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */,
 				F8E39FDC1D622284008D4794 /* TunePushUtils.h */,
 				F8E39FDD1D622284008D4794 /* TunePushUtils.m */,
@@ -2264,6 +2274,7 @@
 		DB9135661B68111D006534E0 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				3277D3801D78A628006A57DB /* TunePlaylistMissingSegmentTests.json */,
 				DBCA43521B8FA94800483318 /* TuneConfiguration.plist */,
 				DB9135671B68114B006534E0 /* TunePowerHookValueTests.json */,
 				3F1BC5F61BBC59DB009FD499 /* TuneExperimentManagerTests.json */,
@@ -2622,6 +2633,7 @@
 				DB918C1D1B8E60FD0077305B /* TuneLocationHelper.h in Headers */,
 				DB918C1E1B8E60FD0077305B /* TuneReachability.h in Headers */,
 				DB918C1F1B8E60FD0077305B /* TuneRegionMonitor.h in Headers */,
+				F8A6A9EE1D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */,
 				DB918C201B8E60FD0077305B /* TuneStoreKitDelegate.h in Headers */,
 				3F23B6481BBB2493003CE408 /* TuneDeepAction.h in Headers */,
 				F8AE53BB1BF3D1B40055B93C /* TuneAnalyticsManager.h in Headers */,
@@ -2765,6 +2777,7 @@
 				F8868F6B1C0FC5CA007E2F9C /* TuneAnalyticsDispatchEventsOperation.h in Headers */,
 				F8868F6C1C0FC5CB007E2F9C /* TuneAnalyticsDispatchToConnectedModeOperation.h in Headers */,
 				F8868F6D1C0FC5CB007E2F9C /* TuneApi.h in Headers */,
+				F8A6A9EF1D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */,
 				F8868F6E1C0FC5CB007E2F9C /* TuneCampaignStateManager.h in Headers */,
 				F8B0F13B1CA8DD4D0051D079 /* TunePowerHookExperimentDetails.h in Headers */,
 				F8868F6F1C0FC5CC007E2F9C /* TuneConfiguration.h in Headers */,
@@ -2927,6 +2940,7 @@
 				F84660461C3B4C7B005C42CC /* TuneAnalyticsDispatchEventsOperation.h in Headers */,
 				F84660811C3B4D73005C42CC /* TuneDeepActionManager.h in Headers */,
 				F846600B1C3B4C50005C42CC /* TuneCallbackBlock.h in Headers */,
+				F8A6A9F01D79D0AC00389F65 /* TuneNetworkUtils.h in Headers */,
 				F84660541C3B4CD3005C42CC /* TuneStringUtils.h in Headers */,
 				F846607B1C3B4D73005C42CC /* TuneApi.h in Headers */,
 				F84660191C3B4C50005C42CC /* TuneUserAgentCollector.h in Headers */,
@@ -3033,7 +3047,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Tune;
 				TargetAttributes = {
 					0B3389C61BB32D2C00405AFD = {
@@ -3053,6 +3067,7 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = MN489GLUZK;
 						DevelopmentTeamName = "TUNE, Inc.";
+						ProvisioningStyle = Automatic;
 					};
 					F8868EF71C0FC385007E2F9C = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -3063,6 +3078,7 @@
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = MN489GLUZK;
 						DevelopmentTeamName = "TUNE, Inc.";
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -3096,7 +3112,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BCB59AD1B65F864005216E2 /* InfoPlist.strings in Resources */,
-				3263C3221D5283CD0035DBDB /* TunePlaylistEmptySegmentTests.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3267,6 +3282,7 @@
 				0BCB59E01B65F922005216E2 /* TuneEventItem.m in Sources */,
 				DBF535751B94DB1F00B76885 /* TunePointerSet.m in Sources */,
 				DBA92C741B9F479F00150B12 /* TuneImageAssets.m in Sources */,
+				F8A6A9F11D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				DBA2B5E31B7BFDD800843E5D /* TunePlaylist.m in Sources */,
 				0B5270A01B7141E40019ED0E /* TuneFileUtils.m in Sources */,
 				DBF5359A1B950BB300B76885 /* TuneMessageImageBundle.m in Sources */,
@@ -3341,6 +3357,7 @@
 				DBCA43161B8E642300483318 /* TuneAnalyticsEventTests.m in Sources */,
 				F8F694061CFFC15B00B453D9 /* TuneAnalyticsDispatchEventsOperation.m in Sources */,
 				F8F693EF1CFFC15B00B453D9 /* TuneMessageLabel.m in Sources */,
+				F8A6A9F21D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				F8F6942B1CFFC15B00B453D9 /* TuneModule.m in Sources */,
 				3F06E4811BA75D3100CCB45A /* TuneStateTests.m in Sources */,
 				F83419CB1CE3F4CC00142934 /* TuneXCTestCase.m in Sources */,
@@ -3578,6 +3595,7 @@
 				F8868FD61C0FD145007E2F9C /* TuneAnalyticsManager.m in Sources */,
 				F8868FD71C0FD145007E2F9C /* TuneAnalyticsDispatchEventsOperation.m in Sources */,
 				F8868FD81C0FD145007E2F9C /* TuneAnalyticsDispatchToConnectedModeOperation.m in Sources */,
+				F8A6A9F31D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				F8868FD91C0FD145007E2F9C /* TuneApi.m in Sources */,
 				F8868FDA1C0FD145007E2F9C /* TuneCampaignStateManager.m in Sources */,
 				F8868FDB1C0FD145007E2F9C /* TuneConfiguration.m in Sources */,
@@ -3766,6 +3784,7 @@
 				F853CFBE1D00C982006CCC98 /* TuneUserAgentCollector.m in Sources */,
 				F853CFB41D00C982006CCC98 /* TuneEventQueue.m in Sources */,
 				F853CFF51D00C9FD006CCC98 /* TuneSkyhookConstants.m in Sources */,
+				F8A6A9F41D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				F853CFED1D00C9FD006CCC98 /* TuneFileManager.m in Sources */,
 				F853CFEA1D00C9FD006CCC98 /* TuneDeepActionManager.m in Sources */,
 				F853CFF61D00C9FD006CCC98 /* TuneSkyhookPayloadConstants.m in Sources */,
@@ -3883,6 +3902,7 @@
 				F84660941C3B4E13005C42CC /* TuneTracker.m in Sources */,
 				F846610D1C3B4EAA005C42CC /* TuneManager.m in Sources */,
 				F846610E1C3B4EAA005C42CC /* TuneModule.m in Sources */,
+				F8A6A9F51D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				F84660C61C3B4E66005C42CC /* TunePlaylistManager.m in Sources */,
 				F8B0F1481CA8DD910051D079 /* TuneInAppMessageExperimentDetails.m in Sources */,
 				F84660961C3B4E19005C42CC /* TuneAnalyticsConstants.m in Sources */,
@@ -4027,8 +4047,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4079,8 +4101,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4302,8 +4326,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -4481,6 +4507,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4564,6 +4591,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4598,6 +4626,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4637,6 +4666,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -4757,6 +4787,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4792,6 +4823,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;

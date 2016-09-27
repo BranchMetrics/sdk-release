@@ -300,11 +300,21 @@ NSOperationQueue *playlistCallbackQueue;
 #pragma mark - User in Segment API
 
 - (BOOL)isUserInSegmentId:(NSString *)segmentId {
+    // If nil or empty string, return false
+    if ([segmentId length] == 0) {
+        return NO;
+    }
+    
     // If the segments dictionary from the playlist has a value for the segment id, then user is in this segment
     return [_currentPlaylist.segments objectForKey:segmentId] != nil;
 }
 
 - (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds {
+    // If nil input, return false
+    if (!segmentIds) {
+        return NO;
+    }
+    
     NSSet* inputSegmentIds = [NSSet setWithArray:segmentIds];
     NSSet* playlistSegmentIds = [NSSet setWithArray:[_currentPlaylist.segments allKeys]];
     return [inputSegmentIds intersectsSet:playlistSegmentIds]; // Return whether any segment ids are found in both sets

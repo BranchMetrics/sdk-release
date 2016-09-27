@@ -17,7 +17,7 @@
         return NO;
     } else if (![[request HTTPMethod] isEqualToString:[self HTTPMethod]]){
         return NO;
-    } else if (![[request valueForHTTPHeaderField:@"Content-Type"] isEqualToString:[self valueForHTTPHeaderField:@"Content-Type"]]) {
+    } else if (![[request valueForHTTPHeaderField:TuneHttpRequestHeaderContentType] isEqualToString:[self valueForHTTPHeaderField:TuneHttpRequestHeaderContentType]]) {
         return NO;
     }
     
@@ -29,7 +29,7 @@
         return NO;
     } else if (![[request HTTPMethod] isEqualToString:[self HTTPMethod]]){
         return NO;
-    } else if (![[request valueForHTTPHeaderField:@"Content-Type"] isEqualToString:[self valueForHTTPHeaderField:@"Content-Type"]]) {
+    } else if (![[request valueForHTTPHeaderField:TuneHttpRequestHeaderContentType] isEqualToString:[self valueForHTTPHeaderField:TuneHttpRequestHeaderContentType]]) {
         return NO;
     }
     

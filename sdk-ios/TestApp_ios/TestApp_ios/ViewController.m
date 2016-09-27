@@ -30,7 +30,11 @@
 }
 
 - (IBAction)event2ButtonTapped:(id)sender {
-    [Tune measureEventName:@"event2"];
+    TuneEvent *evt2 = [TuneEvent eventWithName:@"purchase"];
+    evt2.refId = [NSUUID UUID].UUIDString;
+    TuneEventItem *item1 = [TuneEventItem eventItemWithName:@"ball" unitPrice:1.99f quantity:1];
+    evt2.eventItems = @[item1];
+    [Tune measureEvent:evt2];
 }
 
 - (IBAction)deeplinkButtonTapped:(id)sender {

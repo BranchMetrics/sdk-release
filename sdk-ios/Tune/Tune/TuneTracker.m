@@ -937,12 +937,20 @@ static NSSet * doNotEncryptSet;
     if( [_trackerDelegate respondsToSelector:@selector(_tuneURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [_trackerDelegate _tuneURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
     
+#if DEBUG_STAGING
+    *trackingLink = [NSString stringWithFormat:@"%@://%@/%@?%@",
+                     TUNE_KEY_HTTPS,
+                     [[TuneManager currentManager].configuration domainName],
+                     TUNE_SERVER_PATH_TRACKING_ENGINE,
+                     nonEncryptedParams];
+#else
     *trackingLink = [NSString stringWithFormat:@"%@://%@.%@/%@?%@",
                      TUNE_KEY_HTTPS,
                      [[TuneManager currentManager].userProfile advertiserId],
                      [[TuneManager currentManager].configuration domainName],
                      TUNE_SERVER_PATH_TRACKING_ENGINE,
                      nonEncryptedParams];
+#endif
     
     DLLog(@"Tune urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
     DLLog(@"Tune urlStringForServerUrl: tracking url: %@", *trackingLink);

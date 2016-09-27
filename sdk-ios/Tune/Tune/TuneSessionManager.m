@@ -95,7 +95,7 @@
         NSDate *sessionStartTime = [NSDate date];
         NSString *sessionId = [NSString stringWithFormat:@"t%0.f-%@", [sessionStartTime timeIntervalSince1970], [TuneUtils getUUID]];
         
-        // Don't update is_first_session if we are disabled because it won't get recieved by us.
+        // Don't update is_first_session if we are disabled because it won't get received by us.
         if (![TuneState isTMADisabled]) {
             // If this value wasn't stored in NSUserDefaults then we know that this is their first session ever
             // Otherwise, they have already had their first session, since it got stored here.

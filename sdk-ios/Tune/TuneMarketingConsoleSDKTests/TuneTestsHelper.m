@@ -16,7 +16,6 @@
 #import "TuneFileManager.h"
 #import "TuneEventQueue+Testing.h"
 #import "TunePlaylistManager+Testing.h"
-#import "TuneUtils+Testing.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneState+Testing.h"
 #import "TuneAppDelegate.h"
@@ -208,14 +207,6 @@ void waitForQueuesToFinish() {
 
 void emptyRequestQueue() {
     [TuneEventQueue drainQueue];
-}
-
-void networkOffline() {
-    [TuneUtils overrideNetworkReachability:[@NO stringValue]];
-}
-
-void networkOnline() {
-    [TuneUtils overrideNetworkReachability:[@YES stringValue]];
 }
 
 int char2hex(unsigned char c) {

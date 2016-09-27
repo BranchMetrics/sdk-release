@@ -61,7 +61,7 @@ typedef enum : NSInteger {
 //Reachability fully support IPv6.  For full details, see ReadMe.md.
 
 
-extern NSString *kTuneReachabilityChangedNotification;
+FOUNDATION_EXPORT NSString *kTuneReachabilityChangedNotification;
 
 @interface TuneReachability : NSObject
 

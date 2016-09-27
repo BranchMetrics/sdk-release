@@ -74,7 +74,7 @@
 
 + (UIColor *)colorWithString:(NSString *)hexString withDefault:(NSString *)defaultHexString orJustReturnNilOnError:(BOOL)justReturnNilOnError;
 
-+ (CGFloat)colorComponentFrom:(NSString *) string start:(NSUInteger) start length:(NSUInteger) length;
++ (CGFloat)colorComponentFrom:(NSString *)string start:(NSUInteger)start length:(NSUInteger)length;
 
 #pragma mark - Fonts
 

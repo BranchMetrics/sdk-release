@@ -33,8 +33,11 @@ NSString *const TuneHttpRequestHeaderJSON = @"application/json";
 NSString *const TuneHttpRequestHeaderContentTypeApplicationUrlEncoded = @"application/x-www-form-urlencoded";
 
 NSString *const TuneHttpRequestHeaderAccept = @"Accept";
+NSString *const TuneHttpRequestHeaderContentDisposition = @"Content-Disposition";
+NSString *const TuneHttpRequestHeaderContentEncoding = @"Content-Encoding";
 NSString *const TuneHttpRequestHeaderContentType = @"Content-Type";
 NSString *const TuneHttpRequestHeaderContentLength = @"Content-Length";
+NSString *const TuneHttpRequestHeaderContentTransferEncoding = @"Content-Transfer-Encoding";
 
 NSString *const TuneHttpRequestHeaderDeviceID = @"X-ARTISAN-DEVICEID";
 NSString *const TuneHttpRequestHeaderAppID = @"X-ARTISAN-APPID";

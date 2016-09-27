@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TuneUtils+Testing.h"
+#import "TuneUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneModule.h"
 #import "TuneCWorks.h"
