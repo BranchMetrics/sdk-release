@@ -345,6 +345,14 @@
 		DBF535E91B97636C00B76885 /* TuneTriggerManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535E81B97636C00B76885 /* TuneTriggerManagerTests.m */; };
 		DBF535EB1B976C9400B76885 /* SlideInMessage1.json in Resources */ = {isa = PBXBuildFile; fileRef = DBF535EA1B976C9400B76885 /* SlideInMessage1.json */; };
 		F81985B01C8A353900AF8E87 /* TuneAutoParameterizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F4C1B66325E00C51B87 /* TuneAutoParameterizationTests.m */; };
+		F81A460E1D9EE9D800D50867 /* TuneIadAttributionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A460D1D9EE9D800D50867 /* TuneIadAttributionTests.m */; };
+		F81A46111D9EF54D00D50867 /* TuneIadUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */; };
+		F81A46121D9EF54D00D50867 /* TuneIadUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */; };
+		F81A46131D9EF54D00D50867 /* TuneIadUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */; };
+		F81A46141D9EF54D00D50867 /* TuneIadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A46101D9EF54D00D50867 /* TuneIadUtils.m */; };
+		F81A46151D9EF54D00D50867 /* TuneIadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A46101D9EF54D00D50867 /* TuneIadUtils.m */; };
+		F81A46161D9EF54D00D50867 /* TuneIadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A46101D9EF54D00D50867 /* TuneIadUtils.m */; };
+		F81A46171D9EF54D00D50867 /* TuneIadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A46101D9EF54D00D50867 /* TuneIadUtils.m */; };
 		F82670D91CC6C4E1007578BB /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		F82670DA1CC6C4E2007578BB /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		F83109951C8F6C90000669EF /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
@@ -1508,6 +1516,9 @@
 		F81985BE1C8A411200AF8E87 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		F81985C01C8A413A00AF8E87 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
 		F81985C11C8A413A00AF8E87 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		F81A460D1D9EE9D800D50867 /* TuneIadAttributionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneIadAttributionTests.m; sourceTree = "<group>"; };
+		F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneIadUtils.h; sourceTree = "<group>"; };
+		F81A46101D9EF54D00D50867 /* TuneIadUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneIadUtils.m; sourceTree = "<group>"; };
 		F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDateUtilsTests.m; sourceTree = "<group>"; };
 		F83419C41CE3C28800142934 /* TuneAnalyticsDispatchEventsOperation+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TuneAnalyticsDispatchEventsOperation+Testing.h"; sourceTree = "<group>"; };
 		F83419C91CE3F4CC00142934 /* TuneXCTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneXCTestCase.h; sourceTree = "<group>"; };
@@ -1887,6 +1898,7 @@
 				0B770F4A1B66325E00C51B87 /* TuneEventItemTests.m */,
 				0B770F521B66325E00C51B87 /* TuneEventTests.m */,
 				0B770F491B66325E00C51B87 /* TuneHTTPErrorTests.m */,
+				F81A460D1D9EE9D800D50867 /* TuneIadAttributionTests.m */,
 				DB8CE1DD1B7976EF00BECDFC /* TuneMeasureEventTests.m */,
 				0B770F481B66325E00C51B87 /* TuneParametersTests.m */,
 				0B770F471B66325E00C51B87 /* TunePreloadDataTests.m */,
@@ -2210,6 +2222,8 @@
 				0BCB5A2E1B65F9B8005216E2 /* TuneEncrypter.m */,
 				0B52709E1B7140420019ED0E /* TuneFileUtils.h */,
 				0B52709F1B7141E40019ED0E /* TuneFileUtils.m */,
+				F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */,
+				F81A46101D9EF54D00D50867 /* TuneIadUtils.m */,
 				DBA92C751B9F480500150B12 /* TuneImageAssets.h */,
 				DBA92C731B9F479F00150B12 /* TuneImageAssets.m */,
 				DBA92C771B9F4D6700150B12 /* TuneImageUtils.h */,
@@ -2655,6 +2669,7 @@
 				DB918C261B8E60FD0077305B /* TuneDeviceDetails.h in Headers */,
 				DBF5358D1B94F5AA00B76885 /* TuneMessageLabel.h in Headers */,
 				DB918C271B8E60FD0077305B /* TuneDeviceUtils.h in Headers */,
+				F81A46111D9EF54D00D50867 /* TuneIadUtils.h in Headers */,
 				DBCA43471B8E7DCD00483318 /* UIViewController+TuneAnalytics.h in Headers */,
 				DB918C281B8E60FD0077305B /* TuneEncrypter.h in Headers */,
 				F8AE53C41BF3D1B40055B93C /* TuneSkyhookObserver.h in Headers */,
@@ -2730,6 +2745,7 @@
 				F8868F3C1C0FC5C1007E2F9C /* TuneStoreKitDelegate.h in Headers */,
 				F8868F3D1C0FC5C1007E2F9C /* TuneTracker.h in Headers */,
 				F8868F3E1C0FC5C1007E2F9C /* TuneUserAgentCollector.h in Headers */,
+				F81A46121D9EF54D00D50867 /* TuneIadUtils.h in Headers */,
 				F8868F3F1C0FC5C1007E2F9C /* TuneAnalyticsConstants.h in Headers */,
 				F8868F401C0FC5C1007E2F9C /* TuneInAppMessageConstants.h in Headers */,
 				F8868F411C0FC5C1007E2F9C /* TuneStorageKeys.h in Headers */,
@@ -2912,6 +2928,7 @@
 				F84660121C3B4C50005C42CC /* TuneInstallReceipt.h in Headers */,
 				F84660141C3B4C50005C42CC /* TuneLocationHelper.h in Headers */,
 				F846606B1C3B4D36005C42CC /* TuneTriggerManager.h in Headers */,
+				F81A46131D9EF54D00D50867 /* TuneIadUtils.h in Headers */,
 				F8B0F14A1CA8DD950051D079 /* TuneInAppMessageExperimentDetails.h in Headers */,
 				F84660181C3B4C50005C42CC /* TuneTracker.h in Headers */,
 				F8B0F1401CA8DD600051D079 /* TuneExperimentDetails+Internal.h in Headers */,
@@ -3289,6 +3306,7 @@
 				DBCA43481B8E7DCD00483318 /* UIViewController+TuneAnalytics.m in Sources */,
 				0BCB59DE1B65F922005216E2 /* TuneEvent.m in Sources */,
 				DB40D2E91B86515C0034F218 /* TunePlaylistManager.m in Sources */,
+				F81A46141D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
 				DBA92C9A1BA218B900150B12 /* TunePopUpMessageDefaults.m in Sources */,
 				0B42D6391B6F1B61008101CE /* TuneSkyhookPayloadConstants.m in Sources */,
 				0BCB5A591B65F9B8005216E2 /* TuneInstallReceipt.m in Sources */,
@@ -3431,6 +3449,7 @@
 				DBCA43221B8E642300483318 /* SimpleObserver.m in Sources */,
 				DBCA43231B8E642300483318 /* TuneArrayUtilsTests.m in Sources */,
 				F8F693F91CFFC15B00B453D9 /* TuneiOS8SlideInMessageView.m in Sources */,
+				F81A46151D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
 				F8F6943D1CFFC15B00B453D9 /* TuneLabelUtils.m in Sources */,
 				F8F693F81CFFC15B00B453D9 /* TuneBaseInAppMessageView.m in Sources */,
 				DBCA432A1B8E642300483318 /* TuneAnalyticsVariableTests.m in Sources */,
@@ -3495,6 +3514,7 @@
 				0BAAF1941BBE5E4C002A243C /* TuneAnalyticsDispatchToConnectedModeOperationTests.m in Sources */,
 				F8F6940E1CFFC15B00B453D9 /* TuneDeepActionManager.m in Sources */,
 				DBCA43361B8E642300483318 /* TuneTests.m in Sources */,
+				F81A460E1D9EE9D800D50867 /* TuneIadAttributionTests.m in Sources */,
 				F8F693F61CFFC15B00B453D9 /* TuneTakeOverMessageFactory.m in Sources */,
 				F8F694191CFFC15B00B453D9 /* TuneSkyhookConstants.m in Sources */,
 				F8F6943C1CFFC15B00B453D9 /* TuneJSONPlayer.m in Sources */,
@@ -3577,6 +3597,7 @@
 				F88690511C0FD187007E2F9C /* TuneSlideInMessageView.m in Sources */,
 				F88690521C0FD187007E2F9C /* TuneBaseTakeOverMessageView.m in Sources */,
 				F88690531C0FD187007E2F9C /* TuneTakeOverMessageView.m in Sources */,
+				F81A46161D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
 				F88690551C0FD187007E2F9C /* TunePopUpMessageView.m in Sources */,
 				F88690561C0FD187007E2F9C /* TuneCampaign.m in Sources */,
 				F88690131C0FD152007E2F9C /* NSURLSession+SynchronousTask.m in Sources */,
@@ -3827,6 +3848,7 @@
 				F84661071C3B4EAA005C42CC /* TuneXmlUtils.m in Sources */,
 				F84660B81C3B4E41005C42CC /* TuneAnalyticsItem.m in Sources */,
 				F84660F91C3B4EAA005C42CC /* TuneDateUtils.m in Sources */,
+				F81A46171D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
 				F84660CD1C3B4E66005C42CC /* TuneSkyhookConstants.m in Sources */,
 				F84661041C3B4EAA005C42CC /* TuneUserDefaultsUtils.m in Sources */,
 				F84660D21C3B4E66005C42CC /* TuneState.m in Sources */,

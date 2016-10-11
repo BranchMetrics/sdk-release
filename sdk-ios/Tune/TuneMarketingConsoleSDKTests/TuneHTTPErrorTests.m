@@ -102,6 +102,7 @@
     
     [TuneEventQueue enqueueUrlRequest:@"https://www.tune.com"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
@@ -146,11 +147,13 @@
         
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
@@ -172,6 +175,7 @@
     
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Bad%"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];

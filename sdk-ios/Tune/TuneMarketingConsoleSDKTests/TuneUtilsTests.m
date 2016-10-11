@@ -34,24 +34,6 @@ static NSString* const testKey = @"fakeTuneKey";
     [super tearDown];
 }
 
-- (void)testNewKeyRead {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *oldTuneId = [defaults valueForKey:@"_TUNE_mat_id"];
-    
-    static NSString* const newTuneId = @"fakeTuneId";
-    
-    // write a string to a new-style key
-    [defaults setObject:newTuneId forKey:@"_TUNE_mat_id"];
-    [defaults synchronize];
-    
-    // assert that the new-style key is read by TuneSettings
-    TuneUserProfile *userProfile = [[TuneUserProfile alloc] initWithTuneManager:[TuneManager currentManager]];
-    NSString *readTuneId = userProfile.tuneId;
-    XCTAssertTrue( [readTuneId isEqualToString:newTuneId], @"stored %@, read %@", newTuneId, readTuneId );
-    
-    [defaults setValue:oldTuneId forKey:@"_TUNE_mat_id"];
-}
-
 - (void)testHashMd5 {
     static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
     static NSString* const expected = @"a346e5dc2a8d22f2733af9740c5a8756";

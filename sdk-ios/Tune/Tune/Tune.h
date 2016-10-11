@@ -30,7 +30,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.9.1"
+#define TUNEVERSION @"4.9.2"
 
 
 @protocol TuneDelegate;

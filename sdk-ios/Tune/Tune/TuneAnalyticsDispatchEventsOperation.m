@@ -50,27 +50,22 @@
         BOOL success = NO;
         
         NSDictionary *eventsFromFile = [TuneFileManager loadAnalyticsFromDisk];
-        
-        NSMutableArray *eventIds = [[NSMutableArray alloc] initWithCapacity:[eventsFromFile count]];
-        NSMutableArray *eventsToSend = [[NSMutableArray alloc] initWithCapacity:[eventsFromFile count]];
-        
+
         // Split the dictionary for the two arrays we need.
         // One to send, and one to store the keys for what we sent (so we can delete it later).
-        for (NSString *eventId in eventsFromFile) {
-            [eventIds addObject:eventId];
-            [eventsToSend addObject:[eventsFromFile objectForKey:eventId]];
-        }
-        
+        NSArray *eventIds = [eventsFromFile allKeys];
+        NSArray *eventsToSend = [eventsFromFile allValues];
+
         // Add the tracer event to the array of event JSON going out the door.
         if ([self includeTracer]) {
             TuneAnalyticsEvent *tracer = [[TuneManager currentManager].analyticsManager buildTracerEvent];
             if (tracer) {
                 NSString *tracerJSON = [TuneJSONUtils createJSONStringFromDictionary:[tracer toDictionary]];
-                [eventsToSend addObject: tracerJSON];
+                eventsToSend = [eventsToSend arrayByAddingObject:tracerJSON];
             }
         }
         
-        if(self.isCancelled) {
+        if (self.isCancelled) {
             ErrorLog(@"TuneAnalyticsDispatchEventsOperation has already been cancelled: do not fire request");
             return;
         }
@@ -120,11 +115,11 @@
     return (*error == nil);
 }
 
-- (NSString *)outboundMessageStringFromEventArray:(NSArray*)eventArray {
+- (NSString *)outboundMessageStringFromEventArray:(NSArray *)eventArray {
     // We'll create the JSON string manually since the eventArray contains strings already in JSON format
     // (and we don't want to risk double-encoding via SBJSON)
     
-    return [NSString stringWithFormat:@"{ \"events\": [%@]}", [eventArray componentsJoinedByString:@","]];
+    return [NSString stringWithFormat:@"{\"events\":[%@]}", [eventArray componentsJoinedByString:@","]];
 }
 
 - (NSData*)zipAndEncodeData:(NSData*)uncompressedData withFileBoundary:(NSString*)boundary {

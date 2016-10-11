@@ -7,6 +7,6 @@
 	<key>TMASendScreenViews</key>
 	<true/>
 	<key>AppDelegateClassName</key>
-	<string></string>
+	<string>AppDelegate</string>
 </dict>
 </plist>

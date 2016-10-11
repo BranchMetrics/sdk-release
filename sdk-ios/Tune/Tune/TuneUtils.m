@@ -290,6 +290,22 @@ BOOL isAlertVisible;
 #endif
 }
 
++ (NSData *)jsonSerializedDataForObject:(id)object {
+    NSData *output = nil;
+    
+    if(object && (id)[NSNull null] != object) {
+        NSError *error;
+        output = [NSJSONSerialization dataWithJSONObject:object
+                                                 options:0
+                                                   error:&error];
+        if (error) {
+            DebugLog(@"JSON serializer: error = %@, input = %@", error, object);
+        }
+    }
+    
+    return output;
+}
+
 + (NSString *)jsonSerialize:(id)object {
     NSString *output = nil;
     

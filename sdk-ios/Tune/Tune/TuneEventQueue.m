@@ -22,6 +22,7 @@
 #import "TuneRequestsQueue.h"
 #import "TuneStringUtils.h"
 #import "TuneUserAgentCollector.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 #import "TuneSkyhookCenter.h"
@@ -205,16 +206,18 @@ static TuneEventQueue *sharedQueue = nil;
 
 + (void)enqueueUrlRequest:(NSString*)trackingLink
               eventAction:(NSString*)actionName
+                    refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
-                 postData:(NSString*)postData
+                 postData:(NSDictionary*)postData
                   runDate:(NSDate*)runDate {
-    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName encryptParams:encryptParams postData:postData runDate:runDate];
+    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate];
 }
 
 - (void)enqueueUrlRequest:(NSString*)trackingLink
               eventAction:(NSString*)actionName
+                    refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
-                 postData:(NSString*)postData
+                 postData:(NSDictionary*)postData
                   runDate:(NSDate*)runDate {
     // add retry count to tracking link
     [self appendOrIncrementRetryCount:&trackingLink sendDate:&runDate];
@@ -227,6 +230,7 @@ static TuneEventQueue *sharedQueue = nil;
     [item setValue:trackingLink forKey:TUNE_KEY_URL];
     [item setValue:encryptParams forKey:TUNE_KEY_DATA];
     [item setValue:postData forKey:TUNE_KEY_JSON];
+    [item setValue:refId forKey:TUNE_KEY_REF_ID];
     
     @synchronized(_eventLock) {
         [events addObject:item];
@@ -280,6 +284,67 @@ static TuneEventQueue *sharedQueue = nil;
         
         [self saveQueue];
     }
+}
+
++ (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict))completionHandler {
+    [sharedQueue updateEnqueuedSessionEventWithIadAttributionInfo:iadInfo impressionDate:impressionDate completionHandler:completionHandler];
+}
+
+- (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict))completionHandler {
+    BOOL updated = NO;
+    NSString *refId = nil;
+    NSString *url = nil;
+    NSDictionary *postDict = nil;
+    
+    @synchronized(_eventLock) {
+        // extract the very first "session" event if it is still enqueued
+        
+        NSMutableDictionary *dictEvent = events.count > 0 ? events[0] : nil;
+        
+        BOOL firstSessionReqCompleted = nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_OPEN_LOG_ID];
+        
+        if (!firstSessionReqCompleted && [dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
+            if (impressionDate) {
+                NSString *queryParams = [NSString stringWithFormat:@"%@&%@=%@", dictEvent[TUNE_KEY_DATA], TUNE_KEY_IAD_IMPRESSION_DATE, [TuneUtils urlEncodeQueryParamValue:impressionDate]];
+                dictEvent[TUNE_KEY_DATA] = queryParams;
+                updated = YES;
+            }
+            
+            id postJsonStringOrDict = dictEvent[TUNE_KEY_JSON];
+            
+            // handle post data json string from SDK versions <= 4.9.1
+            if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
+                NSData *dataPost = [postJsonStringOrDict dataUsingEncoding:NSUTF8StringEncoding];
+                postDict = [NSJSONSerialization JSONObjectWithData:dataPost options:0 error:nil];
+            } else if ([postJsonStringOrDict isKindOfClass:[NSDictionary class]]) {
+                postDict = postJsonStringOrDict;
+            }
+            
+            if (!postDict) {
+                postDict = @{};
+            }
+            
+            // update postData json with iAd attribution info
+            NSMutableDictionary *newPostDict = postDict.mutableCopy;
+            [newPostDict setValue:iadInfo forKey:TUNE_KEY_IAD];
+            
+            // update enqueued event dictionary
+            dictEvent[TUNE_KEY_JSON] = newPostDict;
+            
+            // prepare the result
+            url = [NSString stringWithFormat:@"%@%@", [dictEvent valueForKey:TUNE_KEY_URL], [dictEvent valueForKey:TUNE_KEY_DATA]];
+            if (dictEvent[TUNE_KEY_REF_ID]) {
+                refId = [NSString stringWithString:dictEvent[TUNE_KEY_REF_ID]];
+            }
+            postDict = newPostDict;
+            updated = YES;
+            
+            // store the updated events queue
+            [self saveQueue];
+        }
+    }
+    
+    completionHandler(updated, refId, url, postDict);
 }
 
 + (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt {
@@ -449,20 +514,37 @@ static TuneEventQueue *sharedQueue = nil;
         // fire URL request synchronously
         NSString *trackingLink = request[TUNE_KEY_URL];
         NSString *encryptParams = request[TUNE_KEY_DATA];
-        NSString *postData = request[TUNE_KEY_JSON];
+        id postJsonStringOrDict = request[TUNE_KEY_JSON];
         NSString *refUrl = request[TUNE_KEY_REFERRAL_URL];
         NSString *refSource = request[TUNE_KEY_REFERRAL_SOURCE];
         
         NSString *fullRequestString = [self updateTrackingLink:trackingLink encryptParams:encryptParams referralUrl:refUrl referralSource:refSource];
         
+        NSData *postData = nil;
+        
+        // handle post data json string from SDK versions <= 4.9.1
+        if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
+            postData = [postJsonStringOrDict dataUsingEncoding:NSUTF8StringEncoding];
+        } else if ([postJsonStringOrDict isKindOfClass:[NSDictionary class]]) {
+            postData = [TuneUtils jsonSerializedDataForObject:postJsonStringOrDict];
+        }
+        
 #if DEBUG
         // for testing, attempt informing the delegate's delegate of the trackingLink
         if( [self.delegate respondsToSelector:@selector(delegate)] ) {
             id ddelegate = [self.delegate performSelector:@selector(delegate)];
+            
+            NSString *postStr = nil;
+            
+            if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
+                postStr = postJsonStringOrDict;
+            } else if (postData) {
+                postStr = [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding];
+            }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
             if( [ddelegate respondsToSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
-                [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postData];
+                [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postStr];
 #pragma clang diagnostic pop
         }
 #endif
@@ -471,7 +553,6 @@ static TuneEventQueue *sharedQueue = nil;
                                                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                           timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
         
-        NSData *post = [postData dataUsingEncoding:NSUTF8StringEncoding];
 #if TESTING
         // These calls require the URL to be a GET
         if ([fullRequestString rangeOfString:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode"].location != NSNotFound) {
@@ -483,8 +564,8 @@ static TuneEventQueue *sharedQueue = nil;
         [urlReq setHTTPMethod:TuneHttpRequestMethodTypePost];
 #endif
         [urlReq setValue:TUNE_HTTP_CONTENT_TYPE_APPLICATION_JSON forHTTPHeaderField:TUNE_HTTP_CONTENT_TYPE];
-        [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)post.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
-        [urlReq setHTTPBody:post];
+        [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)postData.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
+        [urlReq setHTTPBody:postData];
         
 #if IDE_XCODE_7_OR_HIGHER
         void (^handlerBlock)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) =

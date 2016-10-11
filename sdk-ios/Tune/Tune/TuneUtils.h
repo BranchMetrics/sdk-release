@@ -46,6 +46,7 @@
 + (float)numericiOSSystemVersion;
 
 + (nullable NSString *)jsonSerialize:(nullable id)object;
++ (nullable NSData *)jsonSerializedDataForObject:(nullable id)object;
 + (nullable id)jsonDeserializeData:(nullable NSData *)jsonData;
 + (nullable id)jsonDeserializeString:(nullable NSString *)jsonString;
 

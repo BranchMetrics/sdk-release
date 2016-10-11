@@ -25,6 +25,12 @@
 #import "TuneAnalyticsManager.h"
 #import "TuneXCTestCase.h"
 
+@interface TuneAnalyticsDispatchEventsOperation (Testing)
+
+- (NSString *)outboundMessageStringFromEventArray:(NSArray*)eventArray;
+
+@end
+
 @interface TuneAnalyticsDispatchEventsOperationsTest : TuneXCTestCase
 {
     TuneFileManager *fileManager;
@@ -115,7 +121,7 @@
                                        @"1439486810-c" : @"{ json: \"string2\", json2: intvalue3 }"
                                        };
     
-    NSString *expectedPayload = @"{ \"events\": [{ json: \"string2\", json2: intvalue3 },{ json: \"string\", json2: intvalue },{ json: \"string1\", json2: intvalue2 }]}";
+    NSString *expectedPayload = @"{\"events\":[{ json: \"string2\", json2: intvalue3 },{ json: \"string\", json2: intvalue },{ json: \"string1\", json2: intvalue2 }]}";
     NSDictionary *expectedRemainingDictionary = @{};
     
     expectedRequest = [self buildExpectedURLRequest:expectedPayload
@@ -150,7 +156,7 @@
     NSDictionary *batchDictionary = @{ @"1439486620-a" : @"{ json: \"string\", json2: intvalue }",
                                        @"1439486759-b" : @"{ json: \"string1\", json2: intvalue2 }"};
     
-    NSString *expectedPayload = [NSString stringWithFormat:@"{ \"events\": [{ json: \"string\", json2: intvalue },{ json: \"string1\", json2: intvalue2 },%@]}", [TuneJSONUtils createJSONStringFromDictionary:[expectedTracer toDictionary]]];
+    NSString *expectedPayload = [NSString stringWithFormat:@"{\"events\":[{ json: \"string\", json2: intvalue },{ json: \"string1\", json2: intvalue2 },%@]}", [TuneJSONUtils createJSONStringFromDictionary:[expectedTracer toDictionary]]];
     NSDictionary *expectedRemainingDictionary = @{};
     
     expectedRequest = [self buildExpectedURLRequest:expectedPayload
@@ -225,5 +231,37 @@
     
     return [[NSData alloc] init];
 }
+
+- (void)testOutboundMessageStringFromEventArrayHappyPath {
+    TuneAnalyticsDispatchEventsOperation *testOperation = [[TuneAnalyticsDispatchEventsOperation alloc] initWithTuneManager:[TuneManager currentManager]];
+
+    NSArray *eventsToSubmit = @[];
+    NSString *actual = [testOperation outboundMessageStringFromEventArray:eventsToSubmit];
+
+    XCTAssertTrue([@"{\"events\":[]}" isEqualToString:actual], @"actual was %@", actual);
+}
+
+- (void)testOutboundMessageStringFromEventArrayBadEventsNumbers {
+    TuneAnalyticsDispatchEventsOperation *testOperation = [[TuneAnalyticsDispatchEventsOperation alloc] initWithTuneManager:[TuneManager currentManager]];
+    NSArray *eventsToSubmit = @[@1,@2,@3,@4];
+    NSString *actual = [testOperation outboundMessageStringFromEventArray:eventsToSubmit];
+
+    XCTAssertTrue([@"{\"events\":[1,2,3,4]}" isEqualToString:actual], @"actual was %@", actual);
+}
+
+- (void)testOutboundMessageStringFromEventArrayBadEventsNilNull {
+    TuneAnalyticsDispatchEventsOperation *testOperation = [[TuneAnalyticsDispatchEventsOperation alloc] initWithTuneManager:[TuneManager currentManager]];
+
+    NSArray *eventsToSubmit = nil;
+    NSString *actual = [testOperation outboundMessageStringFromEventArray:eventsToSubmit];
+
+    XCTAssertTrue([@"{\"events\":[(null)]}" isEqualToString:actual], @"actual was %@", actual);
+
+    eventsToSubmit = @[[NSNull null]];
+    actual = [testOperation outboundMessageStringFromEventArray:eventsToSubmit];
+
+    XCTAssertTrue([@"{\"events\":[<null>]}" isEqualToString:actual], @"actual was %@", actual);
+}
+
 
 @end
