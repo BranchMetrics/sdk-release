@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
     TuneNoConversionKeyProvided         = 1102,
     TuneInvalidConversionKey            = 1103,
     TuneServerErrorResponse             = 1111,
-    TuneInvalidEventClose               = 1131,
+    TuneInvalidEvent                    = 1131,
     TuneMeasurementWithoutInitializing  = 1132,
     TuneInvalidDuplicateSession         = 1133
 };
@@ -37,4 +37,4 @@ typedef NS_ENUM(NSInteger, TuneGender)
 
 #endif /* TuneConstants_h */
 
-extern NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;
+FOUNDATION_EXPORT NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;

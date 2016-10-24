@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TuneUtils+Testing.h"
+#import "TuneUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneModule.h"
 #import "TuneCWorks.h"
@@ -32,24 +32,6 @@ static NSString* const testKey = @"fakeTuneKey";
 
 - (void)tearDown {
     [super tearDown];
-}
-
-- (void)testNewKeyRead {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *oldTuneId = [defaults valueForKey:@"_TUNE_mat_id"];
-    
-    static NSString* const newTuneId = @"fakeTuneId";
-    
-    // write a string to a new-style key
-    [defaults setObject:newTuneId forKey:@"_TUNE_mat_id"];
-    [defaults synchronize];
-    
-    // assert that the new-style key is read by TuneSettings
-    TuneUserProfile *userProfile = [[TuneUserProfile alloc] initWithTuneManager:[TuneManager currentManager]];
-    NSString *readTuneId = userProfile.tuneId;
-    XCTAssertTrue( [readTuneId isEqualToString:newTuneId], @"stored %@, read %@", newTuneId, readTuneId );
-    
-    [defaults setValue:oldTuneId forKey:@"_TUNE_mat_id"];
 }
 
 - (void)testHashMd5 {
@@ -162,6 +144,152 @@ static NSString* const testKey = @"fakeTuneKey";
 - (void)testGetClassFromString {
     NSString *strObjcClassName = @"TuneUtilsTests";
     XCTAssertEqual([TuneUtilsTests class], [TuneUtils getClassFromString:strObjcClassName]);
+}
+
+- (void)testJsonSerialize {
+    id input = nil;
+    NSString *expected = nil;
+    NSString *actual = nil;
+    
+    input = nil;
+    actual = [TuneUtils jsonSerialize:input];
+    XCTAssertNil(actual);
+    
+    input = [NSNull null];
+    actual = [TuneUtils jsonSerialize:input];
+    XCTAssertNil(actual);
+    
+    input = @{};
+    expected = @"{}";
+    actual = [TuneUtils jsonSerialize:input];
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = @[];
+    expected = @"[]";
+    actual = [TuneUtils jsonSerialize:input];
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = @{@"key1":@"val1", @"key2":@"val2", @"key3":@{@"innerKey1":@"innerVal1"}, @"key4":@[]};
+    actual = [TuneUtils jsonSerialize:input];
+    expected = @"\"key4\":[]";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"\"key3\":{\"innerKey1\":\"innerVal1\"}";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"\"key2\":\"val2\"";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"\"key1\":\"val1\"";
+    XCTAssertTrue([actual containsString:expected]);
+    
+    input = @[@"val1",@"val2",@[@"innerVal1"],@{@"innerKey1":@"innerVal1"}];
+    actual = [TuneUtils jsonSerialize:input];
+    expected = @"\"val1\"";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"\"val2\"";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"[\"innerVal1\"]";
+    XCTAssertTrue([actual containsString:expected]);
+    expected = @"{\"innerKey1\":\"innerVal1\"}";
+    XCTAssertTrue([actual containsString:expected]);
+}
+
+- (void)testJsonDeSerializeData {
+    id input = nil;
+    id expected = nil;
+    id actual = nil;
+    
+    input = nil;
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [NSNull null];
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [NSData data];
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [@"" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [@"\"floatingString\"]" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [@"[\"val1\":\"val2\"]" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    XCTAssertNil(actual);
+    
+    input = [@"{\"key1\":\"val1\"}" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    expected = @{@"key1":@"val1"};
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = [@"[\"val1\",\"val2\"]" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    expected = @[@"val1",@"val2"];
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = [@"[\"val1\",{\"innerKey1\":\"innerVal1\",\"innerKey2\":\"innerVal2\"},[\"innerVal3\",\"innerVal4\"]]" dataUsingEncoding:NSUTF8StringEncoding];
+    actual = [TuneUtils jsonDeserializeData:input];
+    expected = @"val1";
+    XCTAssertTrue([actual[1] isKindOfClass:[NSDictionary class]]);
+    expected = @"innerVal1";
+    XCTAssertEqualObjects([(NSDictionary *)actual[1] valueForKey:@"innerKey1"], expected);
+    expected = @"innerVal2";
+    XCTAssertEqualObjects([(NSDictionary *)actual[1] valueForKey:@"innerKey2"], expected);
+    XCTAssertTrue([actual[2] isKindOfClass:[NSArray class]]);
+    expected = @[@"innerVal3",@"innerVal4"];
+    XCTAssertEqualObjects([(NSArray *)actual objectAtIndex:2], expected);
+}
+
+- (void)testJsonDeSerializeString {
+    id input = nil;
+    id expected = nil;
+    id actual = nil;
+    
+    input = nil;
+    actual = [TuneUtils jsonDeserializeString:input];
+    XCTAssertNil(actual);
+    
+    input = [NSNull null];
+    actual = [TuneUtils jsonDeserializeString:input];
+    XCTAssertNil(actual);
+    
+    input = @"";
+    actual = [TuneUtils jsonDeserializeString:input];
+    XCTAssertNil(actual);
+    
+    input = @"\"floatingString\"]";
+    actual = [TuneUtils jsonDeserializeString:input];
+    XCTAssertNil(actual);
+    
+    input = @"[\"val1\":\"val2\"]";
+    actual = [TuneUtils jsonDeserializeString:input];
+    XCTAssertNil(actual);
+    
+    input = @"{\"key1\":\"val1\"}";
+    actual = [TuneUtils jsonDeserializeString:input];
+    expected = @{@"key1":@"val1"};
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = @"[\"val1\",\"val2\"]";
+    actual = [TuneUtils jsonDeserializeString:input];
+    expected = @[@"val1",@"val2"];
+    XCTAssertEqualObjects(actual, expected);
+    
+    input = @"[\"val1\",{\"innerKey1\":\"innerVal1\",\"innerKey2\":\"innerVal2\"},[\"innerVal3\",\"innerVal4\"]]";
+    actual = [TuneUtils jsonDeserializeString:input];
+    expected = @"val1";
+    XCTAssertTrue([actual[1] isKindOfClass:[NSDictionary class]]);
+    expected = @"innerVal1";
+    XCTAssertEqualObjects([(NSDictionary *)actual[1] valueForKey:@"innerKey1"], expected);
+    expected = @"innerVal2";
+    XCTAssertEqualObjects([(NSDictionary *)actual[1] valueForKey:@"innerKey2"], expected);
+    XCTAssertTrue([actual[2] isKindOfClass:[NSArray class]]);
+    expected = @[@"innerVal3",@"innerVal4"];
+    XCTAssertEqualObjects([(NSArray *)actual objectAtIndex:2], expected);
 }
 
 @end

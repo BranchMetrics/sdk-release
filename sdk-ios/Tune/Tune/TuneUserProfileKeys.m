@@ -42,7 +42,9 @@ NSString *const TUNE_KEY_IOS_IFV                        = @"ios_ifv";
 NSString *const TUNE_KEY_IOS_IFA                        = @"ios_ifa";
 NSString *const TUNE_KEY_IOS_AD_TRACKING                = @"ios_ad_tracking";
 
+NSString *const TUNE_KEY_IAD                            = @"iad";
 NSString *const TUNE_KEY_IAD_ATTRIBUTION                = @"iad_attribution";
+NSString *const TUNE_KEY_IAD_ATTRIBUTION_DATA           = @"iad_attribution_data";
 NSString *const TUNE_KEY_IAD_IMPRESSION_DATE            = @"impression_datetime";
 NSString *const TUNE_KEY_IAD_CLICK_DATE                 = @"iad_click_date";
 NSString *const TUNE_KEY_IAD_CONVERSION_DATE            = @"iad_conversion_date";

@@ -19,6 +19,7 @@ NSString * const TUNE_KEY_DEEPLINK_CHECKED               = @"mat_deeplink_checke
 NSString * const TUNE_KEY_GEOFENCE_NAME                  = @"geofence_name";
 NSString * const TUNE_KEY_GUID_EMPTY                     = @"00000000-0000-0000-0000-000000000000";
 NSString * const TUNE_KEY_HTTPS                          = @"https";
+NSString * const TUNE_KEY_IAD_ATTRIBUTION_CHECKED        = @"iad_attribution_checked";
 NSString * const TUNE_KEY_IOS                            = @"ios";
 NSString * const TUNE_KEY_IOS_IFA_DEEPLINK               = @"ad_id";
 NSString * const TUNE_KEY_IOS_PURCHASE_STATUS            = @"ios_purchase_status";
@@ -96,6 +97,8 @@ NSString * const TUNE_KEY_MAT_INSTALL_LOG_ID_REQUEST_TIMESTAMP   = @"mat_install
 NSString * const TUNE_KEY_MAT_UPDATE_LOG_ID                      = @"mat_udpate_log_id";
 
 NSString * const TUNE_KEY_MAT_FIXED_FOR_ICLOUD                   = @"mat_fixed_for_icloud";
+
+NSString * const TUNE_KEY_PUSH_ENABLED_STATUS                    = @"TUNE_PUSH_ENABLED_STATUS";
 
 NSString * const TUNE_STRING_EMPTY                               = @"";
 

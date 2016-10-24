@@ -9,17 +9,18 @@
 #import <Foundation/Foundation.h>
 
 #import <XCTest/XCTest.h>
-#import "TuneUtils+Testing.h"
-#import "TuneUserProfile.h"
-#import "TuneModule.h"
+
 #import "TuneCWorks.h"
-#import "Tunemanager.h"
+#import "TuneManager.h"
+#import "TuneModule.h"
 #import "TuneUserDefaultsUtils.h"
+#import "TuneUserProfile.h"
 #import "TuneXCTestCase.h"
 
 @interface TuneUserDefaultsUtilsTests : TuneXCTestCase
 
 @end
+
 
 
 @implementation TuneUserDefaultsUtilsTests
@@ -28,14 +29,6 @@ static NSString* const testKey = @"fakeTuneKey";
 #define expectedKey [NSString stringWithFormat:@"_TUNE_%@", testKey]
 
 
-- (void)setUp {
-    [super setUp];
-}
-
-- (void)tearDown {
-    [super tearDown];
-}
-
 - (void)testNewKeyStored {
     static NSString* const testValue = @"fakeValue";
     
@@ -43,7 +36,7 @@ static NSString* const testKey = @"fakeTuneKey";
     [TuneUserDefaultsUtils setUserDefaultValue:testValue forKey:testKey];
     
     // assert that it's stored in the new-style key name
-    NSString *readValue = [[NSUserDefaults standardUserDefaults] valueForKey:expectedKey];
+    NSString *readValue = [TuneUserDefaultsUtils userDefaultValueforKey:expectedKey];
     XCTAssertTrue( [testValue isEqualToString:readValue], @"stored %@, read %@", testValue, readValue );
 }
 
@@ -51,9 +44,7 @@ static NSString* const testKey = @"fakeTuneKey";
     static NSString* const testValue = @"fakeValue";
     
     // write a string to old-style key
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:testValue forKey:testKey];
-    [defaults synchronize];
+    [TuneUserDefaultsUtils setUserDefaultValue:testValue forKey:testKey];
     
     // assert that it's read by TuneUtils
     NSString *readValue = [TuneUserDefaultsUtils userDefaultValueforKey:testKey];
@@ -65,14 +56,28 @@ static NSString* const testKey = @"fakeTuneKey";
     static NSString* const testValueNew = @"fakeValue2";
     
     // write strings to old- and new-style keys
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:testValueOld forKey:testKey];
-    [defaults setObject:testValueNew forKey:expectedKey];
-    [defaults synchronize];
+    [TuneUserDefaultsUtils setUserDefaultValue:testValueOld forKey:testKey addKeyPrefix:NO];
+    [TuneUserDefaultsUtils setUserDefaultValue:testValueNew forKey:expectedKey addKeyPrefix:NO];
     
     // assert that new-style key is read by TuneUtils
     NSString *readValue = [TuneUserDefaultsUtils userDefaultValueforKey:testKey];
     XCTAssertTrue( [testValueNew isEqualToString:readValue], @"stored %@, read %@", testValueNew, readValue );
+}
+
+- (void)testNewKeyRead {
+    NSString *oldTuneId = [TuneUserDefaultsUtils userDefaultValueforKey:@"_TUNE_mat_id"];
+    
+    static NSString* const newTuneId = @"fakeTuneId";
+    
+    // write a string to a new-style key
+    [TuneUserDefaultsUtils setUserDefaultValue:newTuneId forKey:@"_TUNE_mat_id" addKeyPrefix:NO];
+    
+    // assert that the new-style key is read by TuneSettings
+    TuneUserProfile *userProfile = [[TuneUserProfile alloc] initWithTuneManager:[TuneManager currentManager]];
+    NSString *readTuneId = userProfile.tuneId;
+    XCTAssertTrue( [readTuneId isEqualToString:newTuneId], @"stored %@, read %@", newTuneId, readTuneId );
+    
+    [TuneUserDefaultsUtils setUserDefaultValue:oldTuneId forKey:@"_TUNE_mat_id"];
 }
 
 - (void)testLoadStoreCustomVariable {

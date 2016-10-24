@@ -26,9 +26,11 @@
 #import "TuneJSONUtils.h"
 #import "TuneManager.h"
 #import "TunePlaylistManager+Testing.h"
+#import "TunePushUtils.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneState.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneXCTestCase.h"
 
 @interface TuneAnalyticsManagerTests : TuneXCTestCase {
@@ -115,7 +117,10 @@
     for (NSString *key in storedAnalyticsKeys) {
         // assert action
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"action\":\"testAction\""]);
-        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"{\"controlEvent\":null,\"category\":\"Custom\",\"schemaVersion\":\"2.0\",\"control\":null,"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"category\":\"Custom\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"control\":null"]);
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"type\":\"EVENT\""]);
     }
 }
@@ -138,7 +143,10 @@
     for (NSString *key in storedAnalyticsKeys) {
         // assert action
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"action\":\"123\""]);
-        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"{\"controlEvent\":null,\"category\":\"Custom\",\"schemaVersion\":\"2.0\",\"control\":null,"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"category\":\"Custom\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"control\":null"]);
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"type\":\"EVENT\""]);
     }
 }
@@ -249,6 +257,102 @@
     OCMVerifyAll(mockTimer);
 }
 
+- (void)testPushStatusChangedAnalyticsEvent {
+    __block BOOL analyticsStoreAndTrackCalled = NO;
+    __block BOOL oldStatus = NO;
+    
+    OCMStub([analyticsManager storeAndTrackAnalyticsEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
+        TuneAnalyticsEvent *evt = (TuneAnalyticsEvent *)obj;
+        return [evt.action isEqualToString:@"Push Enabled"] || [evt.action isEqualToString:@"Push Disabled"];
+    }]]).andDo(^(NSInvocation *invocation) {
+        TuneAnalyticsEvent *evt;
+        [invocation getArgument:&evt atIndex:2];
+        analyticsStoreAndTrackCalled = YES;
+        
+        XCTAssertEqual(evt.eventType, @"EVENT");
+        XCTAssertEqual(evt.category, @"Application");
+        NSString *expectedEventAction = oldStatus ? @"Push Disabled" : @"Push Enabled";
+        XCTAssertEqual(evt.action, expectedEventAction);
+    });
+    
+    __block BOOL forcedPushStatus = NO;
+    id classMockTunePushUtils = OCMClassMock([TunePushUtils class]);
+    OCMStub(ClassMethod([classMockTunePushUtils isAlertPushNotificationEnabled])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedPushStatus];
+    });
+    
+    forcedPushStatus = NO;
+    analyticsStoreAndTrackCalled = NO;
+    [TuneUserDefaultsUtils setUserDefaultValue:nil forKey:@"TUNE_PUSH_ENABLED_STATUS"];
+    XCTAssertNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    
+    TuneSkyhookCenter *skyhookCenter = [TuneSkyhookCenter defaultCenter];
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertFalse(analyticsStoreAndTrackCalled);
+    
+    forcedPushStatus = NO;
+    analyticsStoreAndTrackCalled = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertFalse(analyticsStoreAndTrackCalled);
+    
+    forcedPushStatus = YES;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    
+    forcedPushStatus = YES;
+    analyticsStoreAndTrackCalled = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertFalse(analyticsStoreAndTrackCalled);
+    
+    oldStatus = YES;
+    forcedPushStatus = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    
+    //////////////////////////
+    
+    oldStatus = YES;
+    forcedPushStatus = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    oldStatus = NO;
+    forcedPushStatus = YES;
+    [skyhookCenter postSkyhook:TuneRegisteredForRemoteNotificationsWithDeviceToken object:nil userInfo:@{@"deviceToken":@"1234567894561234567891234567890000"}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    
+    //////////////////////////
+    
+    oldStatus = YES;
+    forcedPushStatus = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    oldStatus = NO;
+    forcedPushStatus = YES;
+    [skyhookCenter postSkyhook:TuneFailedToRegisterForRemoteNotifications object:nil userInfo:@{}];
+    
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    
+    [classMockTunePushUtils stopMocking];
+}
+
 #pragma mark - Session Variables
 
 /***************************************
@@ -338,11 +442,11 @@
 
 #pragma mark - Helpers
 
-- (void)addedDispatchOperation:(NSOperation *) operation {
+- (void)addedDispatchOperation:(NSOperation *)operation {
     ++dispatchCount;
 }
 
-- (void)addedConnectedDispatchOperation:(NSOperation *) operation {
+- (void)addedConnectedDispatchOperation:(NSOperation *)operation {
     ++connectedModeDispatchCount;
 }
 

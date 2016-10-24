@@ -29,7 +29,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * TuneSBJSONErrorDomain;
+FOUNDATION_EXPORT NSString * TuneSBJSONErrorDomain;
 
 
 enum {

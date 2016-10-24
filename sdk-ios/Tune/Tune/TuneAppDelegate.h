@@ -9,10 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#if IDE_XCODE_8_OR_HIGHER
-#import <UserNotifications/UserNotifications.h>
-#endif
-
 @interface TuneAppDelegate : NSObject
 
 #if !TARGET_OS_WATCH
@@ -29,10 +25,7 @@
 
 + (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler;
 
-#if IDE_XCODE_8_OR_HIGHER
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center tune_didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler;
-#endif
-
++ (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler;
 #endif
 
 + (BOOL)application:(UIApplication *)application tune_handleOpenURL:(NSURL *)url;

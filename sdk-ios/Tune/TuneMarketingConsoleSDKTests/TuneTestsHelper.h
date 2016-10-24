@@ -28,7 +28,5 @@ void waitFor1( NSTimeInterval duration, BOOL* finished );
 void waitForQueuesToFinish();
 
 void emptyRequestQueue();
-void networkOffline();
-void networkOnline();
 
 int char2hex(unsigned char c);

@@ -103,16 +103,18 @@ NSObject *deepActionDictLock;
 
 #pragma mark - Execute Deep Actions
 
-- (void)handleDeepActionCalled:(TuneSkyhookPayload *)payload {
+- (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data {
     if (![NSThread isMainThread]) {
-        [self performSelectorOnMainThread:@selector(handleDeepActionCalled:)
-                               withObject:payload
-                            waitUntilDone:YES];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [self performSelector:@selector(executeDeepActionWithId:andData:)
+                       withObject:deepActionId
+                       withObject:data];
+        });
+        
         return;
     }
-    
-    // Cleaning the deepActionId shouldn't really be necessary since it is comming from the playlist only, but this is for safety.
-    NSString *cleanDeepActionId = [TuneStringUtils scrubNameForMongo:[payload userInfo][TunePayloadDeepActionId]];
+    // if required, fix deep action id string format
+    NSString *cleanDeepActionId = [TuneStringUtils scrubNameForMongo:deepActionId];
     
     TuneDeepAction *deepAction = [TuneDeepActionManager getDeepAction:cleanDeepActionId];
     if (deepAction == nil) {
@@ -121,12 +123,19 @@ NSObject *deepActionDictLock;
     }
     
     NSMutableDictionary *completeData = [[NSMutableDictionary alloc] initWithDictionary:deepAction.defaultData copyItems:YES];
-    NSDictionary *data = [payload userInfo][TunePayloadDeepActionData];
+    
     if (data != nil) {
         [completeData addEntriesFromDictionary:data];
     }
     
     deepAction.action(completeData);
+}
+
+#pragma mark - Skyhook Observer
+
+- (void)handleDeepActionCalled:(TuneSkyhookPayload *)payload {
+    [self executeDeepActionWithId:[payload userInfo][TunePayloadDeepActionId]
+                          andData:[payload userInfo][TunePayloadDeepActionData]];
 }
 
 @end

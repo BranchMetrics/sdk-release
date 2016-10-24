@@ -15,7 +15,7 @@
  * @warning This is only for testing. You must turn this off for release builds.
  * @param enable defaults to NO.
  */
-+ (void)setDebugMode:(BOOL)enableDebug;
++ (void)setDebugMode:(BOOL)enable;
 
 /*!
  * Sets the status of the user in the given segment, for testing [Tune isUserInSegmentId:] or [Tune isUserInAnySegmentIds:]

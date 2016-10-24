@@ -10,16 +10,16 @@
 
 #import "TuneTestsHelper.h"
 
-#import "TuneManager+Testing.h"
 #import "Tune+Testing.h"
 #import "TuneAnalyticsManager+Testing.h"
+#import "TuneAppDelegate.h"
 #import "TuneFileManager.h"
 #import "TuneEventQueue+Testing.h"
+#import "TuneManager+Testing.h"
 #import "TunePlaylistManager+Testing.h"
-#import "TuneUtils+Testing.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneState+Testing.h"
-#import "TuneAppDelegate.h"
+#import "TuneUserDefaultsUtils.h"
 
 
 #if TARGET_OS_TV
@@ -32,7 +32,7 @@ NSString* const kTestConversionKey = @"8c14d6bbe466b65211e781d62e301eec";
 NSString* const kTestBundleId = @"com.mobileapptracking.iosunittest";
 #endif
 
-const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.;
+const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION = 3.5;
 
 id classMockTuneManager;
 id mockTuneManager;
@@ -169,22 +169,7 @@ void pointMAUrlsToNothing() {
 }
 
 void clearUserDefaults() {
-    NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
-    NSDictionary *dict = [defs dictionaryRepresentation];
-    for (id key in dict) {
-        [defs removeObjectForKey:key];
-    }
-    [defs synchronize];
-    
-    [NSUserDefaults resetStandardUserDefaults];
-    
-    // Check to make sure that NSUserDefaults is really cleared.
-    NSArray *tuneKeys = [[[[NSUserDefaults standardUserDefaults] dictionaryRepresentation] allKeys] filteredArrayUsingPredicate:
-                         [NSPredicate predicateWithFormat:@"SELF beginswith '_TUNE_' and not SELF matches '_TUNE_mat_id'"]
-                         ];
-    if (tuneKeys.count > 0) {
-        ErrorLog(@"ARGH, NSUserDefaults was not cleared properly. Still has: %@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
-    }
+    [TuneUserDefaultsUtils clearAll];
 }
 
 void waitFor1( NSTimeInterval duration, BOOL* finished ) {
@@ -208,14 +193,6 @@ void waitForQueuesToFinish() {
 
 void emptyRequestQueue() {
     [TuneEventQueue drainQueue];
-}
-
-void networkOffline() {
-    [TuneUtils overrideNetworkReachability:[@NO stringValue]];
-}
-
-void networkOnline() {
-    [TuneUtils overrideNetworkReachability:[@YES stringValue]];
 }
 
 int char2hex(unsigned char c) {

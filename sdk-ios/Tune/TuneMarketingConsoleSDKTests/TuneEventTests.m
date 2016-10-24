@@ -13,18 +13,25 @@
 #import "Tune+Testing.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsVariable.h"
+#import "TuneEvent+Internal.h"
 #import "TuneEventKeys.h"
 #import "TuneKeyStrings.h"
+#import "TuneManager.h"
+#import "TuneNetworkUtils.h"
 #import "TuneTestParams.h"
 #import "TuneTracker.h"
-#import "TuneEventKeys.h"
-#import "TuneAnalyticsEvent.h"
-#import "TuneManager.h"
-#import "TuneEvent+Internal.h"
 #import "TuneXCTestCase.h"
+
+#import <OCMock/OCMock.h>
 
 @interface TuneEventTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
+    
+    BOOL finished;
+    BOOL failed;
+    TuneErrorCode tuneErrorCode;
+    
+    id classMockTuneNetworkUtils;
 }
 
 @end
@@ -36,20 +43,81 @@
 
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
+    
+    finished = NO;
+    failed = NO;
+    
+    tuneErrorCode = -1;
+    
     // Wait for everything to be set
     waitForQueuesToFinish();
     
     params = [TuneTestParams new];
     
-    networkOnline();
+    __block BOOL forcedNetworkStatus = YES;
+    classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
 }
 
 - (void)tearDown {
+    [classMockTuneNetworkUtils stopMocking];
+    
     emptyRequestQueue();
+    
     [super tearDown];
 }
 
+#pragma mark - TuneDelegate Methods
+
+- (void)tuneDidSucceedWithData:(NSData *)data {
+    finished = YES;
+    failed = NO;
+}
+
+- (void)tuneDidFailWithError:(NSError *)error {
+    finished = YES;
+    failed = YES;
+    
+    tuneErrorCode = error.code;
+}
+
 #pragma mark - Event parameters
+
+- (void)testNilEventName {
+    static NSString* const eventName = nil;
+    
+    TuneEvent *evt = [TuneEvent eventWithName:eventName];
+    
+    XCTAssertFalse(finished);
+    XCTAssertFalse(failed);
+    XCTAssertEqual(tuneErrorCode, -1, @"Error code should default to -1.");
+    
+    [Tune measureEvent:evt];
+    waitForQueuesToFinish();
+    
+    XCTAssertTrue(finished);
+    XCTAssertTrue(failed);
+    XCTAssertEqual(tuneErrorCode, TuneInvalidEvent, @"Measurement of nil event name should have failed.");
+}
+
+- (void)testEmptyEventName {
+    static NSString* const eventName = @"";
+    
+    TuneEvent *evt = [TuneEvent eventWithName:eventName];
+    
+    XCTAssertFalse(finished);
+    XCTAssertFalse(failed);
+    XCTAssertEqual(tuneErrorCode, -1, @"Error code should default to -1.");
+    
+    [Tune measureEvent:evt];
+    waitForQueuesToFinish();
+    
+    XCTAssertTrue(finished);
+    XCTAssertTrue(failed);
+    XCTAssertEqual(tuneErrorCode, TuneInvalidEvent, @"Measurement of empty event name should have failed.");
+}
 
 - (void)testContentType {
     static NSString* const contentType = @"atrnoeiarsdneiofphyou";

@@ -403,6 +403,14 @@ TunePlaylistManager *playlistManager;
     XCTAssertTrue([playlistManager isUserInAnySegmentIds:segmentIds]);
 }
 
+- (void)testIsUserInSegmentWithNilOrEmpty {
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    XCTAssertFalse([playlistManager isUserInSegmentId:@""]);
+    XCTAssertFalse([playlistManager isUserInSegmentId:nil]);
+}
+
 - (void)testEmptySegmentsFromPlaylist {
     playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePlaylistEmptySegmentTests"].mutableCopy;
     TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
@@ -412,6 +420,21 @@ TunePlaylistManager *playlistManager;
     XCTAssertFalse([playlistManager isUserInSegmentId:@"abc"]);
     NSArray *segmentIds = @[@"abc", @"def"];
     XCTAssertFalse([playlistManager isUserInAnySegmentIds:segmentIds]);
+}
+
+- (void)testSegmentsMissingFromPlaylist {
+    playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePlaylistMissingSegmentTests"].mutableCopy;
+    TunePlaylist *playlist = [[TunePlaylist alloc] initWithDictionary:playlistDictionary];
+    [playlistManager setCurrentPlaylist:playlist];
+    
+    XCTAssertFalse([playlistManager isUserInSegmentId:@"abc"]);
+    XCTAssertFalse([playlistManager isUserInSegmentId:@""]);
+    XCTAssertFalse([playlistManager isUserInSegmentId:nil]);
+    
+    NSMutableArray *segmentIds = [NSMutableArray arrayWithArray:@[@"asdf", @"xyz"]];
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:segmentIds]);
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:@[]]);
+    XCTAssertFalse([playlistManager isUserInAnySegmentIds:nil]);
 }
 
 - (void)testIsUserInAnySegmentsWithEmptyArray {

@@ -5,8 +5,8 @@ TUNE Android SDK
 
 - Install [Android Studio](http://developer.android.com/tools/studio/index.html)
 
-- `gradle makeJar` creates `/dist/TuneMarketingConsoleSDK-x.y.z.jar`
+- `./gradlew makeJar` creates `/dist/TuneMarketingConsoleSDK-x.y.z.jar`
 
 #Test
 
-- `gradle connectedCheck --info` runs instrumentation tests in `/TuneMarketingConsoleSDK/src/androidTest`
+- `./gradlew connectedCheck --info` runs instrumentation tests in `/TuneMarketingConsoleSDK/src/androidTest`

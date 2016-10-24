@@ -77,6 +77,21 @@ public class TuneNotificationManagerDelegate {
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
         notification.defaults |= Notification.DEFAULT_LIGHTS;
 
+        if (ourBuilder != null) {
+            // If custom sound wasn't set, and no-sound wasn't explicitly set in TuneNotificationBuilder, use default sound
+            if (!ourBuilder.isSoundSet() && !ourBuilder.isNoSoundSet()) {
+                notification.defaults |= Notification.DEFAULT_SOUND;
+            }
+            // If custom vibrate pattern wasn't set, and no-vibration wasn't explicitly set in TuneNotificationBuilder, use default pattern
+            if (!ourBuilder.isVibrateSet() && !ourBuilder.isNoVibrateSet()) {
+                notification.defaults |= Notification.DEFAULT_VIBRATE;
+            }
+        } else {
+            // If TuneNotificationBuilder isn't used, use default sound and vibrate
+            notification.defaults |= Notification.DEFAULT_SOUND;
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
+        }
+
         TuneDebugLog.d("Posting push notification now");
 
         // Post the notification to the tray

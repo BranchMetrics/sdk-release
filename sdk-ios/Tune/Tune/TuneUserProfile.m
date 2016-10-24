@@ -49,14 +49,12 @@ static CTTelephonyNetworkInfo *netInfo;
 
 NSDictionary *profileVariablesToSave;
 NSSet *profileVariablesToNotSendToMA;
+NSSet *profileVariablesToOnlySendOnFirstSession;
 
 @implementation TuneUserProfile {
     NSMutableDictionary *_userVariables;
     NSMutableSet *_userCustomVariables;
-    NSObject *userVariablesLock;
-    NSObject *userCustomVariablesLock;
     NSMutableSet *currentVariations;
-    NSObject *currentVariationsLock;
 }
 
 static NSNumber *COPPA_MIN_AGE;
@@ -104,6 +102,10 @@ static NSNumber *COPPA_MIN_AGE;
                                                                    TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
                                                                    TUNE_KEY_LOCATION_TIMESTAMP
                                                                    ]];
+    
+    profileVariablesToOnlySendOnFirstSession = [[NSSet alloc] initWithArray:@[
+                                                                              TUNE_KEY_INSTALL_RECEIPT
+                                                                              ]];
 }
 
 - (id)initWithTuneManager:(TuneManager *)tuneManager {
@@ -113,10 +115,6 @@ static NSNumber *COPPA_MIN_AGE;
         _userVariables = [[NSMutableDictionary alloc] init];
         _userCustomVariables = [[NSMutableSet alloc] init];
         currentVariations = [[NSMutableSet alloc] init];
-        
-        userVariablesLock = [[NSObject alloc] init];
-        userCustomVariablesLock = [[NSObject alloc] init];
-        currentVariationsLock = [[NSObject alloc] init];
         
         [self loadSavedProfile];
         
@@ -240,7 +238,7 @@ static NSNumber *COPPA_MIN_AGE;
             }
         }
         
-        @synchronized(userCustomVariablesLock) {
+        @synchronized(self) {
             // Restore saved custom profile variable names
             NSString *customVariablesJson = (NSString *)[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_CUSTOM_VARIABLES];
             [_userCustomVariables addObjectsFromArray:[TuneJSONUtils createArrayFromJSONString:customVariablesJson]];
@@ -262,7 +260,7 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (void)endSession:(TuneSkyhookPayload *)payload {
     // Save custom profile variable names
-    @synchronized(userCustomVariablesLock) {
+    @synchronized(self) {
         NSString *customVariablesJson = [TuneJSONUtils createJSONStringFromArray:[_userCustomVariables allObjects]];
         [TuneUserDefaultsUtils setUserDefaultValue:customVariablesJson forKey:TUNE_KEY_CUSTOM_VARIABLES];
     }
@@ -283,7 +281,7 @@ static NSNumber *COPPA_MIN_AGE;
 - (void)registerProfileVariable:(NSString *)name withValue:(NSString *)value {
     TuneAnalyticsVariable *newVariable = [TuneAnalyticsVariable analyticsVariableWithName:name value:value];
 
-    @synchronized(currentVariationsLock) {
+    @synchronized(self) {
         [currentVariations addObjectsFromArray:newVariable.toArrayOfDicts];
     }
 }
@@ -677,7 +675,7 @@ static NSNumber *COPPA_MIN_AGE;
 - (void) clearVariable:(NSString *)key {
     [TuneUserDefaultsUtils clearCustomVariable:key];
     
-    @synchronized(userVariablesLock) {
+    @synchronized(self) {
         [_userVariables removeObjectForKey:key];
     }
 }
@@ -711,19 +709,19 @@ static NSNumber *COPPA_MIN_AGE;
 #pragma mark - Profile Variable Manager Methods
 
 - (void)addCustomProfileVariable:(NSString *)value {
-    @synchronized(userCustomVariablesLock) {
+    @synchronized(self) {
         [_userCustomVariables addObject:value];
     }
 }
 
 - (NSSet *)getCustomProfileVariables {
-    @synchronized(userCustomVariablesLock) {
+    @synchronized(self) {
         return [_userCustomVariables copy];
     }
 }
 
 - (id)getProfileValue:(NSString *)key {
-    @synchronized(userVariablesLock) {
+    @synchronized(self) {
         if ([_userVariables objectForKey: key] != nil) {
             return [(TuneAnalyticsVariable *)[_userVariables objectForKey: key] value];
         };
@@ -733,7 +731,7 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (TuneAnalyticsVariable *)getProfileVariable:(NSString *)key {
-    @synchronized(userVariablesLock) {
+    @synchronized(self) {
         if ([_userVariables objectForKey: key] != nil) {
             return (TuneAnalyticsVariable *)[_userVariables objectForKey: key];
         } else {
@@ -745,7 +743,7 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (NSDictionary *)getProfileVariables {
-    @synchronized(userVariablesLock){
+    @synchronized(self){
         return [NSDictionary dictionaryWithDictionary:_userVariables];
     }
 }
@@ -777,7 +775,7 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (void)storeProfileVar:(TuneAnalyticsVariable *)var {
-    @synchronized(userVariablesLock) {
+    @synchronized(self) {
         NSString *key = var.name;
         
         [_userVariables setObject:[var copy] forKey:key];
@@ -1672,15 +1670,19 @@ static NSNumber *COPPA_MIN_AGE;
     NSMutableArray *result = [[NSMutableArray alloc] init];
     NSDictionary *variables = [self getProfileVariables];
     
-    for (NSString *key in variables) {
-        TuneAnalyticsVariable *var = [variables objectForKey:key];
+    @synchronized(self) {
+        for (NSString *key in variables) {
+            TuneAnalyticsVariable *var = [variables objectForKey:key];
         
-        if (![profileVariablesToNotSendToMA containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
-            [result addObjectsFromArray:[var toArrayOfDicts]];
+            if (![profileVariablesToNotSendToMA containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
+                // If this is a variable we should only send once and this is not the first session, skip it
+                if ([profileVariablesToOnlySendOnFirstSession containsObject:key] && ![[self isFirstSession] boolValue]) {
+                    continue;
+                }
+                [result addObjectsFromArray:[var toArrayOfDicts]];
+            }
         }
-    }
-    
-    @synchronized(currentVariationsLock) {
+
         [result addObjectsFromArray:currentVariations.allObjects];
     }
     

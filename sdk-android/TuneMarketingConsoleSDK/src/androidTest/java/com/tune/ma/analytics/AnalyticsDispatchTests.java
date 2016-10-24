@@ -11,7 +11,9 @@ import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.file.FileManager;
+import com.tune.ma.push.TunePushManager;
 import com.tune.ma.push.model.TunePushMessage;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import com.tune.mocks.MockApi;
 
 import org.json.JSONArray;
@@ -42,6 +44,9 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
         elapsedTime = 0;
         startTime = 0;
+
+        TuneSharedPrefsDelegate sharedPrefs = new TuneSharedPrefsDelegate(context, TunePushManager.PREFS_TMA_PUSH);
+        sharedPrefs.clearSharedPreferences();
     }
 
     /**
@@ -143,14 +148,16 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         }
 
         JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
+        String eventString = eventJson.toString();
 
-
-        // Check that 2 events were sent - one foreground, one tracer
-        assertEquals("eventJson did not have expected length 2: " + eventJson.toString(), 2, eventJson.length());
+        // Check that at least 2 events were sent - one foreground, one tracer, and possibly one push enabled
+        assertTrue(eventJson.length() >= 2);
         // Check that a foreground event was sent
         assertTrue(eventJson.toString().contains("\"type\":\"SESSION\"") && eventJson.toString().contains("\"action\":\"" + TuneSessionEvent.FOREGROUNDED + "\""));
         // Check that a tracer event was sent
         assertTrue(eventJson.toString().contains("\"type\":\"TRACER\""));
+
+        assertTrue(2 == eventJson.length() || (3 == eventJson.length() && eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"")));
     }
 
     public void testAppBackgroundDispatch() throws JSONException {
@@ -161,6 +168,12 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
             sleep(WAIT_TIME);
         }
 
+        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
+        String eventString = eventJson.toString();
+        int totalEventCount = eventJson.length();
+
+        boolean foundPushEnabled = eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
+
         TuneEventBus.post(new TuneAppBackgrounded());
 
         // Wait for first tracer to be dispatched
@@ -168,15 +181,25 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
             sleep(WAIT_TIME);
         }
 
-        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
-        String eventString = eventJson.toString();
+        eventJson = mockApi.getPostedEvents().getJSONArray("events");
+        eventString = eventJson.toString();
 
-        // Check that 2 events were sent - one background, one tracer
-        assertEquals(2, eventJson.length());
+        totalEventCount += eventJson.length();
+
+        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+
+        // Check that at least 2 events were sent - one background, one tracer
+        assertTrue(eventJson.length() >= 2);
         // Check that a background event was sent
         assertTrue(eventString.contains("\"type\":\"SESSION\"") && eventString.contains("\"action\":\"" + TuneSessionEvent.BACKGROUNDED + "\""));
         // Check that a tracer event was sent
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
+
+        // Check that 5 events were sent - foregrounded, tracer, one push enabled, background, one tracer
+        assertEquals(5, totalEventCount);
+
+        // Check that a push enabled event was sent
+        assertTrue(foundPushEnabled);
     }
 
     public void testScreenViewDispatch() throws JSONException {
@@ -187,6 +210,12 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
             sleep(WAIT_TIME);
         }
 
+        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
+        String eventString = eventJson.toString();
+        int totalEventCount = eventJson.length();
+
+        boolean foundPushEnabled = eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
+
         // Mock an activity resume to track screen view of
         TuneEventBus.post(new TuneActivityResumed("MockActivity"));
         TuneEventBus.post(new TuneAppBackgrounded());
@@ -196,17 +225,27 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
             sleep(WAIT_TIME);
         }
 
-        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
-        String eventString = eventJson.toString();
+        eventJson = mockApi.getPostedEvents().getJSONArray("events");;
+        eventString = eventJson.toString();
 
-        // Check that 3 events were sent - one background, one tracer, one screen view
-        assertEquals(3, eventJson.length());
+        totalEventCount += eventJson.length();
+
+        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+
+        // Check that at least 3 events were sent - one background, one tracer, one screen view
+        assertTrue(eventJson.length() >= 3);
         // Check that a screen view event was sent
         assertTrue(eventString.contains("\"type\":\"PAGEVIEW\"") && eventString.contains("\"category\":\"MockActivity\""));
         // Check that a background event was sent
         assertTrue(eventString.contains("\"type\":\"SESSION\"") && eventString.contains("\"action\":\"" + TuneSessionEvent.BACKGROUNDED + "\""));
         // Check that a tracer event was sent
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
+
+        // Check that 6 events were sent - foregrounded, tracer, one push enabled, one push opened, one push action, background, one tracer
+        assertEquals(6, totalEventCount);
+
+        // Check that a push enabled event was sent
+        assertTrue(foundPushEnabled);
     }
 
     /**
@@ -219,6 +258,13 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+
+        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
+        String eventString = eventJson.toString();
+
+        int totalEventCount = eventJson.length();
+
+        boolean foundPushEnabled = eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
 
         TuneEventBus.post(new TunePushOpened(new TunePushMessage("{\"appName\":\"test\"," +
                 "\"local_message_id\": \"test_message_id\"," +
@@ -241,11 +287,15 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
             sleep(WAIT_TIME);
         }
 
-        JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
-        String eventString = eventJson.toString();
+        eventJson = mockApi.getPostedEvents().getJSONArray("events");
+        eventString = eventJson.toString();
 
-        // Check that 4 events were sent - one push opened, one push action, background, one tracer
-        assertEquals(4, eventJson.length());
+        totalEventCount += eventJson.length();
+
+        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+
+        // Check that at least 4 events were sent - one push opened, one push action, background, one tracer
+        assertTrue(eventJson.length() >= 4);
         // Check that a NotificationOpened event was sent
         assertTrue(eventString.contains("\"type\":\"PUSH_NOTIFICATION\"") && eventString.contains("\"action\":\"NotificationOpened\""));
         // Check that a push action event was sent
@@ -254,5 +304,11 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(eventString.contains("\"type\":\"SESSION\"") && eventString.contains("\"action\":\"" + TuneSessionEvent.BACKGROUNDED + "\""));
         // Check that a tracer event was sent
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
+
+        // Check that 7 events were sent - foregrounded, tracer, one push enabled, one push opened, one push action, background, one tracer
+        assertEquals(7, totalEventCount);
+
+        // Check that a push enabled event was sent
+        assertTrue(foundPushEnabled);
     }
 }

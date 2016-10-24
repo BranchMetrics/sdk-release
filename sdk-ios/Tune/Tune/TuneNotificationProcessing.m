@@ -12,10 +12,13 @@
 #import "TuneNotification.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSessionManager.h"
+#import "TuneDeviceDetails.h"
 
-#if IDE_XCODE_8_OR_HIGHER
-#import <UserNotifications/UserNotifications.h>
-#endif
+
+// Note: string equivalent of constant UNNotificationDefaultActionIdentifier;
+// keeps UserNotification framework reference optional in the host app project
+NSString * const TUNE_UNNotificationDefaultActionIdentifier = @"com.apple.UNNotificationDefaultActionIdentifier";
+
 
 @implementation TuneNotificationProcessing
 
@@ -49,9 +52,10 @@
         NSDictionary *nextAction = nil;
         
         BOOL isDefaultAction = NO;
-#if (!TARGET_OS_TV) && (IDE_XCODE_8_OR_HIGHER)
-        isDefaultAction = [identifier isEqualToString:UNNotificationDefaultActionIdentifier];
-#endif
+
+        if ([TuneDeviceDetails runningOnPhone] || [TuneDeviceDetails runningOnTablet] || [TuneDeviceDetails appIsRunningIniOS10OrAfter]) {
+            isDefaultAction = [identifier isEqualToString:TUNE_UNNotificationDefaultActionIdentifier];
+        }
         
         if (identifier && !isDefaultAction) {
             // Since there's identifier user has selected an interactive button

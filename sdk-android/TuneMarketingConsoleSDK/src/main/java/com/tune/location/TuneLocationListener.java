@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -123,6 +124,15 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
+     * Checks if this listener is current listening for location changes.
+     *
+     * @return true if listening, false otherwise
+     */
+    public boolean isListening() {
+        return listening;
+    }
+
+    /**
      * Code from http://developer.android.com/guide/topics/location/strategies.html#BestEstimate
      * Determines whether one Location reading is better than the current Location fix
      * @param location The new Location that you want to evaluate
@@ -197,7 +207,8 @@ public class TuneLocationListener implements LocationListener {
             TuneDebugLog.d("Listening for location updates");
             // Request updates from GPS and network
             // GPS requires ACCESS_FINE_LOCATION
-            if (TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            boolean hasFineLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasFineLocationPermission) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     // Initialize to last known GPS location, in case we never get updates on location
                     if (lastLocation == null) {
@@ -207,13 +218,25 @@ public class TuneLocationListener implements LocationListener {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                 }
             }
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                // Use last network location if not initialized and GPS location not found
-                if (lastLocation == null) {
-                    lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            // Network requires ACCESS_COARSE_LOCATION
+            boolean hasCoarseLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
+            boolean hasNetworkProviderPermissions = hasCoarseLocationPermission;
+            // Work around a location-related crash on OnePlus2 devices where accessing the network provider also requires ACCESS_FINE_LOCATION:
+            // https://chromium.googlesource.com/chromium/src/+/c13ab13e3dccb32be5a376b237a81ed326e158c0%5E%21/#F0
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                hasNetworkProviderPermissions = hasCoarseLocationPermission && hasFineLocationPermission;
+            }
+
+            if (hasNetworkProviderPermissions) {
+                if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                    // Use last network location if not initialized and GPS location not found
+                    if (lastLocation == null) {
+                        lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    }
+                    // Register this class with the Location Manager to receive network + wifi location updates
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                 }
-                // Register this class with the Location Manager to receive network + wifi location updates
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
             }
 
             // Stop listening after LISTENER_TIMEOUT if onLocationChanged is never received
@@ -230,19 +253,21 @@ public class TuneLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        // New location is found by the location provider
-        TuneDebugLog.d("Received new location " + location.toString());
+        if (location != null) {
+            // New location is found by the location provider
+            TuneDebugLog.d("Received new location " + location.toString());
 
-        // Update the lastLocation if the new one is better
-        if (isBetterLocation(location, lastLocation)) {
-            TuneDebugLog.d("New location is better, saving");
-            lastLocation = location;
-        }
+            // Update the lastLocation if the new one is better
+            if (isBetterLocation(location, lastLocation)) {
+                TuneDebugLog.d("New location is better, saving");
+                lastLocation = location;
+            }
 
-        // If we got a location of less than 1km accuracy, stop listening
-        // Otherwise keep listening for new location updates
-        if (location.getAccuracy() <= DESIRED_ACCURACY) {
-            stopListening();
+            // If we got a location of less than 1km accuracy, stop listening
+            // Otherwise keep listening for new location updates
+            if (location.getAccuracy() <= DESIRED_ACCURACY) {
+                stopListening();
+            }
         }
     }
 

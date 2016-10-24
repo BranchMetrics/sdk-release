@@ -88,7 +88,7 @@ NSObject *dictLock;
                 // Create the PowerHookValue temporarily so we can get some information from it.
                 TunePowerHookValue *hookValue = [[TunePowerHookValue alloc] initWithDictionary:hooks[hookId]];
                 if ([hookValue.experimentId isEqualToString:experimentId]) {
-                    TunePowerHookExperimentDetails *details = [[TunePowerHookExperimentDetails alloc] initWithDetailsDictionary:experiment andPowerHookValue:hookValue andHookId:hookId];
+                    TunePowerHookExperimentDetails *details = [[TunePowerHookExperimentDetails alloc] initWithDetailsDictionary:experiment andPowerHookValue:hookValue];
                     powerHookExperimentDetailsTemp[hookId] = details;
                     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet
                                                             object:nil

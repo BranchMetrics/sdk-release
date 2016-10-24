@@ -17,6 +17,8 @@ const int TuneSkyhookPriorityLast = 10000;
 #pragma mark - Analytics Hooks
 NSString *const TuneCustomEventOccurred = @"TuneCustomEventOccurred";
 NSString *const TunePushNotificationOpened = @"TunePushNotificationOpened";
+NSString *const TunePushEnabled = @"Push Enabled";
+NSString *const TunePushDisabled = @"Push Disabled";
 NSString *const TuneAppOpenedFromURL = @"TuneAppOpenedFromURL";
 NSString *const TuneEventTracked = @"TuneEventTracked"; // Posted on every event via AnalyticsManager#storeAndTrackAnalyticsEvents
 NSString *const TuneSessionVariableToSet = @"TuneSessionVariableToSet";
@@ -54,6 +56,7 @@ NSString *const TunePlaylistAssetsDownloaded = @"TunePlaylistAssetsDownloaded";
 
 #pragma mark - Device Token
 NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken = @"TuneRegisteredForRemoteNotificationsWithDeviceToken";
+NSString *const TuneFailedToRegisterForRemoteNotifications = @"TuneFailedToRegisterForRemoteNotifications";
 
 #pragma mark - Force update from Tune
 NSString *const TuneDispatchNow = @"TuneDispatchNow";

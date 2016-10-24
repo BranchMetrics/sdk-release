@@ -659,4 +659,26 @@
     XCTAssertEqualObjects(@"persistingValue", [profile getCustomProfileString:@"persistingString"]);
 }
 
+- (void)testAppleReceiptOnlySentWithFirstSession {
+    // Set first session to true
+    [[TuneManager currentManager].userProfile setIsFirstSession:@(1)];
+    
+    // Trigger a marshaling to dictionary as an analytics event would do
+    NSArray *profileArray = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
+    
+    // Assert that the user profile toArrayOfDictionaries method contains an apple receipt for the first session
+    NSArray *receiptVar = [[[[TuneManager currentManager].userProfile getProfileVariables] objectForKey:TUNE_KEY_INSTALL_RECEIPT] toArrayOfDicts];
+    
+    XCTAssertTrue([profileArray containsObject:receiptVar[0]]);
+    
+    // Set first session to false
+    [[TuneManager currentManager].userProfile setIsFirstSession:@(0)];
+    
+    // Trigger another marshaling to dictionary
+    profileArray = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
+    
+    // Assert that the user profile toArrayOfDictionaries method does not contain an apple receipt for the non-first session
+    XCTAssertFalse([profileArray containsObject:receiptVar[0]]);
+}
+
 @end

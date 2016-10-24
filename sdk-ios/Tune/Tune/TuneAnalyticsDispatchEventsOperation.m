@@ -10,6 +10,7 @@
 #import "TuneAnalyticsDispatchEventsOperation.h"
 #import "TuneManager.h"
 #import "TuneConfiguration.h"
+#import "TuneHttpRequest.h"
 #import "TuneUserProfile.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsManager.h"
@@ -49,27 +50,22 @@
         BOOL success = NO;
         
         NSDictionary *eventsFromFile = [TuneFileManager loadAnalyticsFromDisk];
-        
-        NSMutableArray *eventIds = [[NSMutableArray alloc] initWithCapacity:[eventsFromFile count]];
-        NSMutableArray *eventsToSend = [[NSMutableArray alloc] initWithCapacity:[eventsFromFile count]];
-        
+
         // Split the dictionary for the two arrays we need.
         // One to send, and one to store the keys for what we sent (so we can delete it later).
-        for (NSString *eventId in eventsFromFile) {
-            [eventIds addObject:eventId];
-            [eventsToSend addObject:[eventsFromFile objectForKey:eventId]];
-        }
-        
+        NSArray *eventIds = [eventsFromFile allKeys];
+        NSArray *eventsToSend = [eventsFromFile allValues];
+
         // Add the tracer event to the array of event JSON going out the door.
         if ([self includeTracer]) {
             TuneAnalyticsEvent *tracer = [[TuneManager currentManager].analyticsManager buildTracerEvent];
             if (tracer) {
                 NSString *tracerJSON = [TuneJSONUtils createJSONStringFromDictionary:[tracer toDictionary]];
-                [eventsToSend addObject: tracerJSON];
+                eventsToSend = [eventsToSend arrayByAddingObject:tracerJSON];
             }
         }
         
-        if(self.isCancelled) {
+        if (self.isCancelled) {
             ErrorLog(@"TuneAnalyticsDispatchEventsOperation has already been cancelled: do not fire request");
             return;
         }
@@ -105,11 +101,11 @@
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    [request setHTTPMethod:@"POST"];
+    [request setHTTPMethod:TuneHttpRequestMethodTypePost];
     [request setHTTPBody:zippedPostPayload];
-    [request setValue:contentType forHTTPHeaderField: @"Content-Type"];
-    [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-    [request setValue:requestDataLengthString forHTTPHeaderField:@"Content-Length"];
+    [request setValue:contentType forHTTPHeaderField:TuneHttpRequestHeaderContentType];
+    [request setValue:@"gzip" forHTTPHeaderField:TuneHttpRequestHeaderContentEncoding];
+    [request setValue:requestDataLengthString forHTTPHeaderField:TuneHttpRequestHeaderContentLength];
     [request setTimeoutInterval:[timeoutInterval doubleValue]];
     [TuneHttpUtils addIdentifyingHeaders:request];
     
@@ -119,11 +115,11 @@
     return (*error == nil);
 }
 
-- (NSString *)outboundMessageStringFromEventArray:(NSArray*)eventArray {
+- (NSString *)outboundMessageStringFromEventArray:(NSArray *)eventArray {
     // We'll create the JSON string manually since the eventArray contains strings already in JSON format
     // (and we don't want to risk double-encoding via SBJSON)
     
-    return [NSString stringWithFormat:@"{ \"events\": [%@]}", [eventArray componentsJoinedByString:@","]];
+    return [NSString stringWithFormat:@"{\"events\":[%@]}", [eventArray componentsJoinedByString:@","]];
 }
 
 - (NSData*)zipAndEncodeData:(NSData*)uncompressedData withFileBoundary:(NSString*)boundary {
@@ -133,8 +129,8 @@
     
     // wrap the zipped data in a file boundary for multi-part transmission
     [compressedData appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    [compressedData appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"analytics.gzip\"\r\n", @"analytics"] dataUsingEncoding:NSUTF8StringEncoding]];
-    [compressedData appendData:[@"Content-Type: application/gzip\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [compressedData appendData:[[NSString stringWithFormat:@"%@: form-data; name=\"%@\"; filename=\"analytics.gzip\"\r\n", TuneHttpRequestHeaderContentDisposition, @"analytics"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [compressedData appendData:[[NSString stringWithFormat:@"%@: application/gzip\r\n\r\n", TuneHttpRequestHeaderContentType] dataUsingEncoding:NSUTF8StringEncoding]];
     [compressedData appendData:zippedData];
     [compressedData appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
     [compressedData appendData:[[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];

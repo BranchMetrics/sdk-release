@@ -9,44 +9,44 @@
 @interface TuneSkyhookPayloadConstants : NSObject
 
 #pragma mark - Session Variable
-extern NSString *const TunePayloadSessionVariableName;
-extern NSString *const TunePayloadSessionVariableValue;
-extern NSString *const TunePayloadSessionVariableSaveType;
-extern NSString *const TunePayloadSessionVariableSaveTypeTag;
-extern NSString *const TunePayloadSessionVariableSaveTypeProfile;
+FOUNDATION_EXPORT NSString *const TunePayloadSessionVariableName;
+FOUNDATION_EXPORT NSString *const TunePayloadSessionVariableValue;
+FOUNDATION_EXPORT NSString *const TunePayloadSessionVariableSaveType;
+FOUNDATION_EXPORT NSString *const TunePayloadSessionVariableSaveTypeTag;
+FOUNDATION_EXPORT NSString *const TunePayloadSessionVariableSaveTypeProfile;
 
 #pragma mark - Custom Event
-extern NSString *const TunePayloadCustomEvent;
+FOUNDATION_EXPORT NSString *const TunePayloadCustomEvent;
 
 #pragma mark - Tracked Event
-extern NSString *const TunePayloadTrackedEvent;
+FOUNDATION_EXPORT NSString *const TunePayloadTrackedEvent;
 
 #pragma mark - Profile clear
-extern NSString *const TunePayloadProfileVariablesToClear;
+FOUNDATION_EXPORT NSString *const TunePayloadProfileVariablesToClear;
 
 #pragma mark - Playlist
-extern NSString *const TunePayloadNewPlaylist;
-extern NSString *const TunePayloadPlaylistLoadedFromDisk;
-extern NSString *const TunePayloadFirstPlaylistDownloaded;
+FOUNDATION_EXPORT NSString *const TunePayloadNewPlaylist;
+FOUNDATION_EXPORT NSString *const TunePayloadPlaylistLoadedFromDisk;
+FOUNDATION_EXPORT NSString *const TunePayloadFirstPlaylistDownloaded;
 
 #pragma mark - Push and Local Notification
-extern NSString *const TunePayloadNotification;
+FOUNDATION_EXPORT NSString *const TunePayloadNotification;
 
 #pragma mark - Campaign
-extern NSString *const TunePayloadCampaign;
-extern NSString *const TunePayloadCampaignStep;
+FOUNDATION_EXPORT NSString *const TunePayloadCampaign;
+FOUNDATION_EXPORT NSString *const TunePayloadCampaignStep;
 
 #pragma mark - In App Message
-extern NSString *const TunePayloadInAppMessageID;
-extern NSString *const TunePayloadInAppMessageSecondsDisplayed;
-extern NSString *const TunePayloadInAppMessageDismissedAction;
+FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageID;
+FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageSecondsDisplayed;
+FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageDismissedAction;
 
 #pragma mark - Deep Actions
-extern NSString *const TunePayloadDeepActionId;
-extern NSString *const TunePayloadDeepActionData;
+FOUNDATION_EXPORT NSString *const TunePayloadDeepActionId;
+FOUNDATION_EXPORT NSString *const TunePayloadDeepActionData;
 
 #pragma mark - Deeplinks
-extern NSString *const TunePayloadDeeplink;
+FOUNDATION_EXPORT NSString *const TunePayloadDeeplink;
 
 @end
  

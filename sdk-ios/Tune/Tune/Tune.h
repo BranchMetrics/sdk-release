@@ -30,7 +30,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.7.0"
+#define TUNEVERSION @"4.9.2"
 
 
 @protocol TuneDelegate;
@@ -271,7 +271,8 @@
 + (void)setGoogleUserId:(NSString *)googleUserId;
 
 /*!
- Sets the user's age.
+ Sets the user's age. When age is set to a value <= 13, IAM push notifications cannot be sent to this device, in order to comply with COPPA.
+ @see https://www.ftc.gov/enforcement/rules/rulemaking-regulatory-reform-proceedings/childrens-online-privacy-protection-rule
  @param userAge user's age
  */
 + (void)setAge:(NSInteger)userAge;
@@ -406,7 +407,7 @@
  *
  * @param value Value to use for the given variable.
  *
- * @param variableName Variable to which this value should be assigned.
+ * @param name Variable to which this value should be assigned.
  */
 + (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name;
 
@@ -416,7 +417,7 @@
  *
  * @param value Value to use for the given variable.
  *
- * @param variableName Variable to which this value should be assigned.
+ * @param name Variable to which this value should be assigned.
  */
 + (void)setCustomProfileDateTimeValue:(NSDate *)value forVariable:(NSString *)name;
 
@@ -426,7 +427,7 @@
  *
  * @param value Value to use for the given variable.
  *
- * @param variableName Variable to which this value should be assigned.
+ * @param name Variable to which this value should be assigned.
  */
 + (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name;
 
@@ -436,7 +437,7 @@
  *
  * @param value Value to use for the given variable.
  *
- * @param variableName Variable to which this value should be assigned.
+ * @param name Variable to which this value should be assigned.
  */
 + (void)setCustomProfileGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name;
 
@@ -609,6 +610,14 @@
  * @param deepAction The reusable block of code that you are registering with TUNE. We will merge the values from TUNE Marketing Automation with this extra data. A block is required, this parameter cannot be nil.
  */
 + (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction;
+
+/**
+ * Executes a previously registered deep action block as a blocking call on the main thread. The data to be used by the current execution of the deep action block is derived by merging the dictionary provided here with the default dictionary provided during deep action registration. Also, the new values take preference over the default values when the keys match.
+ *
+ * @param deepActionId Non-empty non-nil name of a previously registered deep action code-block.
+ * @param data Data to be used for the deep action. This dictionary may be nil or empty or contain string keys and values.
+ */
++ (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data;
 
 #pragma mark - Push Notifications API
 

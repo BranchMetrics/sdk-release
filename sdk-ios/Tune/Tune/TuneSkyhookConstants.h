@@ -7,63 +7,66 @@
 //
 
 # pragma mark - Priorities
-extern const int TuneSkyhookPriorityFirst;
-extern const int TuneSkyhookPrioritySecond;
-extern const int TuneSkyhookPriorityIrrelevant;
-extern const int TuneSkyhookPriorityLast;
+FOUNDATION_EXPORT const int TuneSkyhookPriorityFirst;
+FOUNDATION_EXPORT const int TuneSkyhookPrioritySecond;
+FOUNDATION_EXPORT const int TuneSkyhookPriorityIrrelevant;
+FOUNDATION_EXPORT const int TuneSkyhookPriorityLast;
 
 #pragma mark - Analytics Hooks
-extern NSString *const TuneCustomEventOccurred;
-extern NSString *const TunePushNotificationOpened;
-extern NSString *const TuneAppOpenedFromURL;
-extern NSString *const TuneEventTracked;
-extern NSString *const TuneSessionVariableToSet;
-extern NSString *const TuneUserProfileVariablesCleared;
+FOUNDATION_EXPORT NSString *const TuneCustomEventOccurred;
+FOUNDATION_EXPORT NSString *const TunePushNotificationOpened;
+FOUNDATION_EXPORT NSString *const TunePushEnabled;
+FOUNDATION_EXPORT NSString *const TunePushDisabled;
+FOUNDATION_EXPORT NSString *const TuneAppOpenedFromURL;
+FOUNDATION_EXPORT NSString *const TuneEventTracked;
+FOUNDATION_EXPORT NSString *const TuneSessionVariableToSet;
+FOUNDATION_EXPORT NSString *const TuneUserProfileVariablesCleared;
 
 #pragma mark - Campaign Hooks
-extern NSString *const TuneCampaignViewed;
+FOUNDATION_EXPORT NSString *const TuneCampaignViewed;
 
 #pragma mark - TuneConfiguration
-extern NSString *const TuneConfigurationUpdated;
+FOUNDATION_EXPORT NSString *const TuneConfigurationUpdated;
 
 #pragma mark - View Controller Lifecycle
-extern NSString *const TuneViewControllerAppeared;
+FOUNDATION_EXPORT NSString *const TuneViewControllerAppeared;
 
 #pragma mark - Session Hooks
-extern NSString *const TuneSessionManagerSessionDidStart;
-extern NSString *const TuneSessionManagerSessionDidEnd;
+FOUNDATION_EXPORT NSString *const TuneSessionManagerSessionDidStart;
+FOUNDATION_EXPORT NSString *const TuneSessionManagerSessionDidEnd;
 
 #pragma mark - Crash Reporting
-extern NSString *const TuneCrashFound;
+FOUNDATION_EXPORT NSString *const TuneCrashFound;
 
 #pragma mark - TuneState
-extern NSString *const TuneStateNetworkStatusChanged;
+FOUNDATION_EXPORT NSString *const TuneStateNetworkStatusChanged;
 
-extern NSString *const TuneStateTMAConnectedModeTurnedOn;
-extern NSString *const TuneStateTMAConnectedModeTurnedOff;
+FOUNDATION_EXPORT NSString *const TuneStateTMAConnectedModeTurnedOn;
+FOUNDATION_EXPORT NSString *const TuneStateTMAConnectedModeTurnedOff;
 
 #pragma mark - TunePlaylistManager
-extern NSString *const TunePlaylistManagerCurrentPlaylistChanged;
-extern NSString *const TunePlaylistManagerFinishedPlaylistDownload;
-extern NSString *const TunePlaylistManagerFirstPlaylistDownloaded;
+FOUNDATION_EXPORT NSString *const TunePlaylistManagerCurrentPlaylistChanged;
+FOUNDATION_EXPORT NSString *const TunePlaylistManagerFinishedPlaylistDownload;
+FOUNDATION_EXPORT NSString *const TunePlaylistManagerFirstPlaylistDownloaded;
 
 #pragma mark - TunePlaylist
-extern NSString *const TunePlaylistAssetsDownloaded;
+FOUNDATION_EXPORT NSString *const TunePlaylistAssetsDownloaded;
 
 #pragma mark - Device Token
-extern NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken;
+FOUNDATION_EXPORT NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken;
+FOUNDATION_EXPORT NSString *const TuneFailedToRegisterForRemoteNotifications;
 
 #pragma mark - Force update from Tune
-extern NSString *const TuneDispatchNow;
+FOUNDATION_EXPORT NSString *const TuneDispatchNow;
 
 #pragma mark - TuneManager
-extern NSString *const TuneStateTMAActivated;
-extern NSString *const TuneStateTMADeactivated;
-extern NSString *const TuneStateTMADeactivated;
+FOUNDATION_EXPORT NSString *const TuneStateTMAActivated;
+FOUNDATION_EXPORT NSString *const TuneStateTMADeactivated;
+FOUNDATION_EXPORT NSString *const TuneStateTMADeactivated;
 
 #pragma mark - Deep Actions
-extern NSString *const TuneDeepActionTriggered;
+FOUNDATION_EXPORT NSString *const TuneDeepActionTriggered;
 
 #pragma mark - In App Message
-extern NSString *const TuneInAppMessageShown;
-extern NSString *const TuneInAppMessageDismissed;
+FOUNDATION_EXPORT NSString *const TuneInAppMessageShown;
+FOUNDATION_EXPORT NSString *const TuneInAppMessageDismissed;

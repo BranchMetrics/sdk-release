@@ -7,12 +7,16 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TuneEventQueue+Testing.h"
-#import "TuneKeyStrings.h"
-#import "TuneTracker.h"
+
 #import "Tune+Testing.h"
+#import "TuneEventQueue+Testing.h"
 #import "TuneHttpUtils.h"
+#import "TuneKeyStrings.h"
+#import "TuneNetworkUtils.h"
+#import "TuneTracker.h"
 #import "TuneXCTestCase.h"
+
+#import <OCMock/OCMock.h>
 
 @interface TuneHTTPErrorTests : TuneXCTestCase
 {
@@ -86,7 +90,11 @@
  */
 
 - (void)test500Retry {
-    networkOnline();
+    __block BOOL forcedNetworkStatus = YES;
+    id classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
+    OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
+        [invocation setReturnValue:&forcedNetworkStatus];
+    });
     
 #if !TARGET_OS_TV
     [Tune setDebugMode:YES];
@@ -94,12 +102,15 @@
     
     [TuneEventQueue enqueueUrlRequest:@"https://www.tune.com"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
     waitFor( .1 );
     
     [self checkAndClearExpectedQueueSize:1];
+    
+    [classMockTuneNetworkUtils stopMocking];
 }
 
 //- (void)test500RetryCount {
@@ -136,11 +147,13 @@
         
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error&headers%5Bdummyheader%5D=yourmom"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];
@@ -162,6 +175,7 @@
     
     [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Bad%"
                           eventAction:nil
+                                refId:nil
                         encryptParams:nil
                              postData:nil
                               runDate:[NSDate date]];

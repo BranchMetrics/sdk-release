@@ -7,14 +7,14 @@
 //
 
 // In-App Close Button Assets in Data URI format.
-extern NSString * const TuneCloseButtonBlack;
-extern NSString * const TuneCloseButtonBlackRetina;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonBlack;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonBlackRetina;
 
-extern NSString * const TuneCloseButtonRed;
-extern NSString * const TuneCloseButtonRedRetina;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonRed;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonRedRetina;
 
-extern NSString * const TuneCloseButtonSimple;
-extern NSString * const TuneCloseButtonSimpleRetina;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonSimple;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonSimpleRetina;
 
-extern NSString * const TuneCloseButtonSimpleWhite;
-extern NSString * const TuneCloseButtonSimpleWhiteRetina;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonSimpleWhite;
+FOUNDATION_EXPORT NSString * const TuneCloseButtonSimpleWhiteRetina;

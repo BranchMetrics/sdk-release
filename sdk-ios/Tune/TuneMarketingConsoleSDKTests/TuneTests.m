@@ -24,9 +24,6 @@
 #import "TuneManager.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-#import <iAd/iAd.h>
-#endif
 #import "TuneXCTestCase.h"
 
 @interface TuneTests : TuneXCTestCase <TuneDelegate> {
@@ -40,6 +37,10 @@
     
     BOOL enqueuedSession;
     BOOL enqueuedEvent;
+    
+    NSString *enqueuedRequestPostData;
+    
+    NSString *webRequestPostData;
 }
 
 @end
@@ -70,6 +71,9 @@
     
     enqueuedSession = NO;
     enqueuedEvent = NO;
+    enqueuedRequestPostData = nil;
+    
+    webRequestPostData = nil;
 }
 
 - (void)tearDown {
@@ -104,6 +108,7 @@
 - (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
     enqueuedSession = [url containsString:@"&action=session"];
     enqueuedEvent = [url containsString:@"&action=conversion"];
+    enqueuedRequestPostData = post;
 }
 
 
@@ -261,218 +266,6 @@
     ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_REFERRAL_SOURCE);
 }
 
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-
-- (void)testCheckIadAttributioniOS9 {
-    id classADClient = NSClassFromString(@"ADClient");
-    
-    if(classADClient && [classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
-        id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
-        
-        id classMockADClient = OCMClassMock(classADClient);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
-        
-//        // sample response from iAd Attribution v3.1 API document
-//        NSDictionary *attributionDetails1 = @{@"Version3.1":@{
-//                                                      @"iad-attribution" : @true,
-//                                                      @"iad-campaign-id" : @"15292426",
-//                                                      @"iad-campaign-name" : @"TestCA2",
-//                                                      @"iad-conversion-date" : @"2015-08-19T17:18:07Z",
-//                                                      @"iad-creative-id" : @"90841",
-//                                                      @"iad-creative-name" : @"BoxFlip_iPad",
-//                                                      @"iad-impression-date" : @"2015-08-19T17:17:00Z",
-//                                                      @"iad-lineitem-id" : @"15307675",
-//                                                      @"iad-lineitem-name" : @"TestCA2_L1",
-//                                                      @"iad-org-name" : @"Zion_1412_org1",
-//                                                      @"iad-keyword" : @"boxflip"}
-//                                            };
-        
-        // actual response from production test app
-        NSDictionary *attributionDetails = @{@"Version3.1":@{
-                                                     @"iad-attribution":@"true",
-                                                     @"iad-campaign-id":@"15222869",
-                                                     @"iad-campaign-name":@"atomic new 13",
-                                                     @"iad-click-date":@"2016-03-23T07:55:00Z",
-                                                     @"iad-conversion-date":@"2016-03-23T07:55:50Z",
-                                                     @"iad-creative-id":@"226713",
-                                                     @"iad-creative-name":@"ad new",
-                                                     @"iad-lineitem-id":@"15325601",
-                                                     @"iad-lineitem-name":@"2000 banner",
-                                                     @"iad-org-name":@"TUNE, Inc.",
-                                                     @"iad-keyword":@"dodgeball"}
-                                             };
-        
-        NSError *error = nil;
-        
-        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
-            [invocation getArgument:&passedBlock atIndex:2];
-            
-            passedBlock(attributionDetails, error);
-        });
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF, @"15222869");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME, @"atomic new 13");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF, @"226713");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME, @"ad new");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_REF, @"15325601");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_AD_NAME, @"2000 banner");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF, @"TUNE, Inc.");
-        ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF, @"dodgeball");
-        
-        // other iAd params currently ignored by Measurement Engine
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CONVERSION_DATE, @"2016-03-23T07:55:50Z");
-        
-        [classMockUIApplication stopMocking];
-        [classMockADClient stopMocking];
-    }
-}
-
-- (void)testIgnoreFakeIadAttributioniOS9 {
-    id classADClient = NSClassFromString(@"ADClient");
-    
-    if(classADClient && [classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
-        id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
-        
-        id classMockADClient = OCMClassMock(classADClient);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
-        
-        // actual response from production test app
-        NSDictionary *attributionDetails = @{@"Version3.1":@{
-                                                     @"iad-adgroup-name":@"AdGroupName",
-                                                     @"iad-attribution":@"true",
-                                                     @"iad-campaign-id":@"1234567890",
-                                                     @"iad-campaign-name":@"CampaignName",
-                                                     @"iad-click-date":@"2016-08-09T22:13:23Z",
-                                                     @"iad-conversion-date":@"2016-08-09T22:13:23Z",
-                                                     @"iad-creative-id":@"1234567890",
-                                                     @"iad-creative-name":@"CreativeName",
-                                                     @"iad-group-id":@"1234567890",
-                                                     @"iad-keyword":@"Keyword",
-                                                     @"iad-lineitem-id":@"1234567890",
-                                                     @"iad-lineitem-name":@"LineName",
-                                                     @"iad-org-name":@"OrgName"}
-                                             };
-        
-        NSError *error = nil;
-        
-        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
-            [invocation getArgument:&passedBlock atIndex:2];
-            
-            passedBlock(attributionDetails, error);
-        });
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"session" );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IAD_ATTRIBUTION );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF );
-        
-        // other iAd params currently ignored by Measurement Engine
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CLICK_DATE, @"2016-03-23T07:55:00Z");
-        //ASSERT_KEY_VALUE( TUNE_KEY_IAD_CONVERSION_DATE, @"2016-03-23T07:55:50Z");
-        
-        [classMockUIApplication stopMocking];
-        [classMockADClient stopMocking];
-    }
-}
-
-- (void)testCheckIadAttributioniOS8 {
-    id classADClient = NSClassFromString(@"ADClient");
-    
-    if(classADClient && [classADClient instancesRespondToSelector:@selector(lookupAdConversionDetails:)]) {
-        id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
-        
-        id classMockADClient = OCMClassMock(classADClient);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
-        
-        id classMockTuneUtils = OCMClassMock([TuneUtils class]);
-        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
-        OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
-        
-        NSDateFormatter *formatter = [NSDateFormatter new];
-        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssZ";
-        NSDate *purchaseDate = [formatter dateFromString:@"2016-03-23T07:45:50Z"];
-        NSDate *impressionDate = [formatter dateFromString:@"2016-03-23T07:55:50Z"];
-        
-        OCMStub([classMockADClient lookupAdConversionDetails:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDate *dtAppPurchase, NSDate *dtIAdImpression );
-            [invocation getArgument:&passedBlock atIndex:2];
-            
-            passedBlock(purchaseDate, impressionDate);
-        });
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_IMPRESSION_DATE, [@([impressionDate timeIntervalSince1970]) stringValue]);
-        
-        [classMockUIApplication stopMocking];
-        [classMockADClient stopMocking];
-        [classMockTuneUtils stopMocking];
-    }
-}
-
-- (void)testCheckIadAttributioniOS7 {
-    id classADClient = NSClassFromString(@"ADClient");
-    
-    if(classADClient && [classADClient instancesRespondToSelector:@selector(determineAppInstallationAttributionWithCompletionHandler:)]) {
-        id classMockUIApplication = OCMClassMock([UIApplication class]);
-        OCMStub(ClassMethod([classMockUIApplication sharedApplication])).andReturn(classMockUIApplication);
-        
-        id classMockADClient = OCMClassMock(classADClient);
-        OCMStub(ClassMethod([classMockADClient sharedClient])).andReturn(classMockADClient);
-        
-        id classMockTuneUtils = OCMClassMock([TuneUtils class]);
-        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
-        OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(lookupAdConversionDetails:)])).andReturn(NO);
-        OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
-        
-        BOOL attributed = YES;
-        
-        OCMStub([classMockADClient determineAppInstallationAttributionWithCompletionHandler:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-            void (^passedBlock)( BOOL appInstallationWasAttributedToiAd );
-            [invocation getArgument:&passedBlock atIndex:2];
-            
-            passedBlock( attributed );
-        });
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        
-        [classMockUIApplication stopMocking];
-        [classMockADClient stopMocking];
-        [classMockTuneUtils stopMocking];
-    }
-}
-#endif
 
 #pragma mark - Arbitrary actions
 
@@ -763,8 +556,10 @@
 // secret functions to test server URLs
 - (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
-    if( postData )
+    if( postData ) {
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
+        webRequestPostData = postData;
+    }
 }
 
 @end

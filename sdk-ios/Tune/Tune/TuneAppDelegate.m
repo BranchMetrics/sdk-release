@@ -90,7 +90,7 @@ BOOL swizzleSuccess = NO;
         
         // Commence swizzling!
         
-        // NOTE: We are building this selector through concatination since Apple does a static code analysis to see
+        // NOTE: We are building this selector through concatenation since Apple does a static code analysis to see
         //        if this selector exists. If it does, Apple will then send out a warning email if push is not enabled.
         //        Since we only swizzle as an opt-in for explicitly handling push messages, we felt it was appropriate
         //        to not trigger the warning email through this selector.
@@ -117,13 +117,11 @@ BOOL swizzleSuccess = NO;
                                      withOurs:@selector(application:tune_handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
                                           for:delegateClass];
         
-#if IDE_XCODE_8_OR_HIGHER
         if([TuneDeviceDetails appIsRunningIniOS10OrAfter]) {
-            [TuneAppDelegate swizzleTheirSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)
+            [TuneAppDelegate swizzleTheirSelector:NSSelectorFromString(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:")
                                          withOurs:@selector(userNotificationCenter:tune_didReceiveNotificationResponse:withCompletionHandler:)
                                               for:userNotificationDelegateClass];
         }
-#endif
 #endif
         [TuneAppDelegate swizzleTheirSelector:@selector(application:handleOpenURL:)
                                      withOurs:@selector(application:tune_handleOpenURL:)
@@ -223,6 +221,10 @@ BOOL swizzleSuccess = NO;
     InfoLog(@"application:didFailToRegisterForRemoteNotificationsWithError: intercept successful -- %@", NSStringFromClass([self class]));
     
     DebugLog(@"Failed To Register Device For Push %@", error.description);
+    
+    // Send out a skyhook for failure to register device for remote notifications
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneFailedToRegisterForRemoteNotifications object:self userInfo:@{@"error" : error}];
+    
     if (swizzleSuccess) {
 #if TESTING
         [TuneAppDelegate unitTestingHelper:@"application:didFailToRegisterForRemoteNotificationsWithError:"];
@@ -234,7 +236,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo {
     InfoLog(@"application:didReceiveRemoteNotification: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
+    [TuneAppDelegate handleReceivedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -249,7 +251,7 @@ BOOL swizzleSuccess = NO;
 + (void)application:(UIApplication *)application tune_didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     InfoLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:userInfo application:application];
+    [TuneAppDelegate handleReceivedMessage:userInfo application:application];
     
     if (swizzleSuccess) {
 #if TESTING
@@ -261,14 +263,22 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - UNUserNotificationCenter Methods
 
-#if IDE_XCODE_8_OR_HIGHER
-
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center tune_didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
++ (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
     InfoLog(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
-    [TuneAppDelegate handleRecievedMessage:response.notification.request.content.userInfo
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    
+    SEL selNotification = NSSelectorFromString(@"notification");
+    SEL selRequest = NSSelectorFromString(@"request");
+    SEL selContent = NSSelectorFromString(@"content");
+    SEL selUserInfo = NSSelectorFromString(@"userInfo");
+    SEL selActionIdentifier = NSSelectorFromString(@"actionIdentifier");
+    
+    [TuneAppDelegate handleReceivedMessage:[[[[response performSelector:selNotification] performSelector:selRequest] performSelector:selContent] performSelector:selUserInfo]
                                application:[UIApplication sharedApplication]
-                                identifier:response.actionIdentifier];
+                                identifier:[response performSelector:selActionIdentifier]];
+#pragma clang diagnostic pop
     
     if (swizzleSuccess) {
 #if TESTING
@@ -278,7 +288,6 @@ BOOL swizzleSuccess = NO;
     }
 }
 
-#endif
 
 #pragma mark -
 
@@ -409,11 +418,11 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - Helper functions
 
-+ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
-    [self handleRecievedMessage:userInfo application:application identifier:nil];
++ (void)handleReceivedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
+    [self handleReceivedMessage:userInfo application:application identifier:nil];
 }
 
-+ (void)handleRecievedMessage:(NSDictionary *)userInfo application:(UIApplication *)application identifier:(NSString *)identifier {
++ (void)handleReceivedMessage:(NSDictionary *)userInfo application:(UIApplication *)application identifier:(NSString *)identifier {
     TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo.copy withIdentifier:identifier];
     
     if (tuneNotification) {

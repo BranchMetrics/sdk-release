@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const TunePlaylistExperimentDetailsKey;
-extern NSString *const TunePlaylistPowerHooksKey;
-extern NSString *const TunePlaylistInAppMessagesKey;
-extern NSString *const TunePLaylistSegmentsKey;
-extern NSString *const TunePlaylistSchemaVersionKey;
+FOUNDATION_EXPORT NSString *const TunePlaylistExperimentDetailsKey;
+FOUNDATION_EXPORT NSString *const TunePlaylistPowerHooksKey;
+FOUNDATION_EXPORT NSString *const TunePlaylistInAppMessagesKey;
+FOUNDATION_EXPORT NSString *const TunePLaylistSegmentsKey;
+FOUNDATION_EXPORT NSString *const TunePlaylistSchemaVersionKey;
 
 @interface TunePlaylist : NSObject
 

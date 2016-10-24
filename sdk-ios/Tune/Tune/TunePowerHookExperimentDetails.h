@@ -17,13 +17,6 @@
 @interface TunePowerHookExperimentDetails : TuneExperimentDetails
 
 /**
- * Get the hook id for this Power Hook.
- *
- * This is the id that you assigned this power hook when it was first registered.
- */
-@property (nonatomic, readonly) NSString *hookId;
-
-/**
  * Get the start date of the Power Hook experiment.
  *
  * NOTE: This will be nil if this power hook value is not currently from an experiment. You can check whether the value is from an experiment with **isRunning**.
