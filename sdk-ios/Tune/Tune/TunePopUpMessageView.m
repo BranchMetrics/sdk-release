@@ -24,7 +24,7 @@
 
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(deviceOrientationDidChange:)
-                                              name:UIDeviceOrientationDidChangeNotification
+                                              name:UIApplicationDidChangeStatusBarOrientationNotification
                                             object:nil];
 #endif
     _tunePopUpMessageEdgeStyle = edgeStyle;

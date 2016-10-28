@@ -15,7 +15,6 @@
 @interface TuneIadUtils : NSObject
 
 + (BOOL)shouldCheckIadAttribution;
-+ (BOOL)isFakeIadAttribution:(NSDictionary *)dict;
 
 @end
 

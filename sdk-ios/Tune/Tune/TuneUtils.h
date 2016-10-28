@@ -129,4 +129,14 @@
 
 + (nullable NSBundle *)currentBundle;
 
+#pragma mark -
+
+/*!
+ * Finds out if the very first "session" request has already completed, by checking if "open_log_id" key exits in the user profile.
+ * This check is useful to control which query params are included in the requests, since some of the params are valid only with the very first "session" request.
+ *
+ * @return true if the first session request has already been completed, no otherwise
+ */
++ (BOOL)isFirstSessionRequestComplete;
+
 @end

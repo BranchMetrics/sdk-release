@@ -23,6 +23,9 @@
 + (void)setUserDefaultValue:(id)value forKey:(NSString* )key;
 + (void)clearUserDefaultValue:(NSString *)key;
 
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key;
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key byValue:(NSInteger)value;
+
 + (TuneAnalyticsVariable *)userDefaultCustomVariableforKey:(NSString *)key;
 + (void)setUserDefaultCustomVariable:(TuneAnalyticsVariable *)value forKey:(NSString *)key;
 + (void)clearCustomVariable:(NSString *)key;

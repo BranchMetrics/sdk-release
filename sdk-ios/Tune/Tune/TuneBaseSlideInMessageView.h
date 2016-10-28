@@ -58,7 +58,7 @@
     
 #if TARGET_OS_IOS
     // Orientation
-    UIDeviceOrientation _lastOrientation;
+    UIInterfaceOrientation _lastOrientation;
 #endif
     // Assets
     TuneMessageImageBundle *_backgroundImageBundle;
@@ -70,8 +70,8 @@
 - (void)show;
 
 #if TARGET_OS_IOS
-- (void)showOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)dismissOrientation:(UIDeviceOrientation)orientation;
+- (void)showOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)dismissOrientation:(UIInterfaceOrientation)orientation;
 #else
 - (void)showPortraitOrientation;
 - (void)dismissPortraitOrientation;
@@ -111,15 +111,15 @@
 #if TARGET_OS_IOS
 // Layout Containers (Overridden)
 
-- (void)layoutMessageContainerForOrientation:(UIDeviceOrientation)deviceOrientation;
+- (void)layoutMessageContainerForOrientation:(UIInterfaceOrientation)deviceOrientation;
 
-- (void)layoutBackgroundImageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)layoutMessageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)layoutCTAForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)layoutCloseButtonForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)addMessageClickOverlayActionForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)addBackgroundColorForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)buildMessageContainerForOrientation:(UIDeviceOrientation)deviceOrientation;
+- (void)layoutBackgroundImageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)layoutMessageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)layoutCTAForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)layoutCloseButtonForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)addMessageClickOverlayActionForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)addBackgroundColorForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)buildMessageContainerForOrientation:(UIInterfaceOrientation)deviceOrientation;
 
 #else
 

@@ -10,13 +10,13 @@
 
 @interface TuneMessageOrientationState : NSObject {
 #if TARGET_OS_IOS
-    UIDeviceOrientation _lastOrientation;
+    UIInterfaceOrientation _lastOrientation;
 #endif
     NSArray *_orientations;
 }
 
 #if TARGET_OS_IOS
-+ (UIDeviceOrientation)getCurrentOrientation;
++ (UIInterfaceOrientation)getCurrentOrientation;
 + (void)startTrackingOrientation;
 + (NSNumber *)calculateAngleToRotateView;
 + (BOOL)currentOrientationIsSupportedByApp;

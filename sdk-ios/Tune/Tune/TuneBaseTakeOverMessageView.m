@@ -23,7 +23,7 @@
 #if TARGET_OS_IOS
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(deviceOrientationDidChange:)
-                                              name:UIDeviceOrientationDidChangeNotification
+                                              name:UIApplicationDidChangeStatusBarOrientationNotification
                                             object:nil];
 #endif
     self = [super init];
@@ -140,7 +140,7 @@
 #pragma mark - Layout
 
 #if TARGET_OS_IOS
-- (void)layoutMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     [self buildMessageContainerForDeviceOrientation:deviceOrientation];
     [self layoutImageForDeviceOrientation:deviceOrientation];
     [self layoutCloseButtonForDeviceOrientation:deviceOrientation];
@@ -246,7 +246,7 @@
 #if TARGET_OS_IOS
 
 - (void)handleTransitionToCurrentOrientation:(NSNumber *)currentOrientationAsNSNumber {
-    UIDeviceOrientation currentOrientation = [currentOrientationAsNSNumber intValue];
+    UIInterfaceOrientation currentOrientation = [currentOrientationAsNSNumber intValue];
     [self showOrientation:currentOrientation];
     _lastOrientation = currentOrientation;
 }
@@ -257,31 +257,31 @@
 
 #if TARGET_OS_IOS
 
-- (void)showOrientation:(UIDeviceOrientation)orientation {
-    ErrorLog(@"showOrienation: should not be called on the base class");
+- (void)showOrientation:(UIInterfaceOrientation)orientation {
+    ErrorLog(@"showOrientation: should not be called on the base class");
 }
 
 - (void)deviceOrientationDidChange:(TuneSkyhookPayload *)payload {
     ErrorLog(@"deviceOrientationDidChange: should not be called on the base class");
 }
 
-- (void)dismissOrientation:(UIDeviceOrientation)orientation {
+- (void)dismissOrientation:(UIInterfaceOrientation)orientation {
     ErrorLog(@"dismissOrientation: should not be called on the base class");
 }
 
-- (void)addMessageClickOverlayActionForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)addMessageClickOverlayActionForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     ErrorLog(@"addMessageClickOverlayActionForDeviceOrientation: should not be called on the base class");
 }
 
-- (void)buildMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)buildMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     ErrorLog(@"buildMessageContainerForDeviceOrientation: should not be called on the base class");
 }
 
-- (void)layoutCloseButtonForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutCloseButtonForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     ErrorLog(@"layoutCloseButtonForDeviceOrientation: should not be called on the base class");
 }
 
-- (void)layoutImageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutImageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     ErrorLog(@"layoutImageForDeviceOrientation: should not be called on the base class");
 }
 

@@ -19,6 +19,7 @@
 #import "TuneTestParams.h"
 #import "TuneTestsHelper.h"
 #import "TuneTracker.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 #import "TuneManager.h"
@@ -35,13 +36,30 @@
     id classMockTuneIadUtils;
     id classMockUIApplication;
     id classMockADClient;
+    id classMockTuneUtils;
     
     id classADClient;
+    
+    id mockTuneTracker;
     
     NSString *enqueuedRequestPostData;
     
     NSString *webRequestPostData;
+    
+    XCTestExpectation *expectationInstall;
+    
+    NSDictionary *attributionDetailsIAdTrue;
+    NSDictionary *attributionDetailsIadFalse;
 }
+
+@end
+
+@interface TuneTracker (Testing)
+
+- (void)checkIadAttribution:(void (^)(BOOL iadAttributed, BOOL adTrackingEnabled, NSDate *impressionDate, NSDictionary *attributionInfo))attributionBlock;
+- (void)checkIadAttributionAfterDelay:(NSTimeInterval)delay;
+- (void)handleIadAttributionInfo:(BOOL)iadAttributed adTrackingEnabled:(BOOL)adTrackingEnabled impressionDate:(NSDate *)impressionDate attributionInfo:(NSDictionary *)attributionInfo;
+- (void)measureInstallPostConversion;
 
 @end
 
@@ -67,11 +85,31 @@
     classMockTuneIadUtils = OCMClassMock([TuneIadUtils class]);
     OCMStub([classMockTuneIadUtils shouldCheckIadAttribution]).andReturn(YES);
     
+    classMockTuneUtils = OCMClassMock([TuneUtils class]);
+    
+    mockTuneTracker = OCMPartialMock([Tune sharedManager]);
+    
     params = [TuneTestParams new];
     
     enqueuedRequestPostData = nil;
     
     webRequestPostData = nil;
+    
+    attributionDetailsIAdTrue = @{@"Version3.1":@{
+                                          @"iad-attribution":@"true",
+                                          @"iad-campaign-id":@"15222869",
+                                          @"iad-campaign-name":@"atomic new 13",
+                                          @"iad-click-date":@"2016-03-23T07:55:00Z",
+                                          @"iad-conversion-date":@"2016-03-23T07:55:50Z",
+                                          @"iad-creative-id":@"226713",
+                                          @"iad-creative-name":@"ad new",
+                                          @"iad-lineitem-id":@"15325601",
+                                          @"iad-lineitem-name":@"2000 banner",
+                                          @"iad-org-name":@"TUNE, Inc.",
+                                          @"iad-keyword":@"dodgeball"}
+                                  };
+    
+    attributionDetailsIadFalse = @{@"Version3.1":@{@"iad-attribution":@"false"}};
 }
 
 - (void)setupCommon {
@@ -84,21 +122,6 @@
 
 - (void)setupCommonAndMockADClientRequestAttrib:(BOOL)shouldMockMethod shouldDelayIadResponse:(BOOL)shouldDelay {
     if (shouldMockMethod) {
-        // actual response from production test app
-        NSDictionary *attributionDetails = @{@"Version3.1":@{
-                                                     @"iad-attribution":@"true",
-                                                     @"iad-campaign-id":@"15222869",
-                                                     @"iad-campaign-name":@"atomic new 13",
-                                                     @"iad-click-date":@"2016-03-23T07:55:00Z",
-                                                     @"iad-conversion-date":@"2016-03-23T07:55:50Z",
-                                                     @"iad-creative-id":@"226713",
-                                                     @"iad-creative-name":@"ad new",
-                                                     @"iad-lineitem-id":@"15325601",
-                                                     @"iad-lineitem-name":@"2000 banner",
-                                                     @"iad-org-name":@"TUNE, Inc.",
-                                                     @"iad-keyword":@"dodgeball"}
-                                             };
-        
         NSError *error = nil;
         
         OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
@@ -107,7 +130,7 @@
             if (shouldDelay) {
                 waitFor(1.5);
             }
-            passedBlock(attributionDetails, error);
+            passedBlock(attributionDetailsIAdTrue, error);
         });
     }
     
@@ -120,6 +143,8 @@
     [classMockTuneIadUtils stopMocking];
     [classMockUIApplication stopMocking];
     [classMockADClient stopMocking];
+    [classMockTuneUtils stopMocking];
+    [mockTuneTracker stopMocking];
     
     [super tearDown];
 }
@@ -144,12 +169,16 @@
     [self setupCommonAndMockADClientRequestAttrib:YES shouldDelayIadResponse:NO];
     
     if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        [[[mockTuneTracker expect] andForwardToRealObject] checkIadAttributionAfterDelay:0];
+        [[mockTuneTracker reject] measureInstallPostConversion];
+        [[[mockTuneTracker expect] andForwardToRealObject] handleIadAttributionInfo:YES adTrackingEnabled:YES impressionDate:OCMOCK_ANY attributionInfo:OCMOCK_ANY];
+        
         [Tune measureSession];
         waitForQueuesToFinish();
         
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        ASSERT_NO_VALUE_FOR_KEY( @"iad_attribution" );
         
         XCTAssertNotNil(enqueuedRequestPostData);
         NSDictionary *dict = nil;
@@ -173,72 +202,7 @@
         XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
         XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
         
-        [classMockADClient stopMocking];
-    }
-}
-
-- (void)testIgnoreFakeIadAttributioniOS9 {
-    [self setupCommon];
-    
-    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
-        // actual response from production test app
-        NSDictionary *attributionDetails = @{@"Version3.1":@{
-                                                     @"iad-adgroup-name":@"AdGroupName",
-                                                     @"iad-adgroup-id":@"1234567890",
-                                                     @"iad-attribution":@"true",
-                                                     @"iad-campaign-id":@"1234567890",
-                                                     @"iad-campaign-name":@"CampaignName",
-                                                     @"iad-click-date":@"2016-08-09T22:13:23Z",
-                                                     @"iad-conversion-date":@"2016-08-09T22:13:23Z",
-                                                     @"iad-creative-id":@"1234567890",
-                                                     @"iad-creative-name":@"CreativeName",
-                                                     @"iad-keyword":@"Keyword",
-                                                     @"iad-lineitem-id":@"1234567890",
-                                                     @"iad-lineitem-name":@"LineName",
-                                                     @"iad-org-name":@"OrgName"}
-                                             };
-        
-        NSError *error = nil;
-        
-        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
-            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
-            [invocation getArgument:&passedBlock atIndex:2];
-            passedBlock(attributionDetails, error);
-        });
-        
-        [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
-        [Tune setDelegate:self];
-        [Tune setExistingUser:NO];
-        // Wait for everything to be set
-        waitForQueuesToFinish();
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"session" );
-        
-        [Tune measureEventName:@"event1"];
-        waitForQueuesToFinish();
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, @"conversion" );
-        
-        if(webRequestPostData) {
-            NSError *jsonError;
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:[webRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-            XCTAssertNil(dict[@"iad"]);
-        }
-        
-        ASSERT_KEY_VALUE(TUNE_KEY_IAD_ATTRIBUTION, [@NO stringValue] );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_AD_NAME );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF );
-        
-        [classMockADClient stopMocking];
+        [mockTuneTracker verify];
     }
 }
 
@@ -246,7 +210,6 @@
     [self setupCommon];
     
     if([classADClient instancesRespondToSelector:@selector(lookupAdConversionDetails:)]) {
-        id classMockTuneUtils = OCMClassMock([TuneUtils class]);
         OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
         OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
         
@@ -261,22 +224,13 @@
             passedBlock(purchaseDate, impressionDate);
         });
         
-        [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
-        [Tune setDelegate:self];
-        [Tune setExistingUser:NO];
-        // Wait for everything to be set
-        waitForQueuesToFinish();
-        
         [Tune measureSession];
         waitForQueuesToFinish();
         
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_IMPRESSION_DATE, [@([impressionDate timeIntervalSince1970]) stringValue]);
-        
-        [classMockADClient stopMocking];
-        [classMockTuneUtils stopMocking];
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        ASSERT_KEY_VALUE( @"iad_attribution", [@true stringValue]);
+        ASSERT_KEY_VALUE( @"impression_datetime", [@([impressionDate timeIntervalSince1970]) stringValue]);
     }
 }
 
@@ -284,7 +238,6 @@
     [self setupCommon];
     
     if([classADClient instancesRespondToSelector:@selector(determineAppInstallationAttributionWithCompletionHandler:)]) {
-        id classMockTuneUtils = OCMClassMock([TuneUtils class]);
         OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)])).andReturn(NO);
         OCMStub(ClassMethod([classMockTuneUtils object:classMockADClient respondsToSelector:@selector(lookupAdConversionDetails:)])).andReturn(NO);
         OCMStub(ClassMethod([classMockTuneUtils objectOrNull:[OCMArg any]])).andForwardToRealObject();
@@ -297,89 +250,178 @@
             passedBlock( attributed );
         });
         
-        [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
-        [Tune setDelegate:self];
-        [Tune setExistingUser:NO];
-        // Wait for everything to be set
-        waitForQueuesToFinish();
-        
         [Tune measureSession];
         waitForQueuesToFinish();
         
         XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        
-        [classMockADClient stopMocking];
-        [classMockTuneUtils stopMocking];
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        ASSERT_KEY_VALUE( @"iad_attribution", [@true stringValue]);
     }
 }
 
-- (void)testMeasureSessionWithIadAttributionInfo {
-    [self setupCommonAndMockADClientRequestAttrib:YES shouldDelayIadResponse:NO];
-    
-    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
-        
-        XCTAssertNotNil(enqueuedRequestPostData);
-        NSDictionary *dict = nil;
-        if(enqueuedRequestPostData) {
-            NSError *jsonError;
-            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-        }
-        
-        XCTAssertNotNil(dict);
-        XCTAssertNotNil(dict[@"iad"]);
-        XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
-    }
-}
-
-- (void)testMeasureInstallPostConversionWithIadAttributionInfo {
+- (void)testIadAttributionTrue_installPostConversion {
     [self setupCommonAndMockADClientRequestAttrib:YES shouldDelayIadResponse:YES];
     
     if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        expectationInstall = [self expectationWithDescription:@"InstallPostConversionEnqueued"];
+        
+        [[[mockTuneTracker expect] andForwardToRealObject] checkIadAttributionAfterDelay:0];
+        [[[mockTuneTracker expect] andForwardToRealObject] measureInstallPostConversion];
+        [[[mockTuneTracker expect] andForwardToRealObject] handleIadAttributionInfo:YES adTrackingEnabled:YES impressionDate:OCMOCK_ANY attributionInfo:OCMOCK_ANY];
+        
         [Tune measureSession];
         waitForQueuesToFinish();
         
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_INSTALL );
-        ASSERT_KEY_VALUE( TUNE_KEY_IAD_ATTRIBUTION, [@true stringValue]);
+        [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable errorExp) {
+            if (errorExp) {
+                NSLog(@"XCTestExpectation error = %@", errorExp);
+            }
+            XCTAssertNil(errorExp);
+            
+            ASSERT_KEY_VALUE(@"action", @"install");
+            
+            XCTAssertNotNil(enqueuedRequestPostData);
+            __block NSDictionary *dict = nil;
+            if(enqueuedRequestPostData) {
+                NSError *jsonError;
+                dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
+            }
+            
+            XCTAssertNotNil(dict);
+            XCTAssertNotNil(dict[@"iad"]);
+            XCTAssertNotNil(dict[@"iad"][@"iad_request_attempt"]);
+            XCTAssertEqual(1, [dict[@"iad"][@"iad_request_attempt"] intValue]);
+            XCTAssertNotNil(dict[@"iad"][@"iad_request_timestamp"]);
+            XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
+            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
+        }];
         
-        XCTAssertNotNil(enqueuedRequestPostData);
-        NSDictionary *dict = nil;
-        if(enqueuedRequestPostData) {
-            NSError *jsonError;
-            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-        }
+        [mockTuneTracker verify];
+    }
+}
+
+- (void)testIadAttributionFalse_requestRetried {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        NSError *error = nil;
         
-        XCTAssertNotNil(dict);
-        XCTAssertNotNil(dict[@"iad"]);
-        XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"method to check iAd attribution after delay called"];
+        
+        // Return "iad-attribution" "false" response when TuneTracker.checkIadAttribution: method is called
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
+            [invocation getArgument:&passedBlock atIndex:2];
+            passedBlock(attributionDetailsIadFalse, error);
+        });
+        
+        [[mockTuneTracker reject] measureInstallPostConversion];
+        [[[mockTuneTracker expect] andDo:^(NSInvocation *invocation) {
+            [expectation1 fulfill];
+        }] checkIadAttributionAfterDelay:60.];
+        
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-20.]] installDate];
+        
+        // Call measureSession
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        
+        [self customWaitForExpectations];
+        
+        [mockTuneTracker verify];
+    }
+}
+
+- (void)testIadAttributionFalse_maxAttempts {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        NSError *error = nil;
+        
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"install post_conversion event fired"];
+        
+        // Return "iad-attribution" "false" response when TuneTracker.checkIadAttribution: method is called
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
+            [invocation getArgument:&passedBlock atIndex:2];
+            passedBlock(attributionDetailsIadFalse, error);
+        });
+        
+        [[mockTuneTracker reject] checkIadAttributionAfterDelay:60.];
+        [[[mockTuneTracker expect] andDo:^(NSInvocation *invocation) {
+            XCTAssertEqual(5, [[TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"] intValue]);
+            [expectation1 fulfill];
+        }] measureInstallPostConversion];
+        
+        [[[mockTuneTracker expect] andForwardToRealObject] handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:OCMOCK_ANY attributionInfo:OCMOCK_ANY];
+        
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-120]] installDate];
+        
+        [TuneUserDefaultsUtils setUserDefaultValue:@(4) forKey:@"iad_request_attempt"];
+        
+        // Call measureSession
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        
+        [self customWaitForExpectations];
+        
+        [mockTuneTracker verify];
+    }
+}
+
+- (void)testIadAttributionFalse_lessThanMaxAttempts_maxTimeInterval {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        NSError *error = nil;
+        
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"install post_conversion event fired"];
+        
+        // Return "iad-attribution" "false" response when TuneTracker.checkIadAttribution: method is called
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
+            [invocation getArgument:&passedBlock atIndex:2];
+            passedBlock(attributionDetailsIadFalse, error);
+        });
+        
+        [[mockTuneTracker reject] checkIadAttributionAfterDelay:60.];
+        [[[mockTuneTracker expect] andDo:^(NSInvocation *invocation) {
+            XCTAssertEqual(2, [[TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"] intValue]);
+            [expectation1 fulfill];
+        }] measureInstallPostConversion];
+        
+        [[[mockTuneTracker expect] andForwardToRealObject] handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:OCMOCK_ANY attributionInfo:OCMOCK_ANY];
+        
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-400]] installDate];
+        
+        [TuneUserDefaultsUtils setUserDefaultValue:@(1) forKey:@"iad_request_attempt"];
+        
+        // Call measureSession
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        
+        [self customWaitForExpectations];
+        
+        [mockTuneTracker verify];
     }
 }
 
@@ -390,8 +432,9 @@
         [Tune measureEventName:@"event1"];
         waitForQueuesToFinish();
         
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
-        ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IAD_ATTRIBUTION );
+        ASSERT_KEY_VALUE( @"action", @"conversion" );
+        ASSERT_KEY_VALUE( @"site_event_name", @"event1" );
+        ASSERT_NO_VALUE_FOR_KEY( @"iad_attribution" );
         XCTAssertNotNil(enqueuedRequestPostData);
         NSDictionary *dict = nil;
         if(enqueuedRequestPostData) {
@@ -416,16 +459,123 @@
     }
 }
 
+- (void)testIadAttributionFalseThenTrueAfterDelay_requestRetried {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        __block int checkIadWithDelayIteration = -1;
+        
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-20.]] installDate];
+        
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"install post_conversion event fired"];
+        
+        [[[mockTuneTracker stub] andDo:^(NSInvocation *invocation) {
+            XCTAssertEqualObjects(@(3), [TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"]);
+            [expectation1 fulfill];
+        }] measureInstallPostConversion];
+        
+        // call checkIadAttributionAfterDelay: with delay 0
+        [[[[mockTuneTracker stub] ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+            // extract first argument "delay" from invocation
+            NSTimeInterval delay;
+            [invocation getArgument:&delay atIndex:2];
+            ++checkIadWithDelayIteration;
+            
+            if (0 == checkIadWithDelayIteration) {
+                XCTAssertEqual(delay, 0.);
+                waitFor(0.8);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
+            } else if (1 == checkIadWithDelayIteration) {
+                XCTAssertEqual(delay, 60.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
+            } else if (2 == checkIadWithDelayIteration) {
+                XCTAssertEqual(delay, 60.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:YES adTrackingEnabled:YES impressionDate:[NSDate dateWithTimeIntervalSinceNow:-600] attributionInfo:attributionDetailsIAdTrue];
+            } else {
+                XCTFail(@"unexpected call to TuneTracker.checkIadAttributionAfterDelay: method");
+            }
+        }] checkIadAttributionAfterDelay:-1];
+        
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        [self customWaitForExpectations];
+    }
+}
+
+- (void)testIadAttribution_LimitAdTracking {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        NSError *error = [NSError errorWithDomain:ADClientErrorDomain code:ADClientErrorLimitAdTracking userInfo:nil];
+        
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"ADClient handleIadAttributionInfo: called"];
+        
+        // Return "iad-attribution" "false" response when TuneTracker.checkIadAttribution: method is called
+        OCMStub([classMockADClient requestAttributionDetailsWithBlock:[OCMArg any]]).andDo(^(NSInvocation *invocation) {
+            void (^passedBlock)( NSDictionary *dictAttr, NSError *objError );
+            [invocation getArgument:&passedBlock atIndex:2];
+            passedBlock(nil, error);
+        });
+        
+        [[[mockTuneTracker expect] andForwardToRealObject] checkIadAttributionAfterDelay:0.];
+        
+        [[[[mockTuneTracker stub] andDo:^(NSInvocation *invocation) {
+            BOOL isAttributed;
+            BOOL isAdTrackingEnabled;
+            [invocation getArgument:&isAttributed atIndex:2];
+            [invocation getArgument:&isAdTrackingEnabled atIndex:3];
+            XCTAssertFalse(isAttributed);
+            XCTAssertFalse(isAdTrackingEnabled);
+            [expectation1 fulfill];
+        }] andForwardToRealObject] handleIadAttributionInfo:NO adTrackingEnabled:NO impressionDate:OCMOCK_ANY attributionInfo:OCMOCK_ANY];
+        
+        [[mockTuneTracker reject] checkIadAttributionAfterDelay:60.];
+        [[mockTuneTracker reject] measureInstallPostConversion];
+        
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-20.]] installDate];
+        
+        // Call measureSession
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( @"action", @"session" );
+        
+        [self customWaitForExpectations];
+        
+        [mockTuneTracker verify];
+    }
+}
+
 #endif
+
+#pragma makr - Helper Method
+
+- (void)customWaitForExpectations {
+    [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable errorExp) {
+        if (errorExp) {
+            NSLog(@"XCTestExpectation error = %@", errorExp);
+        }
+        XCTAssertNil(errorExp);
+    }];
+}
 
 #pragma mark - Internal Tune delegate
 
 // secret functions to test server URLs
 - (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
     XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
+    
     if( postData ) {
         XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
         webRequestPostData = postData;
+    }
+    
+    if (expectationInstall && [params.params[@"action"] isEqualToString:@"install"]) {
+        [expectationInstall fulfill];
     }
 }
 

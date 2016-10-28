@@ -112,4 +112,29 @@ static id customDefaults;
 #endif
 }
 
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key {
+    return [self incrementUserDefaultCountForKey:key byValue:1];
+}
+
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key byValue:(NSInteger)value {
+    NSInteger newCount = 0;
+    
+    id curValue = [self userDefaultValueforKey:key];
+    
+    if (curValue && ![curValue isKindOfClass:[NSNumber class]]) {
+        ErrorLog(@"TUNE: Trying to increment non-numeric value for NSUserDefaults key: %@, current value = %@", key, curValue);
+    } else {
+        NSInteger curCount = 0;
+        
+        if (curValue) {
+            curCount = [curValue integerValue];
+        }
+        
+        newCount = curCount + value;
+        [self setUserDefaultValue:@(newCount) forKey:key];
+    }
+    
+    return newCount;
+}
+
 @end

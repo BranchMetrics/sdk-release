@@ -273,12 +273,14 @@ static TuneEventQueue *sharedQueue = nil;
         for (long i = events.count - 1; i >= 0; --i) {
             NSMutableDictionary *dictEvent = events[i];
             
-            [dictEvent setValue:url forKey:TUNE_KEY_REFERRAL_URL];
-            [dictEvent setValue:bundleId forKey:TUNE_KEY_REFERRAL_SOURCE];
-            
-            // do not update events that were fired before the last "session" request
-            if([dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
-                break;
+            if (![dictEvent[TUNE_KEY_NETWORK_REQUEST_PENDING] boolValue]) {
+                [dictEvent setValue:url forKey:TUNE_KEY_REFERRAL_URL];
+                [dictEvent setValue:bundleId forKey:TUNE_KEY_REFERRAL_SOURCE];
+                
+                // do not update events that were fired before the last "session" request
+                if([dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
+                    break;
+                }
             }
         }
         
@@ -301,9 +303,7 @@ static TuneEventQueue *sharedQueue = nil;
         
         NSMutableDictionary *dictEvent = events.count > 0 ? events[0] : nil;
         
-        BOOL firstSessionReqCompleted = nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_OPEN_LOG_ID];
-        
-        if (!firstSessionReqCompleted && [dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
+        if (![TuneUtils isFirstSessionRequestComplete] && ![dictEvent[TUNE_KEY_NETWORK_REQUEST_PENDING] boolValue] && [dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
             if (impressionDate) {
                 NSString *queryParams = [NSString stringWithFormat:@"%@&%@=%@", dictEvent[TUNE_KEY_DATA], TUNE_KEY_IAD_IMPRESSION_DATE, [TuneUtils urlEncodeQueryParamValue:impressionDate]];
                 dictEvent[TUNE_KEY_DATA] = queryParams;
@@ -499,7 +499,7 @@ static TuneEventQueue *sharedQueue = nil;
     
     [requestOpQueue addOperationWithBlock:^{
         // get first request
-        NSDictionary *request = nil;
+        NSMutableDictionary *request = nil;
         @synchronized(_eventLock) {
             if( [events count] < 1 ) return;
             request = events[0];
@@ -509,6 +509,10 @@ static TuneEventQueue *sharedQueue = nil;
         NSDate *runDate = [NSDate dateWithTimeIntervalSince1970:[request[TUNE_KEY_RUN_DATE] doubleValue]];
         if( [runDate isKindOfClass:[NSDate class]] ) {
             [NSThread sleepUntilDate:runDate];
+        }
+        
+        @synchronized(_eventLock) {
+            request[TUNE_KEY_NETWORK_REQUEST_PENDING] = @(YES);
         }
         
         // fire URL request synchronously

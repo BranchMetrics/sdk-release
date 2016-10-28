@@ -97,4 +97,57 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertTrue([[var toDictionary] isEqualToDictionary:[gotten toDictionary]]);
 }
 
+
+- (void)testIncrementUserDefaultsCountForKey {
+    NSString *key = @"int_num_counter_key";
+    [TuneUserDefaultsUtils clearUserDefaultValue:key];
+    XCTAssertNil([TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key];
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    XCTAssertEqual(1, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key];
+    XCTAssertEqual(2, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+}
+
+- (void)testIncrementUserDefaultsCountForKeyByValue {
+    NSString *key = @"int_num_counter_key";
+    [TuneUserDefaultsUtils clearUserDefaultValue:key];
+    XCTAssertNil([TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key byValue:5];
+    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    XCTAssertEqual(5, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key byValue:3];
+    XCTAssertEqual(8, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+}
+
+- (void)testIncrementUserDefaultsCountForKey_invalid_nonNumeric {
+    NSString *key = @"non_int_num_counter_key";
+    id nonNSNumberValue = @"object not an NSNumber";
+    [TuneUserDefaultsUtils setUserDefaultValue:nonNSNumberValue forKey:key];
+    XCTAssertEqualObjects(nonNSNumberValue, [TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key];
+    XCTAssertEqualObjects(nonNSNumberValue, [TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    XCTAssertEqual(0, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+}
+
+- (void)testIncrementUserDefaultsCountForKeyByValue_invalid_nonNumeric {
+    NSString *key = @"non_int_num_counter_key";
+    id nonNSNumberValue = @"object not an NSNumber";
+    [TuneUserDefaultsUtils setUserDefaultValue:nonNSNumberValue forKey:key];
+    XCTAssertEqualObjects(nonNSNumberValue, [TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key byValue:5];
+    XCTAssertEqualObjects(nonNSNumberValue, [TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    XCTAssertEqual(0, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+    
+    [TuneUserDefaultsUtils incrementUserDefaultCountForKey:key byValue:-3];
+    XCTAssertEqualObjects(nonNSNumberValue, [TuneUserDefaultsUtils userDefaultValueforKey:key]);
+    XCTAssertEqual(0, [[TuneUserDefaultsUtils userDefaultValueforKey:key] intValue]);
+}
+
 @end

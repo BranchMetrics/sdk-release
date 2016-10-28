@@ -121,24 +121,24 @@
 #if TARGET_OS_IOS
 
 - (BOOL)_appSupportsLandscape {
-    return ([self _orientationIsSupportedByApp:UIDeviceOrientationLandscapeLeft] ||
-            [self _orientationIsSupportedByApp:UIDeviceOrientationLandscapeRight]);
+    return ([self _orientationIsSupportedByApp:UIInterfaceOrientationLandscapeLeft] ||
+            [self _orientationIsSupportedByApp:UIInterfaceOrientationLandscapeRight]);
 }
 
 - (BOOL)_appSupportsPortrait {
-    return ([self _orientationIsSupportedByApp:UIDeviceOrientationPortrait] ||
-            [self _orientationIsSupportedByApp:UIDeviceOrientationPortraitUpsideDown]);
+    return ([self _orientationIsSupportedByApp:UIInterfaceOrientationPortrait] ||
+            [self _orientationIsSupportedByApp:UIInterfaceOrientationPortraitUpsideDown]);
 }
 
 - (void)buildSuportedOrientationArray {
     _supportedOrientations = [TuneDeviceDetails getSupportedDeviceOrientations];
 }
 
-+ (BOOL)orientationIsSupportedByApp:(UIDeviceOrientation)orientation {
++ (BOOL)orientationIsSupportedByApp:(UIInterfaceOrientation)orientation {
     return [[TuneDeviceDetails sharedDetails] _orientationIsSupportedByApp:orientation];
 }
 
-- (BOOL)_orientationIsSupportedByApp:(UIDeviceOrientation)orientation {
+- (BOOL)_orientationIsSupportedByApp:(UIInterfaceOrientation)orientation {
     return [_supportedOrientations containsObject:[TuneDeviceDetails getDeviceOrientationString:orientation]];
 }
 
@@ -153,7 +153,7 @@
         return [NSArray arrayWithArray:rawSupportedDeviceOrientations];;
     }
     else {
-        // Don't send UIDeviceOrientationPortraitUpsideDown in this array it won't work properly on the iPhone;
+        // Don't send UIInterfaceOrientationPortraitUpsideDown in this array it won't work properly on the iPhone;
         [rawSupportedDeviceOrientations removeObject:@"UIInterfaceOrientationPortraitUpsideDown"];
 
         return [NSArray arrayWithArray:rawSupportedDeviceOrientations];
@@ -353,39 +353,39 @@
 
 #if TARGET_OS_IOS
 
-+ (NSString *)getDeviceOrientationString:(UIDeviceOrientation)orientation {
++ (NSString *)getDeviceOrientationString:(UIInterfaceOrientation)orientation {
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             return @"UIInterfaceOrientationPortrait";
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             return @"UIInterfaceOrientationPortraitUpsideDown";
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeLeft:
             return @"UIInterfaceOrientationLandscapeLeft";
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeRight:
             return @"UIInterfaceOrientationLandscapeRight";
         default:
             return @"Invalid Interface Orientation";
     }
 }
 
-+ (UIDeviceOrientation)getUIDeviceOrientationFromString:(NSString *)orientationString {
++ (UIInterfaceOrientation)getUIInterfaceOrientationFromString:(NSString *)orientationString {
     if ( ([orientationString isEqualToString:@"UIDeviceOrientationPortrait"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationPortrait"]) ) {
-        return UIDeviceOrientationPortrait;
+        return UIInterfaceOrientationPortrait;
     }
     else if ( ([orientationString isEqualToString:@"UIDeviceOrientationPortraitUpsideDown"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationPortraitUpsideDown"]) ) {
-        return UIDeviceOrientationPortraitUpsideDown;
+        return UIInterfaceOrientationPortraitUpsideDown;
     }
-    else if ( ([orientationString isEqualToString:@"UIDeviceOrientationLandscapeRight"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationLandscapeRight"]) ) {
-        return UIDeviceOrientationLandscapeRight;
+    else if ( ([orientationString isEqualToString:@"UIDeviceOrientationLandscapeLeft"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationLandscapeRight"]) ) {
+        return UIInterfaceOrientationLandscapeRight;
     }
-    else if ( ([orientationString isEqualToString:@"UIDeviceOrientationLandscapeLeft"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationLandscapeLeft"]) ) {
-        return UIDeviceOrientationLandscapeLeft;
+    else if ( ([orientationString isEqualToString:@"UIDeviceOrientationLandscapeRight"]) || ([orientationString isEqualToString:@"UIInterfaceOrientationLandscapeLeft"]) ) {
+        return UIInterfaceOrientationLandscapeLeft;
     }
     else if ([orientationString isEqualToString:@"UIDeviceOrientationUnknown"]) {
-        return UIDeviceOrientationUnknown;
+        return UIInterfaceOrientationUnknown;
     }
 
-    return UIDeviceOrientationUnknown;
+    return UIInterfaceOrientationUnknown;
 }
 
 #endif

@@ -10,6 +10,7 @@
 #import "TuneStringUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneManager.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneKeyStrings.h"
 #import <CommonCrypto/CommonDigest.h>
@@ -767,5 +768,11 @@ BOOL isAlertVisible;
     return [receiver respondsToSelector:aSelector];
 }
 
+
+#pragma mark -
+
++ (BOOL)isFirstSessionRequestComplete {
+    return nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_OPEN_LOG_ID];
+}
 
 @end
