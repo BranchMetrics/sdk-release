@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import com.tune.TuneConstants;
 import com.tune.TuneDeeplinkListener;
-import com.tune.TuneDeferredDplinkr;
+import com.tune.TuneDeeplinker;
 import com.tune.TuneUtils;
 
 import org.json.JSONException;
@@ -20,32 +20,18 @@ import java.net.URL;
 public class TuneUrlRequester implements UrlRequester {
 
     @Override
-    public void requestDeeplink(TuneDeferredDplinkr dplinkr) {
-        String deeplink = "";
-        InputStream is = null;
-        
-        // Construct deeplink endpoint url
-        Uri.Builder uri = new Uri.Builder();
-        uri.scheme("https")
-           .authority(dplinkr.getAdvertiserId() + "." + TuneConstants.DEEPLINK_DOMAIN)
-           .appendPath("v1")
-           .appendPath("link.txt")
-           .appendQueryParameter("platform", "android")
-           .appendQueryParameter("advertiser_id", dplinkr.getAdvertiserId())
-           .appendQueryParameter("ver", TuneConstants.SDK_VERSION)
-           .appendQueryParameter("package_name", dplinkr.getPackageName())
-           .appendQueryParameter("ad_id", ((dplinkr.getGoogleAdvertisingId() != null) ? dplinkr.getGoogleAdvertisingId() : dplinkr.getAndroidId()))
-           .appendQueryParameter("user_agent", dplinkr.getUserAgent());
-        
-        if (dplinkr.getGoogleAdvertisingId() != null) {
-            uri.appendQueryParameter("google_ad_tracking_disabled", Integer.toString(dplinkr.getGoogleAdTrackingLimited()));
+    public void requestDeeplink(String deeplinkURL, String conversionKey, TuneDeeplinkListener listener) {
+        if (listener == null) {
+            return; // no one is listening!
         }
-        
+
+        InputStream is = null;
+
         try {
-            URL myurl = new URL(uri.build().toString());
+            URL myurl = new URL(deeplinkURL);
             HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
             // Set TUNE conversion key in request header
-            conn.setRequestProperty("X-MAT-Key", dplinkr.getConversionKey());
+            conn.setRequestProperty("X-MAT-Key", conversionKey);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             
@@ -60,16 +46,13 @@ public class TuneUrlRequester implements UrlRequester {
                 is = conn.getErrorStream();
             }
             
-            deeplink = TuneUtils.readStream(is);
-            TuneDeeplinkListener listener = dplinkr.getListener();
-            if (listener != null) {
-                if (error) {
-                    // Notify listener of error
-                    listener.didFailDeeplink(deeplink);
-                } else {
-                    // Notify listener of deeplink url
-                    listener.didReceiveDeeplink(deeplink);
-                }
+            String response = TuneUtils.readStream(is);
+            if (error) {
+                // Notify listener of error
+                listener.didFailDeeplink(response);
+            } else {
+                // Notify listener of deeplink url
+                listener.didReceiveDeeplink(response);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +64,7 @@ public class TuneUrlRequester implements UrlRequester {
             }
         }
     }
-    
+
     /**
      * Does an HTTP request to the given url, GET or POST based on whether json was passed or not
      * @param url the url to hit

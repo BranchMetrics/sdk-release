@@ -29,7 +29,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     private MockApi mockApi;
     private FileManager fileManager;
 
-    private static final int WAIT_TIME = 100;
+    private static final int WAIT_TIME = 500;
 
     @Override
     public void setUp() throws Exception {

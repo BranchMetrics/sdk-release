@@ -19,6 +19,10 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         TuneEvent eventToConvert = new TuneEvent("item1");
         eventToConvert.withRevenue(1.99);
         eventToConvert.withAttribute1("attr1");
+        eventToConvert.withAttribute2("attr2");
+        eventToConvert.withAttribute3("attr3");
+        eventToConvert.withAttribute4("attr4");
+        eventToConvert.withAttribute5("attr5");
 
         TuneCustomEvent event = new TuneCustomEvent(eventToConvert);
 
@@ -27,11 +31,24 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
 
         for (TuneAnalyticsVariable var : event.getTags()) {
             String key = var.getName();
-            assertTrue(key.equals(TuneUrlKeys.REVENUE) || key.equals(TuneUrlKeys.ATTRIBUTE1));
+            assertTrue(key.equals(TuneUrlKeys.REVENUE) ||
+                    key.equals(TuneUrlKeys.ATTRIBUTE1) ||
+                    key.equals(TuneUrlKeys.ATTRIBUTE2) ||
+                    key.equals(TuneUrlKeys.ATTRIBUTE3) ||
+                    key.equals(TuneUrlKeys.ATTRIBUTE4) ||
+                    key.equals(TuneUrlKeys.ATTRIBUTE5));
             if (key.equals(TuneUrlKeys.REVENUE)) {
                 assertEquals(1.99, Double.parseDouble(var.getValue()));
             } else if (key.equals(TuneUrlKeys.ATTRIBUTE1)) {
                 assertEquals("attr1", var.getValue());
+            } else if (key.equals(TuneUrlKeys.ATTRIBUTE2)) {
+                assertEquals("attr2", var.getValue());
+            } else if (key.equals(TuneUrlKeys.ATTRIBUTE3)) {
+                assertEquals("attr3", var.getValue());
+            } else if (key.equals(TuneUrlKeys.ATTRIBUTE4)) {
+                assertEquals("attr4", var.getValue());
+            } else if (key.equals(TuneUrlKeys.ATTRIBUTE5)) {
+                assertEquals("attr5", var.getValue());
             }
         }
     }

@@ -31,6 +31,9 @@ public class TuneConstants {
     // Key for last session date
     public static final String KEY_LAST_SESSION_DATE = "ma_last_session_date";
 
+    // Url parameter key and response key for Tune Link invoke url
+    public static final String KEY_INVOKE_URL = "invoke_url";
+
     // Server domain
     static final String TUNE_DOMAIN = "engine.mobileapptracking.com";
     // Server domain for debug
@@ -42,7 +45,7 @@ public class TuneConstants {
     public static final String IAM_API_VERSION = "v3";
 
     // TUNE Android SDK version number
-    public static final String SDK_VERSION = "4.7.1";
+    public static final String SDK_VERSION = "4.8.0";
     // Debug log tag
     static final String TAG = "TUNE";
     // Max number of events to dump when queued

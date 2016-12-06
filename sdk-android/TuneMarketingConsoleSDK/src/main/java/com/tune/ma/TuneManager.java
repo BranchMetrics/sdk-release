@@ -101,7 +101,6 @@ public class TuneManager {
                 TuneEventBus.register(instance.connectedModeManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.playlistManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.deepActionManager);
-                TuneEventBus.register(instance.powerHookManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.experimentManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.pushManager);
 

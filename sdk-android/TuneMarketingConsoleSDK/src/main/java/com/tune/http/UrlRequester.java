@@ -1,6 +1,7 @@
 package com.tune.http;
 
-import com.tune.TuneDeferredDplinkr;
+import com.tune.TuneDeeplinkListener;
+import com.tune.TuneDeeplinker;
 
 import org.json.JSONObject;
 
@@ -9,8 +10,7 @@ import org.json.JSONObject;
  */
 public interface UrlRequester {
 
-
-    void requestDeeplink(TuneDeferredDplinkr dplinkr);
+    void requestDeeplink(String deeplinkURL, String conversionKey, TuneDeeplinkListener listener);
 
     JSONObject requestUrl(String url, JSONObject json, boolean debugMode);
 

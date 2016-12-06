@@ -8,13 +8,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
@@ -37,6 +38,7 @@ import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
 import com.tune.ma.utils.TuneDebugLog;
+import com.tune.ma.utils.TuneOptional;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +85,8 @@ public class Tune {
     protected boolean collectLocation;
 
     // Deferred deeplink helper class
-    private TuneDeferredDplinkr dplinkr;
+    private TuneDeeplinker dplinkr;
+
     // Preloaded apps data values to send
     private TunePreloadData mPreloadData;
 
@@ -98,12 +101,16 @@ public class Tune {
     private boolean debugMode;
     // If this is the first session of the app lifecycle, wait for the GAID and referrer
     private boolean firstSession;
+    // Is this the first install with the Tune SDK. This will be true for the entire first session.
+    protected boolean isFirstInstall;
     // Whether we're invoking FB event logging
     private boolean fbLogging;
     // Time that SDK was initialized
     private long initTime;
     // Time that SDK received referrer
     private long referrerTime;
+    // Time SDK last measuredSession
+    protected long timeLastMeasuredSession;
 
     // Whether Google Advertising ID was received
     boolean gotGaid;
@@ -143,11 +150,11 @@ public class Tune {
      * @param context Application context
      * @param advertiserId TUNE advertiser ID
      * @param conversionKey TUNE conversion key
-     * @param turnOnTMA Whether to enable TMA or not
+     * @param turnOnIAM Whether to enable Tune In-App Marketing or not
      * @return Tune instance with initialized values
      */
-    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnTMA) {
-        return init(context, advertiserId, conversionKey, turnOnTMA, null);
+    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM) {
+        return init(context, advertiserId, conversionKey, turnOnIAM, null);
     }
 
     /**
@@ -155,17 +162,17 @@ public class Tune {
      * @param context Application context
      * @param advertiserId TUNE advertiser ID
      * @param conversionKey TUNE conversion key
-     * @param turnOnTMA Whether to enable TMA or not
+     * @param turnOnIAM Whether to enable Tune In-App Marketing or not
      * @param configuration custom SDK configuration
      * @return Tune instance with initialized values
      */
-    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnTMA, TuneConfiguration configuration) {
+    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM, TuneConfiguration configuration) {
         if (tune == null) {
             tune = new Tune();
             tune.mContext = context.getApplicationContext();
             tune.pubQueue = Executors.newSingleThreadExecutor();
 
-            if (turnOnTMA && TuneUtils.hasPermission(context, Manifest.permission.INTERNET)) {
+            if (turnOnIAM && TuneUtils.hasPermission(context, Manifest.permission.INTERNET)) {
                 // Enable the event bus
                 TuneEventBus.enable();
                 // Init TuneManager
@@ -209,7 +216,7 @@ public class Tune {
      */
     protected void initAll(String advertiserId, String conversionKey) {
         // Dplinkr init
-        dplinkr = TuneDeferredDplinkr.initialize(advertiserId, conversionKey, mContext.getPackageName());
+        dplinkr = new TuneDeeplinker(advertiserId, conversionKey, mContext.getPackageName());
 
         params = TuneParameters.init(this, mContext, advertiserId, conversionKey);
 
@@ -241,6 +248,11 @@ public class Tune {
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         mContext.registerReceiver(networkStateReceiver, filter);
         isRegistered = true;
+
+        if (!params.hasInstallFlagBeenSet()) {
+            isFirstInstall = true;
+            params.setInstallFlag();
+        }
 
         initialized = true;
     }
@@ -296,11 +308,26 @@ public class Tune {
     }
 
     /**
-     * Main session measurement function; this function should be called in onResume().
+     * Main session measurement function.
+     * @deprecated As of Tune Android SDK v4.8.0 you do not need to explicitly call this method for native Tune Android SDK integrations.
+     * The session will be measured as part of the call to TuneActivity's onResume, which may be called automatically with the
+     * activity lifecycle callbacks registered via your Application class as part of the normal Tune SDK integration.
+     * Tune Android SDK plugins should call {@link #measureSessionInternal()} instead. This method will be removed in Tune Android SDK v5.0.0
      */
+    @Deprecated
     public void measureSession() {
+        TuneDebugLog.w("Call to DEPRECATED method tune.measureSession() As of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0");
+
+        measureSessionInternal();
+    }
+
+    /**
+     * Measure new session. Tune Android SDK plugins may use this method to trigger session measurement events. This should be called in the equivalent of onResume().
+     */
+    public void measureSessionInternal() {
+        timeLastMeasuredSession = System.currentTimeMillis();
         notifiedPool = false;
-        measureEvent(new TuneEvent("session"));
+        measureEvent(new TuneEvent(TuneEvent.NAME_SESSION));
         if (debugMode) {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
@@ -309,6 +336,14 @@ public class Tune {
                 }
             });
         }
+    }
+
+    /**
+     * Get the time the Tune SDK last measured a new session. This value may not update each time the app is foregrounded.
+     * @return time of last session measurement in milliseconds (System time).
+     */
+    public long getTimeLastMeasuredSession() {
+        return timeLastMeasuredSession;
     }
 
     /**
@@ -322,9 +357,12 @@ public class Tune {
     /**
      * Event measurement function that measures an event for the given eventId.
      * @param eventId event ID in TUNE system
-     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #measureEvent(String)} or {@link #measureEvent(TuneEvent)} methods.
+     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #measureEvent(String)} or {@link #measureEvent(TuneEvent)} methods. This method will be removed in Tune Android SDK v5.0.0
      */
-    @Deprecated public void measureEvent(int eventId) {
+    @Deprecated
+    public void measureEvent(int eventId) {
+        TuneUtils.log("Call to DEPRECATED method tune.measureEvent(int) Tune does not support measuring events using event IDs. Please use tune.measureEvent(String) instead. This method will be removed in Tune Android SDK v5.0.0");
+
         measureEvent(new TuneEvent(eventId));
     }
 
@@ -340,7 +378,7 @@ public class Tune {
             return;
         }
 
-        // Post event to TuneEventBus for TMA
+        // Post event to TuneEventBus for IAM
         TuneEventBus.post(new TuneEventOccurred(eventData));
 
         updateLocation();
@@ -352,22 +390,47 @@ public class Tune {
         });
     }
 
+    private void measureTuneLinkClick(final String clickedTuneLinkUrl) {
+        if (!initialized) return;
+
+        dumpQueue();
+
+        String link = TuneUrlBuilder.appendTuneLinkParameters(clickedTuneLinkUrl);
+        String data = "";
+        JSONObject postBody = new JSONObject();
+
+        if (tuneRequest != null) {
+            tuneRequest.constructedRequest(link, data, postBody);
+        }
+
+        addEventToQueue(link, data, postBody, firstSession);
+
+        dumpQueue();
+
+        if (tuneListener != null) {
+            tuneListener.enqueuedActionWithRefId(null);
+            tuneListener.enqueuedRequest(link, postBody);
+        }
+
+        return;
+    }
+
     private synchronized void measure(TuneEvent eventData) {
         if (!initialized) return;
 
         dumpQueue();
 
-        params.setAction("conversion"); // Default to conversion
+        params.setAction(TuneParameters.ACTION_CONVERSION); // Default to conversion
         if (eventData.getEventName() != null) {
             String eventName = eventData.getEventName();
             if (fbLogging) {
                 TuneFBBridge.logEvent(eventData);
             }
-            if (eventName.equals("close")) {
+            if (TuneEvent.NAME_CLOSE.equals(eventName)) {
                 return; // Don't send close events
-            } else if (eventName.equals("open") || eventName.equals("install") ||
-                       eventName.equals("update") || eventName.equals("session")) {
-                params.setAction("session");
+            } else if (TuneEvent.NAME_OPEN.equals(eventName) || TuneEvent.NAME_INSTALL.equals(eventName) ||
+                       TuneEvent.NAME_UPDATE.equals(eventName) || TuneEvent.NAME_SESSION.equals(eventName)) {
+                params.setAction(TuneParameters.ACTION_SESSION);
             }
         }
 
@@ -407,65 +470,124 @@ public class Tune {
      * @return true if request was sent successfully and should be removed from queue
      */
     protected boolean makeRequest(String link, String data, JSONObject postBody) {
-        if (debugMode) TuneUtils.log("Sending event to server...");
+        TuneDebugLog.d("Sending event to server...");
 
-        // If location not set before sending, try to get location again
-        updateLocation();
+        final boolean removeRequestFromQueue = true;
+        final boolean retryRequest = !removeRequestFromQueue;
+
+        if (link == null) { // This is an internal method and link should always be set, but for customer stability we will prevent NPEs
+            TuneDebugLog.e(TuneConstants.TAG, "CRITICAL internal Tune request link is null");
+            safeReportFailureToTuneListener("Internal Tune request link is null");
+            return removeRequestFromQueue;
+        }
+
+        updateLocation(); // If location not set before sending, try to get location again
 
         String encData = TuneUrlBuilder.updateAndEncryptData(data, encryption);
         String fullLink = link + "&data=" + encData;
-
         JSONObject response = urlRequester.requestUrl(fullLink, postBody, debugMode);
 
-        // The only way we get null from TuneUrlRequester is if *our server* returned HTTP 400.
-        // In that case, we should not retry this request.
-        if (response == null) {
-            if (tuneListener != null) {
-                // null isn't the most useful error message, but at least it's a notification
-                tuneListener.didFailWithError(response);
-            }
-            return true;
+        if (response == null) { // The only way we get null from TuneUrlRequester is if *our server* returned HTTP 400. Do not retry.
+            safeReportFailureToTuneListener("Error 400 response from Tune");
+            return removeRequestFromQueue;
         }
 
-        // if response is empty, it should be requeued
-        if (!response.has("success")) {
-            if (debugMode) TuneUtils.log("Request failed, event will remain in queue");
-            return false;
+        if (!response.has("success")) { // if response is empty, it should be requeued
+            TuneDebugLog.e("Request failed, event will remain in queue");
+            safeReportFailureToTuneListener(response);
+            return retryRequest;
         }
+
+        checkForExpandedTuneLinks(link, response);
 
         // notify tuneListener of success or failure
-        if (tuneListener != null) {
-            boolean success = false;
-            try {
-                if (response.getString("success").equals("true")) {
-                    success = true;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-            if (success) {
-                tuneListener.didSucceedWithData(response);
-            } else {
-                tuneListener.didFailWithError(response);
-            }
+        boolean success = false;
+        try {
+            success = response.getString("success").equals("true");
+        } catch (JSONException e) {
+            TuneDebugLog.e("Error parsing response " + response + " to check for success", e);
+            safeReportFailureToTuneListener(response);
+            return retryRequest;
         }
 
-        // save open log id
+        safeReportSuccessOrFailureToTuneListener(response, success);
+        saveOpenLogId(response);
+
+        return removeRequestFromQueue;
+    }
+
+    private void safeReportSuccessOrFailureToTuneListener(JSONObject response, boolean success) {
+        if (success) {
+            safeReportSuccessToTuneListener(response);
+        } else {
+            safeReportFailureToTuneListener(response);
+        }
+    }
+
+    private void safeReportSuccessToTuneListener(JSONObject response) {
+        if (tuneListener != null) {
+            tuneListener.didSucceedWithData(response);
+        }
+    }
+
+    private void safeReportFailureToTuneListener(JSONObject response) {
+        if (tuneListener != null) {
+            tuneListener.didFailWithError(response);
+        }
+    }
+
+    private void safeReportFailureToTuneListener(String errorMessage) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", errorMessage);
+        safeReportFailureToTuneListener(new JSONObject(errors));
+    }
+
+    private void saveOpenLogId(JSONObject response) {
         try {
-            String eventType = response.getString("site_event_type");
-            if (eventType.equals("open")) {
+            String eventType = response.optString("site_event_type");
+            if ("open".equals(eventType)) {
                 String logId = response.getString("log_id");
-                if (getOpenLogId().equals("")) {
+                if ("".equals(getOpenLogId())) {
                     params.setOpenLogId(logId);
                 }
                 params.setLastOpenLogId(logId);
             }
         } catch (JSONException e) {
+            TuneDebugLog.e("Error parsing response " + response + " to save open log id", e);
         }
+    }
 
-        return true; // request went through, don't retry
+    private void checkForExpandedTuneLinks(String link, JSONObject response) {
+        try {
+            if (isTuneLinkMeasurementRequest(link) && !isInvokeUrlParameterInReferralUrl()){
+                if (response.has(TuneConstants.KEY_INVOKE_URL)) {
+                    dplinkr.handleExpandedTuneLink(response.getString(TuneConstants.KEY_INVOKE_URL));
+                } else {
+                    dplinkr.handleFailedExpandedTuneLink("There is no invoke url for this Tune Link");
+                }
+            }
+        } catch (JSONException e) {
+            TuneDebugLog.e("Error parsing response " + response + " to check for invoke url", e);
+        }
+    }
+
+    private boolean isInvokeUrlParameterInReferralUrl() {
+        return invokeUrlFromReferralUrl(params.getReferralUrl()).isPresent();
+    }
+
+    private boolean isTuneLinkMeasurementRequest(String link) {
+        return link.contains(TuneUrlKeys.ACTION + "=" + TuneParameters.ACTION_CLICK);
+    }
+
+    protected TuneOptional<String> invokeUrlFromReferralUrl(String referralUrl) {
+        String invokeUrl = null;
+        try {
+            Uri clickedLink = Uri.parse(referralUrl);
+            invokeUrl = clickedLink.getQueryParameter(TuneConstants.KEY_INVOKE_URL);
+        } catch (Exception e) {
+            TuneDebugLog.e("Error looking for invoke_url in referral url: " + referralUrl, e);
+        }
+        return TuneOptional.ofNullable(invokeUrl);
     }
 
     /**
@@ -630,6 +752,14 @@ public class Tune {
     }
 
     /**
+     * Gets the device build
+     * @return device build name
+     */
+    public String getDeviceBuild() {
+        return params.getDeviceBuild();
+    }
+
+    /**
      * Gets the device carrier if any
      * @return mobile device carrier/service provider name
      */
@@ -788,6 +918,14 @@ public class Tune {
     }
 
     /**
+     * Gets the device locale.
+     * @return device locale
+     */
+    public String getLocale() {
+        return params.getLocale();
+    }
+
+    /**
      * Gets the device longitude.
      *
      * NOTE: This value must be set by {@link Tune#setLongitude(double)}. This value is not automatically retrieved.
@@ -913,8 +1051,8 @@ public class Tune {
     }
 
     /**
-     * Gets the TUNE SDK version
-     * @return TUNE SDK version
+     * Gets the TUNE Android SDK version
+     * @return TUNE Android SDK version
      */
     public String getSDKVersion() {
         return params.getSdkVersion();
@@ -1008,13 +1146,14 @@ public class Tune {
      * @param androidId ANDROID_ID
      */
     public void setAndroidId(final String androidId) {
-        if (dplinkr != null) {
-            dplinkr.setAndroidId(androidId);
-            requestDeeplink();
-        }
         // Params sometimes not initialized by the time GetGAID thread finishes
         if (params != null) {
             params.setAndroidId(androidId);
+
+            if (dplinkr != null) {
+                dplinkr.setAndroidId(androidId);
+                requestDeferredDeeplink();
+            }
         }
     }
 
@@ -1092,10 +1231,6 @@ public class Tune {
         });
     }
 
-    public void setDeeplinkListener(TuneDeeplinkListener listener) {
-        dplinkr.setListener(listener);
-    }
-
     /**
      * Sets the device brand, or manufacturer
      * @param deviceBrand device brand
@@ -1104,6 +1239,18 @@ public class Tune {
         pubQueue.execute(new Runnable() {
             public void run() {
                 params.setDeviceBrand(deviceBrand);
+            }
+        });
+    }
+
+    /**
+     * Sets the device build
+     * @param deviceBuild device build
+     */
+    public void setDeviceBuild(final String deviceBuild) {
+        pubQueue.execute(new Runnable() {
+            public void run() {
+                params.setDeviceBuild(deviceBuild);
             }
         });
     }
@@ -1133,7 +1280,7 @@ public class Tune {
     }
 
     /**
-     * Sets whether app was previously installed prior to version with TUNE SDK
+     * Sets whether app was previously installed prior to version with TUNE SDK. This should be called BEFORE your first activity resumes.
      * @param existing true if this user already had the app installed prior to updating to TUNE version
      */
     public void setExistingUser(final boolean existing) {
@@ -1174,13 +1321,14 @@ public class Tune {
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled? 1 : 0;
 
-        if (dplinkr != null) {
-            dplinkr.setGoogleAdvertisingId(adId, intLimit);
-            requestDeeplink();
-        }
         if (params != null) {
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
+
+            if (dplinkr != null) {
+                dplinkr.setGoogleAdvertisingId(adId, intLimit);
+                requestDeferredDeeplink();
+            }
         }
         gotGaid = true;
         if (gotReferrer && !notifiedPool) {
@@ -1238,6 +1386,16 @@ public class Tune {
     public void setLatitude(final double latitude) {
         pubQueue.execute(new Runnable() { public void run() {
             params.setLatitude(Double.toString(latitude));
+        }});
+    }
+
+    /**
+     * Sets the device locale
+     * @param locale the device locale
+     */
+    public void setLocale(final String locale) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setLocale(locale);
         }});
     }
 
@@ -1383,30 +1541,59 @@ public class Tune {
     /**
      * Get referral sources from Activity
      * @param act Activity to get referring package name and url scheme from
+     * @deprecated as of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0
      */
+    @Deprecated
     public void setReferralSources(final Activity act) {
-        pubQueue.execute(new Runnable() { public void run() {
-            // Set source package
-            params.setReferralSource(act.getCallingPackage());
-            // Set source url query
-            Intent intent = act.getIntent();
-            if (intent != null) {
-                Uri uri = intent.getData();
-                if (uri != null) {
-                    params.setReferralUrl(uri.toString());
-                }
+        TuneDebugLog.w("Call to DEPRECATED method tune.setReferralSources() As of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0");
+
+        setReferralCallingPackage(act.getCallingPackage());
+        Intent intent = act.getIntent();
+        if (intent != null) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                setReferralUrl(uri.toString());
             }
+        }
+    }
+
+    /**
+     * Set the package that invoked the activity. Typically this value is from {@link Activity#getCallingPackage} and may be null.
+     *
+     * @param referralCallingPackage
+     */
+    public void setReferralCallingPackage(@Nullable final String referralCallingPackage) {
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setReferralSource(referralCallingPackage);
         }});
     }
 
     /**
-     * Set referral url (deeplink)
+     * Set referral url (deeplink). You usually do not need to call this directly. If called, this method should be called BEFORE {@link #measureSessionInternal()} or {@link #measureSession()}
      * @param url deeplink with which app was invoked
      */
     public void setReferralUrl(final String url) {
         pubQueue.execute(new Runnable() { public void run() {
             params.setReferralUrl(url);
         }});
+
+        if (url != null && isTuneLink(url)) {
+            try {
+                // In case the tune link already contains an invoke_url, short circuit and call the deeplink listener
+                TuneOptional<String> invokeUrl = invokeUrlFromReferralUrl(url);
+                if (invokeUrl.isPresent()) {
+                    dplinkr.handleExpandedTuneLink(invokeUrl.get());
+                }
+            } catch (Exception e) {
+                dplinkr.handleFailedExpandedTuneLink("Error accessing invoke_url from clicked Tune Link");
+            } finally {
+                pubQueue.execute(new Runnable() {
+                    public void run() {
+                        measureTuneLinkClick(url);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -1494,6 +1681,7 @@ public class Tune {
             params.setDebugMode(debug);
         }});
         if (debug) {
+            TuneDebugLog.enableLog();
             TuneDebugLog.setLogLevel(Log.DEBUG);
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
@@ -1564,12 +1752,14 @@ public class Tune {
 
     /**
      * Whether to autocollect device location if location is enabled
-     * @param autoCollect Autocollect device location, default is true
+     * @param autoCollect Automatically collect device location, default is true
      */
     public void setShouldAutoCollectDeviceLocation(boolean autoCollect) {
         collectLocation = autoCollect;
         if (!collectLocation) {
             locationListener.stopListening();
+        } else {
+            locationListener.startListening();
         }
     }
 
@@ -2034,42 +2224,84 @@ public class Tune {
 
     /**
      * Checks for a deferred deeplink if exists
-     * Opens deferred deeplink if found and returns value in TuneDeeplinkListener
+     * Opens deferred deeplink if found and returns value in the registered {@code TuneDeeplinkListener}
      * @param listener listener for deeplink value or error
+     * @deprecated Instead, register your {@link TuneDeeplinkListener} via {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)}. As of Tune Android SDK v4.8.0 this method delegates to {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)} so that there is only ever one listener at a time. This method is planned for removal in Tune Android SDK v5.0.0.
      */
+    @Deprecated
     public void checkForDeferredDeeplink(TuneDeeplinkListener listener) {
-        setDeeplinkListener(listener);
-        if (firstInstall()) {
-            dplinkr.enable(true);
-        } else {
-            dplinkr.enable(false);
-            listener.didFailDeeplink("Not first install, not checking for deferred deeplink");
-        }
-        // If GetGAID thread has completed by the time this is called,
-        // then get the deeplink now. Otherwise, wait until device identifiers are set
-        if (dplinkr.getGoogleAdvertisingId() != null || dplinkr.getAndroidId() != null) {
-            requestDeeplink();
+        TuneDebugLog.w("Call to DEPRECATED method tune.checkForDeferredDeeplink(TuneDeeplinkListener) instead call tune.registerDeeplinkListener(TuneDeeplinkListener). This method will be removed in Tune Android SDK v5.0.0");
+
+        registerDeeplinkListener(listener);
+    }
+
+    /**
+     * @deprecated as of Tune Android SDK v4.8.0 use {@link #registerDeeplinkListener(TuneDeeplinkListener)} instead. This method will be removed in Tune Android SDK v5.0.0
+     * @param listener will be called with deferred deeplinks after install or expanded Tune links.
+     */
+    @Deprecated
+    public void setDeeplinkListener(TuneDeeplinkListener listener) {
+        TuneDebugLog.w("Call to DEPRECATED method tune.setDeeplinkListener(TuneDeeplinkListener) instead call tune.registerDeeplinkListener(TuneDeeplinkListener). This method will be removed in Tune Android SDK v5.0.0");
+
+        registerDeeplinkListener(listener);
+    }
+
+    /**
+     * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     */
+    public void unregisterDeeplinkListener() {
+        dplinkr.setListener(null);
+    }
+
+    /**
+     * Set the deeplink listener that will be called when either a deferred deeplink is found for a fresh install or for handling an opened Tune Link.
+     *
+     * Registering a deeplink listener will trigger an asynchronous call to check for deferred deeplinks during the first session after installing of the app with the Tune SDK.
+     *
+     * The {@code TuneDeeplinkListener#didFailWithError} callback will be called if there is no deferred deeplink from Tune for this user or in the event of an error from the server (possibly due to misconfiguration).
+     *
+     * The {@code TuneDeeplinkListener#didReceiveDeeplink} callback will be called when there is a deep link from Tune that you should route the user to. The string should be a fully qualified deep link url string.
+     *
+     * @param listener will be called with deferred deeplinks after install or expanded Tune links. May be null. Passing null will clear the previously set listener, although you may use {@link #unregisterDeeplinkListener()} instead.
+     */
+    public void registerDeeplinkListener(@Nullable TuneDeeplinkListener listener) {
+        dplinkr.setListener(listener);
+        requestDeferredDeeplink();
+    }
+
+    /**
+     * Request a deferred deep link if this is the first install of the app with the Tune SDK.
+     */
+    private void requestDeferredDeeplink() {
+        final boolean shouldRequestDeferredDeeplink = isFirstInstall && dplinkr != null && params != null;
+
+        if (shouldRequestDeferredDeeplink) {
+            dplinkr.requestDeferredDeeplink(params.getUserAgent(), mContext, urlRequester);
         }
     }
 
-    private void requestDeeplink() {
-        if (dplinkr.isEnabled()) {
-            // Try to set user agent here after User Agent thread completed
-            dplinkr.setUserAgent(params.getUserAgent());
-            dplinkr.checkForDeferredDeeplink(mContext, urlRequester);
-        }
+    /**
+     * If you have set up a custom domain for use with Tune Links (cname to a *.tlnk.io domain), then register it with this method.
+     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to {@link TuneDeeplinkListener#didReceiveDeeplink(String)} registered via {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * This method will test if any clicked links match the given suffix. Do not include a * for wildcard subdomains, instead pass the suffix that you would like to match against the url.
+     * So, ".customize.it" will match "1235.customize.it" and "56789.customize.it" but not "customize.it"
+     * And, "customize.it" will match "1235.customize.it" and "56789.customize.it", "customize.it", and "1235.tocustomize.it"
+     * You can register as many custom subdomains as you like.
+     *
+     * @param domainSuffix domain which you are using for Tune Links. Must not be null.
+     */
+    public void registerCustomTuneLinkDomain(@NonNull String domainSuffix) {
+        dplinkr.registerCustomTuneLinkDomain(domainSuffix);
     }
 
-    private boolean firstInstall() {
-        // If SharedPreferences value for install exists, set firstInstall false
-        SharedPreferences installed = mContext.getSharedPreferences(TuneConstants.PREFS_TUNE, Context.MODE_PRIVATE);
-        if (installed.contains(TuneConstants.KEY_INSTALL)) {
-            return false;
-        } else {
-            // Set install value in SharedPreferences if not there
-            installed.edit().putBoolean(TuneConstants.KEY_INSTALL, true).apply();
-            return true;
-        }
+    /**
+     * Test if your custom Tune Link domain is registered with Tune.
+     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to {@link TuneDeeplinkListener#didReceiveDeeplink(String)} registered via {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * @param appLinkUrl url to test if it is a Tune Link. Must not be null.
+     * @return true if this link is a Tune Link that will be measured by Tune and routed into the {@link TuneDeeplinkListener}.
+     */
+    public boolean isTuneLink(@NonNull String appLinkUrl) {
+        return dplinkr.isTuneLink(appLinkUrl);
     }
 
     /**

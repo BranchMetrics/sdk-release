@@ -1,6 +1,6 @@
 package com.tune.mocks;
 
-import com.tune.TuneDeferredDplinkr;
+import com.tune.TuneDeeplinkListener;
 import com.tune.http.UrlRequester;
 
 import org.json.JSONException;
@@ -12,19 +12,28 @@ import org.json.JSONObject;
 public class MockUrlRequester implements UrlRequester {
 
     private boolean requestUrlShouldSucceed;
+    private JSONObject fakeResponse = new JSONObject();
 
     public MockUrlRequester() {
         requestUrlShouldSucceed = true;
     }
 
     @Override
-    public void requestDeeplink(TuneDeferredDplinkr dplinkr) {
-
+    public void requestDeeplink(String deeplinkURL, String conversionKey, TuneDeeplinkListener listener) {
+        if (listener != null) {
+            if (requestUrlShouldSucceed) {
+                // Notify listener of deeplink url
+                listener.didReceiveDeeplink("testing://allthethings?success=yes");
+            } else {
+                // Notify listener of error
+                listener.didFailDeeplink("Deeplink not found");
+            }
+        }
     }
 
     @Override
     public JSONObject requestUrl(String url, JSONObject json, boolean debugMode) {
-        JSONObject response = new JSONObject();
+        JSONObject response = fakeResponse;
 
         try {
             if (requestUrlShouldSucceed) {
@@ -41,5 +50,13 @@ public class MockUrlRequester implements UrlRequester {
 
     public void setRequestUrlShouldSucceed(boolean requestUrlShouldSucceed) {
         this.requestUrlShouldSucceed = requestUrlShouldSucceed;
+    }
+
+    public void includeInFakeResponse(String key, String value) throws Exception {
+        fakeResponse.put(key, value);
+    }
+
+    public void clearFakeResponse() {
+        this.fakeResponse = new JSONObject();
     }
 }

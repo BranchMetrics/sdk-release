@@ -156,4 +156,12 @@ public class TuneTestWrapper extends Tune {
     public String readUserIdKey(String key) {
         return mContext.getSharedPreferences(PREFS_TUNE, Context.MODE_PRIVATE).getString(key, "");
     }
+
+    public void setTimeLastMeasuredSession(long time) {
+        this.timeLastMeasuredSession = time;
+    }
+
+    public void setIsFirstInstall(boolean isFirstInstall) {
+        tune.isFirstInstall = isFirstInstall;
+    }
 }

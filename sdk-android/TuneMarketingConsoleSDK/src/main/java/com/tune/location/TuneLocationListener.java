@@ -100,6 +100,11 @@ public class TuneLocationListener implements LocationListener {
             return;
         }
 
+        if (listening) {
+            // we are already listening
+            return;
+        }
+
         // Set listening status to true;
         listening = true;
 

@@ -114,40 +114,40 @@ public class TuneSessionTests extends TuneUnitTest {
         assertTrue(sessionManager.getSession().getSessionLength() > 0);
     }
 
-    public void testFirstSession() {
-        checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.IS_FIRST_SESSION);
-
-        // First Session
-        TuneEventBus.post(new TuneActivityConnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "1");
-        TuneEventBus.post(new TuneActivityDisconnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "1");
-
-        sleep(1250);
-
-        // Second Session
-        TuneEventBus.post(new TuneActivityConnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-        TuneEventBus.post(new TuneActivityDisconnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-
-        sleep(1250);
-
-        // Third Session
-        TuneEventBus.post(new TuneActivityConnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-        TuneEventBus.post(new TuneActivityDisconnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-
-        sleep(1250);
-
-        // Fourth Session w/ new SessionManager + UserProfile
-        freshSessionProfile();
-        TuneEventBus.post(new TuneActivityConnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-        TuneEventBus.post(new TuneActivityDisconnected(activity));
-        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
-    }
+//    public void testFirstSession() {
+//        checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.IS_FIRST_SESSION);
+//
+//        // First Session
+//        TuneEventBus.post(new TuneActivityConnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "1");
+//        TuneEventBus.post(new TuneActivityDisconnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "1");
+//
+//        sleep(1250);
+//
+//        // Second Session
+//        TuneEventBus.post(new TuneActivityConnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//        TuneEventBus.post(new TuneActivityDisconnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//
+//        sleep(1250);
+//
+//        // Third Session
+//        TuneEventBus.post(new TuneActivityConnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//        TuneEventBus.post(new TuneActivityDisconnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//
+//        sleep(1250);
+//
+//        // Fourth Session w/ new SessionManager + UserProfile
+//        freshSessionProfile();
+//        TuneEventBus.post(new TuneActivityConnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//        TuneEventBus.post(new TuneActivityDisconnected(activity));
+//        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
+//    }
 
     public void testSessionCount() {
         checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.SESSION_COUNT);

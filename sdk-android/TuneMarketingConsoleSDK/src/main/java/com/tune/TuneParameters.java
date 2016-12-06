@@ -46,6 +46,11 @@ public class TuneParameters {
     // Tune SDK instance
     private Tune mTune;
 
+    // Actions
+    public static final String ACTION_SESSION = "session";
+    public static final String ACTION_CLICK = "click";
+    public static final String ACTION_CONVERSION = "conversion";
+
     private static TuneParameters INSTANCE = null;
 
     private TuneSharedPrefsDelegate mPrefs;
@@ -131,6 +136,7 @@ public class TuneParameters {
             // Get generic device information
             setDeviceModel(Build.MODEL);
             setDeviceBrand(Build.MANUFACTURER);
+            setDeviceBuild(Build.DISPLAY);
             setDeviceCpuType(System.getProperty("os.arch"));
             //setDeviceCpuSubtype(SystemProperties.get("ro.product.cpu.abi"));
             setOsVersion(Build.VERSION.RELEASE);
@@ -166,6 +172,8 @@ public class TuneParameters {
             }
 
             // Network and locale info
+            // Manually format locale, AdWords sample code is wrong...
+            setLocale(Locale.getDefault().getLanguage() + "_" + Locale.getDefault().getCountry());
             setLanguage(Locale.getDefault().getLanguage());
             setCountryCode(Locale.getDefault().getCountry());
             setTimeZone(TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT, Locale.US));
@@ -458,6 +466,15 @@ public class TuneParameters {
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BRAND, deviceBrand)));
     }
 
+    private String mDeviceBuild = null;
+    public synchronized String getDeviceBuild() {
+        return mDeviceBuild;
+    }
+    public synchronized void setDeviceBuild(String deviceBuild) {
+        mDeviceBuild = deviceBuild;
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BUILD, deviceBuild)));
+    }
+
     private String mDeviceCarrier = null;
     public synchronized String getDeviceCarrier() {
         return mDeviceCarrier;
@@ -600,7 +617,15 @@ public class TuneParameters {
         mPrefs.saveToSharedPreferences(TuneConstants.KEY_REFERRER, installReferrer);
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALL_REFERRER, installReferrer)));
     }
-    
+
+    public synchronized boolean hasInstallFlagBeenSet() {
+        return mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_INSTALL, false);
+    }
+
+    public synchronized void setInstallFlag() {
+        mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_INSTALL, true);
+    }
+
     public synchronized String getIsPayingUser() {
         return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_PAYING_USER);
     }
@@ -636,6 +661,15 @@ public class TuneParameters {
         if (mLongitude != null) {
             TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, new TuneLocation(Double.valueOf(mLongitude), Double.valueOf(mLatitude)))));
         }
+    }
+
+    private String mLocale = null;
+    public synchronized String getLocale() {
+        return mLocale;
+    }
+    public synchronized void setLocale(String locale) {
+        mLocale = locale;
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LOCALE, locale)));
     }
 
     private TuneLocation mLocation = null;

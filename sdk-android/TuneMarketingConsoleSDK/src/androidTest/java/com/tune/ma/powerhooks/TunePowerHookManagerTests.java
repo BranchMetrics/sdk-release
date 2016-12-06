@@ -1,7 +1,6 @@
 package com.tune.ma.powerhooks;
 
 import com.tune.TuneUnitTest;
-import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
 import com.tune.mocks.MockExecutorService;
@@ -199,8 +198,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         playlistJson.put(TunePlaylist.POWER_HOOKS_KEY, phooksJson);
 
         TunePlaylist playlist = new TunePlaylist(playlistJson);
-        TunePlaylistManagerCurrentPlaylistChanged changedEvent = new TunePlaylistManagerCurrentPlaylistChanged(playlist);
 
-        phookManager.onEvent(changedEvent);
+        phookManager.updatePowerHooksFromPlaylist(playlist);
     }
 }

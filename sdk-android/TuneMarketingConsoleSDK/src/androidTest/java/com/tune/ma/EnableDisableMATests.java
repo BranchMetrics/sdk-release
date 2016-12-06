@@ -5,7 +5,6 @@ import com.tune.TuneTestWrapper;
 import com.tune.TuneUnitTest;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
-import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
@@ -193,8 +192,7 @@ public class EnableDisableMATests extends TuneUnitTest {
         playlistJson.put(TunePlaylist.POWER_HOOKS_KEY, phooksJson);
 
         TunePlaylist playlist = new TunePlaylist(playlistJson);
-        TunePlaylistManagerCurrentPlaylistChanged changedEvent = new TunePlaylistManagerCurrentPlaylistChanged(playlist);
 
-        TuneManager.getInstance().getPowerHookManager().onEvent(changedEvent);
+        TuneManager.getInstance().getPowerHookManager().updatePowerHooksFromPlaylist(playlist);
     }
 }

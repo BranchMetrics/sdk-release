@@ -232,6 +232,11 @@ public class TunePlaylistManager {
                 TuneManager.getInstance().getFileManager().writePlaylist(currentPlaylist.toJson());
             }
 
+            if (TuneManager.getInstance() != null) {
+                // Update power hooks directly, EventBus may not be available yet
+                TuneManager.getInstance().getPowerHookManager().updatePowerHooksFromPlaylist(currentPlaylist);
+            }
+
             TuneEventBus.post(new TunePlaylistManagerCurrentPlaylistChanged(newPlaylist));
         }
 

@@ -1,6 +1,5 @@
 package com.tune.ma.powerhooks;
 
-import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
@@ -41,17 +40,10 @@ public class TunePowerHookManager {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    // EventBus Events
-    ///////////////////
-
-    public void onEvent(TunePlaylistManagerCurrentPlaylistChanged event) {
-        updatePowerHooksFromPlaylist(event.getNewPlaylist());
-    }
-
     // Updating From Playlist
     //////////////////////////
 
-    private void updatePowerHooksFromPlaylist(TunePlaylist playlist) {
+    public void updatePowerHooksFromPlaylist(TunePlaylist playlist) {
         // TODO: Check disabled
 
         boolean notifyPowerHooksChanged = false;

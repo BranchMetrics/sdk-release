@@ -33,7 +33,13 @@ public class TuneEvent implements Serializable {
     public static final String INVITE = "invite";
     public static final String RATED = "rated";
     public static final String SHARE = "share";
-    
+
+    public static final String NAME_SESSION = "session";
+    public static final String NAME_INSTALL = "install";
+    public static final String NAME_OPEN = "open";
+    public static final String NAME_CLOSE = "close";
+    public static final String NAME_UPDATE = "update";
+
     private String eventName;
 
     /**

@@ -1,15 +1,15 @@
 package com.tune;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 public class TuneTestParams extends java.lang.Object {
     private Hashtable<String, Object> params;
@@ -155,10 +155,12 @@ public class TuneTestParams extends java.lang.Object {
 
     public boolean checkDeviceValues() {
         boolean retval = ((checkKeyHasValue("language") || checkKeyHasValue("l"))
+                && checkKeyHasValue("locale")
                 && checkKeyHasValue("screen_density")
                 && checkKeyHasValue("screen_layout_size")
                 && checkKeyHasValue("connection_type")
                 && (checkKeyHasValue("os_version") || checkKeyHasValue("ov"))
+                && checkKeyHasValue("build")
                 && checkKeyHasValue("device_cpu_type")
                 && (checkKeyHasValue("device_brand") || checkKeyHasValue("db"))
                 && (checkKeyHasValue("device_model") || checkKeyHasValue("dm")));

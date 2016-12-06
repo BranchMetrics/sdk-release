@@ -19,6 +19,7 @@ public class TuneUrlKeys {
     public static final String SDK_RETRY_ATTEMPT = "sdk_retry_attempt";
     public static final String SDK_VER = "ver";
     public static final String TRANSACTION_ID = "transaction_id";
+    public static final String RESPONSE_FORMAT = "response_format";
 
     // Preloaded app keys
     public static final String PUBLISHER_ID = "publisher_id";
@@ -56,6 +57,7 @@ public class TuneUrlKeys {
     public static final String CONNECTION_TYPE = "connection_type";
     public static final String COUNTRY_CODE = "country_code";
     public static final String DEVICE_BRAND = "device_brand";
+    public static final String DEVICE_BUILD = "build";
     public static final String DEVICE_CARRIER = "device_carrier";
     public static final String DEVICE_CPU_TYPE = "device_cpu_type";
     public static final String DEVICE_CPU_SUBTYPE = "device_cpu_subtype";
@@ -69,6 +71,7 @@ public class TuneUrlKeys {
     public static final String LANGUAGE = "language";
     public static final String LAST_OPEN_LOG_ID = "last_open_log_id";
     public static final String LATITUDE = "latitude";
+    public static final String LOCALE = "locale";
     public static final String LONGITUDE = "longitude";
     public static final String MAC_ADDRESS = "mac_address";
     public static final String MAT_ID = "mat_id";

@@ -100,20 +100,20 @@ public class TunePlaylist {
         TunePlaylist that = (TunePlaylist) o;
 
         if (schemaVersion != null ? !schemaVersion.equals(that.schemaVersion) : that.schemaVersion != null) return false;
-        if (powerHooks != null ? !powerHooks.equals(that.powerHooks) : that.powerHooks != null) return false;
-        if (inAppMessages != null ? !inAppMessages.equals(that.inAppMessages) : that.inAppMessages != null) return false;
-        if (segments != null ? !segments.equals(that.segments) : that.segments != null) return false;
-        return !(experimentDetails != null ? !experimentDetails.equals(that.experimentDetails) : that.experimentDetails != null);
+        if (powerHooks != null && that.powerHooks != null ? !powerHooks.toString().equals(that.powerHooks.toString()) : powerHooks != that.powerHooks) return false;
+        if (inAppMessages != null && that.inAppMessages != null ? !inAppMessages.toString().equals(that.inAppMessages.toString()) : inAppMessages != that.inAppMessages) return false;
+        if (segments != null && that.segments != null ? !segments.toString().equals(that.segments.toString()) : segments != that.segments) return false;
+        return !(experimentDetails != null && that.experimentDetails != null ? !experimentDetails.toString().equals(that.experimentDetails.toString()) : experimentDetails != that.experimentDetails);
 
     }
 
     @Override
     public int hashCode() {
         int result = schemaVersion != null ? schemaVersion.hashCode() : 0;
-        result = 31 * result + (powerHooks != null ? powerHooks.hashCode() : 0);
-        result = 31 * result + (inAppMessages != null ? inAppMessages.hashCode() : 0);
-        result = 31 * result + (experimentDetails != null ? experimentDetails.hashCode() : 0);
-        result = 31 * result * (segments != null ? segments.hashCode() : 0);
+        result = 31 * result + (powerHooks != null ? powerHooks.toString().hashCode() : 0);
+        result = 31 * result + (inAppMessages != null ? inAppMessages.toString().hashCode() : 0);
+        result = 31 * result + (experimentDetails != null ? experimentDetails.toString().hashCode() : 0);
+        result = 31 * result * (segments != null ? segments.toString().hashCode() : 0);
         return result;
     }
 

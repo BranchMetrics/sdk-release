@@ -88,6 +88,23 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertEquals(mockFileManager.readPlaylist().toString(), playlistManager.getCurrentPlaylist().toJson().toString());
     }
 
+    public void testPlaylistIsLoadedFromDiskBeforePowerHookValuesAreRead() {
+        // Register a power hook
+        TuneManager.getInstance().getPowerHookManager().registerPowerHook("showMainScreen", "Show Main Screen", "NO", null, null);
+
+        // Power hook value should be default
+        assertEquals("NO", TuneManager.getInstance().getPowerHookManager().getValueForHookById("showMainScreen"));
+
+        // Mock playlist being saved to disk
+        mockFileManager.setPlaylistResult(playlistJson);
+
+        // Trigger a load of powerhooks from the playlist from disk
+        playlistManager = new TunePlaylistManager();
+
+        // Power hook value should be the value from playlist
+        assertEquals("YES", TuneManager.getInstance().getPowerHookManager().getValueForHookById("showMainScreen"));
+    }
+
     public void testPlaylistChangedIsOnlySentWhenPlaylistChanges() {
         TunePlaylist playlist1 = new TunePlaylist(playlistJson);
         TunePlaylist playlist2 = new TunePlaylist(playlistJson);

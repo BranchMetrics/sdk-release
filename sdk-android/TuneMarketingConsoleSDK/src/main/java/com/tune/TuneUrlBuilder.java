@@ -1,5 +1,6 @@
 package com.tune;
 
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -13,7 +14,28 @@ import java.util.UUID;
 
 class TuneUrlBuilder {
     private static TuneParameters params;
-    
+
+    /**
+     * Builds a new link string based on parameter values.
+     * @return encrypted URL string based on class settings.
+     */
+    public static String appendTuneLinkParameters(String clickedTuneLinkUrl) {
+        params = TuneParameters.getInstance();
+
+        final Uri uri = Uri.parse(clickedTuneLinkUrl);
+        final Uri.Builder builder = uri.buildUpon();
+
+        builder.appendQueryParameter(TuneUrlKeys.MAT_ID, params.getMatId());
+
+        if (!"json".equals(uri.getQueryParameter(TuneUrlKeys.RESPONSE_FORMAT))) {
+            builder.appendQueryParameter(TuneUrlKeys.RESPONSE_FORMAT, "json");
+        }
+
+        builder.appendQueryParameter(TuneUrlKeys.ACTION, TuneParameters.ACTION_CLICK);
+
+        return builder.toString();
+    }
+
     /**
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
@@ -40,11 +62,11 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.REFERRAL_SOURCE, params.getReferralSource());
         safeAppend(link, TuneUrlKeys.REFERRAL_URL, params.getReferralUrl());
         safeAppend(link, TuneUrlKeys.TRACKING_ID, params.getTrackingId());
-        
+
         if (eventData.getEventId() != 0) {
             safeAppend(link, TuneUrlKeys.EVENT_ID, Integer.toString(eventData.getEventId()));
         }
-        if (!params.getAction().equals("session")) {
+        if (!TuneParameters.ACTION_SESSION.equals(params.getAction()) && !TuneParameters.ACTION_CLICK.equals(params.getAction())) {
             safeAppend(link, TuneUrlKeys.EVENT_NAME, eventData.getEventName());
         }
 
@@ -103,6 +125,7 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.APP_VERSION_NAME, params.getAppVersionName());
         safeAppend(link, TuneUrlKeys.COUNTRY_CODE, params.getCountryCode());
         safeAppend(link, TuneUrlKeys.DEVICE_BRAND, params.getDeviceBrand());
+        safeAppend(link, TuneUrlKeys.DEVICE_BUILD, params.getDeviceBuild());
         safeAppend(link, TuneUrlKeys.DEVICE_CARRIER, params.getDeviceCarrier());
         safeAppend(link, TuneUrlKeys.DEVICE_CPU_TYPE, params.getDeviceCpuType());
         safeAppend(link, TuneUrlKeys.DEVICE_CPU_SUBTYPE, params.getDeviceCpuSubtype());
@@ -124,6 +147,7 @@ class TuneUrlBuilder {
             safeAppend(link, TuneUrlKeys.LATITUDE, params.getLatitude());
             safeAppend(link, TuneUrlKeys.LONGITUDE, params.getLongitude());
         }
+        safeAppend(link, TuneUrlKeys.LOCALE, params.getLocale());
         safeAppend(link, TuneUrlKeys.MAC_ADDRESS, params.getMacAddress());
         safeAppend(link, TuneUrlKeys.MAT_ID, params.getMatId());
         safeAppend(link, TuneUrlKeys.MOBILE_COUNTRY_CODE, params.getMCC());
@@ -203,6 +227,10 @@ class TuneUrlBuilder {
      * @return encrypted string
      */
     public static synchronized String updateAndEncryptData(String data, TuneEncryption encryption) {
+        if (data == null) {
+            data = "";
+        }
+
         StringBuilder updatedData = new StringBuilder(data);
         
         params = TuneParameters.getInstance();

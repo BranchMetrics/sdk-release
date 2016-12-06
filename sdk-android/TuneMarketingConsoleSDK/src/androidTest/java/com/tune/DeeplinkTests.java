@@ -1,32 +1,110 @@
 package com.tune;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import android.support.annotation.NonNull;
+
+import com.tune.mocks.MockUrlRequester;
 
 /**
  * Created by johng on 6/3/16.
  */
 public class DeeplinkTests extends TuneUnitTest {
-    public void testDeferredDeeplink() {
-        final boolean[] receivedDeeplink = new boolean[1];
-        final boolean[] failedDeeplink = new boolean[1];
 
-        // Send a click in order to store a deferred deep link
-        HttpURLConnection urlConnection= null;
-        URL url = null;
-        try {
-            url = new URL("https://169564.measurementapi.com/serve?action=click&publisher_id=169564&site_id=47546&invoke_id=279835&google_aid=12345678-1234-1234-1234-123412341234");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.getResponseCode();
-            urlConnection.getInputStream();
-        } catch (Exception e) {
-        }
+    private MockUrlRequester mockUrlRequester;
+    private final boolean[] receivedDeeplink = new boolean[1];
+    private final boolean[] failedDeeplink = new boolean[1];
 
-        // Spoof a GAID that matches the click
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        // Pretend that we start with a fresh install
+        prepareFreshInstallPreferences();
+
+        mockUrlRequester = new MockUrlRequester();
+        mockUrlRequester.setRequestUrlShouldSucceed(true);
+        tune.setUrlRequester(mockUrlRequester);
+
+        resetReceivedDeeplinkChecks();
+    }
+
+    private void resetReceivedDeeplinkChecks() {
+        receivedDeeplink[0] = false;
+        failedDeeplink[0] = false;
+    }
+
+    private void prepareFreshInstallPreferences() {
+        tune.setIsFirstInstall(true);
+    }
+
+    private void prepareAlreadyInstalledPreferences() {
+        tune.setIsFirstInstall(false);
+    }
+
+    public void testDeferredDeeplinkLegacy() {
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
 
-        // Try to retrieve deferred deeplink
-        tune.checkForDeferredDeeplink(new TuneDeeplinkListener() {
+        tune.checkForDeferredDeeplink(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        // Check that deep link was received
+        assertFalse(failedDeeplink[0]);
+        assertTrue(receivedDeeplink[0]);
+        resetReceivedDeeplinkChecks();
+
+        tune.checkForDeferredDeeplink(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        // Should not request deeplink twice, but also should not get error
+        assertFalse(failedDeeplink[0]);
+        assertFalse(receivedDeeplink[0]);
+    }
+
+    public void testDeferredDeeplinkSuccess() {
+        tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
+
+        tune.registerDeeplinkListener(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        assertFalse(failedDeeplink[0]);
+        assertTrue(receivedDeeplink[0]);
+        resetReceivedDeeplinkChecks();
+
+        tune.registerDeeplinkListener(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        // Should NOT get a failed deeplink response after registering again.
+        assertFalse(receivedDeeplink[0]);
+        assertFalse(failedDeeplink[0]);
+    }
+
+    public void testDeferredDeeplinkAlreadyInstalled() {
+        prepareAlreadyInstalledPreferences();
+
+        tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
+        tune.registerDeeplinkListener(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        // Should NOT call deferred deeplink listener.
+        assertFalse(receivedDeeplink[0]);
+        assertFalse(failedDeeplink[0]);
+    }
+
+    public void testDeferredDeeplinkErrorFromServer() {
+        mockUrlRequester.setRequestUrlShouldSucceed(false);
+
+        tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
+        tune.registerDeeplinkListener(makeDeeplinkListener(receivedDeeplink, failedDeeplink));
+
+        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
+
+        assertFalse(receivedDeeplink[0]);
+        assertTrue(failedDeeplink[0]);
+    }
+
+    @NonNull
+    private TuneDeeplinkListener makeDeeplinkListener(final boolean[] receivedDeeplink, final boolean[] failedDeeplink) {
+        return new TuneDeeplinkListener() {
             @Override
             public void didReceiveDeeplink(String deeplink) {
                 receivedDeeplink[0] = true;
@@ -34,29 +112,8 @@ public class DeeplinkTests extends TuneUnitTest {
 
             @Override
             public void didFailDeeplink(String error) {
-            }
-        });
-
-        sleep(TuneTestConstants.SERVERTEST_SLEEP);
-
-        // Check that deep link was received
-        assertTrue(receivedDeeplink[0]);
-
-        // Check that a second call fails
-        tune.checkForDeferredDeeplink(new TuneDeeplinkListener() {
-            @Override
-            public void didReceiveDeeplink(String deeplink) {
-            }
-
-            @Override
-            public void didFailDeeplink(String error) {
                 failedDeeplink[0] = true;
             }
-        });
-
-        sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
-
-        // Check that second deep link call failed
-        assertTrue(failedDeeplink[0]);
+        };
     }
 }

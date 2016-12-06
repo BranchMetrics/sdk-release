@@ -81,16 +81,16 @@ public class TuneCustomEvent extends TuneAnalyticsEventBase {
             tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE1, event.getAttribute1()));
         }
         if (event.getAttribute2() != null) {
-            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE2, event.getAttribute1()));
+            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE2, event.getAttribute2()));
         }
         if (event.getAttribute3() != null) {
-            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE3, event.getAttribute1()));
+            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE3, event.getAttribute3()));
         }
         if (event.getAttribute4() != null) {
-            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE4, event.getAttribute1()));
+            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE4, event.getAttribute4()));
         }
         if (event.getAttribute5() != null) {
-            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE5, event.getAttribute1()));
+            tags.add(new TuneAnalyticsVariable(TuneUrlKeys.ATTRIBUTE5, event.getAttribute5()));
         }
     }
 }
