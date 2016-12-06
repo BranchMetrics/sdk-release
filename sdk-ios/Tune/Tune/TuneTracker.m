@@ -18,6 +18,7 @@
 #import "TuneEventKeys.h"
 #import "TuneEventQueue.h"
 #import "TuneFBBridge.h"
+#import "TuneIadUtils.h"
 #import "TuneIfa.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
@@ -59,6 +60,13 @@ static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
         const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
     #endif
 #endif
+
+const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
+const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 5;
+const NSTimeInterval MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL = 300.; // 5 min
+const NSTimeInterval TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION = 3.;
+const NSTimeInterval TUNE_IAD_CHECK_INITIAL_DELAY = TUNE_SESSION_QUEUING_DELAY > TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION ? TUNE_SESSION_QUEUING_DELAY - TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION : 0;
+const NSTimeInterval TUNE_IAD_CHECK_RETRY_DELAY = 60.;
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
 const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
@@ -126,15 +134,6 @@ static NSSet * doNotEncryptSet;
 #if !TARGET_OS_WATCH
         // collect IFA if accessible
         [[TuneManager currentManager].userProfile updateIFA];
-#endif
-        
-#if USE_IAD
-        _iAdAttributionInfo = [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_ATTRIBUTION_DATA];
-        
-        // skip the iAd attribution check, if the info has been previously stored
-        if(!_iAdAttributionInfo) {
-            [self checkIadAttribution:nil];
-        }
 #endif
     }
     return self;
@@ -223,28 +222,29 @@ static NSSet * doNotEncryptSet;
  Check if the app install was attributed to an iAd. If attributed to iAd, the optionally provided code block is executed. If the ADClient call fails because the attribution info is not available, then this method can be called again after a few seconds to retry. Once the attribution status has been determined, this method is a no-op on subsequent calls.
  @param attributionBlock optional code block to be executed if install has been attributed to iAd
  */
-- (void)checkIadAttribution:(void (^)(BOOL iadAttributed, NSDictionary *attributionInfo))attributionBlock {
+- (void)checkIadAttribution:(void (^)(BOOL iadAttributed, BOOL adTrackingEnabled, NSDate *impressionDate, NSDictionary *attributionInfo))attributionBlock {
     // Since app install iAd attribution value does not change, collect it only once and store it to disk. After that, reuse the stored info.
-    if( [self shouldCheckIadAttribution] ) {
+    if( [TuneIadUtils shouldCheckIadAttribution] ) {
         // for devices >= 7.1
         ADClient *adClient = [ADClient sharedClient];
-        
-        __weak typeof(self) weakSelf = self;
         
 #ifdef __IPHONE_9_0 // if Tune is built in Xcode 7
         if( [TuneUtils object:adClient respondsToSelector:@selector(requestAttributionDetailsWithBlock:)] ) {
             // iOS 9
             [adClient requestAttributionDetailsWithBlock:^(NSDictionary *attributionDetails, NSError *error) {
-                BOOL isFakeIadInfo = NO;
+                BOOL isIadAttributed = NO;
+                BOOL adTrackingEnabled = YES;
+                BOOL isUnknownError = NO;
                 
                 if (error.code == ADClientErrorLimitAdTracking) {
                     // value will never be available, so don't try again
                     // NOTE: legally, iAd could provide attribution information in this case, but chooses not to
                     [[TuneManager currentManager].userProfile setIadAttribution:@NO];
+                    adTrackingEnabled = NO;
                 } else if (error) {
                     // iAd attribution info is not available at this time,
                     // don't call the attribution block
-                    return;
+                    isUnknownError = YES;
                 } else {
                     // Ref: iAd Attribution v3.1 API
                     __block NSDictionary *iAdCampaignInfo = (NSDictionary *)attributionDetails[@"Version3.1"];
@@ -261,35 +261,12 @@ static NSSet * doNotEncryptSet;
                         }];
                     }
                     
-                    if (foundVersionKey) {
-                        if (iAdCampaignInfo[@"iad-attribution"]) {
-                            BOOL isIadAttributed = [iAdCampaignInfo[@"iad-attribution"] boolValue];
-                            
-                            if (isIadAttributed) {
-                                if ([self isFakeIadAttribution:iAdCampaignInfo]) {
-                                    NSLog(@"TUNE: Ignoring fake iAd campaign attribution info: %@", iAdCampaignInfo);
-                                    isFakeIadInfo = YES;
-                                    isIadAttributed = NO;
-                                } else {
-                                    DebugLog(@"TUNE: Valid iAd campaign attribution info detected: %@", iAdCampaignInfo);
-                                }
-                            }
-                            
-                            [[TuneManager currentManager].userProfile setIadAttribution:@(isIadAttributed)];
-                        }
-                    }
-                    
-                    if (!isFakeIadInfo) {
-                        // store the iAd campaign attribution info for inclusion in post data of a future install request
-                        weakSelf.iAdAttributionInfo = attributionDetails;
-                        [TuneUserDefaultsUtils setUserDefaultValue:attributionDetails forKey:TUNE_KEY_IAD_ATTRIBUTION_DATA];
-                    }
+                    isIadAttributed = foundVersionKey && iAdCampaignInfo[@"iad-attribution"] && [iAdCampaignInfo[@"iad-attribution"] boolValue];
                 }
                 
-                [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
-                
-                if (!isFakeIadInfo && attributionBlock)
-                    attributionBlock([[[TuneManager currentManager].userProfile iadAttribution] boolValue], attributionDetails);
+                if (!isUnknownError && attributionBlock) {
+                    attributionBlock(isIadAttributed, adTrackingEnabled, nil, attributionDetails);
+                }
             }];
         } else
 #endif
@@ -301,8 +278,9 @@ static NSSet * doNotEncryptSet;
                 [[TuneManager currentManager].userProfile setIadAttribution:@(iAdOriginatedInstallation)];
                 [[TuneManager currentManager].userProfile setIadImpressionDate:iAdImpressionDate];
                 [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
-                if (attributionBlock)
-                    attributionBlock( iAdOriginatedInstallation, nil);
+                if (attributionBlock) {
+                    attributionBlock(iAdOriginatedInstallation, [[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled] boolValue], iAdImpressionDate, nil);
+                }
             }];
         } else {
             // device is iOS 7.1
@@ -311,23 +289,60 @@ static NSSet * doNotEncryptSet;
                 [[TuneManager currentManager].userProfile setIadAttribution:@(appInstallationWasAttributedToiAd)];
                 [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
                 if (attributionBlock) {
-                    attributionBlock(appInstallationWasAttributedToiAd, nil);
+                    attributionBlock(appInstallationWasAttributedToiAd, [[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled] boolValue], nil, nil);
                 }
             }];
         }
     }
 }
 
-- (BOOL)shouldCheckIadAttribution {
-    return [UIApplication sharedApplication] && [ADClient class]
-    && [[TuneManager currentManager].userProfile iadAttribution] == nil
-    && [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED] == nil;
+- (void)handleIadAttributionInfo:(BOOL)iadAttributed adTrackingEnabled:(BOOL)adTrackingEnabled impressionDate:(NSDate *)impressionDate attributionInfo:(NSDictionary *)attributionInfo {
+    // bump up the iAd-attribution-check-request-attempt-count
+    NSInteger requestAttempt = [TuneUserDefaultsUtils incrementUserDefaultCountForKey:TUNE_KEY_IAD_REQUEST_ATTEMPT];
+    [TuneUserDefaultsUtils setUserDefaultValue:[NSDate date] forKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP];
+    
+    if (iadAttributed) {
+        self.iAdAttributionInfo = attributionInfo;
+        [TuneUserDefaultsUtils setUserDefaultValue:attributionInfo forKey:TUNE_KEY_IAD_ATTRIBUTION_DATA];
+        [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
+        
+        __weak typeof(self) weakSelf = self;
+        [TuneEventQueue updateEnqueuedSessionEventWithIadAttributionInfo:attributionInfo impressionDate:impressionDate completionHandler:^(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict) {
+            if (updated) {
+#if TESTING
+                [weakSelf notifyDelegateRequestEnqueuedWithRefId:refId url:url postData:postDict];
+#endif
+            } else {
+                [weakSelf measureInstallPostConversion];
+            }
+        }];
+    } else if (attributionInfo && adTrackingEnabled) {
+        NSTimeInterval lastRequestTimeDiffSinceAppInstall = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP] timeIntervalSinceDate:[TuneUtils installDate]];
+        
+        // Stop iAd attribution check, in case of:
+        // - max number of attempts exhausted OR
+        // - at least min number of attempts completed and the last retry was on or after the max-iAd-check-time-interval
+        BOOL isIadCheckComplete = requestAttempt >= MAX_IAD_CHECK_REQUEST_ATTEMPTS
+        || (requestAttempt > MIN_IAD_CHECK_REQUEST_ATTEMPTS && lastRequestTimeDiffSinceAppInstall >= MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL);
+        
+        if (isIadCheckComplete) {
+            [TuneUserDefaultsUtils setUserDefaultValue:attributionInfo forKey:TUNE_KEY_IAD_ATTRIBUTION_DATA];
+            [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
+            [self measureInstallPostConversion];
+        } else {
+            [self checkIadAttributionAfterDelay:TUNE_IAD_CHECK_RETRY_DELAY];
+        }
+    }
 }
 
-- (BOOL)isFakeIadAttribution:(NSDictionary *)dict {
-    return [(NSString *)dict[@"iad-campaign-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID]
-    || [(NSString *)dict[@"iad-lineitem-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID]
-    || [(NSString *)dict[@"iad-creative-id"] isEqualToString:TUNE_FAKE_IAD_CAMPAIGN_ID];
+- (void)checkIadAttributionAfterDelay:(NSTimeInterval)delay {
+    __weak typeof(self) weakSelf = self;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, kNilOptions);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), backgroundQueue, ^{
+        [weakSelf checkIadAttribution:^(BOOL iadAttributed, BOOL adTrackingEnabled, NSDate *impressionDate, NSDictionary *attributionInfo) {
+            [weakSelf handleIadAttributionInfo:iadAttributed adTrackingEnabled:adTrackingEnabled impressionDate:impressionDate attributionInfo:attributionInfo];
+        }];
+    });
 }
 
 #endif
@@ -336,7 +351,6 @@ static NSSet * doNotEncryptSet;
 #pragma mark - Measure Event Methods
 
 - (void)measureInstallPostConversion {
-    DebugLog(@"Tune measureInstallPostConversion");
     TuneEvent *event = [TuneEvent eventWithName:TUNE_EVENT_INSTALL];
     event.postConversion = YES;
     
@@ -458,12 +472,14 @@ static NSSet * doNotEncryptSet;
     if( [event.actionName isEqualToString:TUNE_EVENT_SESSION] ) {
         // use existing stored iAd attribution info when available
         if(self.iAdAttributionInfo) {
-            [self measureInstallPostConversion];
+            [self handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:self.iAdAttributionInfo];
         } else {
-            [self checkIadAttribution:^(BOOL iadAttributed, NSDictionary *attributionInfo) {
-                if( iadAttributed || attributionInfo)
-                    [self measureInstallPostConversion];
-            }];
+            // If more than TUNE_IAD_CHECK_INITIAL_DELAY seconds have passed since
+            // the app was installed, then immediately check iAd attribution.
+            NSTimeInterval timeSinceInstall = [[NSDate date] timeIntervalSinceDate:[TuneUtils installDate]];
+            NSTimeInterval delayForIadInitialCheck = MAX(TUNE_IAD_CHECK_INITIAL_DELAY - timeSinceInstall, 0);
+            
+            [self checkIadAttributionAfterDelay:delayForIadInitialCheck];
         }
     }
 #endif
@@ -474,6 +490,27 @@ static NSSet * doNotEncryptSet;
 - (void)notifyDelegateSuccessMessage:(NSString *)message {
     if( [self.delegate respondsToSelector:@selector(tuneDidSucceedWithData:)] ) {
         [self.delegate tuneDidSucceedWithData:[message dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+}
+
+- (void)notifyDelegateRequestEnqueuedWithRefId:(NSString *)refId url:(NSString *)url postData:(NSDictionary *)postDict {
+    if([self.delegate respondsToSelector:@selector(tuneEnqueuedRequest:postData:)]) {
+        NSString *strPost = nil;
+        
+        if(postDict.count > 0) {
+            DebugLog(@"post data before serialization = %@", postDict);
+            strPost = [TuneUtils jsonSerialize:postDict];
+            DebugLog(@"post data after  serialization = %@", strPost);
+        }
+        
+        [self.delegate tuneEnqueuedRequest:url postData:strPost];
+    }
+    
+    if([self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [self.delegate tuneEnqueuedActionWithReferenceId:refId];
+#pragma clang diagnostic pop
     }
 }
 
@@ -574,8 +611,12 @@ static NSSet * doNotEncryptSet;
     
     // include the iAd attribution info only if this is the first "session" request or if this is an "install" post-conversion request
     if( self.iAdAttributionInfo && (([[TuneManager currentManager].userProfile openLogId] == nil && [event.actionName isEqualToString:TUNE_EVENT_SESSION]) || event.postConversion) ) {
+        NSMutableDictionary *postIadInfo = self.iAdAttributionInfo.mutableCopy;
+        [postIadInfo setValue:[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_REQUEST_ATTEMPT] forKey:TUNE_KEY_IAD_REQUEST_ATTEMPT];
+        [postIadInfo setValue:@([[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP] timeIntervalSince1970]) forKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP];
+        
         // include iAd attribution info in the current request
-        [postDict setValue:self.iAdAttributionInfo forKey:TUNE_KEY_IAD];
+        [postDict setValue:postIadInfo forKey:TUNE_KEY_IAD];
         
         // clear the stored iAd attribution info
         self.iAdAttributionInfo = nil;
@@ -592,34 +633,16 @@ static NSSet * doNotEncryptSet;
     if( [[TuneManager currentManager].userProfile openLogId] == nil )
         [postDict setValue:[[TuneManager currentManager].userProfile installReceipt] forKey:TUNE_KEY_INSTALL_RECEIPT];
     
-    NSString *strPost = nil;
-    
-    if(postDict.count > 0) {
-        DebugLog(@"post data before serialization = %@", postDict);
-        strPost = [TuneUtils jsonSerialize:postDict];
-        DebugLog(@"post data after  serialization = %@", strPost);
-    }
-    
     NSDate *runDate = [NSDate date];
     
     if( [event.actionName isEqualToString:TUNE_EVENT_SESSION] )
         runDate = [runDate dateByAddingTimeInterval:TUNE_SESSION_QUEUING_DELAY];
     
     // fire the event tracking request
-    [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName encryptParams:encryptParams postData:strPost runDate:runDate];
+    [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName refId:event.refId encryptParams:encryptParams postData:postDict runDate:runDate];
     
-    if([self.delegate respondsToSelector:@selector(tuneEnqueuedRequest:postData:)]) {
-        NSString *reqUrl = [NSString stringWithFormat:@"%@%@", trackingLink, encryptParams];
-        
-        [self.delegate tuneEnqueuedRequest:reqUrl postData:strPost];
-    }
-    
-    if([self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [self.delegate tuneEnqueuedActionWithReferenceId:event.refId];
-#pragma clang diagnostic pop
-    }
+    NSString *reqUrl = [NSString stringWithFormat:@"%@%@", trackingLink, encryptParams];
+    [self notifyDelegateRequestEnqueuedWithRefId:event.refId url:reqUrl postData:postDict];
 }
 
 #pragma mark - CWorks Method Calls

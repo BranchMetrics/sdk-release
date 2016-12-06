@@ -20,8 +20,8 @@
 
 #if TARGET_OS_IOS
 + (NSArray *)getSupportedDeviceOrientations;
-+ (NSString *)getDeviceOrientationString:(UIDeviceOrientation)orientation;
-+ (UIDeviceOrientation)getUIDeviceOrientationFromString:(NSString *)orientationString;
++ (NSString *)getDeviceOrientationString:(UIInterfaceOrientation)orientation;
++ (UIInterfaceOrientation)getUIInterfaceOrientationFromString:(NSString *)orientationString;
 #endif
 
 /**
@@ -72,7 +72,7 @@
 #endif
 
 #if TARGET_OS_IOS
-+ (BOOL)orientationIsSupportedByApp:(UIDeviceOrientation)orientation;
++ (BOOL)orientationIsSupportedByApp:(UIInterfaceOrientation)orientation;
 #endif
 
 + (TuneMessageDeviceOrientation)getPortraitForDevice;

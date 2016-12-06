@@ -53,21 +53,21 @@
 
 #pragma mark - Close Button
 
-- (void)layoutCloseButtonForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutCloseButtonForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     switch (deviceOrientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             [self addCloseButtonToContainer:_containerViewPortrait forOrientation:self.portraitType];
             [self addCloseButtonClickOverlayToContainer:_containerViewPortrait forOrientation:self.portraitType];
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             [self addCloseButtonToContainer:_containerViewPortraitUpsideDown forOrientation:self.portraitUpsideDownType];
             [self addCloseButtonClickOverlayToContainer:_containerViewPortraitUpsideDown forOrientation:self.portraitUpsideDownType];
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             [self addCloseButtonToContainer:_containerViewLandscapeLeft forOrientation:self.landscapeLeftType];
             [self addCloseButtonClickOverlayToContainer:_containerViewLandscapeLeft forOrientation:self.landscapeLeftType];
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             [self addCloseButtonToContainer:_containerViewLandscapeRight forOrientation:self.landscapeRightType];
             [self addCloseButtonClickOverlayToContainer:_containerViewLandscapeRight forOrientation:self.landscapeRightType];
             break;
@@ -79,35 +79,35 @@
 
 #pragma mark - Layout
 
-- (void)buildMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)buildMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     
     if (![TuneDeviceDetails orientationIsSupportedByApp:deviceOrientation]) {
         return;
     }
     
     switch (deviceOrientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             _containerViewPortrait = [self buildViewForOrientation:self.portraitType];
             [TuneViewUtils setX:0 onView:_containerViewPortrait];
             [TuneViewUtils setY:0 onView:_containerViewPortrait];
             _containerViewPortrait.hidden = YES;
             [self addSubview:_containerViewPortrait];
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             _containerViewPortraitUpsideDown = [self buildViewForOrientation:self.portraitUpsideDownType];
             [TuneViewUtils setX:0 onView:_containerViewPortraitUpsideDown];
             [TuneViewUtils setY:0 onView:_containerViewPortraitUpsideDown];
             _containerViewPortraitUpsideDown.hidden = YES;
             [self addSubview:_containerViewPortraitUpsideDown];
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             _containerViewLandscapeLeft = [self buildViewForOrientation:self.landscapeLeftType];
             [TuneViewUtils setX:0 onView:_containerViewLandscapeLeft];
             [TuneViewUtils setY:0 onView:_containerViewLandscapeLeft];
             _containerViewLandscapeLeft.hidden = YES;
             [self addSubview:_containerViewLandscapeLeft];
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             _containerViewLandscapeRight = [self buildViewForOrientation:self.landscapeLeftType];
             [TuneViewUtils setX:0 onView:_containerViewLandscapeRight];
             [TuneViewUtils setY:0 onView:_containerViewLandscapeRight];
@@ -119,18 +119,18 @@
     }
 }
 
-- (void)addMessageClickOverlayActionForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)addMessageClickOverlayActionForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     switch (deviceOrientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             [self addMessageClickOverlayActionToContainer:_containerViewPortrait forOrientation:self.portraitType];
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             [self addMessageClickOverlayActionToContainer:_containerViewPortraitUpsideDown forOrientation:self.portraitUpsideDownType];;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             [self addMessageClickOverlayActionToContainer:_containerViewLandscapeLeft forOrientation:self.landscapeLeftType];
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             [self addMessageClickOverlayActionToContainer:_containerViewLandscapeRight forOrientation:self.landscapeRightType];
             break;
         default:
@@ -147,9 +147,9 @@
     return backgroundImageView;
 }
 
-- (void)layoutImageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutImageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     switch (deviceOrientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             if (_portraitImage) {
                 UIImageView *backgroundImageView = [self buildImageViewFromImage:_portraitImage andContainerSize:_containerViewPortrait.frame.size];
 
@@ -157,21 +157,21 @@
                 [_containerViewPortrait addSubview:backgroundImageView];
             }
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             if (_portraitImage) {
                 UIImageView *backgroundImageView = [self buildImageViewFromImage:_portraitImage andContainerSize:_containerViewPortraitUpsideDown.frame.size];
                 [TuneViewUtils centerHorizontallyAndVerticallyInFrame:_containerViewPortraitUpsideDown.frame onView:backgroundImageView];
                 [_containerViewPortraitUpsideDown addSubview:backgroundImageView];
             }
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             if (_landscapeImage) {
                 UIImageView *backgroundImageView = [self buildImageViewFromImage:_landscapeImage andContainerSize:_containerViewLandscapeLeft.frame.size];
                 [TuneViewUtils centerHorizontallyAndVerticallyInFrame:_containerViewLandscapeLeft.frame onView:backgroundImageView];
                 [_containerViewLandscapeLeft addSubview:backgroundImageView];
             }
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             if (_landscapeImage) {
                 UIImageView *backgroundImageView = [self buildImageViewFromImage:_landscapeImage andContainerSize:_containerViewLandscapeRight.frame.size];
                 [TuneViewUtils centerHorizontallyAndVerticallyInFrame:_containerViewLandscapeRight.frame onView:backgroundImageView];
@@ -186,14 +186,14 @@
 
 #pragma mark - Transition
 
-- (TuneMessageTransition)getTransitionTypeForOrientation:(UIDeviceOrientation)orientation {
+- (TuneMessageTransition)getTransitionTypeForOrientation:(UIInterfaceOrientation)orientation {
     return _transitionType;
 }
 
 
 #pragma mark - Orientation Handling 
 
-- (void)showOrientation:(UIDeviceOrientation)orientation {
+- (void)showOrientation:(UIInterfaceOrientation)orientation {
     [self.layer removeAllAnimations];
     CATransition *transition = [TuneMessageStyling messageTransitionInWithType:[self getTransitionTypeForOrientation:orientation] withEaseIn:NO];
     
@@ -203,7 +203,7 @@
     _containerViewLandscapeRight.hidden = YES;
     
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             if (!_containerViewPortrait) {
                 [self layoutMessageContainerForDeviceOrientation:orientation];
             }
@@ -212,7 +212,7 @@
             [_containerViewPortrait.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortrait.hidden = NO;
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             if (!_containerViewPortraitUpsideDown) {
                 [self layoutMessageContainerForDeviceOrientation:orientation];
             }
@@ -221,7 +221,7 @@
             [_containerViewPortraitUpsideDown.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortraitUpsideDown.hidden = NO;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             if (!_containerViewLandscapeLeft) {
                 [self layoutMessageContainerForDeviceOrientation:orientation];
             }
@@ -229,7 +229,7 @@
             [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeLeft.hidden = NO;
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             if (!_containerViewLandscapeRight) {
                 [self layoutMessageContainerForDeviceOrientation:orientation];
             }
@@ -244,7 +244,7 @@
     [UIView commitAnimations];
 }
 
-- (void)dismissOrientation:(UIDeviceOrientation)orientation {
+- (void)dismissOrientation:(UIInterfaceOrientation)orientation {
     [self.layer removeAllAnimations];
     CATransition *transition = [TuneMessageStyling messageTransitionOutWithType:[self getTransitionTypeForOrientation:orientation] withEaseIn:YES];
     
@@ -256,22 +256,22 @@
     }
     
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             [_containerViewPortrait.layer removeAllAnimations];
             [_containerViewPortrait.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortrait.hidden = YES;
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             [_containerViewPortraitUpsideDown.layer removeAllAnimations];
             [_containerViewPortraitUpsideDown.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortraitUpsideDown.hidden = YES;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             [_containerViewLandscapeLeft.layer removeAllAnimations];
             [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeLeft.hidden = YES;
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             [_containerViewLandscapeRight.layer removeAllAnimations];
             [_containerViewLandscapeRight.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeRight.hidden = YES;
@@ -284,7 +284,7 @@
 }
 
 - (void)deviceOrientationDidChange:(TuneSkyhookPayload *)payload {
-    UIDeviceOrientation currentDeviceOrientation = [TuneMessageOrientationState getCurrentOrientation];
+    UIInterfaceOrientation currentDeviceOrientation = [TuneMessageOrientationState getCurrentOrientation];
     
     if (currentDeviceOrientation == _lastOrientation) {
         // Do nothing

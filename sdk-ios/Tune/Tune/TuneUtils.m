@@ -10,6 +10,7 @@
 #import "TuneStringUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneManager.h"
+#import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneKeyStrings.h"
 #import <CommonCrypto/CommonDigest.h>
@@ -288,6 +289,22 @@ BOOL isAlertVisible;
 #else
     return [TuneUtils numericiOSVersion:[[UIDevice currentDevice] systemVersion]];
 #endif
+}
+
++ (NSData *)jsonSerializedDataForObject:(id)object {
+    NSData *output = nil;
+    
+    if(object && (id)[NSNull null] != object) {
+        NSError *error;
+        output = [NSJSONSerialization dataWithJSONObject:object
+                                                 options:0
+                                                   error:&error];
+        if (error) {
+            DebugLog(@"JSON serializer: error = %@, input = %@", error, object);
+        }
+    }
+    
+    return output;
 }
 
 + (NSString *)jsonSerialize:(id)object {
@@ -751,5 +768,11 @@ BOOL isAlertVisible;
     return [receiver respondsToSelector:aSelector];
 }
 
+
+#pragma mark -
+
++ (BOOL)isFirstSessionRequestComplete {
+    return nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_OPEN_LOG_ID];
+}
 
 @end

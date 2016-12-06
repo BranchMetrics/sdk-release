@@ -13,40 +13,62 @@
 static NSString* const USER_DEFAULT_KEY_PREFIX = @"_TUNE_";
 static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_VARIABLE_";
 
-+ (id)userDefaultValueforKey:(NSString *)key
-{
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *newKey = [self tunePrefixedKey:key];
-    
-    id value = [defaults valueForKey:newKey];
-    
-    // return value for new key if exists, else return value for old key
-    if( value ) return value;
-    return [defaults valueForKey:key];
+static id customDefaults;
+
++ (void)initialize {
+#if TESTING
+    customDefaults = @{}.mutableCopy;
+#endif
 }
 
-+ (void)setUserDefaultValue:(id)value forKey:(NSString* )key
-{
+#if TESTING
+
++ (void)useNSUserDefaults:(BOOL)enabled {
+    customDefaults = enabled ? [NSUserDefaults standardUserDefaults] : @{}.mutableCopy;
+}
+
++ (void)setUserDefaultValue:(id)value forKey:(NSString* )key addKeyPrefix:(BOOL)addPrefix {
+    if (value == [NSNull null] || value == nil) {
+        return;
+    }
+    if (addPrefix) {
+        key = [self tunePrefixedKey:key];
+    }
+    [[self userDefaults] setValue:value forKey:key];
+}
+
++ (void)clearAll {
+    [customDefaults removeAllObjects];
+}
+
+#endif
+
++ (id)userDefaultValueforKey:(NSString *)key {
+    NSString *newKey = [self tunePrefixedKey:key];
+    id value = [[self userDefaults] valueForKey:newKey];
+    
+    if (value) {
+        return value;
+    } else {
+        return [[self userDefaults] valueForKey:key];
+    }
+}
+
++ (void)setUserDefaultValue:(id)value forKey:(NSString* )key {
     if (value == [NSNull null] || value == nil) {
         return;
     }
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     key = [self tunePrefixedKey:key];
-    [defaults setValue:value forKey:key];
-    
-    // Note: Moved this synchronize call to Tune handleNotification: -- UIApplicationWillResignActiveNotification notification,
-    // so that the synchronize method instead of being called for each key, gets called only once just before the app becomes inactive.
-    //[defaults synchronize];
+    [[self userDefaults] setValue:value forKey:key];
 }
 
 + (void)clearUserDefaultValue:(NSString *)key {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:[self tunePrefixedKey:key]];
+    [[self userDefaults] removeObjectForKey:[self tunePrefixedKey:key]];
 }
 
-+ (TuneAnalyticsVariable *)userDefaultCustomVariableforKey:(NSString *)key
-{
-    NSData *data = (NSData *)[[NSUserDefaults standardUserDefaults] valueForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
++ (TuneAnalyticsVariable *)userDefaultCustomVariableforKey:(NSString *)key {
+    NSData *data = (NSData *)[[self userDefaults] valueForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
     
     if (!data) {
         return nil;
@@ -57,16 +79,20 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
     return unArchived;
 }
 
-+ (void)setUserDefaultCustomVariable:(TuneAnalyticsVariable *)value forKey:(NSString *)key
-{
++ (void)setUserDefaultCustomVariable:(TuneAnalyticsVariable *)value forKey:(NSString *)key {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
     
-    [[NSUserDefaults standardUserDefaults] setValue:data forKey:[self tunePrefixedKey:key isCustomVariable:YES]];
+    [[self userDefaults] setValue:data forKey:[self tunePrefixedKey:key isCustomVariable:YES]];
 }
 
-+ (void)clearCustomVariable:(NSString *)key
-{
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
++ (void)clearCustomVariable:(NSString *)key {
+    [[self userDefaults] removeObjectForKey:[self tunePrefixedKey:key isCustomVariable:YES]];
+}
+
++ (void)synchronizeUserDefaults {
+#if !TESTING
+    [[NSUserDefaults standardUserDefaults] synchronize];
+#endif
 }
 
 + (NSString *)tunePrefixedKey:(NSString *)key {
@@ -78,9 +104,37 @@ static NSString* const USER_DEFAULT_CUSTOM_VARIABLE_KEY_PREFIX = @"_TUNE_CUSTOM_
     return [NSString stringWithFormat:@"%@%@", prefix, key];
 }
 
-+ (void)synchronizeUserDefaults
-{
-    [[NSUserDefaults standardUserDefaults] synchronize];
++ (id)userDefaults {
+#if TESTING
+    return customDefaults;
+#else
+    return [NSUserDefaults standardUserDefaults];
+#endif
+}
+
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key {
+    return [self incrementUserDefaultCountForKey:key byValue:1];
+}
+
++ (NSInteger)incrementUserDefaultCountForKey:(NSString *)key byValue:(NSInteger)value {
+    NSInteger newCount = 0;
+    
+    id curValue = [self userDefaultValueforKey:key];
+    
+    if (curValue && ![curValue isKindOfClass:[NSNumber class]]) {
+        ErrorLog(@"TUNE: Trying to increment non-numeric value for NSUserDefaults key: %@, current value = %@", key, curValue);
+    } else {
+        NSInteger curCount = 0;
+        
+        if (curValue) {
+            curCount = [curValue integerValue];
+        }
+        
+        newCount = curCount + value;
+        [self setUserDefaultValue:@(newCount) forKey:key];
+    }
+    
+    return newCount;
 }
 
 @end

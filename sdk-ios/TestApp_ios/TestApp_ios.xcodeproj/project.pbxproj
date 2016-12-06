@@ -23,7 +23,6 @@
 		F84F6B1C1BBBAF55003B25A4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1A1BBBAF55003B25A4 /* Main.storyboard */; };
 		F84F6B1E1BBBAF55003B25A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1D1BBBAF55003B25A4 /* Assets.xcassets */; };
 		F84F6B211BBBAF55003B25A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F84F6B1F1BBBAF55003B25A4 /* LaunchScreen.storyboard */; };
-		F87AE6551D9347BB00877845 /* TuneConfiguration.plist in Resources */ = {isa = PBXBuildFile; fileRef = F80462731C3B1B9C005C6652 /* TuneConfiguration.plist */; };
 		F8F0FE5F1CBF16E00069E4E5 /* CoreSpotlight.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8F0FE5E1CBF16E00069E4E5 /* CoreSpotlight.framework */; };
 /* End PBXBuildFile section */
 
@@ -192,7 +191,6 @@
 				F84F6B211BBBAF55003B25A4 /* LaunchScreen.storyboard in Resources */,
 				F84F6B1E1BBBAF55003B25A4 /* Assets.xcassets in Resources */,
 				F82615141BBDFA2F00B7665B /* TUNE_WordMark_Color.png in Resources */,
-				F87AE6551D9347BB00877845 /* TuneConfiguration.plist in Resources */,
 				F84F6B1C1BBBAF55003B25A4 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

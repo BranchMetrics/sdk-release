@@ -236,7 +236,7 @@ TunePlaylistManager *playlistManager;
     
     XCTAssertTrue(i == 0);
     
-    waitFor(0.31);
+    waitFor(0.41);
     
     XCTAssertTrue(i == 1);
 }

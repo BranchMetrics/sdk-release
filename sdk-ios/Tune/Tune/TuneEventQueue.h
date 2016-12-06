@@ -24,14 +24,23 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 + (void)enqueueUrlRequest:(NSString*)trackingLink
               eventAction:(NSString*)actionName
+                    refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
-                 postData:(NSString*)postData
+                 postData:(NSDictionary*)postData
                   runDate:(NSDate*)runDate;
 
 /*!
  Update currently enqueued requests to include the provided referral_url and referral_source.
  */
 + (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;
+
+/*!
+ If a session request is currently enqueued, include the provided iAd attribution info in the request url / post data.
+ @param iadInfo iAd info available on iOS 9+ to be used to update the enqueued session request post data
+ @param impressionDate iAd attribution impression date available on iOS 8 to be used to update the enqueued session request
+ @param completionHandler Completion handler block that contains updated url / postData when the update is successful
+ */
++ (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString * refId, NSString *url, NSDictionary *postData))completionHandler;
 
 @end
 

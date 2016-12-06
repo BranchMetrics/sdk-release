@@ -56,7 +56,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
             [notifcationCenter addObserver:defaultCenter selector:@selector(deviceOrientationDidChange:)
                                       name:UIDeviceOrientationDidChangeNotification object:nil];
             [notifcationCenter addObserver:defaultCenter selector:@selector(applicationStatusBarChanged:)
-                                      name:UIApplicationWillChangeStatusBarOrientationNotification object:application];
+                                      name:UIApplicationDidChangeStatusBarOrientationNotification object:application];
 #endif
             
             // Handle Session Start/End for managing Skyhook Queue
@@ -318,7 +318,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
     [self postSkyhook:UIDeviceOrientationDidChangeNotification object:nil];
 }
 - (void)applicationStatusBarChanged:(NSNotification *)notification {
-    [self postSkyhook:UIApplicationWillChangeStatusBarOrientationNotification object:nil userInfo:notification.userInfo];
+    [self postSkyhook:UIApplicationDidChangeStatusBarOrientationNotification object:nil userInfo:notification.userInfo];
 }
 
 #endif

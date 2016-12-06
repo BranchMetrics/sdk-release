@@ -43,7 +43,7 @@
     
 #if TARGET_OS_IOS
     // Orientation
-    UIDeviceOrientation _lastOrientation;
+    UIInterfaceOrientation _lastOrientation;
 #endif
     // Assets
     TuneMessageImageBundle *_imageBundle;
@@ -54,8 +54,8 @@
 - (void)show;
 
 #if TARGET_OS_IOS
-- (void)showOrientation:(UIDeviceOrientation)orientation;
-- (void)dismissOrientation:(UIDeviceOrientation)orientation;
+- (void)showOrientation:(UIInterfaceOrientation)orientation;
+- (void)dismissOrientation:(UIInterfaceOrientation)orientation;
 #else
 - (void)showPortraitOrientation;
 - (void)dismissPortraitOrientation;
@@ -76,14 +76,14 @@
 - (void)addMessageClickOverlayActionToContainer:(UIView *)container forOrientation:(TuneMessageDeviceOrientation)orientation;
 
 #if TARGET_OS_IOS
-- (void)layoutMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
+- (void)layoutMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
 
-- (void)addMessageClickOverlayActionForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
+- (void)addMessageClickOverlayActionForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
 
 
-- (void)buildMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)layoutCloseButtonForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
-- (void)layoutImageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
+- (void)buildMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)layoutCloseButtonForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
+- (void)layoutImageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation;
 #else
 - (void)layoutMessageContainer;
 

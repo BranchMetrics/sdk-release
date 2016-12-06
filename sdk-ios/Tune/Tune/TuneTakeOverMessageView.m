@@ -32,7 +32,7 @@
 
 #if TARGET_OS_IOS
 
-- (void)layoutCloseButtonForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutCloseButtonForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     // button images
     [self addCloseButtonToContainer:_containerViewLandscapeLeft forOrientation:self.landscapeLeftType];
     [self addCloseButtonToContainer:_containerViewLandscapeRight forOrientation:self.landscapeRightType];
@@ -62,9 +62,9 @@
 
 #if TARGET_OS_IOS
 
-- (void)buildMessageContainerForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)buildMessageContainerForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     // Landscape Left
-    if ([TuneDeviceDetails orientationIsSupportedByApp:UIDeviceOrientationLandscapeLeft]) {
+    if ([TuneDeviceDetails orientationIsSupportedByApp:UIInterfaceOrientationLandscapeRight]) {
         _containerViewLandscapeLeft = [self buildViewForOrientation:self.landscapeLeftType];
         _containerViewLandscapeLeft.layer.transform = CATransform3DMakeRotation((M_PI_2), 0, 0.0, 1.0);
         [TuneViewUtils setX:0 onView:_containerViewLandscapeLeft];
@@ -74,7 +74,7 @@
     }
     
     // Landscape Right
-    if ([TuneDeviceDetails orientationIsSupportedByApp:UIDeviceOrientationLandscapeRight]) {
+    if ([TuneDeviceDetails orientationIsSupportedByApp:UIInterfaceOrientationLandscapeLeft]) {
         _containerViewLandscapeRight = [self buildViewForOrientation:self.landscapeLeftType];
         _containerViewLandscapeRight.layer.transform = CATransform3DMakeRotation((M_PI_2 * -1), 0, 0.0, 1.0);
         [TuneViewUtils setX:0 onView:_containerViewLandscapeRight];
@@ -84,7 +84,7 @@
     }
     
     // Portrait
-    if ([TuneDeviceDetails orientationIsSupportedByApp:UIDeviceOrientationPortrait]) {
+    if ([TuneDeviceDetails orientationIsSupportedByApp:UIInterfaceOrientationPortrait]) {
         _containerViewPortrait = [self buildViewForOrientation:self.portraitType];
         [TuneViewUtils setX:0 onView:_containerViewPortrait];
         [TuneViewUtils setY:0 onView:_containerViewPortrait];
@@ -93,7 +93,7 @@
     }
     
     // Portrait Upside Down
-    if ([TuneDeviceDetails orientationIsSupportedByApp:UIDeviceOrientationPortraitUpsideDown]) {
+    if ([TuneDeviceDetails orientationIsSupportedByApp:UIInterfaceOrientationPortraitUpsideDown]) {
         _containerViewPortraitUpsideDown = [self buildViewForOrientation:self.portraitUpsideDownType];
         _containerViewPortraitUpsideDown.layer.transform = CATransform3DMakeRotation((M_PI_2 * 2 * -1), 0, 0.0, 1.0);
         [TuneViewUtils setX:0 onView:_containerViewPortraitUpsideDown];
@@ -103,7 +103,7 @@
     }
 }
 
-- (void)addMessageClickOverlayActionForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)addMessageClickOverlayActionForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     [self addMessageClickOverlayActionToContainer:_containerViewLandscapeLeft forOrientation:self.landscapeLeftType];
     [self addMessageClickOverlayActionToContainer:_containerViewLandscapeRight forOrientation:self.landscapeRightType];
     [self addMessageClickOverlayActionToContainer:_containerViewPortrait forOrientation:self.portraitType];
@@ -130,7 +130,7 @@
 
 #if TARGET_OS_IOS
 
-- (void)layoutImageForDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+- (void)layoutImageForDeviceOrientation:(UIInterfaceOrientation)deviceOrientation {
     
     // Do we have a portrait image?
     if (_portraitImage) {
@@ -195,7 +195,7 @@
 
 #if TARGET_OS_IOS
 
-- (TuneMessageTransition)getTransitionTypeForOrientation:(UIDeviceOrientation)orientation {
+- (TuneMessageTransition)getTransitionTypeForOrientation:(UIInterfaceOrientation)orientation {
     TuneMessageTransition rotationTransitionType = _transitionType;
     
     switch (_transitionType) {
@@ -204,15 +204,15 @@
             break;
         case TuneMessageTransitionFromTop:
             switch (orientation) {
-                case UIDeviceOrientationPortrait:
+                case UIInterfaceOrientationPortrait:
                     break;
-                case UIDeviceOrientationPortraitUpsideDown:
+                case UIInterfaceOrientationPortraitUpsideDown:
                     rotationTransitionType = TuneMessageTransitionFromBottom;
                     break;
-                case UIDeviceOrientationLandscapeLeft:
+                case UIInterfaceOrientationLandscapeRight:
                     rotationTransitionType = TuneMessageTransitionFromRight;
                     break;
-                case UIDeviceOrientationLandscapeRight:
+                case UIInterfaceOrientationLandscapeLeft:
                     rotationTransitionType = TuneMessageTransitionFromLeft;
                     break;
                 default:
@@ -221,33 +221,16 @@
             break;
         case TuneMessageTransitionFromBottom:
             switch (orientation) {
-                case UIDeviceOrientationPortrait:
+                case UIInterfaceOrientationPortrait:
                     break;
-                case UIDeviceOrientationPortraitUpsideDown:
+                case UIInterfaceOrientationPortraitUpsideDown:
                     rotationTransitionType = TuneMessageTransitionFromTop;
                     break;
-                case UIDeviceOrientationLandscapeLeft:
+                case UIInterfaceOrientationLandscapeRight:
                     rotationTransitionType = TuneMessageTransitionFromLeft;
                     break;
-                case UIDeviceOrientationLandscapeRight:
+                case UIInterfaceOrientationLandscapeLeft:
                     rotationTransitionType = TuneMessageTransitionFromRight;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case TuneMessageTransitionFromLeft:
-            switch (orientation) {
-                case UIDeviceOrientationPortrait:
-                    break;
-                case UIDeviceOrientationPortraitUpsideDown:
-                    rotationTransitionType = TuneMessageTransitionFromRight;
-                    break;
-                case UIDeviceOrientationLandscapeLeft:
-                    rotationTransitionType = TuneMessageTransitionFromTop;
-                    break;
-                case UIDeviceOrientationLandscapeRight:
-                    rotationTransitionType = TuneMessageTransitionFromBottom;
                     break;
                 default:
                     break;
@@ -255,15 +238,32 @@
             break;
         case TuneMessageTransitionFromRight:
             switch (orientation) {
-                case UIDeviceOrientationPortrait:
+                case UIInterfaceOrientationPortrait:
                     break;
-                case UIDeviceOrientationPortraitUpsideDown:
-                    rotationTransitionType = TuneMessageTransitionFromLeft;
+                case UIInterfaceOrientationPortraitUpsideDown:
+                    rotationTransitionType = TuneMessageTransitionFromRight;
                     break;
-                case UIDeviceOrientationLandscapeLeft:
+                case UIInterfaceOrientationLandscapeRight:
+                    rotationTransitionType = TuneMessageTransitionFromTop;
+                    break;
+                case UIInterfaceOrientationLandscapeLeft:
                     rotationTransitionType = TuneMessageTransitionFromBottom;
                     break;
-                case UIDeviceOrientationLandscapeRight:
+                default:
+                    break;
+            }
+            break;
+        case TuneMessageTransitionFromLeft:
+            switch (orientation) {
+                case UIInterfaceOrientationPortrait:
+                    break;
+                case UIInterfaceOrientationPortraitUpsideDown:
+                    rotationTransitionType = TuneMessageTransitionFromLeft;
+                    break;
+                case UIInterfaceOrientationLandscapeRight:
+                    rotationTransitionType = TuneMessageTransitionFromBottom;
+                    break;
+                case UIInterfaceOrientationLandscapeLeft:
                     rotationTransitionType = TuneMessageTransitionFromTop;
                     break;
                 default:
@@ -290,28 +290,28 @@
 
 #if TARGET_OS_IOS
 
-- (void)showOrientation:(UIDeviceOrientation)orientation {
+- (void)showOrientation:(UIInterfaceOrientation)orientation {
     [self.layer removeAllAnimations];
     CATransition *transition = [TuneMessageStyling messageTransitionInWithType:[self getTransitionTypeForOrientation:orientation] withEaseIn:NO];
     
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             [_containerViewPortrait.layer removeAllAnimations];
             [_containerViewPortrait.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortrait.hidden = NO;
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             [_containerViewPortraitUpsideDown.layer removeAllAnimations];
             [_containerViewPortraitUpsideDown.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortraitUpsideDown.hidden = NO;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             transition.duration = 0.45;
             [_containerViewLandscapeLeft.layer removeAllAnimations];
             [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeLeft.hidden = NO;
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             transition.duration = 0.45;
             [_containerViewLandscapeRight.layer removeAllAnimations];
             [_containerViewLandscapeRight.layer addAnimation:transition forKey:kCATransition];
@@ -324,7 +324,7 @@
     [UIView commitAnimations];
 }
 
-- (void)dismissOrientation:(UIDeviceOrientation)orientation {
+- (void)dismissOrientation:(UIInterfaceOrientation)orientation {
     [self.layer removeAllAnimations];
     CATransition *transition = [TuneMessageStyling messageTransitionOutWithType:[self getTransitionTypeForOrientation:orientation] withEaseIn:YES];
     
@@ -336,23 +336,23 @@
     }
     
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             [_containerViewPortrait.layer removeAllAnimations];
             [_containerViewPortrait.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortrait.hidden = YES;
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             [_containerViewPortraitUpsideDown.layer removeAllAnimations];
             [_containerViewPortraitUpsideDown.layer addAnimation:transition forKey:kCATransition];
             _containerViewPortraitUpsideDown.hidden = YES;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
             transition.duration = 0.45;
             [_containerViewLandscapeLeft.layer removeAllAnimations];
             [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeLeft.hidden = YES;
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeLeft:
             transition.duration = 0.45;
             [_containerViewLandscapeRight.layer removeAllAnimations];
             [_containerViewLandscapeRight.layer addAnimation:transition forKey:kCATransition];
@@ -401,7 +401,7 @@
 
 #if TARGET_OS_IOS
 - (void)deviceOrientationDidChange:(TuneSkyhookPayload *)payload {
-    UIDeviceOrientation currentOrientation = [TuneMessageOrientationState getCurrentOrientation];
+    UIInterfaceOrientation currentOrientation = [TuneMessageOrientationState getCurrentOrientation];
     
     if (currentOrientation == _lastOrientation) {
         // Do nothing
