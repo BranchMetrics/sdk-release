@@ -2,6 +2,7 @@ package com.tune;
 
 import com.tune.mocks.MockUrlRequester;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -77,5 +78,42 @@ public class TuneMakeRequestTests extends TuneUnitTest {
         }
 
         assertFalse(gotException);
+    }
+
+    public void testMakeRequestInvokesRequestUrlCallback() {
+        mockUrlRequester.clearFakeResponse();
+
+        tune.setListener(new TuneListener() {
+            @Override
+            public void enqueuedActionWithRefId(String refId) {
+
+            }
+
+            @Override
+            public void enqueuedRequest(String url, JSONObject postData) {
+                assertTrue(url.startsWith("https://some.url"));
+                assertTrue(url.contains("&data="));
+                // URL in callback should not have unencrypted data
+                assertFalse(url.contains("encrypted_data"));
+                assertTrue(postData.toString().equals("{\"key\":\"value\"}"));
+            }
+
+            @Override
+            public void didSucceedWithData(JSONObject data) {
+
+            }
+
+            @Override
+            public void didFailWithError(JSONObject error) {
+
+            }
+        });
+
+        try {
+            JSONObject postBody = new JSONObject("{\"key\":\"value\"}");
+            tune.makeRequest("https://some.url", "encrypted_data", postBody);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

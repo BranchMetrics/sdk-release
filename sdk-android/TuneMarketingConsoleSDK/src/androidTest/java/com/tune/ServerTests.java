@@ -32,12 +32,11 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     public void testSession() {
         tune.measureSession();
-
-        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+        
+        sleep( TuneTestConstants.SERVERTEST_SLEEP );
 
         assertTrue(enqueuedSession);
         assertFalse(enqueuedEvent);
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
         
         assertTrue( "session should have succeeded", callSuccess );
         assertFalse( "session should not have failed", callFailed );
@@ -74,11 +73,10 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     public void testEventName() {
         tune.measureEvent( "testEventName" );
 
-        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+        sleep( TuneTestConstants.SERVERTEST_SLEEP );
 
         assertTrue(enqueuedEvent);
         assertFalse(enqueuedSession);
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
         
         assertTrue( "action should have succeeded", callSuccess );
         assertFalse( "action should not have failed", callFailed );
