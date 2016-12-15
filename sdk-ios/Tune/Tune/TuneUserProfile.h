@@ -229,6 +229,9 @@
 - (void)setDeviceBrand:(NSString *)deviceBrand;
 - (NSString *)deviceBrand;
 
+- (void)setDeviceBuild:(NSString *)deviceBuild;
+- (NSString *)deviceBuild;
+
 - (void)setScreenHeight:(NSNumber *)screenHeight;
 - (NSNumber *)screenHeight;
 
@@ -258,6 +261,9 @@
 
 - (void)setLanguage:(NSString *)language;
 - (NSString *)language;
+
+- (void)setLocale:(NSString *)locale;
+- (NSString *)locale;
 
 - (void)setReferralUrl:(NSString *)url;
 - (NSString *)referralUrl;

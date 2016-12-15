@@ -14,25 +14,28 @@
 #if !TARGET_OS_WATCH
 #import "TuneDeferredDplinkr.h"
 #endif
+#import "TuneDeepActionManager.h"
 #import "TuneEvent+Internal.h"
+#import "TuneExperimentManager.h"
 #import "TuneIfa.h"
+#import "TuneJSONPlayer.h"
 #import "TuneKeyStrings.h"
 #import "TuneManager.h"
+#import "TunePlaylistManager.h"
 #import "TunePowerHookManager.h"
+#import "TunePushInfo+Internal.h"
+#import "TuneSessionManager.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
+#if TUNE_ENABLE_SMARTWHERE
+#import "TuneSmartWhereHelper.h"
+#endif
+#import "TuneState.h"
 #import "TuneTracker.h"
 #import "TuneUserProfile.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
-#import "TuneJSONPlayer.h"
-#import "TuneExperimentManager.h"
-#import "TuneDeepActionManager.h"
-#import "TunePlaylistManager.h"
-#import "TuneState.h"
-#import "TuneSessionManager.h"
-#import "TunePushInfo+Internal.h"
 
 #ifdef TUNE_USE_LOCATION
 #import "TuneRegionMonitor.h"
@@ -123,6 +126,14 @@ static TuneTracker *_sharedManager = nil;
         tuneManager.configurationPlayer = configurationPlayer;
     }
 
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+    [opQueue addOperationWithBlock:^{
+        if ([TuneManager currentManager].configuration.shouldAutoCollectDeviceLocation && [TuneSmartWhereHelper isSmartWhereAvailable]) {
+            [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:aid tuneConversionKey:key];
+        }
+    }];
+#endif
+
     [[self sharedManager] startTracker];
 }
 
@@ -131,6 +142,11 @@ static TuneTracker *_sharedManager = nil;
 + (void)setDebugMode:(BOOL)enable {
     [opQueue addOperationWithBlock:^{
         [TuneManager currentManager].configuration.debugMode = @(enable);
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
+            [[TuneSmartWhereHelper getInstance] setDebugMode:enable];
+        }
+#endif
     }];
 }
 
@@ -239,6 +255,20 @@ static TuneTracker *_sharedManager = nil;
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect {
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:autoCollect];
+        
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
+            if (autoCollect) {
+                NSString *advId = [[TuneManager currentManager].userProfile advertiserId];
+                NSString *convKey = [[TuneManager currentManager].userProfile conversionKey];
+                
+                [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:advId
+                                                                      tuneConversionKey:convKey];
+            } else {
+                [[TuneSmartWhereHelper getInstance] stopMonitoring];
+            }
+        }
+#endif
     }];
 }
 
@@ -333,6 +363,11 @@ static TuneTracker *_sharedManager = nil;
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:NO];
         [[TuneManager currentManager].userProfile setLocation:location];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
+            [[TuneSmartWhereHelper getInstance] stopMonitoring];
+        }
+#endif
     }];
 }
 

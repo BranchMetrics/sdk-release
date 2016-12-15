@@ -37,7 +37,8 @@
     id classMockUIApplication;
     id classMockADClient;
     id classMockTuneUtils;
-    
+    id classMockTuneUserDefaultUtils;
+
     id classADClient;
     
     id mockTuneTracker;
@@ -86,6 +87,8 @@
     OCMStub([classMockTuneIadUtils shouldCheckIadAttribution]).andReturn(YES);
     
     classMockTuneUtils = OCMClassMock([TuneUtils class]);
+    
+    classMockTuneUserDefaultUtils = OCMClassMock([TuneUserDefaultsUtils class]);
     
     mockTuneTracker = OCMPartialMock([Tune sharedManager]);
     
@@ -144,6 +147,7 @@
     [classMockUIApplication stopMocking];
     [classMockADClient stopMocking];
     [classMockTuneUtils stopMocking];
+    [classMockTuneUserDefaultUtils stopMocking];
     [mockTuneTracker stopMocking];
     
     [super tearDown];
@@ -328,7 +332,7 @@
         [[mockTuneTracker reject] measureInstallPostConversion];
         [[[mockTuneTracker expect] andDo:^(NSInvocation *invocation) {
             [expectation1 fulfill];
-        }] checkIadAttributionAfterDelay:60.];
+        }] checkIadAttributionAfterDelay:5.];
         
         [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-20.]] installDate];
         
@@ -360,9 +364,9 @@
             passedBlock(attributionDetailsIadFalse, error);
         });
         
-        [[mockTuneTracker reject] checkIadAttributionAfterDelay:60.];
+        [[mockTuneTracker reject] checkIadAttributionAfterDelay:5.];
         [[[mockTuneTracker expect] andDo:^(NSInvocation *invocation) {
-            XCTAssertEqual(5, [[TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"] intValue]);
+            XCTAssertEqual(11, [[TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"] intValue]);
             [expectation1 fulfill];
         }] measureInstallPostConversion];
         
@@ -370,7 +374,7 @@
         
         [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-120]] installDate];
         
-        [TuneUserDefaultsUtils setUserDefaultValue:@(4) forKey:@"iad_request_attempt"];
+        [TuneUserDefaultsUtils setUserDefaultValue:@(10) forKey:@"iad_request_attempt"];
         
         // Call measureSession
         [Tune measureSession];
@@ -486,15 +490,81 @@
                 waitFor(0.8);
                 [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
             } else if (1 == checkIadWithDelayIteration) {
-                XCTAssertEqual(delay, 60.);
+                XCTAssertEqual(delay, 5.);
                 waitFor(0.2);
                 [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
             } else if (2 == checkIadWithDelayIteration) {
-                XCTAssertEqual(delay, 60.);
+                XCTAssertEqual(delay, 5.);
                 waitFor(0.2);
                 [mockTuneTracker handleIadAttributionInfo:YES adTrackingEnabled:YES impressionDate:[NSDate dateWithTimeIntervalSinceNow:-600] attributionInfo:attributionDetailsIAdTrue];
             } else {
                 XCTFail(@"unexpected call to TuneTracker.checkIadAttributionAfterDelay: method");
+            }
+        }] checkIadAttributionAfterDelay:-1];
+        
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        [self customWaitForExpectations];
+    }
+}
+
+- (void)testIadAttributionIsRetriedAtCorrectIntervals {
+    [self setupCommon];
+    
+    if([classADClient instancesRespondToSelector:@selector(requestAttributionDetailsWithBlock:)]) {
+        // First Search Ads request goes out 12s after initial install
+        [[[[classMockTuneUtils stub] classMethod] andReturn:[NSDate dateWithTimeIntervalSinceNow:-12.0]] installDate];
+        
+        __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"install post_conversion event fired"];
+        
+        // Max of 10 requests will be retried if Search Ads starts at 12s (would be 11 requests if it started at 2s)
+        [[[mockTuneTracker stub] andDo:^(NSInvocation *invocation) {
+            XCTAssertEqualObjects(@(10), [TuneUserDefaultsUtils userDefaultValueforKey:@"iad_request_attempt"]);
+            [expectation1 fulfill];
+        }] measureInstallPostConversion];
+        
+        __block NSDate *lastRequest = [NSDate date];
+        
+        // call checkIadAttributionAfterDelay: with delay 0
+        [[[[mockTuneTracker stub] ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+            // extract first argument "delay" from invocation
+            NSTimeInterval delay;
+            [invocation getArgument:&delay atIndex:2];
+            
+            // Mock TuneUserDefaultUtils' iAd request timestamp value to be current time + all delays so far
+            lastRequest = [lastRequest dateByAddingTimeInterval:delay];
+            OCMStub(ClassMethod([classMockTuneUserDefaultUtils userDefaultValueforKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP])).andDo(^(NSInvocation *invoke) {
+                [invoke setReturnValue:&lastRequest];
+            });
+            
+            NSTimeInterval lastRequestTimeDiffSinceAppInstall = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_IAD_REQUEST_TIMESTAMP] timeIntervalSinceDate:[TuneUtils installDate]];
+            
+            if (lastRequestTimeDiffSinceAppInstall > 300) {
+                // Over 300s since initial install, which is our max, stop retrying
+                XCTAssertEqual(delay, 60.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:YES adTrackingEnabled:YES impressionDate:[NSDate dateWithTimeIntervalSinceNow:-600] attributionInfo:attributionDetailsIAdTrue];
+            } else if (lastRequestTimeDiffSinceAppInstall < 13) {
+                // Initial request at ~12s shouldn't have any delay on it
+                XCTAssertEqual(delay, 0);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
+            } else if (lastRequestTimeDiffSinceAppInstall < 33) {
+                // 5s delay between requests until 30s has passed
+                XCTAssertEqual(delay, 5.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
+            } else if (lastRequestTimeDiffSinceAppInstall < 63) {
+                // 30s delay between requests that occur between 30s and 60s elapsed time
+                XCTAssertEqual(delay, 30.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
+            } else {
+                // 60s delay between requests beyond 60s
+                XCTAssertEqual(delay, 60.);
+                waitFor(0.2);
+                [mockTuneTracker handleIadAttributionInfo:NO adTrackingEnabled:YES impressionDate:nil attributionInfo:attributionDetailsIadFalse];
             }
         }] checkIadAttributionAfterDelay:-1];
         

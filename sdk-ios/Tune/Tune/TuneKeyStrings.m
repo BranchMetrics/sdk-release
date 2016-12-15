@@ -104,6 +104,8 @@ NSString * const TUNE_KEY_MAT_FIXED_FOR_ICLOUD                   = @"mat_fixed_f
 NSString * const TUNE_KEY_PUSH_ENABLED_STATUS                    = @"TUNE_PUSH_ENABLED_STATUS";
 
 NSString * const TUNE_STRING_EMPTY                               = @"";
+NSString * const TUNE_STRING_TRUE                                = @"true";
+NSString * const TUNE_STRING_FALSE                               = @"false";
 
 NSString * const TUNE_SERVER_DOMAIN_COOKIE_TRACKING              = @"https://launch1.co";
 NSString * const TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD        = @"engine.mobileapptracking.com";

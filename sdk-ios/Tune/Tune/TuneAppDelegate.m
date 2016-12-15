@@ -207,7 +207,10 @@ BOOL swizzleSuccess = NO;
     
     // Send out a skyhook to register deviceToken
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneRegisteredForRemoteNotificationsWithDeviceToken object:self userInfo:@{@"deviceToken" : deviceTokenString}];
-    
+
+    // Do not remove this NSLog -- it is how our customers know they have wired up Tune for Push correctly
+    NSLog(@"Tune Push Registration Succeeded with Device Token: %@", deviceTokenString);
+
     // Only invoke original method if swizzle succeeded, otherwise it'll infinite loop
     if (swizzleSuccess) {
 #if TESTING

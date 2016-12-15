@@ -62,11 +62,13 @@ static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
 #endif
 
 const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
-const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 5;
+const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 11;
 const NSTimeInterval MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL = 300.; // 5 min
 const NSTimeInterval TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION = 3.;
 const NSTimeInterval TUNE_IAD_CHECK_INITIAL_DELAY = TUNE_SESSION_QUEUING_DELAY > TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION ? TUNE_SESSION_QUEUING_DELAY - TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION : 0;
-const NSTimeInterval TUNE_IAD_CHECK_RETRY_DELAY = 60.;
+const NSTimeInterval TUNE_IAD_CHECK_RETRY_SHORT_DELAY = 5.;
+const NSTimeInterval TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY = 30.;
+const NSTimeInterval TUNE_IAD_CHECK_RETRY_LONG_DELAY = 60.;
 
 const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
 const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
@@ -330,8 +332,36 @@ static NSSet * doNotEncryptSet;
             [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
             [self measureInstallPostConversion];
         } else {
-            [self checkIadAttributionAfterDelay:TUNE_IAD_CHECK_RETRY_DELAY];
+            // Use a variable delay to check for Search Ads attribution more often in the first 30s
+            [self checkIadAttributionAfterDelay:[self getDelayForRetryTime:lastRequestTimeDiffSinceAppInstall]];
         }
+    }
+}
+
+/*
+ Retry Search Ads request every 5s up to the point where at least 30s have elapsed after install
+ After 30s, retry period is 30s
+ After 60s, retry period is 60s
+ Examples:
+    1st attempt is at 2s or 12s
+    2nd attempt at 7s or 17s
+    3rd attempt at 12s or 22s
+    4th attempt at 17s or 27s
+    5th attempt at 22s or 32s
+    6th attempt at 32s or 62s
+    7th attempt at 62s or 122s
+    8th attempt at 122s or 182s
+    9th attempt at 182s or 242s
+    10th attempt at 242s or 302s - last
+    11th attempt at 302s - last
+ */
+- (NSTimeInterval)getDelayForRetryTime:(NSTimeInterval)requestTime {
+    if (requestTime < 30.) {
+        return TUNE_IAD_CHECK_RETRY_SHORT_DELAY;
+    } else if (requestTime < 60.) {
+        return TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY;
+    } else {
+        return TUNE_IAD_CHECK_RETRY_LONG_DELAY;
     }
 }
 
@@ -804,6 +834,7 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile countryCode]                   forKey:TUNE_KEY_COUNTRY_CODE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:currencyCode                                                             forKey:TUNE_KEY_CURRENCY_CODE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile deviceBrand]                   forKey:TUNE_KEY_DEVICE_BRAND             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile deviceBuild]                   forKey:TUNE_KEY_DEVICE_BUILD             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #if TARGET_OS_IOS
     [self addValue:[[TuneManager currentManager].userProfile deviceCarrier]                 forKey:TUNE_KEY_DEVICE_CARRIER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #endif
@@ -866,6 +897,7 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile payingUser]                    forKey:TUNE_KEY_IS_PAYING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile conversionKey]                 forKey:TUNE_KEY_KEY                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile language]                      forKey:TUNE_KEY_LANGUAGE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[[TuneManager currentManager].userProfile locale]                        forKey:TUNE_KEY_LOCALE                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile lastOpenLogId]                 forKey:TUNE_KEY_LAST_OPEN_LOG_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile locationAuthorizationStatus]   forKey:TUNE_KEY_LOCATION_AUTH_STATUS     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile tuneId]                        forKey:TUNE_KEY_MAT_ID                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

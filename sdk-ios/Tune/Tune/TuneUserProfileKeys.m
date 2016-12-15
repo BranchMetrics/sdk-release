@@ -89,6 +89,7 @@ NSString *const TUNE_KEY_DEVICE_CPUTYPE                 = @"device_cpu_type";
 NSString *const TUNE_KEY_DEVICE_CPUSUBTYPE              = @"device_cpu_subtype";
 NSString *const TUNE_KEY_DEVICE_CARRIER                 = @"device_carrier";
 NSString *const TUNE_KEY_DEVICE_BRAND                   = @"device_brand";
+NSString *const TUNE_KEY_DEVICE_BUILD                   = @"build";
 NSString *const TUNE_KEY_SCREEN_HEIGHT                  = @"screen_height";
 NSString *const TUNE_KEY_SCREEN_WIDTH                   = @"screen_width";
 NSString *const TUNE_KEY_SCREEN_SIZE                    = @"screen_size";
@@ -99,6 +100,7 @@ NSString *const TUNE_KEY_CARRIER_NETWORK_CODE           = @"mobile_network_code"
 NSString *const TUNE_KEY_COUNTRY_CODE                   = @"country_code";
 NSString *const TUNE_KEY_OS_VERSION                     = @"os_version";
 NSString *const TUNE_KEY_LANGUAGE                       = @"language";
+NSString *const TUNE_KEY_LOCALE                         = @"locale";
 
 NSString *const TUNE_KEY_LOCATION_AUTH_STATUS           = @"location_auth_status";
 NSString *const TUNE_KEY_BLUETOOTH_STATE                = @"bluetooth_state";

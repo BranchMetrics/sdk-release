@@ -25,9 +25,9 @@ FOUNDATION_EXPORT NSString *const TuneConfigurationPreviewModeKey;
 @property (nonatomic, assign) BOOL echoConfigurations;                 // KEY_ECHO_CONFIGURATIONS
 @property (nonatomic, assign) BOOL echoFiveline;                       // KEY_ECHO_FIVELINE
 @property (nonatomic, assign) BOOL usePlaylistPlayer;                  // KEY_USE_PLAYLIST_PLAYER
-@property (nonatomic, assign) NSArray *playlistPlayerFilenames;        // KEY_PLAYLIST_PLAYER_FILENAMES
+@property (nonatomic, copy) NSArray *playlistPlayerFilenames;          // KEY_PLAYLIST_PLAYER_FILENAMES
 @property (nonatomic, assign) BOOL useConfigurationPlayer;             // KEY_USE_CONFIGURATION_PLAYER
-@property (nonatomic, assign) NSArray *configurationPlayerFilenames;   // KEY_CONFIGURATION_PLAYER_FILENAMES
+@property (nonatomic, copy) NSArray *configurationPlayerFilenames;     // KEY_CONFIGURATION_PLAYER_FILENAMES
 
 #if !TARGET_OS_WATCH
 @property (nonatomic, assign) BOOL shouldAutomateIapMeasurement;           // KEY_AUTO_IAP_MEASUREMENT
@@ -58,9 +58,9 @@ FOUNDATION_EXPORT NSString *const TuneConfigurationPreviewModeKey;
 
 @property (nonatomic, assign) id <TuneConfigurationDelegate> delegate;
 
-@property (assign, nonatomic) BOOL updatingConfiguration;
+@property (nonatomic, assign) BOOL updatingConfiguration;
 
-- (NSString*)domainName;
+- (NSString *)domainName;
 
 + (NSString *)frameworkVersion;
 - (NSString *)apiVersion;

@@ -10,6 +10,7 @@
 #import "TunePowerHookValue.h"
 #import "TuneDateUtils.h"
 #import "TuneExperimentDetails+Internal.h"
+#import "TuneKeyStrings.h"
 #import "TuneUtils.h"
 
 NSString *const DetailDictionaryExperimentStartDateKey = @"experiment_start_date";
@@ -54,10 +55,7 @@ NSString *const DetailDictionaryExperimentIsRunningKey = @"is_running";
     
     detailsDictionary[DetailDictionaryExperimentStartDateKey] = [TuneUtils objectOrNull:_experimentStartDate];
     detailsDictionary[DetailDictionaryExperimentEndDateKey] = [TuneUtils objectOrNull:_experimentEndDate];
-    NSString *isRunning = @"false";
-    if ([self isRunning]) {
-        isRunning = @"true";
-    }
+    NSString *isRunning = [self isRunning] ? TUNE_STRING_TRUE : TUNE_STRING_FALSE;
     detailsDictionary[DetailDictionaryExperimentIsRunningKey] = isRunning;
     
     return detailsDictionary;

@@ -233,14 +233,6 @@ static BOOL forcedNetworkStatus;
     XCTAssertTrue( [callSuccess boolValue], @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
     XCTAssertEqual( [successMessages count], 2, @"both calls should have succeeded, but %lu did", (unsigned long)[successMessages count] );
-
-    for( NSInteger i = 0; i < [successMessages count]; i++ ) {
-        NSData *data = successMessages[i];
-        NSDictionary *jso = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        NSString *expectedEvent = [NSString stringWithFormat:@"event%d", (int)i + 1];
-        XCTAssertTrue( [jso[@"get"][TUNE_KEY_SITE_EVENT_NAME] isEqualToString:expectedEvent],
-                       @"expected event name '%@', got '%@'", expectedEvent, jso[@"get"][@"site_event_name"] );
-    }
 #endif
 }
 

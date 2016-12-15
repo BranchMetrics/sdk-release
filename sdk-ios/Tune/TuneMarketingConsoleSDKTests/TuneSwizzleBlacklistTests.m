@@ -45,6 +45,10 @@
     XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"ABContactViewController"]);
     XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"_ABPeoplePickerNavigationController"]);
     XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"EKEventDetailExtendedNotesViewController"]);
+    XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"EKEventAttendeePicker"]);
+    XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"UIImagePickerController"]);
+    XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"UIActivityViewController"]);
+    XCTAssertTrue([TuneSwizzleBlacklist classIsOnBlackList:@"MFMailComposePlaceholderViewController"]);
 }
 
 - (void)testClassIsOnBlacklistReturnsFalseForRandomClasses {

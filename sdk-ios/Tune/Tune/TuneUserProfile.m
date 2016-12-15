@@ -165,6 +165,7 @@ static NSNumber *COPPA_MIN_AGE;
         [self setInstallDate:[TuneUtils installDate]];
         [self setSDKVersion:[TuneConfiguration frameworkVersion]];
         [self setMinutesFromGMT:@((int)[[NSTimeZone localTimeZone] secondsFromGMT] / 60)];
+        [self setLocale:[[NSLocale currentLocale] localeIdentifier]];
         
 #if TARGET_OS_IOS
         // FB cookie id
@@ -435,6 +436,13 @@ static NSNumber *COPPA_MIN_AGE;
     sysctlbyname("hw.machine", machine, &size, NULL, 0);
     [self setHardwareType:@(machine)];
     free(machine);
+    
+    // Set build name to kern.osversion
+    sysctlbyname("kern.osversion", NULL, &size, NULL, 0);
+    char *build = malloc(size);
+    sysctlbyname("kern.osversion", build, &size, NULL, 0);
+    [self setDeviceBuild:@(build)];
+    free(build);
     
     // Device params
     [self setDeviceBrand:@"Apple"];
@@ -1139,6 +1147,13 @@ static NSNumber *COPPA_MIN_AGE;
     return [self getProfileValue:TUNE_KEY_DEVICE_BRAND];
 }
 
+- (void)setDeviceBuild:(NSString *)deviceBuild {
+    [self storeProfileKey:TUNE_KEY_DEVICE_BUILD value:deviceBuild];
+}
+- (NSString *)deviceBuild {
+    return [self getProfileValue:TUNE_KEY_DEVICE_BUILD];
+}
+
 - (void)setScreenHeight:(NSNumber *)screenHeight {
     [self storeProfileKey:TUNE_KEY_SCREEN_HEIGHT value:screenHeight type:TuneAnalyticsVariableNumberType];
 }
@@ -1207,6 +1222,13 @@ static NSNumber *COPPA_MIN_AGE;
 }
 - (NSString *)language {
     return [self getProfileValue:TUNE_KEY_LANGUAGE];
+}
+
+- (void)setLocale:(NSString *)locale {
+    [self storeProfileKey:TUNE_KEY_LOCALE value:locale];
+}
+- (NSString *)locale {
+    return [self getProfileValue:TUNE_KEY_LOCALE];
 }
 
 - (void)setReferralUrl:(NSString *)url {

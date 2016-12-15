@@ -179,6 +179,16 @@
 }
 #endif
 
+// Locale and build collection are required for AdWords attribution
+- (void)testLocaleAndBuild {
+    NSString *build = [[TuneManager currentManager].userProfile deviceBuild];
+    NSString *locale = [[TuneManager currentManager].userProfile locale];
+    
+    XCTAssertNotNil(build);
+    XCTAssertNotNil(locale);
+    XCTAssertTrue([@"en_US" isEqualToString:locale]);
+}
+
 #pragma mark - Tune delegate
 
 // secret functions to test server URLs

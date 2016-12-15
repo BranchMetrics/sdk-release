@@ -244,7 +244,9 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     
     [self checkKeyHasValue:@"country_code"] &&
     [self checkKeyHasValue:@"language"] &&
+    [self checkKeyHasValue:@"locale"] &&
     [self checkKeyHasValue:@"system_date"] &&
+    [self checkKeyHasValue:@"build"] &&
     [self checkKeyHasValue:@"device_brand"] &&
     [self checkKeyHasValue:@"device_cpu_type"] &&
     [self checkKeyHasValue:@"device_cpu_subtype"] &&

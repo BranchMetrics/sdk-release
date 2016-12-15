@@ -682,6 +682,16 @@
 		F87CE8661B7D164300A98BF9 /* TuneDeviceDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE8641B7D164300A98BF9 /* TuneDeviceDetails.m */; };
 		F87CE89D1B7D1AA500A98BF9 /* TuneState.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE89B1B7D1AA500A98BF9 /* TuneState.m */; };
 		F87CE8D41B7D466500A98BF9 /* TuneHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE8D21B7D466500A98BF9 /* TuneHttpRequest.m */; };
+		F87DE3751DA6FFF40054037A /* TuneSmartWhereHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */; };
+		F87DE3761DA6FFF40054037A /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		F87DE3771DA6FFF40054037A /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		F87DE37A1DA700360054037A /* TuneSmartWhereHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3791DA700360054037A /* TuneSmartWhereHelperTests.m */; };
+		F87DE37B1DA700A10054037A /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		F87DE37C1DA700A20054037A /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		F87DE37D1DA700A40054037A /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		F87DE37E1DA700B10054037A /* TuneSmartWhereHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */; };
+		F87DE37F1DA700B20054037A /* TuneSmartWhereHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */; };
+		F885A1DE1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F885A1DD1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m */; };
 		F8868EE11C0FA880007E2F9C /* TuneConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = F8868EE01C0FA880007E2F9C /* TuneConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F8868EF21C0FC385007E2F9C /* Tune_tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = F8868EF11C0FC385007E2F9C /* Tune_tvOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F8868F0E1C0FC3F2007E2F9C /* Tune_watchOS.h in Headers */ = {isa = PBXBuildFile; fileRef = F8868F0D1C0FC3F2007E2F9C /* Tune_watchOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1548,6 +1558,10 @@
 		F87CE89B1B7D1AA500A98BF9 /* TuneState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneState.m; sourceTree = "<group>"; };
 		F87CE8D11B7D466500A98BF9 /* TuneHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneHttpRequest.h; sourceTree = "<group>"; };
 		F87CE8D21B7D466500A98BF9 /* TuneHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneHttpRequest.m; sourceTree = "<group>"; };
+		F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneSmartWhereHelper.h; sourceTree = "<group>"; };
+		F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereHelper.m; sourceTree = "<group>"; };
+		F87DE3791DA700360054037A /* TuneSmartWhereHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereHelperTests.m; sourceTree = "<group>"; };
+		F885A1DD1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereMonitoringTests.m; sourceTree = "<group>"; };
 		F8868EE01C0FA880007E2F9C /* TuneConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneConstants.h; sourceTree = "<group>"; };
 		F8868EEF1C0FC385007E2F9C /* Tune_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8868EF11C0FC385007E2F9C /* Tune_tvOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tune_tvOS.h; sourceTree = "<group>"; };
@@ -1797,6 +1811,7 @@
 				DB40D2F01B86615D0034F218 /* Network */,
 				F81985AD1C8A1E8500AF8E87 /* Public */,
 				323040321B9A0F2900DD8E65 /* Push Notifications */,
+				F87DE3721DA6FFC80054037A /* SmartWhere */,
 				0BCB599C1B65EF6A005216E2 /* Supporting Files */,
 				DBCA43441B8E7D4D00483318 /* Swizzles */,
 				DB514E3B1B7BD252000706EE /* Utils */,
@@ -1887,6 +1902,7 @@
 				F8F0771F1C8A5AFD00AEF991 /* OCMock-lib */,
 				32AC66AB1BA8F3610069B549 /* Push Notifications */,
 				DB9135661B68111D006534E0 /* Resources */,
+				F87DE3781DA700010054037A /* SmartWhere */,
 				0BCB5AB01B660747005216E2 /* Supporting Files */,
 				DB0FF5681B90EB070071B996 /* Swizzles */,
 				DB24D6F01B67FFFD000C7462 /* Test Utils */,
@@ -2500,6 +2516,24 @@
 			name = State;
 			sourceTree = "<group>";
 		};
+		F87DE3721DA6FFC80054037A /* SmartWhere */ = {
+			isa = PBXGroup;
+			children = (
+				F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */,
+				F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */,
+			);
+			name = SmartWhere;
+			sourceTree = "<group>";
+		};
+		F87DE3781DA700010054037A /* SmartWhere */ = {
+			isa = PBXGroup;
+			children = (
+				F885A1DD1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m */,
+				F87DE3791DA700360054037A /* TuneSmartWhereHelperTests.m */,
+			);
+			name = SmartWhere;
+			sourceTree = "<group>";
+		};
 		F8868EF01C0FC385007E2F9C /* Tune_tvOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -2628,6 +2662,7 @@
 				DB918C111B8E60FC0077305B /* TuneRequestsQueuePart.h in Headers */,
 				F8AE53BE1BF3D1B40055B93C /* TunePlaylistManager.h in Headers */,
 				DBF535911B94F97A00B76885 /* TuneMessageAction.h in Headers */,
+				F87DE3751DA6FFF40054037A /* TuneSmartWhereHelper.h in Headers */,
 				F8AE53B71BF3D1810055B93C /* TuneFileManager.h in Headers */,
 				DB918C121B8E60FD0077305B /* Tune+Internal.h in Headers */,
 				F8AE53BD1BF3D1B40055B93C /* TuneAnalyticsDispatchToConnectedModeOperation.h in Headers */,
@@ -2849,6 +2884,7 @@
 				F8868FA21C0FC5E6007E2F9C /* TuneEvent.h in Headers */,
 				F8868FA31C0FC5E7007E2F9C /* TuneEventItem.h in Headers */,
 				F8868FA51C0FC5E8007E2F9C /* TuneLocation.h in Headers */,
+				F87DE37E1DA700B10054037A /* TuneSmartWhereHelper.h in Headers */,
 				F8868FA61C0FC5E9007E2F9C /* TuneManager.h in Headers */,
 				F8868FA71C0FC5EA007E2F9C /* TuneModule.h in Headers */,
 				F8868FA91C0FC5EC007E2F9C /* TunePreloadData.h in Headers */,
@@ -2895,6 +2931,7 @@
 				F84660451C3B4C7B005C42CC /* TuneAnalyticsManager.h in Headers */,
 				F84660441C3B4C7B005C42CC /* TuneAnalyticsItem.h in Headers */,
 				F8868F0E1C0FC3F2007E2F9C /* Tune_watchOS.h in Headers */,
+				F87DE37F1DA700B20054037A /* TuneSmartWhereHelper.h in Headers */,
 				F84660421C3B4C7B005C42CC /* TuneAnalyticsVariable.h in Headers */,
 				F8B0F13C1CA8DD4E0051D079 /* TunePowerHookExperimentDetails.h in Headers */,
 				F846600C1C3B4C50005C42CC /* TuneCWorks.h in Headers */,
@@ -3064,7 +3101,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = Tune;
 				TargetAttributes = {
 					0B3389C61BB32D2C00405AFD = {
@@ -3072,7 +3109,6 @@
 					};
 					0BCB59951B65EF6A005216E2 = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = MN489GLUZK;
 						DevelopmentTeamName = "TUNE, Inc.";
 					};
 					0BCB5AAD1B660747005216E2 = {
@@ -3302,6 +3338,7 @@
 				F8A6A9F11D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */,
 				DBA2B5E31B7BFDD800843E5D /* TunePlaylist.m in Sources */,
 				0B5270A01B7141E40019ED0E /* TuneFileUtils.m in Sources */,
+				F87DE3761DA6FFF40054037A /* TuneSmartWhereHelper.m in Sources */,
 				DBF5359A1B950BB300B76885 /* TuneMessageImageBundle.m in Sources */,
 				DBCA43481B8E7DCD00483318 /* UIViewController+TuneAnalytics.m in Sources */,
 				0BCB59DE1B65F922005216E2 /* TuneEvent.m in Sources */,
@@ -3450,6 +3487,7 @@
 				DBCA43231B8E642300483318 /* TuneArrayUtilsTests.m in Sources */,
 				F8F693F91CFFC15B00B453D9 /* TuneiOS8SlideInMessageView.m in Sources */,
 				F81A46151D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
+				F885A1DE1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m in Sources */,
 				F8F6943D1CFFC15B00B453D9 /* TuneLabelUtils.m in Sources */,
 				F8F693F81CFFC15B00B453D9 /* TuneBaseInAppMessageView.m in Sources */,
 				DBCA432A1B8E642300483318 /* TuneAnalyticsVariableTests.m in Sources */,
@@ -3461,6 +3499,7 @@
 				F8F693F31CFFC15B00B453D9 /* TuneSlideInMessageFactory.m in Sources */,
 				F8F693C81CFFC15B00B453D9 /* NSString+TuneSBJSON.m in Sources */,
 				F8F694351CFFC15B00B453D9 /* TuneDateUtils.m in Sources */,
+				F87DE37A1DA700360054037A /* TuneSmartWhereHelperTests.m in Sources */,
 				F8F693F01CFFC15B00B453D9 /* TuneMessageAction.m in Sources */,
 				F8F693CD1CFFC15B00B453D9 /* TuneSBJsonWriter.m in Sources */,
 				F8F694371CFFC15B00B453D9 /* TuneDeviceUtils.m in Sources */,
@@ -3482,6 +3521,7 @@
 				3F3290C81B9635F600C472F8 /* TunePIIUtilsTests.m in Sources */,
 				32AC66AD1BA8F38E0069B549 /* TuneAppDelegateTests.m in Sources */,
 				F8F6943F1CFFC15B00B453D9 /* TuneStringUtils.m in Sources */,
+				F87DE3771DA6FFF40054037A /* TuneSmartWhereHelper.m in Sources */,
 				F8F693E41CFFC15B00B453D9 /* TuneStorageKeys.m in Sources */,
 				F8F693DE1CFFC15B00B453D9 /* TuneRegionMonitor.m in Sources */,
 				F8F694041CFFC15B00B453D9 /* TuneAnalyticsItem.m in Sources */,
@@ -3652,6 +3692,7 @@
 				F8868FFA1C0FD145007E2F9C /* TuneArrayUtils.m in Sources */,
 				F8C81C081CA60C77005C7B5D /* TuneAppDelegate.m in Sources */,
 				F8868FFB1C0FD145007E2F9C /* TuneButtonUtils.m in Sources */,
+				F87DE37B1DA700A10054037A /* TuneSmartWhereHelper.m in Sources */,
 				F8868FFC1C0FD145007E2F9C /* TuneDateUtils.m in Sources */,
 				F8868FFD1C0FD145007E2F9C /* TuneDeviceDetails.m in Sources */,
 				F8868FFE1C0FD145007E2F9C /* TuneDeviceUtils.m in Sources */,
@@ -3746,6 +3787,7 @@
 				F853D0011D00C9FD006CCC98 /* Tune.m in Sources */,
 				F853D0171D00C9FD006CCC98 /* TuneImageUtils.m in Sources */,
 				F84661351C3B4EFA005C42CC /* DictionaryLoader.m in Sources */,
+				F87DE37D1DA700A40054037A /* TuneSmartWhereHelper.m in Sources */,
 				F853CFD81D00C9BD006CCC98 /* TuneSlideInMessageView.m in Sources */,
 				F853CFF01D00C9FD006CCC98 /* TunePowerHookValue.m in Sources */,
 				F84661511C3B4F0C005C42CC /* TuneUtilsTests.m in Sources */,
@@ -3846,6 +3888,7 @@
 				3F7522AA1D0B2C6E00E65703 /* TunePushInfo.m in Sources */,
 				F84661021C3B4EAA005C42CC /* TunePIIUtils.m in Sources */,
 				F84661071C3B4EAA005C42CC /* TuneXmlUtils.m in Sources */,
+				F87DE37C1DA700A20054037A /* TuneSmartWhereHelper.m in Sources */,
 				F84660B81C3B4E41005C42CC /* TuneAnalyticsItem.m in Sources */,
 				F84660F91C3B4EAA005C42CC /* TuneDateUtils.m in Sources */,
 				F81A46171D9EF54D00D50867 /* TuneIadUtils.m in Sources */,
@@ -4162,6 +4205,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4204,6 +4248,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4394,6 +4439,7 @@
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -4529,7 +4575,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4613,7 +4659,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4648,7 +4694,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4688,7 +4734,7 @@
 			buildSettings = {
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -4809,7 +4855,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4845,7 +4891,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = NO;
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
