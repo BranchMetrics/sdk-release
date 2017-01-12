@@ -44,8 +44,11 @@ public class TuneConstants {
     // TUNE IAM API VERSION
     public static final String IAM_API_VERSION = "v3";
 
+    public static final String STRING_TRUE = "true";
+    public static final String STRING_FALSE = "false";
+
     // TUNE Android SDK version number
-    public static final String SDK_VERSION = "4.8.1";
+    public static final String SDK_VERSION = "4.9.0";
     // Debug log tag
     static final String TAG = "TUNE";
     // Max number of events to dump when queued
@@ -72,4 +75,9 @@ public class TuneConstants {
     };
 
     static final Long DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT = 3000l;
+
+    static final String UUID_EMPTY = "00000000-0000-0000-0000-000000000000";
+
+    static final String FIRE_ADVERTISING_ID_KEY = "advertising_id";
+    static final String FIRE_LIMIT_AD_TRACKING_KEY = "limit_ad_tracking";
 }

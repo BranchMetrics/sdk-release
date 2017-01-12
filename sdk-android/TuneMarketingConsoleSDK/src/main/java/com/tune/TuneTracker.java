@@ -1,11 +1,10 @@
 package com.tune;
 
-import java.net.URLDecoder;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import java.net.URLDecoder;
 
 /*
  * Please add this to your AndroidManifest.xml file.
@@ -29,11 +28,11 @@ public class TuneTracker extends BroadcastReceiver {
                     // Save the referrer value in SharedPreferences
                     context.getSharedPreferences(TuneConstants.PREFS_TUNE, Context.MODE_PRIVATE).edit().putString(TuneConstants.KEY_REFERRER, referrer).apply();
                     
-                    // Notify threadpool waiting for referrer and GAID
+                    // Notify threadpool waiting for referrer and advertising ID
                     Tune tune = Tune.getInstance();
                     if (tune != null) {
                         tune.setInstallReferrer(referrer);
-                        if (tune.gotGaid && !tune.notifiedPool) {
+                        if (tune.gotAdvertisingId && !tune.notifiedPool) {
                             synchronized (tune.pool) {
                                 tune.pool.notifyAll();
                                 tune.notifiedPool = true;

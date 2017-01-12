@@ -3,7 +3,7 @@ package com.tune.ma.eventbus;
 import com.tune.BuildConfig;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.utils.TuneDebugLog;
@@ -30,7 +30,7 @@ public class TuneEventBus {
     // Event Bus is disabled by default until turnOnTMA is true
     private static volatile boolean enabled = false;
     private static volatile boolean managerInitialized = false;
-    private static volatile boolean gaidCompleted = false;
+    private static volatile boolean getAdvertisingIdCompleted = false;
 
     public static synchronized void post(Object event) {
         if (!enabled) {
@@ -41,26 +41,37 @@ public class TuneEventBus {
         // Do not propagate the current TuneManagerInitialized event to bus
         if (event instanceof TuneManagerInitialized) {
             managerInitialized = true;
-            // Dequeue events if GetGAIDCompleted event was already received
-            if (gaidCompleted) {
+            // Dequeue events if TuneGetAdvertisingIdCompleted event was already received
+            if (getAdvertisingIdCompleted) {
                 dequeue();
             }
             return;
         }
 
-        // If event being posted is TuneGetGAIDCompleted, set flag, set GAID in user profile, and dequeue events
-        // Do not propagate the current TuneGetGAIDCompleted event to bus
-        if (event instanceof TuneGetGAIDCompleted) {
-            gaidCompleted = true;
-            TuneGetGAIDCompleted gaidEvent = (TuneGetGAIDCompleted) event;
+        // If event being posted is TuneGetAdvertisingIdCompleted, set flag, set advertising ID in user profile, and dequeue events
+        // Do not propagate the current TuneGetAdvertisingIdCompleted event to bus
+        if (event instanceof TuneGetAdvertisingIdCompleted) {
+            getAdvertisingIdCompleted = true;
+            TuneGetAdvertisingIdCompleted advertisingIdEvent = (TuneGetAdvertisingIdCompleted) event;
             // Insert device id update events into the beginning of queue so they get processed first
-            // We received a GAID, update GAID user profile values
-            if (gaidEvent.receivedGAID()) {
-                eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, gaidEvent.getGAID())));
-                eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING, gaidEvent.getLimitAdTrackingEnabled())));
-            } else {
-                // We received ANDROID ID as fallback, update ANDROID_ID user profile values
-                eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID, gaidEvent.getAndroidId())));
+            // Update advertising ID user profile values
+            switch (advertisingIdEvent.getType()) {
+                case ANDROID_ID:
+                    // We received ANDROID ID as fallback, update ANDROID_ID user profile values
+                    eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID, advertisingIdEvent.getDeviceId())));
+                    break;
+                case FIRE_AID:
+                    // We received a Fire Advertising ID, update FIRE_AID user profile values
+                    eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AID, advertisingIdEvent.getDeviceId())));
+                    eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, advertisingIdEvent.getLimitAdTrackingEnabled())));
+                    break;
+                case GOOGLE_AID:
+                    // We received a GAID, update GAID user profile values
+                    eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, advertisingIdEvent.getDeviceId())));
+                    eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, advertisingIdEvent.getLimitAdTrackingEnabled())));
+                    break;
+                default:
+                    break;
             }
             
             // Dequeue events if ManagerInitialized event was already received
@@ -71,8 +82,8 @@ public class TuneEventBus {
         }
 
         // Check the status of whether the two above events were received...
-        if (managerInitialized && gaidCompleted) {
-            // Post the event if both TuneManager was initialized and GetGAID completed
+        if (managerInitialized && getAdvertisingIdCompleted) {
+            // Post the event if both TuneManager was initialized and GetAdvertisingId completed
             EVENT_BUS.post(event);
         } else {
             // Queue the event otherwise
@@ -119,7 +130,7 @@ public class TuneEventBus {
 
     public static void clearFlags() {
         managerInitialized = false;
-        gaidCompleted = false;
+        getAdvertisingIdCompleted = false;
     }
 
     private static synchronized void dequeue() {

@@ -39,6 +39,7 @@ import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
+import com.tune.smartwhere.TuneSmartWhere;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -99,7 +100,7 @@ public class Tune {
 
     // Whether to show debug output
     private boolean debugMode;
-    // If this is the first session of the app lifecycle, wait for the GAID and referrer
+    // If this is the first session of the app lifecycle, wait for the advertising ID and referrer
     private boolean firstSession;
     // Is this the first install with the Tune SDK. This will be true for the entire first session.
     protected boolean isFirstInstall;
@@ -112,8 +113,8 @@ public class Tune {
     // Time SDK last measuredSession
     protected long timeLastMeasuredSession;
 
-    // Whether Google Advertising ID was received
-    boolean gotGaid;
+    // Whether an Advertising ID was received
+    boolean gotAdvertisingId;
     // Whether INSTALL_REFERRER was received
     boolean gotReferrer;
     // Whether we've already notified the pool to stop waiting
@@ -154,7 +155,7 @@ public class Tune {
      * @return Tune instance with initialized values
      */
     public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM) {
-        return init(context, advertiserId, conversionKey, turnOnIAM, null);
+        return init(context, advertiserId, conversionKey, turnOnIAM, new TuneConfiguration());
     }
 
     /**
@@ -192,6 +193,7 @@ public class Tune {
                 if (tune.collectLocation) {
                     // Get initial location
                     tune.locationListener.startListening();
+                    tune.startSmartWhereLocationMonitoring();
                 }
             }
         }
@@ -368,7 +370,7 @@ public class Tune {
 
     /**
      * Event measurement function that measures an event based on TuneEvent values.
-     * Create a TuneEvent to pass in with:</br>
+     * Create a TuneEvent to pass in with:<br>
      * <pre>new TuneEvent(eventName)</pre>
      * @param eventData custom data to associate with the event
      */
@@ -804,6 +806,30 @@ public class Tune {
     }
 
     /**
+     * Gets the Fire Advertising ID.
+     * @return Fire advertising ID
+     */
+    public String getFireAdvertisingId() {
+        return params.getFireAdvertisingId();
+    }
+
+    /**
+     * Gets whether use of the Fire Advertising ID is limited by user request.
+     * @return whether tracking is limited
+     */
+    public boolean getFireAdTrackingLimited() {
+        String fireAdTrackingLimitedString = params.getFireAdTrackingLimited();
+        int fireAdTrackingLimited = 0;
+        try {
+            fireAdTrackingLimited = Integer.parseInt(fireAdTrackingLimitedString);
+        } catch (NumberFormatException e) {
+            TuneDebugLog.e(TuneConstants.TAG, "Error parsing fireAdTrackingLimited value " + fireAdTrackingLimitedString, e);
+        }
+
+        return (fireAdTrackingLimited != 0);
+    }
+
+    /**
      * Gets the user gender set with {@link Tune#setGender(TuneGender)}.
      * @return gender
      */
@@ -1149,7 +1175,7 @@ public class Tune {
      * @param androidId ANDROID_ID
      */
     public void setAndroidId(final String androidId) {
-        // Params sometimes not initialized by the time GetGAID thread finishes
+        // Params sometimes not initialized by the time GetAdvertisingId thread finishes
         if (params != null) {
             params.setAndroidId(androidId);
 
@@ -1307,6 +1333,32 @@ public class Tune {
     }
 
     /**
+     * Sets the Amazon Fire Advertising ID
+     * @param adId Amazon Fire advertising ID
+     * @param isLATEnabled whether user has enabled limit ad tracking
+     */
+    public void setFireAdvertisingId(final String adId, boolean isLATEnabled) {
+        final int intLimit = isLATEnabled ? 1 : 0;
+
+        if (params != null) {
+            params.setFireAdvertisingId(adId);
+            params.setFireAdTrackingLimited(Integer.toString(intLimit));
+
+            if (dplinkr != null) {
+                dplinkr.setFireAdvertisingId(adId, intLimit);
+                requestDeferredDeeplink();
+            }
+        }
+        gotAdvertisingId = true;
+        if (gotReferrer && !notifiedPool) {
+            synchronized (pool) {
+                pool.notifyAll();
+                notifiedPool = true;
+            }
+        }
+    }
+
+    /**
      * Sets the user gender.
      * @param gender use TuneGender.MALE, TuneGender.FEMALE
      */
@@ -1319,10 +1371,10 @@ public class Tune {
     /**
      * Sets the Google Play Services Advertising ID
      * @param adId Google Play advertising ID
-     * @param isLATEnabled whether user has requested to limit use of the Google ad ID
+     * @param isLATEnabled whether user has enabled limit ad tracking
      */
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
-        final int intLimit = isLATEnabled? 1 : 0;
+        final int intLimit = isLATEnabled ? 1 : 0;
 
         if (params != null) {
             params.setGoogleAdvertisingId(adId);
@@ -1333,7 +1385,7 @@ public class Tune {
                 requestDeferredDeeplink();
             }
         }
-        gotGaid = true;
+        gotAdvertisingId = true;
         if (gotReferrer && !notifiedPool) {
             synchronized (pool) {
                 pool.notifyAll();
@@ -1383,16 +1435,6 @@ public class Tune {
     }
 
     /**
-     * Sets the device latitude.
-     * @param latitude the device latitude
-     */
-    public void setLatitude(final double latitude) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setLatitude(Double.toString(latitude));
-        }});
-    }
-
-    /**
      * Sets the device locale
      * @param locale the device locale
      */
@@ -1407,17 +1449,12 @@ public class Tune {
      * @param location the device location
      */
     public void setLocation(final Location location) {
-        if (location == null) {
-            TuneDebugLog.e(TuneConstants.TAG, "Location may not be null");
-            return;
-        }
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setLocation(new TuneLocation(location));
-        }});
+        TuneLocation loc = null == location ? null : new TuneLocation(location);
+        setLocation(loc);
     }
 
     /**
-     * Sets the device location
+     * Sets the device location. Manually setting the location through this method disables geo-location auto-collection.
      * @param location the device location as a TuneLocation
      */
     public void setLocation(final TuneLocation location) {
@@ -1437,10 +1474,24 @@ public class Tune {
     }
 
     /**
-     * Sets the device longitude.
+     * Sets the device latitude. Manually setting the latitude through this method disables geo-location auto-collection.
+     * @param latitude the device latitude
+     */
+    public void setLatitude(final double latitude) {
+        setShouldAutoCollectDeviceLocation(false);
+
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setLatitude(Double.toString(latitude));
+        }});
+    }
+
+    /**
+     * Sets the device longitude. Manually setting the longitude through this method disables geo-location auto-collection.
      * @param longitude the device longitude
      */
     public void setLongitude(final double longitude) {
+        setShouldAutoCollectDeviceLocation(false);
+
         pubQueue.execute(new Runnable() { public void run() {
             params.setLongitude(Double.toString(longitude));
         }});
@@ -1480,13 +1531,16 @@ public class Tune {
      */
     public void setPackageName(final String packageName) {
         dplinkr.setPackageName(packageName);
-        pubQueue.execute(new Runnable() { public void run() {
-            if (TextUtils.isEmpty(packageName)) {
-                params.setPackageName(mContext.getPackageName());
-            } else {
-                params.setPackageName(packageName);
+        pubQueue.execute(new Runnable() {
+            public void run() {
+                String pkg = TextUtils.isEmpty(packageName) ? mContext.getPackageName() : packageName;
+                params.setPackageName(pkg);
+
+                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+                    TuneSmartWhere.getInstance().setPackageName(mContext, pkg);
+                }
             }
-        }});
+        });
     }
 
     /**
@@ -1682,6 +1736,10 @@ public class Tune {
         debugMode = debug;
         pubQueue.execute(new Runnable() { public void run() {
             params.setDebugMode(debug);
+            if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+                TuneSmartWhere.getInstance().setDebugMode(mContext, debug);
+            }
+
         }});
         if (debug) {
             TuneDebugLog.enableLog();
@@ -1759,10 +1817,12 @@ public class Tune {
      */
     public void setShouldAutoCollectDeviceLocation(boolean autoCollect) {
         collectLocation = autoCollect;
-        if (!collectLocation) {
-            locationListener.stopListening();
-        } else {
+        if (collectLocation) {
             locationListener.startListening();
+            startSmartWhereLocationMonitoring();
+        } else {
+            locationListener.stopListening();
+            stopSmartWhereLocationMonitoring();
         }
     }
 
@@ -2111,8 +2171,8 @@ public class Tune {
     }
 
     /**
-     * Specify whether the current user has opted out of push messaging.<br/>
-     * <br/>
+     * Specify whether the current user has opted out of push messaging.<br>
+     * <br>
      * This information is added to the personalization profile of the current user for segmentation, targeting, and reporting purposes. <br>
      * <br>
      * Also, if you are using Tune Push, then by default Tune will assume push messaging is enabled as long as the user has Google Play Services installed on their device and we can successfully get a device token for their device. <br>
@@ -2133,7 +2193,7 @@ public class Tune {
 
     /**
      * Returns the currently registered device token for push.
-     * <br/>
+     * <br>
      *
      * @return The currently registered device token for push, or null if we aren't registered.
      */
@@ -2147,9 +2207,9 @@ public class Tune {
 
     /**
      * Returns if the user manually disabled push on the Application Setting page.
-     * <br/>
+     * <br>
      * If this returns true then nothing will be allowed to be posted to the tray, not just push notifications
-     * <br/>
+     * <br>
      *
      * @return Whether the user manually disabled push from the Application Settings screen if API Level >= 19, otherwise false.
      */
@@ -2163,10 +2223,10 @@ public class Tune {
 
     /**
      * Returns if the current session is because the user opened a push notification.
-     * <br/>
+     * <br>
      * This status is reset to false when the application becomes backgrounded.
      * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
-     * <br/>
+     * <br>
      *
      * @return true if this session was started because the user opened a push message, otherwise false.
      */
@@ -2180,10 +2240,10 @@ public class Tune {
 
     /**
      * Returns a POJO containing information about the push message that started the current session.
-     * <br/>
+     * <br>
      * This is reset to null when the application becomes backgrounded.
      * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
-     * <br/>
+     * <br>
      *
      * @return Information about the last opened push if {@link Tune#didSessionStartFromTunePush()} is true, otherwise null.
      */
@@ -2386,10 +2446,10 @@ public class Tune {
     // Register
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2409,10 +2469,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileDate(String, Date)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2432,10 +2492,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
@@ -2456,10 +2516,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2479,10 +2539,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2500,10 +2560,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileDate(String, Date)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2521,10 +2581,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
@@ -2543,10 +2603,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
@@ -2565,10 +2625,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
@@ -2587,10 +2647,10 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br/>
-     * <br/>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br/>
-     * <br/>
+     * Register a custom profile variable for this user.<br>
+     * <br>
+     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
@@ -2610,9 +2670,9 @@ public class Tune {
     // Set
 
     /**
-     * Set or update the value associated with a custom string profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom string profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2629,9 +2689,9 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom date profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom date profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2648,9 +2708,9 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom number profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom number profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2667,9 +2727,9 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom number profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom number profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2686,9 +2746,9 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom number profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom number profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2705,9 +2765,9 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom location profile variable.<br/>
-     * <br/>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br/>
+     * Set or update the value associated with a custom location profile variable.<br>
+     * <br>
+     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
      * <br>
@@ -2727,9 +2787,9 @@ public class Tune {
 
     /**
      * Get the value associated with a custom string profile variable.
-     * <br/>
+     * <br>
      * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      *
      * @param variableName Name of the custom profile variable.
@@ -2750,9 +2810,9 @@ public class Tune {
 
     /**
      * Get the value associated with a custom date profile variable.
-     * <br/>
+     * <br>
      * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      *
      * @param variableName Name of the custom profile variable.
@@ -2773,9 +2833,9 @@ public class Tune {
 
     /**
      * Get the value associated with a custom number profile variable.
-     * <br/>
+     * <br>
      * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      *
      * @param variableName Name of the custom profile variable.
@@ -2796,9 +2856,9 @@ public class Tune {
 
     /**
      * Get the value associated with a custom location profile variable.
-     * <br/>
+     * <br>
      * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      *
      * @param variableName Name of the custom profile variable.
@@ -2832,14 +2892,14 @@ public class Tune {
     // Clear
 
     /**
-     * Unset the value for a user profile variable.<br/>
-     * <br/>
+     * Unset the value for a user profile variable.<br>
+     * <br>
      * Use this method to clear out the value for any custom user profile variable.
-     * <br/>
+     * <br>
      * This must be called after the associated register call.
-     * <br/>
+     * <br>
      * NOTE: This will not stop the variable from being registered again on the next {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      */
     public void clearCustomProfileVariable(String variableName) {
         if (TuneManager.getProfileForUser("clearCustomProfileVariable") == null) {
@@ -2850,14 +2910,14 @@ public class Tune {
     }
 
     /**
-     * Clear out all previously specified profile information.<br/>
-     * <br/>
+     * Clear out all previously specified profile information.<br>
+     * <br>
      * Use this method to clear out all custom profile variables.
-     * <br/>
+     * <br>
      * This will only clear out all profile variables that have been registered before this call.
-     * <br/>
+     * <br>
      * NOTE: This will not stop the variables from being registered again on the next {@link android.app.Application#onCreate()}.
-     * <br/>
+     * <br>
      */
     public void clearAllCustomProfileVariables() {
         if (TuneManager.getProfileForUser("clearAllCustomProfileVariables") == null) {
@@ -2866,4 +2926,32 @@ public class Tune {
 
         TuneManager.getInstance().getProfileManager().clearAllCustomProfileVariables();
     }
+
+    /**********************
+     * SmartWhere Methods *
+     **********************/
+
+    private void startSmartWhereLocationMonitoring() {
+        pubQueue.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+                    TuneSmartWhere.getInstance().startMonitoring(mContext, params.getAdvertiserId(), params.getConversionKey(), isInDebugMode());
+                }
+            }
+        });
+    }
+
+    private void stopSmartWhereLocationMonitoring() {
+        pubQueue.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+                    TuneSmartWhere.getInstance().stopMonitoring(mContext);
+                }
+            }
+        });
+    }
+
+
 }

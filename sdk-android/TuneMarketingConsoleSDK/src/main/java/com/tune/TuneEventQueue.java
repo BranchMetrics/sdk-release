@@ -1,13 +1,13 @@
 package com.tune;
 
-import java.util.concurrent.Semaphore;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.util.concurrent.Semaphore;
 
 public class TuneEventQueue {
     // SharedPreferences for storing events that were not fired
@@ -78,7 +78,7 @@ public class TuneEventQueue {
          * Saves an event to the queue.
          * @param link URL of the event postback
          * @param postBody the body of the POST request
-         * @param firstSession whether event should wait for GAID/referrer to be received
+         * @param firstSession whether event should wait for advertising ID/referrer to be received
          */
         protected Add(String link, String data, JSONObject postBody, boolean firstSession) {
             this.link = link;

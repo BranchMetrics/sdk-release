@@ -45,7 +45,7 @@ public class TuneNotificationBuilder {
      * Creates a new TuneNotificationBuilder to pass into {@link com.tune.Tune#setPushNotificationBuilder(com.tune.ma.push.settings.TuneNotificationBuilder)}. <br>
      * <br>
      * Important: If you do not provide a small icon for your notifications via the builder we will default to using your app icon. This may look odd if your app is targeting API 21+ because the OS will take only the alpha of the icon and display that on a gray background. If your app is set to target API 21+ we strongly recommend that you take advantage of the {@link TuneNotificationBuilder} API.
-     * <br/>
+     * <br>
      * If you support versions before and after API 21, you might want to use different icons depending on the version. In such a case you can do:
      * {@code
      * int smallIcon;
@@ -69,7 +69,7 @@ public class TuneNotificationBuilder {
      *
      * NOTE: This will only be visible when the user expands the tray and will replace the small icon. However, on APIs before 21 the small icon will still be shown on the far right of the notification
      * and on later APIs the small icon will be super imposed at the bottom right of the large icon.
-     * <br/>
+     * <br>
      *
      * @param largeIconId Android resource Id for the large notification icon.
      */

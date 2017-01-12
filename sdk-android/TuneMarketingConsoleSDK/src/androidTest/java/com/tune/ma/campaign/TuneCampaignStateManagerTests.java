@@ -1,7 +1,5 @@
 package com.tune.ma.campaign;
 
-import android.content.Context;
-
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.campaign.model.TuneCampaign;
@@ -9,7 +7,6 @@ import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
 import com.tune.ma.eventbus.event.campaign.TuneCampaignViewed;
-import com.tune.ma.session.TuneSessionManager;
 
 /**
  * Created by charlesgilliam on 2/10/16.

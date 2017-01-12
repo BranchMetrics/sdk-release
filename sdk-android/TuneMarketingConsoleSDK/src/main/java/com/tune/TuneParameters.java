@@ -1,6 +1,7 @@
 package com.tune;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -24,7 +25,7 @@ import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.TuneHashType;
 import com.tune.ma.analytics.model.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
@@ -96,7 +97,7 @@ public class TuneParameters {
             // Default params
             setCurrencyCode(TuneConstants.DEFAULT_CURRENCY_CODE);
 
-            new Thread(new GetGAID(context)).start();
+            new Thread(new GetAdvertisingId(context)).start();
             
             // Retrieve user agent
             calculateUserAgent();
@@ -222,13 +223,12 @@ public class TuneParameters {
         }
     }
     
-    private class GetGAID implements Runnable {
+    private class GetAdvertisingId implements Runnable {
         private final WeakReference<Context> weakContext;
         private String deviceId;
         private boolean isLAT = false;
-        private boolean gotGaid = false;
         
-        public GetGAID(Context context) {
+        public GetAdvertisingId(Context context) {
             weakContext = new WeakReference<Context>(context);
         }
         
@@ -243,35 +243,68 @@ public class TuneParameters {
                 
                 Method getIdMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient$Info").getDeclaredMethod("getId");
                 deviceId = (String) getIdMethod.invoke(adInfo);
+                // Don't save advertising id if it's all zeroes
+                if (deviceId.equals(TuneConstants.UUID_EMPTY)) {
+                    deviceId = null;
+                }
                 
                 Method getLATMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient$Info").getDeclaredMethod("isLimitAdTrackingEnabled");
                 isLAT = ((Boolean) getLATMethod.invoke(adInfo)).booleanValue();
-
-                gotGaid = true;
                 
                 // mTune's params may not be initialized by the time this thread finishes
                 if (mTune.params == null) {
                     // Call the setters manually
                     setGoogleAdvertisingId(deviceId);
-                    int intLimit = isLAT? 1 : 0;
+                    int intLimit = isLAT ? 1 : 0;
                     setGoogleAdTrackingLimited(Integer.toString(intLimit));
                 }
                 // Set GAID in SDK singleton
                 mTune.setGoogleAdvertisingId(deviceId, isLAT);
-            } catch (Exception e) {
-                TuneUtils.log("TUNE SDK failed to get Google Advertising Id, collecting ANDROID_ID instead");
 
-                deviceId = Secure.getString(weakContext.get().getContentResolver(), Secure.ANDROID_ID);
-                // mTune's params may not be initialized by the time this thread finishes
-                if (mTune.params == null) {
-                    // Call the setter manually
-                    setAndroidId(deviceId);
+                // Post event that getting Google Advertising ID completed
+                TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, deviceId, isLAT));
+            } catch (Exception e) {
+                // GAID retrieval failed, try to get Fire Advertising ID
+                ContentResolver contentResolver = weakContext.get().getContentResolver();
+
+                try {
+                    // Get Fire Advertising ID
+                    deviceId = Secure.getString(contentResolver, TuneConstants.FIRE_ADVERTISING_ID_KEY);
+                    // Don't save advertising id if it's all zeroes
+                    if (deviceId.equals(TuneConstants.UUID_EMPTY)) {
+                        deviceId = null;
+                    }
+
+                    // Get Fire limit ad tracking preference
+                    isLAT = (Secure.getInt(contentResolver, TuneConstants.FIRE_LIMIT_AD_TRACKING_KEY) == 0) ? false : true;
+
+                    // mTune's params may not be initialized by the time this thread finishes
+                    if (mTune.params == null) {
+                        // Call the setters manually
+                        setFireAdvertisingId(deviceId);
+                        int intLimit = isLAT ? 1 : 0;
+                        setFireAdTrackingLimited(Integer.toString(intLimit));
+                    }
+                    // Set Fire Advertising ID in SDK singleton
+                    mTune.setFireAdvertisingId(deviceId, isLAT);
+
+                    // Post event that getting Fire Advertising ID completed
+                    TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.FIRE_AID, deviceId, isLAT));
+                } catch (Exception e1) {
+                    TuneUtils.log("TUNE SDK failed to get Advertising Id, collecting ANDROID_ID instead");
+
+                    deviceId = Secure.getString(contentResolver, Secure.ANDROID_ID);
+                    // mTune's params may not be initialized by the time this thread finishes
+                    if (mTune.params == null) {
+                        // Call the setter manually
+                        setAndroidId(deviceId);
+                    }
+                    // Set ANDROID_ID in SDK singleton, in order to set ANDROID_ID for dplinkr
+                    mTune.setAndroidId(deviceId);
+
+                    // Post event that getting Android ID completed
+                    TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.ANDROID_ID, deviceId, isLAT));
                 }
-                // Set ANDROID_ID in SDK singleton, in order to set ANDROID_ID for dplinkr
-                mTune.setAndroidId(deviceId);
-            } finally {
-                // Post event that GAID completed
-                TuneEventBus.post(new TuneGetGAIDCompleted(gotGaid, deviceId, isLAT));
             }
         }
     }
@@ -547,6 +580,24 @@ public class TuneParameters {
         mFbUserId = fb_user_id;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FACEBOOK_USER_ID, fb_user_id)));
     }
+
+    private String mFireAdvertisingId = null;
+    public synchronized String getFireAdvertisingId() {
+        return mFireAdvertisingId;
+    }
+    public synchronized void setFireAdvertisingId(String adId) {
+        mFireAdvertisingId = adId;
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AID, adId)));
+    }
+
+    private String mFireAdTrackingLimited = null;
+    public synchronized String getFireAdTrackingLimited() {
+        return mFireAdTrackingLimited;
+    }
+    public synchronized void setFireAdTrackingLimited(String limited) {
+        mFireAdTrackingLimited = limited;
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, limited)));
+    }
     
     private String mGender = null;
     public synchronized String getGender() {
@@ -580,7 +631,7 @@ public class TuneParameters {
     }
     public synchronized void setGoogleAdTrackingLimited(String limited) {
         mGaidLimited = limited;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING, limited)));
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, limited)));
     }
     
     private String mGgUserId = null;

@@ -4,7 +4,7 @@ import android.test.AndroidTestCase;
 
 import com.tune.TuneEvent;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
-import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 
@@ -48,10 +48,10 @@ public class TuneEventBusTests extends AndroidTestCase {
         // Check that queue has one event
         assertEquals(1, TuneEventBus.getQueue().size());
 
-        // Post a TuneGetGAIDCompleted event
+        // Post a TuneGetAdvertisingIdCompleted event
         String fakeGAID = UUID.randomUUID().toString();
         boolean fakeIsLAT = true;
-        TuneEventBus.post(new TuneGetGAIDCompleted(true, fakeGAID, fakeIsLAT));
+        TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, fakeGAID, fakeIsLAT));
 
         // Check that queue has added two events for updating GAID and isLAT values
         TuneUpdateUserProfile updateGAIDEvent = (TuneUpdateUserProfile) TuneEventBus.getQueue().get(0);
@@ -70,7 +70,7 @@ public class TuneEventBusTests extends AndroidTestCase {
 
         // Post both events we need to dequeue
         TuneEventBus.post(new TuneManagerInitialized());
-        TuneEventBus.post(new TuneGetGAIDCompleted(true, UUID.randomUUID().toString(), false));
+        TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, UUID.randomUUID().toString(), false));
 
         // Check that queue gets emptied
         assertEquals(0, TuneEventBus.getQueue().size());

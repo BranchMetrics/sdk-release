@@ -4,20 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.tune.Tune;
-import com.tune.TuneTestConstants;
-import com.tune.TuneTestWrapper;
-import com.tune.TuneUnitTest;
 import com.tune.ma.application.TuneActivity;
 import com.tune.mocks.MockUrlRequester;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
-import java.security.spec.ECField;
 import java.util.ArrayList;
 
 import static org.mockito.Mockito.when;
@@ -121,7 +113,7 @@ public class TuneActivityTests extends TuneUnitTest {
         tune.setTimeLastMeasuredSession(System.currentTimeMillis() - (5 * 60 * 60 * 1000));
 
         TuneActivity.onResume(activity);
-        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+        sleep(TuneTestConstants.PARAMTEST_SLEEP * 2);
 
         assertNotNull("queue hasn't been initialized yet", queue);
         assertTrue("should NOT have enqueued a request, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);

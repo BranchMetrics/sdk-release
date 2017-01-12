@@ -122,9 +122,12 @@ public class TuneUserProfile {
 
     public String getDeviceId() {
         String GAID = getProfileVariableValue(TuneUrlKeys.GOOGLE_AID);
+        String fireAid = getProfileVariableValue(TuneUrlKeys.FIRE_AID);
         String androidId = getProfileVariableValue(TuneUrlKeys.ANDROID_ID);
         if (GAID != null) {
             return GAID;
+        } else if (fireAid != null) {
+            return fireAid;
         } else if (androidId != null) {
             return androidId;
         } else {

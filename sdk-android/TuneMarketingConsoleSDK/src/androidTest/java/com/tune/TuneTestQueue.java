@@ -1,9 +1,9 @@
 package com.tune;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.content.Context;
 
 public class TuneTestQueue extends TuneEventQueue {
 

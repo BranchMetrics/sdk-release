@@ -30,7 +30,7 @@ public class TuneDebugLog {
     private static final String STARS = "*******";
 
     /**
-     * All logs >= logLevel will be printed
+     * All logs &gt;= logLevel will be printed
      */
     public static int logLevel = ERROR;
 

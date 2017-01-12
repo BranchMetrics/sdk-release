@@ -63,7 +63,9 @@ public class TuneUrlKeys {
     public static final String DEVICE_CPU_SUBTYPE = "device_cpu_subtype";
     public static final String DEVICE_ID = "device_id";
     public static final String DEVICE_MODEL = "device_model";
-    public static final String GOOGLE_AD_TRACKING = "google_ad_tracking_disabled";
+    public static final String FIRE_AD_TRACKING_DISABLED = "fire_ad_tracking_disabled";
+    public static final String FIRE_AID = "fire_aid";
+    public static final String GOOGLE_AD_TRACKING_DISABLED = "google_ad_tracking_disabled";
     public static final String GOOGLE_AID = "google_aid";
     public static final String INSTALL_DATE = "insdate";
     public static final String INSTALL_REFERRER = "install_referrer";

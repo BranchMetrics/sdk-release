@@ -18,7 +18,9 @@ public class TuneDeeplinker {
     private final String conversionKey;
     private String packageName;
     private String googleAdvertisingId;
-    private int isLimitAdTrackingEnabled;
+    private int isGoogleLimitAdTrackingEnabled;
+    private String fireAdvertisingId;
+    private int isFireLimitAdTrackingEnabled;
     private String androidId;
     private String userAgent;
     private TuneDeeplinkListener listener;
@@ -43,10 +45,15 @@ public class TuneDeeplinker {
     public String getUserAgent() {
         return userAgent;
     }
+
+    public void setFireAdvertisingId(String fireAdvertisingId, int isLATEnabled) {
+        this.fireAdvertisingId = fireAdvertisingId;
+        this.isFireLimitAdTrackingEnabled = isLATEnabled;
+    }
     
     public void setGoogleAdvertisingId(String googleAdvertisingId, int isLATEnabled) {
         this.googleAdvertisingId = googleAdvertisingId;
-        this.isLimitAdTrackingEnabled = isLATEnabled;
+        this.isGoogleLimitAdTrackingEnabled = isLATEnabled;
     }
     
     public void setAndroidId(String androidId) {
@@ -63,6 +70,13 @@ public class TuneDeeplinker {
     }
 
     public String buildDeferredDeepLinkRequestURL() {
+        String advertisingId = androidId;
+        if (googleAdvertisingId != null) {
+            advertisingId = googleAdvertisingId;
+        } else if (fireAdvertisingId != null) {
+            advertisingId = fireAdvertisingId;
+        }
+
         // Construct deeplink endpoint url
         Uri.Builder uri = new Uri.Builder();
         uri.scheme("https")
@@ -73,11 +87,15 @@ public class TuneDeeplinker {
                 .appendQueryParameter("advertiser_id", advertiserId)
                 .appendQueryParameter("ver", TuneConstants.SDK_VERSION)
                 .appendQueryParameter("package_name", packageName)
-                .appendQueryParameter("ad_id", ((googleAdvertisingId != null) ? googleAdvertisingId : androidId))
+                .appendQueryParameter("ad_id", advertisingId)
                 .appendQueryParameter("user_agent", getUserAgent());
 
         if (googleAdvertisingId != null) {
-            uri.appendQueryParameter("google_ad_tracking_disabled", Integer.toString(isLimitAdTrackingEnabled));
+            uri.appendQueryParameter("google_ad_tracking_disabled", Integer.toString(isGoogleLimitAdTrackingEnabled));
+        }
+
+        if (fireAdvertisingId != null) {
+            uri.appendQueryParameter("fire_ad_tracking_disabled", Integer.toString(isFireLimitAdTrackingEnabled));
         }
 
         return uri.build().toString();
@@ -100,7 +118,7 @@ public class TuneDeeplinker {
         }
 
         // If no device identifiers collected, return
-        if (googleAdvertisingId == null && androidId == null) {
+        if (googleAdvertisingId == null && fireAdvertisingId == null && androidId == null) {
             listener.didFailDeeplink("No device identifiers collected");
             return;
         }

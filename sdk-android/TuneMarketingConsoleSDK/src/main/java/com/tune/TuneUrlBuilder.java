@@ -131,8 +131,10 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.DEVICE_CPU_SUBTYPE, params.getDeviceCpuSubtype());
         safeAppend(link, TuneUrlKeys.DEVICE_MODEL, params.getDeviceModel());
         safeAppend(link, TuneUrlKeys.DEVICE_ID, params.getDeviceId());
+        safeAppend(link, TuneUrlKeys.FIRE_AID, params.getFireAdvertisingId());
+        safeAppend(link, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, params.getFireAdTrackingLimited());
         safeAppend(link, TuneUrlKeys.GOOGLE_AID, params.getGoogleAdvertisingId());
-        safeAppend(link, TuneUrlKeys.GOOGLE_AD_TRACKING, params.getGoogleAdTrackingLimited());
+        safeAppend(link, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, params.getGoogleAdTrackingLimited());
         safeAppend(link, TuneUrlKeys.INSTALL_DATE, params.getInstallDate());
         safeAppend(link, TuneUrlKeys.INSTALLER, params.getInstaller());
         safeAppend(link, TuneUrlKeys.INSTALL_REFERRER, params.getInstallReferrer());
@@ -223,7 +225,7 @@ class TuneUrlBuilder {
 
     
     /**
-     * Update the Google Ad ID and install referrer, if present, and encrypts the data string.
+     * Update the advertising ID and install referrer, if present, and encrypts the data string.
      * @return encrypted string
      */
     public static synchronized String updateAndEncryptData(String data, TuneEncryption encryption) {
@@ -238,7 +240,13 @@ class TuneUrlBuilder {
             String gaid = params.getGoogleAdvertisingId();
             if (gaid != null && !data.contains("&" + TuneUrlKeys.GOOGLE_AID + "=")) {
                 safeAppend(updatedData, TuneUrlKeys.GOOGLE_AID, gaid);
-                safeAppend(updatedData, TuneUrlKeys.GOOGLE_AD_TRACKING, params.getGoogleAdTrackingLimited());
+                safeAppend(updatedData, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, params.getGoogleAdTrackingLimited());
+            }
+
+            String fireAid = params.getFireAdvertisingId();
+            if (fireAid != null && !data.contains("&" + TuneUrlKeys.FIRE_AID + "=")) {
+                safeAppend(updatedData, TuneUrlKeys.FIRE_AID, fireAid);
+                safeAppend(updatedData, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, params.getFireAdTrackingLimited());
             }
             
             String androidId = params.getAndroidId();

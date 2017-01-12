@@ -460,6 +460,34 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(userId, tune.getFacebookUserId());
     }
 
+    public void testFireAdvertisingId() {
+        String fireAdvertisingId = UUID.randomUUID().toString();
+
+        tune.setFireAdvertisingId(fireAdvertisingId, true);
+        tune.measureEvent("registration");
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.FIRE_AID, fireAdvertisingId);
+        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, "1");
+        assertEquals(fireAdvertisingId, tune.getFireAdvertisingId());
+        assertTrue(tune.getFireAdTrackingLimited());
+    }
+
+    public void testSetFireAdvertisingIdNull() {
+        String fireAdvertisingId = null;
+
+        tune.setFireAdvertisingId(fireAdvertisingId, false);
+        tune.measureEvent("registration");
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.FIRE_AID);
+        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, "0");
+        assertEquals(fireAdvertisingId, tune.getFireAdvertisingId());
+        assertFalse(tune.getFireAdTrackingLimited());
+    }
+
     public void testGenderMale() {
         final TuneGender gender = TuneGender.MALE;
         final String expectedGender = "0";
@@ -518,6 +546,7 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertKeyValue(TuneUrlKeys.GOOGLE_AID, googleAdvertisingId);
+        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, "0");
         assertEquals(googleAdvertisingId, tune.getGoogleAdvertisingId());
         assertFalse(tune.getGoogleAdTrackingLimited());
     }
@@ -531,6 +560,7 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey(TuneUrlKeys.GOOGLE_AID);
+        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, "0");
         assertEquals(googleAdvertisingId, tune.getGoogleAdvertisingId());
         assertFalse(tune.getGoogleAdTrackingLimited());
     }

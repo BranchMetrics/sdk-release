@@ -4,7 +4,7 @@ import android.test.AndroidTestCase;
 
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 
 import java.util.UUID;
 
@@ -46,7 +46,7 @@ public class TurnOnTMATests extends AndroidTestCase {
     // Test that TuneEventBus can post and receive when turnOnTMA is true
     public void testEventBusEnabled() {
         tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_ON_TMA, null);
-        TuneEventBus.post(new TuneGetGAIDCompleted(true, UUID.randomUUID().toString(), false));
+        TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, UUID.randomUUID().toString(), false));
         TuneEventBus.register(this);
         TuneEventBus.post(new TuneTestEvent());
         assertTrue(eventReceived);

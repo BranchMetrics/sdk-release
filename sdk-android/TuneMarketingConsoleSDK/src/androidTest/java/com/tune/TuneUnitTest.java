@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneGetGAIDCompleted;
+import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 
 import org.json.JSONObject;
 
@@ -34,7 +34,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
                 TuneTestConstants.conversionKey);
         tune.setGoogleAdvertisingId("4e45e24e-8f30-4651-98ec-a80c0fb08eb5", true);
         tune.setTuneTestRequest(this);
-        TuneEventBus.post(new TuneGetGAIDCompleted(true, UUID.randomUUID().toString(), false));
+        TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, UUID.randomUUID().toString(), false));
 
         if (tune != null) { // could be null if test has finished already
             queue = tune.getEventQueue();
