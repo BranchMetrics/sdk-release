@@ -25,6 +25,10 @@
  * TUNE Conversion Key.
  */
 @property (nonatomic, copy) NSString *key;
+/*!
+ * TUNE Package Name.
+ */
+@property (nonatomic, copy) NSString *packageName;
 
 /*!
  * Checks if SmartWhere class is available.
@@ -39,9 +43,12 @@
 + (TuneSmartWhereHelper *)getInstance;
 
 /*!
- * Starts SmartWhere proximity monitoring when valid TUNE Advertiser ID and TUNE Conversion Key values are provided. This method should be called only when SmartWhere class is available and geo-location auto-collection has been enabled.
+ * Starts SmartWhere proximity monitoring when valid TUNE Advertiser ID, TUNE Conversion Key and TUNE Package Name values are provided. This method should be called only when SmartWhere class is available and geo-location auto-collection has been enabled.
+ * @param aid TUNE Advertiser ID
+ * @param key TUNE Conversion Key
+ * @param key TUNE Package Name
  */
-- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key;
+- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString *)packageName;
 
 /*!
  * Stops SmartWhere proximity monitoring.
@@ -58,6 +65,9 @@
 #ifndef TUNE_SW_EventActionType_Defined
 #define TUNE_SW_EventActionType_Defined
 
+/**
+ * Action type included in SmartWhere proximity notifications.
+ */
 typedef enum TUNE_SW_EventActionType : NSInteger {
     TUNE_SW_EventActionTypeUnknown = -1,
     TUNE_SW_EventActionTypeUrl = 0,
@@ -74,6 +84,9 @@ typedef enum TUNE_SW_EventActionType : NSInteger {
     TUNE_SW_EventActionTypeCustom = 127
 } TUNE_SW_EventActionType;
 
+/**
+ * Type of trigger that caused the current proximity notification to be fired.
+ */
 typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
     TUNE_SW_swNfcTap = 0,
     TUNE_SW_swQRScan = 1,
@@ -88,11 +101,17 @@ typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
 
 #endif
 
+/**
+ * Action info included in SmartWhere proximity notification.
+ */
 @interface ProximityAction : NSObject<NSCoding>
 @property (nonatomic, assign) TUNE_SW_EventActionType actionType;
 @property (nonatomic, copy) NSDictionary *values;
 @end
 
+/**
+ * Proximity notification object included in the SmartWhere callbacks.
+ */
 @interface ProximityNotification : NSObject
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *message;

@@ -30,7 +30,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.10.1"
+#define TUNEVERSION @"4.11.0"
 
 
 @protocol TuneDelegate;
@@ -284,7 +284,7 @@
 + (void)setGender:(TuneGender)userGender;
 
 /*!
- Sets the user's location.
+ Sets the user's location. Manually setting the location through this method disables geo-location auto-collection.
  @param location a TuneLocation instance
  */
 + (void)setLocation:(TuneLocation *)location;

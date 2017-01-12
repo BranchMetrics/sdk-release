@@ -27,17 +27,16 @@
 
     #if !IDE_XCODE_7_OR_HIGHER
         #ifndef TARGET_OS_IOS
-            #define TARGET_OS_IOS 1
+            #define TARGET_OS_IOS TRUE
         #endif
     #endif
-    
-    /*
-     *  iAD Support Macro
-     */
+
     #if TARGET_OS_IOS
         #define USE_IAD TRUE
+        #define TUNE_ENABLE_SMARTWHERE TRUE
     #else
         #define USE_IAD FALSE
+        #define TUNE_ENABLE_SMARTWHERE FALSE
     #endif
 
     /*

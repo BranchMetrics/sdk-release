@@ -23,6 +23,7 @@ NSString * const TUNE_SMARTWHERE_ENABLE_LOCATION_PERMISSION_PROMPTING = @"ENABLE
 NSString * const TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING = @"ENABLE_GEOFENCE_RANGING";
 NSString * const TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS = @"DELEGATE_NOTIFICATIONS";
 NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
+NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
 
 @implementation TuneSmartWhereHelper
 
@@ -37,11 +38,12 @@ NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
     return ([TuneUtils getClassFromString:TUNE_SMARTWHERE_CLASS_NAME] != nil);
 }
 
-- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key {
+- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString*) packageName {
     @synchronized(self) {
         if (_smartWhere == nil && aid != nil && key != nil) {
             _aid = aid;
             _key = key;
+            _packageName = packageName;
             [self performSelectorOnMainThread:@selector(startMonitoring) withObject:nil waitUntilDone:YES];
         }
     }
@@ -54,6 +56,7 @@ NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
     config[TUNE_SMARTWHERE_ENABLE_LOCATION_PERMISSION_PROMPTING] = TUNE_STRING_FALSE;
     config[TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING] = TUNE_STRING_TRUE;
     config[TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS] = TUNE_STRING_TRUE;
+    config[TUNE_SMARTWHERE_PACKAGE_NAME] = _packageName;
     
     if ([[TuneManager currentManager].configuration.debugMode boolValue]) {
         config[TUNE_SMARTWHERE_DEBUG_LOGGING] = TUNE_STRING_TRUE;
@@ -67,12 +70,16 @@ NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
 - (void)stopMonitoring {
     @synchronized(self) {
         if (_smartWhere) {
-            WarnLog(@"TUNE: Stopping SmartWhere Proximity Monitoring");
-            
-            [_smartWhere invalidate];
-            _smartWhere = nil;
+            [self performSelectorOnMainThread:@selector(invalidateSmartwhere) withObject:nil waitUntilDone:YES];
         }
     }
+}
+
+- (void)invalidateSmartwhere {
+    WarnLog(@"TUNE: Stopping SmartWhere Proximity Monitoring");
+    
+    [_smartWhere invalidate];
+    _smartWhere = nil;
 }
 
 - (void)setDebugMode:(BOOL)enable {
@@ -80,6 +87,16 @@ NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
         if (_smartWhere) {
             NSMutableDictionary *config = [NSMutableDictionary new];
             config[TUNE_SMARTWHERE_DEBUG_LOGGING] = enable ? TUNE_STRING_TRUE : TUNE_STRING_FALSE;
+            [self setConfig:config];
+        }
+    }
+}
+
+- (void)setPackageName:(NSString *)packageName {
+    @synchronized(self) {
+        if (_smartWhere) {
+            NSMutableDictionary *config = [NSMutableDictionary new];
+            config[TUNE_SMARTWHERE_PACKAGE_NAME] = packageName;
             [self setConfig:config];
         }
     }

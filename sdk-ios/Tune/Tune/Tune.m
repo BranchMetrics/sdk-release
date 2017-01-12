@@ -129,11 +129,10 @@ static TuneTracker *_sharedManager = nil;
 #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
     [opQueue addOperationWithBlock:^{
         if ([TuneManager currentManager].configuration.shouldAutoCollectDeviceLocation && [TuneSmartWhereHelper isSmartWhereAvailable]) {
-            [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:aid tuneConversionKey:key];
+            [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:aid tuneConversionKey:key packageName:[tuneManager.userProfile packageName]];
         }
     }];
 #endif
-
     [[self sharedManager] startTracker];
 }
 
@@ -142,6 +141,7 @@ static TuneTracker *_sharedManager = nil;
 + (void)setDebugMode:(BOOL)enable {
     [opQueue addOperationWithBlock:^{
         [TuneManager currentManager].configuration.debugMode = @(enable);
+
 #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] setDebugMode:enable];
@@ -215,6 +215,11 @@ static TuneTracker *_sharedManager = nil;
     
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPackageName:packageName];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
+            [[TuneSmartWhereHelper getInstance] setPackageName:packageName];
+        }
+#endif
     }];
 }
 
@@ -261,9 +266,11 @@ static TuneTracker *_sharedManager = nil;
             if (autoCollect) {
                 NSString *advId = [[TuneManager currentManager].userProfile advertiserId];
                 NSString *convKey = [[TuneManager currentManager].userProfile conversionKey];
+                NSString *packageName = [[TuneManager currentManager].userProfile packageName];
                 
                 [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:advId
-                                                                      tuneConversionKey:convKey];
+                                                                      tuneConversionKey:convKey
+                                                                            packageName:packageName];
             } else {
                 [[TuneSmartWhereHelper getInstance] stopMonitoring];
             }
@@ -363,6 +370,7 @@ static TuneTracker *_sharedManager = nil;
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:NO];
         [[TuneManager currentManager].userProfile setLocation:location];
+
 #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] stopMonitoring];

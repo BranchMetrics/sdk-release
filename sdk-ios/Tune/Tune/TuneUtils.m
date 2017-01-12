@@ -165,42 +165,49 @@ BOOL isAlertVisible;
                                  @"/usr/sbin/sshd"];
     
     BOOL jailBroken = NO;
-    for (NSString * path in jailBrokenPaths) {
-        if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            jailBroken = YES;
-            break;
-        }
-    }
     
-    if(!jailBroken) {
-        // METHOD 2: Check if a shell is present
-        // Jailbroken devices have shell access, system(NULL) returns a non-zero value if a shell is present
-#if TARGET_OS_IOS
-        jailBroken = system (NULL) != 0;
-#endif
+    // An app crash was reported in some rare cases due to nil argument being passed to NSString hasPrefix:.
+    // Use try-catch to make sure that if at all the exception occurs, it gets contained in-place and doesn't cause app crash.
+    @try {
+        for (NSString * path in jailBrokenPaths) {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                jailBroken = YES;
+                break;
+            }
+        }
+        
         if(!jailBroken) {
-            // METHOD 3: There's no shell access, but check if we are being cheated.
-            // Check if the standard Foundation framework is present at the expected file path.
-            // xCon operates by inserting its own code between an application trying to detect jailbreak and the original code of the function. In case of system function we can't detect if we are calling the original or not. However, we can check integrity of other methods that are being spoofed by xCon. So, by checking the module (name of the file where the actual code resides) of Objective-C call -[NSFileManager fileExistsAtPath:] I can safely assume if we are being cheated. The check is performed with dladdr() call.
-            
-            // class is NSFileManager and method is fileExistsAtPath:
-            Class class = NSFileManager.class;
-            SEL method = @selector(fileExistsAtPath:);
-            
-            IMP implementation = class_getMethodImplementation (class, method);
-            
-            Dl_info info;
-            dladdr((const void*)implementation, &info);
-            
-            // Assume that the device is jailbroken if info.dli_fname does not equal "/System/Library/Frameworks/Foundation.framework/Foundation"
-            NSString *actualPath = [NSString stringWithFormat:@"%s", info.dli_fname];
-            jailBroken = NSOrderedSame != [actualPath compare:@"/System/Library/Frameworks/Foundation.framework/Foundation"];
+            // METHOD 2: Check if a shell is present
+            // Jailbroken devices have shell access, system(NULL) returns a non-zero value if a shell is present
+    #if TARGET_OS_IOS
+            jailBroken = system (NULL) != 0;
+    #endif
+            if(!jailBroken) {
+                // METHOD 3: There's no shell access, but check if we are being cheated.
+                // Check if the standard Foundation framework is present at the expected file path.
+                // xCon operates by inserting its own code between an application trying to detect jailbreak and the original code of the function. In case of system function we can't detect if we are calling the original or not. However, we can check integrity of other methods that are being spoofed by xCon. So, by checking the module (name of the file where the actual code resides) of Objective-C call -[NSFileManager fileExistsAtPath:] I can safely assume if we are being cheated. The check is performed with dladdr() call.
+                
+                // class is NSFileManager and method is fileExistsAtPath:
+                Class class = NSFileManager.class;
+                SEL method = @selector(fileExistsAtPath:);
+                
+                IMP implementation = class_getMethodImplementation (class, method);
+                
+                Dl_info info;
+                dladdr((const void*)implementation, &info);
+                
+                // Assume that the device is jailbroken if info.dli_fname does not equal "/System/Library/Frameworks/Foundation.framework/Foundation"
+                NSString *actualPath = [NSString stringWithFormat:@"%s", info.dli_fname];
+                jailBroken = NSOrderedSame != [actualPath compare:@"/System/Library/Frameworks/Foundation.framework/Foundation"];
+            }
         }
-    }
-    
+        
 #if DEBUG_JAILBREAK_LOG
-    jailBroken ? NSLog(@"Jailbreak detected!") : NSLog(@"No Jailbreak detected");
+        jailBroken ? NSLog(@"Jailbreak detected!") : NSLog(@"No Jailbreak detected");
 #endif
+    } @catch (NSException *exception) {
+        NSLog(@"TUNE: checkJailBreak: exception: %@", exception);
+    }
     
     return jailBroken;
 #endif

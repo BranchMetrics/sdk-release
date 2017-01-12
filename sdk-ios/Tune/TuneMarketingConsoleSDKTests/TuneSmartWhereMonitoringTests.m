@@ -93,11 +93,13 @@
 - (void)testSetShouldAutoCollectDeviceLocationStartsProximityMonitoringWhenSettingToYes {
     NSString *advertiserId = [[TuneManager currentManager].userProfile advertiserId];
     NSString *conversionKey = [[TuneManager currentManager].userProfile conversionKey];
+    NSString *packageName = [[TuneManager currentManager].userProfile packageName];
     XCTAssertNotNil(advertiserId);
     XCTAssertNotNil(conversionKey);
+    XCTAssertNotNil(packageName);
     
     [[[[smartWhereHelperMock expect] classMethod] andReturnValue:OCMOCK_VALUE(YES)] isSmartWhereAvailable];
-    [[smartWhereHelperMock expect] startMonitoringWithTuneAdvertiserId:advertiserId tuneConversionKey:conversionKey];
+    [[smartWhereHelperMock expect] startMonitoringWithTuneAdvertiserId:advertiserId tuneConversionKey:conversionKey packageName:packageName];
     
     [Tune setShouldAutoCollectDeviceLocation:YES];
     waitForQueuesToFinish();
@@ -107,7 +109,7 @@
 
 - (void)testSetShouldAutoCollectDeviceLocationDoesntStartProximityMonitoringWhenNotInstalledAndSettingToYes {
     [[[[smartWhereHelperMock expect] classMethod] andReturnValue:OCMOCK_VALUE(NO)] isSmartWhereAvailable];
-    [[smartWhereHelperMock reject] startMonitoringWithTuneAdvertiserId:OCMOCK_ANY tuneConversionKey:OCMOCK_ANY];
+    [[smartWhereHelperMock reject] startMonitoringWithTuneAdvertiserId:OCMOCK_ANY tuneConversionKey:OCMOCK_ANY packageName:OCMOCK_ANY];
     
     [Tune setShouldAutoCollectDeviceLocation:YES];
     waitForQueuesToFinish();
@@ -133,6 +135,30 @@
     [(TuneSmartWhereHelper*)[smartWhereHelperMock reject] setDebugMode:YES];
     
     [Tune setDebugMode:YES];
+    waitForQueuesToFinish();
+    
+    [smartWhereHelperMock verify];
+}
+
+#pragma mark - setPackageName tests
+
+- (void)testSetPackageNameCallsSmartwhereHelperSetPackageNameWhenInstalled {
+    NSString *expectedPackageName = @"com.expected.package.name";
+    [[[[smartWhereHelperMock expect] classMethod] andReturnValue:OCMOCK_VALUE(YES)] isSmartWhereAvailable];
+    [(TuneSmartWhereHelper*)[smartWhereHelperMock expect] setPackageName:expectedPackageName];
+    
+    [Tune setPackageName:expectedPackageName];
+    waitForQueuesToFinish();
+    
+    [smartWhereHelperMock verify];
+}
+
+- (void)testSetPackageNameDoesntAttemptToSetOnSmartwhereHelperWhenNotInstalled {
+    NSString *expectedPackageName = @"com.expected.package.name";
+    [[[[smartWhereHelperMock expect] classMethod] andReturnValue:OCMOCK_VALUE(NO)] isSmartWhereAvailable];
+    [(TuneSmartWhereHelper*)[smartWhereHelperMock reject] setPackageName:OCMOCK_ANY];
+    
+    [Tune setPackageName:expectedPackageName];
     waitForQueuesToFinish();
     
     [smartWhereHelperMock verify];
