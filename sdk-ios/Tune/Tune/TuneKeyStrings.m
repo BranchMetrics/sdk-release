@@ -66,6 +66,9 @@ NSString * const TUNE_KEY_ATTRIBUTE_SUB3                 = @"attribute_sub3";
 NSString * const TUNE_KEY_ATTRIBUTE_SUB4                 = @"attribute_sub4";
 NSString * const TUNE_KEY_ATTRIBUTE_SUB5                 = @"attribute_sub5";
 
+// Url parameter key and response key for Tune Link invoke url
+NSString * const TUNE_KEY_INVOKE_URL                     = @"invoke_url";
+
 NSString * const TUNE_DEFAULT_LOCALE_IDENTIFIER          = @"en_us";
 NSString * const TUNE_DEFAULT_TIMEZONE                   = @"UTC";
 
@@ -117,4 +120,5 @@ NSString * const TUNE_SERVER_DOMAIN_DEEPLINK                     = @"deeplink.mo
 NSString * const TUNE_SERVER_PATH_DEEPLINK                       = @"v1/link.txt";
 
 NSString * const TUNE_FAKE_IAD_CAMPAIGN_ID                       = @"1234567890";
+
 

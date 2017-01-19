@@ -39,6 +39,8 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
 
 - (void)measureEvent:(TuneEvent *)event;
 
+- (void)measureTuneLinkClick:(NSString *)clickedTuneLinkUrl;
+
 - (void)setMeasurement:(NSString*)targetAppPackageName
           advertiserId:(NSString*)targetAppAdvertiserId
                offerId:(NSString*)offerId

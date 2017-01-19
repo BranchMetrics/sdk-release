@@ -29,12 +29,10 @@ FOUNDATION_EXPORT NSString *const TuneConfigurationPreviewModeKey;
 @property (nonatomic, assign) BOOL useConfigurationPlayer;             // KEY_USE_CONFIGURATION_PLAYER
 @property (nonatomic, copy) NSArray *configurationPlayerFilenames;     // KEY_CONFIGURATION_PLAYER_FILENAMES
 
-#if !TARGET_OS_WATCH
 @property (nonatomic, assign) BOOL shouldAutomateIapMeasurement;           // KEY_AUTO_IAP_MEASUREMENT
 @property (nonatomic, assign) BOOL shouldAutoDetectJailbroken;             // KEY_AUTOCOLLECT_JAILBROKEN
 @property (nonatomic, assign) BOOL shouldAutoCollectAdvertisingIdentifier; // KEY_AUTOCOLLECT_IFA
 @property (nonatomic, assign) BOOL shouldAutoGenerateVendorIdentifier;     // KEY_AUTOCOLLLECT_IFV
-#endif
 
 @property (nonatomic, assign) BOOL shouldAutoCollectDeviceLocation;        // KEY_AUTOCOLLECT_LOCATION
 

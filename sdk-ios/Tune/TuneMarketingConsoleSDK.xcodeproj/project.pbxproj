@@ -77,7 +77,7 @@
 		0BCB59F51B65F949005216E2 /* TuneSkyhookConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59ED1B65F949005216E2 /* TuneSkyhookConstants.m */; };
 		0BCB5A4D1B65F9B8005216E2 /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */; };
 		0BCB5A4F1B65F9B8005216E2 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
-		0BCB5A511B65F9B8005216E2 /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */; };
+		0BCB5A511B65F9B8005216E2 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		0BCB5A531B65F9B8005216E2 /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2E1B65F9B8005216E2 /* TuneEncrypter.m */; };
 		0BCB5A551B65F9B8005216E2 /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A301B65F9B8005216E2 /* TuneEventQueue.m */; };
 		0BCB5A571B65F9B8005216E2 /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A321B65F9B8005216E2 /* TuneFBBridge.m */; };
@@ -553,7 +553,7 @@
 		F846614F1C3B4F0C005C42CC /* TuneTrackerInitializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F411B66325E00C51B87 /* TuneTrackerInitializationTests.m */; };
 		F84661501C3B4F0C005C42CC /* TuneUserDefaultsUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F4BB1ED1B82514A0084864D /* TuneUserDefaultsUtilsTests.m */; };
 		F84661511C3B4F0C005C42CC /* TuneUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F401B66325E00C51B87 /* TuneUtilsTests.m */; };
-		F847F4491C87BF8A009E0531 /* TuneDeferredDplinkrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F847F4481C87BF8A009E0531 /* TuneDeferredDplinkrTests.m */; };
+		F847F4491C87BF8A009E0531 /* TuneDeeplinkerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */; };
 		F853CFA41D00C94C006CCC98 /* NSURLSession+SynchronousTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3ECD401BD6FAA70033FEB3 /* NSURLSession+SynchronousTask.m */; };
 		F853CFA51D00C96D006CCC98 /* NSObject+TuneSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB91353F1B680CB6006534E0 /* NSObject+TuneSBJSON.m */; };
 		F853CFA61D00C96D006CCC98 /* NSString+TuneSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9135411B680CB6006534E0 /* NSString+TuneSBJSON.m */; };
@@ -568,7 +568,7 @@
 		F853CFAF1D00C982006CCC98 /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */; };
 		F853CFB01D00C982006CCC98 /* TuneCallbackBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5741B941ED90071B996 /* TuneCallbackBlock.m */; };
 		F853CFB11D00C982006CCC98 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
-		F853CFB21D00C982006CCC98 /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */; };
+		F853CFB21D00C982006CCC98 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		F853CFB31D00C982006CCC98 /* TuneEventKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A400A1B83A813005DE80A /* TuneEventKeys.m */; };
 		F853CFB41D00C982006CCC98 /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A301B65F9B8005216E2 /* TuneEventQueue.m */; };
 		F853CFB51D00C982006CCC98 /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A321B65F9B8005216E2 /* TuneFBBridge.m */; };
@@ -709,7 +709,7 @@
 		F8868F2F1C0FC5C0007E2F9C /* TuneAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A271B65F9B8005216E2 /* TuneAppToAppTracker.h */; };
 		F8868F301C0FC5C0007E2F9C /* TuneCallbackBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0FF5731B941ED90071B996 /* TuneCallbackBlock.h */; };
 		F8868F311C0FC5C0007E2F9C /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */; };
-		F8868F321C0FC5C0007E2F9C /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */; };
+		F8868F321C0FC5C0007E2F9C /* TuneDeeplinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */; };
 		F8868F331C0FC5C0007E2F9C /* TuneEventKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F5A40081B83A801005DE80A /* TuneEventKeys.h */; };
 		F8868F341C0FC5C0007E2F9C /* TuneEventQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2F1B65F9B8005216E2 /* TuneEventQueue.h */; };
 		F8868F351C0FC5C0007E2F9C /* TuneFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A311B65F9B8005216E2 /* TuneFBBridge.h */; };
@@ -892,7 +892,7 @@
 		F88690281C0FD187007E2F9C /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */; };
 		F88690291C0FD187007E2F9C /* TuneCallbackBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5741B941ED90071B996 /* TuneCallbackBlock.m */; };
 		F886902A1C0FD187007E2F9C /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
-		F886902B1C0FD187007E2F9C /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */; };
+		F886902B1C0FD187007E2F9C /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		F886902C1C0FD187007E2F9C /* TuneEventKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A400A1B83A813005DE80A /* TuneEventKeys.m */; };
 		F886902D1C0FD187007E2F9C /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A301B65F9B8005216E2 /* TuneEventQueue.m */; };
 		F886902E1C0FD187007E2F9C /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A321B65F9B8005216E2 /* TuneFBBridge.m */; };
@@ -961,7 +961,7 @@
 		F8A6A9F51D79D0AC00389F65 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
 		F8A8872E1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
 		F8A8872F1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */; };
-		F8AE53A61BF3D0850055B93C /* TuneDeferredDplinkr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */; };
+		F8AE53A61BF3D0850055B93C /* TuneDeeplinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */; };
 		F8AE53B21BF3D1230055B93C /* TuneAnalyticsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D61F1B6F1B61008101CE /* TuneAnalyticsConstants.h */; };
 		F8AE53B31BF3D15B0055B93C /* TuneExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5F11BBB6D8F009FD499 /* TuneExperimentDetails+Internal.h */; };
 		F8AE53B41BF3D1600055B93C /* TuneInAppMessageExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5F21BBB6DF3009FD499 /* TuneInAppMessageExperimentDetails+Internal.h */; };
@@ -1041,7 +1041,7 @@
 		F8F693D21CFFC15B00B453D9 /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */; };
 		F8F693D31CFFC15B00B453D9 /* TuneCallbackBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5741B941ED90071B996 /* TuneCallbackBlock.m */; };
 		F8F693D41CFFC15B00B453D9 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
-		F8F693D51CFFC15B00B453D9 /* TuneDeferredDplinkr.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */; };
+		F8F693D51CFFC15B00B453D9 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		F8F693D61CFFC15B00B453D9 /* TuneEventKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A400A1B83A813005DE80A /* TuneEventKeys.m */; };
 		F8F693D71CFFC15B00B453D9 /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A301B65F9B8005216E2 /* TuneEventQueue.m */; };
 		F8F693D81CFFC15B00B453D9 /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A321B65F9B8005216E2 /* TuneFBBridge.m */; };
@@ -1261,8 +1261,8 @@
 		0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAppToAppTracker.m; sourceTree = "<group>"; };
 		0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneCWorks.h; sourceTree = "<group>"; };
 		0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneCWorks.m; sourceTree = "<group>"; };
-		0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeferredDplinkr.h; sourceTree = "<group>"; };
-		0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeferredDplinkr.m; sourceTree = "<group>"; };
+		0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeeplinker.h; sourceTree = "<group>"; };
+		0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinker.m; sourceTree = "<group>"; };
 		0BCB5A2D1B65F9B8005216E2 /* TuneEncrypter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneEncrypter.h; sourceTree = "<group>"; };
 		0BCB5A2E1B65F9B8005216E2 /* TuneEncrypter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEncrypter.m; sourceTree = "<group>"; };
 		0BCB5A2F1B65F9B8005216E2 /* TuneEventQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneEventQueue.h; sourceTree = "<group>"; };
@@ -1549,7 +1549,7 @@
 		F83B85151B7C0FFB00994318 /* TuneApi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneApi.m; sourceTree = "<group>"; };
 		F83B851C1B7C114A00994318 /* TuneHttpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneHttpUtils.h; sourceTree = "<group>"; };
 		F83B851D1B7C114A00994318 /* TuneHttpUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneHttpUtils.m; sourceTree = "<group>"; };
-		F847F4481C87BF8A009E0531 /* TuneDeferredDplinkrTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeferredDplinkrTests.m; sourceTree = "<group>"; };
+		F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinkerTests.m; sourceTree = "<group>"; };
 		F87CE8001B7CF75A00A98BF9 /* TuneMultipartContent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneMultipartContent.h; sourceTree = "<group>"; };
 		F87CE8011B7CF75A00A98BF9 /* TuneMultipartContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneMultipartContent.m; sourceTree = "<group>"; };
 		F87CE8631B7D164300A98BF9 /* TuneDeviceDetails.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeviceDetails.h; sourceTree = "<group>"; };
@@ -1853,8 +1853,8 @@
 				DB0FF5741B941ED90071B996 /* TuneCallbackBlock.m */,
 				0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */,
 				0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */,
-				0BCB5A2B1B65F9B8005216E2 /* TuneDeferredDplinkr.h */,
-				0BCB5A2C1B65F9B8005216E2 /* TuneDeferredDplinkr.m */,
+				0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */,
+				0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */,
 				3F5A40081B83A801005DE80A /* TuneEventKeys.h */,
 				3F5A400A1B83A813005DE80A /* TuneEventKeys.m */,
 				0BCB5A2F1B65F9B8005216E2 /* TuneEventQueue.h */,
@@ -1908,7 +1908,7 @@
 				DB24D6F01B67FFFD000C7462 /* Test Utils */,
 				DB514E401B7BDC01000706EE /* Utility Tests */,
 				0B770F4C1B66325E00C51B87 /* TuneAutoParameterizationTests.m */,
-				F847F4481C87BF8A009E0531 /* TuneDeferredDplinkrTests.m */,
+				F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */,
 				3F06E4831BA7795500CCB45A /* TuneEnableDisableTests.m */,
 				0B770F4B1B66325E00C51B87 /* TuneEncrypterTests.m */,
 				0B770F4A1B66325E00C51B87 /* TuneEventItemTests.m */,
@@ -2650,7 +2650,7 @@
 				DBF535781B94E2F000B76885 /* TuneSlideInMessageFactory.h in Headers */,
 				DB918C0A1B8E60FC0077305B /* TuneHttpRequest.h in Headers */,
 				DB918C0B1B8E60FC0077305B /* TuneHttpResponse.h in Headers */,
-				F8AE53A61BF3D0850055B93C /* TuneDeferredDplinkr.h in Headers */,
+				F8AE53A61BF3D0850055B93C /* TuneDeeplinker.h in Headers */,
 				DB918C0C1B8E60FC0077305B /* TuneHttpUtils.h in Headers */,
 				DB918C0D1B8E60FC0077305B /* TuneMultipartContent.h in Headers */,
 				DB918C0E1B8E60FC0077305B /* NSData+TuneGZIP.h in Headers */,
@@ -2767,7 +2767,7 @@
 				F8868F301C0FC5C0007E2F9C /* TuneCallbackBlock.h in Headers */,
 				F8868F311C0FC5C0007E2F9C /* TuneCWorks.h in Headers */,
 				F8B0F1451CA8DD8C0051D079 /* TuneInAppMessageExperimentDetails+Internal.h in Headers */,
-				F8868F321C0FC5C0007E2F9C /* TuneDeferredDplinkr.h in Headers */,
+				F8868F321C0FC5C0007E2F9C /* TuneDeeplinker.h in Headers */,
 				F8868F331C0FC5C0007E2F9C /* TuneEventKeys.h in Headers */,
 				F8868F341C0FC5C0007E2F9C /* TuneEventQueue.h in Headers */,
 				F8868F351C0FC5C0007E2F9C /* TuneFBBridge.h in Headers */,
@@ -3276,7 +3276,7 @@
 				0B36868B1B741CDA005D9C5C /* TuneAnalyticsItem.m in Sources */,
 				0BCB5A531B65F9B8005216E2 /* TuneEncrypter.m in Sources */,
 				0BCB5A7A1B65F9FB005216E2 /* TuneRequestsQueuePart.m in Sources */,
-				0BCB5A511B65F9B8005216E2 /* TuneDeferredDplinkr.m in Sources */,
+				0BCB5A511B65F9B8005216E2 /* TuneDeeplinker.m in Sources */,
 				AE89470A1CC55D5A00525862 /* TuneConstants.m in Sources */,
 				DB91355B1B680CB6006534E0 /* TuneSBJsonParser.m in Sources */,
 				DB24D6E81B67E2A3000C7462 /* TunePowerHookValue.m in Sources */,
@@ -3436,7 +3436,7 @@
 				3F36860D1BBDB7FB0034BDAE /* TuneDeepActionTests.m in Sources */,
 				DBF535E91B97636C00B76885 /* TuneTriggerManagerTests.m in Sources */,
 				F8F694141CFFC15B00B453D9 /* TunePowerHookValue.m in Sources */,
-				F847F4491C87BF8A009E0531 /* TuneDeferredDplinkrTests.m in Sources */,
+				F847F4491C87BF8A009E0531 /* TuneDeeplinkerTests.m in Sources */,
 				F8A8872E1CC84E5B0073A4FE /* TuneInAppUtilsTests.m in Sources */,
 				F8F694361CFFC15B00B453D9 /* TuneDeviceDetails.m in Sources */,
 				F8F693E01CFFC15B00B453D9 /* TuneTracker.m in Sources */,
@@ -3470,7 +3470,7 @@
 				F8F693CA1CFFC15B00B453D9 /* TuneSBJSON.m in Sources */,
 				DBCA431D1B8E642300483318 /* TuneSessionManagerTests.m in Sources */,
 				3F1BC5F51BBC4FB6009FD499 /* TuneExperimentManagerTests.m in Sources */,
-				F8F693D51CFFC15B00B453D9 /* TuneDeferredDplinkr.m in Sources */,
+				F8F693D51CFFC15B00B453D9 /* TuneDeeplinker.m in Sources */,
 				F8F693D21CFFC15B00B453D9 /* TuneAppToAppTracker.m in Sources */,
 				F8F693E11CFFC15B00B453D9 /* TuneUserAgentCollector.m in Sources */,
 				F8F693DF1CFFC15B00B453D9 /* TuneStoreKitDelegate.m in Sources */,
@@ -3595,7 +3595,7 @@
 				F8B0F1411CA8DD660051D079 /* TuneExperimentDetails.m in Sources */,
 				F88690291C0FD187007E2F9C /* TuneCallbackBlock.m in Sources */,
 				F886902A1C0FD187007E2F9C /* TuneCWorks.m in Sources */,
-				F886902B1C0FD187007E2F9C /* TuneDeferredDplinkr.m in Sources */,
+				F886902B1C0FD187007E2F9C /* TuneDeeplinker.m in Sources */,
 				F886902C1C0FD187007E2F9C /* TuneEventKeys.m in Sources */,
 				F886902D1C0FD187007E2F9C /* TuneEventQueue.m in Sources */,
 				F886902E1C0FD187007E2F9C /* TuneFBBridge.m in Sources */,
@@ -3732,7 +3732,7 @@
 				F853CFF21D00C9FD006CCC98 /* TuneUserProfile.m in Sources */,
 				F853CFD91D00C9BD006CCC98 /* TuneBaseTakeOverMessageView.m in Sources */,
 				F853CFD21D00C9A2006CCC98 /* TuneBaseMessageFactory.m in Sources */,
-				F853CFB21D00C982006CCC98 /* TuneDeferredDplinkr.m in Sources */,
+				F853CFB21D00C982006CCC98 /* TuneDeeplinker.m in Sources */,
 				F846614B1C3B4F0C005C42CC /* TunePreloadDataTests.m in Sources */,
 				F853D0191D00C9FD006CCC98 /* TuneLabelUtils.m in Sources */,
 				F846613A1C3B4EFA005C42CC /* TuneTestsHelper.m in Sources */,
@@ -4303,7 +4303,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4350,7 +4350,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4498,7 +4498,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4630,7 +4630,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Tune_tvosTests/Info.plist;
@@ -4786,7 +4786,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Tune_tvosTests/Info.plist;
@@ -4826,7 +4826,7 @@
 					"TESTING=1",
 					"DEBUG=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Tune_tvosTests/Info.plist;

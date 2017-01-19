@@ -620,7 +620,6 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 
 #pragma mark - Direct Setters (that trigger the Dictionary Setters)
 
-#if !TARGET_OS_WATCH
 - (void)setShouldAutoDetectJailbroken:(BOOL)shouldAutoDetectJailbroken {
     _shouldAutoDetectJailbroken = shouldAutoDetectJailbroken;
 
@@ -638,7 +637,6 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
     
     [self updateShouldAutoGenerateVendorIdentifier:@{TUNE_KEY_AUTOCOLLECT_IFV: @(_shouldAutoGenerateVendorIdentifier)}];
 }
-#endif
 
 - (void)setDebugMode:(NSNumber *)debugMode {
     _debugMode = debugMode;
@@ -646,12 +644,10 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
     [self updateDebugMode:@{TUNE_KEY_DEBUG: _debugMode}];
 }
 
-#if !TARGET_OS_WATCH
 - (void)setShouldAutomateIapMeasurement:(BOOL)shouldAutomateIapMeasurement {
     _shouldAutomateIapMeasurement = shouldAutomateIapMeasurement;
     
     [self updateShouldAutomateIapMeasurement:@{TUNE_KEY_AUTO_IAP_MEASUREMENT: @(_shouldAutomateIapMeasurement)}];
 }
-#endif
 
 @end

@@ -13,6 +13,7 @@
 #import "TuneConfiguration.h"
 #import "TuneConfigurationKeys.h"
 #import "TuneCWorks.h"
+#import "TuneDeeplinker.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
 #import "TuneEventKeys.h"
@@ -311,9 +312,7 @@ static NSSet * doNotEncryptSet;
         __weak typeof(self) weakSelf = self;
         [TuneEventQueue updateEnqueuedSessionEventWithIadAttributionInfo:attributionInfo impressionDate:impressionDate completionHandler:^(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict) {
             if (updated) {
-#if TESTING
                 [weakSelf notifyDelegateRequestEnqueuedWithRefId:refId url:url postData:postDict];
-#endif
             } else {
                 [weakSelf measureInstallPostConversion];
             }
@@ -492,6 +491,16 @@ static NSSet * doNotEncryptSet;
                                              key:TUNE_KEY_ERROR_TUNE_DUPLICATE_SESSION
                                          message:@"Ignoring duplicate \"session\" event measurement call in the same session."];
     }
+}
+
+- (void)measureTuneLinkClick:(NSString *)clickedTuneLinkUrl {
+    NSString *clickLink = [self buildUrlStringForClick:clickedTuneLinkUrl];
+    
+    // Fire the click event request
+    [TuneEventQueue enqueueUrlRequest:clickLink eventAction:TUNE_EVENT_CLICK refId:nil encryptParams:nil postData:nil runDate:[NSDate date]];
+    
+    // Notify delegate of enqueued request
+    [self notifyDelegateRequestEnqueuedWithRefId:nil url:clickLink postData:nil];
 }
 
 - (void)sendRequestAndCheckIadAttributionForEvent:(TuneEvent *)event {
@@ -700,7 +709,7 @@ static NSSet * doNotEncryptSet;
 
 #pragma mark - TuneEventQueueDelegate protocol methods
 
-- (void)queueRequestDidSucceedWithData:(NSData *)data {
+- (void)queueRequest:(NSString *)requestUrl didSucceedWithData:(NSData *)data {
     NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     if(!strData || [strData rangeOfString:[NSString stringWithFormat:@"\"%@\":true", TUNE_KEY_SUCCESS]].location == NSNotFound) {
@@ -709,6 +718,9 @@ static NSSet * doNotEncryptSet;
                                          message:strData];
         return;
     }
+    
+    // Check if the response contains an invoke_url for click requests
+    [TuneDeeplinker checkForExpandedTuneLinks:requestUrl inResponse:strData];
     
     // if the server response contains an open_log_id, then store it for future use
     if([strData rangeOfString:[NSString stringWithFormat:@"\"%@\":\"%@\"", TUNE_KEY_SITE_EVENT_TYPE, TUNE_EVENT_OPEN]].location != NSNotFound &&
@@ -772,6 +784,15 @@ static NSSet * doNotEncryptSet;
 - (BOOL)isiAdAttribution {
     [self waitForInit];
     return [[[TuneManager currentManager].userProfile iadAttribution] boolValue];
+}
+
+- (NSString *)buildUrlStringForClick:(NSString *)clickedTuneLinkUrl {
+    NSMutableString *clickUrlToSend = [clickedTuneLinkUrl mutableCopy];
+    [TuneUtils addUrlQueryParamValue:TUNE_EVENT_CLICK forKey:TUNE_KEY_ACTION queryParams:clickUrlToSend];
+    [TuneUtils addUrlQueryParamValue:[[TuneManager currentManager].userProfile tuneId] forKey:TUNE_KEY_MAT_ID queryParams:clickUrlToSend];
+    [TuneUtils addUrlQueryParamValue:TUNE_KEY_JSON forKey:TUNE_KEY_RESPONSE_FORMAT queryParams:clickUrlToSend];
+
+    return [NSString stringWithString:clickUrlToSend];
 }
 
 - (void)urlStringForEvent:(TuneEvent *)event

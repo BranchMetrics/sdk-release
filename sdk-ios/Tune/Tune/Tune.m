@@ -11,9 +11,7 @@
 #import "TuneAppDelegate.h"
 #import "TuneConfiguration.h"
 #import "TuneDeeplink.h"
-#if !TARGET_OS_WATCH
-#import "TuneDeferredDplinkr.h"
-#endif
+#import "TuneDeeplinker.h"
 #import "TuneDeepActionManager.h"
 #import "TuneEvent+Internal.h"
 #import "TuneExperimentManager.h"
@@ -93,8 +91,8 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary *)configOrNil {
-    [TuneDeferredDplinkr setTuneAdvertiserId:aid tuneConversionKey:key];
-    [TuneDeferredDplinkr setTunePackageName:name ?: [TuneUtils bundleId]];
+    [TuneDeeplinker setTuneAdvertiserId:aid tuneConversionKey:key];
+    [TuneDeeplinker setTunePackageName:name ?: [TuneUtils bundleId]];
     
     if (!configOrNil) {
         configOrNil = [NSDictionary dictionary];
@@ -151,9 +149,8 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setDelegate:(id<TuneDelegate>)delegate {
-#if !TARGET_OS_WATCH
-    [TuneDeferredDplinkr setDelegate:delegate];
-#endif
+    [TuneDeeplinker setDelegate:delegate];
+
     [opQueue addOperationWithBlock:^{
         [self sharedManager].delegate = delegate;
 #if DEBUG
@@ -166,19 +163,36 @@ static TuneTracker *_sharedManager = nil;
 
 #pragma mark - Behavior Flags
 
-#if !TARGET_OS_WATCH
 + (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate {
-    [TuneDeferredDplinkr checkForDeferredDeeplink:delegate];
+    [self registerDeeplinkListener:delegate];
 }
-#endif
 
-#if !TARGET_OS_WATCH
++ (void)registerDeeplinkListener:(id<TuneDelegate>)delegate {
+    [TuneDeeplinker setDelegate:delegate];
+    [self requestDeferredDeeplink];
+}
+
++ (void)unregisterDeeplinkListener {
+    [TuneDeeplinker setDelegate:nil];
+}
+
++ (void)requestDeferredDeeplink {
+    [TuneDeeplinker requestDeferredDeeplink];
+}
+
++ (BOOL)isTuneLink:(NSString *)linkUrl {
+    return [TuneDeeplinker isTuneLink:linkUrl];
+}
+
++ (void)registerCustomTuneLinkDomain:(NSString *)domain {
+    [TuneDeeplinker registerCustomTuneLinkDomain:domain];
+}
+
 + (void)automateIapEventMeasurement:(BOOL)automate {
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutomateIapMeasurement:automate];
     }];
 }
-#endif
 
 + (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit {
     [opQueue addOperationWithBlock:^{
@@ -211,7 +225,7 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setPackageName:(NSString *)packageName {
-    [TuneDeferredDplinkr setTunePackageName:packageName];
+    [TuneDeeplinker setTunePackageName:packageName];
     
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPackageName:packageName];
@@ -223,10 +237,9 @@ static TuneTracker *_sharedManager = nil;
     }];
 }
 
-#if !TARGET_OS_WATCH
 + (void)setAppleAdvertisingIdentifier:(NSUUID *)ifa
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled {
-    [TuneDeferredDplinkr setAppleIfa:ifa.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
+    [TuneDeeplinker setAppleIfa:ifa.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
     
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:NO];
@@ -255,7 +268,6 @@ static TuneTracker *_sharedManager = nil;
         [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:autoDetect];
     }];
 }
-#endif
 
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect {
     [opQueue addOperationWithBlock:^{
@@ -279,7 +291,6 @@ static TuneTracker *_sharedManager = nil;
     }];
 }
 
-#if !TARGET_OS_WATCH
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect {
     NSString *strIfa = nil;
     BOOL trackEnabled = NO;
@@ -290,7 +301,7 @@ static TuneTracker *_sharedManager = nil;
         trackEnabled = ifaInfo.trackingEnabled;
     }
     
-    [TuneDeferredDplinkr setAppleIfa:strIfa
+    [TuneDeeplinker setAppleIfa:strIfa
               appleAdTrackingEnabled:trackEnabled];
     
     [opQueue addOperationWithBlock:^{
@@ -303,7 +314,6 @@ static TuneTracker *_sharedManager = nil;
         [[TuneManager currentManager].configuration setShouldAutoGenerateVendorIdentifier:autoGenerate];
     }];
 }
-#endif
 
 + (void)setTRUSTeId:(NSString *)tpid; {
     [opQueue addOperationWithBlock:^{
@@ -642,11 +652,9 @@ static TuneTracker *_sharedManager = nil;
 
 #pragma mark - Spotlight API
 
-#if !TARGET_OS_WATCH
 + (BOOL)application:(UIApplication *)application tuneContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler {
-    return [TuneAppDelegate application:application tune_continueUserActivity:userActivity restorationHandler:restorationHandler];
+    return [self handleContinueUserActivity:userActivity restorationHandler:restorationHandler];
 }
-#endif
 
 #pragma mark - Experiment API
 
@@ -742,13 +750,66 @@ static TuneTracker *_sharedManager = nil;
     }];
 }
 
-+ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
++ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    NSString *sourceApplication = options[UIApplicationOpenURLOptionsSourceApplicationKey];
+    return [self handleOpenURL:url sourceApplication:sourceApplication];
+}
+
++ (BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication {
+    BOOL handled = NO;
+    
+    NSString *urlString = url.absoluteString;
+
+    // Process referral url if it's a TUNE link and return invoke_url to listener
+    if (urlString) {
+        BOOL isTuneLink = [self isTuneLink:urlString];
+        BOOL hasInvokeUrl = [TuneDeeplinker hasInvokeUrl:urlString];
+        if (isTuneLink || hasInvokeUrl) {
+            handled = YES;
+        
+            NSString *invokeUrl = [TuneDeeplinker invokeUrlFromReferralUrl:urlString];
+            if (invokeUrl) {
+                [TuneDeeplinker handleExpandedTuneLink:invokeUrl];
+            }
+            
+            // Only send click for tlnk.io app link opens
+            if (isTuneLink) {
+                // Measure Tune Link click
+                [opQueue addOperationWithBlock:^{
+                    [[self sharedManager] measureTuneLinkClick:urlString];
+                }];
+            }
+        }
+    }
+    
     [opQueue addOperationWithBlock:^{
         [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
-
+        
         // Process any Marketing Automation info in deeplink url
-        [TuneDeeplink processDeeplinkURL:[NSURL URLWithString:urlString]];
+        [TuneDeeplink processDeeplinkURL:url];
     }];
+    
+    return handled;
+}
+
++ (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
+#if TARGET_OS_IOS
+    if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
+        NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
+        return [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
+                 sourceApplication:@"spotlight"];
+    }
+#endif
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
+        return [Tune handleOpenURL:userActivity.webpageURL
+                 sourceApplication:@"web"];
+    }
+
+    return NO;
+}
+
++ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
+    [self handleOpenURL:[NSURL URLWithString:urlString] sourceApplication:sourceApplication];
 }
 
 #ifdef TUNE_USE_LOCATION

@@ -123,39 +123,6 @@ BOOL swizzleSuccess = NO;
                                               for:userNotificationDelegateClass];
         }
 #endif
-        [TuneAppDelegate swizzleTheirSelector:@selector(application:handleOpenURL:)
-                                     withOurs:@selector(application:tune_handleOpenURL:)
-                                          for:delegateClass];
-        
-        // application:openURL:sourceApplication:annotation: is a special case to swizzle on.
-        // If it wasn't implemented, don't swizzle on it
-        // so that iOS can fall back to application:handleOpenURL:
-        if ((BOOL)[delegateClass instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
-            [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:sourceApplication:annotation:)
-                                         withOurs:@selector(application:tune_openURL:sourceApplication:annotation:)
-                                              for:delegateClass];
-        }
-        
-        if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
-            [TuneAppDelegate swizzleTheirSelector:@selector(application:continueUserActivity:restorationHandler:)
-                                         withOurs:@selector(application:tune_continueUserActivity:restorationHandler:)
-                                              for:delegateClass];
-#if !IDE_XCODE_7_OR_HIGHER
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-#endif
-            // application:openURL:options: is a special case to swizzle on.
-            // If it wasn't implemented, don't swizzle on it
-            // so that iOS can fall back to openURL:sourceApplication:
-            if ((BOOL)[delegateClass instancesRespondToSelector:@selector(application:openURL:options:)]) {
-                [TuneAppDelegate swizzleTheirSelector:@selector(application:openURL:options:)
-                                             withOurs:@selector(application:tune_openURL:options:)
-                                                  for:delegateClass];
-            }
-#if !IDE_XCODE_7_OR_HIGHER
-#pragma clang diagnostic pop
-#endif
-        }
         
         swizzleSuccess = YES;
     });
@@ -347,45 +314,27 @@ BOOL swizzleSuccess = NO;
 #pragma mark - UIApplicationDelegate methods for handling deeplinks
 
 + (BOOL)application:(UIApplication *)application tune_handleOpenURL:(NSURL *)url {
-    InfoLog(@"application:handleOpenURL: intercept successful -- %@", NSStringFromClass([self class]));
-    
-    [Tune applicationDidOpenURL:[url absoluteString] sourceApplication:nil];
-    
-    if (swizzleSuccess) {
 #if TESTING
-        [TuneAppDelegate unitTestingHelper:@"application:handleOpenURL:"];
+    [TuneAppDelegate unitTestingHelper:@"application:handleOpenURL:"];
 #endif
-        return [self application:application tune_handleOpenURL:url];
-    }
-    return NO;
+    
+    return [Tune handleOpenURL:url sourceApplication:nil];;
 }
 
 + (BOOL)application:(UIApplication *)application tune_openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    InfoLog(@"application:openURL:sourceApplication:annotation: intercept successful -- %@", NSStringFromClass([self class]));
-    
-    [Tune applicationDidOpenURL:[url absoluteString] sourceApplication:sourceApplication];
-    
-    if (swizzleSuccess) {
 #if TESTING
-        [TuneAppDelegate unitTestingHelper:@"application:openURL:sourceApplication:annotation:"];
+    [TuneAppDelegate unitTestingHelper:@"application:openURL:sourceApplication:annotation:"];
 #endif
-        return [self application:application tune_openURL:url sourceApplication:sourceApplication annotation:annotation];
-    }
-    return NO;
+    
+    return [Tune handleOpenURL:url sourceApplication:sourceApplication];;
 }
 
 + (BOOL)application:(UIApplication *)app tune_openURL:(NSURL *)url options:(NSDictionary *)options {
-    InfoLog(@"application:openURL:options: intercept successful -- %@", NSStringFromClass([self class]));
-    
-    [Tune applicationDidOpenURL:[url absoluteString] sourceApplication:nil];
-    
-    if (swizzleSuccess) {
 #if TESTING
-        [TuneAppDelegate unitTestingHelper:@"application:openURL:options:"];
+    [TuneAppDelegate unitTestingHelper:@"application:openURL:options:"];
 #endif
-        return [self application:app tune_openURL:url options:options];
-    }
-    return NO;
+
+    return [Tune handleOpenURL:url options:options];
 }
 
 #pragma mark - UIApplicationDelegate method to handle spotlight search measurement
@@ -395,13 +344,13 @@ BOOL swizzleSuccess = NO;
 #if TARGET_OS_IOS
     if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
         NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
-        [Tune applicationDidOpenURL:searchIndexUniqueId
-                  sourceApplication:@"spotlight"];
+        [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
+          sourceApplication:@"spotlight"];
     } else
 #endif
         if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
-            [Tune applicationDidOpenURL:userActivity.webpageURL.absoluteString
-                      sourceApplication:@"web"];
+            [Tune handleOpenURL:userActivity.webpageURL
+              sourceApplication:@"web"];
         }
     
     if (swizzleSuccess) {

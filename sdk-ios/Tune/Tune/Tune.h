@@ -22,6 +22,7 @@
 #import "TuneDebugUtilities.h"
 #import "TuneInAppMessageExperimentDetails.h"
 #import "TunePowerHookExperimentDetails.h"
+#import <CoreSpotlight/CoreSpotlight.h>
 
 #endif
 
@@ -30,7 +31,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.11.0"
+#define TUNEVERSION @"4.12.0"
 
 
 @protocol TuneDelegate;
@@ -97,6 +98,111 @@
 #endif
 
 
+#pragma mark - Deeplinking
+
+/** @name Deeplinking */
+
+/*!
+ Check for a deferred deeplink entry point upon app installation.
+ On completion, this method does not auto-open the deferred deeplink,
+ only the success/failure delegate callbacks are fired.
+ 
+ This is safe to call at every app launch, since the function does nothing
+ unless this is the first launch.
+ 
+ @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
+ */
++ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use registerDeeplinkListener: instead.");
+
+/*!
+ Set the deeplink listener that will be called when either a deferred deeplink is found for a fresh install or for handling an opened Tune Link.
+
+ Registering a deeplink listener will trigger an asynchronous call to check for deferred deeplinks during the first session after installing of the app with the Tune SDK.
+
+ The tuneDidFailDeeplinkWithError: callback will be called if there is no deferred deeplink from Tune for this user or in the event of an error from the server (possibly due to misconfiguration).
+
+ The tuneDidReceiveDeeplink: callback will be called when there is a deep link from Tune that you should route the user to. The string should be a fully qualified deep link url string.
+
+ @param delegate Delegate that will be called with deferred deeplinks after install or expanded Tune links. May be nil. Passing nil will clear the previously set listener, although you may use unregisterDeeplinkListener: instead.
+ */
++ (void)registerDeeplinkListener:(id<TuneDelegate>)delegate;
+
+/*!
+ Remove the deeplink listener previously set with registerDeeplinkListener:
+ */
++ (void)unregisterDeeplinkListener;
+
+/*!
+ Test if your custom Tune Link domain is registered with Tune.
+ Tune Links are Tune-hosted Universal Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to tuneDidReceiveDeeplink: registered via registerDeeplinkListener:
+ @param linkUrl URL to test if it is a Tune Link. Must not be nil.
+ @return True if this link is a Tune Link that will be measured by Tune and routed into the TuneDelegate.
+ */
++ (BOOL)isTuneLink:(NSString *)linkUrl;
+
+/*!
+ If you have set up a custom domain for use with Tune Links (cname to a *.tlnk.io domain), then register it with this method.
+ Tune Links are Tune-hosted Universal Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to tuneDidReceiveDeeplink: registered via registerDeeplinkListener:
+ This method will test if any clicked links match the given suffix. Do not include a * for wildcard subdomains, instead pass the suffix that you would like to match against the url.
+ So, ".customize.it" will match "1235.customize.it" and "56789.customize.it" but not "customize.it"
+ And, "customize.it" will match "1235.customize.it" and "56789.customize.it", "customize.it", and "1235.tocustomize.it"
+ You can register as many custom subdomains as you like.
+ 
+ @param domain The domain which you are using for Tune Links. Must not be nil.
+ */
++ (void)registerCustomTuneLinkDomain:(NSString *)domain;
+
+/*!
+ Record the URL and Source when an application is opened via a URL scheme.
+ This typically occurs during OAUTH or when an app exits and is returned
+ to via a URL. The data will be sent to the HasOffers server when the next
+ measureXXX method is called so that a Re-Engagement can be recorded.
+
+ @param urlString the url string used to open your app.
+ @param sourceApplication the source used to open your app. For example, mobile safari.
+ */
++ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication DEPRECATED_MSG_ATTRIBUTE("Please use handleOpenURL:options: or handleOpenURL:sourceApplication: instead.");
+
+/*!
+ Set the url and source when your application is opened via a deeplink.
+ 
+ Tune uses this information to measure re-engagement.
+ 
+ If the url is a Tune Link, this method will invoke tuneDidReceiveDeeplink: or tuneDidFailDeeplinkWithError:
+ 
+ @param url The url used to open the app.
+ @param options A dictionary of URL handling options.
+ @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
+ */
++ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options;
+
+/*!
+ Set the url and source when your application is opened via a deeplink.
+ 
+ Tune uses this information to measure re-engagement.
+ 
+ If the url is a Tune Link, this method will invoke tuneDidReceiveDeeplink: or tuneDidFailDeeplinkWithError:
+ 
+ @param url The url used to open the app.
+ @param sourceApplication the source used to open your app. For example, mobile safari.
+ @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
+ */
++ (BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication;
+
+/*!
+ Set the url and source when your application is opened via a universal link.
+ 
+ Tune uses this information to measure re-engagement.
+ 
+ If the url is a Tune Link, this method will invoke tuneDidReceiveDeeplink: or tuneDidFailDeeplinkWithError:
+ 
+ @param userActivity The NSUserActivity used to open the app.
+ @param restorationHandler Block to execute if your app creates objects to perform the task.
+ @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
+ */
++ (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler;
+
+
 #pragma mark - Debug And Test
 
 /** @name Debug And Test */
@@ -111,25 +217,11 @@
 #pragma mark - Behavior Flags
 /** @name Behavior Flags */
 
-#if !TARGET_OS_WATCH
-/*!
- Check for a deferred deeplink entry point upon app installation.
- On completion, this method does not auto-open the deferred deeplink,
- only the success/failure delegate callbacks are fired.
-
- This is safe to call at every app launch, since the function does nothing
- unless this is the first launch.
-
- @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
- */
-+ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
-
 /*!
  Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication. If your app provides subscription IAP items, please make sure you enter the iTunes Shared Secret on the TUNE dashboard, otherwise Apple receipt validation will fail and the events will be marked as rejected.
  @param automate Automate IAP purchase event measurement. Defaults to NO.
  */
 + (void)automateIapEventMeasurement:(BOOL)automate;
-#endif
 
 /*!
  * Set whether the Tune events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
@@ -152,7 +244,6 @@
  */
 + (void)setExistingUser:(BOOL)existingUser;
 
-#if !TARGET_OS_WATCH
 /*!
  Set the Apple Advertising Identifier available in iOS 6.
  @param appleAdvertisingIdentifier - Apple Advertising Identifier
@@ -165,7 +256,6 @@
  @param appleVendorIdentifier - Apple Vendor Identifier
  */
 + (void)setAppleVendorIdentifier:(NSUUID * )appleVendorIdentifier;
-#endif
 
 /*!
  Sets the currency code.
@@ -174,13 +264,11 @@
  */
 + (void)setCurrencyCode:(NSString *)currencyCode;
 
-#if !TARGET_OS_WATCH
 /*!
  Sets the jailbroken device flag.
  @param jailbroken The jailbroken device flag.
  */
 + (void)setJailbroken:(BOOL)jailbroken;
-#endif
 
 /*!
  Sets the package name (bundle identifier).
@@ -189,7 +277,6 @@
  */
 + (void)setPackageName:(NSString *)packageName;
 
-#if !TARGET_OS_WATCH
 /*!
  Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
  YES/NO
@@ -197,7 +284,6 @@
  @param autoCollect YES will access the Apple Advertising Identifier and Advertising Tracking Enabled properties, defaults to YES.
  */
 + (void)setShouldAutoCollectAppleAdvertisingIdentifier:(BOOL)autoCollect;
-#endif
 
 /*!
  Specifies if the sdk should auto collect device location if location access has already been permitted by the end user.
@@ -205,7 +291,7 @@
  @param autoCollect YES will auto collect device location, defaults to YES.
  */
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect;
-#if !TARGET_OS_WATCH
+
 /*!
  Specifies if the sdk should auto detect if the iOS device is jailbroken.
  YES/NO
@@ -220,7 +306,6 @@
  @param autoGenerate YES will set the Apple Vendor Identifier, defaults to YES.
  */
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate;
-#endif
 
 /*!
  Set the TRUSTe Trusted Preference Identifier (TPID).
@@ -660,9 +745,7 @@
 
 #pragma mark - Spotlight API
 
-#if !TARGET_OS_WATCH
-+ (BOOL)application:(UIApplication *)application tuneContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler;
-#endif
++ (BOOL)application:(UIApplication *)application tuneContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler DEPRECATED_MSG_ATTRIBUTE("Please use handleContinueUserActivity:restorationHandler: instead.");
 
 #pragma mark - Experiment API
 
@@ -825,23 +908,6 @@
                          offerId:(NSString *)targetAdvertiserOfferId
                      publisherId:(NSString *)targetAdvertiserPublisherId
                         redirect:(BOOL)shouldRedirect;
-
-
-#pragma mark - Re-Engagement Method
-
-/** @name Application Re-Engagement */
-
-/*!
- Record the URL and Source when an application is opened via a URL scheme.
- This typically occurs during OAUTH or when an app exits and is returned
- to via a URL. The data will be sent to the HasOffers server when the next
- measureXXX method is called so that a Re-Engagement can be recorded.
-
- WARNING: You don't need to call this method if you have the swizzle enabled.
- @param urlString the url string used to open your app.
- @param sourceApplication the source used to open your app. For example, mobile safari.
- */
-+ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;
 
 
 #ifdef TUNE_USE_LOCATION

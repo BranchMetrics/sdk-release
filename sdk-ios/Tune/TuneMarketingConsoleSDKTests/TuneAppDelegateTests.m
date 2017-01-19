@@ -264,90 +264,6 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] removeObserver:deviceTokenObserver name:TuneRegisteredForRemoteNotificationsWithDeviceToken object:nil];
 }
 
-#pragma mark - Test Swizzles on openURL to receive deeplinks
-
-- (void)testSwizzledOpenUrlSendsOpenAndViewSkyhooksFromBackground {
-    [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
-    
-    NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
-
-    // All 3 ways to open deeplink
-#if IDE_XCODE_7_OR_HIGHER
-    [appDelegate application:(UIApplication *)mockApplication openURL:url options:[[NSDictionary<NSString *,id> alloc] init]];
-#endif
-    [appDelegate application:(UIApplication *)mockApplication openURL:url sourceApplication:nil annotation:[[NSDictionary alloc] init]];
-    [appDelegate application:(UIApplication *)mockApplication handleOpenURL:url];
-    
-    // Flush queues
-    waitForQueuesToFinish();
-    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
-    [[TuneSkyhookCenter defaultCenter] waitTilQueueFinishes];
-    
-    XCTAssertEqual([deeplinkObserver skyhookPostCount], 3);
-    XCTAssertEqual([campaignObserver skyhookPostCount], 3);
-    XCTAssertEqual(appDelegate.openURLCount, 3);
-    
-    [[TuneSkyhookCenter defaultCenter] removeObserver:deeplinkObserver name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
-}
-
-- (void)testSwizzledOpenUrlSendsOpenAndViewSkyhooksFromForeground {
-    [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
-    
-    NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
-    
-    // All 3 ways to open deeplink
-#if IDE_XCODE_7_OR_HIGHER
-    [appDelegate application:(UIApplication *)mockApplication openURL:url options:[[NSDictionary<NSString *,id> alloc] init]];
-#endif
-    [appDelegate application:(UIApplication *)mockApplication openURL:url sourceApplication:nil annotation:[[NSDictionary alloc] init]];
-    [appDelegate application:(UIApplication *)mockApplication handleOpenURL:url];
-    
-    // Flush queues
-    waitForQueuesToFinish();
-    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
-    [[TuneSkyhookCenter defaultCenter] waitTilQueueFinishes];
-    
-    XCTAssertEqual([deeplinkObserver skyhookPostCount], 3);
-    XCTAssertEqual([campaignObserver skyhookPostCount], 3);
-    XCTAssertEqual(appDelegate.openURLCount, 3);
-    
-    [[TuneSkyhookCenter defaultCenter] removeObserver:deeplinkObserver name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
-}
-
-// Test for issue in https://developers.mobileapptracking.com/ios-sdk/#comment-2484531820
-- (void)testSwizzledOpenUrlParsesBadDeeplink {
-    [[TuneSkyhookCenter defaultCenter] addObserver:deeplinkObserver selector:@selector(skyhookPosted:) name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:campaignObserver selector:@selector(skyhookPosted:) name:TuneCampaignViewed object:nil];
-    [(UIApplication *)[[mockApplication stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
-    
-    NSURL *url = [NSURL URLWithString:@"vk://authorize?#"];
-    
-    // All 3 ways to open deeplink
-#if IDE_XCODE_7_OR_HIGHER
-    [appDelegate application:(UIApplication *)mockApplication openURL:url options:[[NSDictionary<NSString *,id> alloc] init]];
-#endif
-    [appDelegate application:(UIApplication *)mockApplication openURL:url sourceApplication:nil annotation:[[NSDictionary alloc] init]];
-    [appDelegate application:(UIApplication *)mockApplication handleOpenURL:url];
-    
-    // Flush queues
-    waitForQueuesToFinish();
-    [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
-    [[TuneSkyhookCenter defaultCenter] waitTilQueueFinishes];
-    
-    XCTAssertEqual([deeplinkObserver skyhookPostCount], 3);
-    XCTAssertEqual([campaignObserver skyhookPostCount], 3);
-    XCTAssertEqual(appDelegate.openURLCount, 3);
-    
-    [[TuneSkyhookCenter defaultCenter] removeObserver:deeplinkObserver name:TuneAppOpenedFromURL object:nil];
-    [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
-}
-
 #pragma mark - Test Push Notification deeplinks send campaign and analytics data
 
 - (void)testDeeplinkOpenedFromPushNotificationFromBackground {
@@ -500,29 +416,6 @@ static NSString *tune_swizzledMethod;
     [self checkSwizzledMethod:@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     tune_swizzledMethod = nil;
 #endif
-    
-    NSURL *url = [NSURL URLWithString:@"artisan://cart?SRC=EMAIL&ACID=278730"];
-    
-    // All 3 ways to open deeplink
-#if IDE_XCODE_7_OR_HIGHER
-    [appDelegate application:(UIApplication *)mockApplication openURL:url options:[[NSDictionary<NSString *,id> alloc] init]];
-    [self checkSwizzledMethod:@"application:openURL:options:"];
-    tune_swizzledMethod = nil;
-#endif
-    [appDelegate application:(UIApplication *)mockApplication openURL:url sourceApplication:nil annotation:[[NSDictionary alloc] init]];
-    [self checkSwizzledMethod:@"application:openURL:sourceApplication:annotation:"];
-    tune_swizzledMethod = nil;
-    
-    [appDelegate application:(UIApplication *)mockApplication handleOpenURL:url];
-    [self checkSwizzledMethod:@"application:handleOpenURL:"];
-    tune_swizzledMethod = nil;
-    
-    if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
-        [appDelegate application:(UIApplication *)mockApplication continueUserActivity:activity restorationHandler:^(NSArray * restorableObjects) {}];
-        [self checkSwizzledMethod:@"application:continueUserActivity:restorationHandler:"];
-        tune_swizzledMethod = nil;
-    }
     
     [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
     [self checkSwizzledMethod:nil];

@@ -90,5 +90,4 @@
  */
 + (NSString *)stringFromHexString:(NSString *)string;
 
-
 @end

@@ -51,7 +51,7 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 /*!
  Optional callback fired when an event request succeeds.
  */
-- (void)queueRequestDidSucceedWithData:(NSData *)data;
+- (void)queueRequest:requestUrl didSucceedWithData:(NSData *)data;
 
 /*!
  Optional callback fired when an event request fails.

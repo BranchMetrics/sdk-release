@@ -38,7 +38,9 @@ NSMutableArray *alertTitles;
 NSMutableArray *alertMessages;
 NSMutableArray *alertCompletionBlocks;
 
+#if TARGET_OS_IOS
 UIWindow *tuneAlertWindow;
+#endif
 
 BOOL isAlertVisible;
 

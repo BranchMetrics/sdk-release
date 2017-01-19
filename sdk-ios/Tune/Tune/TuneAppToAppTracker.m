@@ -163,8 +163,8 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
         NSString *successDetails = [NSString stringWithFormat:@"{\"%@\":{\"message\":\"Started app-to-app tracking.\",\"success\":\"%d\",\"redirect\":\"%d\",\"redirect_url\":\"%@\"}}", TUNE_APP_TO_APP_TRACKING_STATUS, success, redirect, strRedirectUrl ? strRedirectUrl : TUNE_STRING_EMPTY];
         NSData *successData = [successDetails dataUsingEncoding:NSUTF8StringEncoding];
         
-        if( [_delegate respondsToSelector:@selector(queueRequestDidSucceedWithData:)] )
-            [_delegate queueRequestDidSucceedWithData:successData];
+        if( [_delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)] )
+            [_delegate queueRequest:strRedirectUrl didSucceedWithData:successData];
         
         if(redirect && 0 < [strRedirectUrl length]) {
 #if !TARGET_OS_WATCH

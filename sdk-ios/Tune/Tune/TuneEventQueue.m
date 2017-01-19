@@ -605,8 +605,8 @@ static TuneEventQueue *sharedQueue = nil;
             
             // if the network request was successful, great
             if (code >= 200 && code <= 299) {
-                if ([_delegate respondsToSelector:@selector(queueRequestDidSucceedWithData:)]) {
-                    [_delegate queueRequestDidSucceedWithData:data];
+                if ([_delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
+                    [_delegate queueRequest:fullRequestString didSucceedWithData:data];
                 }
                 // leave newFirstItem nil to delete
             }

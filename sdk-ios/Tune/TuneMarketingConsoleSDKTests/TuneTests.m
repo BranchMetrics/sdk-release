@@ -191,7 +191,7 @@
 - (void)testUrlOpen {
     static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
     static NSString* const sourceApplication = @"Mail";
-    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    [Tune handleOpenURL:[NSURL URLWithString:openUrl] sourceApplication:sourceApplication];
     
     [Tune measureSession];
     waitForQueuesToFinish();
@@ -202,17 +202,34 @@
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)testLegacyUrlOpen {
+    static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
+    static NSString* const sourceApplication = @"Mail";
+    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    
+    [Tune measureSession];
+    waitForQueuesToFinish();
+    
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
+    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
+    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
+}
+#pragma clang diagnostic pop
+
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 - (void)testContinueUserActivityWeb {
     if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
         static NSString *openUrl = @"http://www.mycompany.com/mypage1";
         static NSString *sourceApplication = @"web";
         
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
-        activity.webpageURL = [NSURL URLWithString:openUrl];
-        activity.userInfo = @{};
+        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+        userActivity.webpageURL = [NSURL URLWithString:openUrl];
+        userActivity.userInfo = @{};
         
-        [appDelegate application:(UIApplication *)mockApplication continueUserActivity:activity restorationHandler:^(NSArray * restorableObjects) {}];
+        [Tune handleContinueUserActivity:userActivity restorationHandler:nil];
         
         [Tune measureSession];
         waitForQueuesToFinish();
@@ -230,10 +247,10 @@
         NSString *sourceApplication = @"spotlight";
         NSDictionary *userInfo = @{CSSearchableItemActivityIdentifier:openUrl};
         
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:CSSearchableItemActionType];
-        activity.userInfo = userInfo;
+        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:CSSearchableItemActionType];
+        userActivity.userInfo = userInfo;
         
-        [appDelegate application:(UIApplication *)mockApplication continueUserActivity:activity restorationHandler:^(NSArray * restorableObjects) {}];
+        [Tune handleContinueUserActivity:userActivity restorationHandler:nil];
         
         [Tune measureSession];
         waitForQueuesToFinish();
@@ -244,6 +261,65 @@
         ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
     }
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)testLegacyContinueUserActivityWeb {
+    if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
+        static NSString *openUrl = @"http://www.mycompany.com/mypage1";
+        static NSString *sourceApplication = @"web";
+        
+        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+        userActivity.webpageURL = [NSURL URLWithString:openUrl];
+        userActivity.userInfo = @{};
+        
+        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
+            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
+            [Tune applicationDidOpenURL:searchIndexUniqueId
+                      sourceApplication:@"spotlight"];
+        } else if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
+            [Tune applicationDidOpenURL:userActivity.webpageURL.absoluteString
+                      sourceApplication:@"web"];
+        }
+        
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
+        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
+        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
+    }
+}
+
+- (void)testLegacyContinueUserActivitySpotlight {
+    if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
+        NSString *openUrl = @"myapp://mypage2";
+        NSString *sourceApplication = @"spotlight";
+        NSDictionary *userInfo = @{CSSearchableItemActivityIdentifier:openUrl};
+        
+        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:CSSearchableItemActionType];
+        userActivity.userInfo = userInfo;
+        
+        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
+            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
+            [Tune applicationDidOpenURL:searchIndexUniqueId
+                      sourceApplication:@"spotlight"];
+        } else if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
+            [Tune applicationDidOpenURL:userActivity.webpageURL.absoluteString
+                      sourceApplication:@"web"];
+        }
+        
+        [Tune measureSession];
+        waitForQueuesToFinish();
+        
+        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
+        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
+        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
+    }
+}
+#pragma clang diagnostic pop
 #endif
 
 - (void)testDeferredDeepLink {
@@ -254,7 +330,7 @@
     
     static NSString* const openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
     static NSString* const sourceApplication = nil;
-    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
+    [Tune handleOpenURL:[NSURL URLWithString:openUrl] sourceApplication:sourceApplication];
     
     waitFor(0.5);
     
