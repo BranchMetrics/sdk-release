@@ -8,7 +8,9 @@ import com.tune.TuneConstants;
 import com.tune.ma.TuneManager;
 import com.tune.ma.configuration.TuneConfigurationConstants;
 import com.tune.ma.push.TuneGooglePlayServicesDelegate;
+import com.tune.ma.push.TunePushManager;
 import com.tune.ma.push.model.TunePushMessage;
+import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import com.tune.ma.utils.TuneStringUtils;
@@ -70,10 +72,29 @@ public class TunePushService extends IntentService {
         }
     }
 
+    protected boolean notifyListener(TunePushMessage message) {
+        boolean displayNotification = true;
+        if (TuneManager.getInstance() != null) {
+            TunePushManager pushManager = TuneManager.getInstance().getPushManager();
+            if (pushManager != null) {
+                TunePushListener listener = pushManager.getTunePushListener();
+                if (listener != null) {
+                    displayNotification = listener.onReceive(message.isSilentPush(), message.getPayload().getUserExtraPayloadParams());
+                }
+            }
+        }
+        return displayNotification;
+    }
+
     private void buildAndSendMessage(Bundle extras) {
         String appName = this.getApplicationInfo().loadLabel(this.getPackageManager()).toString();
         try {
             TunePushMessage message = new TunePushMessage(extras, appName);
+            boolean displayNotification = notifyListener(message);
+            if (!displayNotification || message.isSilentPush()) {
+                TuneDebugLog.i("Tune push message aborted");
+                return;
+            }
             TuneDebugLog.i("Tune pushing notification w/ msg: " + message.getAlertMessage());
             TuneNotificationManagerDelegate notificationManager = new TuneNotificationManagerDelegate(this);
             notificationManager.postPushNotification(message);

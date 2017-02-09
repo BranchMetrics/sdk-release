@@ -20,6 +20,7 @@ import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
+import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
@@ -55,6 +56,8 @@ public class TunePushManager {
     private Set<String> processedMessages;
 
     private TunePushMessage lastOpenedPushMessage;
+
+    private TunePushListener tunePushListener;
 
     public TunePushManager(Context context) {
         this(context, TuneManager.getInstance().getProfileManager().getProfileVariableValue(TuneProfileKeys.APP_BUILD));
@@ -435,5 +438,13 @@ public class TunePushManager {
         if (!TuneUtils.hasPermission(context, permission)) {
             TuneDebugLog.IAMConfigError(TuneStringUtils.format("You need the '%s' permission in your manifest to use push and '%s'", permission, methodName));
         }
+    }
+
+    public void setTunePushListener(TunePushListener tunePushListener) {
+        this.tunePushListener = tunePushListener;
+    }
+
+    public TunePushListener getTunePushListener() {
+        return tunePushListener;
     }
 }

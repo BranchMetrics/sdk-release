@@ -24,6 +24,7 @@ public class TunePushMessage {
     private static final String BUNDLE_PUSH_ID_KEY = "ARTPID";
     private static final String BUNDLE_CAMPAIGN_ID = "CAMPAIGN_ID";
     private static final String BUNDLE_LENGTH_TO_REPORT = "LENGTH_TO_REPORT";
+    private static final String BUNDLE_SILENT_PUSH_KEY = "silent_push";
     // This is added in the receiver so it won't be in the bundle we originally get
     private static final String JSON_APP_NAME = "appName";
     // This is created when the message is created from a bundle, so won't appear in it
@@ -50,6 +51,8 @@ public class TunePushMessage {
     private String summary;
     private String bigText;
 
+    private boolean silentPush;
+
     public TunePushMessage(String jsonString) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
@@ -71,6 +74,10 @@ public class TunePushMessage {
 
     public TunePushMessage(Bundle extras, String appName) throws Exception {
         this.appName = appName;
+
+        if (extras.containsKey(BUNDLE_SILENT_PUSH_KEY)) {
+            silentPush = extras.getString(BUNDLE_SILENT_PUSH_KEY).equalsIgnoreCase("true");
+        }
 
         appId = checkGet(extras, BUNDLE_APP_ID);
         alertMessage = checkGet(extras, BUNDLE_ALERT_KEY);
@@ -140,6 +147,10 @@ public class TunePushMessage {
             return false;
         }
         return this.campaign.getVariationId().equals(TUNE_TEST_MESSAGE);
+    }
+
+    public boolean isSilentPush() {
+        return silentPush;
     }
 
     public String getAlertMessage() {

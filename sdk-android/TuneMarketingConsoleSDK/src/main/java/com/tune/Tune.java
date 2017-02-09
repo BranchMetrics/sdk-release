@@ -37,6 +37,7 @@ import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
+import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
@@ -1211,9 +1212,11 @@ public class Tune {
      * @param androidIdSha256 ANDROID_ID SHA-256 hash
      */
     public void setAndroidIdSha256(final String androidIdSha256) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAndroidIdSha256(androidIdSha256);
-        }});
+        pubQueue.execute(new Runnable() {
+            public void run() {
+                params.setAndroidIdSha256(androidIdSha256);
+            }
+        });
     }
 
     /**
@@ -2160,7 +2163,7 @@ public class Tune {
      * If you do not use {@link #setPushNotificationSenderId(String)} this doesn't do anything.
      * Important: If you do not provide a small icon for your notifications via the builder we will default to using your app icon. This may look odd if your app is targeting API 21+ because the OS will take only the alpha of the icon and display that on a neutral background. If your app is set to target API 21+ we strongly recommend that you take advantage of the {@link TuneNotificationBuilder} API.
      *
-     * @param builder by providing an {@link TuneNotificationBuilder} you can provide defaults for your app's notifications for Artisan Push Messages, like the small icon
+     * @param builder by providing a {@link TuneNotificationBuilder} you can provide defaults for your app's notifications for Tune Push Messages, like the small icon
      */
     public void setPushNotificationBuilder(TuneNotificationBuilder builder) {
         if (TuneManager.getPushManagerForUser("setPushNotificationBuilder") == null) {
@@ -2171,8 +2174,21 @@ public class Tune {
     }
 
     /**
-     * Specify whether the current user has opted out of push messaging.<br>
-     * <br>
+     * Provide Tune with a push listener to access extraPushPayload and decide if a notification should be displayed.
+     *
+     * @param listener by providing a {@link TunePushListener} you can access the extraPushPayload and decide if the notification should be displayed
+     */
+    public void setPushListener(TunePushListener listener) {
+        if (TuneManager.getPushManagerForUser("setPushListener") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getPushManager().setTunePushListener(listener);
+    }
+
+    /**
+     * Specify whether the current user has opted out of push messaging.<br/>
+     * <br/>
      * This information is added to the personalization profile of the current user for segmentation, targeting, and reporting purposes. <br>
      * <br>
      * Also, if you are using Tune Push, then by default Tune will assume push messaging is enabled as long as the user has Google Play Services installed on their device and we can successfully get a device token for their device. <br>

@@ -290,8 +290,8 @@ public class TuneSessionTests extends TuneUnitTest {
         // Give dispatcher some time to start sending
         sleep(2000);
 
-        // Assert that analytics manager dispatched 3 times, 2 for session starts and 1 for session end
-        assertEquals(3, dispatchCount);
+        // Assert that analytics manager dispatched 2 times, 1 for session start/end and 1 for another session start
+        assertEquals(2, dispatchCount);
         // Assert that TuneAppForegrounded event got sent twice over the bus
         assertEquals(2, foregroundedCount);
         // Assert that TuneAppBackgrounded event got sent once over the bus
