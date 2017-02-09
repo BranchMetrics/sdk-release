@@ -90,4 +90,15 @@
  */
 + (NSString *)stringFromHexString:(NSString *)string;
 
+/**
+ Checks whether given string contains a given substring
+ 
+ @param string The full string to search in
+ 
+ @param subString The substring to check whether it exists in the full string
+ 
+ @returns BOOL Whether full string contains substring or not
+ */
++ (BOOL)string:(NSString *)string containsString:(NSString *)subString;
+
 @end

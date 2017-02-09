@@ -31,7 +31,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.12.0"
+#define TUNEVERSION @"4.12.1"
 
 
 @protocol TuneDelegate;
@@ -174,7 +174,7 @@
  @param options A dictionary of URL handling options.
  @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
  */
-+ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options;
++ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options;
 
 /*!
  Set the url and source when your application is opened via a deeplink.

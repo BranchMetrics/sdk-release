@@ -750,7 +750,7 @@ static TuneTracker *_sharedManager = nil;
     }];
 }
 
-+ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
++ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options {
     NSString *sourceApplication = options[UIApplicationOpenURLOptionsSourceApplicationKey];
     return [self handleOpenURL:url sourceApplication:sourceApplication];
 }

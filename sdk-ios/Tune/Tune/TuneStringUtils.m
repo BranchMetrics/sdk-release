@@ -158,4 +158,9 @@ static NSString *tune_ignoredCharacters = @"!*'\"();:@&=+$,/?%#[] \n";
     return [NSString stringWithString:string];
 }
 
++ (BOOL)string:(NSString *)string containsString:(NSString *)subString {
+    NSRange range = [string rangeOfString:subString];
+    return range.location != NSNotFound;
+}
+
 @end

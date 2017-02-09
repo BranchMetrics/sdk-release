@@ -272,13 +272,13 @@ static TuneDeeplinker *dplinkr;
 }
 
 + (BOOL)isTuneLinkMeasurementRequest:(NSString *)link {
-    return [link containsString:[NSString stringWithFormat:@"%@=%@", TUNE_KEY_ACTION, TUNE_EVENT_CLICK]];
+    return [TuneStringUtils string:link containsString:[NSString stringWithFormat:@"%@=%@", TUNE_KEY_ACTION, TUNE_EVENT_CLICK]];
 }
 
 + (NSString *)invokeUrlFromReferralUrl:(NSString *)referralUrl {
     NSString *invokeUrl = nil;
     if (referralUrl) {
-        if ([referralUrl containsString:TUNE_KEY_INVOKE_URL]) {
+        if ([TuneStringUtils string:referralUrl containsString:TUNE_KEY_INVOKE_URL]) {
             // Get invoke_url query param from referral URL
             // Can't use NSURLQueryItem because we need to support iOS 6.0
             NSArray *urlComponents = [referralUrl componentsSeparatedByString:@"?"];
