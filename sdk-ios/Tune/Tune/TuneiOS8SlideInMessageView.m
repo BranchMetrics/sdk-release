@@ -319,7 +319,7 @@
                 [self addSubview:_containerViewLandscapeLeft];
                 break;
             case UIInterfaceOrientationLandscapeLeft:
-                _containerViewLandscapeRight = [self buildViewForOrientation:self.landscapeLeftType];
+                _containerViewLandscapeRight = [self buildViewForOrientation:self.landscapeRightType];
                 _containerViewLandscapeRight.hidden = YES;
                 
                 if (_locationType == TuneMessageLocationTop) {
@@ -424,23 +424,23 @@
             break;
         case UIInterfaceOrientationLandscapeLeft:
             // Build view if needed
-            if (!_containerViewLandscapeLeft) {
-                [self layoutMessageContainerForOrientation:UIInterfaceOrientationLandscapeLeft];
-            }
-            
-            [_containerViewLandscapeLeft.layer removeAllAnimations];
-            [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
-            _containerViewLandscapeLeft.hidden = NO;
-            break;
-        case UIInterfaceOrientationLandscapeRight:
-            // Build view if needed
             if (!_containerViewLandscapeRight) {
-                [self layoutMessageContainerForOrientation:UIInterfaceOrientationLandscapeRight];
+                [self layoutMessageContainerForOrientation:UIInterfaceOrientationLandscapeLeft];
             }
             
             [_containerViewLandscapeRight.layer removeAllAnimations];
             [_containerViewLandscapeRight.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeRight.hidden = NO;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            // Build view if needed
+            if (!_containerViewLandscapeLeft) {
+                [self layoutMessageContainerForOrientation:UIInterfaceOrientationLandscapeRight];
+            }
+            
+            [_containerViewLandscapeLeft.layer removeAllAnimations];
+            [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
+            _containerViewLandscapeLeft.hidden = NO;
             break;
         default:
             break;
@@ -471,14 +471,14 @@
             _containerViewPortraitUpsideDown.hidden = YES;
             break;
         case UIInterfaceOrientationLandscapeLeft:
-            [_containerViewLandscapeLeft.layer removeAllAnimations];
-            [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
-            _containerViewLandscapeLeft.hidden = YES;
-            break;
-        case UIInterfaceOrientationLandscapeRight:
             [_containerViewLandscapeRight.layer removeAllAnimations];
             [_containerViewLandscapeRight.layer addAnimation:transition forKey:kCATransition];
             _containerViewLandscapeRight.hidden = YES;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            [_containerViewLandscapeLeft.layer removeAllAnimations];
+            [_containerViewLandscapeLeft.layer addAnimation:transition forKey:kCATransition];
+            _containerViewLandscapeLeft.hidden = YES;
             break;
         default:
             break;
