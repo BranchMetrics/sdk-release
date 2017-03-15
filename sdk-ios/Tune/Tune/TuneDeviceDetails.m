@@ -149,15 +149,7 @@
     [rawSupportedDeviceOrientations removeObject:@"UIDeviceOrientationFaceUp"];
     [rawSupportedDeviceOrientations removeObject:@"UIDeviceOrientationFaceDown"];
 
-    if ([TuneDeviceDetails runningOnTablet]) {
-        return [NSArray arrayWithArray:rawSupportedDeviceOrientations];;
-    }
-    else {
-        // Don't send UIInterfaceOrientationPortraitUpsideDown in this array it won't work properly on the iPhone;
-        [rawSupportedDeviceOrientations removeObject:@"UIInterfaceOrientationPortraitUpsideDown"];
-
-        return [NSArray arrayWithArray:rawSupportedDeviceOrientations];
-    }
+    return [NSArray arrayWithArray:rawSupportedDeviceOrientations];
 }
 
 #endif
