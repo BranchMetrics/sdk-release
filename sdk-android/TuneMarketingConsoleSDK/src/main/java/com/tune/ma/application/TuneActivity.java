@@ -111,7 +111,7 @@ public class TuneActivity extends Activity {
         TuneDebugLog.i(activity.getClass().getSimpleName(), "onResume()");
 
         Intent intent = activity.getIntent();
-        if (intent != null) {
+        if (Tune.getInstance() != null && intent != null) {
             String uriString = intent.getDataString();
             if (uriString != null) {
                 Tune.getInstance().setReferralCallingPackage(activity.getCallingPackage());
