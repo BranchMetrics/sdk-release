@@ -383,7 +383,7 @@
         }
     }
     
-     NSDictionary *apsDictionary = tuneNotification.userInfo[@"aps"];
+    NSDictionary *apsDictionary = tuneNotification.userInfo[@"aps"];
     // userInfo dictionary
     for (NSString *key in [apsDictionary allKeys]) {
         [analyticsVars addObject:[TuneAnalyticsVariable analyticsVariableWithName:key value:[NSString stringWithFormat:@"%@",apsDictionary[key]]]];

@@ -495,9 +495,9 @@ static TuneEventQueue *sharedQueue = nil;
  Fires each enqueued event until the queue is emptied. Fires the next event only when the previous event request has finished.
  */
 - (void)dumpQueue {
-    if( ![TuneNetworkUtils isNetworkReachable] ) return;
-    
     [requestOpQueue addOperationWithBlock:^{
+        if( ![TuneNetworkUtils isNetworkReachable] ) return;
+        
         // get first request
         NSMutableDictionary *request = nil;
         @synchronized(_eventLock) {
