@@ -396,8 +396,6 @@ public class Tune {
     private void measureTuneLinkClick(final String clickedTuneLinkUrl) {
         if (!initialized) return;
 
-        dumpQueue();
-
         String link = TuneUrlBuilder.appendTuneLinkParameters(clickedTuneLinkUrl);
         String data = "";
         JSONObject postBody = new JSONObject();
@@ -406,9 +404,8 @@ public class Tune {
             tuneRequest.constructedRequest(link, data, postBody);
         }
 
-        addEventToQueue(link, data, postBody, firstSession);
-
-        dumpQueue();
+        // Send the Tune Link click request immediately
+        tune.makeRequest(link, data, postBody);
 
         if (tuneListener != null) {
             tuneListener.enqueuedActionWithRefId(null);

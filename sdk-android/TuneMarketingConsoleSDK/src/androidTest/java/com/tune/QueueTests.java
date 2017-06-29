@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class QueueTests extends TuneUnitTest implements TuneListener {
     private ArrayList<JSONObject> successResponses;
     private MockUrlRequester mockUrlRequester;
+    private String receivedDeeplink;
 
     @Override
     protected void setUp() throws Exception {
@@ -158,6 +159,30 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
             e.printStackTrace();
             assertTrue( "failed parsing queue item", false );
         }
+    }
+
+    public void testInvokeIdLookupBypassesQueue() {
+        // hit our failure endpoint, assert that the request gets requeued
+        assertNotNull( "queue hasn't been initialized yet", queue );
+        assertTrue( "queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
+
+        TuneDeeplinkListener deeplinkListener = new TuneDeeplinkListener() {
+            @Override
+            public void didReceiveDeeplink(String deeplink) {
+                receivedDeeplink = deeplink;
+            }
+
+            @Override
+            public void didFailDeeplink(String error) {
+            }
+        };
+        tune.registerDeeplinkListener(deeplinkListener);
+
+        tune.measureSessionInternal();
+        tune.setReferralUrl("https://tty-o.tlnk.io/serve?action=click&publisher_id=169564&site_id=68756&invoke_id=289304");
+        sleep( 50 );
+        assertTrue("queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
+        assertEquals("testing://allthethings?success=yes", receivedDeeplink);
     }
     
     public void testFailureRequeuedOrderMaintained() {

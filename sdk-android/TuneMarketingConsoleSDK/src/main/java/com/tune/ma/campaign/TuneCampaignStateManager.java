@@ -9,10 +9,10 @@ import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
 import com.tune.ma.eventbus.event.campaign.TuneCampaignViewed;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by charlesgilliam on 2/9/16.
@@ -20,13 +20,13 @@ import java.util.Set;
 public class TuneCampaignStateManager {
     private final String TUNE_CAMPAIGN_PREFS = "com.tune.ma.campaign";
 
-    Map<String, TuneCampaign> viewedCampaigns;
-    Set<String> campaignIdsRecordedThisSession;
-    Set<String> variationIdsRecordedThisSession;
-    TuneSharedPrefsDelegate sharedPrefs;
+    protected ConcurrentHashMap<String, TuneCampaign> viewedCampaigns;
+    protected Set<String> campaignIdsRecordedThisSession;
+    protected Set<String> variationIdsRecordedThisSession;
+    protected TuneSharedPrefsDelegate sharedPrefs;
 
     public TuneCampaignStateManager(Context context) {
-        viewedCampaigns = new HashMap<String, TuneCampaign>();
+        viewedCampaigns = new ConcurrentHashMap<String, TuneCampaign>();
         campaignIdsRecordedThisSession = new HashSet<String>();
         variationIdsRecordedThisSession = new HashSet<String>();
         sharedPrefs = new TuneSharedPrefsDelegate(context, TUNE_CAMPAIGN_PREFS);
@@ -35,7 +35,7 @@ public class TuneCampaignStateManager {
         campaignHouseKeeping();
     }
 
-    public void onEvent(TuneAppForegrounded event) {
+    public synchronized void onEvent(TuneAppForegrounded event) {
         campaignHouseKeeping();
         for (Map.Entry<String, TuneCampaign> e: viewedCampaigns.entrySet()) {
             String campaignId = e.getValue().getCampaignId();
@@ -46,7 +46,7 @@ public class TuneCampaignStateManager {
         }
     }
 
-    public void onEvent(TuneCampaignViewed event) {
+    public synchronized void onEvent(TuneCampaignViewed event) {
         TuneCampaign campaign = event.getCampaign();
 
         if (campaign != null && campaign.hasCampaignId() && campaign.hasVariationId()) {
@@ -62,7 +62,7 @@ public class TuneCampaignStateManager {
         storeViewedCampaigns();
     }
 
-    private void campaignHouseKeeping() {
+    private synchronized void campaignHouseKeeping() {
         boolean needToStoreChanges = false;
 
         for (Map.Entry<String, TuneCampaign> e: viewedCampaigns.entrySet()) {
@@ -102,9 +102,9 @@ public class TuneCampaignStateManager {
         }
     }
 
-    private void retrieveViewedCampaigns() {
+    private synchronized void retrieveViewedCampaigns() {
         if (viewedCampaigns == null) {
-            viewedCampaigns = new HashMap<String, TuneCampaign>();
+            viewedCampaigns = new ConcurrentHashMap<String, TuneCampaign>();
         }
         for (Map.Entry<String, ?> entry: sharedPrefs.getAll().entrySet()) {
             try {

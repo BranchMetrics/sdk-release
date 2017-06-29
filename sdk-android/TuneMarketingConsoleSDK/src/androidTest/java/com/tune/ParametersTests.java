@@ -154,6 +154,8 @@ public class ParametersTests extends TuneUnitTest {
     public void testAndroidId() {
         final String androidId = "59a3747895bdb03d";
 
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
         tune.setAndroidId(androidId);
         tune.measureEvent("registration");
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
@@ -166,6 +168,8 @@ public class ParametersTests extends TuneUnitTest {
     public void testAndroidIdNull() {
         final String androidId = null;
 
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
         tune.setAndroidId(androidId);
         tune.measureEvent("registration");
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
@@ -177,6 +181,8 @@ public class ParametersTests extends TuneUnitTest {
     
     public void testAndroidIdMd5() {
         final String androidIdMd5 = TuneUtils.md5("59a3747895bdb03d");
+
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
         
         tune.setAndroidIdMd5(androidIdMd5);
         tune.measureEvent("registration");
@@ -188,6 +194,8 @@ public class ParametersTests extends TuneUnitTest {
     
     public void testAndroidIdSha1() {
         final String androidIdSha1 = TuneUtils.sha1("59a3747895bdb03d");
+
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
         
         tune.setAndroidIdSha1(androidIdSha1);
         tune.measureEvent("registration");
@@ -199,6 +207,8 @@ public class ParametersTests extends TuneUnitTest {
     
     public void testAndroidIdSha256() {
         final String androidIdSha256 = TuneUtils.sha256("59a3747895bdb03d");
+
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
         
         tune.setAndroidIdSha256(androidIdSha256);
         tune.measureEvent("registration");
