@@ -30,6 +30,16 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
                   runDate:(NSDate*)runDate;
 
 /*!
+ Method used to immediately send a request, bypassing the main Tune event queue.
+ */
++ (void)sendUrlRequestImmediately:(NSString*)trackingLink
+                      eventAction:(NSString*)actionName
+                            refId:(NSString*)refId
+                    encryptParams:(NSString*)encryptParams
+                         postData:(NSDictionary*)postData
+                          runDate:(NSDate*)runDate;
+
+/*!
  Update currently enqueued requests to include the provided referral_url and referral_source.
  */
 + (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;

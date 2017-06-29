@@ -8,7 +8,7 @@
 
 #import "TuneDeeplink.h"
 #import "TuneAnalyticsConstants.h"
-#import "TuneDeepLinkConstants.h"
+#import "TuneDeeplinkConstants.h"
 #import "TuneDeviceDetails.h"
 #import "TuneManager.h"
 #import "TuneSkyhookCenter.h"

@@ -497,7 +497,7 @@ static NSSet * doNotEncryptSet;
     NSString *clickLink = [self buildUrlStringForClick:clickedTuneLinkUrl];
     
     // Fire the click event request
-    [TuneEventQueue enqueueUrlRequest:clickLink eventAction:TUNE_EVENT_CLICK refId:nil encryptParams:nil postData:nil runDate:[NSDate date]];
+    [TuneEventQueue sendUrlRequestImmediately:clickLink eventAction:TUNE_EVENT_CLICK refId:nil encryptParams:nil postData:nil runDate:[NSDate date]];
     
     // Notify delegate of enqueued request
     [self notifyDelegateRequestEnqueuedWithRefId:nil url:clickLink postData:nil];

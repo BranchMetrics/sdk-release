@@ -210,7 +210,16 @@ static TuneEventQueue *sharedQueue = nil;
             encryptParams:(NSString*)encryptParams
                  postData:(NSDictionary*)postData
                   runDate:(NSDate*)runDate {
-    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate];
+    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:YES];
+}
+
++ (void)sendUrlRequestImmediately:(NSString*)trackingLink
+                      eventAction:(NSString*)actionName
+                            refId:(NSString*)refId
+                    encryptParams:(NSString*)encryptParams
+                         postData:(NSDictionary*)postData
+                          runDate:(NSDate*)runDate {
+    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:NO];
 }
 
 - (void)enqueueUrlRequest:(NSString*)trackingLink
@@ -218,7 +227,8 @@ static TuneEventQueue *sharedQueue = nil;
                     refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
                  postData:(NSDictionary*)postData
-                  runDate:(NSDate*)runDate {
+                  runDate:(NSDate*)runDate
+              shouldQueue:(BOOL)shouldQueue {
     // add retry count to tracking link
     [self appendOrIncrementRetryCount:&trackingLink sendDate:&runDate];
     
@@ -232,13 +242,17 @@ static TuneEventQueue *sharedQueue = nil;
     [item setValue:postData forKey:TUNE_KEY_JSON];
     [item setValue:refId forKey:TUNE_KEY_REF_ID];
     
-    @synchronized(_eventLock) {
-        [events addObject:item];
+    if (shouldQueue) {
+        @synchronized(_eventLock) {
+            [events addObject:item];
+            
+            [self saveQueue];
+        }
         
-        [self saveQueue];
+        [self dumpQueue];
+    } else {
+        [self sendImmediately:item];
     }
-    
-    [self dumpQueue];
 }
 
 - (void)appendOrIncrementRetryCount:(NSString**)trackingLink sendDate:(NSDate**)sendDate {
@@ -489,6 +503,191 @@ static TuneEventQueue *sharedQueue = nil;
     }
     
     return trackingLink;
+}
+
+- (void)sendImmediately:(NSMutableDictionary *)request {
+    NSOperationQueue *queue = [NSOperationQueue new];
+    [queue addOperationWithBlock:^{
+        if( ![TuneNetworkUtils isNetworkReachable] ) return;
+        
+        // sleep until fire date
+        NSDate *runDate = [NSDate dateWithTimeIntervalSince1970:[request[TUNE_KEY_RUN_DATE] doubleValue]];
+        if( [runDate isKindOfClass:[NSDate class]] ) {
+            [NSThread sleepUntilDate:runDate];
+        }
+        
+        @synchronized(_eventLock) {
+            request[TUNE_KEY_NETWORK_REQUEST_PENDING] = @(YES);
+        }
+        
+        // fire URL request synchronously
+        NSString *trackingLink = request[TUNE_KEY_URL];
+        NSString *encryptParams = request[TUNE_KEY_DATA];
+        id postJsonStringOrDict = request[TUNE_KEY_JSON];
+        NSString *refUrl = request[TUNE_KEY_REFERRAL_URL];
+        NSString *refSource = request[TUNE_KEY_REFERRAL_SOURCE];
+        
+        NSString *fullRequestString = [self updateTrackingLink:trackingLink encryptParams:encryptParams referralUrl:refUrl referralSource:refSource];
+        
+        NSData *postData = nil;
+        
+        // handle post data json string from SDK versions <= 4.9.1
+        if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
+            postData = [postJsonStringOrDict dataUsingEncoding:NSUTF8StringEncoding];
+        } else if ([postJsonStringOrDict isKindOfClass:[NSDictionary class]]) {
+            postData = [TuneUtils jsonSerializedDataForObject:postJsonStringOrDict];
+        }
+        
+#if DEBUG
+        // for testing, attempt informing the delegate's delegate of the trackingLink
+        if( [self.delegate respondsToSelector:@selector(delegate)] ) {
+            id ddelegate = [self.delegate performSelector:@selector(delegate)];
+            
+            NSString *postStr = nil;
+            
+            if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
+                postStr = postJsonStringOrDict;
+            } else if (postData) {
+                postStr = [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding];
+            }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+            if( [ddelegate respondsToSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
+                [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postStr];
+#pragma clang diagnostic pop
+        }
+#endif
+        NSURL *reqUrl = [NSURL URLWithString:fullRequestString];
+        NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:reqUrl
+                                                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                          timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
+        
+#if TESTING
+        // These calls require the URL to be a GET
+        if ([fullRequestString rangeOfString:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode"].location != NSNotFound) {
+            [urlReq setHTTPMethod:TuneHttpRequestMethodTypeGet];
+        } else {
+            [urlReq setHTTPMethod:TuneHttpRequestMethodTypePost];
+        }
+#else
+        [urlReq setHTTPMethod:TuneHttpRequestMethodTypePost];
+#endif
+        [urlReq setValue:TUNE_HTTP_CONTENT_TYPE_APPLICATION_JSON forHTTPHeaderField:TUNE_HTTP_CONTENT_TYPE];
+        [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)postData.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
+        [urlReq setHTTPBody:postData];
+        
+#if IDE_XCODE_7_OR_HIGHER
+        void (^handlerBlock)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) =
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+#else
+        void (^handlerBlock)(NSData *, NSURLResponse *, NSError *) =
+        ^(NSData * data, NSURLResponse * response, NSError * error) {
+#endif
+            NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)response;
+            NSString *trackingUrl = request[TUNE_KEY_URL];
+                
+            NSInteger code = 0;
+            if (error != nil) {
+                DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
+                    
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
+                    [_delegate queueRequestDidFailWithError:error];
+                }
+                    
+                urlResp = nil; // set response to nil and make sure that the request is retried
+            }
+                
+#if TESTING
+            // when testing network errors, use forced error code
+            if (self.forceError) {
+                code = self.forcedErrorCode;
+            }
+            else
+#endif
+                code = [urlResp statusCode];
+            NSDictionary *headers = [urlResp allHeaderFields];
+            NSMutableDictionary *newFirstItem = nil;
+                
+            // if the network request was successful, great
+            if (code >= 200 && code <= 299) {
+                if ([_delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
+                    [_delegate queueRequest:fullRequestString didSucceedWithData:data];
+                }
+                // leave newFirstItem nil to delete
+            }
+            // for HTTP 400, if it's from our server, drop the request and don't retry
+            else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
+                    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+                    userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
+                    userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
+                    userInfo[NSURLErrorKey] = reqUrl;
+                    
+                    // use setValue:forKey: to handle nil error object
+                    [userInfo setValue:error forKey:NSUnderlyingErrorKey];
+                    
+                    NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
+                                                     code:TUNE_REQUEST_400_ERROR_CODE
+                                                 userInfo:userInfo];
+                    [_delegate queueRequestDidFailWithError:e];
+                }
+                // leave newFirstItem nil to delete
+            }
+            // for all other calls, assume the server/connection is broken and will be fixed later
+            else {
+                // update retry parameters
+                NSDate *newSendDate = [NSDate date];
+                
+                [self appendOrIncrementRetryCount:&trackingUrl sendDate:&newSendDate];
+                
+                newFirstItem = [NSMutableDictionary dictionaryWithDictionary:request];
+                newFirstItem[TUNE_KEY_URL] = trackingUrl;
+                newFirstItem[TUNE_KEY_RUN_DATE] = @([newSendDate timeIntervalSince1970]);
+            }
+            
+            // pop or replace event from queue
+            @synchronized(_eventLock) {
+                NSUInteger index = [events indexOfObject:request];
+                
+                if (index != NSNotFound) {
+                    if (newFirstItem == nil) {
+                        [events removeObjectAtIndex:index];
+                    } else {
+                        [events replaceObjectAtIndex:index withObject:newFirstItem];
+                    }
+                }
+                
+                [self saveQueue];
+            }
+            
+            // send next
+            [self performSelectorOnMainThread:@selector(dumpQueue) withObject:nil waitUntilDone:NO];
+        };
+        
+#if TESTING
+        // when testing network errors, skip request and force error response
+        if(self.forceError) {
+            NSError *error = [NSError errorWithDomain:@"TuneTest" code:self.forcedErrorCode userInfo:nil];
+            
+            handlerBlock(nil, nil, error);
+            return;
+        }
+#endif
+        NSHTTPURLResponse *urlResp = nil;
+        NSError *error = nil;
+        NSData *data = [TuneHttpUtils sendSynchronousRequest:urlReq response:&urlResp error:&error];
+        
+        if (error != nil) {
+            DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
+            
+            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
+                [_delegate queueRequestDidFailWithError:error];
+            }
+            urlResp = nil; // set response to nil to make sure that the request is retried
+        }
+        
+        handlerBlock(data, urlResp, error);
+    }];
 }
 
 /*!

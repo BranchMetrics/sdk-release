@@ -33,7 +33,7 @@
 #import "TuneSkyhookCenter.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUserDefaultsUtils.h"
-#import "TUneDeviceUtils.h"
+#import "TuneDeviceUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 

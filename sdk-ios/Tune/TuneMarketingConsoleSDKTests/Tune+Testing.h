@@ -6,6 +6,7 @@
 //  Copyright © 2015 Tune. All rights reserved.
 //
 
+#import "Tune.h"
 #import "Tune+Internal.h"
 
 @interface Tune (Testing)

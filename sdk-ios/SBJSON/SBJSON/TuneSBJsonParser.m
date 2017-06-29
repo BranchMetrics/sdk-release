@@ -74,8 +74,8 @@ static char ctrl[0x22];
 - (id)fragmentWithString:(id)repr {
     [self clearErrorTrace];
     
-    if (!repr) {
-        [self addErrorWithCode:AREINPUT description:@"Input was 'nil'"];
+    if (!repr || ![repr isKindOfClass:[NSString class]]) {
+        [self addErrorWithCode:AREINPUT description:@"Input was 'nil' or non-NSString"];
         return nil;
     }
     

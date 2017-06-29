@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Tune. All rights reserved.
 //
 
+#import "Tune.h"
 #import "Tune+Internal.h"
 
 #import "TuneAppDelegate.h"
