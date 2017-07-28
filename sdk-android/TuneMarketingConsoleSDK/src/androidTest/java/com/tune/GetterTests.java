@@ -53,11 +53,19 @@ public class GetterTests extends TuneUnitTest {
     }
 
     public void testMCC() {
-        assertNotNull(tune.getMCC());
+        String mcc = tune.getMCC();
+        if (mcc != null) {
+            int value = Integer.parseInt(mcc);
+            assert(value != 0);
+        }
     }
 
     public void testMNC() {
-        assertNotNull(tune.getMNC());
+        String mnc = tune.getMNC();
+        if (mnc != null) {
+            int value = Integer.parseInt(mnc);
+            assert(value != 0);
+        }
     }
 
     public void testOsVersion() {
@@ -77,7 +85,7 @@ public class GetterTests extends TuneUnitTest {
     }
 
     public void testSdkVersion() {
-        assertEquals(TuneConstants.SDK_VERSION, tune.getSDKVersion());
+        assertNotNull(Tune.getSDKVersion());
     }
 
     public void testUserAgent() {

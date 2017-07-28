@@ -2,6 +2,8 @@ package com.tune.smartwhere;
 
 import android.content.Context;
 
+import com.tune.Tune;
+import com.tune.TuneEvent;
 import com.tune.TuneUtils;
 
 import java.lang.reflect.Method;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 
 import static com.tune.TuneConstants.STRING_FALSE;
 import static com.tune.TuneConstants.STRING_TRUE;
+import static com.tune.TuneEvent.NAME_SESSION;
 
 /**
  * TUNE-SmartWhere bridge class. Provides methods to start and stop SmartWhere proximity monitoring.
@@ -21,24 +24,28 @@ import static com.tune.TuneConstants.STRING_TRUE;
 public class TuneSmartWhere {
     private static volatile TuneSmartWhere instance = null;
 
-    public static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
-    public static final String TUNE_SMARTWHERE_NOTIFICATION_SERVICE = "com.tune.smartwhere.TuneSmartWhereNotificationService";
+    private static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
+    private static final String TUNE_SMARTWHERE_NOTIFICATION_SERVICE = "com.tune.smartwhere.TuneSmartWhereNotificationService";
 
-    public static final String TUNE_SMARTWHERE_API_KEY = "API_KEY";
-    public static final String TUNE_SMARTWHERE_API_SECRET = "API_SECRET";
-    public static final String TUNE_SMARTWHERE_APPLICATION_ID = "APPLICATION_ID";
-    public static final String TUNE_SMARTWHERE_SERVICE_AUTO_START = "SERVICE_AUTO_START";
-    public static final String TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING = "ENABLE_GEOFENCE_RANGING";
-    public static final String TUNE_SMARTWHERE_PROMPT_FOR_LOCATION_PERMISSION = "PROMPT_FOR_LOCATION_PERMISSION";
-    public static final String TUNE_SMARTWHERE_NOTIFICATION_HANDLER_SERVICE = "NOTIFICATION_HANDLER_SERVICE";
-    public static final String TUNE_SMARTWHERE_DEBUG_LOG = "DEBUG_LOG";
-    public static final String TUNE_SMARTWHERE_PACKAGE_NAME = "PACKAGE_NAME";
+    private static final String TUNE_SMARTWHERE_API_KEY = "API_KEY";
+    private static final String TUNE_SMARTWHERE_API_SECRET = "API_SECRET";
+    private static final String TUNE_SMARTWHERE_APPLICATION_ID = "APPLICATION_ID";
+    private static final String TUNE_SMARTWHERE_SERVICE_AUTO_START = "SERVICE_AUTO_START";
+    private static final String TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING = "ENABLE_GEOFENCE_RANGING";
+    private static final String TUNE_SMARTWHERE_PROMPT_FOR_LOCATION_PERMISSION = "PROMPT_FOR_LOCATION_PERMISSION";
+    private static final String TUNE_SMARTWHERE_NOTIFICATION_HANDLER_SERVICE = "NOTIFICATION_HANDLER_SERVICE";
+    private static final String TUNE_SMARTWHERE_DEBUG_LOG = "DEBUG_LOG";
+    private static final String TUNE_SMARTWHERE_PACKAGE_NAME = "PACKAGE_NAME";
 
-    public static final String TUNE_SMARTWHERE_METHOD_CONFIGURE_SERVICE = "configureService";
-    public static final String TUNE_SMARTWHERE_METHOD_START_SERVICE = "startService";
-    public static final String TUNE_SMARTWHERE_METHOD_STOP_SERVICE = "stopService";
+    private static final String TUNE_SMARTWHERE_METHOD_CONFIGURE_SERVICE = "configureService";
+    private static final String TUNE_SMARTWHERE_METHOD_START_SERVICE = "startService";
+    private static final String TUNE_SMARTWHERE_METHOD_STOP_SERVICE = "stopService";
+    private static final String TUNE_SMARTWHERE_METHOD_PROCESS_MAPPED_EVENT = "processMappedEvent";
 
-    protected TuneSmartWhere() {
+    private TuneSmartWhereConfiguration mConfiguration;
+
+    TuneSmartWhere() {
+        mConfiguration = new TuneSmartWhereConfiguration();
     }
 
     /**
@@ -56,8 +63,35 @@ public class TuneSmartWhere {
      * Checks if SmartWhere ProximityControl class is available.
      * @return true if ProximityControl class is available, false otherwise
      */
-    public boolean isSmartWhereAvailable() {
-        return classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL) != null;
+    public static boolean isSmartWhereAvailable() {
+        return getInstance().isSmartWhereAvailableInternal();
+    }
+
+    /**
+     * Enable (or Disable) SmartWhere using a configuration.
+     * @param config {@link TuneSmartWhereConfiguration} Configuration
+     */
+    public void enableSmartWhere(Context context, TuneSmartWhereConfiguration config) {
+        if (config == null) {
+            config = new TuneSmartWhereConfiguration();
+        }
+
+        mConfiguration = config;
+
+        if (mConfiguration.isSmartWhereEnabled()) {
+            startSmartWhereLocationMonitoring(context);
+        } else {
+            stopSmartWhereLocationMonitoring(context);
+        }
+    }
+
+    /**
+     * Get the current {@link TuneSmartWhereConfiguration}.
+     * @return the current {@link TuneSmartWhereConfiguration}.
+     * To make changes to the SmartWhere state, use {@link TuneSmartWhere#enableSmartWhere(Context, TuneSmartWhereConfiguration)}
+     */
+    public final TuneSmartWhereConfiguration getConfiguration() {
+        return mConfiguration;
     }
 
     /**
@@ -165,10 +199,37 @@ public class TuneSmartWhere {
         }
     }
 
-    protected static synchronized void setInstance(TuneSmartWhere tuneProximity) {
+    /**
+     * Processes events that are mapped on the server.
+     * @param context Application Context
+     * @param event TuneEventOccurred.
+     */
+    public void processMappedEvent(Context context, TuneEvent event) {
+        Class targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL);
+        if (targetClass != null) {
+            try {
+                @SuppressWarnings("unchecked")
+                Method processMappedEvent = targetClass.getMethod(TUNE_SMARTWHERE_METHOD_PROCESS_MAPPED_EVENT, Context.class, String.class);
+                String eventName = event.getEventName();
+                if (eventName != null && !(eventName.equals(NAME_SESSION))) {
+                    processMappedEvent.invoke(targetClass, context, eventName);
+                }
+            } catch (Exception e) {
+                TuneUtils.log("TuneSmartWhere.processMappedEvent: " + e.getLocalizedMessage());
+            }
+        }
+    }
+
+    static synchronized void setInstance(TuneSmartWhere tuneProximity) {
         instance = tuneProximity;
     }
 
+    // Required for SmartWhere Unit Tests
+    protected boolean isSmartWhereAvailableInternal() {
+        return classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL) != null;
+    }
+
+    // Required for SmartWhere Unit Tests
     protected Class classForName(String name) {
         try {
             return Class.forName(name);
@@ -176,4 +237,18 @@ public class TuneSmartWhere {
             return null;
         }
     }
+
+    private void startSmartWhereLocationMonitoring(Context context) {
+        if (isSmartWhereAvailable()) {
+            startMonitoring(context, Tune.getInstance().getTuneParams().getAdvertiserId(), Tune.getInstance().getTuneParams().getConversionKey(), Tune.getInstance().isInDebugMode());
+        }
+    }
+
+    private void stopSmartWhereLocationMonitoring(Context context) {
+        if (isSmartWhereAvailable()) {
+            stopMonitoring(context);
+        }
+    }
+
+
 }

@@ -41,6 +41,7 @@ import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
+import com.tune.smartwhere.TuneSmartWhereConfiguration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -194,7 +195,6 @@ public class Tune {
                 if (tune.collectLocation) {
                     // Get initial location
                     tune.locationListener.startListening();
-                    tune.startSmartWhereLocationMonitoring();
                 }
             }
         }
@@ -226,8 +226,6 @@ public class Tune {
         initLocalVariables(conversionKey);
 
         eventQueue = new TuneEventQueue(mContext, this);
-        // Dump any existing requests in queue on start
-        dumpQueue();
 
         // Set up connectivity listener so we dump the queue when re-connected to Internet
         networkStateReceiver = new BroadcastReceiver() {
@@ -458,6 +456,10 @@ public class Tune {
 
         if (tuneListener != null) {
             tuneListener.enqueuedActionWithRefId(eventData.getRefId());
+        }
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartWhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
         }
 
         return;
@@ -1081,8 +1083,8 @@ public class Tune {
      * Gets the TUNE Android SDK version
      * @return TUNE Android SDK version
      */
-    public String getSDKVersion() {
-        return params.getSdkVersion();
+    public static String getSDKVersion() {
+        return BuildConfig.VERSION_NAME;
     }
 
     /**
@@ -1536,7 +1538,7 @@ public class Tune {
                 String pkg = TextUtils.isEmpty(packageName) ? mContext.getPackageName() : packageName;
                 params.setPackageName(pkg);
 
-                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+                if (TuneSmartWhere.isSmartWhereAvailable()) {
                     TuneSmartWhere.getInstance().setPackageName(mContext, pkg);
                 }
             }
@@ -1736,7 +1738,7 @@ public class Tune {
         debugMode = debug;
         pubQueue.execute(new Runnable() { public void run() {
             params.setDebugMode(debug);
-            if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
+            if (TuneSmartWhere.isSmartWhereAvailable()) {
                 TuneSmartWhere.getInstance().setDebugMode(mContext, debug);
             }
 
@@ -1819,10 +1821,8 @@ public class Tune {
         collectLocation = autoCollect;
         if (collectLocation) {
             locationListener.startListening();
-            startSmartWhereLocationMonitoring();
         } else {
             locationListener.stopListening();
-            stopSmartWhereLocationMonitoring();
         }
     }
 
@@ -2940,31 +2940,29 @@ public class Tune {
         TuneManager.getInstance().getProfileManager().clearAllCustomProfileVariables();
     }
 
+    /**
+     * @return the {@link TuneParameters} used to initialize Tune.
+     */
+    public final TuneParameters getTuneParams() {
+        return params;
+    }
+
     /**********************
      * SmartWhere Methods *
      **********************/
 
-    private void startSmartWhereLocationMonitoring() {
-        pubQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
-                    TuneSmartWhere.getInstance().startMonitoring(mContext, params.getAdvertiserId(), params.getConversionKey(), isInDebugMode());
-                }
-            }
-        });
+    /**
+     * Opt-In SmartWhere Integration with the Tune Marketing Console using default configuration options.
+     * @throws TuneConfigurationException if SmartWhere is not available.
+     */
+    public void enableSmartWhere() throws TuneConfigurationException {
+        if (!TuneSmartWhere.isSmartWhereAvailable()) {
+            throw new TuneConfigurationException("SmartWhere is not available. Please ensure that the SmartWhere library dependency is included.");
+        }
+
+        TuneSmartWhereConfiguration config = new TuneSmartWhereConfiguration();
+        config.grantAll();
+
+        TuneSmartWhere.getInstance().enableSmartWhere(mContext, config);
     }
-
-    private void stopSmartWhereLocationMonitoring() {
-        pubQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (TuneSmartWhere.getInstance().isSmartWhereAvailable()) {
-                    TuneSmartWhere.getInstance().stopMonitoring(mContext);
-                }
-            }
-        });
-    }
-
-
 }

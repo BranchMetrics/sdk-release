@@ -1,11 +1,8 @@
 package com.tune.smartwhere;
 
 import android.content.Context;
-import android.location.Location;
 
 import com.tune.Tune;
-import com.tune.TuneLocation;
-import com.tune.TuneTestConstants;
 import com.tune.TuneUnitTest;
 
 import java.lang.reflect.Field;
@@ -41,130 +38,17 @@ public class SmartWhereProximityMonitoringTests extends TuneUnitTest {
         super.tearDown();
     }
 
-    public void testSetLocationStopsProximityMonitoring() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere =   mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
-
-        tune.setLocation(new Location("mockProvider"));
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere).stopMonitoring(mContext);
-    }
-
-    public void testSetLocationDoesntStopProximityMonitoringIfNotInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
-
-        tune.setLocation(new Location("mockProvider"));
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere, never()).stopMonitoring(mContext);
-
-    }
-
-    public void testSetLocationWithTuneLocationStopsProximityMonitoring() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
-
-        tune.setLocation(new TuneLocation(new Location("mockProvider")));
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere).stopMonitoring(mContext);
-    }
-
-    public void testSetLocationWithTuneLocationDoesntStopProximityMonitoringIfNotInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
-
-        tune.setLocation(new TuneLocation(new Location("mockProvider")));
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere, never()).stopMonitoring(mContext);
-
-    }
-
-    public void testSetShouldAutoCollectDeviceLocationStopsProximityMonitoringWhenSetToFalse() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
-
-        tune.setShouldAutoCollectDeviceLocation(false);
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere).stopMonitoring(mContext);
-    }
-
-    public void testSetShouldAutoCollectDeviceLocationDoesntAttemptToStopProximityMonitoringWhenSetToFalseButNotInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
-
-        tune.setShouldAutoCollectDeviceLocation(false);
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere, never()).stopMonitoring(mContext);
-    }
-
-    public void testSetShouldAutoCollectDeviceLocationStartsProximityMonitoringWhenSetToTrue() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
-
-        tune.setShouldAutoCollectDeviceLocation(true);
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere).startMonitoring(mContext, TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, false);
-    }
-
-    public void testSetShouldAutoCollectDeviceLocationDoesntAttemptToStartProximityMonitoringWhenSetToTrueButNotInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
-
-        tune.setShouldAutoCollectDeviceLocation(true);
-
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
-        verify(mockTuneSmartWhere, never()).startMonitoring(any(Context.class), any(String.class), any(String.class), any(Boolean.class));
-    }
-
     public void testSetDebugModeTrueSetsProximityDebugModeTrueWhenInstalled() throws Exception {
         shutdownWaitAndRecreatePubQueue();
         TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
         TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
+        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
 
         tune.setDebugMode(true);
 
         shutdownWaitAndRecreatePubQueue();
 
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
+        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
         verify(mockTuneSmartWhere).setDebugMode(mContext, true);
     }
 
@@ -172,24 +56,24 @@ public class SmartWhereProximityMonitoringTests extends TuneUnitTest {
         shutdownWaitAndRecreatePubQueue();
         TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
         TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
+        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
 
         tune.setDebugMode(false);
         shutdownWaitAndRecreatePubQueue();
 
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
+        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
         verify(mockTuneSmartWhere).setDebugMode(mContext, false);
     }
 
     public void testSetDebugModeDoesntSetsProximityDebugModeWhenInstalled() throws Exception {
         TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
         TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
+        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
 
         tune.setDebugMode(false);
         shutdownWaitAndRecreatePubQueue();
 
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
+        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
         verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(true));
         verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(false));
     }
@@ -199,10 +83,10 @@ public class SmartWhereProximityMonitoringTests extends TuneUnitTest {
         String expectedPackageName = "com.expected.package.name";
         TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
         TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(false);
+        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
         tune.setPackageName(expectedPackageName);
         shutdownWaitAndRecreatePubQueue();
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
+        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
         verify(mockTuneSmartWhere, never()).setPackageName(any(Context.class), any(String.class));
     }
 
@@ -211,10 +95,10 @@ public class SmartWhereProximityMonitoringTests extends TuneUnitTest {
         String expectedPackageName = "com.another.expected.package.name";
         TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
         TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailable()).thenReturn(true);
+        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
         tune.setPackageName(expectedPackageName);
         shutdownWaitAndRecreatePubQueue();
-        verify(mockTuneSmartWhere).isSmartWhereAvailable();
+        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
         verify(mockTuneSmartWhere).setPackageName(mContext, expectedPackageName);
     }
 

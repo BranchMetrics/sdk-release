@@ -2,6 +2,7 @@ package com.tune.ma.profile;
 
 import android.content.Context;
 
+import com.tune.Tune;
 import com.tune.TuneConstants;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
@@ -83,7 +84,7 @@ public class TuneUserProfile {
             }
         }
 
-        storeProfileVariable(new TuneAnalyticsVariable(TuneUrlKeys.SDK_VERSION, TuneConstants.SDK_VERSION, TuneVariableType.VERSION));
+        storeProfileVariable(new TuneAnalyticsVariable(TuneUrlKeys.SDK_VERSION, Tune.getSDKVersion(), TuneVariableType.VERSION));
         Integer minutesFromGMT = (TimeZone.getDefault().getRawOffset() / 1000) / 60;
         storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.MINUTES_FROM_GMT, minutesFromGMT));
         storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.OS_TYPE, "android"));

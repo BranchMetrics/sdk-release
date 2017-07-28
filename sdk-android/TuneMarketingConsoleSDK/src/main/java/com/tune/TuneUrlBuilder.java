@@ -51,7 +51,7 @@ class TuneUrlBuilder {
         }
         
         link.append("/serve?");
-        link.append(TuneUrlKeys.SDK_VER + "=").append(params.getSdkVersion());
+        link.append(TuneUrlKeys.SDK_VER + "=").append(Tune.getSDKVersion());
         link.append("&" + TuneUrlKeys.TRANSACTION_ID + "=").append(UUID.randomUUID().toString());
         link.append("&" + TuneUrlKeys.SDK_RETRY_ATTEMPT + "=0");
 
@@ -161,7 +161,7 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.REFERRER_DELAY, params.getReferrerDelay());
         safeAppend(link, TuneUrlKeys.SCREEN_DENSITY, params.getScreenDensity());
         safeAppend(link, TuneUrlKeys.SCREEN_SIZE, params.getScreenWidth() + "x" + params.getScreenHeight());
-        safeAppend(link, TuneUrlKeys.SDK_VERSION, params.getSdkVersion());
+        safeAppend(link, TuneUrlKeys.SDK_VERSION, Tune.getSDKVersion());
         safeAppend(link, TuneUrlKeys.TRUSTE_ID, params.getTRUSTeId());
         safeAppend(link, TuneUrlKeys.USER_AGENT, params.getUserAgent());
         

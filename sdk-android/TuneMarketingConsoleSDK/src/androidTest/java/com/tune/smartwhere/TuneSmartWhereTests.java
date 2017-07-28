@@ -1,10 +1,15 @@
 package com.tune.smartwhere;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
+import com.tune.TuneEvent;
 import com.tune.TuneUnitTest;
 
 import java.util.HashMap;
+
+import static com.tune.TuneEvent.ADD_TO_CART;
+import static com.tune.TuneEvent.NAME_SESSION;
 
 
 /**
@@ -36,14 +41,14 @@ public class TuneSmartWhereTests extends TuneUnitTest {
     public void testIsProximityInstalledReturnsFalseWhenProximityControlClassNotFound() throws Exception {
         TuneSmartWhereForTest.clazz = null;
 
-        assertFalse(testObj.isSmartWhereAvailable());
+        assertFalse(testObj.isSmartWhereAvailableInternal());
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
     }
 
     public void testIsProximityInstalledReturnsTrueWhenProximityControlClassIsFound() throws Exception {
         TuneSmartWhereForTest.clazz = this.getClass();
 
-        assertTrue(testObj.isSmartWhereAvailable());
+        assertTrue(testObj.isSmartWhereAvailableInternal());
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
     }
 
@@ -173,17 +178,54 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertTrue(actualConfig.containsKey("DEBUG_LOG"));
         assertEquals(actualConfig.get("DEBUG_LOG"), "false");
     }
+
+    public void testProcessMappedEventCallsOnSmartWhereWhenAvailable() throws Exception {
+        TuneEvent event = new TuneEvent(ADD_TO_CART);
+
+        testObj.processMappedEvent(context,event);
+
+        assertTrue(FakeProximityControl.hasProcessMappedEventBeenCalled);
+        assertEquals(context, FakeProximityControl.context);
+        assertEquals(ADD_TO_CART, FakeProximityControl.capturedEventId);
+
+    }
+
+    public void testProcessMappedEventDoesntCallOnSmartWhereForSessionEvents() throws Exception {
+        TuneEvent event = new TuneEvent(NAME_SESSION);
+
+        testObj.processMappedEvent(context,event);
+
+        assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
+    }
+
+    public void testProcessMappedEventDoesntCallOnSmartWhereWhenNotAvailable() throws Exception {
+        TuneSmartWhereForTest.clazz = null;
+
+        TuneEvent event = new TuneEvent(ADD_TO_CART);
+
+        testObj.processMappedEvent(context,event);
+
+        assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
+    }
+
+    public void testProcessMappedEventDoesntCallOnSmartWhereWhenMethodNotFound() throws Exception {
+        TuneSmartWhereForTest.clazz = Object.class;
+
+        TuneEvent event = new TuneEvent(ADD_TO_CART);
+
+        testObj.processMappedEvent(context,event);
+
+        assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
+
+    }
 }
 
 class TuneSmartWhereForTest extends TuneSmartWhere {
-    public static Class clazz;
-    public static String capturedClassNameString;
-
-    public static HashMap<String, String> config;
+    static Class clazz;
+    static String capturedClassNameString;
 
     public static synchronized TuneSmartWhere getInstance() {
         clazz = FakeProximityControl.class;
-        config = null;
         return new TuneSmartWhereForTest();
     }
 
@@ -196,25 +238,29 @@ class TuneSmartWhereForTest extends TuneSmartWhere {
 
 @SuppressWarnings("unused")
 class FakeProximityControl {
-    public static Context context;
-    public static Object proximityNotification;
-    public static String code;
-    public static HashMap capturedConfig;
-    public static boolean permissionResult;
+    @SuppressLint("StaticFieldLeak")
+    static Context context;
+    private static Object proximityNotification;
+    private static String code;
+    static HashMap capturedConfig;
+    private static boolean permissionResult;
+    static String capturedEventId;
 
-    public static boolean hasFireNotificationBeenCalled;
-    public static boolean hasProcessScanBeenCalled;
-    public static boolean hasStartServiceBeenCalled;
-    public static boolean hasStopServiceBeenCalled;
-    public static boolean hasConfigureServiceBeenCalled;
-    public static boolean hasSetPermissionRquestResultBeenCalled;
+    private static boolean hasFireNotificationBeenCalled;
+    private static boolean hasProcessScanBeenCalled;
+    static boolean hasStartServiceBeenCalled;
+    static boolean hasStopServiceBeenCalled;
+    static boolean hasConfigureServiceBeenCalled;
+    private static boolean hasSetPermissionRquestResultBeenCalled;
+    static boolean hasProcessMappedEventBeenCalled;
 
-    public static void reset() {
+    static void reset() {
         FakeProximityControl.permissionResult = false;
         FakeProximityControl.context = null;
         FakeProximityControl.capturedConfig = null;
         FakeProximityControl.proximityNotification = null;
         FakeProximityControl.code = null;
+        FakeProximityControl.capturedEventId = null;
 
         FakeProximityControl.hasFireNotificationBeenCalled = false;
         FakeProximityControl.hasProcessScanBeenCalled = false;
@@ -222,6 +268,7 @@ class FakeProximityControl {
         FakeProximityControl.hasStopServiceBeenCalled = false;
         FakeProximityControl.hasConfigureServiceBeenCalled = false;
         FakeProximityControl.hasSetPermissionRquestResultBeenCalled = false;
+        FakeProximityControl.hasProcessMappedEventBeenCalled = false;
     }
 
     public static void fireNotification(Context context, Object proximityNotification) {
@@ -257,4 +304,11 @@ class FakeProximityControl {
         FakeProximityControl.context = context;
         FakeProximityControl.permissionResult = permissionResult;
     }
+
+    public static void processMappedEvent(Context context, String eventId) {
+        hasProcessMappedEventBeenCalled = true;
+        FakeProximityControl.context = context;
+        FakeProximityControl.capturedEventId = eventId;
+    }
+
 }

@@ -31,11 +31,11 @@ public class TuneLocationListener implements LocationListener {
     // We're looking for accuracy of within 1000m
     private static final int DESIRED_ACCURACY = 1000;
 
-    private Context context;
-    private LocationManager locationManager;
-    private Location lastLocation;
-    private Timer timer;
-    private boolean listening;
+    private volatile Context context;
+    private volatile LocationManager locationManager;
+    private volatile Location lastLocation;
+    private volatile Timer timer;
+    private volatile boolean listening;
 
     public TuneLocationListener(final Context context) {
         this.context = context;
@@ -48,12 +48,12 @@ public class TuneLocationListener implements LocationListener {
      * Whether app has location permissions or not
      * @return app has location permissions or not
      */
-    public boolean isLocationEnabled() {
+    public synchronized boolean isLocationEnabled() {
         return TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
                 TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
-    public boolean isProviderEnabled() {
+    public synchronized boolean isProviderEnabled() {
         boolean gpsEnabled = false;
         boolean networkEnabled = false;
 
@@ -73,7 +73,7 @@ public class TuneLocationListener implements LocationListener {
      * Asks for location updates if last location seen is not valid anymore
      * @return last location or null if location wasn't seen yet
      */
-    public Location getLastLocation() {
+    public synchronized Location getLastLocation() {
         // If the last location is null or older than LOCATION_VALIDITY_DURATION, start listening for a new one
         if (lastLocation == null || (System.currentTimeMillis() - lastLocation.getTime()) > LOCATION_VALIDITY_DURATION) {
             // Start listening if not already listening
@@ -88,7 +88,7 @@ public class TuneLocationListener implements LocationListener {
     /**
      * Starts listening for location updates
      */
-    public void startListening() {
+    public synchronized void startListening() {
         // If we don't have any location permissions, exit
         if (!isLocationEnabled()) {
             return;
@@ -116,7 +116,7 @@ public class TuneLocationListener implements LocationListener {
     /**
      * Stops listening for location updates
      */
-    public void stopListening() {
+    public synchronized void stopListening() {
         TuneDebugLog.d("Stopping listening of location updates");
         // Stop timer if running
         if (timer != null) {
@@ -133,7 +133,7 @@ public class TuneLocationListener implements LocationListener {
      *
      * @return true if listening, false otherwise
      */
-    public boolean isListening() {
+    public synchronized boolean isListening() {
         return listening;
     }
 
@@ -210,49 +210,54 @@ public class TuneLocationListener implements LocationListener {
         @Override
         public void run() {
             TuneDebugLog.d("Listening for location updates");
-            // Request updates from GPS and network
-            // GPS requires ACCESS_FINE_LOCATION
-            boolean hasFineLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-            if (hasFineLocationPermission) {
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    // Initialize to last known GPS location, in case we never get updates on location
-                    if (lastLocation == null) {
-                        lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            try {
+                // Request updates from GPS and network
+                // GPS requires ACCESS_FINE_LOCATION
+                boolean hasFineLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+                if (hasFineLocationPermission) {
+                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        // Initialize to last known GPS location, in case we never get updates on location
+                        if (lastLocation == null) {
+                            lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        }
+                        // Register this class with the Location Manager to receive GPS location updates
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                     }
-                    // Register this class with the Location Manager to receive GPS location updates
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                 }
-            }
 
-            // Network requires ACCESS_COARSE_LOCATION
-            boolean hasCoarseLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
-            boolean hasNetworkProviderPermissions = hasCoarseLocationPermission;
-            // Work around a location-related crash on OnePlus2 devices where accessing the network provider also requires ACCESS_FINE_LOCATION:
-            // https://chromium.googlesource.com/chromium/src/+/c13ab13e3dccb32be5a376b237a81ed326e158c0%5E%21/#F0
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                hasNetworkProviderPermissions = hasCoarseLocationPermission && hasFineLocationPermission;
-            }
+                // Network requires ACCESS_COARSE_LOCATION
+                boolean hasCoarseLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
+                boolean hasNetworkProviderPermissions = hasCoarseLocationPermission;
+                // Work around a location-related crash on OnePlus2 devices where accessing the network provider also requires ACCESS_FINE_LOCATION:
+                // https://chromium.googlesource.com/chromium/src/+/c13ab13e3dccb32be5a376b237a81ed326e158c0%5E%21/#F0
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    hasNetworkProviderPermissions = hasCoarseLocationPermission && hasFineLocationPermission;
+                }
 
-            if (hasNetworkProviderPermissions) {
-                if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                    // Use last network location if not initialized and GPS location not found
-                    if (lastLocation == null) {
-                        lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (hasNetworkProviderPermissions) {
+                    if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        // Use last network location if not initialized and GPS location not found
+                        if (lastLocation == null) {
+                            lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        }
+                        // Register this class with the Location Manager to receive network + wifi location updates
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                     }
-                    // Register this class with the Location Manager to receive network + wifi location updates
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
                 }
-            }
 
-            // Stop listening after LISTENER_TIMEOUT if onLocationChanged is never received
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    TuneDebugLog.d("Location timer timed out");
-                    stopListening();
-                }
-            }, LISTENER_TIMEOUT);
+                // Stop listening after LISTENER_TIMEOUT if onLocationChanged is never received
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        TuneDebugLog.d("Location timer timed out");
+                        stopListening();
+                    }
+                }, LISTENER_TIMEOUT);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

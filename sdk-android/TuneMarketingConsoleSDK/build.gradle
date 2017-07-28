@@ -5,7 +5,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.10.2'
+    PUBLISH_VERSION = '4.11.0'
 }
 
 android {
@@ -15,14 +15,13 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionName '4.10.2'
+        versionName '4.11.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
             buildConfigField "Boolean", "DEBUG_MODE", "true"
-            testCoverageEnabled true
         }
         release {
             buildConfigField "Boolean", "DEBUG_MODE", "false"
@@ -30,6 +29,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    productFlavors {
+//        lite {
+//            versionNameSuffix "-lite"
+//        }
+        full {
+//            versionNameSuffix "-full"
+        }
+    }
+
+    defaultPublishConfig "fullRelease"
 
     lintOptions {
         abortOnError false
@@ -39,6 +49,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+}
+
+// Creates Gradle dependency configurations to use in the dependencies block.
+// Reference https://developer.android.com/studio/projects/android-library.html
+configurations {
+    // Initializes placeholder configurations that the Android plugin can use when targeting
+    // the corresponding variant of the app.
+    liteReleaseCompile {}
+    fullReleaseCompile {}
 }
 
 dependencies {
@@ -53,43 +72,70 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile 'junit:junit:4.12'
+
+    // SmartWhere is included in the 'full' sdk flavor
+    fullCompile 'com.smartwhere:android-tune:17194'
 }
 
 // Delete old jar
-task clearJar(type: Delete) {
-    delete "../dist/${project.name}-${android.defaultConfig.versionName}.jar"
+task clearJarFull(type: Delete) {
+    String jarNameFull = "${project.name}-${android.defaultConfig.versionName}"
+
+    delete "../dist/${jarNameFull}.jar"
     doLast {
-        println "Deleting old /dist/${project.name}-${android.defaultConfig.versionName}.jar"
+        println "Deleting old /dist/${jarNameFull}.jar"
+    }
+}
+
+// Delete old jar
+task clearJarLite(type: Delete) {
+    String jarNameLite = "${project.name}-${android.defaultConfig.versionName}-lite"
+
+    delete "../dist/${jarNameLite}.jar"
+    doLast {
+        println "Deleting old /dist/${jarNameLite}.jar"
     }
 }
 
 // Extract jar from aar
-task makeJar(type:Copy, dependsOn: [clearJar, assemble]) {
-    def manifestFile = file("src/main/AndroidManifest.xml")
-    def pattern = Pattern.compile("versionName=\"(.*)\"")
-    def manifestText = manifestFile.getText()
-    def matcher = pattern.matcher(manifestText)
-    matcher.find()
-    doLast {
-        println "Setting AndroidManifest.xml versionName to ${android.defaultConfig.versionName}"
-    }
-    def manifestContent = matcher.replaceAll("versionName=\"" + android.defaultConfig.versionName + "\"")
-    manifestFile.write(manifestContent)
-
-    String archiveName = "${project.name}-release"
+task makeJarFull(type:Copy, dependsOn: [clearJarFull, assemble]) {
     String outputDir = "${buildDir.getPath()}/outputs"
-    String jarName = "${project.name}-${android.defaultConfig.versionName}"
+
+    String archiveNameFull = "${project.name}-full-release"
+    String jarNameFull = "${project.name}-${android.defaultConfig.versionName}"
 
     doLast {
-        println "Extracting classes.jar from ${outputDir}/aar/${archiveName}.aar"
+        println "Extracting classes.jar from ${outputDir}/aar/${archiveNameFull}.aar"
     }
-    from(zipTree("${outputDir}/aar/${archiveName}.aar"))
+
+    from(zipTree("${outputDir}/aar/${archiveNameFull}.aar"))
     into("../dist/")
     include('classes.jar')
-    rename ('classes.jar', "${jarName}.jar")
+    rename ('classes.jar', "${jarNameFull}.jar")
     doLast {
-        println "Created /dist/${jarName}.jar"
+        println "Created /dist/${jarNameFull}.jar"
     }
+}
+
+// Extract jar from aar
+task makeJarLite(type:Copy, dependsOn: [clearJarLite, assemble]) {
+    String outputDir = "${buildDir.getPath()}/outputs"
+
+    String archiveNameLite = "${project.name}-lite-release"
+    String jarNameLite = "${project.name}-${android.defaultConfig.versionName}-lite"
+
+    from(zipTree("${outputDir}/aar/${archiveNameLite}.aar"))
+    into("../dist/")
+    include('classes.jar')
+    rename ('classes.jar', "${jarNameLite}.jar")
+    doLast {
+        println "Created /dist/${jarNameLite}.jar"
+    }
+}
+
+// Extract jar from aar
+//task makeJar(type:Copy, dependsOn: [makeJarFull, makeJarLite]) {
+task makeJar(type:Copy, dependsOn: [makeJarFull]) {
 }
 
 task sourcesJar(type: Jar) {

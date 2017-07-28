@@ -932,8 +932,12 @@ public class TuneParameters {
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
     }
 
+    /**
+     * @return the SDK Version
+     * @deprecated Use {@link Tune#getSDKVersion()}  }
+     */
     public synchronized String getSdkVersion() {
-        return TuneConstants.SDK_VERSION;
+        return Tune.getSDKVersion();
     }
     // no setter
 

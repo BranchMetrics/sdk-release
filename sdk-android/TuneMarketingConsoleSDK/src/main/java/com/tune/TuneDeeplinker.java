@@ -85,7 +85,7 @@ public class TuneDeeplinker {
                 .appendPath("link.txt")
                 .appendQueryParameter("platform", "android")
                 .appendQueryParameter("advertiser_id", advertiserId)
-                .appendQueryParameter("ver", TuneConstants.SDK_VERSION)
+                .appendQueryParameter("ver", Tune.getSDKVersion())
                 .appendQueryParameter("package_name", packageName)
                 .appendQueryParameter("ad_id", advertisingId)
                 .appendQueryParameter("user_agent", getUserAgent());

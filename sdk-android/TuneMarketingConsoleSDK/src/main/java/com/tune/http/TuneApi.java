@@ -2,6 +2,7 @@ package com.tune.http;
 
 import android.net.Uri;
 
+import com.tune.Tune;
 import com.tune.TuneConstants;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
@@ -348,7 +349,7 @@ public class TuneApi implements Api {
 
             urlConnection.setRequestProperty(DEVICE_ID_HEADER, profileManager.getDeviceId());
             urlConnection.setRequestProperty(APP_ID_HEADER, profileManager.getAppId());
-            urlConnection.setRequestProperty(SDK_VERSION_HEADER, TuneConstants.SDK_VERSION);
+            urlConnection.setRequestProperty(SDK_VERSION_HEADER, Tune.getSDKVersion());
             urlConnection.setRequestProperty(APP_VERSION_HEADER, profileManager.getProfileVariableValue(TuneUrlKeys.APP_VERSION));
             urlConnection.setRequestProperty(OS_VERSION_HEADER, profileManager.getProfileVariableValue(TuneProfileKeys.API_LEVEL));
             urlConnection.setRequestProperty(OS_TYPE_HEADER, profileManager.getProfileVariableValue(TuneProfileKeys.OS_TYPE));

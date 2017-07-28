@@ -70,7 +70,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         super.tearDown();
     }
 
-    public void sleep(int millis) {
+    public static void sleep(int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
