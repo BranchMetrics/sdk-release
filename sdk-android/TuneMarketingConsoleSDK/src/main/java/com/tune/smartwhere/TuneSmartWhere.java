@@ -42,10 +42,9 @@ public class TuneSmartWhere {
     private static final String TUNE_SMARTWHERE_METHOD_STOP_SERVICE = "stopService";
     private static final String TUNE_SMARTWHERE_METHOD_PROCESS_MAPPED_EVENT = "processMappedEvent";
 
-    private TuneSmartWhereConfiguration mConfiguration;
+    private TuneSmartwhereConfiguration mConfiguration;
 
     TuneSmartWhere() {
-        mConfiguration = new TuneSmartWhereConfiguration();
     }
 
     /**
@@ -68,30 +67,51 @@ public class TuneSmartWhere {
     }
 
     /**
-     * Enable (or Disable) SmartWhere using a configuration.
-     * @param config {@link TuneSmartWhereConfiguration} Configuration
+     * Enable Smartwhere.
+     * @param context Application Context
      */
-    public void enableSmartWhere(Context context, TuneSmartWhereConfiguration config) {
-        if (config == null) {
-            config = new TuneSmartWhereConfiguration();
-        }
-
-        mConfiguration = config;
-
-        if (mConfiguration.isSmartWhereEnabled()) {
+    public void enable(Context context) {
+        if (!isEnabled()) {
+            mConfiguration = new TuneSmartwhereConfiguration();
             startSmartWhereLocationMonitoring(context);
-        } else {
+        }
+    }
+
+    /**
+     * Disable Smartwhere.
+     * @param context Application Context
+     */
+    public void disable(Context context) {
+        if (isEnabled()) {
+            mConfiguration = null;
             stopSmartWhereLocationMonitoring(context);
         }
     }
 
     /**
-     * Get the current {@link TuneSmartWhereConfiguration}.
-     * @return the current {@link TuneSmartWhereConfiguration}.
-     * To make changes to the SmartWhere state, use {@link TuneSmartWhere#enableSmartWhere(Context, TuneSmartWhereConfiguration)}
+     * @return True if Smartwhere is enabled.
      */
-    public final TuneSmartWhereConfiguration getConfiguration() {
-        return mConfiguration;
+    public boolean isEnabled() {
+        boolean test = (mConfiguration != null);
+        return (mConfiguration != null);
+    }
+
+    /**
+     * Get the current {@link TuneSmartwhereConfiguration}.
+     * @return the current {@link TuneSmartwhereConfiguration}.
+     * To make changes to the Smartwhere options, use {@link TuneSmartWhere#configure(TuneSmartwhereConfiguration)}
+     */
+    public final TuneSmartwhereConfiguration getConfiguration() {
+        return (mConfiguration == null ? new TuneSmartwhereConfiguration() : mConfiguration);
+    }
+
+
+    public void configure(TuneSmartwhereConfiguration configuration) {
+        if (configuration == null) {
+            return;
+        }
+
+        mConfiguration = configuration;
     }
 
     /**
@@ -135,6 +155,7 @@ public class TuneSmartWhere {
 
     /**
      * Stops SmartWhere proximity monitoring.
+     * @param context Application Context
      */
     public void stopMonitoring(Context context) {
         Class targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL);

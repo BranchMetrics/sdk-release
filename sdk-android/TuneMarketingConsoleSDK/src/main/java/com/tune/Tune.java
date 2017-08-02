@@ -41,7 +41,7 @@ import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
-import com.tune.smartwhere.TuneSmartWhereConfiguration;
+import com.tune.smartwhere.TuneSmartwhereConfiguration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -458,7 +458,7 @@ public class Tune {
             tuneListener.enqueuedActionWithRefId(eventData.getRefId());
         }
 
-        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartWhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
             TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
         }
 
@@ -2948,21 +2948,43 @@ public class Tune {
     }
 
     /**********************
-     * SmartWhere Methods *
+     * Smartwhere Methods *
      **********************/
 
     /**
-     * Opt-In SmartWhere Integration with the Tune Marketing Console using default configuration options.
-     * @throws TuneConfigurationException if SmartWhere is not available.
+     * Opt-In Smartwhere Integration with the Tune Marketing Console.
+     * @throws TuneConfigurationException if Smartwhere is not available.
      */
-    public void enableSmartWhere() throws TuneConfigurationException {
+    public void enableSmartwhere() throws TuneConfigurationException {
         if (!TuneSmartWhere.isSmartWhereAvailable()) {
-            throw new TuneConfigurationException("SmartWhere is not available. Please ensure that the SmartWhere library dependency is included.");
+            throw new TuneConfigurationException("Smartwhere is not available. Please ensure that the Smartwhere library dependency is included.");
         }
 
-        TuneSmartWhereConfiguration config = new TuneSmartWhereConfiguration();
-        config.grantAll();
+        TuneSmartWhere.getInstance().enable(mContext);
+    }
 
-        TuneSmartWhere.getInstance().enableSmartWhere(mContext, config);
+    /**
+     * Disable Smartwhere Integration.
+     * @throws TuneConfigurationException if Smartwhere is not available.
+     */
+    public void disableSmartwhere() throws TuneConfigurationException {
+        if (!TuneSmartWhere.isSmartWhereAvailable()) {
+            throw new TuneConfigurationException("Smartwhere is not available. Please ensure that the Smartwhere library dependency is included.");
+        }
+
+        TuneSmartWhere.getInstance().disable(mContext);
+    }
+
+    /**
+     * Configure Smartwhere using a configuration.
+     * @param config {@link TuneSmartwhereConfiguration} Configuration
+     * @throws TuneConfigurationException if Smartwhere is not available.
+     */
+    public void configureSmartwhere(TuneSmartwhereConfiguration config) throws TuneConfigurationException {
+        if (!TuneSmartWhere.isSmartWhereAvailable()) {
+            throw new TuneConfigurationException("Smartwhere is not available. Please ensure that the Smartwhere library dependency is included.");
+        }
+
+        TuneSmartWhere.getInstance().configure(config);
     }
 }

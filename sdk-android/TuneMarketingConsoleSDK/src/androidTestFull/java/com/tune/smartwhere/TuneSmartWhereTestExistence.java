@@ -3,10 +3,9 @@ package com.tune.smartwhere;
 import com.tune.BuildConfig;
 import com.tune.Tune;
 import com.tune.TuneConfigurationException;
-import com.tune.TuneUnitTest;
 import com.tune.TuneUtils;
 
-public class TuneSmartWhereTestExistence extends TuneUnitTest {
+public class TuneSmartwhereTestExistence extends TuneSmartWhereTests {
 
     public void testExistence() throws Exception {
         assertTrue(TuneSmartWhere.isSmartWhereAvailable());
@@ -18,11 +17,31 @@ public class TuneSmartWhereTestExistence extends TuneUnitTest {
         assertFalse(version.contains("-"));
     }
 
+    public void testNoOptIn() throws Exception {
+        assertFalse(TuneSmartWhere.getInstance().isEnabled());
+    }
+
     public void testEnableSmartWhere() throws Exception {
         boolean success = true;
 
         try {
-            Tune.getInstance().enableSmartWhere();
+            Tune.getInstance().enableSmartwhere();
+        } catch (TuneConfigurationException e) {
+            success = false;
+        }
+
+        // SmartWhere does exist in this flavor.
+        assertTrue(success);
+
+        assertTrue(TuneSmartWhere.getInstance().isEnabled());
+    }
+
+    public void testEnableDisableSmartWhere() throws Exception {
+        boolean success = true;
+
+        try {
+            Tune.getInstance().enableSmartwhere();
+            Tune.getInstance().disableSmartwhere();
         } catch (TuneConfigurationException e) {
             success = false;
         }
@@ -30,4 +49,22 @@ public class TuneSmartWhereTestExistence extends TuneUnitTest {
         // SmartWhere does exist in this flavor.
         assertTrue(success);
     }
+
+    public void testEnableTuneSharing() throws Exception {
+        boolean success = true;
+
+        try {
+            Tune.getInstance().enableSmartwhere();
+            Tune.getInstance().configureSmartwhere(new TuneSmartwhereConfiguration()
+                    .grant(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS));
+        } catch (TuneConfigurationException e) {
+            success = false;
+        }
+
+        assertTrue(TuneSmartWhere.getInstance().isEnabled());
+        assertTrue(TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS));
+
+        assertTrue(success);
+    }
+
 }

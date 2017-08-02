@@ -7,17 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tune SmartWhere Configuration for granting and revoking integration privileges.
+ * Tune Smartwhere Configuration for granting and revoking integration privileges.
  */
-public class TuneSmartWhereConfiguration {
+public class TuneSmartwhereConfiguration {
     /**
-     * OPT-IN PERMISSION to enable SmartWhere Services.  This permission is required to be set
-     * for any SmartWhere integration with Tune to be enabled.
-     */
-    public static final String GRANT_SMARTWHERE_OPT_IN = "com.tune.smartwhere.permission.OPT_IN";
-
-    /**
-     * PERMISSION to allow Tune to send events directly to SmartWhere by default.
+     * PERMISSION to allow Tune to send events directly to Smartwhere by default.
      */
     public static final String GRANT_SMARTWHERE_TUNE_EVENTS = "com.tune.smartwhere.permission.TUNE_EVENTS";
 
@@ -26,23 +20,20 @@ public class TuneSmartWhereConfiguration {
     /**
      * Constructor.
      */
-    public TuneSmartWhereConfiguration() {
+    public TuneSmartwhereConfiguration() {
         mPermissions = new HashMap<>();
     }
 
     /**
      * Constructor.
-     * @param configJson with permissions.  Typically used in conjunction with {@link TuneSmartWhereConfiguration#toString()}
+     * @param configJson with permissions.  Typically used in conjunction with {@link TuneSmartwhereConfiguration#toString()}
      */
-    public TuneSmartWhereConfiguration(String configJson) {
+    public TuneSmartwhereConfiguration(String configJson) {
         mPermissions = new HashMap<>();
 
         try {
             JSONObject jsonObject = new JSONObject(configJson);
 
-            if (jsonObject.has(GRANT_SMARTWHERE_OPT_IN)) {
-                setPermission(GRANT_SMARTWHERE_OPT_IN, jsonObject.getBoolean(GRANT_SMARTWHERE_OPT_IN));
-            }
             if (jsonObject.has(GRANT_SMARTWHERE_TUNE_EVENTS)) {
                 setPermission(GRANT_SMARTWHERE_TUNE_EVENTS, jsonObject.getBoolean(GRANT_SMARTWHERE_TUNE_EVENTS));
             }
@@ -52,30 +43,21 @@ public class TuneSmartWhereConfiguration {
     }
 
     /**
-     * @return True if Opt-In has been granted for SmartWhere integration.
-     * @see {@link TuneSmartWhereConfiguration#GRANT_SMARTWHERE_OPT_IN}
-     */
-    public boolean isSmartWhereEnabled() {
-        Boolean test = mPermissions.get(GRANT_SMARTWHERE_OPT_IN);
-        return (test == null ? false : (TuneSmartWhere.isSmartWhereAvailable() && test));
-    }
-
-    /**
      * Return the current configuration state for the given permisison.
      * @param permission Permission to check
      * @return True if the permission is granted, False otherwise
      */
     public boolean isPermissionGranted(String permission) {
         Boolean test = mPermissions.get(permission);
-        return isSmartWhereEnabled() && (test == null ? false : test);
+        return (test == null ? false : test);
     }
 
     /**
-     * Grant a permission for SmartWhere integration.
+     * Grant a permission for Smartwhere integration.
      * @param permission Permission to grant
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartWhereConfiguration grant(String permission) {
+    public TuneSmartwhereConfiguration grant(String permission) {
         if (isValidPermission(permission)) {
             mPermissions.put(permission, true);
         }
@@ -84,23 +66,22 @@ public class TuneSmartWhereConfiguration {
     }
 
     /**
-     * Grant all permissions for SmartWhere integration.
+     * Grant all permissions for Smartwhere integration.
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartWhereConfiguration grantAll() {
+    public TuneSmartwhereConfiguration grantAll() {
         // **NOTE**  Any additional permissions added must be added here
-        grant(GRANT_SMARTWHERE_OPT_IN);
         grant(GRANT_SMARTWHERE_TUNE_EVENTS);
 
         return this;
     }
 
     /**
-     * Revoke a permission for SmartWhere integration.
+     * Revoke a permission for Smartwhere integration.
      * @param permission Permission to revoke
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartWhereConfiguration revoke(String permission) {
+    public TuneSmartwhereConfiguration revoke(String permission) {
         if (isValidPermission(permission)) {
             mPermissions.remove(permission);
         }
@@ -109,10 +90,10 @@ public class TuneSmartWhereConfiguration {
     }
 
     /**
-     * Revoke all permissions for SmartWhere integration.
+     * Revoke all permissions for Smartwhere integration.
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartWhereConfiguration revokeAll() {
+    public TuneSmartwhereConfiguration revokeAll() {
         mPermissions.clear();
         return this;
     }
@@ -133,7 +114,6 @@ public class TuneSmartWhereConfiguration {
     public String toString() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(GRANT_SMARTWHERE_OPT_IN, isPermissionGranted(GRANT_SMARTWHERE_OPT_IN));
             jsonObject.put(GRANT_SMARTWHERE_TUNE_EVENTS, isPermissionGranted(GRANT_SMARTWHERE_TUNE_EVENTS));
         } catch (JSONException e) {
         }
