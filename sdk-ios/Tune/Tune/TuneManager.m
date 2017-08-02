@@ -25,6 +25,7 @@
 #import "TuneUserDefaultsUtils.h"
 #import "TuneDeepActionManager.h"
 #import "TuneConnectedModeManager.h"
+#import "TuneSmartWhereTriggeredEventManager.h"
 
 @implementation TuneManager
 
@@ -71,6 +72,9 @@ static dispatch_once_t onceToken;
     
     _tuneManager.sessionManager = [TuneSessionManager moduleWithTuneManager:_tuneManager];
     [_tuneManager.sessionManager registerSkyhooks];
+    
+    _tuneManager.triggeredEventManager = [TuneSmartWhereTriggeredEventManager moduleWithTuneManager:_tuneManager];
+    [_tuneManager.triggeredEventManager registerSkyhooks];
     
     // These need to be started, but don't bother registering its skyhooks unless TMA is actually on
     _tuneManager.powerHookManager = [TunePowerHookManager moduleWithTuneManager:_tuneManager];
