@@ -125,13 +125,6 @@ static TuneTracker *_sharedManager = nil;
         tuneManager.configurationPlayer = configurationPlayer;
     }
 
-#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
-    [opQueue addOperationWithBlock:^{
-        if ([TuneManager currentManager].configuration.shouldAutoCollectDeviceLocation && [TuneSmartWhereHelper isSmartWhereAvailable]) {
-            [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:aid tuneConversionKey:key packageName:[tuneManager.userProfile packageName]];
-        }
-    }];
-#endif
     [[self sharedManager] startTracker];
 }
 
@@ -273,22 +266,6 @@ static TuneTracker *_sharedManager = nil;
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect {
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:autoCollect];
-        
-#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
-        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
-            if (autoCollect) {
-                NSString *advId = [[TuneManager currentManager].userProfile advertiserId];
-                NSString *convKey = [[TuneManager currentManager].userProfile conversionKey];
-                NSString *packageName = [[TuneManager currentManager].userProfile packageName];
-                
-                [[TuneSmartWhereHelper getInstance] startMonitoringWithTuneAdvertiserId:advId
-                                                                      tuneConversionKey:convKey
-                                                                            packageName:packageName];
-            } else {
-                [[TuneSmartWhereHelper getInstance] stopMonitoring];
-            }
-        }
-#endif
     }];
 }
 
@@ -381,12 +358,6 @@ static TuneTracker *_sharedManager = nil;
     [opQueue addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:NO];
         [[TuneManager currentManager].userProfile setLocation:location];
-
-#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
-        if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
-            [[TuneSmartWhereHelper getInstance] stopMonitoring];
-        }
-#endif
     }];
 }
 
@@ -649,6 +620,17 @@ static TuneTracker *_sharedManager = nil;
 + (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler {
     [TuneAppDelegate application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
 }
+
++ (void)application:(UIApplication *)application tuneDidReceiveLocalNotification:(UILocalNotification *)notification{
+    [TuneAppDelegate application:application tune_didReceiveLocalNotification:notification];
+}
+
+#if IDE_XCODE_8_OR_HIGHER
++ (void)userNotificationCenter:(UNUserNotificationCenter *)center tuneDidReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    [TuneAppDelegate userNotificationCenter:center tune_didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+}
+#endif
+
 #endif
 
 #pragma mark - Spotlight API
@@ -823,6 +805,42 @@ static TuneTracker *_sharedManager = nil;
         [[self sharedManager].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
     }];
 }
+#endif
+
+#if TARGET_OS_IOS
+
++ (void)enableSmartwhereIntegration {
+    
+    // Attempting to use SmartWhere when it is not installed is a severe error, throwing an exception.
+    if (![TuneSmartWhereHelper isSmartWhereAvailable]) {
+        NSException *e = [NSException
+                          exceptionWithName:@"FrameworkNotFoundException"
+                          reason:@"SmartWhere.framework Not Found"
+                          userInfo:nil];
+        @throw e;
+    }
+    
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+    [opQueue addOperationWithBlock:^{
+        TuneSmartWhereHelper *tuneSharedSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+        [tuneSharedSmartWhereHelper startMonitoringWithTuneAdvertiserId:[profile advertiserId] tuneConversionKey:[profile conversionKey] packageName:[profile packageName]];
+    }];
+#endif
+
+}
+
++ (void)disableSmartwhereIntegration {
+    TuneSmartWhereHelper *tuneSharedSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+    tuneSharedSmartWhereHelper.enableSmartWhereEventSharing = NO;
+    [tuneSharedSmartWhereHelper stopMonitoring];
+}
+
++ (void)configureSmartwhereIntegrationWithOptions:(NSInteger)mask {
+    TuneSmartWhereHelper *tuneSharedSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+    tuneSharedSmartWhereHelper.enableSmartWhereEventSharing = (mask & TuneSmartwhereShareEventData) ? YES : NO;
+}
+
 #endif
 
 #pragma mark - Testing Helpers

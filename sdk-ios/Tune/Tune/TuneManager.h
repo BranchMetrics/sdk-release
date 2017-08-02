@@ -21,6 +21,7 @@
 @class TuneExperimentManager;
 @class TuneDeepActionManager;
 @class TuneConnectedModeManager;
+@class TuneSmartWhereTriggeredEventManager;
 
 // This singleton is responsible for keeping references to all major components
 // so various parts of the system can be initialized with the TuneManager and then
@@ -42,6 +43,7 @@
 @property (strong, nonatomic) TuneExperimentManager *experimentManager;
 @property (strong, nonatomic) TuneDeepActionManager *deepActionManager;
 @property (strong, nonatomic) TuneConnectedModeManager *connectedModeManager;
+@property (strong, nonatomic) TuneSmartWhereTriggeredEventManager *triggeredEventManager;
 
 @property (strong, nonatomic) dispatch_queue_t concurrentQueue;
 

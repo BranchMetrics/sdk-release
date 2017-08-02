@@ -6,9 +6,9 @@
 //  Copyright © 2016 Tune. All rights reserved.
 //
 
-#if TUNE_ENABLE_SMARTWHERE
-
 #import "TuneSmartWhereHelper.h"
+#import "TuneEvent.h"
+#import "TuneSkyhookPayloadConstants.h"
 #import "TuneKeyStrings.h"
 #import "TuneUtils.h"
 
@@ -25,11 +25,25 @@ NSString * const TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS = @"DELEGATE_NOTIFICATIO
 NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
 NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
 
+@interface TuneSmartWhereHelper()
+
+/*!
+ * TUNE Advertiser ID.
+ */
+@property (nonatomic, copy) NSString *aid;
+/*!
+ * TUNE Conversion Key.
+ */
+@property (nonatomic, copy) NSString *key;
+
+@end
+
 @implementation TuneSmartWhereHelper
 
 + (TuneSmartWhereHelper *)getInstance {
     dispatch_once(&smartWhereHelperToken, ^{
         tuneSharedSmartWhereHelper = [TuneSmartWhereHelper new];
+        tuneSharedSmartWhereHelper.enableSmartWhereEventSharing = NO;
     });
     return tuneSharedSmartWhereHelper;
 }
@@ -40,7 +54,7 @@ NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
 
 - (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString*) packageName {
     @synchronized(self) {
-        if (_smartWhere == nil && aid != nil && key != nil) {
+        if ([TuneSmartWhereHelper isSmartWhereAvailable] && _smartWhere == nil && aid != nil && key != nil) {
             _aid = aid;
             _key = key;
             _packageName = packageName;
@@ -88,6 +102,20 @@ NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
             NSMutableDictionary *config = [NSMutableDictionary new];
             config[TUNE_SMARTWHERE_DEBUG_LOGGING] = enable ? TUNE_STRING_TRUE : TUNE_STRING_FALSE;
             [self setConfig:config];
+        }
+    }
+}
+
+- (void)processMappedEvent:(TuneSkyhookPayload*) payload{
+    @synchronized(self) {
+        if (_smartWhere && self.enableSmartWhereEventSharing) {
+            NSDictionary *userInfo = payload.userInfo;
+            if (userInfo){
+                TuneEvent *event = userInfo[TunePayloadCustomEvent];
+                if (event){
+                    [_smartWhere performSelector:@selector(processMappedEvent:) withObject:event.eventName];
+                }
+            }
         }
     }
 }
@@ -194,5 +222,3 @@ NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
 }
 
 @end
-
-#endif
