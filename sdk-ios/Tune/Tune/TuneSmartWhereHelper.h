@@ -6,9 +6,8 @@
 //  Copyright © 2016 Tune. All rights reserved.
 //
 
-#if TUNE_ENABLE_SMARTWHERE
-
 #import <Foundation/Foundation.h>
+#import "TuneSkyhookPayload.h"
 
 @protocol SmartWhereDelegate
 @end
@@ -17,18 +16,17 @@
  * TUNE-SmartWhere bridge class. Provides methods to start and stop SmartWhere proximity monitoring.
  */
 @interface TuneSmartWhereHelper : NSObject <SmartWhereDelegate>
-/*!
- * TUNE Advertiser ID.
- */
-@property (nonatomic, copy) NSString *aid;
-/*!
- * TUNE Conversion Key.
- */
-@property (nonatomic, copy) NSString *key;
+
 /*!
  * TUNE Package Name.
  */
 @property (nonatomic, copy) NSString *packageName;
+
+/*!
+ * Automatically share events with Smartwhere.
+ */
+@property (nonatomic, assign, readwrite) BOOL enableSmartWhereEventSharing;
+
 
 /*!
  * Checks if SmartWhere class is available.
@@ -46,9 +44,9 @@
  * Starts SmartWhere proximity monitoring when valid TUNE Advertiser ID, TUNE Conversion Key and TUNE Package Name values are provided. This method should be called only when SmartWhere class is available and geo-location auto-collection has been enabled.
  * @param aid TUNE Advertiser ID
  * @param key TUNE Conversion Key
- * @param key TUNE Package Name
+ * @param packageName TUNE Package Name
  */
-- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString *)packageName;
+- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString*) packageName;
 
 /*!
  * Stops SmartWhere proximity monitoring.
@@ -60,6 +58,18 @@
  * @param enable boolean value for debug mode, defaults to NO
  */
 - (void)setDebugMode:(BOOL)enable;
+
+/*!
+ * Gets the shared instance of the SmartWhere object.
+ */
+- (id)getSmartWhere;
+
+/*!
+ * Process a triggered event that is mapped on the server.
+ * @param TuneSkyhookPayload
+ */
+- (void)processMappedEvent:(TuneSkyhookPayload*) payload;
+
 @end
 
 #ifndef TUNE_SW_EventActionType_Defined
@@ -120,5 +130,3 @@ typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
 @property (nonatomic, copy) NSDictionary *eventProperties;
 @property (nonatomic, assign) TUNE_SW_ProximityTriggerType triggerType;
 @end
-
-#endif

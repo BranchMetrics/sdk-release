@@ -6,23 +6,23 @@
 //  Copyright © 2016 Tune. All rights reserved.
 //
 
-#if TUNE_ENABLE_SMARTWHERE
-
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 #import "TuneConfiguration.h"
 #import "TuneManager.h"
 #import "TuneSmartWhereHelper.h"
 #import "TuneUtils.h"
+#import "TuneEvent.h"
+#import "TuneSkyhookPayloadConstants.h"
 
 @interface SmartWhereForTest : NSObject
 - (void)invalidate;
+- (void)processMappedEvent:(TuneSkyhookPayload*) payload;
 @end
 
 @implementation SmartWhereForTest
-- (void)invalidate {
-    // empty
-}
+- (void)invalidate {}
+- (void)processMappedEvent:(TuneSkyhookPayload*) payload{}
 @end
 
 @interface TuneSmartWhereHelper (Testing)
@@ -104,6 +104,7 @@
 #pragma mark - startMonitoringWithTuneAdvertiserId:tuneConversionKey: tests
 
 - (void)testStartMonitoringStartsProximityMonitoringWithAdIdAndConversionKey {
+    
     [self setTuneConfigurationMockWithDebug:NO];
     [self setTuneUtilsGetClassFromStringToAnObject];
     
@@ -111,6 +112,7 @@
     NSString *conversionKey = @"key";
     
     id mockTestObj = OCMPartialMock(testObj);
+
     [[mockTestObj expect] startProximityMonitoringWithAppId:aid
                                                  withApiKey:aid
                                               withApiSecret:conversionKey
@@ -265,7 +267,7 @@
     [mockTestObj verify];
 }
 
-- (void)testSetDebugModeDoesntAttemptWhenNotInstanciated {
+- (void)testSetDebugModeDoesntAttemptWhenNotInstantiated {
     id mockTestObj = OCMPartialMock(testObj);
     [[mockTestObj reject] setConfig:OCMOCK_ANY];
     
@@ -314,6 +316,69 @@
     XCTAssertNil(testObj.getSmartWhere);
 }
 
+#pragma mark - processMappedEvent tests
+
+- (void)testprocessMappedEventCallsOnSmartWhere {
+    NSString *eventName = @"test_event_name";
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:eventName];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    [[mockSmartWhere reject] performSelector:@selector(processMappedEvent:) withObject:OCMOCK_ANY];
+    
+    [testObj processMappedEvent:payload];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testprocessMappedEventCallsOnSmartWhereEventSharingEnabled {
+    NSString *eventName = @"test_event_name";
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:eventName];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[mockSmartWhere expect] performSelector:@selector(processMappedEvent:) withObject:eventName];
+    
+    [testObj processMappedEvent:payload];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testprocessMappedEventDoesntCallOnSmartWhereWhenNotInstantiated {
+    NSString *eventName = @"test_event_name";
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:eventName];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+    
+    [[mockSmartWhere reject] performSelector:@selector(processMappedEvent:) withObject:OCMOCK_ANY];
+    
+    [testObj processMappedEvent:payload];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testprocessMappedEventDoesntCallOnSmartWhereWhenThereIsNoEventInUserInfo {
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{}];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    [[mockSmartWhere reject] performSelector:@selector(processMappedEvent:) withObject:OCMOCK_ANY];
+    
+    [testObj processMappedEvent:payload];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testprocessMappedEventDoesntCallOnSmartWhereWhenUserInfoIsNil {
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:nil];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    [[mockSmartWhere reject] performSelector:@selector(processMappedEvent:) withObject:OCMOCK_ANY];
+    
+    [testObj processMappedEvent:payload];
+    
+    [mockSmartWhere verify];
+}
 
 #pragma mark - test helpers
 
@@ -330,5 +395,3 @@
 }
 
 @end
-
-#endif

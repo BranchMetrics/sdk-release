@@ -120,6 +120,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationDidBecomeActiveNotification];
     
@@ -132,6 +133,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     XCTAssertEqual(0, [observer skyhookPostCount]);
     
@@ -160,6 +162,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     
     [self prepareConfigWith:@{@"disabled": @"0"}];
@@ -178,6 +181,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     XCTAssertEqual(1, [observer skyhookPostCount]);
     
@@ -202,6 +206,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     [[TuneSkyhookCenter defaultCenter] addObserver:activatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:deactivatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];
@@ -229,6 +234,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     /*
      DISABLED AT BOOT ==> ENABLED
@@ -253,6 +259,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
 
     
     /*
@@ -277,6 +284,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
 
     /*
      DISABLED ==> ENABLED
@@ -301,6 +309,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     /*
      ENABLED ==> PERMANENTLY DISABLED
@@ -324,6 +333,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNotNil([TuneManager currentManager].triggerManager);
     XCTAssertNotNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
 #endif
 }
 
@@ -344,6 +354,7 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
     
     [[TuneSkyhookCenter defaultCenter] addObserver:activatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:deactivatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];
@@ -371,7 +382,8 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
-    
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
+
     /*
      PERMANENTLY DISABLED AT BOOT ==> ENABLED
      Nothing should happen
@@ -394,7 +406,8 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
-    
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
+
     /*
      PERMANENTLY DISABLED AT BOOT ==> PERMANENTLY DISABLED
      Nothing should happen
@@ -417,7 +430,8 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
-    
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
+
     /*
      PERMANENTLY DISABLED AT BOOT ==> NOT PERMANENTLY DISABLED
      Nothing should happen
@@ -440,7 +454,8 @@
     XCTAssertNotNil([TuneManager currentManager].playlistManager);
     XCTAssertNil([TuneManager currentManager].triggerManager);
     XCTAssertNil([TuneManager currentManager].campaignStateManager);
-    
+    XCTAssertNotNil([TuneManager currentManager].triggeredEventManager);
+
     [tuneUtilsMock stopMocking];
 }
 

@@ -98,6 +98,10 @@
 		0BECFE891B7BA47600501733 /* TuneFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE881B7B8C6900501733 /* TuneFileManager.m */; };
 		0BECFE981B7D31D200501733 /* TuneAnalyticsDispatchEventsOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE971B7D31D200501733 /* TuneAnalyticsDispatchEventsOperation.m */; };
 		0BECFE9C1B7DA93400501733 /* NSData+TuneGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE9B1B7DA93400501733 /* NSData+TuneGZIP.m */; };
+		17437A771F2FF9BC005CBA51 /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
+		17437A781F2FF9BC005CBA51 /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
+		17437A791F2FF9C2005CBA51 /* TuneSmartWhereTriggeredEventManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */; };
+		17616E031F217B690015C59E /* TuneSmartWherePublicAPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17616E021F217B690015C59E /* TuneSmartWherePublicAPITests.m */; };
 		323040011B97A3ED00DD8E65 /* TuneNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */; };
 		323040021B97A3ED00DD8E65 /* TuneNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040001B97A3ED00DD8E65 /* TuneNotification.m */; };
 		323040051B97A80500DD8E65 /* TuneNotificationProcessing.h in Headers */ = {isa = PBXBuildFile; fileRef = 323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */; };
@@ -152,6 +156,12 @@
 		3FD219941B98D63100626DC6 /* TuneEventItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD219931B98D63100626DC6 /* TuneEventItem+Internal.h */; };
 		3FEBF7FF1B8E5CE60030EF4D /* TunePIIUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */; };
 		3FEBF8001B8E5CE60030EF4D /* TunePIIUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */; };
+		9B7BD8141F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */; };
+		9B7BD8151F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
+		9B7BD8161F0EA04B0093F28D /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
+		9B7BD81E1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD81D1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m */; };
+		9BE786E11F04580A006C2B55 /* SmartWhereForDelegateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE786E01F04580A006C2B55 /* SmartWhereForDelegateTest.m */; };
+		9BE786E31F047173006C2B55 /* TuneAppDelegateTestsForSmartWhere.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BE786E21F047173006C2B55 /* TuneAppDelegateTestsForSmartWhere.m */; };
 		AE89470A1CC55D5A00525862 /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
 		DB0FF56B1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF56A1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m */; };
 		DB0FF56D1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF56C1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m */; };
@@ -1003,14 +1013,6 @@
 		F8B0F1481CA8DD910051D079 /* TuneInAppMessageExperimentDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1BC5EF1BBB6C01009FD499 /* TuneInAppMessageExperimentDetails.m */; };
 		F8B0F1491CA8DD940051D079 /* TuneInAppMessageExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5EE1BBB6BE5009FD499 /* TuneInAppMessageExperimentDetails.h */; };
 		F8B0F14A1CA8DD950051D079 /* TuneInAppMessageExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5EE1BBB6BE5009FD499 /* TuneInAppMessageExperimentDetails.h */; };
-		F8B331131CB31D9500C954B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B3310F1CB31D7300C954B2 /* QuartzCore.framework */; };
-		F8B331141CB31D9C00C954B2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331111CB31D7700C954B2 /* CoreGraphics.framework */; };
-		F8B3311B1CB31DCD00C954B2 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331151CB31DCD00C954B2 /* AdSupport.framework */; };
-		F8B3311C1CB31DCD00C954B2 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331161CB31DCD00C954B2 /* MobileCoreServices.framework */; };
-		F8B3311D1CB31DCD00C954B2 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331171CB31DCD00C954B2 /* SpriteKit.framework */; };
-		F8B3311E1CB31DCD00C954B2 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331181CB31DCD00C954B2 /* StoreKit.framework */; };
-		F8B3311F1CB31DCD00C954B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B331191CB31DCD00C954B2 /* SystemConfiguration.framework */; };
-		F8B331201CB31DCD00C954B2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B3311A1CB31DCD00C954B2 /* UIKit.framework */; };
 		F8BC3ADB1BF3C2570028EE2A /* TuneInAppMessageExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5EE1BBB6BE5009FD499 /* TuneInAppMessageExperimentDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F8C4DFC51C8E68E200931118 /* OCMock.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8C4DFC41C8E68E200931118 /* OCMock.framework */; };
 		F8C81C071CA6060E005C7B5D /* TuneBlankAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC66AF1BA8F39E0069B549 /* TuneBlankAppDelegate.m */; };
@@ -1317,6 +1319,7 @@
 		0BECFEDD1B82804000501733 /* TuneSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSessionManager.m; sourceTree = "<group>"; };
 		0BECFEE01B86A00500501733 /* TuneSessionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSessionManagerTests.m; sourceTree = "<group>"; };
 		0BECFEE31B8703AA00501733 /* TuneAnalyticsEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAnalyticsEventTests.m; sourceTree = "<group>"; };
+		17616E021F217B690015C59E /* TuneSmartWherePublicAPITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TuneSmartWherePublicAPITests.m; path = ../Tune/TuneSmartWherePublicAPITests.m; sourceTree = "<group>"; };
 		32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotification.h; sourceTree = "<group>"; };
 		323040001B97A3ED00DD8E65 /* TuneNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotification.m; sourceTree = "<group>"; };
 		323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotificationProcessing.h; sourceTree = "<group>"; };
@@ -1387,6 +1390,12 @@
 		3FE85AF51B87F921008E706B /* TuneAnalyticsItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAnalyticsItemTests.m; sourceTree = "<group>"; };
 		3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePIIUtils.h; sourceTree = "<group>"; };
 		3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePIIUtils.m; sourceTree = "<group>"; };
+		9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneSmartWhereTriggeredEventManager.h; sourceTree = "<group>"; };
+		9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereTriggeredEventManager.m; sourceTree = "<group>"; };
+		9B7BD81D1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereTriggeredEventManagerTests.m; sourceTree = "<group>"; };
+		9BE786DF1F04580A006C2B55 /* SmartWhereForDelegateTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartWhereForDelegateTest.h; sourceTree = "<group>"; };
+		9BE786E01F04580A006C2B55 /* SmartWhereForDelegateTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmartWhereForDelegateTest.m; sourceTree = "<group>"; };
+		9BE786E21F047173006C2B55 /* TuneAppDelegateTestsForSmartWhere.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAppDelegateTestsForSmartWhere.m; sourceTree = "<group>"; };
 		AE8947091CC55D5A00525862 /* TuneConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneConstants.m; sourceTree = "<group>"; };
 		DB0FF56A1B90EB3C0071B996 /* TuneSwizzleBlacklistTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSwizzleBlacklistTests.m; sourceTree = "<group>"; };
 		DB0FF56C1B90FB610071B996 /* UIViewController+TuneAnalyticsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+TuneAnalyticsTests.m"; sourceTree = "<group>"; };
@@ -1519,13 +1528,6 @@
 		DBF535CD1B96290E00B76885 /* TuneTriggerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneTriggerManager.m; sourceTree = "<group>"; };
 		DBF535E81B97636C00B76885 /* TuneTriggerManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneTriggerManagerTests.m; sourceTree = "<group>"; };
 		DBF535EA1B976C9400B76885 /* SlideInMessage1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = SlideInMessage1.json; sourceTree = "<group>"; };
-		F81985B61C8A3E6A00AF8E87 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		F81985B81C8A40EE00AF8E87 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		F81985BA1C8A40FC00AF8E87 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
-		F81985BC1C8A410900AF8E87 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
-		F81985BE1C8A411200AF8E87 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
-		F81985C01C8A413A00AF8E87 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
-		F81985C11C8A413A00AF8E87 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		F81A460D1D9EE9D800D50867 /* TuneIadAttributionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneIadAttributionTests.m; sourceTree = "<group>"; };
 		F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneIadUtils.h; sourceTree = "<group>"; };
 		F81A46101D9EF54D00D50867 /* TuneIadUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneIadUtils.m; sourceTree = "<group>"; };
@@ -1574,14 +1576,6 @@
 		F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNetworkUtils.h; sourceTree = "<group>"; };
 		F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNetworkUtils.m; sourceTree = "<group>"; };
 		F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneInAppUtilsTests.m; sourceTree = "<group>"; };
-		F8B3310F1CB31D7300C954B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331111CB31D7700C954B2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331151CB31DCD00C954B2 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331161CB31DCD00C954B2 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331171CB31DCD00C954B2 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/SpriteKit.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331181CB31DCD00C954B2 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		F8B331191CB31DCD00C954B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
-		F8B3311A1CB31DCD00C954B2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F8C4DFC41C8E68E200931118 /* OCMock.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCMock.framework; path = Tune_tvOSTests/OCMock.framework; sourceTree = "<group>"; };
 		F8E39FDC1D622284008D4794 /* TunePushUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePushUtils.h; sourceTree = "<group>"; };
 		F8E39FDD1D622284008D4794 /* TunePushUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePushUtils.m; sourceTree = "<group>"; };
@@ -1641,14 +1635,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8B3311B1CB31DCD00C954B2 /* AdSupport.framework in Frameworks */,
-				F8B3311C1CB31DCD00C954B2 /* MobileCoreServices.framework in Frameworks */,
-				F8B3311D1CB31DCD00C954B2 /* SpriteKit.framework in Frameworks */,
-				F8B3311E1CB31DCD00C954B2 /* StoreKit.framework in Frameworks */,
-				F8B3311F1CB31DCD00C954B2 /* SystemConfiguration.framework in Frameworks */,
-				F8B331201CB31DCD00C954B2 /* UIKit.framework in Frameworks */,
-				F8B331141CB31D9C00C954B2 /* CoreGraphics.framework in Frameworks */,
-				F8B331131CB31D9500C954B2 /* QuartzCore.framework in Frameworks */,
 				F8C4DFC51C8E68E200931118 /* OCMock.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1765,14 +1751,6 @@
 		0BCB59981B65EF6A005216E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F8B331151CB31DCD00C954B2 /* AdSupport.framework */,
-				F8B331161CB31DCD00C954B2 /* MobileCoreServices.framework */,
-				F8B331171CB31DCD00C954B2 /* SpriteKit.framework */,
-				F8B331181CB31DCD00C954B2 /* StoreKit.framework */,
-				F8B331191CB31DCD00C954B2 /* SystemConfiguration.framework */,
-				F8B3311A1CB31DCD00C954B2 /* UIKit.framework */,
-				F8B331111CB31D7700C954B2 /* CoreGraphics.framework */,
-				F8B3310F1CB31D7300C954B2 /* QuartzCore.framework */,
 				F8346B591CAF19B700B0E7ED /* CoreSpotlight.framework */,
 				F8346B571CAF199F00B0E7ED /* CoreGraphics.framework */,
 				F8346B551CAF197F00B0E7ED /* StoreKit.framework */,
@@ -1784,13 +1762,6 @@
 				F8346B491CAF192600B0E7ED /* AdSupport.framework */,
 				F8346B471CAF190800B0E7ED /* UIKit.framework */,
 				F8C4DFC41C8E68E200931118 /* OCMock.framework */,
-				F81985C01C8A413A00AF8E87 /* AdSupport.framework */,
-				F81985C11C8A413A00AF8E87 /* SystemConfiguration.framework */,
-				F81985BE1C8A411200AF8E87 /* libz.tbd */,
-				F81985BC1C8A410900AF8E87 /* MobileCoreServices.framework */,
-				F81985BA1C8A40FC00AF8E87 /* Security.framework */,
-				F81985B81C8A40EE00AF8E87 /* UIKit.framework */,
-				F81985B61C8A3E6A00AF8E87 /* StoreKit.framework */,
 				0BCB5B3E1B661B76005216E2 /* Foundation.framework */,
 				0BCB5AD21B660CEB005216E2 /* CoreTelephony.framework */,
 				0BCB59991B65EF6A005216E2 /* Foundation.framework */,
@@ -2519,6 +2490,8 @@
 		F87DE3721DA6FFC80054037A /* SmartWhere */ = {
 			isa = PBXGroup;
 			children = (
+				9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */,
+				9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */,
 				F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */,
 				F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */,
 			);
@@ -2528,8 +2501,13 @@
 		F87DE3781DA700010054037A /* SmartWhere */ = {
 			isa = PBXGroup;
 			children = (
+				17616E021F217B690015C59E /* TuneSmartWherePublicAPITests.m */,
 				F885A1DD1DAEF46000F3219D /* TuneSmartWhereMonitoringTests.m */,
 				F87DE3791DA700360054037A /* TuneSmartWhereHelperTests.m */,
+				9B7BD81D1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m */,
+				9BE786DF1F04580A006C2B55 /* SmartWhereForDelegateTest.h */,
+				9BE786E01F04580A006C2B55 /* SmartWhereForDelegateTest.m */,
+				9BE786E21F047173006C2B55 /* TuneAppDelegateTestsForSmartWhere.m */,
 			);
 			name = SmartWhere;
 			sourceTree = "<group>";
@@ -2702,6 +2680,7 @@
 				F8AE53B41BF3D1600055B93C /* TuneInAppMessageExperimentDetails+Internal.h in Headers */,
 				DB918C251B8E60FD0077305B /* TuneArrayUtils.h in Headers */,
 				DB918C261B8E60FD0077305B /* TuneDeviceDetails.h in Headers */,
+				9B7BD8141F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h in Headers */,
 				DBF5358D1B94F5AA00B76885 /* TuneMessageLabel.h in Headers */,
 				DB918C271B8E60FD0077305B /* TuneDeviceUtils.h in Headers */,
 				F81A46111D9EF54D00D50867 /* TuneIadUtils.h in Headers */,
@@ -2812,6 +2791,7 @@
 				3263C31F1D516B590035DBDB /* TuneDebugUtilities.h in Headers */,
 				F8868F591C0FC5C5007E2F9C /* TuneBaseTakeOverMessageView.h in Headers */,
 				F8868F5A1C0FC5C6007E2F9C /* TuneTakeOverMessageView.h in Headers */,
+				17437A791F2FF9C2005CBA51 /* TuneSmartWhereTriggeredEventManager.h in Headers */,
 				F8868F5C1C0FC5C6007E2F9C /* TunePopUpMessageView.h in Headers */,
 				F8868F5D1C0FC5C6007E2F9C /* TuneCampaign.h in Headers */,
 				F8868F5E1C0FC5C7007E2F9C /* Tune+Internal.h in Headers */,
@@ -3299,6 +3279,7 @@
 				DB0FF5831B94CB030071B996 /* TuneCampaign.m in Sources */,
 				0BCB59F51B65F949005216E2 /* TuneSkyhookConstants.m in Sources */,
 				0BCB59CB1B65F922005216E2 /* TuneModule.m in Sources */,
+				9B7BD8151F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m in Sources */,
 				DBA92C911B9F65C600150B12 /* TuneiOS8TakeOverMessageView.m in Sources */,
 				DBA92CAE1BA399DB00150B12 /* TuneStorageKeys.m in Sources */,
 				0B42D6331B6F1B61008101CE /* TuneAnalyticsVariable.m in Sources */,
@@ -3396,6 +3377,7 @@
 				F8F694071CFFC15B00B453D9 /* TuneAnalyticsDispatchToConnectedModeOperation.m in Sources */,
 				DBCA43411B8E691300483318 /* TunePlaylistManagerTests.m in Sources */,
 				F8F694151CFFC15B00B453D9 /* TunePowerHookManager.m in Sources */,
+				9B7BD8161F0EA04B0093F28D /* TuneSmartWhereTriggeredEventManager.m in Sources */,
 				F8E57BDC1D062F6A0064C0A6 /* TuneExperimentDetailsTests.m in Sources */,
 				F8F694161CFFC15B00B453D9 /* TuneUserProfile.m in Sources */,
 				DBCA43151B8E642300483318 /* TuneAnalyticsDispatchEventsOperationTests.m in Sources */,
@@ -3403,6 +3385,7 @@
 				F8F694031CFFC15B00B453D9 /* TuneAnalyticsSubmitter.m in Sources */,
 				F8F6940C1CFFC15B00B453D9 /* TuneConnectedModeManager.m in Sources */,
 				F8F6941E1CFFC15B00B453D9 /* TuneState.m in Sources */,
+				9B7BD81E1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m in Sources */,
 				3263C31E1D516B3B0035DBDB /* TuneDebugUtilities.m in Sources */,
 				F8F693D31CFFC15B00B453D9 /* TuneCallbackBlock.m in Sources */,
 				F8F693D61CFFC15B00B453D9 /* TuneEventKeys.m in Sources */,
@@ -3462,12 +3445,14 @@
 				F8F6942D1CFFC15B00B453D9 /* TunePreloadData.m in Sources */,
 				F8F693F51CFFC15B00B453D9 /* TuneBaseMessageFactory.m in Sources */,
 				F8F693FD1CFFC15B00B453D9 /* TuneTakeOverMessageView.m in Sources */,
+				9BE786E31F047173006C2B55 /* TuneAppDelegateTestsForSmartWhere.m in Sources */,
 				F8F693D91CFFC15B00B453D9 /* TuneIfa.m in Sources */,
 				F8F694331CFFC15B00B453D9 /* TuneArrayUtils.m in Sources */,
 				DBCA431C1B8E642300483318 /* TuneAnalyticsItemTests.m in Sources */,
 				F8F6941F1CFFC15B00B453D9 /* TuneSwizzleBlacklist.m in Sources */,
 				F8F6943E1CFFC15B00B453D9 /* TunePIIUtils.m in Sources */,
 				F8F693CA1CFFC15B00B453D9 /* TuneSBJSON.m in Sources */,
+				17616E031F217B690015C59E /* TuneSmartWherePublicAPITests.m in Sources */,
 				DBCA431D1B8E642300483318 /* TuneSessionManagerTests.m in Sources */,
 				3F1BC5F51BBC4FB6009FD499 /* TuneExperimentManagerTests.m in Sources */,
 				F8F693D51CFFC15B00B453D9 /* TuneDeeplinker.m in Sources */,
@@ -3516,6 +3501,7 @@
 				F8F694201CFFC15B00B453D9 /* TuneTriggerManager.m in Sources */,
 				F8F6940D1CFFC15B00B453D9 /* TuneDeepAction.m in Sources */,
 				DB0FF5701B9107660071B996 /* TuneBlankViewController.m in Sources */,
+				9BE786E11F04580A006C2B55 /* SmartWhereForDelegateTest.m in Sources */,
 				DBCA43311B8E642300483318 /* TuneParametersTests.m in Sources */,
 				F8F693CF1CFFC15B00B453D9 /* UIViewController+NameTag.m in Sources */,
 				3F3290C81B9635F600C472F8 /* TunePIIUtilsTests.m in Sources */,
@@ -3645,6 +3631,7 @@
 				F88690171C0FD152007E2F9C /* NSString+TuneSBJSON.m in Sources */,
 				F886901A1C0FD152007E2F9C /* TuneJSONUtils.m in Sources */,
 				F886901D1C0FD152007E2F9C /* TuneSBJSON.m in Sources */,
+				17437A771F2FF9BC005CBA51 /* TuneSmartWhereTriggeredEventManager.m in Sources */,
 				F886901F1C0FD152007E2F9C /* TuneSBJsonBase.m in Sources */,
 				F88690211C0FD152007E2F9C /* TuneSBJsonParser.m in Sources */,
 				F8B0F13D1CA8DD520051D079 /* TunePowerHookExperimentDetails.m in Sources */,
@@ -3732,6 +3719,7 @@
 				F853CFF21D00C9FD006CCC98 /* TuneUserProfile.m in Sources */,
 				F853CFD91D00C9BD006CCC98 /* TuneBaseTakeOverMessageView.m in Sources */,
 				F853CFD21D00C9A2006CCC98 /* TuneBaseMessageFactory.m in Sources */,
+				17437A781F2FF9BC005CBA51 /* TuneSmartWhereTriggeredEventManager.m in Sources */,
 				F853CFB21D00C982006CCC98 /* TuneDeeplinker.m in Sources */,
 				F846614B1C3B4F0C005C42CC /* TunePreloadDataTests.m in Sources */,
 				F853D0191D00C9FD006CCC98 /* TuneLabelUtils.m in Sources */,

@@ -23,10 +23,19 @@
     self.didReceiveCount += 1;
 }
 
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification{
+    self.didReceiveLocalCount += 1;
+}
+
 #if IDE_XCODE_8_OR_HIGHER
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
     self.didReceiveCount += 1;
     completionHandler();
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler{
+    self.willPresentCount += 1;
+    completionHandler(UNNotificationPresentationOptionNone);
 }
 #endif
 #endif

@@ -477,6 +477,9 @@
         
         // Mark the time that the message was show after the animation finishes
         [self performSelector:@selector(recordMessageShown) withObject:nil afterDelay:maskTransition.duration];
+    } else {
+        // Mark the time that the message was show
+        [self recordMessageShown];
     }
 }
 

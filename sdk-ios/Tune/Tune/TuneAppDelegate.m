@@ -22,6 +22,7 @@
 #import "TuneSwizzleBlacklist.h"
 #import "TuneUtils.h"
 #import "TuneDeviceUtils.h"
+#import "TuneSmartWhereHelper.h"
 #import <objc/runtime.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 
@@ -121,9 +122,15 @@ BOOL swizzleSuccess = NO;
             [TuneAppDelegate swizzleTheirSelector:NSSelectorFromString(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:")
                                          withOurs:@selector(userNotificationCenter:tune_didReceiveNotificationResponse:withCompletionHandler:)
                                               for:userNotificationDelegateClass];
+            [TuneAppDelegate swizzleTheirSelector:NSSelectorFromString(@"userNotificationCenter:willPresentNotification:withCompletionHandler:")
+                                         withOurs:@selector(userNotificationCenter:tune_willPresentNotification:withCompletionHandler:)
+                                              for:userNotificationDelegateClass];
         }
-#endif
         
+        [TuneAppDelegate swizzleTheirSelector:@selector(application:didReceiveLocalNotification:)
+                                     withOurs:@selector(application:tune_didReceiveLocalNotification:)
+                                          for:delegateClass];
+#endif
         swizzleSuccess = YES;
     });
 }
@@ -231,6 +238,19 @@ BOOL swizzleSuccess = NO;
     }
 }
 
++ (void)application:(UIApplication *)application tune_didReceiveLocalNotification:(UILocalNotification *)notification{
+    InfoLog(@"application:didReceiveLocalNotification: intercept successful -- %@", NSStringFromClass([self class]));
+    
+    [TuneAppDelegate handleLocalNotification:notification application:application];
+    
+    if (swizzleSuccess) {
+#if TESTING
+        [TuneAppDelegate unitTestingHelper:@"application:didReceiveLocalNotification:"];
+#endif
+        [self application:application tune_didReceiveLocalNotification:notification];
+    }
+}
+
 #pragma mark - UNUserNotificationCenter Methods
 
 + (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
@@ -248,6 +268,17 @@ BOOL swizzleSuccess = NO;
     [TuneAppDelegate handleReceivedMessage:[[[[response performSelector:selNotification] performSelector:selRequest] performSelector:selContent] performSelector:selUserInfo]
                                application:[UIApplication sharedApplication]
                                 identifier:[response performSelector:selActionIdentifier]];
+    
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        @try{
+            SEL selReceiveNotificationResponse = NSSelectorFromString(@"didReceiveNotificationResponse:");
+            [[tuneSmartWhereHelper getSmartWhere] performSelector:selReceiveNotificationResponse withObject:response];
+        }@catch(NSException* e){
+            DebugLog(@"Failed to process notification response. %@", e.description);
+        }
+    }
+    
 #pragma clang diagnostic pop
     
     if (swizzleSuccess) {
@@ -258,6 +289,41 @@ BOOL swizzleSuccess = NO;
     }
 }
 
+
++ (void)userNotificationCenter:(id)center tune_willPresentNotification:(id)notification withCompletionHandler:(void (^)(NSUInteger))completionHandler{
+    InfoLog(@"userNotificationCenter:willPresentNotification:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
+    __block UNNotificationPresentationOptions presentationOptions = UNNotificationPresentationOptionNone;
+
+    if (swizzleSuccess) {
+#if IDE_XCODE_8_OR_HIGHER
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+            TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+            @try{
+                SEL selWillPresentNotification = NSSelectorFromString(@"willPresentNotification:");
+                id swNotification = [[tuneSmartWhereHelper getSmartWhere] performSelector:selWillPresentNotification withObject:notification];
+                if (swNotification != nil){
+                    presentationOptions = (UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
+                }
+            }@catch(NSException* e){
+                DebugLog(@"Failed to process notification response. %@", e.description);
+            }
+        }
+#pragma clang diagnostic pop
+#endif
+        
+#if TESTING
+        [TuneAppDelegate unitTestingHelper:@"userNotificationCenter:willPresentNotification:withCompletionHandler:"];
+#endif
+        
+        [self userNotificationCenter:center tune_willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options){
+            presentationOptions = options;
+        }];
+        
+        completionHandler(presentationOptions);
+    }
+}
 
 #pragma mark -
 
@@ -369,6 +435,22 @@ BOOL swizzleSuccess = NO;
 }
 
 #pragma mark - Helper functions
+
+#if !TARGET_OS_TV
++ (void)handleLocalNotification:(UILocalNotification *)notification application: (UIApplication *)application{
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        @try{
+            [[tuneSmartWhereHelper getSmartWhere] performSelector:@selector(didReceiveLocalNotification:) withObject:notification];
+        }@catch(NSException* e){
+            DebugLog(@"Failed to process local notification. %@", e.description);
+        }
+#pragma clang diagnostic pop
+    }
+}
+#endif
 
 + (void)handleReceivedMessage:(NSDictionary *)userInfo application:(UIApplication *)application {
     [self handleReceivedMessage:userInfo application:application identifier:nil];

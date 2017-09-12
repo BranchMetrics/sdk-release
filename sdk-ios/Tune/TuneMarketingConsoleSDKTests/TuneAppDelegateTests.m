@@ -19,6 +19,8 @@
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneTestsHelper.h"
 #import "TuneXCTestCase.h"
+#import "TuneUtils.h"
+#import "TuneSmartWhereHelper.h"
 
 @import UIKit;
 
@@ -73,6 +75,9 @@
     TuneBlankAppDelegate *appDelegate;
     NSMutableDictionary *receivedUserInfo;
     OCMockObject *mockApplication;
+    OCMockObject *mockTuneSmartWhereHelper ;
+    id mockNotification;
+    OCMockObject *mockSmartWhere;
 }
 
 @end
@@ -92,11 +97,16 @@ static NSString *tune_swizzledMethod;
     appDelegate = [[TuneBlankAppDelegate alloc] init];
     mockApplication = OCMClassMock([UIApplication class]);
     OCMStub([(UIApplication *)mockApplication sharedApplication]).andReturn(mockApplication);
+    mockTuneSmartWhereHelper = OCMStrictClassMock([TuneSmartWhereHelper class]);
+    mockNotification = OCMStrictClassMock([UILocalNotification class]);
     tune_swizzledMethod = nil;
 }
 
 - (void)tearDown {
     [mockApplication stopMocking];
+    [mockTuneSmartWhereHelper stopMocking];
+    [mockNotification stopMocking];
+    [mockSmartWhere stopMocking];
     
     [super tearDown];
 }
@@ -212,6 +222,7 @@ static NSString *tune_swizzledMethod;
     [[TuneSkyhookCenter defaultCenter] removeObserver:pushObserver name:TunePushNotificationOpened object:nil];
     [[TuneSkyhookCenter defaultCenter] removeObserver:campaignObserver name:TuneCampaignViewed object:nil];
 }
+
 #endif
 
 - (void)testSwizzledHandleActionWithIdentifierSendsOpenAndViewSkyhooksFromHandleAction {
@@ -388,6 +399,10 @@ static NSString *tune_swizzledMethod;
     [self checkSwizzledMethod:@"application:didReceiveRemoteNotification:fetchCompletionHandler:"];
     tune_swizzledMethod = nil;
     
+    [appDelegate application:(UIApplication *)mockApplication didReceiveLocalNotification:(UILocalNotification *)mockNotification];
+    [self checkSwizzledMethod:@"application:didReceiveLocalNotification:"];
+    tune_swizzledMethod = nil;
+    
     [appDelegate application:(UIApplication *)mockApplication handleActionWithIdentifier:@"id" forRemoteNotification:userInfo completionHandler:^(UIBackgroundFetchResult result){}];
     [self checkSwizzledMethod:@"application:handleActionWithIdentifier:forRemoteNotification:completionHandler:"];
     tune_swizzledMethod = nil;
@@ -415,6 +430,13 @@ static NSString *tune_swizzledMethod;
     }];
     [self checkSwizzledMethod:@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     tune_swizzledMethod = nil;
+    
+    [appDelegate userNotificationCenter:(id)[NSObject new] willPresentNotification:notif withCompletionHandler:^(UNNotificationPresentationOptions options){
+        NSLog(@"TuneAppDelegateTests: userNotificationCenter:willPresentNotification:withCompletionHandler: called");
+    }];
+    [self checkSwizzledMethod:@"userNotificationCenter:willPresentNotification:withCompletionHandler:"];
+    tune_swizzledMethod = nil;
+
 #endif
     
     [appDelegate applicationDidFinishLaunching:(UIApplication *)mockApplication];
