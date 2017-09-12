@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void(^CodeBlockCallback)();
+typedef void(^CodeBlockCallback)(void);
 
 @interface TuneCallbackBlock : NSObject {
     NSTimer *timer;
@@ -20,7 +20,7 @@ typedef void(^CodeBlockCallback)();
     CodeBlockCallback block;
 }
 
-- (id)initWithCallbackBlock:(void(^)())callbackBlock fireOnce:(BOOL)shouldFireOnce;
+- (id)initWithCallbackBlock:(void(^)(void))callbackBlock fireOnce:(BOOL)shouldFireOnce;
 
 - (NSTimeInterval)getDelay;
 - (void)executeBlock;

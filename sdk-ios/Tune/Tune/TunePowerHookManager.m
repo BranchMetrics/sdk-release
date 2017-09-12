@@ -284,7 +284,7 @@ NSMutableSet *userRegisteredPowerHooks;
 
 #pragma mark - Power Hooks Changed
 
-- (void)onPowerHooksChanged:(void (^)())block {
+- (void)onPowerHooksChanged:(void (^)(void))block {
     TuneCallbackBlock *blockCallback = [[TuneCallbackBlock alloc] initWithCallbackBlock:block fireOnce:NO];
     
     @synchronized(phookDictLock){

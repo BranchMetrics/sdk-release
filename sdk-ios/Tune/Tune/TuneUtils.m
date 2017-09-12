@@ -182,7 +182,8 @@ BOOL isAlertVisible;
             // METHOD 2: Check if a shell is present
             // Jailbroken devices have shell access, system(NULL) returns a non-zero value if a shell is present
     #if TARGET_OS_IOS
-            jailBroken = system (NULL) != 0;
+            // iOS 11 doesn't compile if this is called
+            //jailBroken = system (NULL) != 0;
     #endif
             if(!jailBroken) {
                 // METHOD 3: There's no shell access, but check if we are being cheated.

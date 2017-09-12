@@ -251,7 +251,7 @@ NSOperationQueue *playlistCallbackQueue;
 
 #pragma mark - On First Playlist Downloaded Callbacks
 
-- (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout {
+- (void)onFirstPlaylistDownloaded:(void (^)(void))block withTimeout:(NSTimeInterval)timeout {
     @try {
         TuneCallbackBlock *blockCallback = [[TuneCallbackBlock alloc] initWithCallbackBlock:block fireOnce:YES];
         

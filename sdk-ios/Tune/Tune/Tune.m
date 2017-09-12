@@ -556,7 +556,7 @@ static TuneTracker *_sharedManager = nil;
     [[TuneManager currentManager].powerHookManager setValueForHookById:hookId value:value];
 }
 
-+(void)onPowerHooksChanged:(void (^)()) block {
++(void)onPowerHooksChanged:(void (^)(void)) block {
     [[TuneManager currentManager].powerHookManager onPowerHooksChanged:block];
 }
 
@@ -613,11 +613,11 @@ static TuneTracker *_sharedManager = nil;
     [TuneAppDelegate application:application tune_didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
-+ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
++ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler {
     [TuneAppDelegate application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
 }
 
-+ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)())completionHandler {
++ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)(void))completionHandler {
     [TuneAppDelegate application:application tune_handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
 }
 
@@ -651,11 +651,11 @@ static TuneTracker *_sharedManager = nil;
 
 #pragma mark - Playlist API
 
-+ (void)onFirstPlaylistDownloaded:(void (^)())block {
++ (void)onFirstPlaylistDownloaded:(void (^)(void))block {
     [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:DefaultFirstPlaylistDownloadedTimeout];
 }
 
-+ (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout {
++ (void)onFirstPlaylistDownloaded:(void (^)(void))block withTimeout:(NSTimeInterval)timeout {
     [[TuneManager currentManager].playlistManager onFirstPlaylistDownloaded:block withTimeout:timeout];
 }
 

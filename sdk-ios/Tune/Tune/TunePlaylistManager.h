@@ -14,7 +14,7 @@
 @interface TunePlaylistManager : TuneModule
 
 - (void)didEnterBackgroundSkyhook:(TuneSkyhookPayload *)payload;
-- (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout;
+- (void)onFirstPlaylistDownloaded:(void (^)(void))block withTimeout:(NSTimeInterval)timeout;
 - (BOOL)isUserInSegmentId:(NSString *)segmentId;
 - (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds;
 - (void)forceSetUserInSegment:(BOOL)isInSegment forSegmentId:(NSString *)segmentId;

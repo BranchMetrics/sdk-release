@@ -10,7 +10,7 @@
 
 @implementation TuneCallbackBlock
 
-- (id)initWithCallbackBlock:(void(^)())callbackBlock fireOnce:(BOOL)shouldFireOnce {
+- (id)initWithCallbackBlock:(void(^)(void))callbackBlock fireOnce:(BOOL)shouldFireOnce {
     self = [self init];
     if (self) {
         lock = [[NSObject alloc] init];

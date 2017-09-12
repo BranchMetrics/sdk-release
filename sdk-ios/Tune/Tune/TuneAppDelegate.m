@@ -253,7 +253,7 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark - UNUserNotificationCenter Methods
 
-+ (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
++ (void)userNotificationCenter:(id)center tune_didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)(void))completionHandler {
     InfoLog(@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
 #pragma clang diagnostic push
@@ -327,7 +327,7 @@ BOOL swizzleSuccess = NO;
 
 #pragma mark -
 
-+ (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
++ (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler {
     InfoLog(@"application:handleActionWithIdentifier:forRemoteNotification:completionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
     TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo withIdentifier:identifier];
@@ -351,7 +351,7 @@ BOOL swizzleSuccess = NO;
     }
 }
 
-+ (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
++ (void)application:(UIApplication *)application tune_handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)(void))completionHandler {
     InfoLog(@"application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler: intercept successful -- %@", NSStringFromClass([self class]));
     
     TuneNotification *tuneNotification = [TuneAppDelegate buildTuneNotification:userInfo withIdentifier:identifier];

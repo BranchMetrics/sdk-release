@@ -47,7 +47,7 @@
  */
 - (void)setValueForHookById:(NSString *)hookId value:(NSString *)value;
 
-- (void)onPowerHooksChanged:(void (^)())block;
+- (void)onPowerHooksChanged:(void (^)(void))block;
 
 - (NSArray *)getPowerHooks;
 

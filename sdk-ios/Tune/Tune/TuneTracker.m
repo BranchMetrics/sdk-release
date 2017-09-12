@@ -54,12 +54,8 @@ static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
 #if TESTING
     const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 1.;
 #else
-    #if USE_IAD
-        const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 15.;
-    #else
-        // delay the session requests to allow deferred deep linking requests to complete
-        const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
-    #endif
+    // delay the session requests to allow deferred deep linking requests to complete
+    const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
 #endif
 
 const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
@@ -342,16 +338,16 @@ static NSSet * doNotEncryptSet;
  After 30s, retry period is 30s
  After 60s, retry period is 60s
  Examples:
-    1st attempt is at 2s or 12s
-    2nd attempt at 7s or 17s
-    3rd attempt at 12s or 22s
-    4th attempt at 17s or 27s
-    5th attempt at 22s or 32s
-    6th attempt at 32s or 62s
-    7th attempt at 62s or 122s
-    8th attempt at 122s or 182s
-    9th attempt at 182s or 242s
-    10th attempt at 242s or 302s - last
+    1st attempt is at 2s
+    2nd attempt at 7s
+    3rd attempt at 12s
+    4th attempt at 17s
+    5th attempt at 22s
+    6th attempt at 32s
+    7th attempt at 62s
+    8th attempt at 122s
+    9th attempt at 182s
+    10th attempt at 242s
     11th attempt at 302s - last
  */
 - (NSTimeInterval)getDelayForRetryTime:(NSTimeInterval)requestTime {

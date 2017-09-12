@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS
-BOOL tune_isPad();
+BOOL tune_isPad(void);
 #endif
 
 
