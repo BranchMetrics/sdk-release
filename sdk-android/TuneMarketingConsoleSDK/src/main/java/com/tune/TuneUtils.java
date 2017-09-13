@@ -9,6 +9,8 @@ import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.tune.ma.inapp.TuneScreenUtils;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -148,10 +150,10 @@ public class TuneUtils {
     }
 
     /**
-     * Compress a String to GZIP data
+     * Compress a String to GZIP data.
      * @param string String to compress
      * @return Byte array of compressed String
-     * @throws IOException
+     * @throws IOException if an I/O error has occurred
      */
     public static byte[] compress(String string) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
@@ -164,10 +166,10 @@ public class TuneUtils {
     }
 
     /**
-     * Decompress GZIP data to a String
+     * Decompress GZIP data to a String.
      * @param compressed Data to decompress
      * @return String of compressed data
-     * @throws IOException
+     * @throws IOException if an I/O error has occurred
      */
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
@@ -185,7 +187,7 @@ public class TuneUtils {
     }
 
     /**
-     * Concatenates two byte arrays
+     * Concatenates two byte arrays.
      * From: http://stackoverflow.com/questions/5368704/appending-byte-to-the-end-of-another-byte
      * @param a Byte array a
      * @param b Byte array b
@@ -222,5 +224,10 @@ public class TuneUtils {
 
     public static boolean convertToBoolean(String booleanString) {
         return ("1".equalsIgnoreCase(booleanString) || "yes".equalsIgnoreCase(booleanString) || "true".equalsIgnoreCase(booleanString));
+    }
+
+    public static int dpToPx(Context context, int dp) {
+        float density = TuneScreenUtils.getScreenDensity(context);
+        return (int)(dp * density);
     }
 }

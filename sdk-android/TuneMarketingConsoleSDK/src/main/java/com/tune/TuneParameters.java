@@ -7,7 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -16,17 +15,16 @@ import android.os.Looper;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.view.Display;
-import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneHashType;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneHashType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
+import com.tune.ma.inapp.TuneScreenUtils;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
@@ -142,26 +140,10 @@ public class TuneParameters {
             //setDeviceCpuSubtype(SystemProperties.get("ro.product.cpu.abi"));
             setOsVersion(Build.VERSION.RELEASE);
             // Screen density
-            float density = context.getResources().getDisplayMetrics().density;
-            setScreenDensity(Float.toString(density));
-            Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            int width;
-            int height;
-            Point size = new Point();
-            if (Build.VERSION.SDK_INT >= 17) {
-                display.getRealSize(size);
-                width = size.x;
-                height = size.y;
-            } else if (Build.VERSION.SDK_INT >= 13) {
-                display.getSize(size);
-                width = size.x;
-                height = size.y;
-            } else {
-                width = display.getWidth();
-                height = display.getHeight();
-            }
-            setScreenWidth(Integer.toString(width));
-            setScreenHeight(Integer.toString(height));
+            setScreenDensity(Float.toString(TuneScreenUtils.getScreenDensity(context)));
+            // Screen width and height
+            setScreenWidth(Integer.toString(TuneScreenUtils.getScreenWidthPixels(context)));
+            setScreenHeight(Integer.toString(TuneScreenUtils.getScreenHeightPixels(context)));
 
             // Set the device connection type, wifi or mobile
             ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

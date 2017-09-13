@@ -1,8 +1,9 @@
-package com.tune.ma;
+package com.tune.ma.session;
 
 import android.content.Context;
 
 import com.tune.TuneUnitTest;
+import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.application.TuneActivity;
@@ -13,12 +14,12 @@ import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
-import com.tune.ma.session.TuneSessionManager;
 
 import org.json.JSONArray;
 import org.mockito.Mock;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by kristine on 1/13/16.
@@ -31,9 +32,13 @@ public class TuneSessionTests extends TuneUnitTest {
     private int foregroundedCount;
     private int backgroundedCount;
     private int dispatchCount;
+
+    private int activityConnectedCount;
     private Context context;
     private TuneSessionManager sessionManager;
     private TuneUserProfile userProfile;
+
+    private CountDownLatch backgroundLock;
 
     @Override
     protected void setUp() throws Exception {
@@ -44,10 +49,14 @@ public class TuneSessionTests extends TuneUnitTest {
         assertNotNull(sessionManager);
         userProfile = TuneManager.getInstance().getProfileManager();
         assertNotNull(userProfile);
+
+        TuneSessionManager.clearTimer();
+        TuneSessionManager.clearActivities();
         
         foregroundedCount = 0;
         backgroundedCount = 0;
         dispatchCount = 0;
+        activityConnectedCount = 0;
     }
 
     @Override
@@ -73,13 +82,14 @@ public class TuneSessionTests extends TuneUnitTest {
     }
 
     public void checkProfileMemAndPrefsValueNull(String key) {
+        assertNotNull("Profile variable for " + key + " was null", userProfile.getProfileVariable(key));
         assertNull(userProfile.getProfileVariable(key).getValue());
         assertNull(userProfile.getProfileVariableFromPrefs(key).getValue());
     }
 
     public void checkProfileMemAndPrefs(String key, String against) {
-        assertTrue(against.equalsIgnoreCase(userProfile.getProfileVariable(key).getValue()));
-        assertTrue(against.equalsIgnoreCase(userProfile.getProfileVariableFromPrefs(key).getValue()));
+        assertTrue(userProfile.getProfileVariable(key).getValue() + " does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariable(key).getValue()));
+        assertTrue(userProfile.getProfileVariableFromPrefs(key).getValue() + " from prefs does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariableFromPrefs(key).getValue()));
     }
 
     public void testSessionStart() {
@@ -94,7 +104,9 @@ public class TuneSessionTests extends TuneUnitTest {
         assertEquals(sessionManager.getSession().getSessionLength(), 0);
     }
 
-    public void testSessionEnd() {
+    public void testSessionEnd() throws InterruptedException {
+        TuneEventBus.register(this);
+
         assertNull(sessionManager.getSession());
         assertEquals(sessionManager.getConnectedActivities().size(), 0);
 
@@ -104,14 +116,19 @@ public class TuneSessionTests extends TuneUnitTest {
         assertNotNull(sessionManager.getSession());
 
         // Wait a little so session length doesn't possibly get set to zero and fail our test
-        sleep(100);
+        sleep(500);
 
         TuneEventBus.post(new TuneActivityDisconnected(activity));
-        sleep(TuneSessionManager.SESSION_TIMEOUT + 500);
+
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
 
         assertEquals(sessionManager.getConnectedActivities().size(), 0);
         assertNotNull(sessionManager.getSession());
-        assertTrue(sessionManager.getSession().getSessionLength() > 0);
+        assertTrue("session length was zero", sessionManager.getSession().getSessionLength() > 0);
+
+        TuneEventBus.unregister(this);
     }
 
 //    public void testFirstSession() {
@@ -149,88 +166,152 @@ public class TuneSessionTests extends TuneUnitTest {
 //        checkProfileMemAndPrefs(TuneProfileKeys.IS_FIRST_SESSION, "0");
 //    }
 
-    public void testSessionCount() {
+    public void testSessionCount() throws InterruptedException {
+        TuneEventBus.register(this);
+
         checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.SESSION_COUNT);
 
         // First Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        // Short sleep to let profile write to SharedPreferences
+        sleep(500);
+
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "1");
         TuneEventBus.post(new TuneActivityDisconnected(activity));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "1");
 
-        sleep(1250);
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
 
         // Second Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "2");
         TuneEventBus.post(new TuneActivityDisconnected(activity));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "2");
 
-        sleep(1250);
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
 
         // Third Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "3");
         TuneEventBus.post(new TuneActivityDisconnected(activity));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "3");
 
-        sleep(1250);
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
 
         // Fourth Session w/ new SessionManager + UserProfile
         freshSessionProfile();
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "4");
         TuneEventBus.post(new TuneActivityDisconnected(activity));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_COUNT, "4");
+
+        TuneEventBus.unregister(this);
     }
 
-    public void testLastCurrentSessionDate() {
+    public void testLastCurrentSessionDate() throws InterruptedException {
+        TuneEventBus.register(this);
+
         checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.SESSION_LAST_DATE);
         checkProfileMemAndPrefsDoesntExist(TuneProfileKeys.SESSION_CURRENT_DATE);
 
         // First Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        // Short sleep to let profile write to SharedPreferences
+        sleep(500);
+
+        assertEquals(1, activityConnectedCount);
+        assertEquals(1, foregroundedCount);
+        assertNotNull("Session is null", sessionManager.getSession());
         String firstSessionStart = TuneAnalyticsVariable.dateToString(new Date(sessionManager.getSession().getCreatedDate()));
         checkProfileMemAndPrefsValueNull(TuneProfileKeys.SESSION_LAST_DATE);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, firstSessionStart);
+
         TuneEventBus.post(new TuneActivityDisconnected(activity));
+        assertEquals(0, activityConnectedCount);
         checkProfileMemAndPrefsValueNull(TuneProfileKeys.SESSION_LAST_DATE);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, firstSessionStart);
 
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
         // We only track session starts to seconds, so we need to wait long enough to ensure the dates are different
         sleep(2000);
+        assertEquals(1, backgroundedCount);
 
         // Second Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+        assertEquals(1, activityConnectedCount);
+
         String secondSessionStart = TuneAnalyticsVariable.dateToString(new Date(sessionManager.getSession().getCreatedDate()));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, firstSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, secondSessionStart);
+
         TuneEventBus.post(new TuneActivityDisconnected(activity));
+        assertEquals(0, activityConnectedCount);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, firstSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, secondSessionStart);
 
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
         sleep(2000);
+        assertEquals(2, backgroundedCount);
 
         // Third Session
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+        assertEquals(1, activityConnectedCount);
+
         String thirdSessionStart = TuneAnalyticsVariable.dateToString(new Date(sessionManager.getSession().getCreatedDate()));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, secondSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, thirdSessionStart);
+
         TuneEventBus.post(new TuneActivityDisconnected(activity));
+        assertEquals(0, activityConnectedCount);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, secondSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, thirdSessionStart);
 
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
         sleep(2000);
+        assertEquals(3, backgroundedCount);
 
         // Fourth Session w/ new SessionManager + UserProfile
         freshSessionProfile();
         TuneEventBus.post(new TuneActivityConnected(activity));
+        sleep(500);
+        assertEquals(1, activityConnectedCount);
+
         String fourthSessionStart = TuneAnalyticsVariable.dateToString(new Date(sessionManager.getSession().getCreatedDate()));
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, thirdSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, fourthSessionStart);
+
         TuneEventBus.post(new TuneActivityDisconnected(activity));
+        assertEquals(0, activityConnectedCount);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_LAST_DATE, thirdSessionStart);
         checkProfileMemAndPrefs(TuneProfileKeys.SESSION_CURRENT_DATE, fourthSessionStart);
+
+        // Wait for background event to post
+        backgroundLock = new CountDownLatch(1);
+        backgroundLock.await();
+        sleep(2000);
+        assertEquals(4, backgroundedCount);
+
+        TuneEventBus.unregister(this);
     }
 
     public void testSessionDoesNotEndBeforeSessionTimeout() {
@@ -291,7 +372,7 @@ public class TuneSessionTests extends TuneUnitTest {
         sleep(2000);
 
         // Assert that analytics manager dispatched 2 times, 1 for session start/end and 1 for another session start
-        assertEquals(2, dispatchCount);
+        assertEquals(3, dispatchCount);
         // Assert that TuneAppForegrounded event got sent twice over the bus
         assertEquals(2, foregroundedCount);
         // Assert that TuneAppBackgrounded event got sent once over the bus
@@ -300,11 +381,22 @@ public class TuneSessionTests extends TuneUnitTest {
         TuneEventBus.unregister(this);
     }
 
-    public void onEvent(TuneAppForegrounded event) {
+    public synchronized void onEvent(TuneAppForegrounded event) {
         foregroundedCount++;
     }
 
-    public void onEvent(TuneAppBackgrounded event) {
+    public synchronized void onEvent(TuneActivityConnected event) {
+        activityConnectedCount++;
+    }
+
+    public synchronized void onEvent(TuneActivityDisconnected event) {
+        activityConnectedCount--;
+    }
+
+    public synchronized void onEvent(TuneAppBackgrounded event) {
         backgroundedCount++;
+        if (backgroundLock != null) {
+            backgroundLock.countDown();
+        }
     }
 }

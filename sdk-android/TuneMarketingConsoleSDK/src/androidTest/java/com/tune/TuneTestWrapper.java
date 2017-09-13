@@ -30,6 +30,7 @@ public class TuneTestWrapper extends Tune {
     }
     
     public static TuneTestWrapper init(final Context context, final String advertiserId, final String key) {
+        TuneEventBus.disable();
         TuneEventBus.enable();
         TuneConfiguration initialConfig = new TuneConfiguration();
         // initialize TuneManager with useConfiguration set to true so that it initializes configuration player
@@ -67,7 +68,7 @@ public class TuneTestWrapper extends Tune {
 
     public static TuneConfiguration getTestingConfig(List<String> configurationPlayerFilenames) {
         TuneConfiguration config = new TuneConfiguration();
-        config.setAnalyticsHostPort("https://qa.ma.tune.com:8443/analytics-receiver/analytics");
+        config.setAnalyticsHostPort("https://analytics-qa.ma.tune.com/analytics");
         config.setPlaylistHostPort("https://qa.ma.tune.com");
         config.setConfigurationHostPort("https://qa.ma.tune.com");
         config.setConnectedModeHostPort("https://qa.ma.tune.com");

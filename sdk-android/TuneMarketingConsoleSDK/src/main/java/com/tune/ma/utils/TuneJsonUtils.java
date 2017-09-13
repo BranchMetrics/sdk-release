@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +30,21 @@ public class TuneJsonUtils {
         return convertedList;
     }
 
+    public static HashMap<String, String> JSONObjectToStringMap(JSONObject jsonObject) {
+        HashMap<String, String> convertedMap = new HashMap<String, String>();
+        Iterator<String> iter = jsonObject.keys();
+        while (iter.hasNext()) {
+            String key = iter.next();
+            try {
+                String value = jsonObject.getString(key);
+                convertedMap.put(key, value);
+            } catch (JSONException e) {
+                // Something went wrong!
+            }
+        }
+        return convertedMap;
+    }
+
     public static String getString(final JSONObject json, final String key) {
         try {
             return json.getString(key);
@@ -37,9 +53,25 @@ public class TuneJsonUtils {
         }
     }
 
+    public static int getInt(final JSONObject json, final String key) {
+        try {
+            return json.getInt(key);
+        } catch (JSONException e) {
+            return 0;
+        }
+    }
+
     public static JSONObject getJSONObject(final JSONObject json, final String key) {
         try {
             return json.getJSONObject(key);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public static JSONArray getJSONArray(final JSONObject json, final String key) {
+        try {
+            return json.getJSONArray(key);
         } catch (JSONException e) {
             return null;
         }

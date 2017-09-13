@@ -35,13 +35,13 @@ public final class TuneOptional<T> {
      * Returns an empty {@code Optional} instance.  No value is present for this
      * Optional.
      *
+     * @param <T> Type of the non-existent value
+     * @return an empty {@code Optional}
+     *
      * @apiNote Though it may be tempting to do so, avoid testing if an object
      * is empty by comparing with {@code ==} against instances returned by
      * {@code Option.empty()}. There is no guarantee that it is a singleton.
      * Instead, use {@link #isPresent()}.
-     *
-     * @param <T> Type of the non-existent value
-     * @return an empty {@code Optional}
      */
     public static<T> TuneOptional<T> empty() {
         @SuppressWarnings("unchecked")
@@ -165,17 +165,6 @@ public final class TuneOptional<T> {
         return (value == null) ? 0 : value.hashCode();
     }
 
-    /**
-     * Returns a non-empty string representation of this Optional suitable for
-     * debugging. The exact presentation format is unspecified and may vary
-     * between implementations and versions.
-     *
-     * @implSpec If a value is present the result must include its string
-     * representation in the result. Empty and present Optionals must be
-     * unambiguously differentiable.
-     *
-     * @return the string representation of this instance
-     */
     @Override
     public String toString() {
         return value != null

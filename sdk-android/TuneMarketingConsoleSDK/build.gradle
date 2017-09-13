@@ -1,11 +1,9 @@
-import java.util.regex.Pattern
-
 apply plugin: 'com.android.library'
 
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.11.1'
+    PUBLISH_VERSION = '4.12.0'
 }
 
 android {
@@ -15,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionName '4.11.1'
+        versionName '4.12.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -58,13 +56,21 @@ configurations {
     // the corresponding variant of the app.
     liteReleaseCompile {}
     fullReleaseCompile {}
+
+    javadocDeps
 }
 
 dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'com.android.support:support-v4:25.1.0'
+    javadocDeps 'de.greenrobot:eventbus:2.4.0'
+
+    compile 'com.android.support:support-v4:25.3.1'
+    javadocDeps 'com.android.support:support-v4:25.3.1'
+
+    compile 'com.android.support:support-annotations:25.3.1'
+    javadocDeps 'com.android.support:support-annotations:25.3.1'
+
     // Unit testing dependencies
-    androidTestCompile 'com.android.support:support-annotations:25.1.0'
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'org.mockito:mockito-core:1.10.19'
@@ -73,8 +79,63 @@ dependencies {
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile 'junit:junit:4.12'
 
+
     // SmartWhere is included in the 'full' sdk flavor
     fullCompile 'com.smartwhere:android-tune:17194'
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'androidJavadocs') {
+        task.configure {
+            title = "Tune Android SDK " + PUBLISH_VERSION
+
+            classpath += configurations.javadocDeps
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+
+            options {
+                links "http://docs.oracle.com/javase/7/docs/api/"
+                linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
+
+                tags = [ "apiNote", "implSpec", "implNote" ]
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    // fixes issue where javadoc can't find android symbols ref: http://stackoverflow.com/a/34572606
+    androidJavadocs.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompile.classpath.files
+    })
+}
+
+task clearAarFull(type: Delete) {
+    String aarNameFull = "${project.name}-${android.defaultConfig.versionName}"
+
+    delete "../dist/${aarNameFull}.aar"
+    doLast {
+        println "Deleting old /dist/${aarNameFull}.aar"
+    }
+}
+
+task copyAar(type: Copy, dependsOn: [clearAarFull, assemble]) {
+    String outputDir = "${buildDir.getPath()}/outputs"
+
+    String archiveNameFull = "${project.name}-full-release"
+    String aarNameFull = "${project.name}-${android.defaultConfig.versionName}"
+
+    doLast {
+        println "Copying ${outputDir}/aar/${archiveNameFull}.aar to /dist"
+    }
+
+    from("${outputDir}/aar/${archiveNameFull}.aar")
+    into("../dist/")
+    include("${archiveNameFull}.aar")
+    rename("${archiveNameFull}.aar", "${aarNameFull}.aar")
+
+    doLast {
+        println "Created /dist/${aarNameFull}.aar"
+    }
 }
 
 // Delete old jar
@@ -143,20 +204,23 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    options {
-        links "http://docs.oracle.com/javase/7/docs/api/"
-        linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
-    }
-    failOnError false
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    classpath += configurations.javadocDeps
+//    options {
+//        links "http://docs.oracle.com/javase/8/docs/api/"
+//        linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
+//
+//        tags = [ "apiNote", "implSpec", "implNote" ]
+//    }
+//    failOnError false
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
 
 task grantDebugPermissions {
     String applicationId = 'com.tune.test'
@@ -186,7 +250,7 @@ task grantDebugPermissions {
 }
 
 artifacts {
-    archives javadocJar
+//    archives javadocJar
     archives sourcesJar
 }
 

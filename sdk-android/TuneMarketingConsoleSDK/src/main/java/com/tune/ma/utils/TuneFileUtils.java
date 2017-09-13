@@ -5,11 +5,11 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by johng on 1/5/16.
@@ -79,7 +79,7 @@ public class TuneFileUtils {
     public static JSONObject readFileFromAssetsIntoJsonObject(Context context, String fileName) throws JSONException {
         String json = null;
         try {
-            InputStream is = context.getAssets().open(fileName);
+            BufferedInputStream is = new BufferedInputStream(context.getAssets().open(fileName));
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

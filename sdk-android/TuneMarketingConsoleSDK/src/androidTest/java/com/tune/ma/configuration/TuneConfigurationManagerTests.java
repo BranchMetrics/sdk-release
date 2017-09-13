@@ -44,7 +44,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertEquals("https://qa.ma.tune.com", config.getPlaylistHostPort());
         assertEquals("https://qa.ma.tune.com", config.getConfigurationHostPort());
         assertEquals("https://qa.ma.tune.com", config.getConnectedModeHostPort());
-        assertEquals("https://qa.ma.tune.com:8443/analytics-receiver/analytics", config.getAnalyticsHostPort());
+        assertEquals("https://analytics-qa.ma.tune.com/analytics", config.getAnalyticsHostPort());
         assertEquals("https://s3.amazonaws.com/uploaded-assets-qa2", config.getStaticContentHostPort());
     }
 

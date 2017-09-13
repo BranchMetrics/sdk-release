@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TuneCampaignStateManager {
     private final String TUNE_CAMPAIGN_PREFS = "com.tune.ma.campaign";
-
+    
     protected ConcurrentHashMap<String, TuneCampaign> viewedCampaigns;
     protected Set<String> campaignIdsRecordedThisSession;
     protected Set<String> variationIdsRecordedThisSession;

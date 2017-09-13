@@ -36,6 +36,7 @@ public class TuneCallbackHolder {
 
     public void setTimeout(long timeInMillis) {
         this.timeInMillis = timeInMillis;
+        this.canceled = false;
         timer = new Timer(true);
         timerActive = true;
         timer.schedule(new TimerTask() {
@@ -65,6 +66,7 @@ public class TuneCallbackHolder {
 
     public void executeBlock() {
         synchronized (lock) {
+            this.canceled = false;
             if (timer != null) {
                 if (timerActive) {
                     timerActive = false; // timer could still fire, invalidate to stop

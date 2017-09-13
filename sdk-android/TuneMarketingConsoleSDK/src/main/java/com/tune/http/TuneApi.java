@@ -3,7 +3,6 @@ package com.tune.http;
 import android.net.Uri;
 
 import com.tune.Tune;
-import com.tune.TuneConstants;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
@@ -17,8 +16,8 @@ import com.tune.ma.utils.TuneStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -317,12 +316,11 @@ public class TuneApi implements Api {
         JSONObject response = null;
 
         Uri.Builder uriBuilder = new Uri.Builder();
-        uriBuilder.encodedPath(TuneStringUtils.format(endpoint, configManager.getApiVersion(), profile.getAppId(), profile.getDeviceId()));
+        uriBuilder.encodedPath(TuneStringUtils.format(endpoint, configManager.getPlaylistApiVersion(), profile.getAppId(), profile.getDeviceId()));
         String path = uriBuilder.build().toString();
 
         HttpURLConnection urlConnection = buildUrlConnection(configManager.getPlaylistHostPort() + path, REQUEST_METHOD_GET);
         urlConnection.setRequestProperty("Accept", "application/json");
-
         if (urlConnection != null) {
             response = sendRequestAndReadResponse(urlConnection);
         }
@@ -384,17 +382,17 @@ public class TuneApi implements Api {
     private JSONObject sendRequestAndReadResponse(HttpURLConnection connection) {
         String response = null;
         JSONObject responseJson = null;
-        InputStream stream = null;
+        BufferedInputStream stream = null;
         try {
             // Read and print error stream if response is not 200
             int responseCode = connection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                stream = connection.getErrorStream();
+                stream = new BufferedInputStream(connection.getErrorStream());
                 TuneDebugLog.e(TAG, TuneStringUtils.format("Sending Request to %s failed with %s:\n%s", connection.getURL(), responseCode, TuneUtils.readStream(stream)));
                 return responseJson;
             }
 
-            stream = connection.getInputStream();
+            stream = new BufferedInputStream(connection.getInputStream());
             response = TuneUtils.readStream(stream);
         } catch (IOException e) {
             e.printStackTrace();

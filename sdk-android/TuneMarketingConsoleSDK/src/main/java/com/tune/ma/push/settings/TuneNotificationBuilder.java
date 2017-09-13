@@ -72,6 +72,7 @@ public class TuneNotificationBuilder {
      * <br>
      *
      * @param largeIconId Android resource Id for the large notification icon.
+     * @return This TuneNotificationBuilder with large icon set.
      */
     public TuneNotificationBuilder setLargeIcon(int largeIconId) {
         isLargeIconSet = true;
@@ -85,6 +86,7 @@ public class TuneNotificationBuilder {
      * Note: Grouping is only supported on devices running Android API 20+.
      *
      * @param sortKey sort key for Notifications from Tune Push.
+     * @return This TuneNotificationBuilder with sort key set.
      */
     public TuneNotificationBuilder setSortKey(String sortKey) {
         isSortKeySet = true;
@@ -98,6 +100,7 @@ public class TuneNotificationBuilder {
      * Note: Grouping is only supported on devices running Android API 20+.
      *
      * @param groupKey group key if you would like to group Tune Push Notifications together.
+     * @return This TuneNotificationBuilder with groupKey set.
      */
     public TuneNotificationBuilder setGroup(String groupKey) {
         isGroupKeySet = true;
@@ -113,6 +116,7 @@ public class TuneNotificationBuilder {
      * Accent color (an ARGB integer like the constants in Color) to be applied by the standard Style templates when presenting this notification. The current template design constructs a colorful header image by overlaying the icon image (stenciled in white) atop a field of this color. Alpha components are ignored. <br>
      *
      * @param argb set the accent color
+     * @return This TuneNotificationBuilder with color set.
      */
     public TuneNotificationBuilder setColor(int argb) {
         isColorSet = true;
@@ -128,6 +132,7 @@ public class TuneNotificationBuilder {
      * Note: Visibility is only supported on devices running Lollipop (API 21+).
      *
      * @param visibility visibility level, One of NotificationCompat.VISIBILITY_PRIVATE (the default), NotificationCompat.VISIBILITY_SECRET, or NotificationCompat.VISIBILITY_PUBLIC.
+     * @return This TuneNotificationBuilder with visibility set.
      */
     public TuneNotificationBuilder setVisibility(int visibility) {
         isVisibilitySet = true;
@@ -139,7 +144,7 @@ public class TuneNotificationBuilder {
      * Sets the sound to use for Tune Push Notifications. <br>
      * <br>
      * @param sound Uri to a sound to play for the notification.
-     * @return TuneNotificationBuilder with sound set.
+     * @return This TuneNotificationBuilder with sound set.
      */
     public TuneNotificationBuilder setSound(Uri sound) {
         isSoundSet = true;
@@ -158,7 +163,7 @@ public class TuneNotificationBuilder {
      * Note: This method requires the caller to hold the permission VIBRATE.
      *
      * @param pattern vibration pattern to use when Tune push notification is received.
-     * @return TuneNotificationBuilder with vibration pattern set.
+     * @return This TuneNotificationBuilder with vibration pattern set.
      */
     public TuneNotificationBuilder setVibrate(long[] pattern) {
         isVibrateSet = true;
@@ -174,7 +179,7 @@ public class TuneNotificationBuilder {
      * <br>
      *
      * @param onlyAlertOnce Whether sound and vibrate should be played only if the notification is not already showing.
-     * @return TuneNotificationBuilder with alert only once set.
+     * @return This TuneNotificationBuilder with alert only once set.
      */
     public TuneNotificationBuilder setOnlyAlertOnce(boolean onlyAlertOnce) {
         isOnlyAlertOnceSet = true;
@@ -187,7 +192,7 @@ public class TuneNotificationBuilder {
      * <br>
      * If set, notifications will not be accompanied with any sound, not even default system sounds.
      * <br>
-     * @return TuneNotificationBuilder with no sound set.
+     * @return This TuneNotificationBuilder with no sound set.
      */
     public TuneNotificationBuilder setNoSound() {
         isNoSoundSet = true;
@@ -198,10 +203,10 @@ public class TuneNotificationBuilder {
 
     /**
      * Sets that no vibrate pattern should be played for Tune Push Notifications. <br>
-     * br>
+     * <br>
      * If set, notifications will not be accompanied with any vibration, not even default system vibration.
      * <br>
-     * @return TuneNotificationBuilder with no vibrate pattern set.
+     * @return This TuneNotificationBuilder with no vibrate pattern set.
      */
     public TuneNotificationBuilder setNoVibrate() {
         isNoVibrateSet = true;
@@ -212,6 +217,8 @@ public class TuneNotificationBuilder {
 
     /**
      * Builds a NotificationCompat.Builder from the provided push notification settings.
+     * @param context Context
+     * @return a new NotificationCompat.Builder with the arguments supplied to this builder.
      */
     public NotificationCompat.Builder build(Context context) {
         Builder builder = new NotificationCompat.Builder(context.getApplicationContext());

@@ -16,6 +16,7 @@ import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.experiments.TuneExperimentManager;
 import com.tune.ma.file.FileManager;
 import com.tune.ma.file.TuneFileManager;
+import com.tune.ma.inapp.TuneInAppMessageManager;
 import com.tune.ma.playlist.TunePlaylistManager;
 import com.tune.ma.powerhooks.TunePowerHookManager;
 import com.tune.ma.profile.TuneUserProfile;
@@ -44,6 +45,7 @@ public class TuneManager {
     private TuneJSONPlayer configurationPlayer;
     private TuneJSONPlayer playlistPlayer;
     private TuneExperimentManager experimentManager;
+    private TuneInAppMessageManager inAppMessageManager;
 
     private static TuneManager instance = null;
 
@@ -74,6 +76,7 @@ public class TuneManager {
             instance.profileManager = new TuneUserProfile(context);
             instance.playlistManager = new TunePlaylistManager();
             instance.experimentManager = new TuneExperimentManager();
+            instance.inAppMessageManager = new TuneInAppMessageManager(context);
 
             if (!instance.configurationManager.isTMADisabled()) {
                 instance.sessionManager = TuneSessionManager.init(context);
@@ -95,14 +98,19 @@ public class TuneManager {
                 TuneEventBus.register(instance.sessionManager, TuneEventBus.PRIORITY_SECOND);
                 // User profile needs priority over analytics so that the session variables are updated correctly first
                 TuneEventBus.register(instance.profileManager, TuneEventBus.PRIORITY_THIRD);
+                // Get configuration before playlist so we know about connected mode
+                TuneEventBus.register(instance.configurationManager, TuneEventBus.PRIORITY_FOURTH);
+                // We want playlist next in priority so we can get it as soon as possible
+                TuneEventBus.register(instance.playlistManager, TuneEventBus.PRIORITY_FIFTH);
+                // In-app message manager needs priority over connected mode so we can get in-app messages ready to be shown in connected mode
+                TuneEventBus.register(instance.inAppMessageManager, TuneEventBus.PRIORITY_SIXTH);
 
                 TuneEventBus.register(instance.analyticsManager, TuneEventBus.PRIORITY_IRRELEVANT);
-                TuneEventBus.register(instance.configurationManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.connectedModeManager, TuneEventBus.PRIORITY_IRRELEVANT);
-                TuneEventBus.register(instance.playlistManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.deepActionManager);
                 TuneEventBus.register(instance.experimentManager, TuneEventBus.PRIORITY_IRRELEVANT);
                 TuneEventBus.register(instance.pushManager);
+
 
                 // After everything has been registered, post that the TuneManager is initialized
                 TuneEventBus.post(new TuneManagerInitialized());
@@ -127,6 +135,7 @@ public class TuneManager {
             TuneEventBus.unregister(instance.deepActionManager);
             TuneEventBus.unregister(instance.experimentManager);
             TuneEventBus.unregister(instance.pushManager);
+            TuneEventBus.unregister(instance.inAppMessageManager);
         }
         instance = null;
     }
@@ -199,6 +208,10 @@ public class TuneManager {
         return experimentManager;
     }
 
+    public TuneInAppMessageManager getInAppMessageManager() {
+        return inAppMessageManager;
+    }
+
     /*
      * NOTE: The following methods are helpers for checking if IAM in enabled when the user calls a IAM only method.
      */
@@ -228,6 +241,15 @@ public class TuneManager {
         }
 
         return getInstance().getExperimentManager();
+    }
+
+    public static TuneInAppMessageManager getInAppMessageManagerForUser(String methodName) {
+        if (getInstance() == null || getInstance().getInAppMessageManager() == null) {
+            handleError(methodName);
+            return null;
+        }
+
+        return getInstance().getInAppMessageManager();
     }
 
     public static TunePlaylistManager getPlaylistManagerForUser(String methodName) {

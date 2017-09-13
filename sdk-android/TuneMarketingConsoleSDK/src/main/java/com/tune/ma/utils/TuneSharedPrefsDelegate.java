@@ -77,6 +77,7 @@ public class TuneSharedPrefsDelegate {
 
     /**
      * Checks if a given key exists in the shared preferences
+     * @param prefsKey SharedPreferences key of the value requested
      * @return true if the key exists otherwise false
      */
     public synchronized boolean contains(String prefsKey) {

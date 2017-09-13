@@ -7,7 +7,7 @@ import com.tune.TuneUnitTest;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;

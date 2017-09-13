@@ -1,7 +1,7 @@
 package com.tune.ma.analytics.model.event.push;
 
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneEventType;
+import com.tune.ma.analytics.model.constants.TuneEventType;
 import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 import com.tune.ma.push.model.TunePushMessage;
 

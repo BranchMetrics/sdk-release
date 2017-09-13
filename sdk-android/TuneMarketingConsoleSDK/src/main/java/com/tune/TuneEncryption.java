@@ -13,8 +13,9 @@ public class TuneEncryption {
     private Cipher cipher;
 
     /**
-     * @param SecretKey
-     * @param iv
+     * Constructor.
+     * @param SecretKey Secret Key.
+     * @param iv Initialization Vector.
      */
     public TuneEncryption(String SecretKey, String iv) {
         ivspec = new IvParameterSpec(iv.getBytes());
@@ -31,9 +32,10 @@ public class TuneEncryption {
     }
 
     /**
+     * Encrypt text.
      * @param text String to encrypt
      * @return AES-encrypted string
-     * @throws Exception
+     * @throws Exception if the given key is inappropriate for initializing this cipher.
      */
     public byte[] encrypt(String text) throws Exception {
         if (text == null || text.length() == 0) throw new Exception("Empty string");
@@ -52,9 +54,10 @@ public class TuneEncryption {
     }
 
     /**
+     * Decrypt an encrypted string.
      * @param code Encrypted string to decrypt
      * @return AES-decrypted string
-     * @throws Exception
+     * @throws Exception if the encrypted string cannot be decrypted.
      */
     public byte[] decrypt(String code) throws Exception {
         if (code == null || code.length() == 0) throw new Exception("Empty string");

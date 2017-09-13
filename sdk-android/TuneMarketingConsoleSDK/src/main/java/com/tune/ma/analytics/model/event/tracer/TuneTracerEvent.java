@@ -1,6 +1,6 @@
 package com.tune.ma.analytics.model.event.tracer;
 
-import com.tune.ma.analytics.model.TuneEventType;
+import com.tune.ma.analytics.model.constants.TuneEventType;
 import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 
 /**

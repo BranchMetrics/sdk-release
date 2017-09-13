@@ -1,18 +1,15 @@
 package com.tune.http;
 
-import android.net.Uri;
-
 import com.tune.TuneConstants;
 import com.tune.TuneDeeplinkListener;
-import com.tune.TuneDeeplinker;
 import com.tune.TuneUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -25,7 +22,7 @@ public class TuneUrlRequester implements UrlRequester {
             return; // no one is listening!
         }
 
-        InputStream is = null;
+        BufferedInputStream is = null;
 
         try {
             URL myurl = new URL(deeplinkURL);
@@ -40,10 +37,10 @@ public class TuneUrlRequester implements UrlRequester {
             boolean error = false;
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                is = conn.getInputStream();
+                is = new BufferedInputStream(conn.getInputStream());
             } else {
                 error = true;
-                is = conn.getErrorStream();
+                is = new BufferedInputStream(conn.getErrorStream());
             }
             
             String response = TuneUtils.readStream(is);
@@ -73,7 +70,7 @@ public class TuneUrlRequester implements UrlRequester {
      */
     @Override
     public JSONObject requestUrl(String url, JSONObject json, boolean debugMode) {
-        InputStream is = null;
+        BufferedInputStream is = null;
         
         try {
             URL myurl = new URL(url);
@@ -103,9 +100,9 @@ public class TuneUrlRequester implements UrlRequester {
                 TuneUtils.log("Request completed with status " + responseCode);
             }
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                is = conn.getInputStream();
+                is = new BufferedInputStream(conn.getInputStream());
             } else {
-                is = conn.getErrorStream();
+                is = new BufferedInputStream(conn.getErrorStream());
             }
             
             String responseAsString = TuneUtils.readStream(is);

@@ -1,4 +1,4 @@
-package com.tune.ma.analytics.model;
+package com.tune.ma.analytics.model.constants;
 
 /**
  * Created by charlesgilliam on 1/26/16.

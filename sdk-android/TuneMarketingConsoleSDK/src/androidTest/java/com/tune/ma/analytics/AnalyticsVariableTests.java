@@ -1,8 +1,8 @@
 package com.tune.ma.analytics;
 
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneHashType;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneHashType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 
 import org.json.JSONException;
 import org.json.JSONObject;

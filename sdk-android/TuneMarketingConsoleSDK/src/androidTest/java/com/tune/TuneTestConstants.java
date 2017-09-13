@@ -8,6 +8,7 @@ public class TuneTestConstants {
     public static final int PARAMTEST_SLEEP = 500;
     public static final int ENDPOINTTEST_SLEEP = 500;
     public static final int SERVERTEST_SLEEP = 5000;
+    public static final int MESSAGETEST_SLEEP = 2000;
 
     public static final int ANALYTICS_DISPATCH_PERIOD = 5;
     public static final int PLAYLIST_REQUEST_PERIOD = 5;

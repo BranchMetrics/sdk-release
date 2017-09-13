@@ -5,6 +5,13 @@ import com.tune.TuneUrlKeys;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.event.TuneCustomEvent;
+import com.tune.ma.analytics.model.event.push.TunePushOpenedEvent;
+import com.tune.ma.analytics.model.event.session.TuneForegroundEvent;
+import com.tune.ma.analytics.model.event.tracer.TuneTracerEvent;
+import com.tune.ma.push.model.TunePushMessage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -109,5 +116,38 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         }
 
         assertTrue("withTagAsString should have thrown an exception", false);
+    }
+
+    public void testFiveline() throws JSONException {
+        // Test custom event fiveline
+        TuneEvent tuneEvent = new TuneEvent("fivelinetest");
+        TuneCustomEvent customEvent = new TuneCustomEvent(tuneEvent);
+
+        assertEquals("Custom|||fivelinetest|EVENT", customEvent.getFiveline());
+
+        // Test session event fiveline
+        TuneForegroundEvent foregroundEvent = new TuneForegroundEvent();
+
+        assertEquals("Application|||Foregrounded|SESSION", foregroundEvent.getFiveline());
+
+        // Test tracer event fiveline
+        TuneTracerEvent tracerEvent = new TuneTracerEvent();
+
+        assertEquals("||||TRACER", tracerEvent.getFiveline());
+
+        // Test push event fiveline
+        JSONObject pushMessageJson = new JSONObject();
+        pushMessageJson.put("appName", "fiveline test");
+        pushMessageJson.put("app_id", "12345");
+        pushMessageJson.put("alert", "Buy coins!");
+        pushMessageJson.put("CAMPAIGN_ID", "67890");
+        pushMessageJson.put("ARTPID", "123");
+        pushMessageJson.put("LENGTH_TO_REPORT", 9000);
+        pushMessageJson.put("local_message_id", "abcd");
+
+        TunePushMessage message = new TunePushMessage(pushMessageJson.toString());
+        TunePushOpenedEvent pushOpenedEvent = new TunePushOpenedEvent(message);
+
+        assertEquals("123|||NotificationOpened|PUSH_NOTIFICATION", pushOpenedEvent.getFiveline());
     }
 }

@@ -15,6 +15,8 @@ public class MockFileManager implements FileManager {
     private JSONObject playlistResult;
     private JSONArray analyticsResult;
 
+    private int writeAnalyticsCount = 0;
+
     @Override
     public void writeConfiguration(JSONObject configuration) {
 
@@ -42,7 +44,7 @@ public class MockFileManager implements FileManager {
 
     @Override
     public void writeAnalytics(TuneAnalyticsEventBase event) {
-
+        writeAnalyticsCount++;
     }
 
     @Override
@@ -70,5 +72,9 @@ public class MockFileManager implements FileManager {
 
     public void setAnalyticsResult(JSONArray analyticsResult) {
         this.analyticsResult = analyticsResult;
+    }
+
+    public int getAnalyticsCount() {
+        return writeAnalyticsCount;
     }
 }

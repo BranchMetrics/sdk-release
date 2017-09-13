@@ -19,7 +19,7 @@ public class TuneActivityLifecycleCallbacks implements Application.ActivityLifec
 
     @Override
     public void onActivityStarted(Activity activity) {
-        TuneActivity.onStart(activity);
+        // Not capturing onStart
     }
 
     @Override
@@ -29,12 +29,12 @@ public class TuneActivityLifecycleCallbacks implements Application.ActivityLifec
 
     @Override
     public void onActivityPaused(Activity activity) {
-        // Not capturing onPause
+        TuneActivity.onPause(activity);
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-        TuneActivity.onStop(activity);
+        // Not capturing onStop
     }
 
     @Override

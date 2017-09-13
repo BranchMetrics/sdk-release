@@ -47,6 +47,7 @@ public class TuneEventQueue {
     
     /**
      * Removes a specific item from the queue.
+     * @param key The name of the item to remove.
      */
     protected synchronized void removeKeyFromQueue(String key) {
         setQueueSize(getQueueSize() - 1);
@@ -55,6 +56,7 @@ public class TuneEventQueue {
     
     /**
      * Returns a specific item from the queue, without deleting the item.
+     * @param key The name of the item to retrieve.
      * @return JSONObject of the item
      */
     protected synchronized String getKeyFromQueue(String key) {
@@ -63,6 +65,8 @@ public class TuneEventQueue {
     
     /**
      * Sets the values for a particular queue key.
+     * @param item The new value for the item.
+     * @param key The key to modify.
      */
     protected synchronized void setQueueItemForKey(JSONObject item, String key) {
         eventQueue.edit().putString(key, item.toString()).apply();
@@ -77,6 +81,7 @@ public class TuneEventQueue {
         /**
          * Saves an event to the queue.
          * @param link URL of the event postback
+         * @param data URL data
          * @param postBody the body of the POST request
          * @param firstSession whether event should wait for advertising ID/referrer to be received
          */

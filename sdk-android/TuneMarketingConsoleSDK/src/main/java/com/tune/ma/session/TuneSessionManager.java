@@ -41,11 +41,19 @@ public class TuneSessionManager {
     }
 
     public static void clearInstance() {
+        clearTimer();
+        instance = null;
+    }
+
+    public static void clearTimer() {
         if (instance.sessionEndTimer != null) {
             instance.sessionEndTimer.cancel();
             instance.sessionEndTimer = null;
         }
-        instance = null;
+    }
+
+    public static void clearActivities() {
+        instance.connectedActivities = new ArrayList<Activity>();
     }
 
     // TODO: delete this constructor when UserProfileManager handles writing to SharedPreferences
@@ -95,11 +103,12 @@ public class TuneSessionManager {
                 if (session != null) {
                     session.setSessionLength(System.currentTimeMillis() - session.getCreatedDate());
                 }
-                // This code will be executed after SESSION_TIMEOUT ms
-                TuneEventBus.post(new TuneAppBackgrounded());
 
                 // Null out the timer so we know it's finished running
                 sessionEndTimer = null;
+
+                // This code will be executed after SESSION_TIMEOUT ms
+                TuneEventBus.post(new TuneAppBackgrounded());
             }
         }, SESSION_TIMEOUT);
     }
@@ -114,7 +123,7 @@ public class TuneSessionManager {
 
     private synchronized void disconnectActivity(Activity activity) {
         connectedActivities.remove(activity);
-        if(connectedActivities.size() == 0) {
+        if (connectedActivities.size() == 0) {
             hasActivityVisible = false;
             endSession();
         }

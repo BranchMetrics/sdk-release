@@ -4,8 +4,6 @@ import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneActivityConnected;
-import com.tune.ma.eventbus.event.TuneActivityDisconnected;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.playlist.model.TunePlaylist;
@@ -56,6 +54,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     @Override
     protected void tearDown() throws Exception {
         playlistManager.onEvent(new TuneAppBackgrounded());
+
+        sleep(500);
 
         super.tearDown();
     }
@@ -349,8 +349,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
 
-        // Simulate an Activity disconnect
-        sessionManager.onEvent(new TuneActivityDisconnected(activity));
+        // Simulate an app background
+        playlistManager.onEvent(new TuneAppBackgrounded());
 
         // Simulate a playlist download so that callback tries to execute
         TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
@@ -360,7 +360,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         TuneTestUtils.assertEventually(100, new Runnable() {
             @Override
             public void run() {
-                // Callback should be executed
+                // Callback should not be executed
                 assertFalse(callback.getCallbackExecuted());
             }
         });
@@ -372,11 +372,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
 
-        // Simulate an Activity disconnect
-        sessionManager.onEvent(new TuneActivityDisconnected(activity));
-
-        // Wait at least 1s for app background to be recognized
-        sleep(1500);
+        // Simulate an app background
+        playlistManager.onEvent(new TuneAppBackgrounded());
 
         // Simulate a playlist download so that callback tries to execute
         TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
@@ -398,11 +395,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
 
-        // Simulate an Activity disconnect
-        sessionManager.onEvent(new TuneActivityDisconnected(activity));
-
-        // Wait at least 1s for app background to be recognized
-        sleep(1500);
+        // Simulate an app background
+        playlistManager.onEvent(new TuneAppBackgrounded());
 
         // Simulate a playlist download so that callback tries to execute
         TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
@@ -412,15 +406,15 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         TuneTestUtils.assertEventually(100, new Runnable() {
             @Override
             public void run() {
-                // Callback should be executed
+                // Callback should not be executed
                 assertFalse(callback.getCallbackExecuted());
             }
         });
 
         sleep(500);
 
-        // Simulate an activity connect
-        sessionManager.onEvent(new TuneActivityConnected(activity));
+        // Simulate an app foreground
+        playlistManager.onEvent(new TuneAppForegrounded(UUID.randomUUID().toString(), System.currentTimeMillis()));
 
         // Callback should be executed immediately after timeout since it was previously marked as canceled and eligible to retry
         // and we already have a playlist

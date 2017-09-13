@@ -1,10 +1,11 @@
 package com.tune.ma.analytics.model.event;
 
+import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsEventItem;
 import com.tune.ma.analytics.model.TuneAnalyticsSubmitter;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneEventType;
+import com.tune.ma.analytics.model.constants.TuneEventType;
 import com.tune.ma.utils.TuneJsonUtils;
 
 import org.json.JSONArray;
@@ -60,16 +61,18 @@ public abstract class TuneAnalyticsEventBase {
     public TuneAnalyticsEventBase() {
         this.timeStamp = System.currentTimeMillis() / 1000.0;
 
-        this.submitter = new TuneAnalyticsSubmitter(TuneManager.getInstance().getProfileManager());
-
-        this.appId = TuneManager.getInstance().getProfileManager().getAppId();
-
-        this.profile = TuneManager.getInstance().getProfileManager().getCopyOfVars();
-
-        this.sessionTime = TuneManager.getInstance().getSessionManager().getSecondsSinceSessionStart();
+        if (TuneManager.getInstance() != null) {
+            if (TuneManager.getInstance().getProfileManager() != null) {
+                this.submitter = new TuneAnalyticsSubmitter(TuneManager.getInstance().getProfileManager());
+                this.appId = TuneManager.getInstance().getProfileManager().getAppId();
+                this.profile = TuneManager.getInstance().getProfileManager().getCopyOfVars();
+            }
+            if (TuneManager.getInstance().getSessionManager() != null) {
+                this.sessionTime = TuneManager.getInstance().getSessionManager().getSecondsSinceSessionStart();
+            }
+        }
 
         this.items = new ArrayList<TuneAnalyticsEventItem>();
-
         this.tags = new HashSet<TuneAnalyticsVariable>();
     }
 
@@ -199,5 +202,43 @@ public abstract class TuneAnalyticsEventBase {
             e.printStackTrace();
         }
         return object;
+    }
+
+    public String getFiveline() {
+        StringBuilder builder = new StringBuilder();
+
+        if (category != null) {
+            builder.append(category);
+        }
+
+        builder.append("|");
+
+        if (controlEvent != null) {
+            builder.append(controlEvent);
+        }
+
+        builder.append("|");
+
+        if (control != null) {
+            builder.append(control);
+        }
+
+        builder.append("|");
+
+        if (action != null) {
+            builder.append(action);
+        }
+
+        builder.append("|");
+
+        if (eventType != null) {
+            builder.append(eventType);
+        }
+
+        return builder.toString();
+    }
+
+    public String getEventMd5() {
+        return TuneUtils.md5(getFiveline());
     }
 }

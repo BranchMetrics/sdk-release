@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.tune.TuneLocation;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
+import com.tune.ma.analytics.model.constants.TuneHashType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TunePIIUtils;

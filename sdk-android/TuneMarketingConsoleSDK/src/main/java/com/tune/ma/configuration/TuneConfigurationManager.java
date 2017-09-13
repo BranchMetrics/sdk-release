@@ -393,4 +393,8 @@ public class TuneConfigurationManager {
     public String getApiVersion() {
         return TuneConstants.IAM_API_VERSION;
     }
+
+    public String getPlaylistApiVersion() {
+        return TuneConstants.IAM_PLAYLIST_API_VERSION;
+    }
 }

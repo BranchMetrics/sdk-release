@@ -43,6 +43,7 @@ public class TuneConstants {
 
     // TUNE IAM API VERSION
     public static final String IAM_API_VERSION = "v3";
+    public static final String IAM_PLAYLIST_API_VERSION = "v4";
 
     public static final String STRING_TRUE = "true";
     public static final String STRING_FALSE = "false";

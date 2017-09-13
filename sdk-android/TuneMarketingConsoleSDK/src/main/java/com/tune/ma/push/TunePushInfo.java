@@ -29,6 +29,7 @@ public class TunePushInfo {
      * 1. The "JSON Payload" field in the campaign screen
      * 2. The "extraPushPayload" of the push API
      * Or an empty JSONObject if nothing was passed through.
+     * @return extra payload information
      */
     public JSONObject getExtrasPayload() {
         return extrasPayload;

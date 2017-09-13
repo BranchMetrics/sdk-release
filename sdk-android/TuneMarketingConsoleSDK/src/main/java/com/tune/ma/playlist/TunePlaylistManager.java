@@ -9,6 +9,7 @@ import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
+import com.tune.ma.eventbus.event.TunePlaylistManagerFirstPlaylistDownloaded;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneCallbackHolder;
 import com.tune.ma.playlist.model.TunePlaylist;
@@ -45,7 +46,7 @@ public class TunePlaylistManager {
     private ExecutorService executorService;
 
     private static final String TAG = "PlaylistManager";
-
+    
     public TunePlaylistManager() {
         this.started = false;
         this.isUpdating = false;
@@ -367,7 +368,7 @@ public class TunePlaylistManager {
             receivedFirstPlaylistDownload = true;
 
             // If we have a pending callback that hasn't been executed, execute it
-            if (!firstPlaylistCallbackExecuted && onFirstPlaylistDownloadCallbackHolder != null) {
+            if (!firstPlaylistCallbackExecuted && onFirstPlaylistDownloadCallbackHolder != null && !onFirstPlaylistDownloadCallbackHolder.isCanceled()) {
                 TuneDebugLog.i("Playlist downloaded, executing firstPlaylistDownload callback");
                 try {
                     executorService.execute(new Runnable() {
@@ -380,6 +381,9 @@ public class TunePlaylistManager {
                     TuneDebugLog.e(TuneStringUtils.format("Exception in executing firstPlaylistDownload callback. %s", Log.getStackTraceString(e)));
                 }
             }
+
+            // Send EventBus event for first playlist downloaded
+            TuneEventBus.post(new TunePlaylistManagerFirstPlaylistDownloaded());
         }
     }
 }

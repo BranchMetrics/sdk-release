@@ -3,8 +3,8 @@ package com.tune.ma.utils;
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneHashType;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneHashType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 import com.tune.ma.configuration.TuneConfiguration;
 
 import org.json.JSONException;

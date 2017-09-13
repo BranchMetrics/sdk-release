@@ -51,52 +51,53 @@ public class TuneExperimentDetails {
     }
 
     /**
-     * The id of the experiment.
-     *
+     * Get the Experiment Id.
      * The experiment id is a unique identifier for an experiment.
+     * @return The id of the experiment.
      */
     public String getExperimentId() {
         return experimentId;
     }
 
     /**
-     * The name of the experiment.
-     *
+     * Get the Experiment Name.
      * The experiment name is the same that you would see in Tune Marketing Automation Tools.
+     * @return The name of the experiment.
      */
     public String getExperimentName() {
         return experimentName;
     }
 
     /**
-     * The type of the experiment.
+     * Get the Experiment Type.
+     * @return The type of the experiment.
      */
     public String getExperimentType() {
         return experimentType;
     }
 
     /**
-     * The current variant id for the experiment.
-     *
+     * Get the Current Variant Id.
      * The variant id is a unique identifier for the variation of an Tune Marketing Automation Experiment.
+     * @return The current variant id for the experiment.
      */
     public String getCurrentVariantId() {
         return currentVariantId;
     }
 
     /**
-     * The current variant name for the experiment.
-     *
+     * Get the Current Variant Name.
      * The variant name is the same that you would see in Tune Marketing Automation Tools. Unless the names were edited in Artisan tools they are "Control", "B", "C", etc.
+     * @return The current variant name for the experiment.
      */
     public String getCurrentVariantName() {
         return currentVariantName;
     }
 
     /**
-     * The current variant letter for the experiment.
-     *
+     * Get the Current Variant Letter.
      * This will the be same as 'currentVariantName' unless you gave it a new name. Otherwise it will give the associated variation letter to the name.
+     * @return The current variant letter for the experiment.
      */
     public String getCurrentVariantLetter() {
         return currentVariantLetter;

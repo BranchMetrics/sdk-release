@@ -10,13 +10,13 @@ public class TuneTestUtils {
         long now = begin;
         Throwable lastException = null;
 
-        while((now - begin) < timeoutInMilliseconds) {
-            try{
+        while ((now - begin) < timeoutInMilliseconds) {
+            try {
                 assertion.run();
                 return;
-            } catch(RuntimeException e) {
+            } catch (RuntimeException e) {
                 lastException = e;
-            } catch(AssertionError e) {
+            } catch (AssertionError e) {
                 lastException = e;
             }
 

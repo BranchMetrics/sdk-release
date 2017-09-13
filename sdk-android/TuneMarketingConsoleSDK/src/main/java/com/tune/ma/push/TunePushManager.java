@@ -11,7 +11,7 @@ import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
@@ -202,12 +202,11 @@ public class TunePushManager {
     }
 
     /**
-     *
      * Unregisters and Re-registers the application with GCM servers asynchronously.
-     * <p>
+     * <br>
      * Stores the registration ID, app versionCode, and Tune device id in the application's shared preferences.
      *
-     * @param unregisterFirst
+     * @param unregisterFirst True if the application should be unregistered first
      */
     protected void registerInBackground(final boolean unregisterFirst) {
         executorService.execute(new Runnable() {
@@ -346,9 +345,9 @@ public class TunePushManager {
         }
     }
 
-    /****************************
-     * Publicly Exposed Methods *
-     ****************************/
+    // ****************************
+    // Publicly Exposed Methods
+    // ****************************
 
     public void setPushNotificationSenderId(String pushSenderId) {
         // IMPORTANT: 'checkPushSettings' can be a little flakey (giving false positives) until such a time that it stops giving false positives we shouldn't do it.

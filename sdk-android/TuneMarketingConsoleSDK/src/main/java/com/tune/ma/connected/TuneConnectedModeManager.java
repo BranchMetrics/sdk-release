@@ -10,6 +10,9 @@ import com.tune.ma.deepactions.model.TuneDeepAction;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneConnectedModeTurnedOn;
 import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
+import com.tune.ma.inapp.TuneInAppMessageManager;
+import com.tune.ma.inapp.model.TuneInAppMessage;
+import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
 
 import org.json.JSONArray;
@@ -17,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,15 +41,38 @@ public class TuneConnectedModeManager {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void onEvent(TuneConnectedModeTurnedOn event) {
+    public synchronized void onEvent(TuneConnectedModeTurnedOn event) {
         // We saw connected was just turned on from server, so time to connect
         handleConnection();
     }
 
-    public void onEvent(TuneAppBackgrounded event) {
+    public synchronized void onEvent(TuneAppBackgrounded event) {
         // If connected mode was on, disconnect
         if (isInConnectedMode()) {
             handleDisconnection();
+        }
+    }
+
+    public synchronized void onEventMainThread(TunePlaylistManagerCurrentPlaylistChanged event) {
+        if (isInConnectedMode()) {
+            TunePlaylist playlist = event.getNewPlaylist();
+            // If we're in connected mode, show any in-app messages immediately
+            if (playlist.isFromConnectedMode()) {
+                if (playlist.getInAppMessages().length() > 0) {
+                    TuneInAppMessageManager messageManager = TuneManager.getInstance().getInAppMessageManager();
+                    Map<String, TuneInAppMessage> messages = messageManager.getMessagesByIds();
+                    // Exit if no messages
+                    if (messages.size() == 0) {
+                        return;
+                    }
+                    TuneInAppMessage message = messages.entrySet().iterator().next().getValue();
+                    // Exit if message is currently visible
+                    if (messageManager.isMessageCurrentlyShowing(message)) {
+                        return;
+                    }
+                    message.display();
+                }
+            }
         }
     }
 
@@ -121,24 +148,6 @@ public class TuneConnectedModeManager {
 
         // Send sync http request in background
         executorService.execute(new Sync(combined));
-    }
-
-    public void onEvent(TunePlaylistManagerCurrentPlaylistChanged event) {
-        if (isInConnectedMode()) {
-//            TunePlaylist *playlist = [payload userInfo][TunePayloadNewPlaylist];
-//            // If we have a In-App message in our Playlist then we're previewing an In-App Message
-//            if (playlist.fromConnectedMode) {
-//                if (playlist.inAppMessages.count == 1) {
-//                    TuneBaseMessageFactory *messageFactory = [[playlist.inAppMessages allValues] firstObject];
-//                    // Wait a short bit of time otherwise the message will dissapear immediately.
-//                    //   This is likely because the message gets attached to the dismissing 'Connected...' popup
-//                    [messageFactory performSelector:@selector(buildAndShowMessage) withObject:nil afterDelay:0.6];
-//                }
-//
-//                // Remove our observer.
-//                TuneEventBus.unregister(this);
-//            }
-        }
     }
 
     public boolean isInConnectedMode() {

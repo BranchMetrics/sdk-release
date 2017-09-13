@@ -41,4 +41,61 @@ public class TuneDateUtilsTests extends TuneUnitTest {
 
         assertFalse(TuneDateUtils.doesNowFallBetweenDates(start, end));
     }
+
+    public void testNowDoesFallBeforeDate() {
+        // Create Date 2 days later
+        Calendar cdate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cdate.add(Calendar.DATE, 2);
+        Date twoDaysLater = cdate.getTime();
+
+        assertTrue(TuneDateUtils.doesNowFallBeforeDate(twoDaysLater));
+    }
+
+    public void testNowDoesFallAfterDate() {
+        // Create Date 2 days earlier
+        Calendar cdate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cdate.add(Calendar.DATE, -2);
+        Date twoDaysEarlier = cdate.getTime();
+
+        assertTrue(TuneDateUtils.doesNowFallAfterDate(twoDaysEarlier));
+    }
+
+    public void testNowDoesFallBeforeToday() {
+        // Add small time buffer since "now" is initialized later than the param
+        // We'll use 5s since emulators can be really slow
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, 5);
+        assertTrue(TuneDateUtils.doesNowFallBeforeDate(calendar.getTime()));
+    }
+
+    public void testNowDoesFallAfterToday() {
+        assertTrue(TuneDateUtils.doesNowFallAfterDate(new Date()));
+    }
+
+    public void testDaysSinceDate() {
+        // Create Date 2 days earlier
+        Calendar cdate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cdate.add(Calendar.DATE, -2);
+        Date twoDaysEarlier = cdate.getTime();
+
+        // Create Date 28 days later
+        cdate.add(Calendar.DATE, 30);
+        Date twentyEightDaysLater = cdate.getTime();
+
+        assertEquals(2, TuneDateUtils.daysSinceDate(twoDaysEarlier));
+        assertEquals(-28, TuneDateUtils.daysSinceDate(twentyEightDaysLater));
+    }
+
+    public void testSecondsBetweenDates() {
+        // Create Date 5 seconds later
+        Calendar cdate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+        Date now = cdate.getTime();
+
+        cdate.add(Calendar.SECOND, 5);
+        Date fiveSecondsLater = cdate.getTime();
+
+        assertEquals(5, TuneDateUtils.secondsBetweenDates(now, fiveSecondsLater));
+        assertEquals(5, TuneDateUtils.secondsBetweenDates(fiveSecondsLater, now));
+    }
 }

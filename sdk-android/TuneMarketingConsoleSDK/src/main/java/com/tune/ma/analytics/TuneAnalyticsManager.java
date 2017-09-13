@@ -1,15 +1,20 @@
 package com.tune.ma.analytics;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
-import com.tune.ma.analytics.model.TuneAnalyticsManagerState;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
+import com.tune.ma.analytics.model.constants.TuneAnalyticsManagerState;
 import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 import com.tune.ma.analytics.model.event.TuneCustomEvent;
+import com.tune.ma.analytics.model.event.TuneDeeplinkOpenedEvent;
 import com.tune.ma.analytics.model.event.TuneScreenViewEvent;
+import com.tune.ma.analytics.model.event.inapp.TuneInAppMessageActionTakenEvent;
+import com.tune.ma.analytics.model.event.inapp.TuneInAppMessageShownEvent;
+import com.tune.ma.analytics.model.event.inapp.TuneInAppMessageUnspecifiedActionTakenEvent;
 import com.tune.ma.analytics.model.event.push.TunePushActionEvent;
 import com.tune.ma.analytics.model.event.push.TunePushEnabledEvent;
 import com.tune.ma.analytics.model.event.push.TunePushOpenedEvent;
@@ -20,11 +25,16 @@ import com.tune.ma.analytics.model.event.tracer.TuneTracerEvent;
 import com.tune.ma.eventbus.event.TuneActivityResumed;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
+import com.tune.ma.eventbus.event.TuneDeeplinkOpened;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
+import com.tune.ma.eventbus.event.inapp.TuneInAppMessageActionTaken;
+import com.tune.ma.eventbus.event.inapp.TuneInAppMessageShown;
+import com.tune.ma.eventbus.event.inapp.TuneInAppMessageUnspecifiedActionTaken;
 import com.tune.ma.eventbus.event.push.TunePushEnabled;
 import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
+import com.tune.ma.inapp.model.TuneInAppMessage;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
@@ -82,8 +92,12 @@ public class TuneAnalyticsManager {
         customEventQueue.add(event);
     }
 
-    private synchronized boolean shouldQueueCustomEvents() {
+    synchronized boolean shouldQueueCustomEvents() {
         return shouldQueueCustomEvents;
+    }
+
+    synchronized List<TuneEvent> getCustomEventQueue() {
+        return customEventQueue;
     }
 
     synchronized void setShouldQueueCustomEvents(Boolean newValue) {
@@ -151,6 +165,27 @@ public class TuneAnalyticsManager {
         storeAndTrackAnalyticsEvent(false, new TunePushEnabledEvent(status));
     }
 
+    public void onEventBackgroundThread(TuneInAppMessageShown event) {
+        TuneInAppMessage message = event.getMessage();
+        storeAndTrackAnalyticsEvent(false, new TuneInAppMessageShownEvent(message));
+    }
+
+    public void onEventBackgroundThread(TuneInAppMessageActionTaken event) {
+        TuneInAppMessage message = event.getMessage();
+        String action = event.getAction();
+        int secondsDisplayed = event.getSecondsDisplayed();
+
+        storeAndTrackAnalyticsEvent(false, new TuneInAppMessageActionTakenEvent(message, action, secondsDisplayed));
+    }
+
+    public void onEventBackgroundThread(TuneInAppMessageUnspecifiedActionTaken event) {
+        TuneInAppMessage message = event.getMessage();
+        String unspecifiedActionName = event.getUnspecifiedActionName();
+        int secondsDisplayed = event.getSecondsDisplayed();
+
+        storeAndTrackAnalyticsEvent(false, new TuneInAppMessageUnspecifiedActionTakenEvent(message, unspecifiedActionName, secondsDisplayed));
+    }
+
     public void onEvent(TuneSessionVariableToSet event) {
         String variableName = event.getVariableName();
         String variableValue = event.getVariableValue();
@@ -158,6 +193,22 @@ public class TuneAnalyticsManager {
         if (event.saveToAnalyticsManager()) {
             registerSessionVariable(variableName, variableValue);
         }
+    }
+
+    public void onEvent(TuneDeeplinkOpened event) {
+        String deeplinkUrl = event.getDeeplinkUrl();
+
+        // Create analytics tags from url query params
+        Uri uri = Uri.parse(deeplinkUrl);
+        Set<String> queryParamNames = TuneStringUtils.getQueryParameterNames(uri);
+        for (String name : queryParamNames) {
+            registerSessionVariable(name, uri.getQueryParameter(name));
+        }
+
+        // Only keep up to the path of the url for the analytics event
+        String reducedUrl = TuneStringUtils.reduceUrlToPath(deeplinkUrl);
+
+        storeAndTrackAnalyticsEvent(false, new TuneDeeplinkOpenedEvent(reducedUrl));
     }
 
     public synchronized void registerSessionVariable(String variableName, String variableValue) {

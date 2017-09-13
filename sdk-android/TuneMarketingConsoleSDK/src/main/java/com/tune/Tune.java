@@ -26,13 +26,15 @@ import com.tune.http.UrlRequester;
 import com.tune.location.TuneLocationListener;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneVariableType;
+import com.tune.ma.analytics.model.constants.TuneVariableType;
+import com.tune.ma.analytics.model.event.TuneCustomEvent;
 import com.tune.ma.configuration.TuneConfiguration;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.experiments.model.TuneInAppMessageExperimentDetails;
 import com.tune.ma.experiments.model.TunePowerHookExperimentDetails;
+import com.tune.ma.inapp.model.TuneInAppMessage;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.push.TunePushInfo;
@@ -288,7 +290,7 @@ public class Tune {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    protected void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
+    protected synchronized void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
         if (pool.isShutdown()) {
             return;
         }
@@ -296,7 +298,7 @@ public class Tune {
         pool.execute(eventQueue.new Add(link, data, postBody, firstSession));
     }
 
-    protected void dumpQueue() {
+    protected synchronized void dumpQueue() {
         if (!isOnline(mContext)) {
             return;
         }
@@ -467,6 +469,9 @@ public class Tune {
 
     /**
      * Helper function for making single request and displaying response
+     * @param link Url address
+     * @param data Url link data
+     * @param postBody Url post body
      * @return true if request was sent successfully and should be removed from queue
      */
     protected boolean makeRequest(String link, String data, JSONObject postBody) {
@@ -1140,7 +1145,7 @@ public class Tune {
      ******************/
 
     /**
-     * Sets the TUNE advertiser ID
+     * Sets the TUNE advertiser ID.
      * @param advertiserId TUNE advertiser ID
      */
     public void setAdvertiserId(final String advertiserId) {
@@ -1171,7 +1176,7 @@ public class Tune {
     }
 
     /**
-     * Sets the ANDROID ID
+     * Sets the ANDROID ID.
      * @param androidId ANDROID_ID
      */
     public void setAndroidId(final String androidId) {
@@ -1187,7 +1192,7 @@ public class Tune {
     }
 
     /**
-     * Sets the ANDROID ID MD5 hash
+     * Sets the ANDROID ID MD5 hash.
      * @param androidIdMd5 ANDROID_ID MD5 hash
      */
     public void setAndroidIdMd5(final String androidIdMd5) {
@@ -1197,7 +1202,7 @@ public class Tune {
     }
 
     /**
-     * Sets the ANDROID ID SHA-1 hash
+     * Sets the ANDROID ID SHA-1 hash.
      * @param androidIdSha1 ANDROID_ID SHA-1 hash
      */
     public void setAndroidIdSha1(final String androidIdSha1) {
@@ -1207,7 +1212,7 @@ public class Tune {
     }
 
     /**
-     * Sets the ANDROID ID SHA-256 hash
+     * Sets the ANDROID ID SHA-256 hash.
      * @param androidIdSha256 ANDROID_ID SHA-256 hash
      */
     public void setAndroidIdSha256(final String androidIdSha256) {
@@ -1235,7 +1240,7 @@ public class Tune {
     }
 
     /**
-     * Sets the conversion key for the SDK
+     * Sets the conversion key for the SDK.
      * @param conversionKey TUNE conversion key
      */
     public void setConversionKey(final String conversionKey) {
@@ -1263,7 +1268,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device brand, or manufacturer
+     * Sets the device brand, or manufacturer.
      * @param deviceBrand device brand
      */
     public void setDeviceBrand(final String deviceBrand) {
@@ -1275,7 +1280,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device build
+     * Sets the device build.
      * @param deviceBuild device build
      */
     public void setDeviceBuild(final String deviceBuild) {
@@ -1287,7 +1292,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device IMEI/MEID
+     * Sets the device IMEI/MEID.
      * @param deviceId device IMEI/MEID
      */
     public void setDeviceId(final String deviceId) {
@@ -1299,7 +1304,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device model
+     * Sets the device model.
      * @param deviceModel device model
      */
     public void setDeviceModel(final String deviceModel) {
@@ -1325,8 +1330,8 @@ public class Tune {
     }
 
     /**
-     * Sets the user ID to associate with Facebook
-     * @param userId
+     * Sets the user ID to associate with Facebook.
+     * @param userId the Facebook user id
      */
     public void setFacebookUserId(final String userId) {
         pubQueue.execute(new Runnable() { public void run() {
@@ -1335,7 +1340,7 @@ public class Tune {
     }
 
     /**
-     * Sets the Amazon Fire Advertising ID
+     * Sets the Amazon Fire Advertising ID.
      * @param adId Amazon Fire advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
      */
@@ -1371,7 +1376,7 @@ public class Tune {
     }
 
     /**
-     * Sets the Google Play Services Advertising ID
+     * Sets the Google Play Services Advertising ID.
      * @param adId Google Play advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
      */
@@ -1397,8 +1402,8 @@ public class Tune {
     }
 
     /**
-     * Sets the user ID to associate with Google
-     * @param userId
+     * Sets the user ID to associate with Google.
+     * @param userId the Google user id
      */
     public void setGoogleUserId(final String userId) {
         pubQueue.execute(new Runnable() { public void run() {
@@ -1423,7 +1428,7 @@ public class Tune {
     }
 
     /**
-     * Sets whether the user is revenue-generating or not
+     * Sets whether the user is revenue-generating or not.
      * @param isPayingUser true if the user has produced revenue, false if not
      */
     public void setIsPayingUser(final boolean isPayingUser) {
@@ -1619,7 +1624,7 @@ public class Tune {
     /**
      * Set the package that invoked the activity. Typically this value is from {@link Activity#getCallingPackage} and may be null.
      *
-     * @param referralCallingPackage
+     * @param referralCallingPackage The name of the callling package
      */
     public void setReferralCallingPackage(@Nullable final String referralCallingPackage) {
         pubQueue.execute(new Runnable() { public void run() {
@@ -1667,7 +1672,7 @@ public class Tune {
 
     /**
      * Sets the user ID to associate with Twitter
-     * @param userId
+     * @param userId the Twitter user id
      */
     public void setTwitterUserId(final String userId) {
         pubQueue.execute(new Runnable() { public void run() {
@@ -1706,8 +1711,8 @@ public class Tune {
     }
 
     /**
-     * Set the name of plugin used, if any
-     * @param pluginName
+     * Set the name of plugin used, if any.
+     * @param pluginName the name of the plugin used
      */
     public void setPluginName(final String pluginName) {
         // Validate plugin name
@@ -1877,6 +1882,7 @@ public class Tune {
      * NOTE: If no hook was registered for the given ID, this method will return null.
      *
      * @param hookId The name of the Power Hook you wish to retrieve. Will return nil if the Power Hook has not been registered.
+     * @return the value of the Power Hook
      */
     public String getValueForHookById(String hookId) {
         if (TuneManager.getPowerHookManagerForUser("getValueForHookById") == null) {
@@ -2010,7 +2016,7 @@ public class Tune {
      * Details include the hook id for the Power Hook, experiment and variation ids and start
      * and end date of the experiment.
      *
-     * Returns a `Map` of experiment details for all running Power Hook variable experiments,
+     * @return a `Map` of experiment details for all running Power Hook variable experiments,
      * where the keys are the `String` Power Hook IDs of the Power Hooks, and the values
      * are `TunePowerHookExperimentDetails` objects.
      */
@@ -2028,7 +2034,7 @@ public class Tune {
      *
      * Details include the experiment and variation ids and start and end date of the experiment.
      *
-     * Returns a `HashMap` of experiment details for all running In App Message experiments,
+     * @return a `HashMap` of experiment details for all running In App Message experiments,
      * where the keys are the `String` campaign ids of the In App Messages, and the values are
      * `TuneInAppMessageExperimentDetails` objects.
      */
@@ -2044,7 +2050,8 @@ public class Tune {
      ** On First Playlist Downloaded API *
      ************************************/
 
-    /** Register callback when the first playlist is downloaded for App's lifetime.
+    /**
+     * Register callback when the first playlist is downloaded for App's lifetime.
      *
      * Use this method to register a callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
      *
@@ -2052,7 +2059,7 @@ public class Tune {
      *
      * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
      *
-     * Otherwise the callback will fire after {@value TuneConstants#DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
+     * Otherwise the callback will fire after {@link TuneConstants#DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
      *
      * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
      * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
@@ -2065,8 +2072,6 @@ public class Tune {
      * WARNING: If TMA is not enabled then this callback will never fire.
      *
      * @param callback A TuneCallback object that is to be executed.
-     *
-     *
      */
     public void onFirstPlaylistDownloaded(final TuneCallback callback) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
@@ -2110,6 +2115,160 @@ public class Tune {
         }
 
         TuneManager.getInstance().getPlaylistManager().onFirstPlaylistDownloaded(callback, timeout);
+    }
+
+    /***********************
+     ** In-App Message API *
+     ***********************/
+
+    /**
+     * Get in-app messages for this device that are triggered by custom event.
+     * @param eventName Event name of custom {@link TuneEvent} that would trigger these messages
+     * @return List of messages that are triggered from the given event
+     */
+    public List<TuneInAppMessage> getInAppMessagesForCustomEvent(String eventName) {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForCustomEvent") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesForCustomEvent(eventName);
+    }
+
+    /**
+     * Get in-app messages for this device that are triggered by a push opened event for a specific TUNE push message.
+     * @param pushId Push id (message variation id) of the push notification.
+     * @return List of messages that are triggered by Push Opened event
+     */
+    public List<TuneInAppMessage> getInAppMessagesForPushOpened(String pushId) {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForPushOpened") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesForPushOpened(pushId);
+    }
+
+    /**
+     * Get in-app messages for this device that are triggered by a Push Enabled/Disabled event.
+     * Push Enabled or Disabled events are sent when a user enables/disables push at a system level or app level {@link Tune#setOptedOutOfPush(boolean)}
+     * or the user profile's age does not meet COPPA (automatically disabled)
+     * @param pushEnabled Whether Push Enabled or Push Disabled is the event to use
+     * @return List of messages that are triggered by Push Enabled/Disabled event
+     */
+    public List<TuneInAppMessage> getInAppMessagesForPushEnabled(boolean pushEnabled) {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForPushEnabled") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesForPushEnabled(pushEnabled);
+    }
+
+    /**
+     * Get in-app messages for this device that are triggered by a "Starts App" event.
+     * "Starts App" events are actually triggered on the first IAM playlist downloaded after the app launches and not immediately on application foreground.
+     * We do this so that all IAM messages, power hooks, deep actions, etc. are populated with the latest values by the time the message should be shown.
+     * @return List of messages that are triggered by "Starts App" event
+     */
+    public List<TuneInAppMessage> getInAppMessagesForStartsApp() {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForStartsApp") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesForStartsApp();
+    }
+
+    /**
+     * Get in-app messages for this device that are triggered by a Screen Viewed event.
+     * @param activityName Activity name for the Viewed Screen event
+     * @return List of messages that are triggered by Viewed Screen event
+     */
+    public List<TuneInAppMessage> getInAppMessagesForScreenViewed(String activityName) {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForScreenViewed") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesForScreenViewed(activityName);
+    }
+
+    /**
+     * Get all in-app messages that can be shown for this device, sorted by message variation id.
+     *
+     * Messages can be modified before displaying, or manually triggered to display.
+     *
+     * @return `Map` of in-app messages for this device, where the keys are the `String` message
+     * variation ids of the In-App Message, and the values are {@link TuneInAppMessage} objects.
+     */
+    public Map<String, TuneInAppMessage> getInAppMessagesByIds() {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByIds") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesByIds();
+    }
+
+    /**
+     * Get all in-app messages that can be shown for this device, sorted by trigger event.
+     *
+     * Messages can be modified for displaying, or manually triggered to display.
+     *
+     * @return `Map` of in-app messages for this device, where the keys are the `String` trigger
+     * event (event hash) of the In-App Message, and the values are a list of {@link TuneInAppMessage} objects with that trigger.
+     */
+    public Map<String, List<TuneInAppMessage>> getInAppMessagesByTriggerEvents() {
+        if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByTriggerEvents") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getInAppMessageManager().getMessagesByTriggerEvents();
+    }
+
+    /**
+     * Preload all messages in a given Activity, so they're ready to be shown quickly
+     * @param activity Activity where messages would be shown when triggered
+     */
+    public void preloadMessages(Activity activity) {
+        if (TuneManager.getInAppMessageManagerForUser("preloadMessages") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getInAppMessageManager().preloadMessages(activity);
+    }
+
+    /**
+     * Preload all messages that are triggered by given custom event
+     * @param activity Activity where messages would be shown when triggered
+     * @param eventName Trigger event name for the messages
+     */
+    public void preloadMessagesForCustomEvent(Activity activity, String eventName) {
+        if (TuneManager.getInAppMessageManagerForUser("preloadMessagesForCustomEvent") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getInAppMessageManager().preloadMessagesForCustomEvent(activity, eventName);
+    }
+
+    /**
+     * Preload a single message with given message ID
+     * @param activity Activity where message would be shown when triggered
+     * @param messageId Message ID
+     */
+    public void preloadMessageWithId(Activity activity, String messageId) {
+        if (TuneManager.getInAppMessageManagerForUser("preloadMessageWithId") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getInAppMessageManager().preloadMessageWithId(activity, messageId);
+    }
+
+    /**
+     * Sets a layout to use as the loading screen before a full screen in-app message is shown, in place of the system default ProgressDialog.
+     * @param layoutId layout id of the custom load screen to use
+     */
+    public void setFullScreenLoadingScreen(int layoutId) {
+        if (TuneManager.getInAppMessageManagerForUser("setFullScreenLoadingScreen") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getInAppMessageManager().setFullScreenLoadingScreen(layoutId);
     }
 
 
@@ -2184,15 +2343,15 @@ public class Tune {
     }
 
     /**
-     * Specify whether the current user has opted out of push messaging.<br/>
-     * <br/>
+     * Specify whether the current user has opted out of push messaging.<br>
+     * <br>
      * This information is added to the personalization profile of the current user for segmentation, targeting, and reporting purposes. <br>
      * <br>
      * Also, if you are using Tune Push, then by default Tune will assume push messaging is enabled as long as the user has Google Play Services installed on their device and we can successfully get a device token for their device. <br>
      * <br>
      * If you have a custom setting that gives your end users the ability to turn off notifications for your app, you can use this method to pass that setting on to Tune. Tune will not send notifications to devices where this setting is turned off. <br>
      * <br>
-     * This can be called from anywhere in your app. <br>
+     * This can be called from anywhere in your app.
      *
      * @param optedOutOfPush Whether the user opted out of push messaging.
      */
@@ -2206,7 +2365,6 @@ public class Tune {
 
     /**
      * Returns the currently registered device token for push.
-     * <br>
      *
      * @return The currently registered device token for push, or null if we aren't registered.
      */
@@ -2222,9 +2380,8 @@ public class Tune {
      * Returns if the user manually disabled push on the Application Setting page.
      * <br>
      * If this returns true then nothing will be allowed to be posted to the tray, not just push notifications
-     * <br>
      *
-     * @return Whether the user manually disabled push from the Application Settings screen if API Level >= 19, otherwise false.
+     * @return Whether the user manually disabled push from the Application Settings screen if API Level &gt;= 19, otherwise false.
      */
     public boolean didUserManuallyDisablePush() {
         if (TuneManager.getPushManagerForUser("didUserManuallyDisablePush") == null) {
@@ -2239,7 +2396,6 @@ public class Tune {
      * <br>
      * This status is reset to false when the application becomes backgrounded.
      * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
-     * <br>
      *
      * @return true if this session was started because the user opened a push message, otherwise false.
      */
@@ -2256,7 +2412,6 @@ public class Tune {
      * <br>
      * This is reset to null when the application becomes backgrounded.
      * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
-     * <br>
      *
      * @return Information about the last opened push if {@link Tune#didSessionStartFromTunePush()} is true, otherwise null.
      */
@@ -2273,7 +2428,7 @@ public class Tune {
      ****************/
 
     /**
-     * Returns whether the user belongs to the given segment
+     * Returns whether the user belongs to the given segment.
      * @param segmentId Segment ID to check for a match
      * @return whether the user belongs to the given segment
      */
@@ -2286,7 +2441,7 @@ public class Tune {
     }
 
     /**
-     * Returns whether the user belongs to any of the given segments
+     * Returns whether the user belongs to any of the given segments.
      * @param segmentIds Segment IDs to check for a match
      * @return whether the user belongs to any of the given segments
      */
@@ -2298,8 +2453,12 @@ public class Tune {
         return TuneManager.getInstance().getPlaylistManager().isUserInAnySegmentIds(segmentIds);
     }
 
+    /*****************
+     ** Deeplink API *
+     *****************/
+
     /**
-     * Checks for a deferred deeplink if exists
+     * Checks for a deferred deeplink if exists.
      * Opens deferred deeplink if found and returns value in the registered {@code TuneDeeplinkListener}
      * @param listener listener for deeplink value or error
      * @deprecated Instead, register your {@link TuneDeeplinkListener} via {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)}. As of Tune Android SDK v4.8.0 this method delegates to {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)} so that there is only ever one listener at a time. This method is planned for removal in Tune Android SDK v5.0.0.
@@ -2323,7 +2482,7 @@ public class Tune {
     }
 
     /**
-     * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}.
      */
     public void unregisterDeeplinkListener() {
         dplinkr.setListener(null);
@@ -2380,73 +2539,13 @@ public class Tune {
         return dplinkr.isTuneLink(appLinkUrl);
     }
 
-    /**
-     * Helper function to check Google Play INSTALL_REFERRER for deeplink
-     * @param timeout maximum timeout to wait for referrer in ms
-     */
-    /*
-    // Removed due to Chrome issue with passing referrer through intent: https://code.google.com/p/chromium/issues/detail?id=459711
-    private String checkReferrerForDeferredDeeplink(int timeout) {
-        String deeplink = "";
-        // Start timing for timeout
-        long startTime = System.currentTimeMillis();
-
-        // Wait up to timeout length for referrer to get populated
-        while (!gotReferrer) {
-            // We've exceeded timeout, stop waiting
-            if ((System.currentTimeMillis() - startTime) > timeout) {
-                break;
-            }
-
-            // Check again in 50ms
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Read referrer for deeplink
-        if (gotReferrer) {
-            String referrer = params.getInstallReferrer();
-            try {
-                // If no mat_deeplink in referrer, return
-                int deeplinkStart = referrer.indexOf("mat_deeplink=");
-                if (deeplinkStart == -1) {
-                    return deeplink;
-                }
-
-                deeplinkStart += 13;
-                int deeplinkEnd = referrer.indexOf("&", deeplinkStart);
-                if (deeplinkEnd == -1) {
-                    deeplink = referrer.substring(deeplinkStart);
-                } else {
-                    deeplink = referrer.substring(deeplinkStart, deeplinkEnd);
-                }
-
-                // Try to decode deeplink if needed
-                deeplink = URLDecoder.decode(deeplink, "UTF-8");
-                // Open deeplink
-                if (deeplink.length() != 0) {
-                    if (tuneListener != null) {
-                        tuneListener.didReceiveDeeplink(deeplink);
-                    }
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(deeplink));
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    mContext.startActivity(i);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return deeplink;
-    }*/
-
     // Class Getters/Setters
     /////////////////////////
 
+    /**
+     * Set the Url Requester.
+     * @param urlRequester UrlRequester
+     */
     protected void setUrlRequester(UrlRequester urlRequester) {
         this.urlRequester = urlRequester;
     }
@@ -2912,7 +3011,7 @@ public class Tune {
      * This must be called after the associated register call.
      * <br>
      * NOTE: This will not stop the variable from being registered again on the next {@link android.app.Application#onCreate()}.
-     * <br>
+     * @param variableName Name of the custom profile variable to clear.
      */
     public void clearCustomProfileVariable(String variableName) {
         if (TuneManager.getProfileForUser("clearCustomProfileVariable") == null) {
@@ -2930,7 +3029,6 @@ public class Tune {
      * This will only clear out all profile variables that have been registered before this call.
      * <br>
      * NOTE: This will not stop the variables from being registered again on the next {@link android.app.Application#onCreate()}.
-     * <br>
      */
     public void clearAllCustomProfileVariables() {
         if (TuneManager.getProfileForUser("clearAllCustomProfileVariables") == null) {

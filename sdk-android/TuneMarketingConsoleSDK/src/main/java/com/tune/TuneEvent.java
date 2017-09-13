@@ -409,6 +409,7 @@ public class TuneEvent implements Serializable {
     }
 
     /**
+     * @return the Event Id.
      * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #getEventName()}instead.
      */
     @Deprecated public int getEventId() {

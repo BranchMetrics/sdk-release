@@ -4,13 +4,21 @@ import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
-
-import org.json.JSONArray;
+import com.tune.mocks.MockFileManager;
 
 /**
  * Created by johng on 1/11/16.
  */
 public class AnalyticsStorageTests extends TuneAnalyticsTest {
+    MockFileManager mockFileManager;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        mockFileManager = new MockFileManager();
+        TuneManager.getInstance().setFileManager(mockFileManager);
+    }
 
     /**
      * Test that measureSession causes a write to disk
@@ -20,11 +28,14 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         // Don't dispatch while we're trying to read file
         TuneManager.getInstance().getAnalyticsManager().stopScheduledDispatch();
 
+        assertTrue("shouldQueueCustomEvents was not true", TuneManager.getInstance().getAnalyticsManager().shouldQueueCustomEvents());
+
         // Trigger a session
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("session")));
 
-        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(0, storedAnalytics.length());
+        int analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals("stored analytics length was not zero", 0, analyticsCount);
+        assertEquals("custom event queue size was not 1", 1, TuneManager.getInstance().getAnalyticsManager().getCustomEventQueue().size());
 
         // Triggering directly instead of through Foreground so it doesn't get sent out
         TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
@@ -33,8 +44,8 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(1, storedAnalytics.length());
+        analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals("stored analytics length was not 1", 1, analyticsCount);
     }
 
     /**
@@ -49,8 +60,9 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent2")));
 
-        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(0, storedAnalytics.length());
+        int analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals(0, analyticsCount);
+        assertEquals(2, TuneManager.getInstance().getAnalyticsManager().getCustomEventQueue().size());
 
         // Triggering directly instead of through Foreground so it doesn't get sent out
         TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
@@ -59,8 +71,8 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(2, storedAnalytics.length());
+        analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals(2, analyticsCount);
     }
 
     public void testAnalyticsStoredAfterCustomEventQueueTurnedOff() throws InterruptedException {
@@ -71,8 +83,9 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent2")));
 
-        JSONArray storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(0, storedAnalytics.length());
+        int analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals(0, analyticsCount);
+        assertEquals(2, TuneManager.getInstance().getAnalyticsManager().getCustomEventQueue().size());
 
         // Triggering directly instead of through Foreground so it doesn't get sent out
         TuneManager.getInstance().getAnalyticsManager().setShouldQueueCustomEvents(false);
@@ -81,8 +94,9 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(2, storedAnalytics.length());
+        analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals(2, analyticsCount);
+        assertEquals(0, TuneManager.getInstance().getAnalyticsManager().getCustomEventQueue().size());
 
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent3")));
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent4")));
@@ -90,8 +104,8 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         Thread.sleep(200);
 
         // Check that analytics was written to disk in correct format
-        storedAnalytics = TuneManager.getInstance().getFileManager().readAnalytics();
-        assertEquals(4, storedAnalytics.length());
+        analyticsCount = ((MockFileManager)TuneManager.getInstance().getFileManager()).getAnalyticsCount();
+        assertEquals(4, analyticsCount);
     }
 }
 

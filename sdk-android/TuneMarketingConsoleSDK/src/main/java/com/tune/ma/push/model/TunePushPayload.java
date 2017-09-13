@@ -7,9 +7,13 @@ import java.util.Iterator;
 
 /**
  * model for TMA push payloads:
- * { "ANA": {"DA":"<deepaction name>","DAD":{"<parameter name 1>":"<parameter value 1>", "<parameter name 2>":"<parameter value 2>"}}}
- * == OR ==
- * { "ANA": {"URL":"<deep link URL>"} }
+ * <pre>
+ * {@code
+ *   { "ANA": {"DA":"<deepaction name>","DAD":{"<parameter name 1>":"<parameter value 1>", "<parameter name 2>":"<parameter value 2>"}}}
+ *   == OR ==
+ *   { "ANA": {"URL":"<deep link URL>"} }
+ * }
+ * </pre>
  */
 public class TunePushPayload {
     private static final String JSON_OPEN_ACTION = "ANA";

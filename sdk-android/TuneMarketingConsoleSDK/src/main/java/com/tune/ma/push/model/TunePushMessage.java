@@ -53,6 +53,9 @@ public class TunePushMessage {
 
     private boolean silentPush;
 
+    private TunePushMessage() {
+    }
+
     public TunePushMessage(String jsonString) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
@@ -70,6 +73,13 @@ public class TunePushMessage {
         }
 
         messageIdentifier = json.getString(JSON_MESSAGE_ID);
+    }
+
+    // This constructor is purely for getting push id into the fiveline to match with in-app message trigger events
+    public static TunePushMessage initForTriggerEvent(String pushId) {
+        TunePushMessage message = new TunePushMessage();
+        message.campaign = new TuneCampaign("", pushId, 0);
+        return message;
     }
 
     public TunePushMessage(Bundle extras, String appName) throws Exception {

@@ -5,7 +5,7 @@ import com.tune.TuneEventItem;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.analytics.model.TuneAnalyticsEventItem;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.TuneEventType;
+import com.tune.ma.analytics.model.constants.TuneEventType;
 
 /**
  * Created by johng on 1/26/16.

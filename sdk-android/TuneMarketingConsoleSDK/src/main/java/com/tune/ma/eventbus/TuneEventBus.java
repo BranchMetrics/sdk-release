@@ -1,6 +1,5 @@
 package com.tune.ma.eventbus;
 
-import com.tune.BuildConfig;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
@@ -15,12 +14,15 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 public class TuneEventBus {
-    public static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(BuildConfig.DEBUG_MODE).build();
+    public static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(com.tune.BuildConfig.DEBUG_MODE).build();
 
     // Higher priorities get executed first.
     public static final int PRIORITY_FIRST = 100;
     public static final int PRIORITY_SECOND = 99;
     public static final int PRIORITY_THIRD = 98;
+    public static final int PRIORITY_FOURTH = 97;
+    public static final int PRIORITY_FIFTH = 96;
+    public static final int PRIORITY_SIXTH = 95;
     public static final int PRIORITY_IRRELEVANT = 2;
 
     // Use a queue in order to store events that occur before TuneManager is ready

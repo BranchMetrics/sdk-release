@@ -1,6 +1,6 @@
 package com.tune.ma.analytics.model.event;
 
-import com.tune.ma.analytics.model.TuneEventType;
+import com.tune.ma.analytics.model.constants.TuneEventType;
 
 /**
  * Created by johng on 2/16/16.
