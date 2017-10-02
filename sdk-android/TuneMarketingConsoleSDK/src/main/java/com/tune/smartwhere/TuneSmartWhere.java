@@ -5,8 +5,10 @@ import android.content.Context;
 import com.tune.Tune;
 import com.tune.TuneEvent;
 import com.tune.TuneUtils;
+import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.tune.TuneConstants.STRING_FALSE;
@@ -22,9 +24,12 @@ import static com.tune.TuneEvent.NAME_SESSION;
  */
 
 public class TuneSmartWhere {
-    private static volatile TuneSmartWhere instance = null;
+    protected static volatile TuneSmartWhere instance = null;
 
-    private static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
+    static final String TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = "TUNE_ANALYTICS_VARIABLE_";
+
+    static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
+    static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE = "com.proximity.library.Attribute";
     private static final String TUNE_SMARTWHERE_NOTIFICATION_SERVICE = "com.tune.smartwhere.TuneSmartWhereNotificationService";
 
     private static final String TUNE_SMARTWHERE_API_KEY = "API_KEY";
@@ -41,6 +46,10 @@ public class TuneSmartWhere {
     private static final String TUNE_SMARTWHERE_METHOD_START_SERVICE = "startService";
     private static final String TUNE_SMARTWHERE_METHOD_STOP_SERVICE = "stopService";
     private static final String TUNE_SMARTWHERE_METHOD_PROCESS_MAPPED_EVENT = "processMappedEvent";
+    private static final String TUNE_SMARTWHERE_ATTRIBUTE_METHOD_SET_ATTRIBUTE_VALUE = "setAttributeValue";
+    private static final String TUNE_SMARTWHERE_ATTRIBUTE_METHOD_REMOVE_ATTRIBUTE_VALUE = "removeAttributeValue";
+    private static final String TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_ATTRIBUTE_MAP = "getAttributes";
+    private static final String TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_INSTANCE = "getInstance";
 
     private TuneSmartwhereConfiguration mConfiguration;
 
@@ -92,7 +101,6 @@ public class TuneSmartWhere {
      * @return True if Smartwhere is enabled.
      */
     public boolean isEnabled() {
-        boolean test = (mConfiguration != null);
         return (mConfiguration != null);
     }
 
@@ -101,7 +109,7 @@ public class TuneSmartWhere {
      * @return the current {@link TuneSmartwhereConfiguration}.
      * To make changes to the Smartwhere options, use {@link TuneSmartWhere#configure(TuneSmartwhereConfiguration)}
      */
-    public final TuneSmartwhereConfiguration getConfiguration() {
+    public TuneSmartwhereConfiguration getConfiguration() {
         return (mConfiguration == null ? new TuneSmartwhereConfiguration() : mConfiguration);
     }
 
@@ -122,7 +130,7 @@ public class TuneSmartWhere {
      * @param tuneConversionKey TUNE Conversion Key
      * @param debugMode Debug Mode
      */
-    public void startMonitoring(Context context, String tuneAdvertiserId, String tuneConversionKey, boolean debugMode) {
+    void startMonitoring(Context context, String tuneAdvertiserId, String tuneConversionKey, boolean debugMode) {
         Class targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL);
         if (targetClass != null) {
             HashMap<String, String> config = new HashMap<>();
@@ -157,7 +165,7 @@ public class TuneSmartWhere {
      * Stops SmartWhere proximity monitoring.
      * @param context Application Context
      */
-    public void stopMonitoring(Context context) {
+    void stopMonitoring(Context context) {
         Class targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL);
         if (targetClass != null) {
             HashMap<String, String> config = new HashMap<>();
@@ -241,11 +249,108 @@ public class TuneSmartWhere {
         }
     }
 
+    /**
+     * Add user attributes that are used for conditions and notification replacements from TuneAnalyticsVariable.
+     * @param context Application Context
+     * @param analyticsVariable TuneAnalyticsVariable
+     */
+    public void setAttributeValueFromAnalyticsVariable(Context context, TuneAnalyticsVariable analyticsVariable) {
+        Class<?> targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE);
+        if (targetClass == null) return;
+
+        try {
+            Method getInstance = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_INSTANCE, Context.class);
+            Object instanceOfAttributeClass = getInstance.invoke(targetClass,context);
+            Method setAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_SET_ATTRIBUTE_VALUE, String.class, String.class);
+            Method removeAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_REMOVE_ATTRIBUTE_VALUE, String.class);
+            String name = analyticsVariable.getName();
+            String value = analyticsVariable.getValue();
+            if (name != null && name.length() > 0){
+                if ( value != null){
+                    String finalName = TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + name;
+                    setAttributeValue.invoke(instanceOfAttributeClass, finalName, value);
+                } else {
+                    String finalName = TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + name;
+                    removeAttributeValue.invoke(instanceOfAttributeClass, finalName);
+
+                }
+            }
+        } catch (Exception e) {
+            TuneUtils.log("TuneSmartWhere.setAttributeValueFromAnalyticsVariable: " + e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Add user attributes that are used for conditions and notification replacements from TuneEvent tags.
+     * @param context Application Context
+     * @param event TuneEvent
+     */
+    public void setAttributeValuesFromEventTags(Context context, TuneEvent event) {
+        Class<?> targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE);
+        if (targetClass == null) return;
+
+        for (TuneAnalyticsVariable tag : event.getTags()) {
+            setAttributeValueFromAnalyticsVariable(context, tag);
+        }
+    }
+
+    /**
+     * Remove an attribute by name
+     * @param context Application Context
+     * @param variableName String
+     */
+    public void clearAttributeValue(Context context, String variableName) {
+        Class<?> targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE);
+        if (targetClass == null) return;
+
+        try {
+            Method getInstance = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_INSTANCE, Context.class);
+            Object instanceOfAttributeClass = getInstance.invoke(targetClass,context);
+            Method removeAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_REMOVE_ATTRIBUTE_VALUE, String.class);
+
+            String finalName = TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + variableName;
+            removeAttributeValue.invoke(instanceOfAttributeClass, finalName);
+        } catch (Exception e) {
+            TuneUtils.log("TuneSmartWhere.clearAttributeValue: " + e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Remove all attributes
+     * @param context Application Context
+     */
+    public void clearAllAttributeValues(Context context) {
+        Class<?> targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE);
+        if (targetClass == null) return;
+
+        try {
+            Method getInstance = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_INSTANCE, Context.class);
+            Object instanceOfAttributeClass = getInstance.invoke(targetClass,context);
+            Method removeAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_REMOVE_ATTRIBUTE_VALUE, String.class);
+            Method getAttributeMap = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_ATTRIBUTE_MAP);
+            Object attributes = getAttributeMap.invoke(instanceOfAttributeClass);
+
+            ArrayList<String> keysToRemove = new ArrayList<>();
+            //noinspection unchecked
+            for (String name : ((HashMap<String, String>) attributes).keySet()) {
+                if (name.startsWith(TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX)) {
+                    keysToRemove.add(name);
+                }
+            }
+            for (String name : keysToRemove) {
+                removeAttributeValue.invoke(instanceOfAttributeClass, name);
+            }
+        } catch (Exception e) {
+            TuneUtils.log("TuneSmartWhere.clearAllAttributeValues: " + e.getLocalizedMessage());
+        }
+    }
+
     static synchronized void setInstance(TuneSmartWhere tuneProximity) {
         instance = tuneProximity;
     }
 
     // Required for SmartWhere Unit Tests
+    @SuppressWarnings("WeakerAccess")
     protected boolean isSmartWhereAvailableInternal() {
         return classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL) != null;
     }
