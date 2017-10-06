@@ -26,7 +26,7 @@ import static com.tune.TuneEvent.NAME_SESSION;
 public class TuneSmartWhere {
     protected static volatile TuneSmartWhere instance = null;
 
-    static final String TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = "TUNE_ANALYTICS_VARIABLE_";
+    static final String TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = "T_A_V_";
 
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE = "com.proximity.library.Attribute";
