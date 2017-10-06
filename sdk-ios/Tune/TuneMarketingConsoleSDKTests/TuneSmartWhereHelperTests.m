@@ -14,15 +14,27 @@
 #import "TuneUtils.h"
 #import "TuneEvent.h"
 #import "TuneSkyhookPayloadConstants.h"
+#import "Tune.h"
 
 @interface SmartWhereForTest : NSObject
 - (void)invalidate;
 - (void)processMappedEvent:(TuneSkyhookPayload*) payload;
++ (void)setUserString:(NSString*)value forKey:(NSString*)key;
++ (void)removeUserValueForKey:(NSString*)key;
++ (NSDictionary*) getUserAttributes;
++ (void)setUserTrackingString:(NSString *)value forKey:(NSString *)key;
++ (void)removeUserTrackingValueForKey:(NSString*)key;
 @end
 
 @implementation SmartWhereForTest
 - (void)invalidate {}
 - (void)processMappedEvent:(TuneSkyhookPayload*) payload{}
++ (void)setUserString:(NSString*)value forKey:(NSString*)key{}
++ (void)removeUserValueForKey:(NSString*)key{}
++ (NSDictionary*) getUserAttributes{return nil;}
++ (void)setUserTrackingString:(NSString *)value forKey:(NSString *)key{}
++ (void)removeUserTrackingValueForKey:(NSString*)key{}
+
 @end
 
 @interface TuneSmartWhereHelper (Testing)
@@ -35,6 +47,7 @@
 - (id)getSmartWhere;
 - (void)setConfig:(NSDictionary *)config;
 + (void)invalidateForTesting;
+
 @end
 
 @interface TuneSmartWhereHelperTests : XCTestCase {
@@ -100,7 +113,6 @@
     [mockTuneUtils verify];
 }
 
-
 #pragma mark - startMonitoringWithTuneAdvertiserId:tuneConversionKey: tests
 
 - (void)testStartMonitoringStartsProximityMonitoringWithAdIdAndConversionKey {
@@ -122,10 +134,11 @@
             return (actualConfig[@"ENABLE_NOTIFICATION_PERMISSION_PROMPTING"] && [actualConfig[@"ENABLE_NOTIFICATION_PERMISSION_PROMPTING"] isEqual:@"false"]) &&
                 (actualConfig[@"ENABLE_LOCATION_PERMISSION_PROMPTING"] && [actualConfig[@"ENABLE_LOCATION_PERMISSION_PROMPTING"] isEqual:@"false"]) &&
                 (actualConfig[@"ENABLE_GEOFENCE_RANGING"] && [actualConfig[@"ENABLE_GEOFENCE_RANGING"] isEqual:@"true"]) &&
-            (actualConfig[@"DELEGATE_NOTIFICATIONS"] && [actualConfig[@"DELEGATE_NOTIFICATIONS"] isEqual:@"true"]);
+            (actualConfig[@"DELEGATE_NOTIFICATIONS"] && [actualConfig[@"DELEGATE_NOTIFICATIONS"] isEqual:@"false"]);
         }
         return NO;
     }]];
+    [[mockTestObj expect] setTrackingAttributeValue:TUNEVERSION forKey:@"TUNE_SDK_VERSION"];
     
     [mockTestObj startMonitoringWithTuneAdvertiserId:@"aid" tuneConversionKey:@"key" packageName:@"packageName"];
     
@@ -380,6 +393,486 @@
     [mockSmartWhere verify];
 }
 
+#pragma mark - set Attribute Value tests
+
+- (void)testsetAttributeValueFromAnalyticsVariableCallsSmartWhereWhenAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"expectedValue";
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+        testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeVAlueFromAnalyticsVariableDoenstCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValueFromAnalyticsVariableDoesntCallSmartWhereWhenEventSharingIsDisabled {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = NO;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeFromAnalyticsVariableChecksThatTheNameExists {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = nil;
+    NSString *expectedValue = @"expectedValue";
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeFromAnalyticsVariableChecksThatTheNameIsntEmpty {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"";
+    NSString *expectedValue = @"expectedValue";
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeFromAnalyticsVariableRemovesTheAttributeIfTheValueIsNull {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = nil;
+    
+    TuneAnalyticsVariable *analyticsVariable = [TuneAnalyticsVariable analyticsVariableWithName:variableName value:expectedValue];
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:expectedVariableName];
+    
+    [testObj setAttributeValueFromAnalyticsVariable:analyticsVariable];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValueCallsSmartWhereWhenAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+    
+    [testObj setAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValueDoenstCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValue:variableName forKey:expectedValue];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValueDoesntCallSmartWhereWhenEventSharingIsDisabled {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = NO;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeChecksThatTheNameExists {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = nil;
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeChecksThatTheNameIsntEmpty {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeRemovesTheAttributeIfTheValueIsNull {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = nil;
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:expectedVariableName];
+    
+    [testObj setAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+#pragma setAttributeValuesFromPayload tests
+
+- (void)testsetAttributeValuesFromEventTagsCallsSmartWhere {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSString *variableName = @"key";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"value";
+    
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:TUNE_EVENT_ADD_TO_CART];
+    [expectedEvent addTag:variableName withStringValue:expectedValue];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+
+    [testObj setAttributeValuesFromPayload:payload];
+
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValuesFromEventTagsCallSmartWhereForEachTag {
+    [[[[mockTuneUtils stub] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSString *variableName = @"key";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"value";
+    NSString *variableName2 = @"key2";
+    NSString *expectedVariableName2 = [NSString stringWithFormat:@"T_A_V_%@", variableName2];
+    NSString *expectedValue2 = @"value2";
+    
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:TUNE_EVENT_ADD_TO_CART];
+    [expectedEvent addTag:variableName withStringValue:expectedValue];
+    [expectedEvent addTag:variableName2 withStringValue:expectedValue2];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue2 withObject:expectedVariableName2];
+    
+    [testObj setAttributeValuesFromPayload:payload];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testsetAttributeValuesFromEventTagsDoesntCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils stub] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    NSString *variableName = @"key";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"value";
+    
+    TuneEvent *expectedEvent = [TuneEvent eventWithName:TUNE_EVENT_ADD_TO_CART];
+    [expectedEvent addTag:variableName withStringValue:expectedValue];
+    TuneSkyhookPayload *payload = [[TuneSkyhookPayload alloc] initWithName:@"name" object:[NSObject new] userInfo:@{TunePayloadCustomEvent: expectedEvent }];
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+    
+    [testObj setAttributeValuesFromPayload:payload];
+    
+    [mockSmartWhere verify];;
+}
+
+#pragma mark - clear attribute tests
+
+- (void)testclearAttributeValueCallsSmartWhereToRemoveObject {
+    [[[[mockTuneUtils stub] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSString *variableName = @"expectedName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:expectedVariableName];
+
+    testObj.enableSmartWhereEventSharing = YES;
+    [testObj clearAttributeValue:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testclearAttributeValueDoesntCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils stub] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    NSString *expectedName = @"expectedName";
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:OCMOCK_ANY];
+    
+    testObj.enableSmartWhereEventSharing = YES;
+    [testObj clearAttributeValue:expectedName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testtestclearAttributeValueDoesntCallSmartWhereWhenSharingIsntEnabled {
+    [[[[mockTuneUtils stub] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSString *variableName = @"expectedName";
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:OCMOCK_ANY];
+    
+    testObj.enableSmartWhereEventSharing = NO;
+    [testObj clearAttributeValue:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testtestclearAllAttributeValuesCallsSmartWhereForEachValueWithTunePrefix {
+    [[[[mockTuneUtils stub] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSMutableDictionary *currentlySetAttributes = [NSMutableDictionary new];
+    currentlySetAttributes[@"key1"] = @"value1";
+    currentlySetAttributes[@"key2"] = @"value2";
+    currentlySetAttributes[@"key3"] = @"value3";
+    currentlySetAttributes[@"T_A_V_key4"]= @"a value";
+    currentlySetAttributes[@"T_A_V_key5"] = @"abc 123";
+
+    [[[[mockSmartWhere expect] classMethod] andReturn:currentlySetAttributes] performSelector:@selector(getUserAttributes)];
+
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key1"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key2"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key3"];
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key4"];
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key5"];
+
+    testObj.enableSmartWhereEventSharing = YES;
+    [testObj clearAllAttributeValues];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testtestclearAllAttributeValuesDoesntCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils stub] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    NSMutableDictionary *currentlySetAttributes = [NSMutableDictionary new];
+    currentlySetAttributes[@"key1"] = @"value1";
+    currentlySetAttributes[@"key2"] = @"value2";
+    currentlySetAttributes[@"key3"] = @"value3";
+    currentlySetAttributes[@"T_A_V_key4"]= @"a value";
+    currentlySetAttributes[@"T_A_V_key5"] = @"abc 123";
+    
+    [[[[mockSmartWhere reject] classMethod] andReturn:currentlySetAttributes] performSelector:@selector(getUserAttributes)];
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key1"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key2"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key3"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key4"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key5"];
+    
+    testObj.enableSmartWhereEventSharing = YES;
+    [testObj clearAllAttributeValues];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testtestclearAllAttributeValuesDoesntCallSmartWhereWhenSharingIsntEnabled {
+    [[[[mockTuneUtils stub] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    NSMutableDictionary *currentlySetAttributes = [NSMutableDictionary new];
+    currentlySetAttributes[@"key1"] = @"value1";
+    currentlySetAttributes[@"key2"] = @"value2";
+    currentlySetAttributes[@"key3"] = @"value3";
+    currentlySetAttributes[@"T_A_V_key4"]= @"a value";
+    currentlySetAttributes[@"T_A_V_key5"] = @"abc 123";
+    
+    [[[[mockSmartWhere reject] classMethod] andReturn:currentlySetAttributes] performSelector:@selector(getUserAttributes)];
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key1"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key2"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"key3"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key4"];
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(removeUserValueForKey:) withObject:@"T_A_V_key5"];
+    
+    testObj.enableSmartWhereEventSharing = NO;
+    [testObj clearAllAttributeValues];
+    
+    [mockSmartWhere verify];
+}
+
+#pragma mark - set tracking attribute value tests
+
+- (void)testSetTrackingAttributeValueCallsSmartWhereWhenAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(setUserTrackingString:forKey:) withObject:expectedValue withObject:expectedVariableName];
+    
+    [testObj setTrackingAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testSetTrackingAttributeValueDoesntCallSmartWhereWhenNotAvailable {
+    [[[[mockTuneUtils expect] classMethod] andReturn:nil] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserTrackingString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setTrackingAttributeValue:variableName forKey:expectedValue];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testSetTrackingAttributeValueDoesntCallSmartWhereWhenEventSharingIsDisabled {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = NO;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserTrackingString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setTrackingAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testSetTrackingAttributeChecksThatTheNameExists {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = nil;
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserTrackingString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setTrackingAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+- (void)testSetTrackingAttributeChecksThatTheNameIsntEmpty{
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"";
+    NSString *expectedValue = @"expectedValue";
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere reject] classMethod] performSelector:@selector(setUserTrackingString:forKey:) withObject:OCMOCK_ANY withObject:OCMOCK_ANY];
+    
+    [testObj setTrackingAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+
+}
+- (void)testSetTrackingAttributeRemovesTheAttributeIfTheValueIsNull {
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
+    
+    NSString *variableName = @"variableName";
+    NSString *expectedVariableName = [NSString stringWithFormat:@"T_A_V_%@", variableName];
+    NSString *expectedValue = nil;
+    
+    [testObj setSmartWhere:mockSmartWhere];
+    testObj.enableSmartWhereEventSharing = YES;
+    
+    [[[mockSmartWhere expect] classMethod] performSelector:@selector(removeUserTrackingValueForKey:) withObject:expectedVariableName];
+    
+    [testObj setTrackingAttributeValue:expectedValue forKey:variableName];
+    
+    [mockSmartWhere verify];
+}
+
+
 #pragma mark - test helpers
 
 - (void)setTuneConfigurationMockWithDebug:(BOOL)debug {
@@ -390,8 +883,8 @@
 }
 
 - (void)setTuneUtilsGetClassFromStringToAnObject {
-    id obj = [NSObject new];
-    [[[[mockTuneUtils expect] classMethod] andReturn:obj] getClassFromString:@"SmartWhere"];
+//    id obj = [NSObject new];
+    [[[[mockTuneUtils expect] classMethod] andReturn:[mockSmartWhere class]] getClassFromString:@"SmartWhere"];
 }
 
 @end

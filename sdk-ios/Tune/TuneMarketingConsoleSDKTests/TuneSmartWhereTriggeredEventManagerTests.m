@@ -98,9 +98,10 @@
 
 #pragma mark - handleTriggeredEvent tests
 
-- (void)testhandleTriggeredEventCallsProcessMappedEvent {
+- (void)testhandleTriggeredEventCallsSetAttributeValuesFromPayloadAndProcessMappedEvent {
     [[[[mockTuneSmartWhereHelper stub] classMethod] andReturnValue:OCMOCK_VALUE(YES)] isSmartWhereAvailable];
     
+    [[mockTuneSmartWhereHelper expect] setAttributeValuesFromPayload:mockPayload];
     [[mockTuneSmartWhereHelper expect] processMappedEvent:mockPayload];
     
     [testObj handleTriggeredEvent: mockPayload];
@@ -111,6 +112,7 @@
 - (void)testhandleTriggeredEventDoesntCallProcessMappedEventWhenNotAvailable {
     [[[[mockTuneSmartWhereHelper stub] classMethod] andReturnValue:OCMOCK_VALUE(NO)] isSmartWhereAvailable];
     
+    [[mockTuneSmartWhereHelper reject] setAttributeValuesFromPayload:mockPayload];
     [[mockTuneSmartWhereHelper reject] processMappedEvent:OCMOCK_ANY];
     
     [testObj handleTriggeredEvent: mockPayload];
