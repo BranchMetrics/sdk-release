@@ -7,10 +7,11 @@
 //
 
 #import "TuneSmartWhereHelper.h"
-#import "TuneEvent.h"
+#import "TuneEvent+Internal.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "TuneKeyStrings.h"
 #import "TuneUtils.h"
+#import "Tune.h"
 
 static id _smartWhere;
 static TuneSmartWhereHelper *tuneSharedSmartWhereHelper = nil;
@@ -18,12 +19,15 @@ static dispatch_once_t smartWhereHelperToken;
 
 NSString * const TUNE_SMARTWHERE_CLASS_NAME = @"SmartWhere";
 
+NSString * const TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = @"T_A_V_";
 NSString * const TUNE_SMARTWHERE_ENABLE_NOTIFICATION_PERMISSION_PROMPTING = @"ENABLE_NOTIFICATION_PERMISSION_PROMPTING";
 NSString * const TUNE_SMARTWHERE_ENABLE_LOCATION_PERMISSION_PROMPTING = @"ENABLE_LOCATION_PERMISSION_PROMPTING";
 NSString * const TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING = @"ENABLE_GEOFENCE_RANGING";
 NSString * const TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS = @"DELEGATE_NOTIFICATIONS";
 NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
 NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
+
+NSString * const TUNE_VERSION_STRING = @"TUNE_SDK_VERSION";
 
 @interface TuneSmartWhereHelper()
 
@@ -69,12 +73,14 @@ NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
     config[TUNE_SMARTWHERE_ENABLE_NOTIFICATION_PERMISSION_PROMPTING] = TUNE_STRING_FALSE;
     config[TUNE_SMARTWHERE_ENABLE_LOCATION_PERMISSION_PROMPTING] = TUNE_STRING_FALSE;
     config[TUNE_SMARTWHERE_ENABLE_GEOFENCE_RANGING] = TUNE_STRING_TRUE;
-    config[TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS] = TUNE_STRING_TRUE;
+    config[TUNE_SMARTWHERE_DELEGATE_NOTIFICATIONS] = TUNE_STRING_FALSE;
     config[TUNE_SMARTWHERE_PACKAGE_NAME] = _packageName;
     
     if ([[TuneManager currentManager].configuration.debugMode boolValue]) {
         config[TUNE_SMARTWHERE_DEBUG_LOGGING] = TUNE_STRING_TRUE;
     }
+    
+    [self setTrackingAttributeValue:TUNEVERSION forKey:TUNE_VERSION_STRING];
     
     WarnLog(@"TUNE: Starting SmartWhere Proximity Monitoring");
     
@@ -130,6 +136,86 @@ NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
     }
 }
 
+#pragma mark - local attribute methods
+
+- (void)setAttributeValuesFromPayload:(TuneSkyhookPayload*) payload{
+    NSDictionary *userInfo = payload.userInfo;
+    if (userInfo){
+        TuneEvent *event = userInfo[TunePayloadCustomEvent];
+        if (event){
+            // Add user attributes for any tags
+            NSMutableArray* tags = event.tags;
+            for (TuneAnalyticsVariable *analyticsVariable in tags) {
+                [self setAttributeValueFromAnalyticsVariable:analyticsVariable];
+            }
+        }
+    }
+}
+
+- (void) setAttributeValueFromAnalyticsVariable:(TuneAnalyticsVariable *)tuneAnalyticsVariable{
+    [self setAttributeValue:tuneAnalyticsVariable.convertValueToString forKey:tuneAnalyticsVariable.name];
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+- (void) setAttributeValue:(NSString*) value forKey: (NSString*) key{
+    id SmartWhereClass = [TuneUtils getClassFromString:TUNE_SMARTWHERE_CLASS_NAME];
+    if (SmartWhereClass != nil && self.enableSmartWhereEventSharing) {
+        if (key != nil && key.length >0){
+            NSString *swKey = [NSString stringWithFormat:@"%@%@", TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX, key];
+            if (value != nil){
+                [SmartWhereClass performSelector:@selector(setUserString:forKey:) withObject:value withObject:swKey];
+            } else {
+                [SmartWhereClass performSelector:@selector(removeUserValueForKey:) withObject:swKey];
+            }
+        }
+    }
+}
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+- (void) clearAttributeValue:(NSString*) variableName{
+    id SmartWhereClass = [TuneUtils getClassFromString:TUNE_SMARTWHERE_CLASS_NAME];
+    if (SmartWhereClass != nil && self.enableSmartWhereEventSharing) {
+        NSString *key = [NSString stringWithFormat:@"%@%@", TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX, variableName];
+        [SmartWhereClass performSelector:@selector(removeUserValueForKey:) withObject:key];
+    }
+}
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+- (void) clearAllAttributeValues{
+    id SmartWhereClass = [TuneUtils getClassFromString:TUNE_SMARTWHERE_CLASS_NAME];
+    if (SmartWhereClass != nil && self.enableSmartWhereEventSharing){
+        NSDictionary *currentlySetAttributes = [SmartWhereClass performSelector:@selector(getUserAttributes)];
+        for (NSString *key in currentlySetAttributes.allKeys) {
+            if ([key hasPrefix: TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX]){
+                [SmartWhereClass performSelector:@selector(removeUserValueForKey:) withObject:key];
+            }
+        }
+    }
+}
+#pragma clang diagnostic pop
+
+#pragma mark - tracking attribute methods
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+- (void) setTrackingAttributeValue:(NSString*) value forKey: (NSString*) key{
+    id SmartWhereClass = [TuneUtils getClassFromString:TUNE_SMARTWHERE_CLASS_NAME];
+    if (SmartWhereClass != nil && self.enableSmartWhereEventSharing) {
+        if (key != nil && key.length >0){
+            NSString *swKey = [NSString stringWithFormat:@"%@%@", TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX, key];
+            if (value != nil){
+                [SmartWhereClass performSelector:@selector(setUserTrackingString:forKey:) withObject:value withObject:swKey];
+            } else {
+                [SmartWhereClass performSelector:@selector(removeUserTrackingValueForKey:) withObject:swKey];
+            }
+        }
+    }
+}
+#pragma clang diagnostic pop
 
 #pragma mark - SmartWhere methods
 

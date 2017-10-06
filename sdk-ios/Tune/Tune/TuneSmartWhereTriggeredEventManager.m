@@ -32,6 +32,7 @@
 - (void)handleTriggeredEvent:(TuneSkyhookPayload*)payload {
     if ([TuneSmartWhereHelper isSmartWhereAvailable]){
         TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValuesFromPayload:payload];
         [tuneSmartWhereHelper processMappedEvent:payload];
     }
 }
