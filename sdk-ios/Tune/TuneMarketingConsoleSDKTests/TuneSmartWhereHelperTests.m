@@ -13,6 +13,7 @@
 #import "TuneSmartWhereHelper.h"
 #import "TuneUtils.h"
 #import "TuneEvent.h"
+#import "TuneUserProfile.h"
 #import "TuneSkyhookPayloadConstants.h"
 #import "Tune.h"
 
@@ -53,6 +54,7 @@
 @interface TuneSmartWhereHelperTests : XCTestCase {
     TuneSmartWhereHelper *testObj;
     id mockTuneManager;
+    id mockUserProfile;
     id mockTuneUtils;
     id mockSmartWhere;
 }
@@ -65,8 +67,10 @@
     [super setUp];
     
     mockTuneUtils = OCMStrictClassMock([TuneUtils class]);
-    mockTuneManager = OCMStrictClassMock([TuneManager class]);
+    mockTuneManager = OCMClassMock([TuneManager class]);
     mockSmartWhere = OCMStrictClassMock([SmartWhereForTest class]);
+    mockUserProfile = OCMClassMock([TuneUserProfile class]);
+    [[[mockTuneManager stub] andReturn:mockUserProfile] userProfile];
     
     [TuneSmartWhereHelper invalidateForTesting];
     testObj = [TuneSmartWhereHelper getInstance];
@@ -76,6 +80,7 @@
     [mockTuneManager stopMocking];
     [mockTuneUtils stopMocking];
     [mockSmartWhere stopMocking];
+    [mockUserProfile stopMocking];
     
     [TuneSmartWhereHelper invalidateForTesting];
     
@@ -242,6 +247,26 @@
     }]];
     
     [mockTestObj startMonitoringWithTuneAdvertiserId:@"aid" tuneConversionKey:@"key" packageName:packageName];
+    
+    [mockTestObj verify];
+}
+
+- (void)testStartMonitoringAddsTrackingMetadata {
+    [self setTuneConfigurationMockWithDebug:YES];
+    [self setTuneUtilsGetClassFromStringToAnObject];
+    
+    NSString *expectedMatId = @"my mat id";
+    [[[mockUserProfile expect] andReturn:expectedMatId] tuneId];
+    
+    id mockTestObj = OCMPartialMock(testObj);
+    [[mockTestObj stub] startProximityMonitoringWithAppId:OCMOCK_ANY
+                                                 withApiKey:OCMOCK_ANY
+                                              withApiSecret:OCMOCK_ANY
+                                                 withConfig:OCMOCK_ANY];
+    [[mockTestObj expect] setTrackingAttributeValue:TUNEVERSION forKey:@"TUNE_SDK_VERSION"];
+    [[mockTestObj expect] setTrackingAttributeValue: expectedMatId forKey:@"TUNE_MAT_ID"];
+    
+    [mockTestObj startMonitoringWithTuneAdvertiserId:@"aid" tuneConversionKey:@"key" packageName:@"package_name"];
     
     [mockTestObj verify];
 }
@@ -880,6 +905,11 @@
     config.debugMode = @(debug);
     [[[[mockTuneManager stub] classMethod] andReturn:mockTuneManager] currentManager];
     [[[mockTuneManager stub] andReturn:config] configuration];
+    [[mockTuneManager stub] setUserProfile:OCMOCK_ANY];
+    [[mockTuneManager stub] setConfiguration:OCMOCK_ANY];
+//    [[mockUserProfile stub] registerSkyhooks];
+//    [[mockUserProfile stub] setJailbroken:OCMOCK_ANY];
+//    [[mockUserProfile stub]
 }
 
 - (void)setTuneUtilsGetClassFromStringToAnObject {

@@ -28,6 +28,7 @@ NSString * const TUNE_SMARTWHERE_DEBUG_LOGGING = @"DEBUG_LOGGING";
 NSString * const TUNE_SMARTWHERE_PACKAGE_NAME = @"PACKAGE_NAME";
 
 NSString * const TUNE_VERSION_STRING = @"TUNE_SDK_VERSION";
+NSString * const TUNE_MAT_ID_STRING = @"TUNE_MAT_ID";
 
 @interface TuneSmartWhereHelper()
 
@@ -81,6 +82,7 @@ NSString * const TUNE_VERSION_STRING = @"TUNE_SDK_VERSION";
     }
     
     [self setTrackingAttributeValue:TUNEVERSION forKey:TUNE_VERSION_STRING];
+    [self setTrackingAttributeValue:[Tune tuneId] forKey:TUNE_MAT_ID_STRING];
     
     WarnLog(@"TUNE: Starting SmartWhere Proximity Monitoring");
     
