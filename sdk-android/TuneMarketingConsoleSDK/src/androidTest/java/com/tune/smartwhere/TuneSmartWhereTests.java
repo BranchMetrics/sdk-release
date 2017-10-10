@@ -3,6 +3,8 @@ package com.tune.smartwhere;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import com.tune.BuildConfig;
+import com.tune.Tune;
 import com.tune.TuneEvent;
 import com.tune.TuneUnitTest;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
@@ -149,6 +151,21 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         testObj.startMonitoring(context, addId, conversionKey, false);
 
         assertTrue(FakeProximityControl.hasStartServiceBeenCalled);
+    }
+
+    public void testStartMonitoringAddsTrackingMetadata() throws Exception {
+        String addId = "addId";
+        String conversionKey = "conversionKey";
+
+        testObj.startMonitoring(context, addId, conversionKey, false);
+
+        verify(mockTrackingAttribute).setAttributeValue(
+                TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + TuneSmartWhere.TUNE_SDK_VERSION_TRACKING_KEY ,
+                BuildConfig.VERSION_NAME);
+        verify(mockTrackingAttribute).setAttributeValue(
+                TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + TuneSmartWhere.TUNE_MAT_ID_TRACKING_KEY ,
+                Tune.getInstance().getMatId());
+
     }
 
     public void testSetPackageNameCallsConfigureServiceWithPackageName() throws Exception {
