@@ -28,7 +28,8 @@ public class TuneSmartWhere {
     protected static volatile TuneSmartWhere instance = null;
 
     static final String TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = "T_A_V_";
-    private static final String TUNE_SDK_VERSION_TRACKING_KEY = "TUNE_SDK_VERSION";
+    static final String TUNE_SDK_VERSION_TRACKING_KEY = "TUNE_SDK_VERSION";
+    static final String TUNE_MAT_ID_TRACKING_KEY = "TUNE_MAT_ID";
 
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE = "com.proximity.library.Attribute";
@@ -138,6 +139,7 @@ public class TuneSmartWhere {
         if (targetClass != null) {
 
             setTrackingAttributeValue(context, TUNE_SDK_VERSION_TRACKING_KEY, BuildConfig.VERSION_NAME);
+            setTrackingAttributeValue(context, TUNE_MAT_ID_TRACKING_KEY, Tune.getInstance().getMatId());
 
             HashMap<String, String> config = new HashMap<>();
 
