@@ -2,6 +2,7 @@ package com.tune.smartwhere;
 
 import android.content.Context;
 
+import com.tune.BuildConfig;
 import com.tune.Tune;
 import com.tune.TuneEvent;
 import com.tune.TuneUtils;
@@ -27,9 +28,11 @@ public class TuneSmartWhere {
     protected static volatile TuneSmartWhere instance = null;
 
     static final String TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX = "T_A_V_";
+    private static final String TUNE_SDK_VERSION_TRACKING_KEY = "TUNE_SDK_VERSION";
 
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL = "com.proximity.library.ProximityControl";
     static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE = "com.proximity.library.Attribute";
+    static final String TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_TRACKING_ATTRIBUTE = "com.proximity.library.TrackingAttribute";
     private static final String TUNE_SMARTWHERE_NOTIFICATION_SERVICE = "com.tune.smartwhere.TuneSmartWhereNotificationService";
 
     private static final String TUNE_SMARTWHERE_API_KEY = "API_KEY";
@@ -133,6 +136,9 @@ public class TuneSmartWhere {
     void startMonitoring(Context context, String tuneAdvertiserId, String tuneConversionKey, boolean debugMode) {
         Class targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL);
         if (targetClass != null) {
+
+            setTrackingAttributeValue(context, TUNE_SDK_VERSION_TRACKING_KEY, BuildConfig.VERSION_NAME);
+
             HashMap<String, String> config = new HashMap<>();
 
             config.put(TUNE_SMARTWHERE_API_KEY, tuneAdvertiserId);
@@ -345,6 +351,37 @@ public class TuneSmartWhere {
         }
     }
 
+    /**
+     * Add attribute to be sent as metadata with tracking.
+     * @param context Application Context
+     * @param name String value of the attribute name
+     * @param value String value of the attribute value
+     */
+    void setTrackingAttributeValue(Context context, String name, String value) {
+        Class<?> targetClass = classForName(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_TRACKING_ATTRIBUTE);
+        if (targetClass == null) return;
+
+        try {
+            Method getInstance = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_GET_INSTANCE, Context.class);
+            Object instanceOfAttributeClass = getInstance.invoke(targetClass,context);
+            Method setAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_SET_ATTRIBUTE_VALUE, String.class, String.class);
+            Method removeAttributeValue = targetClass.getMethod(TUNE_SMARTWHERE_ATTRIBUTE_METHOD_REMOVE_ATTRIBUTE_VALUE, String.class);
+
+            if (name != null && name.length() > 0){
+                if ( value != null){
+                    String finalName = TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + name;
+                    setAttributeValue.invoke(instanceOfAttributeClass, finalName, value);
+                } else {
+                    String finalName = TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + name;
+                    removeAttributeValue.invoke(instanceOfAttributeClass, finalName);
+
+                }
+            }
+        } catch (Exception e) {
+            TuneUtils.log("TuneSmartWhere.setTrackingAttributeValue: " + e.getLocalizedMessage());
+        }
+    }
+
     static synchronized void setInstance(TuneSmartWhere tuneProximity) {
         instance = tuneProximity;
     }
@@ -375,6 +412,4 @@ public class TuneSmartWhere {
             stopMonitoring(context);
         }
     }
-
-
 }

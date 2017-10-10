@@ -30,6 +30,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
     private TuneSmartWhere testObj;
     private Context context;
     private TuneSmartWhereFakeAttribute mockAttribute;
+    private TuneSmartWhereFakeTrackingAttribute mockTrackingAttribute;
 
     @Override
     public void setUp() throws Exception {
@@ -38,7 +39,8 @@ public class TuneSmartWhereTests extends TuneUnitTest {
 
         mockAttribute = mock(TuneSmartWhereFakeAttribute.class);
         TuneSmartWhereFakeAttribute.instance = mockAttribute;
-
+        mockTrackingAttribute = mock(TuneSmartWhereFakeTrackingAttribute.class);
+        TuneSmartWhereFakeTrackingAttribute.instance = mockTrackingAttribute;
         context = getContext();
 
         testObj = TuneSmartWhereForTest.getInstance();
@@ -398,16 +400,68 @@ public class TuneSmartWhereTests extends TuneUnitTest {
 
         verify(mockAttribute,never()).removeAttributeValue(anyString());
     }
+
+    public void testsetTrackingAttributeValueCallsOnSmartWhereTrackingAttributeClass() throws Exception {
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockTrackingAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName, expectedValue);
+    }
+
+
+    public void testsetTrackingAttributeValueDoesntCallSmartWhereWhenAttributeClassIsNotFound() throws Exception {
+        TuneSmartWhereForTest.trackingAttributeClass = null;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeDoesntCallSmartWhereWhenMethodNotFound() throws Exception {
+        TuneSmartWhereForTest.trackingAttributeClass = Object.class;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeChecksThatTheNameExists() throws Exception {
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, null, expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+
+        testObj.setTrackingAttributeValue(context, "", expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeRemovesTheAttributeIfTheValueIsNull() throws Exception {
+        String expectedVariableName = "expectedName";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, null);
+
+        verify(mockTrackingAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName);
+    }
 }
 
 class TuneSmartWhereForTest extends TuneSmartWhere {
     static Class proximityControlClass;
     static Class attributeClass;
+    static Class trackingAttributeClass;
     static String capturedClassNameString;
 
     public static synchronized TuneSmartWhere getInstance() {
         proximityControlClass = FakeProximityControl.class;
         attributeClass = TuneSmartWhereFakeAttribute.class;
+        trackingAttributeClass = TuneSmartWhereFakeTrackingAttribute.class;
         return new TuneSmartWhereForTest();
     }
 
@@ -418,6 +472,8 @@ class TuneSmartWhereForTest extends TuneSmartWhere {
             return proximityControlClass;
         } else if (name.equalsIgnoreCase(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE)){
             return attributeClass;
+        } else if (name.equalsIgnoreCase(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_TRACKING_ATTRIBUTE)){
+            return trackingAttributeClass;
         }
         return null;
     }
