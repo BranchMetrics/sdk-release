@@ -548,6 +548,9 @@ public class ParametersTests extends TuneUnitTest {
 
 
     public void testGoogleAdvertisingId() {
+        // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
         String googleAdvertisingId = UUID.randomUUID().toString();
 
         tune.setGoogleAdvertisingId(googleAdvertisingId, false);
@@ -562,6 +565,9 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     public void testSetGoogleAdvertisingIdNull() {
+        // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
         String googleAdvertisingId = null;
 
         tune.setGoogleAdvertisingId(googleAdvertisingId, false);
@@ -576,6 +582,9 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     public void testGoogleUserId() {
+        // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+
         final String userId = "fakeUserId";
         
         tune.setGoogleUserId(userId);
