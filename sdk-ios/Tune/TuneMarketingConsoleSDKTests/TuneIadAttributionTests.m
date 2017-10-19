@@ -575,6 +575,7 @@
     }
 }
 
+// This test causes unit tests to fail compilation on iOS 8.  It must be commented out.
 - (void)testIadAttribution_LimitAdTracking {
     [self setupCommon];
     

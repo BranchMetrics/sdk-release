@@ -36,7 +36,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"4.13.4"
+#define TUNEVERSION @"4.14.0"
 
 
 @protocol TuneDelegate;
@@ -361,11 +361,31 @@
 + (void)setGoogleUserId:(NSString *)googleUserId;
 
 /*!
- Sets the user's age. When age is set to a value <= 13, IAM push notifications cannot be sent to this device, in order to comply with COPPA.
- @see https://www.ftc.gov/enforcement/rules/rulemaking-regulatory-reform-proceedings/childrens-online-privacy-protection-rule
+ Sets the user's age.
+ When age is set to a value less than 13 this device profile will be marked as privacy protected
+ for the purposes of the protection of children from ad targeting and
+ personal data collection. In the US this is part of the COPPA law.
+ @see https://developers.tune.com/sdk/settings-for-user-characteristics/
  @param userAge user's age
  */
 + (void)setAge:(NSInteger)userAge;
+
+/*!
+ Set this device profile as privacy protected for the purposes of the protection of children
+ from ad targeting and personal data collection. In the US this is part of the COPPA law.
+ You cannot turn privacy protection "off" for if the user's age is set to less than 13.
+ 
+ @see https://developers.tune.com/sdk/settings-for-user-characteristics/ for more information
+ @param privacyProtected if privacy should be protected for this user.
+ */
++ (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected;
+
+/*!
+ Returns whether this device profile is flagged as privacy protected.
+ This will be true if either the age is set to less than 13 or if this profile has been set explicitly as privacy protected.
+ @return privacy protection status, if the age has been set to less than 13 OR this profile has been set explicitly as privacy protected.
+ */
++ (BOOL)isPrivacyProtectedDueToAge;
 
 /*!
  Sets the user's gender.

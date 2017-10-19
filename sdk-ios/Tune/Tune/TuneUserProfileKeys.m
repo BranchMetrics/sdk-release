@@ -71,6 +71,8 @@ NSString *const TUNE_KEY_FACEBOOK_USER_ID               = @"facebook_user_id";
 NSString *const TUNE_KEY_TWITTER_USER_ID                = @"twitter_user_id";
 NSString *const TUNE_KEY_GOOGLE_USER_ID                 = @"google_user_id";
 
+NSString *const TUNE_KEY_IS_COPPA                       = @"is_coppa";
+NSString *const TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE   = @"privacy_protected_due_to_age";
 NSString *const TUNE_KEY_AGE                            = @"age";
 NSString *const TUNE_KEY_GENDER                         = @"gender";
 
@@ -235,6 +237,7 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
             TUNE_KEY_TWITTER_USER_ID,
             TUNE_KEY_GOOGLE_USER_ID,
             
+            TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE,
             TUNE_KEY_AGE,
             TUNE_KEY_GENDER,
             

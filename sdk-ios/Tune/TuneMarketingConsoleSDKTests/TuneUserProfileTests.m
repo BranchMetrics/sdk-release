@@ -598,6 +598,168 @@
     XCTAssertNil([Tune getCustomProfileString:@"foobar"]);
 }
 
+- (void)testPrivacyProtectedDueToAgeDefaultValue {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    XCTAssertFalse([profile privacyProtectedDueToAge]);
+}
+
+- (void)testPrivacyProtectedDueToAgeSetYES {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setPrivacyProtectedDueToAge:YES];
+    XCTAssertTrue([profile privacyProtectedDueToAge]);
+}
+
+- (void)testPrivacyProtectedDueToAgeSetNO {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setPrivacyProtectedDueToAge:NO];
+    XCTAssertFalse([profile privacyProtectedDueToAge]);
+}
+
+- (void)testPrivacyProtectedDueToAgeSetYESThenNO {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setPrivacyProtectedDueToAge:YES];
+    XCTAssertTrue([profile privacyProtectedDueToAge]);
+
+    [profile setPrivacyProtectedDueToAge:NO];
+    XCTAssertFalse([profile privacyProtectedDueToAge]);
+}
+
+- (void)testPrivacyProtectedDueToAgeSetNOThenYES {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setPrivacyProtectedDueToAge:NO];
+    XCTAssertFalse([profile privacyProtectedDueToAge]);
+    
+    [profile setPrivacyProtectedDueToAge:YES];
+    XCTAssertTrue([profile privacyProtectedDueToAge]);
+}
+
+- (void)testAgeNotSet {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    XCTAssertNil(profile.age);
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeBelow13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(6)];
+
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAge13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setAge:@(13)];
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeOver13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    
+    [profile setAge:@(21)];
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyYESAndAgeBelow13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:YES];
+    [profile setAge:@(6)];
+
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyNOAndAgeBelow13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:NO];
+    [profile setAge:@(6)];
+
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyYESAndAge13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:YES];
+    [profile setAge:@(13)];
+    
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyNOAndAge13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:NO];
+    [profile setAge:@(13)];
+    
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyYESAndAgeOver13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:YES];
+    [profile setAge:@(21)];
+    
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testPrivacyNOAndAgeOver13 {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setPrivacyProtectedDueToAge:NO];
+    [profile setAge:@(21)];
+    
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeBelow13AndPrivacyYES {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(6)];
+    [profile setPrivacyProtectedDueToAge:YES];
+    
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeBelow13PrivacyNO {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(6)];
+    [profile setPrivacyProtectedDueToAge:NO];
+    
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAge13AndPrivacyYES {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(13)];
+    [profile setPrivacyProtectedDueToAge:YES];
+    
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAge13AndPrivacyNO {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(13)];
+    [profile setPrivacyProtectedDueToAge:NO];
+
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeOver13AndPrivacyYES {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(21)];
+    [profile setPrivacyProtectedDueToAge:YES];
+
+    XCTAssertTrue([profile tooYoungForTargetedAds]);
+}
+
+- (void)testAgeOver13AndPrivacyNO {
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    [profile setAge:@(21)];
+    [profile setPrivacyProtectedDueToAge:NO];
+    
+    XCTAssertFalse([profile tooYoungForTargetedAds]);
+}
+
 - (void)testTooYoungForTargetedAds {
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
     XCTAssertNil(profile.age);

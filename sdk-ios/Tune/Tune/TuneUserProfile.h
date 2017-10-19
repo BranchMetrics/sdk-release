@@ -193,6 +193,9 @@
 - (void)setGoogleUserId:(NSString *)googleUserId;
 - (NSString *)googleUserId;
 
+- (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected;
+- (BOOL)privacyProtectedDueToAge;
+
 - (void)setAge:(NSNumber *)age;
 - (NSNumber *)age;
 

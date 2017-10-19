@@ -347,6 +347,17 @@ static TuneTracker *_sharedManager = nil;
     }];
 }
 
++ (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected {
+    [opQueue addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setPrivacyProtectedDueToAge:privacyProtected];
+    }];
+}
+
++ (BOOL)isPrivacyProtectedDueToAge {
+    // tooYoungForTargetedAds is a combination of age + privacyProtectedDueToAge
+    return [[TuneManager currentManager].userProfile tooYoungForTargetedAds];
+}
+
 + (void)setGender:(TuneGender)userGender {
     [opQueue addOperationWithBlock:^{
         NSNumber *gen = (TuneGenderFemale == userGender || TuneGenderMale == userGender) ? @(userGender) : nil;

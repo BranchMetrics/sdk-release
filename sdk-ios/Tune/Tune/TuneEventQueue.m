@@ -111,8 +111,14 @@ static TuneEventQueue *sharedQueue = nil;
         [self addNetworkAndAppNotificationListeners];
         
         [self createQueueStorageDirectory];
+        [self loadQueue];
         
-        [self prependItemsFromLegacyQueue];
+        // move data from legacy locations
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [self moveOldQueueStorageDirectoryToTemp];
+            [self prependItemsFromLegacyQueue];
+        });
         
         [self dumpQueue];
     }
@@ -145,6 +151,17 @@ static TuneEventQueue *sharedQueue = nil;
  */
 - (void)createQueueStorageDirectory {
     // create queue storage directory
+    storageDir = [self queueStorageDirectory];
+    [TuneFileUtils createDirectory:storageDir];
+}
+
+- (NSString *)queueStorageDirectory {
+    return [NSTemporaryDirectory() stringByAppendingString:TUNE_REQUEST_QUEUE_FOLDER];
+}
+
+// SDK-231 legacy code, only used for data migration
+- (NSString *)oldQueueStorageDirectory {
+    NSString *oldStorageDir;
     
     NSSearchPathDirectory queueParentFolder = NSDocumentDirectory;
 #if TARGET_OS_TV // || TARGET_OS_WATCH
@@ -153,9 +170,26 @@ static TuneEventQueue *sharedQueue = nil;
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(queueParentFolder, NSUserDomainMask, YES);
     NSString *baseFolder = [paths objectAtIndex:0];
-    storageDir = [baseFolder stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
+    oldStorageDir = [baseFolder stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FOLDER];
     
-    [TuneFileUtils createDirectory:storageDir];
+    return oldStorageDir;
+}
+
+// SDK-231 move queue storage to the temp directory
+// old queue storage is in the documents directory, this is against Apple's data storage guidelines
+// https://developer.apple.com/icloud/documentation/data-storage/index.html
+- (void)moveOldQueueStorageDirectoryToTemp {
+    NSString *oldDirectory = [self oldQueueStorageDirectory];
+    NSString *newDirectory = [self queueStorageDirectory];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSError *error;
+    NSArray *files = [fm contentsOfDirectoryAtPath:oldDirectory error:&error];
+    
+    for (NSString *file in files) {
+        [fm moveItemAtPath:[oldDirectory stringByAppendingPathComponent:file] toPath:[newDirectory stringByAppendingPathComponent:file] error:&error];
+    }
+    [fm removeItemAtPath:oldDirectory error:&error];
 }
 
 /*!
@@ -163,8 +197,6 @@ static TuneEventQueue *sharedQueue = nil;
  */
 - (void)prependItemsFromLegacyQueue {
     @synchronized(_eventLock) {
-        [self loadQueue];
-        
         // if a legacy queue exists
         if([TuneRequestsQueue exists]) {
             // load legacy queue items
@@ -934,6 +966,10 @@ static TuneEventQueue *sharedQueue = nil;
  Note: Calls to saveQueue should be wrapped in @synchronized(eventLock){}
  */
 - (void)saveQueue {
+    if (!events) {
+        return;
+    }
+    
     NSError *error = nil;
     NSData *serializedQueue = [NSJSONSerialization dataWithJSONObject:events options:0 error:&error];
     if( error != nil ) {

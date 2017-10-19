@@ -39,13 +39,7 @@
     [TuneManager currentManager].configuration = configuration;
     pointMAUrlsToNothing();
     
-    NSSearchPathDirectory queueParentFolder = NSDocumentDirectory;
-#if TARGET_OS_TV // || TARGET_OS_WATCH
-    queueParentFolder = NSCachesDirectory;
-#endif
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(queueParentFolder, NSUserDomainMask, YES);
-    
-    directoryPath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"tune"];
+    directoryPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tune"];
     remoteConfigPath = [directoryPath stringByAppendingPathComponent:@"tune_remote_config.plist"];
     localConfigPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TuneConfiguration" ofType:@"plist"];
     analyticsPath = [directoryPath stringByAppendingPathComponent:@"tune_analytics.plist"];

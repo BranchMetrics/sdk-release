@@ -16,7 +16,6 @@
 #import "TuneAnalyticsManager.h"
 #import "TuneHttpUtils.h"
 #import "NSData+TuneGZIP.h"
-#import "NSURLSession+SynchronousTask.h"
 #import "TuneJSONUtils.h"
 
 @implementation TuneAnalyticsDispatchEventsOperation

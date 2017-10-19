@@ -911,6 +911,11 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled]   forKey:TUNE_KEY_IOS_AD_TRACKING      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingIdentifier]    forKey:TUNE_KEY_IOS_IFA                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleVendorIdentifier]         forKey:TUNE_KEY_IOS_IFV                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
+    if ([[TuneManager currentManager].userProfile tooYoungForTargetedAds]) {
+        [self addValue:@([[TuneManager currentManager].userProfile tooYoungForTargetedAds]) forKey:TUNE_KEY_IS_COPPA encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    }
+    
     [self addValue:[[TuneManager currentManager].userProfile payingUser]                    forKey:TUNE_KEY_IS_PAYING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile conversionKey]                 forKey:TUNE_KEY_KEY                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile language]                      forKey:TUNE_KEY_LANGUAGE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];

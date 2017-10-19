@@ -15,7 +15,6 @@
 #import "TuneManager.h"
 #import "TuneStringUtils.h"
 #import "TuneUtils.h"
-#import "NSURLSession+SynchronousTask.h"
 
 NSString *const TuneHttpRequestMethodTypeGet = @"GET";
 NSString *const TuneHttpRequestMethodTypePost = @"POST";

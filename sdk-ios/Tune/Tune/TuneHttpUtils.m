@@ -13,7 +13,6 @@
 #import "TuneConfiguration.h"
 #import "TuneDeviceDetails.h"
 #import "TuneHttpRequest.h"
-#import "NSURLSession+SynchronousTask.h"
 
 @implementation TuneHttpUtils
 
@@ -26,7 +25,7 @@
         [urlString appendString:action];
         
         // TODO: validate incoming method parameter
-        method = method ?: TuneHttpRequestMethodTypeGet;
+        method = method ? method : TuneHttpRequestMethodTypeGet;
         
         if(data) {
             NSInteger location = [action rangeOfString:@"?"].location;
@@ -68,40 +67,51 @@
 }
 
 + (NSData *)sendSynchronousRequest:(NSURLRequest *)request response:(NSURLResponse **)response error:(NSError **)error {
-    NSData *result;
+    // Avoid using out parameters with blocks.  The compiler clones block variables between the stack and the heap, using addresses can cause unexpected behavior!
+    // local variables to capture data from network request
+    __block NSData *returnData;
+    __block NSURLResponse *returnResponse;
+    __block NSError *returnError;
     
-#if TESTING
-    if ([request.URL.absoluteString hasPrefix:@"(null)"]) {
-        *error = nil;
-        *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:200 HTTPVersion:@"1.1" headerFields:nil];
-        return nil;
+    [self performSynchronousRequest:request completionHandler:^(NSData *dataTmp, NSURLResponse *responseTmp, NSError *errorTmp) {
+        returnData = dataTmp;
+        returnResponse = responseTmp;
+        returnError = errorTmp;
+    }];
+    
+    // set the out parameters
+    if (response && returnResponse) {
+        *response = returnResponse;
     }
-#endif
+    if (error && returnError) {
+        *error = returnError;
+    }
+     
+    return returnData;
+}
+
+// synchronous call to NSURLSession
++ (void)performSynchronousRequest:(NSURLRequest *)request completionHandler:(void(^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
-    if( [NSURLSession class] && [[NSURLSession sharedSession] respondsToSelector:@selector(sendSynchronousDataTaskWithRequest:returningResponse:error:)]) {
-        result = [[NSURLSession sharedSession] sendSynchronousDataTaskWithRequest:request returningResponse:response error:error];
-    } else {
-        // iOS 6
-        SEL ector = @selector(sendSynchronousRequest:returningResponse:error:);
-        if ([NSURLConnection respondsToSelector:ector]) {
-            typedef NSData* (*FuncProto)(id, SEL, NSURLRequest *, NSURLResponse **, NSError **);
-            FuncProto methodToCall = (FuncProto)[[NSURLConnection class] methodForSelector:ector];
-            result = methodToCall([NSURLConnection class], ector, request, response, error);
+    // block that just calls the input block and signals the semaphore
+    void (^completionHandlerWithSemaphoreSignal)(NSData *, NSURLResponse *, NSError *) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (completionHandler) {
+            completionHandler(data, response, error);
         }
-    }
+        dispatch_semaphore_signal(semaphore);
+    };
     
-    return result;
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:completionHandlerWithSemaphoreSignal] resume];
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 }
 
+// basic call to NSURLSession
 + (void)performAsynchronousRequest:(NSURLRequest *)request completionHandler:(void(^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-    dispatch_async([[TuneManager currentManager] concurrentQueue], ^{
-        NSURLResponse *response;
-        NSError *error;
-        NSData *data = [self sendSynchronousRequest:request response:&response error:&error];
-        completionHandler(data, response, error);
-    });
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
+// adds tune headers to a request
 + (void)addIdentifyingHeaders:(NSMutableURLRequest *)request {
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
     

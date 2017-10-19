@@ -331,6 +331,10 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (BOOL)tooYoungForTargetedAds {
+    if ([self privacyProtectedDueToAge]) {
+        return YES;
+    }
+    
     // Can be read as age < COPPA_MIN_AGE, when age is available
     return self.age != nil && [self.age compare:COPPA_MIN_AGE] == NSOrderedAscending;
 }
@@ -341,6 +345,7 @@ static NSNumber *COPPA_MIN_AGE;
     BOOL pushEnabled = NO;
     
     if (![self tooYoungForTargetedAds]) {
+        
         if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
             // iOS8 and after way to get notification types
             pushEnabled = UIUserNotificationTypeAlert == (UIUserNotificationTypeAlert & [UIApplication sharedApplication].currentUserNotificationSettings.types);
@@ -1054,6 +1059,15 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (NSString *)googleUserId {
     return [self getProfileValue:TUNE_KEY_GOOGLE_USER_ID];
+}
+
+- (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected {
+    [self storeProfileKey:TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE value:@(privacyProtected) type:TuneAnalyticsVariableBooleanType];
+    [self checkIfPushIsEnabled];
+}
+
+- (BOOL)privacyProtectedDueToAge {
+    return ((NSNumber *)[self getProfileValue:TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE]).boolValue;
 }
 
 - (void)setAge:(NSNumber *)age {

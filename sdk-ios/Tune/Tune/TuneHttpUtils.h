@@ -13,7 +13,10 @@
 
 + (void)addIdentifyingHeaders:(NSMutableURLRequest *)request;
 + (NSString *)httpRequest:(NSString *)method action:(NSString *)action data:(NSDictionary *)data;
+
 + (void)performAsynchronousRequest:(NSURLRequest *)request completionHandler:(void(^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
++ (void)performSynchronousRequest:(NSURLRequest *)request completionHandler:(void(^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+
 + (NSData *)sendSynchronousRequest:(NSURLRequest *)request response:(NSURLResponse **)response error:(NSError **)error;
 
 @end

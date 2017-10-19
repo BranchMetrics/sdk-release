@@ -161,11 +161,11 @@ static BOOL forcedNetworkStatus;
 - (void)testEnqueue2 {
     forcedNetworkStatus = NO;
     [Tune measureSession];
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.5, &finished );
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     
     [Tune measureEventName:@"yourMomEvent"];
-    waitFor( 0.1 );
+    waitFor( 0.5 );
     XCTAssertNil( callFailed, @"second offline call should not have received a failure notification" );
     [self checkAndClearExpectedQueueSize:2];
 }
@@ -176,13 +176,13 @@ static BOOL forcedNetworkStatus;
     
     forcedNetworkStatus = NO;
     [Tune measureSession];
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
+    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.5, &finished );
 
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
     finished = NO;
     [Tune measureEventName:@"yourMomEvent"];
-    waitFor( 0.1 );
+    waitFor( 0.5 );
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
     XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests" );

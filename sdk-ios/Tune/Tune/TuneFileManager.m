@@ -279,18 +279,52 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
 #pragma mark - Storage Directory
 
 + (NSString *)getStorageDirectory {
-    static NSString *storageDirectory = nil;
+    // migrate old queue directory
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self moveOldQueueStorageDirectoryToTemp];
+    });
+    
+    return [self tuneTmpDirectory];
+}
+
++ (NSString *)tuneTmpDirectory {
+    return [NSTemporaryDirectory() stringByAppendingString:TUNE_FILE_STORAGE_FOLDER];
+}
+
+// SDK-231 legacy code, only used for data migration
++ (NSString *)oldStorageDirectory {
+    NSString *storageDirectory = nil;
     if (!storageDirectory) {
         NSSearchPathDirectory storageParentFolder = NSDocumentDirectory;
+        
 #if TARGET_OS_TV // || TARGET_OS_WATCH
         storageParentFolder = NSCachesDirectory;
 #endif
         NSArray *paths = NSSearchPathForDirectoriesInDomains(storageParentFolder, NSUserDomainMask, YES);
         NSString *baseFolder = [paths objectAtIndex:0];
+        
         storageDirectory = [baseFolder stringByAppendingPathComponent:TUNE_FILE_STORAGE_FOLDER];
     }
     
     return storageDirectory;
+}
+
+// SDK-231 move queue storage to the temp directory
+// old queue storage is in the documents directory, this is against Apple's data storage guidelines
+// https://developer.apple.com/icloud/documentation/data-storage/index.html
++ (void)moveOldQueueStorageDirectoryToTemp {
+    NSString *oldDirectory = [self oldStorageDirectory];
+    NSString *newDirectory = [self tuneTmpDirectory];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSError *error;
+    NSArray *files = [fm contentsOfDirectoryAtPath:oldDirectory error:&error];
+    
+    for (NSString *file in files) {
+        [fm moveItemAtPath:[oldDirectory stringByAppendingPathComponent:file] toPath:[newDirectory stringByAppendingPathComponent:file] error:&error];
+    }
+    [fm removeItemAtPath:oldDirectory error:&error];
 }
 
 + (NSString *)getImageStorageDirectory {
