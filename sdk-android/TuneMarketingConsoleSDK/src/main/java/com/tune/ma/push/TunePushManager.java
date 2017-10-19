@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.tune.TuneConstants;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
@@ -98,11 +99,14 @@ public class TunePushManager {
         TuneAnalyticsVariable var = event.getVariable();
         if (TuneUrlKeys.AGE.equals(var.getName())) {
             int age = Integer.parseInt(var.getValue());
-            if (age < 13) {
+            if (age < TuneConstants.COPPA_MINIMUM_AGE) {
                 updatePushEnabled(PROPERTY_IS_COPPA, true);
             } else {
                 updatePushEnabled(PROPERTY_IS_COPPA, false);
             }
+        } else if (TuneUrlKeys.IS_COPPA.equals(var.getName())) {
+            boolean property = TuneUtils.convertToBoolean(var.getValue());
+            updatePushEnabled(PROPERTY_IS_COPPA, property);
         }
     }
 
@@ -310,7 +314,7 @@ public class TunePushManager {
         boolean tooYoungForPush = sharedPrefs.getBooleanFromSharedPreferences(PROPERTY_IS_COPPA, false);
 
         if (tooYoungForPush) {
-            // COPPA doesn't allow us to send push to people we know to be younger than 14
+            // COPPA doesn't allow us to send push to people we know to be younger than 13
             return false;
         } else if (endUserPushEnabled && developerPushEnabled) {
             return true;

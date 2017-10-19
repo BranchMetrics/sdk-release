@@ -2,6 +2,7 @@ package com.tune.ma.analytics.model;
 
 import android.text.TextUtils;
 
+import com.tune.TuneConstants;
 import com.tune.TuneLocation;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
@@ -50,7 +51,7 @@ public class TuneAnalyticsVariable {
     }
 
     public TuneAnalyticsVariable(String name, boolean value) {
-        this(name, value ? "1" : "0", TuneVariableType.BOOLEAN);
+        this(name, value ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET, TuneVariableType.BOOLEAN);
     }
 
     public TuneAnalyticsVariable(String name, int value) {

@@ -115,6 +115,7 @@ public class TuneUrlKeys {
     public static final String FACEBOOK_USER_ID = "facebook_user_id";
     public static final String GENDER = "gender";
     public static final String GOOGLE_USER_ID = "google_user_id";
+    public static final String IS_COPPA = "is_coppa";
     public static final String IS_PAYING_USER = "is_paying_user";
     public static final String TWITTER_USER_ID = "twitter_user_id";
     public static final String USER_EMAIL_MD5 = "user_email_md5";

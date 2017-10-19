@@ -207,6 +207,7 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.FACEBOOK_USER_ID, params.getFacebookUserId());
         safeAppend(link, TuneUrlKeys.GENDER, params.getGender());
         safeAppend(link, TuneUrlKeys.GOOGLE_USER_ID, params.getGoogleUserId());
+        safeAppend(link, TuneUrlKeys.IS_COPPA, (params.isPrivacyProtectedDueToAge() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
         safeAppend(link, TuneUrlKeys.IS_PAYING_USER, params.getIsPayingUser());
         safeAppend(link, TuneUrlKeys.TWITTER_USER_ID, params.getTwitterUserId());
         safeAppend(link, TuneUrlKeys.USER_EMAIL_MD5, params.getUserEmailMd5());

@@ -2,6 +2,8 @@ package com.tune;
 
 import android.content.Context;
 
+import com.tune.ma.TuneManager;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -217,6 +219,149 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "android_id_sha256", androidIdSha256 );
     }
+
+    /**
+     * Test default COPPA scenario with neither age nor COPPA set.
+     */
+    public void testCOPPA() {
+        assertFalse(tune.isPrivacyProtectedDueToAge());
+    }
+
+    /**
+     * Test age and COPPA interactions without specifically setting isCOPPA.
+     */
+    public void testCOPPA_ageOnly() {
+        final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
+        final int adult = 21;
+
+        setAgeAndWait(youth);
+        assertTrue(tune.isPrivacyProtectedDueToAge());
+
+        setAgeAndWait(adult);
+        assertFalse(tune.isPrivacyProtectedDueToAge());
+    }
+
+    /**
+     * Test age and COPPA interactions without specifically setting Age.
+     */
+    public void testCOPPA_Only() {
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(true));
+        assertTrue(tune.isPrivacyProtectedDueToAge());
+
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(false));
+        assertFalse(tune.isPrivacyProtectedDueToAge());
+    }
+
+    /**
+     * Test age and COPPA interaction using setAge and setCOPPA, age set first.
+     */
+    public void testCOPPA_ageBefore() {
+        final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
+
+        // Set Age below COPPA boundary
+        setAgeAndWait(youth);
+        assertTrue(tune.isPrivacyProtectedDueToAge());          // This should succeed because youth
+
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(true));   // This should also succeed
+        assertTrue(tune.isPrivacyProtectedDueToAge());
+
+        assertFalse(setPrivacyProtectedDueToAgeAndWait(false)); // Can't turn off COPPA for youth
+        assertTrue(tune.isPrivacyProtectedDueToAge());          // This should still be true
+    }
+
+    /**
+     * Test age and COPPA interaction using setAge and setCOPPA, COPPA set first.
+     */
+    public void testCOPPA_ageAfter() {
+        final int adult = 21;
+
+        // Set Age above COPPA boundary
+        setAgeAndWait(adult);
+        assertFalse(tune.isPrivacyProtectedDueToAge());         // This should fail because adult
+
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(true));   // This should actually succeed.  Age doesn't apply in this case
+        assertTrue(tune.isPrivacyProtectedDueToAge());          // This should succeed because of the COPPA flag
+
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(false));  // This should also succeed
+        assertFalse(tune.isPrivacyProtectedDueToAge());         // This should still fail because adult
+    }
+
+    /**
+     * Additional test around setting Age after setting COPPA(true).
+     */
+    public void testSetAge_afterCOPPA_true() {
+        final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
+        final int adult = 21;
+
+        setPrivacyProtectedDueToAgeAndWait(true);            // COPPA(true)
+        assertTrue(tune.isPrivacyProtectedDueToAge());       // This should succeed even though age was never set
+
+        setAgeAndWait(youth);
+        assertTrue(tune.isPrivacyProtectedDueToAge());       // This should succeed regardless of age
+
+        setAgeAndWait(adult);
+        assertTrue(tune.isPrivacyProtectedDueToAge());       // This should succeed regardless of age
+    }
+
+    /**
+     * Additional test around setting Age after setting COPPA(false).
+     */
+    public void testSetAge_afterCOPPA_false() {
+        final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
+        final int adult = 21;
+
+        setPrivacyProtectedDueToAgeAndWait(false);           // COPPA(false)
+        assertFalse(tune.isPrivacyProtectedDueToAge());      // This should be false because neither COPPA nor Age are an issue
+
+        setAgeAndWait(youth);
+        assertTrue(tune.isPrivacyProtectedDueToAge());       // This should succeed regardless of COPPA setting
+
+        setAgeAndWait(adult);
+        assertFalse(tune.isPrivacyProtectedDueToAge());      // This should be false because neither COPPA nor Age are an issue
+    }
+
+    public void testSetAge_isPushEnabled() {
+        final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
+        final int adult = 21;
+
+        assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be enabled by default
+
+        setAgeAndWait(youth);
+        assertFalse(TuneManager.getInstance().getPushManager().isPushEnabled());    // This should fail because of youth
+
+        setAgeAndWait(adult);
+        assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // This should succeed
+    }
+
+    public void testSetCOPPA_isPushEnabled() {
+        assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be enabled by default
+
+        setPrivacyProtectedDueToAgeAndWait(false);                                  // COPPA(false)
+        assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should still be enabled
+
+        setPrivacyProtectedDueToAgeAndWait(true);                                   // COPPA(true)
+        assertFalse(TuneManager.getInstance().getPushManager().isPushEnabled());    // Should not be enabled
+
+        setPrivacyProtectedDueToAgeAndWait(false);                                  // COPPA(false)
+        assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be disabled again
+    }
+
+    // TODO: REMOVE WHEN ASYNC SETTERS RESOLVED
+    private void setAgeAndWait(int age) {
+        tune.setAge(age);
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+    }
+
+    // TODO: REMOVE WHEN ASYNC SETTERS RESOLVED
+    private boolean setPrivacyProtectedDueToAgeAndWait(boolean privacyProtected) {
+        boolean rc = tune.setPrivacyProtectedDueToAge(privacyProtected);
+        if (rc) {
+            sleep(TuneTestConstants.PARAMTEST_SLEEP);
+        }
+
+        return rc;
+    }
+
 
     public void testCurrencyCodeValid() {
         final String currencyCode = "CAD";

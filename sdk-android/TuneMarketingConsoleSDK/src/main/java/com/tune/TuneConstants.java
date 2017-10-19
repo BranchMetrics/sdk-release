@@ -20,6 +20,8 @@ public class TuneConstants {
     static final String KEY_PAYING_USER = "mat_is_paying_user";
     // Key for phone number
     static final String KEY_PHONE_NUMBER = "mat_phone_number";
+    // Key for IS_COPPA
+    static final String KEY_COPPA = "mat_is_coppa";
     // Key for user email
     static final String KEY_USER_EMAIL = "mat_user_email";
     // Key for user ID
@@ -47,6 +49,12 @@ public class TuneConstants {
 
     public static final String STRING_TRUE = "true";
     public static final String STRING_FALSE = "false";
+
+    public static final String PREF_UNSET = "0";
+    public static final String PREF_SET = "1";
+
+    // IS_COPPA Minimum Age restriction (US)
+    public static final int COPPA_MINIMUM_AGE = 13;
 
     // Debug log tag
     static final String TAG = "TUNE";

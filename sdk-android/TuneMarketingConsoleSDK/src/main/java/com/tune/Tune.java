@@ -27,7 +27,6 @@ import com.tune.location.TuneLocationListener;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.constants.TuneVariableType;
-import com.tune.ma.analytics.model.event.TuneCustomEvent;
 import com.tune.ma.configuration.TuneConfiguration;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
@@ -916,6 +915,19 @@ public class Tune {
     }
 
     /**
+     * Returns whether this device profile is flagged as privacy protected.
+     * This will be true if either the age is set to less than 13 or if {@link #setPrivacyProtectedDueToAge(boolean)} is set to true.
+     * @return true if the age has been set to less than 13 OR this profile has been set explicitly as privacy protected.
+     */
+    public boolean isPrivacyProtectedDueToAge() {
+        int age = getAge();
+        boolean isCoppaAgeRestricted = (age > 0 && age < TuneConstants.COPPA_MINIMUM_AGE);
+        boolean isExplicitlySetAsProtected = params.isPrivacyProtectedDueToAge();
+
+        return (isCoppaAgeRestricted || isExplicitlySetAsProtected);
+    }
+
+    /**
      * Gets the language of the device
      * @return device language
      */
@@ -1155,8 +1167,12 @@ public class Tune {
     }
 
     /**
-     * Sets the user's age. When age is set to a value less than 13 IAM push notifications will not be sent to this device, in order to comply with COPPA.
-     * See https://www.ftc.gov/enforcement/rules/rulemaking-regulatory-reform-proceedings/childrens-online-privacy-protection-rule
+     * Sets the user's age.
+     * When age is set to a value less than 13 this device profile will be marked as privacy protected
+     * for the purposes of the protection of children from ad targeting and
+     * personal data collection. In the US this is part of the COPPA law.
+     * This method is related to {@link #setPrivacyProtectedDueToAge(boolean)}
+     * See https://developers.tune.com/sdk/settings-for-user-characteristics/ for more information
      * @param age User age
      */
     public void setAge(final int age) {
@@ -1603,7 +1619,32 @@ public class Tune {
     }
 
     /**
-     * Get referral sources from Activity
+     * Set this device profile as privacy protected for the purposes of the protection of children
+     * from ad targeting and personal data collection. In the US this is part of the COPPA law.
+     * This method is related to {@link #setAge(int)}.
+     * @param isPrivacyProtected True if privacy should be protected for this user.
+     * @return true if age requirements are met.  For example, you cannot turn privacy protection "off" for children who meet the COPPA standard.
+     */
+    public boolean setPrivacyProtectedDueToAge(final boolean isPrivacyProtected) {
+        int currentAge = getAge();
+
+        // You cannot turn "off" privacy protection if age is within the COPPA boundary
+        if (currentAge > 0 && currentAge < TuneConstants.COPPA_MINIMUM_AGE) {
+            if (!isPrivacyProtected) {
+                return false;
+            }
+        }
+
+        // You can, however, turn "on" privacy protection regardless of age.
+        pubQueue.execute(new Runnable() { public void run() {
+            params.setPrivacyProtectedDueToAge(isPrivacyProtected);
+        }});
+
+        return true;
+    }
+
+    /**
+     * Set referral sources from Activity
      * @param act Activity to get referring package name and url scheme from
      * @deprecated as of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0
      */

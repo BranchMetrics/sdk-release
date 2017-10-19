@@ -181,7 +181,10 @@ public class TuneParameters {
             } else {
                 setCountryCode(Locale.getDefault().getCountry());
             }
-            
+
+            // User Params
+            loadPrivacyProtectedSetting();
+
             return true;
         } catch (Exception e) {
             TuneUtils.log("MobileAppTracking params initialization failed");
@@ -343,6 +346,7 @@ public class TuneParameters {
         mAdvertiserId = advertiserId;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ADVERTISER_ID, advertiserId)));
         // Save advertiser ID to SharedPreferences for IAM App ID
+        // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
         new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.ADVERTISER_ID, advertiserId);
     }
     
@@ -788,6 +792,7 @@ public class TuneParameters {
         mPackageName = packageName;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PACKAGE_NAME, packageName)));
         // Save package name to SharedPreferences for IAM App ID
+        // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
         new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.PACKAGE_NAME, packageName);
     }
     
@@ -848,7 +853,20 @@ public class TuneParameters {
         mPluginName = pluginName;
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SDK_PLUGIN, pluginName)));
     }
-    
+
+    private boolean mPrivacyProtectedDueToAge = false;
+    public synchronized boolean isPrivacyProtectedDueToAge() {
+        return mPrivacyProtectedDueToAge;
+    }
+    public synchronized void setPrivacyProtectedDueToAge(boolean isPrivacyProtectedDueToAge) {
+        mPrivacyProtectedDueToAge = isPrivacyProtectedDueToAge;
+        mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isPrivacyProtectedDueToAge);
+        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isPrivacyProtectedDueToAge)));
+    }
+    private synchronized void loadPrivacyProtectedSetting() {
+        mPrivacyProtectedDueToAge = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_COPPA);
+    }
+
     private String mPurchaseStatus = null;
     public synchronized String getPurchaseStatus() {
         return mPurchaseStatus;

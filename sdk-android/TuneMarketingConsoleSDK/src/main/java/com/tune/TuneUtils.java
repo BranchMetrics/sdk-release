@@ -255,7 +255,7 @@ public class TuneUtils {
     }
 
     public static boolean convertToBoolean(String booleanString) {
-        return ("1".equalsIgnoreCase(booleanString) || "yes".equalsIgnoreCase(booleanString) || "true".equalsIgnoreCase(booleanString));
+        return (TuneConstants.PREF_SET.equalsIgnoreCase(booleanString) || "yes".equalsIgnoreCase(booleanString) || "true".equalsIgnoreCase(booleanString));
     }
 
     public static int dpToPx(Context context, int dp) {
