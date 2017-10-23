@@ -461,6 +461,7 @@ public class Tune {
 
         if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
             TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
+            TuneSmartWhere.getInstance().setAttributeValuesFromEventTags(mContext, eventData);
         }
 
         return;
@@ -2708,8 +2709,12 @@ public class Tune {
         if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
             return;
         }
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, defaultValue);
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(analyticsVariable);
 
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2752,7 +2757,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, defaultValue);
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2774,7 +2784,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, defaultValue);
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2796,7 +2811,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, defaultValue);
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2838,7 +2858,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, value);
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2876,7 +2901,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, value);
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2895,7 +2925,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, value);
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -2914,7 +2949,12 @@ public class Tune {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(variableName, value);
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(analyticsVariable);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().setAttributeValueFromAnalyticsVariable(mContext, analyticsVariable);
+        }
     }
 
     /**
@@ -3060,6 +3100,10 @@ public class Tune {
         }
 
         TuneManager.getInstance().getProfileManager().clearCertainCustomProfileVariable(variableName);
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().clearAttributeValue(mContext, variableName);
+        }
     }
 
     /**
@@ -3077,6 +3121,10 @@ public class Tune {
         }
 
         TuneManager.getInstance().getProfileManager().clearAllCustomProfileVariables();
+
+        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+            TuneSmartWhere.getInstance().clearAllAttributeValues(mContext);
+        }
     }
 
     /**

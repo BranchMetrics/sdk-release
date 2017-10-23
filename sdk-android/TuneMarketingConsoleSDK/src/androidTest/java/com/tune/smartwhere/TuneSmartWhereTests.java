@@ -3,13 +3,22 @@ package com.tune.smartwhere;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import com.tune.BuildConfig;
+import com.tune.Tune;
 import com.tune.TuneEvent;
 import com.tune.TuneUnitTest;
+import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static com.tune.TuneEvent.ADD_TO_CART;
 import static com.tune.TuneEvent.NAME_SESSION;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -22,11 +31,18 @@ public class TuneSmartWhereTests extends TuneUnitTest {
 
     private TuneSmartWhere testObj;
     private Context context;
+    private TuneSmartWhereFakeAttribute mockAttribute;
+    private TuneSmartWhereFakeTrackingAttribute mockTrackingAttribute;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         FakeProximityControl.reset();
+
+        mockAttribute = mock(TuneSmartWhereFakeAttribute.class);
+        TuneSmartWhereFakeAttribute.instance = mockAttribute;
+        mockTrackingAttribute = mock(TuneSmartWhereFakeTrackingAttribute.class);
+        TuneSmartWhereFakeTrackingAttribute.instance = mockTrackingAttribute;
         context = getContext();
 
         testObj = TuneSmartWhereForTest.getInstance();
@@ -39,14 +55,14 @@ public class TuneSmartWhereTests extends TuneUnitTest {
     }
 
     public void testIsProximityInstalledReturnsFalseWhenProximityControlClassNotFound() throws Exception {
-        TuneSmartWhereForTest.clazz = null;
+        TuneSmartWhereForTest.proximityControlClass = null;
 
         assertFalse(testObj.isSmartWhereAvailableInternal());
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
     }
 
     public void testIsProximityInstalledReturnsTrueWhenProximityControlClassIsFound() throws Exception {
-        TuneSmartWhereForTest.clazz = this.getClass();
+        TuneSmartWhereForTest.proximityControlClass = this.getClass();
 
         assertTrue(testObj.isSmartWhereAvailableInternal());
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
@@ -137,6 +153,21 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertTrue(FakeProximityControl.hasStartServiceBeenCalled);
     }
 
+    public void testStartMonitoringAddsTrackingMetadata() throws Exception {
+        String addId = "addId";
+        String conversionKey = "conversionKey";
+
+        testObj.startMonitoring(context, addId, conversionKey, false);
+
+        verify(mockTrackingAttribute).setAttributeValue(
+                TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + TuneSmartWhere.TUNE_SDK_VERSION_TRACKING_KEY ,
+                BuildConfig.VERSION_NAME);
+        verify(mockTrackingAttribute).setAttributeValue(
+                TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + TuneSmartWhere.TUNE_MAT_ID_TRACKING_KEY ,
+                Tune.getInstance().getMatId());
+
+    }
+
     public void testSetPackageNameCallsConfigureServiceWithPackageName() throws Exception {
         String packageName = "com.set.package.name";
         testObj.setPackageName(context, packageName);
@@ -199,7 +230,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
     }
 
     public void testProcessMappedEventDoesntCallOnSmartWhereWhenNotAvailable() throws Exception {
-        TuneSmartWhereForTest.clazz = null;
+        TuneSmartWhereForTest.proximityControlClass = null;
 
         TuneEvent event = new TuneEvent(ADD_TO_CART);
 
@@ -209,7 +240,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
     }
 
     public void testProcessMappedEventDoesntCallOnSmartWhereWhenMethodNotFound() throws Exception {
-        TuneSmartWhereForTest.clazz = Object.class;
+        TuneSmartWhereForTest.proximityControlClass = Object.class;
 
         TuneEvent event = new TuneEvent(ADD_TO_CART);
 
@@ -218,21 +249,250 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
 
     }
+
+    public void testsetAttributeValueFromAnalyticsVariableCallsOnSmartWhereAttributeClass() throws Exception {
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(expectedVariableName, expectedValue);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName, expectedValue);
+    }
+
+    public void testsetAttributeValueFromAnalyticsVariableDoesntCallSmartWhereWhenAttributeClassIsNotFound() throws Exception {
+        TuneSmartWhereForTest.attributeClass = null;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(expectedVariableName, expectedValue);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetAttributeFromAnalyticsVariableDoesntCallSmartWhereWhenMethodNotFound() throws Exception {
+        TuneSmartWhereForTest.attributeClass = Object.class;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(expectedVariableName, expectedValue);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetAttributeFromAnalyticsVariableChecksThatTheNameExists() throws Exception {
+        String expectedValue = "expectedValue";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(null, expectedValue);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+
+        analyticsVariable = new TuneAnalyticsVariable("", expectedValue);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetAttributeFromAnalyticsVariableRemovesTheAttributeIfTheValueIsNull() throws Exception {
+        String expectedVariableName = "expectedName";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(expectedVariableName, (String) null);
+
+        testObj.setAttributeValueFromAnalyticsVariable(context, analyticsVariable);
+
+        verify(mockAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName);
+    }
+
+    public void testsetAttributeValuesFromEventTagsCallsSmartWhere() throws Exception {
+        String expectedName = "name";
+        String expectedValue = "value";
+
+        TuneEvent event = new TuneEvent(TuneEvent.PURCHASE)
+                .withRevenue(0.99)
+                .withCurrencyCode("USD")
+                .withAdvertiserRefId("12999azzzx748531")
+                .withTagAsString(expectedName, expectedValue);
+
+        testObj.setAttributeValuesFromEventTags(context, event);
+
+        verify(mockAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX+expectedName, expectedValue);
+    }
+
+    public void testsetAttributeValuesFromEventTagsCallSmartWhereForEachTag() throws Exception {
+        String expectedName = "name";
+        String expectedValue = "value";
+        String expectedName2 = "name2";
+        String expectedValue2 = "value2";
+
+        TuneAnalyticsVariable analyticsVariable = new TuneAnalyticsVariable(expectedName, expectedValue);
+        TuneAnalyticsVariable analyticsVariable2 = new TuneAnalyticsVariable(expectedName2, expectedValue2);
+
+        TuneEvent mockEvent = mock(TuneEvent.class);
+        HashSet<TuneAnalyticsVariable> tags = new HashSet<>();
+        tags.add(analyticsVariable);
+        tags.add(analyticsVariable2);
+
+        when(mockEvent.getTags()).thenReturn(tags);
+
+        testObj.setAttributeValuesFromEventTags(context, mockEvent);
+
+        verify(mockAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedName, expectedValue);
+        verify(mockAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedName2, expectedValue2);
+    }
+
+    public void testsetAttributeValuesFromEventTagsDoesntCallSmartWhereWhenNotAvailable() throws Exception {
+        TuneSmartWhereForTest.attributeClass = null;
+        String expectedName = "name";
+        String expectedValue = "value";
+
+        TuneEvent event = new TuneEvent(TuneEvent.PURCHASE)
+                .withRevenue(0.99)
+                .withCurrencyCode("USD")
+                .withAdvertiserRefId("12999azzzx748531")
+                .withTagAsString(expectedName, expectedValue);
+
+        testObj.setAttributeValuesFromEventTags(context, event);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(),anyString());
+    }
+
+    public void testclearAttributeValueCallsSmartWhereToRemoveObject() throws Exception {
+        String expectedName = "expectedName";
+        testObj.clearAttributeValue(context, expectedName);
+
+        verify(mockAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedName);
+    }
+
+    public void testclearAttributeValueDoesntCallSmartWhereWhenNotAvailable() throws Exception {
+        TuneSmartWhereForTest.attributeClass = null;
+
+        String expectedName = "expectedName";
+        testObj.clearAttributeValue(context, expectedName);
+
+        verify(mockAttribute,never()).removeAttributeValue(anyString());
+    }
+
+    public void testclearAllAttributeValuesCallsSmartWhereForEachValueWithTunePrefix() throws Exception {
+        HashMap<String,String> currentlySetAttributes = new HashMap<String,String>(){{
+            put("key1","value1");
+            put("key2","value2");
+            put("key3","value3");
+            put(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key1","doesnt matter");
+            put(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key2","tune value 2");
+        }};
+
+        when(mockAttribute.getAttributes()).thenReturn(currentlySetAttributes);
+
+        testObj.clearAllAttributeValues(context);
+
+        verify(mockAttribute,never()).removeAttributeValue("key1");
+        verify(mockAttribute,never()).removeAttributeValue("key2");
+        verify(mockAttribute,never()).removeAttributeValue("key3");
+        verify(mockAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key1");
+        verify(mockAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key2");
+
+    }
+
+    public void testclearAllAttributeValuesDoesntCallSmartWhereWhenNotAvailable() throws Exception {
+        TuneSmartWhereForTest.attributeClass = null;
+        HashMap<String,String> currentlySetAttributes = new HashMap<String,String>(){{
+            put("key1","value1");
+            put("key2","value2");
+            put("key3","value3");
+            put(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key1","doesnt matter");
+            put(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + "key2","tune value 2");
+        }};
+
+        when(mockAttribute.getAttributes()).thenReturn(currentlySetAttributes);
+
+        testObj.clearAllAttributeValues(context);
+
+        verify(mockAttribute,never()).removeAttributeValue(anyString());
+    }
+
+    public void testsetTrackingAttributeValueCallsOnSmartWhereTrackingAttributeClass() throws Exception {
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockTrackingAttribute).setAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName, expectedValue);
+    }
+
+
+    public void testsetTrackingAttributeValueDoesntCallSmartWhereWhenAttributeClassIsNotFound() throws Exception {
+        TuneSmartWhereForTest.trackingAttributeClass = null;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeDoesntCallSmartWhereWhenMethodNotFound() throws Exception {
+        TuneSmartWhereForTest.trackingAttributeClass = Object.class;
+        String expectedVariableName = "expectedName";
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeChecksThatTheNameExists() throws Exception {
+        String expectedValue = "expectedValue";
+
+        testObj.setTrackingAttributeValue(context, null, expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+
+        testObj.setTrackingAttributeValue(context, "", expectedValue);
+
+        verify(mockTrackingAttribute, never()).setAttributeValue(anyString(), anyString());
+    }
+
+    public void testsetTrackingAttributeRemovesTheAttributeIfTheValueIsNull() throws Exception {
+        String expectedVariableName = "expectedName";
+
+        testObj.setTrackingAttributeValue(context, expectedVariableName, null);
+
+        verify(mockTrackingAttribute).removeAttributeValue(TuneSmartWhere.TUNE_SMARTWHERE_ANALYTICS_VARIABLE_ATTRIBUTE_PREFIX + expectedVariableName);
+    }
 }
 
 class TuneSmartWhereForTest extends TuneSmartWhere {
-    static Class clazz;
+    static Class proximityControlClass;
+    static Class attributeClass;
+    static Class trackingAttributeClass;
     static String capturedClassNameString;
 
     public static synchronized TuneSmartWhere getInstance() {
-        clazz = FakeProximityControl.class;
+        proximityControlClass = FakeProximityControl.class;
+        attributeClass = TuneSmartWhereFakeAttribute.class;
+        trackingAttributeClass = TuneSmartWhereFakeTrackingAttribute.class;
         return new TuneSmartWhereForTest();
     }
 
     @Override
     protected Class classForName(String name) {
         TuneSmartWhereForTest.capturedClassNameString = name;
-        return clazz;
+        if (name.equalsIgnoreCase(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_PROXIMITYCONTROL)){
+            return proximityControlClass;
+        } else if (name.equalsIgnoreCase(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_ATTRIBUTE)){
+            return attributeClass;
+        } else if (name.equalsIgnoreCase(TUNE_SMARTWHERE_COM_PROXIMITY_LIBRARY_TRACKING_ATTRIBUTE)){
+            return trackingAttributeClass;
+        }
+        return null;
     }
 }
 
