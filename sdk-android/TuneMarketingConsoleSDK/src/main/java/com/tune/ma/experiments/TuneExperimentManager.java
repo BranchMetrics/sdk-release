@@ -10,6 +10,7 @@ import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
 import com.tune.ma.utils.TuneJsonUtils;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -30,11 +31,12 @@ public class TuneExperimentManager {
     private Set<String> addedActiveVariations;
 
     public TuneExperimentManager() {
-        phookExperimentDetails = new HashMap<String, TunePowerHookExperimentDetails>();
-        inAppExperimentDetails = new HashMap<String, TuneInAppMessageExperimentDetails>();
-        addedActiveVariations = new HashSet<String>();
+        phookExperimentDetails = new HashMap<>();
+        inAppExperimentDetails = new HashMap<>();
+        addedActiveVariations = new HashSet<>();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TunePlaylistManagerCurrentPlaylistChanged event) {
         TunePlaylist activePlaylist = event.getNewPlaylist();
 

@@ -14,7 +14,7 @@ import android.webkit.WebView;
 public class TuneScreenUtils {
     /**
      * Gets screen density
-     * @param context
+     * @param context Context
      * @return screen density
      */
     public static float getScreenDensity(Context context) {

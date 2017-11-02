@@ -93,22 +93,34 @@ public class TuneManager {
                 }
 
                 // Campaign state needs the highest priority because it sets session variables at the start of each session
-                TuneEventBus.register(instance.campaignStateManager, TuneEventBus.PRIORITY_FIRST);
+                // PRIORITY_FIRST
+                TuneEventBus.register(instance.campaignStateManager)
+                ;
                 // Session needs priority over analytics in order to start session
-                TuneEventBus.register(instance.sessionManager, TuneEventBus.PRIORITY_SECOND);
-                // User profile needs priority over analytics so that the session variables are updated correctly first
-                TuneEventBus.register(instance.profileManager, TuneEventBus.PRIORITY_THIRD);
-                // Get configuration before playlist so we know about connected mode
-                TuneEventBus.register(instance.configurationManager, TuneEventBus.PRIORITY_FOURTH);
-                // We want playlist next in priority so we can get it as soon as possible
-                TuneEventBus.register(instance.playlistManager, TuneEventBus.PRIORITY_FIFTH);
-                // In-app message manager needs priority over connected mode so we can get in-app messages ready to be shown in connected mode
-                TuneEventBus.register(instance.inAppMessageManager, TuneEventBus.PRIORITY_SIXTH);
+                // PRIORITY_SECOND
+                TuneEventBus.register(instance.sessionManager);
 
-                TuneEventBus.register(instance.analyticsManager, TuneEventBus.PRIORITY_IRRELEVANT);
-                TuneEventBus.register(instance.connectedModeManager, TuneEventBus.PRIORITY_IRRELEVANT);
+                // User profile needs priority over analytics so that the session variables are updated correctly first
+                // PRIORITY_THIRD
+                TuneEventBus.register(instance.profileManager);
+
+                // Get configuration before playlist so we know about connected mode
+                // PRIORITY_FOURTH
+                TuneEventBus.register(instance.configurationManager);
+
+                // We want playlist next in priority so we can get it as soon as possible
+                // PRIORITY_FIFTH
+                TuneEventBus.register(instance.playlistManager);
+
+                // In-app message manager needs priority over connected mode so we can get in-app messages ready to be shown in connected mode
+                // PRIORITY_SIXTH
+                TuneEventBus.register(instance.inAppMessageManager);
+
+                // The following are either PRIORITY_IRRELEVANT or DEFAULT
+                TuneEventBus.register(instance.analyticsManager);
+                TuneEventBus.register(instance.connectedModeManager);
                 TuneEventBus.register(instance.deepActionManager);
-                TuneEventBus.register(instance.experimentManager, TuneEventBus.PRIORITY_IRRELEVANT);
+                TuneEventBus.register(instance.experimentManager);
                 TuneEventBus.register(instance.pushManager);
 
 

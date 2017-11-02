@@ -9,6 +9,7 @@ import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneDeeplinkOpened;
 import com.tune.mocks.MockUrlRequester;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONObject;
 import org.mockito.Mockito;
 
@@ -22,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 public class TuneActivityTests extends TuneUnitTest {
 
-    private ArrayList<JSONObject> successResponses;
     private MockUrlRequester mockUrlRequester;
     private Intent intent;
 
@@ -263,6 +263,7 @@ public class TuneActivityTests extends TuneUnitTest {
             deeplinkOpenedCount = 0;
         }
 
+        @Subscribe
         public void onEvent(TuneDeeplinkOpened event) {
             deeplinkOpenedCount++;
             deeplinkUrl = event.getDeeplinkUrl();

@@ -11,6 +11,7 @@ import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +80,7 @@ public class TuneConfigurationManager {
         executorService = Executors.newSingleThreadExecutor();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_FOURTH)
     public void onEvent(TuneAppForegrounded event) {
         // Update configuration from app foreground event only if TMA is enabled
         // as configuration update will be handled from TuneActivity.onStart if disabled

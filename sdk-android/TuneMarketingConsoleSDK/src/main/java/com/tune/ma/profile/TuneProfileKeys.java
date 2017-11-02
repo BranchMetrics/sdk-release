@@ -3,6 +3,7 @@ package com.tune.ma.profile;
 import com.tune.TuneUrlKeys;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -43,7 +44,7 @@ public class TuneProfileKeys {
           You'll want to repeat this process so it includes the constants in this file as well.
     WARNING: It is very important that all new profile variables get added to this array.
     */
-    public static final Set<String> systemVariables = new HashSet<String>(Arrays.asList(
+    private static final Set<String> systemVariables = new HashSet<String>(Arrays.asList(
         TuneUrlKeys.ACTION,
         TuneUrlKeys.ADVERTISER_ID,
         TuneUrlKeys.DEBUG_MODE,
@@ -189,4 +190,17 @@ public class TuneProfileKeys {
         DEVICE_TOKEN,
         IS_PUSH_ENABLED
     ));
+
+    // Method should be called wherever a case-insensitive check of a string against existing profile variables is needed; case-insensitivity achieved by lowercasing input and set's contents
+    // TODO: Currently cannot use something locale neutral here (such as Locale.ROOT) as our infrastructure can currently only support latin characters for variable names (i.e. English).
+    // TODO: If infrastruture changes, consider whether it's possible to broaden character support for variables (and change Locale.ENGLISH to Locale.ROOT)
+    public static boolean isSystemVariable(String checkedString) {
+        String lowercasedCheckedString = checkedString.toLowerCase(Locale.ENGLISH);
+        for (String systemVariable : systemVariables) {
+            if (lowercasedCheckedString.equals(systemVariable.toLowerCase(Locale.ENGLISH))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

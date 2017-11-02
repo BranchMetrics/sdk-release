@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.13.0'
+    PUBLISH_VERSION = '4.14.0'
 }
 
 android {
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionName '4.13.0'
+        versionName '4.14.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -61,8 +61,8 @@ configurations {
 }
 
 dependencies {
-    compile 'de.greenrobot:eventbus:2.4.0'
-    javadocDeps 'de.greenrobot:eventbus:2.4.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    javadocDeps 'org.greenrobot:eventbus:3.0.0'
 
     compile 'com.android.support:support-v4:25.3.1'
     javadocDeps 'com.android.support:support-v4:25.3.1'
@@ -81,7 +81,7 @@ dependencies {
 
 
     // SmartWhere is included in the 'full' sdk flavor
-    fullCompile 'com.smartwhere:android-tune:17258'
+    fullCompile 'com.smartwhere:android-tune:17258.1'
 }
 
 tasks.whenTaskAdded { task ->
@@ -204,18 +204,19 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-//task javadoc(type: Javadoc) {
-//    source = android.sourceSets.main.java.srcDirs
-//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-//    classpath += configurations.javadocDeps
-//    options {
-//        links "http://docs.oracle.com/javase/8/docs/api/"
-//        linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
-//
-//        tags = [ "apiNote", "implSpec", "implNote" ]
-//    }
-//    failOnError false
-//}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.javadocDeps
+    exclude "com/tune/R.java"
+    options {
+        links "http://docs.oracle.com/javase/8/docs/api/"
+        linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
+
+        tags = [ "apiNote", "implSpec", "implNote" ]
+    }
+    failOnError false
+}
 //
 //task javadocJar(type: Jar, dependsOn: javadoc) {
 //    classifier = 'javadoc'

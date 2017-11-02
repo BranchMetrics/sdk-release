@@ -22,6 +22,7 @@ import com.tune.ma.analytics.model.event.session.TuneBackgroundEvent;
 import com.tune.ma.analytics.model.event.session.TuneForegroundEvent;
 import com.tune.ma.analytics.model.event.tracer.TuneClearVariablesEvent;
 import com.tune.ma.analytics.model.event.tracer.TuneTracerEvent;
+import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneActivityResumed;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
@@ -40,6 +41,8 @@ import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,12 +74,13 @@ public class TuneAnalyticsManager {
     public TuneAnalyticsManager(Context context) {
         this.context = context;
         this.state = TuneAnalyticsManagerState.NOT_TRACKING;
-        this.sessionVariables = new HashSet<TuneAnalyticsVariable>();
+        this.sessionVariables = new HashSet<>();
 
         this.shouldQueueCustomEvents = true;
-        this.customEventQueue = new LinkedList<TuneEvent>();
+        this.customEventQueue = new LinkedList<>();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public synchronized void onEvent(TuneEventOccurred event) {
         TuneEvent tuneEvent = event.getEvent();
         // Create TuneCustomEvent from TuneEvent
@@ -112,6 +116,7 @@ public class TuneAnalyticsManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneActivityResumed event) {
         // If enabled, track screen views
         if (TuneManager.getInstance().getConfigurationManager().shouldSendScreenViews()) {
@@ -122,6 +127,7 @@ public class TuneAnalyticsManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneAppForegrounded event) {
         setShouldQueueCustomEvents(false);
         // Create and store Foregrounded event
@@ -131,6 +137,7 @@ public class TuneAnalyticsManager {
         startScheduledDispatch();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneAppBackgrounded event) {
         setShouldQueueCustomEvents(true);
         // Create and store Backgrounded event
@@ -141,6 +148,7 @@ public class TuneAnalyticsManager {
         sessionVariables.clear();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneCustomProfileVariablesCleared event) {
         TuneClearVariablesEvent tracerEvent = new TuneClearVariablesEvent(event);
 
@@ -153,6 +161,7 @@ public class TuneAnalyticsManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TunePushOpened event) {
         TunePushMessage message = event.getMessage();
 
@@ -160,16 +169,19 @@ public class TuneAnalyticsManager {
         storeAndTrackAnalyticsEvent(false, new TunePushActionEvent(message));
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TunePushEnabled event) {
         boolean status = event.isEnabled();
         storeAndTrackAnalyticsEvent(false, new TunePushEnabledEvent(status));
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT, threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(TuneInAppMessageShown event) {
         TuneInAppMessage message = event.getMessage();
         storeAndTrackAnalyticsEvent(false, new TuneInAppMessageShownEvent(message));
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT, threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(TuneInAppMessageActionTaken event) {
         TuneInAppMessage message = event.getMessage();
         String action = event.getAction();
@@ -178,6 +190,7 @@ public class TuneAnalyticsManager {
         storeAndTrackAnalyticsEvent(false, new TuneInAppMessageActionTakenEvent(message, action, secondsDisplayed));
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT, threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(TuneInAppMessageUnspecifiedActionTaken event) {
         TuneInAppMessage message = event.getMessage();
         String unspecifiedActionName = event.getUnspecifiedActionName();
@@ -186,6 +199,7 @@ public class TuneAnalyticsManager {
         storeAndTrackAnalyticsEvent(false, new TuneInAppMessageUnspecifiedActionTakenEvent(message, unspecifiedActionName, secondsDisplayed));
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneSessionVariableToSet event) {
         String variableName = event.getVariableName();
         String variableValue = event.getVariableValue();
@@ -195,6 +209,7 @@ public class TuneAnalyticsManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public void onEvent(TuneDeeplinkOpened event) {
         String deeplinkUrl = event.getDeeplinkUrl();
 

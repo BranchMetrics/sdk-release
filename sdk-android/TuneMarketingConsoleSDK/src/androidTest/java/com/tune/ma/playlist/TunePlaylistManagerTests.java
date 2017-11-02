@@ -16,6 +16,7 @@ import com.tune.mocks.MockApi;
 import com.tune.mocks.MockFileManager;
 import com.tune.testutils.TuneTestUtils;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -242,6 +243,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
             eventReceived = false;
         }
 
+        @Subscribe
         public void onEvent(TunePlaylistManagerCurrentPlaylistChanged event) {
             eventReceived = true;
         }

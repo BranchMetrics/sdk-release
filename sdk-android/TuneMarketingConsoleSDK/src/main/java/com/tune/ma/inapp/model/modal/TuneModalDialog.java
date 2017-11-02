@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.view.Window;
 
-import com.tune.R;
-
 /**
  * Created by johng on 6/6/17.
  */
@@ -15,7 +13,7 @@ public class TuneModalDialog extends Dialog {
     private TuneModalLayout layout;
 
     public TuneModalDialog(Activity activity, TuneModalLayout layout) {
-        super(activity, R.style.TuneModalTheme);
+        super(activity, com.tune.R.style.TuneModalTheme);
 
         this.activity = activity;
         this.layout = layout;

@@ -16,7 +16,6 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.tune.R;
 import com.tune.Tune;
 import com.tune.ma.TuneManager;
 import com.tune.ma.application.TuneActivity;
@@ -154,16 +153,16 @@ public class TuneFullScreen extends TuneInAppMessage {
                 activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 break;
             case BOTTOM:
-                activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_bottom, com.tune.R.anim.slide_out_top);
                 break;
             case TOP:
-                activity.overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_top, com.tune.R.anim.slide_out_bottom);
                 break;
             case LEFT:
-                activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_left, com.tune.R.anim.slide_out_right);
                 break;
             case RIGHT:
-                activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_right, com.tune.R.anim.slide_out_left);
                 break;
             case NONE:
             default:
@@ -191,16 +190,16 @@ public class TuneFullScreen extends TuneInAppMessage {
                 activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 break;
             case BOTTOM:
-                activity.overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_top, com.tune.R.anim.slide_out_bottom);
                 break;
             case TOP:
-                activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_bottom, com.tune.R.anim.slide_out_top);
                 break;
             case LEFT:
-                activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_right, com.tune.R.anim.slide_out_left);
                 break;
             case RIGHT:
-                activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                activity.overridePendingTransition(com.tune.R.anim.slide_in_left, com.tune.R.anim.slide_out_right);
                 break;
             case NONE:
             default:

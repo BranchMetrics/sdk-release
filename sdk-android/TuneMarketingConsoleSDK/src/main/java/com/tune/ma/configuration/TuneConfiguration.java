@@ -70,7 +70,7 @@ public class TuneConfiguration {
         playlistRequestPeriod = 180;
 
         pluginName = null;
-        PIIFiltersAsStrings = new ArrayList<String>();
+        PIIFiltersAsStrings = new ArrayList<>();
 
     }
 

@@ -15,6 +15,7 @@ import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.mockito.Mock;
 
@@ -381,18 +382,22 @@ public class TuneSessionTests extends TuneUnitTest {
         TuneEventBus.unregister(this);
     }
 
+    @Subscribe
     public synchronized void onEvent(TuneAppForegrounded event) {
         foregroundedCount++;
     }
 
+    @Subscribe
     public synchronized void onEvent(TuneActivityConnected event) {
         activityConnectedCount++;
     }
 
+    @Subscribe
     public synchronized void onEvent(TuneActivityDisconnected event) {
         activityConnectedCount--;
     }
 
+    @Subscribe
     public synchronized void onEvent(TuneAppBackgrounded event) {
         backgroundedCount++;
         if (backgroundLock != null) {

@@ -27,6 +27,7 @@ import com.tune.ma.utils.TuneOptional;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 
 import java.util.HashSet;
@@ -77,9 +78,10 @@ public class TunePushManager {
 
         // This set does not need to be serialized because it exists to prevent push actions from triggering from the same activity twice
         //   EG Open push, perform deep action, background, foreground.
-        processedMessages = new HashSet<String>();
+        processedMessages = new HashSet<>();
     }
 
+    @Subscribe
     public void onEvent(TuneAppForegrounded event) {
         if (Build.VERSION.SDK_INT >= 19) {
             executorService.execute(new Runnable() {
@@ -91,10 +93,12 @@ public class TunePushManager {
         }
     }
 
+    @Subscribe
     public synchronized void onEvent(TuneAppBackgrounded event) {
         lastOpenedPushMessage = null;
     }
 
+    @Subscribe
     public void onEvent(TuneUpdateUserProfile event) {
         TuneAnalyticsVariable var = event.getVariable();
         if (TuneUrlKeys.AGE.equals(var.getName())) {

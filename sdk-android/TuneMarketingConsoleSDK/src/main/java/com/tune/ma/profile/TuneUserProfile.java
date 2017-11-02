@@ -17,6 +17,7 @@ import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -74,8 +76,8 @@ public class TuneUserProfile {
         this.context = context;
         this.sharedPrefs = new TuneSharedPrefsDelegate(context, PREFS_TMA_PROFILE);
         this.variables = new HashMap<String, TuneAnalyticsVariable>();
-        this.customVariables = new HashSet<String>();
-        this.sessionVariables = new HashSet<TuneAnalyticsVariable>();
+        this.customVariables = new HashSet<>();
+        this.sessionVariables = new HashSet<>();
 
         for (String v: variablesToSave) {
             TuneAnalyticsVariable p = getProfileVariableFromPrefs(v);
@@ -148,6 +150,7 @@ public class TuneUserProfile {
         sharedPrefs.clearSharedPreferences();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_THIRD)
     public synchronized void onEvent(TuneAppForegrounded event) {
         // TODO: Check to see if TMA is disabled for the first session check
         TuneAnalyticsVariable storedIsFirstSession = getProfileVariableFromPrefs(TuneProfileKeys.IS_FIRST_SESSION);
@@ -199,17 +202,20 @@ public class TuneUserProfile {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_THIRD)
     public synchronized void onEvent(TuneAppBackgrounded event) {
         // Save custom profile variable names to SharedPreferences on background
         JSONArray customVariablesJson = new JSONArray(customVariables);
         sharedPrefs.saveToSharedPreferences(PREFS_CUSTOM_VARIABLES_KEY, customVariablesJson.toString());
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_THIRD)
     public void onEvent(TuneUpdateUserProfile event) {
         TuneAnalyticsVariable var = event.getVariable();
         storeProfileVariable(var);
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_THIRD)
     public synchronized void onEvent(TuneSessionVariableToSet event) {
         String variableName = event.getVariableName();
         String variableValue = event.getVariableValue();
@@ -297,8 +303,8 @@ public class TuneUserProfile {
         if (TuneAnalyticsVariable.validateName(var.getName())) {
             String prettyName = TuneAnalyticsVariable.cleanVariableName(var.getName());
 
-            if (TuneProfileKeys.systemVariables.contains(prettyName)) {
-                TuneDebugLog.IAMConfigError("The variable '" + prettyName + "' is a system variable, and cannot be set in this manner. Please use another name.");
+            if (TuneProfileKeys.isSystemVariable(prettyName)) {
+                TuneDebugLog.IAMConfigError("The variable '" + prettyName + "' is a system variable, and cannot be registered in this manner. Please use another name.");
                 return;
             }
 

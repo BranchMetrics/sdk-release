@@ -12,6 +12,7 @@ import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.utils.TuneFileUtils;
 import com.tune.ma.utils.TuneJsonUtils;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -394,11 +395,13 @@ public class TuneInAppMessageTests extends TuneUnitTest {
         public int unspecifiedActionCount = 0;
         public String unspecifiedActionName;
 
+        @Subscribe
         public void onEvent(TuneInAppMessageActionTaken event) {
             actionCount++;
             actionName = event.getAction();
         }
 
+        @Subscribe
         public void onEvent(TuneInAppMessageUnspecifiedActionTaken event) {
             unspecifiedActionCount++;
             unspecifiedActionName = event.getUnspecifiedActionName();

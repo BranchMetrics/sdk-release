@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.tune.ma.TuneManager;
 import com.tune.ma.deepactions.model.TuneDeepAction;
+import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneConnectedModeTurnedOn;
 import com.tune.ma.eventbus.event.TunePlaylistManagerCurrentPlaylistChanged;
@@ -15,6 +16,8 @@ import com.tune.ma.inapp.model.TuneInAppMessage;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,11 +44,13 @@ public class TuneConnectedModeManager {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public synchronized void onEvent(TuneConnectedModeTurnedOn event) {
         // We saw connected was just turned on from server, so time to connect
         handleConnection();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT)
     public synchronized void onEvent(TuneAppBackgrounded event) {
         // If connected mode was on, disconnect
         if (isInConnectedMode()) {
@@ -53,6 +58,7 @@ public class TuneConnectedModeManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_IRRELEVANT, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TunePlaylistManagerCurrentPlaylistChanged event) {
         if (isInConnectedMode()) {
             TunePlaylist playlist = event.getNewPlaylist();

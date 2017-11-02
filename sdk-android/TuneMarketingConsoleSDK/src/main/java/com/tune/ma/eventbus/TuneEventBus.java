@@ -7,11 +7,12 @@ import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.utils.TuneDebugLog;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 
 public class TuneEventBus {
     public static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(com.tune.BuildConfig.DEBUG_MODE).build();
@@ -27,7 +28,7 @@ public class TuneEventBus {
 
     // Use a queue in order to store events that occur before TuneManager is ready
     // After TuneManager is initialized, events will be sent real-time over the bus
-    private static List<Object> eventQueue = new ArrayList<Object>();
+    private static List<Object> eventQueue = new ArrayList<>();
 
     // Event Bus is disabled by default until turnOnTMA is true
     private static volatile boolean enabled = false;
@@ -94,18 +95,15 @@ public class TuneEventBus {
         }
     }
 
+    /**
+     * Register with the EventBus
+     * @param subscriber Object that implements the Subscribe annotation
+     */
     public static void register(Object subscriber) {
         if (!enabled) {
             return;
         }
         EVENT_BUS.register(subscriber);
-    }
-
-    public static void register(Object subscriber, int priority) {
-        if (!enabled) {
-            return;
-        }
-        EVENT_BUS.register(subscriber, priority);
     }
 
     public static void unregister(Object subscriber) {

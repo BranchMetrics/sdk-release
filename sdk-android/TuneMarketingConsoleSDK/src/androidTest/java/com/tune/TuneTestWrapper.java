@@ -34,7 +34,7 @@ public class TuneTestWrapper extends Tune {
         TuneEventBus.enable();
         TuneConfiguration initialConfig = new TuneConfiguration();
         // initialize TuneManager with useConfiguration set to true so that it initializes configuration player
-        ArrayList<String> configurationPlayerFilenames = new ArrayList<String>();
+        ArrayList<String> configurationPlayerFilenames = new ArrayList<>();
         configurationPlayerFilenames.add("configuration1.json");
         configurationPlayerFilenames.add("configuration2.json");
         initialConfig.setUseConfigurationPlayer(true);

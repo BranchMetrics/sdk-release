@@ -13,6 +13,7 @@ import com.tune.ma.analytics.model.event.TuneScreenViewEvent;
 import com.tune.ma.analytics.model.event.push.TunePushEnabledEvent;
 import com.tune.ma.analytics.model.event.push.TunePushOpenedEvent;
 import com.tune.ma.analytics.model.event.session.TuneFirstPlaylistDownloadedEvent;
+import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneActivityResumed;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
@@ -34,6 +35,8 @@ import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -192,6 +195,7 @@ public class TuneInAppMessageManager {
     }
 
     // Clear all counts' "number of times shown this session" when new session starts
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH)
     public synchronized void onEvent(TuneAppForegrounded event) {
         for (Map.Entry<String, TuneMessageDisplayCount> entry : messageDisplayCountMap.entrySet()) {
             TuneMessageDisplayCount count = entry.getValue();
@@ -200,6 +204,7 @@ public class TuneInAppMessageManager {
         updateCountMapInSharedPreferences();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH)
     public synchronized void onEvent(TuneAppBackgrounded event) {
         // Clear any trigger events that occurred before first playlist download
         triggerEventsSeenPriorToPlaylistDownload.clear();
@@ -207,6 +212,7 @@ public class TuneInAppMessageManager {
         playlistDownloaded = false;
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH)
     public synchronized void onEvent(TunePlaylistManagerCurrentPlaylistChanged event) {
         // Make a temp copy of the previous messages, for comparing frequency changes
         Map<String, TuneInAppMessage> previousMessagesByIds = new HashMap<>(inAppMessagesByIds);
@@ -313,11 +319,12 @@ public class TuneInAppMessageManager {
         }
     }
 
-    /************
-     * Triggers *
-     ************/
+    //**********************************************************************************************
+    // Triggers
+    //**********************************************************************************************
 
     // Listen for custom TuneEvent trigger
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TuneEventOccurred event) {
         // No messages to trigger
         if (noMessagesToTrigger()) {
@@ -333,6 +340,7 @@ public class TuneInAppMessageManager {
         triggerMessagesForEvent(customEvent);
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TuneDeeplinkOpened event) {
         String reducedUrl = TuneStringUtils.reduceUrlToPath(event.getDeeplinkUrl());
         TuneDeeplinkOpenedEvent deeplinkOpened = new TuneDeeplinkOpenedEvent(reducedUrl);
@@ -352,6 +360,7 @@ public class TuneInAppMessageManager {
     }
 
     // Listen for push opened trigger
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TunePushOpened event) {
         TunePushMessage message = event.getMessage();
         TunePushOpenedEvent pushOpened = new TunePushOpenedEvent(message);
@@ -370,6 +379,7 @@ public class TuneInAppMessageManager {
     }
 
     // Listen for push enabled trigger
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TunePushEnabled event) {
         // No messages to trigger
         if (noMessagesToTrigger()) {
@@ -383,6 +393,7 @@ public class TuneInAppMessageManager {
     }
 
     // Listen for first playlist download to trigger deeplink or push opens
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TunePlaylistManagerFirstPlaylistDownloaded event) {
         playlistDownloaded = true;
 
@@ -416,6 +427,7 @@ public class TuneInAppMessageManager {
     }
 
     // Listen for app foregrounded (Starts App) trigger
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TuneAppForegrounded event) {
         if (noMessagesToTrigger()) {
             return;
@@ -427,6 +439,7 @@ public class TuneInAppMessageManager {
     }
 
     // Listen for Activity resume (Screen View) trigger
+    @Subscribe(priority = TuneEventBus.PRIORITY_SIXTH, threadMode = ThreadMode.MAIN)
     public synchronized void onEventMainThread(TuneActivityResumed event) {
         // No messages to trigger
         if (noMessagesToTrigger()) {

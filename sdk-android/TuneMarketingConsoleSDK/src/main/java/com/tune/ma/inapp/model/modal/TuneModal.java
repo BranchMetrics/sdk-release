@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import com.tune.R;
 import com.tune.Tune;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.inapp.model.TuneInAppMessage;
@@ -177,8 +176,8 @@ public class TuneModal extends TuneInAppMessage {
      *********************/
 
     /**
-     * Play message open animation based on message transition
-     * @param activity
+     * Play message open animation based on message transition.
+     * @param activity Parent Activity
      */
     protected synchronized void animateOpen(Activity activity) {
         if (activity == null) {
@@ -194,16 +193,16 @@ public class TuneModal extends TuneInAppMessage {
                 animationId = android.R.anim.fade_in;
                 break;
             case BOTTOM:
-                animationId = R.anim.slide_in_bottom;
+                animationId = com.tune.R.anim.slide_in_bottom;
                 break;
             case TOP:
-                animationId = R.anim.slide_in_top;
+                animationId = com.tune.R.anim.slide_in_top;
                 break;
             case LEFT:
-                animationId = R.anim.slide_in_left;
+                animationId = com.tune.R.anim.slide_in_left;
                 break;
             case RIGHT:
-                animationId = R.anim.slide_in_right;
+                animationId = com.tune.R.anim.slide_in_right;
                 break;
             case NONE:
             default:
@@ -218,9 +217,9 @@ public class TuneModal extends TuneInAppMessage {
     }
 
     /**
-     * Play message close animation based on transition
+     * Play message close animation based on transition.
      * Then, dismiss modal dialog
-     * @param activity
+     * @param activity  Parent Activity
      */
     protected synchronized void animateClose(final Activity activity) {
         if (activity == null) {
@@ -243,16 +242,16 @@ public class TuneModal extends TuneInAppMessage {
                 animationId = android.R.anim.fade_out;
                 break;
             case BOTTOM:
-                animationId = R.anim.slide_out_bottom;
+                animationId = com.tune.R.anim.slide_out_bottom;
                 break;
             case TOP:
-                animationId = R.anim.slide_out_top;
+                animationId = com.tune.R.anim.slide_out_top;
                 break;
             case LEFT:
-                animationId = R.anim.slide_out_left;
+                animationId = com.tune.R.anim.slide_out_left;
                 break;
             case RIGHT:
-                animationId = R.anim.slide_out_right;
+                animationId = com.tune.R.anim.slide_out_right;
                 break;
             case NONE:
             default:

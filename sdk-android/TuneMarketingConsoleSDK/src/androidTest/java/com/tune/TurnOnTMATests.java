@@ -6,6 +6,8 @@ import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.UUID;
 
 /**
@@ -21,6 +23,7 @@ public class TurnOnTMATests extends AndroidTestCase {
     public class TuneTestEvent {
     }
 
+    @Subscribe
     public void onEvent(TuneTestEvent event) {
         eventReceived = true;
     }

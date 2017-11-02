@@ -17,6 +17,7 @@ import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +57,7 @@ public class TunePlaylistManager {
     }
 
     //  EventBus Events
-    ////////////////////
+    @Subscribe(priority = TuneEventBus.PRIORITY_FIFTH)
     public synchronized void onEvent(TuneAppForegrounded event) {
         if (TuneManager.getInstance() == null || TuneManager.getInstance().getConfigurationManager().isTMADisabled()) {
             return;
@@ -84,6 +85,7 @@ public class TunePlaylistManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_FIFTH)
     public synchronized void onEvent(TuneAppBackgrounded event) {
         if (started) {
             this.stopPlaylistRetriever();

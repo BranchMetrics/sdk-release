@@ -9,6 +9,8 @@ import com.tune.ma.eventbus.event.TuneActivityDisconnected;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,10 +68,12 @@ public class TuneSessionManager {
         return instance;
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_SECOND)
     public void onEvent(TuneActivityConnected event) {
         connectActivity(event.getActivity());
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_SECOND)
     public void onEvent(TuneActivityDisconnected event) {
         disconnectActivity(event.getActivity());
     }

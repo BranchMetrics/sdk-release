@@ -13,6 +13,8 @@ import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import static com.tune.ma.push.TunePushManager.PREFS_TMA_PUSH;
 import static com.tune.ma.push.TunePushManager.PROPERTY_DEVELOPER_PUSH_ENABLED;
 import static com.tune.ma.push.TunePushManager.PROPERTY_END_USER_PUSH_ENABLED;
@@ -477,11 +479,13 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
         }
 
+        @Subscribe
         public void onEvent(TunePushEnabled event) {
             enabled = event.isEnabled();
             updated = true;
         }
 
+        @Subscribe
         public void onEvent(TuneUpdateUserProfile event) {
             // Increment count for push enabled event
             if (event.getVariable().getName().equals(TuneProfileKeys.IS_PUSH_ENABLED)) {

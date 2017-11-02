@@ -9,6 +9,8 @@ import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
 import com.tune.ma.eventbus.event.campaign.TuneCampaignViewed;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by charlesgilliam on 2/9/16.
  */
 public class TuneCampaignStateManager {
-    private final String TUNE_CAMPAIGN_PREFS = "com.tune.ma.campaign";
+    private static final String TUNE_CAMPAIGN_PREFS = "com.tune.ma.campaign";
     
     protected ConcurrentHashMap<String, TuneCampaign> viewedCampaigns;
     protected Set<String> campaignIdsRecordedThisSession;
@@ -26,15 +28,16 @@ public class TuneCampaignStateManager {
     protected TuneSharedPrefsDelegate sharedPrefs;
 
     public TuneCampaignStateManager(Context context) {
-        viewedCampaigns = new ConcurrentHashMap<String, TuneCampaign>();
-        campaignIdsRecordedThisSession = new HashSet<String>();
-        variationIdsRecordedThisSession = new HashSet<String>();
+        viewedCampaigns = new ConcurrentHashMap<>();
+        campaignIdsRecordedThisSession = new HashSet<>();
+        variationIdsRecordedThisSession = new HashSet<>();
         sharedPrefs = new TuneSharedPrefsDelegate(context, TUNE_CAMPAIGN_PREFS);
 
         retrieveViewedCampaigns();
         campaignHouseKeeping();
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_FIRST)
     public synchronized void onEvent(TuneAppForegrounded event) {
         campaignHouseKeeping();
         for (Map.Entry<String, TuneCampaign> e: viewedCampaigns.entrySet()) {
@@ -46,6 +49,7 @@ public class TuneCampaignStateManager {
         }
     }
 
+    @Subscribe(priority = TuneEventBus.PRIORITY_FIRST)
     public synchronized void onEvent(TuneCampaignViewed event) {
         TuneCampaign campaign = event.getCampaign();
 
@@ -104,7 +108,7 @@ public class TuneCampaignStateManager {
 
     private synchronized void retrieveViewedCampaigns() {
         if (viewedCampaigns == null) {
-            viewedCampaigns = new ConcurrentHashMap<String, TuneCampaign>();
+            viewedCampaigns = new ConcurrentHashMap<>();
         }
         for (Map.Entry<String, ?> entry: sharedPrefs.getAll().entrySet()) {
             try {

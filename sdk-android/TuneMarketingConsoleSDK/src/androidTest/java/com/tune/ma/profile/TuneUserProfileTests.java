@@ -14,6 +14,7 @@ import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -44,6 +45,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         TuneEventBus.unregister(this);
     }
 
+    @Subscribe
     public void onEvent(TuneCustomProfileVariablesCleared event) {
         clearCalledCount += 1;
     }
@@ -324,7 +326,6 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertFalse(var.getValue().equals("not null"));
     }
 
-
     public void testSetSystemVariable() {
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable("google_aid", "99111")));
         TuneTestWrapper.getInstance().setCustomProfileStringValue("google_aid", "not null");
@@ -335,6 +336,24 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue("google_aid".equalsIgnoreCase(var.getName()));
         assertTrue("99111".equalsIgnoreCase(var.getValue()));
         assertTrue(var.getType() == TuneVariableType.STRING);
+    }
+
+    // Test to make sure checks of custom variables are case-insensitive when registring them
+    public void testPreventsCollisionOfCustomVariableWithProfileVariable() {
+        TuneTestWrapper.getInstance().registerCustomProfileString("Language", "Dravanian");
+        TuneTestWrapper.getInstance().registerCustomProfileString("Device Token", "Knicknack");
+        TuneTestWrapper.getInstance().registerCustomProfileString("Butterfly", "Monarch");
+
+        TuneAnalyticsVariable var = profile.getCustomProfileVariable("Language");
+        TuneAnalyticsVariable var2 = profile.getCustomProfileVariable("Device Token");
+        TuneAnalyticsVariable var3 = profile.getCustomProfileVariable("DeviceToken");
+        TuneAnalyticsVariable var4 = profile.getCustomProfileVariable("Butterfly");
+
+        assertNull(var);
+        assertNull(var2);
+        assertNull(var3);
+        assertEquals("Butterfly", var4.getName());
+        assertEquals("Monarch", var4.getValue());
     }
 
     public void testPreventAddingCustomProfileVariablesStartingWithTUNE() {
@@ -554,6 +573,30 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNull(var);
 
         assertTrue(clearCalledCount == 1);
+    }
+
+    public void testAllowCustomVariableValuesToBeSetRegardlessOfNameCase() {
+        TuneTestWrapper.getInstance().registerCustomProfileString("Cat", "Tabby");
+        TuneTestWrapper.getInstance().registerCustomProfileString("cat", "Siamese");
+
+        TuneAnalyticsVariable var = profile.getCustomProfileVariable("Cat");
+        TuneAnalyticsVariable var2 = profile.getCustomProfileVariable("cat");
+
+        TuneTestWrapper.getInstance().setCustomProfileStringValue("Cat", "Mink");
+        TuneTestWrapper.getInstance().setCustomProfileStringValue("cat", "Burmese");
+
+        TuneAnalyticsVariable var3 = profile.getCustomProfileVariable("Cat");
+        TuneAnalyticsVariable var4 = profile.getCustomProfileVariable("cat");
+
+        assertEquals("Cat", var.getName());
+        assertEquals("Tabby", var.getValue());
+        assertEquals("cat", var2.getName());
+        assertEquals("Siamese", var2.getValue());
+
+        assertEquals("Cat", var3.getName());
+        assertEquals("Mink", var3.getValue());
+        assertEquals("cat", var4.getName());
+        assertEquals("Burmese", var4.getValue());
     }
 
     public void testClearCustomProfile() {

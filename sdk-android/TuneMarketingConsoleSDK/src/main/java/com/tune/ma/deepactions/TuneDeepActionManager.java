@@ -8,6 +8,8 @@ import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneStringUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +23,7 @@ public class TuneDeepActionManager {
     private Map<String, TuneDeepAction> actionMap;
 
     public TuneDeepActionManager() {
-        this.actionMap = new HashMap<String, TuneDeepAction>();
+        this.actionMap = new HashMap<>();
     }
 
     public synchronized void registerDeepAction(String actionId, String friendlyName, String description, Map<String, String> defaultData, Map<String, List<String>> approvedValues, TuneDeepActionCallback action) {
@@ -76,6 +78,7 @@ public class TuneDeepActionManager {
         action.getAction().execute(activity, extraData);
     }
 
+    @Subscribe
     public void onEvent(TuneDeepActionCalled event) {
         executeDeepAction(event.getActivity(), event.getDeepActionId(), event.getDeepActionParams());
     }

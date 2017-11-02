@@ -1,4 +1,1 @@
-include ':TuneMarketingConsoleSDK', ':_5rocksandroidsdk', ':helloChatty', ':gcmsender'
-project(':helloChatty').projectDir = new File(settingsDir, '../../HelloChatty/chuckachat_android/helloChatty')
-project(':_5rocksandroidsdk').projectDir = new File(settingsDir, '../../HelloChatty/chuckachat_android/_5rocksandroidsdk')
-project(':gcmsender').projectDir = new File(settingsDir, '../../HelloChatty/chuckachat_android/gcmsender')
+include ':TuneMarketingConsoleSDK'
