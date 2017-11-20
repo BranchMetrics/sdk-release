@@ -3,7 +3,6 @@ package com.tune.ma.profile;
 import android.content.Context;
 
 import com.tune.Tune;
-import com.tune.TuneConstants;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
@@ -47,7 +46,7 @@ public class TuneUserProfile {
     private Set<TuneAnalyticsVariable> sessionVariables;
 
     // Note: ADVERTISER_ID and PACKAGE_NAME should not be stored in `variablesToSave` so that they do not get loaded on init
-    private static final Set<String> variablesToSave = new HashSet<String>(Arrays.asList(
+    private static final Set<String> variablesToSave = new HashSet<>(Arrays.asList(
             TuneUrlKeys.USER_ID,
             TuneUrlKeys.IS_PAYING_USER,
             TuneUrlKeys.MAT_ID,
@@ -75,7 +74,7 @@ public class TuneUserProfile {
     public TuneUserProfile(Context context) {
         this.context = context;
         this.sharedPrefs = new TuneSharedPrefsDelegate(context, PREFS_TMA_PROFILE);
-        this.variables = new HashMap<String, TuneAnalyticsVariable>();
+        this.variables = new HashMap<>();
         this.customVariables = new HashSet<>();
         this.sessionVariables = new HashSet<>();
 
@@ -282,7 +281,7 @@ public class TuneUserProfile {
     }
 
     public synchronized List<TuneAnalyticsVariable> getCopyOfVars() {
-        List<TuneAnalyticsVariable> result = new LinkedList<TuneAnalyticsVariable>();
+        List<TuneAnalyticsVariable> result = new LinkedList<>();
         for (TuneAnalyticsVariable var: variables.values()) {
             result.add(new TuneAnalyticsVariable(var));
         }
@@ -399,7 +398,7 @@ public class TuneUserProfile {
     }
 
     private synchronized List<String> clearCustomProfileVariables(Iterable<String> toRemove) {
-        List<String> clearedVariables = new LinkedList<String>();
+        List<String> clearedVariables = new LinkedList<>();
 
         for (String key: toRemove) {
             if (TuneAnalyticsVariable.validateName(key)) {

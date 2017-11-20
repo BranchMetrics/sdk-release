@@ -15,7 +15,7 @@ import org.mockito.Mock;
  */
 public class TuneAnalyticsTest extends TuneUnitTest {
     public Context context;
-    TuneAnalyticsManager analyticsManager;
+    protected TuneAnalyticsManager analyticsManager;
 
     @Mock
     TuneActivity activity;
@@ -33,7 +33,6 @@ public class TuneAnalyticsTest extends TuneUnitTest {
     @Override
     protected void tearDown() throws Exception {
         TuneEventBus.post(new TuneAppBackgrounded());
-        sleep(1000);
 
         // Delete analytics files
         if (TuneManager.getInstance() != null) {

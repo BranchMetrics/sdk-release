@@ -27,6 +27,7 @@ import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.inapp.TuneScreenUtils;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
+import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONArray;
@@ -38,43 +39,79 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class TuneParameters {
     // Application context
     private Context mContext;
     // Tune SDK instance
     private Tune mTune;
+    // Executor Service
+    private ExecutorService mExecutor;
+
 
     // Actions
     public static final String ACTION_SESSION = "session";
     public static final String ACTION_CLICK = "click";
     public static final String ACTION_CONVERSION = "conversion";
 
-    private static TuneParameters INSTANCE = null;
-
     private TuneSharedPrefsDelegate mPrefs;
+    private CountDownLatch initializationComplete;
 
     public TuneParameters() {
     }
     
     public static TuneParameters init(Tune tune, Context context, String advertiserId, String conversionKey) {
-        if (INSTANCE == null) {
-            // Only instantiate and populate common params the first time
-            INSTANCE = new TuneParameters();
-            INSTANCE.mTune = tune;
-            INSTANCE.mContext = context;
-            INSTANCE.mPrefs = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE);
-            INSTANCE.populateParams(context, advertiserId, conversionKey);
+        TuneParameters INSTANCE = new TuneParameters();
+
+        // Only instantiate and populate common params the first time
+        INSTANCE.mTune = tune;
+        INSTANCE.mContext = context;
+        INSTANCE.mExecutor = Executors.newSingleThreadExecutor();
+
+        // Two primary threads that need to complete
+        INSTANCE.initializationComplete = new CountDownLatch(2);
+
+        INSTANCE.mPrefs = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE);
+        INSTANCE.populateParams(context, advertiserId, conversionKey);
+
+        INSTANCE.initializationComplete.countDown();
+
+        return INSTANCE;
+    }
+    
+    public void destroy() {
+        mExecutor.shutdown();
+        try {
+            mExecutor.awaitTermination(1, TimeUnit.SECONDS);
+
+            // The executor is done, however it may have posted events.  It is difficult to know
+            // when those are done, but without a sleep() here, they generally are *not* done.
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
         }
-        return INSTANCE;
+        mExecutor = null;
     }
-    
-    public static TuneParameters getInstance() {
-        return INSTANCE;
-    }
-    
-    public void clear() {
-        INSTANCE = null;
+
+    /**
+     * Wait for Initialization to complete.
+     * @param milliseconds Number of milliseconds to wait for initialization to complete.
+     * @return true if initialization completed in the time frame expected.
+     */
+    boolean waitForInitComplete(long milliseconds) {
+        try {
+            initializationComplete.await(milliseconds, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        boolean isComplete = (initializationComplete.getCount() == 0);
+        TuneDebugLog.alwaysLog("TuneParameters InitComplete() " + isComplete);
+
+        return isComplete;
     }
 
     /**
@@ -291,6 +328,7 @@ public class TuneParameters {
                     TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.ANDROID_ID, deviceId, isLAT));
                 }
             }
+            initializationComplete.countDown();
         }
     }
     
@@ -333,118 +371,170 @@ public class TuneParameters {
     public synchronized String getAction() {
         return mAction;
     }
-    public synchronized void setAction(String action) {
+    public synchronized void setAction(final String action) {
         mAction = action;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ACTION, action)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ACTION, action)));
+            }
+        });
     }
 
     private String mAdvertiserId = null;
     public synchronized String getAdvertiserId() {
         return mAdvertiserId;
     }
-    public synchronized void setAdvertiserId(String advertiserId) {
+    public synchronized void setAdvertiserId(final String advertiserId) {
         mAdvertiserId = advertiserId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ADVERTISER_ID, advertiserId)));
-        // Save advertiser ID to SharedPreferences for IAM App ID
-        // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
-        new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.ADVERTISER_ID, advertiserId);
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ADVERTISER_ID, advertiserId)));
+                // Save advertiser ID to SharedPreferences for IAM App ID
+                // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
+                new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.ADVERTISER_ID, advertiserId);
+            }
+        });
     }
     
     private String mAge = null;
     public synchronized String getAge() {
         return mAge;
     }
-    public synchronized void setAge(String age) {
+    public synchronized void setAge(final String age) {
         mAge = age;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.AGE, Integer.parseInt(age))));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.AGE, Integer.parseInt(age))));
+            }
+        });
     }
     
     private String mAltitude = null;
     public synchronized String getAltitude() {
         return mAltitude;
     }
-    public synchronized void setAltitude(String altitude) {
+    public synchronized void setAltitude(final String altitude) {
         mAltitude = altitude;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ALTITUDE, altitude)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ALTITUDE, altitude)));
+            }
+        });
     }
 
     private String mAndroidId = null;
     public synchronized String getAndroidId() {
         return mAndroidId;
     }
-    public synchronized void setAndroidId(String androidId) {
+    public synchronized void setAndroidId(final String androidId) {
         mAndroidId = androidId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID, androidId)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID, androidId)));
+            }
+        });
     }
     
     private String mAndroidIdMd5 = null;
     public synchronized String getAndroidIdMd5() { return mAndroidIdMd5; }
-    public synchronized void setAndroidIdMd5(String androidIdMd5) {
+    public synchronized void setAndroidIdMd5(final String androidIdMd5) {
         mAndroidIdMd5 = androidIdMd5;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_MD5, androidIdMd5)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_MD5, androidIdMd5)));
+            }
+        });
     }
     
     private String mAndroidIdSha1 = null;
     public synchronized String getAndroidIdSha1() {
         return mAndroidIdSha1;
     }
-    public synchronized void setAndroidIdSha1(String androidIdSha1) {
+    public synchronized void setAndroidIdSha1(final String androidIdSha1) {
         mAndroidIdSha1 = androidIdSha1;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_SHA1, androidIdSha1)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_SHA1, androidIdSha1)));
+            }
+        });
     }
     
     private String mAndroidIdSha256 = null;
     public synchronized String getAndroidIdSha256() {
         return mAndroidIdSha256;
     }
-    public synchronized void setAndroidIdSha256(String androidIdSha256) {
+    public synchronized void setAndroidIdSha256(final String androidIdSha256) {
         mAndroidIdSha256 = androidIdSha256;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_SHA256, androidIdSha256)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.ANDROID_ID_SHA256, androidIdSha256)));
+            }
+        });
     }
     
     private String mAppAdTracking = null;
     public synchronized String getAppAdTrackingEnabled() {
         return mAppAdTracking;
     }
-    public synchronized void setAppAdTrackingEnabled(String adTrackingEnabled) {
+    public synchronized void setAppAdTrackingEnabled(final String adTrackingEnabled) {
         mAppAdTracking = adTrackingEnabled;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_AD_TRACKING, adTrackingEnabled)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_AD_TRACKING, adTrackingEnabled)));
+            }
+        });
     }
 
     private String mAppName = null;
     public synchronized String getAppName() {
         return mAppName;
     }
-    public synchronized void setAppName(String app_name) {
+    public synchronized void setAppName(final String app_name) {
         mAppName = app_name;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_NAME, app_name)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_NAME, app_name)));
+            }
+        });
     }
 
     private String mAppVersion = null;
     public synchronized String getAppVersion() {
         return mAppVersion;
     }
-    public synchronized void setAppVersion(String appVersion) {
+    public synchronized void setAppVersion(final String appVersion) {
         mAppVersion = appVersion;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_VERSION, appVersion, TuneVariableType.VERSION)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_VERSION, appVersion, TuneVariableType.VERSION)));
+            }
+        });
     }
 
     private String mAppVersionName = null;
     public synchronized String getAppVersionName() {
         return mAppVersionName;
     }
-    public synchronized void setAppVersionName(String appVersionName) {
+    public synchronized void setAppVersionName(final String appVersionName) {
         mAppVersionName = appVersionName;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_VERSION_NAME, appVersionName)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.APP_VERSION_NAME, appVersionName)));
+            }
+        });
     }
 
     private String mConnectionType = null;
     public synchronized String getConnectionType() {
         return mConnectionType;
     }
-    public synchronized void setConnectionType(String connection_type) {
+    public synchronized void setConnectionType(final String connection_type) {
         mConnectionType = connection_type;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.CONNECTION_TYPE, connection_type)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.CONNECTION_TYPE, connection_type)));
+            }
+        });
     }
 
     private String mConversionKey = null;
@@ -460,10 +550,14 @@ public class TuneParameters {
     public synchronized String getCountryCode() {
         return mCountryCode;
     }
-    public synchronized void setCountryCode(String countryCode) {
+    public synchronized void setCountryCode(final String countryCode) {
         mCountryCode = countryCode;
         if (countryCode != null) {
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.COUNTRY_CODE, countryCode.toUpperCase(Locale.ENGLISH))));
+            mExecutor.execute(new Runnable() {
+                public void run() {
+                    TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.COUNTRY_CODE, countryCode.toUpperCase(Locale.ENGLISH))));
+                }
+            });
         }
     }
 
@@ -471,118 +565,170 @@ public class TuneParameters {
     public synchronized String getCurrencyCode() {
         return mCurrencyCode;
     }
-    public synchronized void setCurrencyCode(String currencyCode) {
+    public synchronized void setCurrencyCode(final String currencyCode) {
         mCurrencyCode = currencyCode;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.CURRENCY_CODE, currencyCode)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.CURRENCY_CODE, currencyCode)));
+            }
+        });
     }
 
     private String mDeviceBrand = null;
     public synchronized String getDeviceBrand() {
         return mDeviceBrand;
     }
-    public synchronized void setDeviceBrand(String deviceBrand) {
+    public synchronized void setDeviceBrand(final String deviceBrand) {
         mDeviceBrand = deviceBrand;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BRAND, deviceBrand)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BRAND, deviceBrand)));
+            }
+        });
     }
 
     private String mDeviceBuild = null;
     public synchronized String getDeviceBuild() {
         return mDeviceBuild;
     }
-    public synchronized void setDeviceBuild(String deviceBuild) {
+    public synchronized void setDeviceBuild(final String deviceBuild) {
         mDeviceBuild = deviceBuild;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BUILD, deviceBuild)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_BUILD, deviceBuild)));
+            }
+        });
     }
 
     private String mDeviceCarrier = null;
     public synchronized String getDeviceCarrier() {
         return mDeviceCarrier;
     }
-    public synchronized void setDeviceCarrier(String carrier) {
+    public synchronized void setDeviceCarrier(final String carrier) {
         mDeviceCarrier = carrier;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CARRIER, carrier)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CARRIER, carrier)));
+            }
+        });
     }
 
     private String mDeviceCpuType = null;
     public synchronized String getDeviceCpuType() {
         return mDeviceCpuType;
     }
-    public synchronized void setDeviceCpuType(String cpuType) {
+    public synchronized void setDeviceCpuType(final String cpuType) {
         mDeviceCpuType = cpuType;
-        // TODO: Confirm type
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CPU_TYPE, cpuType)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                // TODO: Confirm type
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CPU_TYPE, cpuType)));
+            }
+        });
     }
 
     private String mDeviceCpuSubtype = null;
     public synchronized String getDeviceCpuSubtype() {
         return mDeviceCpuSubtype;
     }
-    public synchronized void setDeviceCpuSubtype(String cpuType) {
+    public synchronized void setDeviceCpuSubtype(final String cpuType) {
         mDeviceCpuSubtype = cpuType;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CPU_SUBTYPE, cpuType)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_CPU_SUBTYPE, cpuType)));
+            }
+        });
     }
 
     private String mDeviceId = null;
     public synchronized String getDeviceId() {
         return mDeviceId;
     }
-    public synchronized void setDeviceId(String deviceId) {
+    public synchronized void setDeviceId(final String deviceId) {
         mDeviceId = deviceId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_ID, deviceId)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_ID, deviceId)));
+            }
+        });
     }
     
     private String mDeviceModel = null;
     public synchronized String getDeviceModel() {
         return mDeviceModel;
     }
-    public synchronized void setDeviceModel(String model) {
+    public synchronized void setDeviceModel(final String model) {
         mDeviceModel = model;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_MODEL, model)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEVICE_MODEL, model)));
+            }
+        });
     }
 
     private boolean mDebugMode = false;
     public synchronized boolean getDebugMode() {
         return mDebugMode;
     }
-    public synchronized void setDebugMode(boolean debug) {
+    public synchronized void setDebugMode(final boolean debug) {
         mDebugMode = debug;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEBUG_MODE, debug)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.DEBUG_MODE, debug)));
+            }
+        });
     }
     
     private String mExistingUser = null;
     public synchronized String getExistingUser() {
         return mExistingUser;
     }
-    public synchronized void setExistingUser(String existingUser) {
+    public synchronized void setExistingUser(final String existingUser) {
         mExistingUser = existingUser;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.EXISTING_USER, TuneUtils.convertToBoolean(existingUser))));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.EXISTING_USER, TuneUtils.convertToBoolean(existingUser))));
+            }
+        });
     }
     
     private String mFbUserId = null;
     public synchronized String getFacebookUserId() {
         return mFbUserId;
     }
-    public synchronized void setFacebookUserId(String fb_user_id) {
+    public synchronized void setFacebookUserId(final String fb_user_id) {
         mFbUserId = fb_user_id;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FACEBOOK_USER_ID, fb_user_id)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FACEBOOK_USER_ID, fb_user_id)));
+            }
+        });
     }
 
     private String mFireAdvertisingId = null;
     public synchronized String getFireAdvertisingId() {
         return mFireAdvertisingId;
     }
-    public synchronized void setFireAdvertisingId(String adId) {
+    public synchronized void setFireAdvertisingId(final String adId) {
         mFireAdvertisingId = adId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AID, adId)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AID, adId)));
+            }
+        });
     }
 
     private String mFireAdTrackingLimited = null;
     public synchronized String getFireAdTrackingLimited() {
         return mFireAdTrackingLimited;
     }
-    public synchronized void setFireAdTrackingLimited(String limited) {
+    public synchronized void setFireAdTrackingLimited(final String limited) {
         mFireAdTrackingLimited = limited;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, limited)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, limited)));
+            }
+        });
     }
     
     private String mGender = null;
@@ -592,244 +738,416 @@ public class TuneParameters {
     public synchronized void setGender(TuneGender gender) {
         if (gender == TuneGender.MALE) {
             mGender = "0";
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GENDER, "0", TuneVariableType.FLOAT)));
         } else if (gender == TuneGender.FEMALE) {
             mGender = "1";
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GENDER, "1", TuneVariableType.FLOAT)));
         } else {
             mGender = "";
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GENDER, "2", TuneVariableType.FLOAT)));
         }
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                String setGender = mGender;
+                if (setGender.length() == 0) {
+                    // TODO: REVISIT
+                    setGender = "2";
+                }
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GENDER, setGender, TuneVariableType.FLOAT)));
+            }
+        });
+
     }
 
     private String mGaid = null;
     public synchronized String getGoogleAdvertisingId() {
         return mGaid;
     }
-    public synchronized void setGoogleAdvertisingId(String adId) {
+    public synchronized void setGoogleAdvertisingId(final String adId) {
         mGaid = adId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, adId)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, adId)));
+            }
+        });
     }
 
     private String mGaidLimited = null;
     public synchronized String getGoogleAdTrackingLimited() {
         return mGaidLimited;
     }
-    public synchronized void setGoogleAdTrackingLimited(String limited) {
+    public synchronized void setGoogleAdTrackingLimited(final String limited) {
         mGaidLimited = limited;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, limited)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, limited)));
+            }
+        });
     }
     
     private String mGgUserId = null;
     public synchronized String getGoogleUserId() {
         return mGgUserId;
     }
-    public synchronized void setGoogleUserId(String google_user_id) {
+    public synchronized void setGoogleUserId(final String google_user_id) {
         mGgUserId = google_user_id;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_USER_ID, google_user_id)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_USER_ID, google_user_id)));
+            }
+        });
     }
 
     private String mInstallDate = null;
     public synchronized String getInstallDate() {
         return mInstallDate;
     }
-    public synchronized void setInstallDate(String installDate) {
+    public synchronized void setInstallDate(final String installDate) {
         mInstallDate = installDate;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALL_DATE, new Date(Long.parseLong(installDate) * 1000))));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALL_DATE, new Date(Long.parseLong(installDate) * 1000))));
+            }
+        });
     }
-    
+
+    private String mInstallBeginTimestampSeconds = null;
+    public synchronized String getInstallBeginTimestampSeconds() {
+        if (mInstallBeginTimestampSeconds == null) {
+            mInstallBeginTimestampSeconds = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_INSTALL_BEGIN_TIMESTAMP, null);
+        }
+
+        return mInstallBeginTimestampSeconds;
+    }
+    public synchronized void setInstallBeginTimestampSeconds(long timestampSeconds) {
+        mInstallBeginTimestampSeconds = Long.toString(timestampSeconds);
+        mExecutor.execute(new Runnable() {
+            public void run() {
+            mPrefs.saveToSharedPreferences(TuneConstants.KEY_INSTALL_BEGIN_TIMESTAMP, mInstallBeginTimestampSeconds);
+            }
+        });
+    }
+
+    private String mReferrerClickTimestampSeconds = null;
+    public synchronized String getReferrerClickTimestampSeconds() {
+        if (mReferrerClickTimestampSeconds == null) {
+            mReferrerClickTimestampSeconds = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_REFERRER_CLICK_TIMESTAMP, null);
+        }
+
+        return mReferrerClickTimestampSeconds;
+    }
+    public synchronized void setReferrerClickTimestampSeconds(long timestampSeconds) {
+        mInstallBeginTimestampSeconds = Long.toString(timestampSeconds);
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_REFERRER_CLICK_TIMESTAMP, mInstallBeginTimestampSeconds);
+            }
+        });
+    }
+
     private String mInstallerPackage = null;
     public synchronized String getInstaller() {
         return mInstallerPackage;
     }
-    public synchronized void setInstaller(String installer) {
+    public synchronized void setInstaller(final String installer) {
         mInstallerPackage = installer;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALLER, installer)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALLER, installer)));
+            }
+        });
     }
 
+    private String mInstallReferrer;
     public synchronized String getInstallReferrer() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_REFERRER);
+        if (mInstallReferrer == null) {
+            mInstallReferrer = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_REFERRER, null);
+        }
+
+        return mInstallReferrer;
     }
-    public synchronized void setInstallReferrer(String installReferrer) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_REFERRER, installReferrer);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALL_REFERRER, installReferrer)));
+    public synchronized void setInstallReferrer(final String installReferrer) {
+        mInstallReferrer = installReferrer;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_REFERRER, installReferrer);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.INSTALL_REFERRER, installReferrer)));
+            }
+        });
     }
 
+    private Boolean mHasInstallFlagBeenSet;
     public synchronized boolean hasInstallFlagBeenSet() {
-        return mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_INSTALL, false);
+        if (mHasInstallFlagBeenSet == null) {
+            mHasInstallFlagBeenSet = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_INSTALL, false);
+        }
+        return mHasInstallFlagBeenSet;
     }
 
     public synchronized void setInstallFlag() {
-        mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_INSTALL, true);
+        mHasInstallFlagBeenSet = Boolean.TRUE;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_INSTALL, true);
+            }
+        });
     }
 
+    private String mIsPayingUser;
     public synchronized String getIsPayingUser() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_PAYING_USER);
+        if (mIsPayingUser == null) {
+            mIsPayingUser = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_PAYING_USER, null);
+        }
+        return mIsPayingUser;
     }
-    public synchronized void setIsPayingUser(String isPayingUser) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_PAYING_USER, isPayingUser);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_PAYING_USER, TuneUtils.convertToBoolean(isPayingUser))));
+    public synchronized void setIsPayingUser(final String isPayingUser) {
+        mIsPayingUser = isPayingUser;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_PAYING_USER, isPayingUser);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_PAYING_USER, TuneUtils.convertToBoolean(isPayingUser))));
+            }
+        });
     }
 
     private String mLanguage = null;
     public synchronized String getLanguage() {
         return mLanguage;
     }
-    public synchronized void setLanguage(String language) {
+    public synchronized void setLanguage(final String language) {
         mLanguage = language;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LANGUAGE, language)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LANGUAGE, language)));
+            }
+        });
     }
 
+    private String mLastOpenLogId = null;
     public synchronized String getLastOpenLogId() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_LAST_LOG_ID);
+        if (mLastOpenLogId == null) {
+            mLastOpenLogId = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_LAST_LOG_ID, null);
+        }
+        return mLastOpenLogId;
     }
-    public synchronized void setLastOpenLogId(String logId) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_LAST_LOG_ID, logId);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LAST_OPEN_LOG_ID, logId)));
+    public synchronized void setLastOpenLogId(final String logId) {
+        mLastOpenLogId = logId;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_LAST_LOG_ID, logId);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LAST_OPEN_LOG_ID, logId)));
+            }
+        });
     }
 
     private String mLatitude = null;
     public synchronized String getLatitude() {
         return mLatitude;
     }
-    public synchronized void setLatitude(String latitude) {
+    public synchronized void setLatitude(final String latitude) {
         mLatitude = latitude;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LATITUDE, latitude)));
-        if (mLongitude != null) {
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, new TuneLocation(Double.valueOf(mLongitude), Double.valueOf(mLatitude)))));
-        }
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LATITUDE, latitude)));
+                if (mLongitude != null) {
+                    TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, new TuneLocation(Double.valueOf(mLongitude), Double.valueOf(mLatitude)))));
+                }
+            }
+        });
     }
 
     private String mLocale = null;
     public synchronized String getLocale() {
         return mLocale;
     }
-    public synchronized void setLocale(String locale) {
+    public synchronized void setLocale(final String locale) {
         mLocale = locale;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LOCALE, locale)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LOCALE, locale)));
+            }
+        });
     }
 
     private TuneLocation mLocation = null;
     public synchronized TuneLocation getLocation() {
         return mLocation;
     }
-    public synchronized void setLocation(TuneLocation location) {
+    public synchronized void setLocation(final TuneLocation location) {
         mLocation = location;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, location)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, location)));
+            }
+        });
     }
 
     private String mLongitude = null;
     public synchronized String getLongitude() {
         return mLongitude;
     }
-    public synchronized void setLongitude(String longitude) {
+    public synchronized void setLongitude(final String longitude) {
         mLongitude = longitude;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LONGITUDE, longitude)));
-        if (mLatitude != null) {
-            TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, new TuneLocation(Double.valueOf(mLongitude), Double.valueOf(mLatitude)))));
-        }
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.LONGITUDE, longitude)));
+                if (mLatitude != null) {
+                    TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.GEO_COORDINATE, new TuneLocation(Double.valueOf(mLongitude), Double.valueOf(mLatitude)))));
+                }
+            }
+        });
     }
 
     private String mMacAddress = null;
     public synchronized String getMacAddress() {
         return mMacAddress;
     }
-    public synchronized void setMacAddress(String mac_address) {
+    public synchronized void setMacAddress(final String mac_address) {
         mMacAddress = mac_address;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MAC_ADDRESS, mac_address)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MAC_ADDRESS, mac_address)));
+            }
+        });
     }
 
+    private String mMatId = null;
     public synchronized String getMatId() {
-        if (mPrefs.contains("mat_id")) {
-            return mPrefs.getStringFromSharedPreferences("mat_id");
+        if (mMatId == null) {
+            mMatId = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_TUNE_ID, null);
         }
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_TUNE_ID);
+        return mMatId;
     }
-    public synchronized void setMatId(String matId) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_TUNE_ID, matId);
+    public synchronized void setMatId(final String matId) {
+        mMatId = matId;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_TUNE_ID, matId);
+            }
+        });
     }
 
     private String mMCC = null;
     public synchronized String getMCC() {
         return mMCC;
     }
-    public synchronized void setMCC(String mcc) {
+    public synchronized void setMCC(final String mcc) {
         mMCC = mcc;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MOBILE_COUNTRY_CODE, mcc)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MOBILE_COUNTRY_CODE, mcc)));
+            }
+        });
     }
 
     private String mMNC = null;
     public synchronized String getMNC() {
         return mMNC;
     }
-    public synchronized void setMNC(String mnc) {
+    public synchronized void setMNC(final String mnc) {
         mMNC = mnc;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MOBILE_NETWORK_CODE, mnc)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.MOBILE_NETWORK_CODE, mnc)));
+            }
+        });
     }
 
+    private String mOpenLogId = null;
     public synchronized String getOpenLogId() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_LOG_ID);
+        if (mOpenLogId == null) {
+            mOpenLogId = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_LOG_ID, null);
+        }
+        return mOpenLogId;
     }
-    public synchronized void setOpenLogId(String logId) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_LOG_ID, logId);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.OPEN_LOG_ID, logId)));
+    public synchronized void setOpenLogId(final String logId) {
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_LOG_ID, logId);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.OPEN_LOG_ID, logId)));
+            }
+        });
     }
 
     private String mOsVersion = null;
     public synchronized String getOsVersion() {
         return mOsVersion;
     }
-    public synchronized void setOsVersion(String osVersion) {
+    public synchronized void setOsVersion(final String osVersion) {
         mOsVersion = osVersion;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.OS_VERSION, osVersion, TuneVariableType.VERSION)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.OS_VERSION, osVersion, TuneVariableType.VERSION)));
+            }
+        });
     }
 
     private String mPackageName = null;
     public synchronized String getPackageName() {
         return mPackageName;
     }
-    public synchronized void setPackageName(String packageName) {
+    public synchronized void setPackageName(final String packageName) {
         mPackageName = packageName;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PACKAGE_NAME, packageName)));
-        // Save package name to SharedPreferences for IAM App ID
-        // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
-        new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.PACKAGE_NAME, packageName);
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PACKAGE_NAME, packageName)));
+                // Save package name to SharedPreferences for IAM App ID
+                // TODO: REVISIT.  This has too much knowledge of how UserProfile values are saved.
+                new TuneSharedPrefsDelegate(mContext, TuneUserProfile.PREFS_TMA_PROFILE).saveToSharedPreferences(TuneUrlKeys.PACKAGE_NAME, packageName);
+            }
+        });
     }
-    
+
+    private String mPhoneNumber = null;
     public synchronized String getPhoneNumber() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_PHONE_NUMBER);
+        if (mPhoneNumber == null) {
+            mPhoneNumber = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_PHONE_NUMBER, null);
+        }
+        return mPhoneNumber;
     }
-    public synchronized void setPhoneNumber(String phoneNumber) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_PHONE_NUMBER, phoneNumber);
+    public synchronized void setPhoneNumber(final String phoneNumber) {
+        mPhoneNumber = phoneNumber;
         setPhoneNumberMd5(TuneUtils.md5(phoneNumber));
         setPhoneNumberSha1(TuneUtils.sha1(phoneNumber));
         setPhoneNumberSha256(TuneUtils.sha256(phoneNumber));
+
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_PHONE_NUMBER, phoneNumber);
+            }
+        });
+
     }
     
     private String mPhoneNumberMd5;
     public synchronized String getPhoneNumberMd5() {
         return mPhoneNumberMd5;
     }
-    public synchronized void setPhoneNumberMd5(String phoneNumberMd5) {
+    public synchronized void setPhoneNumberMd5(final String phoneNumberMd5) {
         mPhoneNumberMd5 = phoneNumberMd5;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_PHONE_MD5)
-                        .withValue(phoneNumberMd5)
-                        .withHash(TuneHashType.MD5)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_PHONE_MD5)
+                                .withValue(phoneNumberMd5)
+                                .withHash(TuneHashType.MD5)
+                                .build()));
+            }
+        });
     }
     
     private String mPhoneNumberSha1;
     public synchronized String getPhoneNumberSha1() {
         return mPhoneNumberSha1;
     }
-    public synchronized void setPhoneNumberSha1(String phoneNumberSha1) {
+    public synchronized void setPhoneNumberSha1(final String phoneNumberSha1) {
         mPhoneNumberSha1 = phoneNumberSha1;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_PHONE_SHA1)
-                        .withValue(phoneNumberSha1)
-                        .withHash(TuneHashType.SHA1)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_PHONE_SHA1)
+                                .withValue(phoneNumberSha1)
+                                .withHash(TuneHashType.SHA1)
+                                .build()));
+            }
+        });
     }
     
     private String mPhoneNumberSha256;
@@ -849,19 +1167,27 @@ public class TuneParameters {
     public synchronized String getPluginName() {
         return mPluginName;
     }
-    public synchronized void setPluginName(String pluginName) {
+    public synchronized void setPluginName(final String pluginName) {
         mPluginName = pluginName;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SDK_PLUGIN, pluginName)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SDK_PLUGIN, pluginName)));
+            }
+        });
     }
 
     private boolean mPrivacyProtectedDueToAge = false;
     public synchronized boolean isPrivacyProtectedDueToAge() {
         return mPrivacyProtectedDueToAge;
     }
-    public synchronized void setPrivacyProtectedDueToAge(boolean isPrivacyProtectedDueToAge) {
+    public synchronized void setPrivacyProtectedDueToAge(final boolean isPrivacyProtectedDueToAge) {
         mPrivacyProtectedDueToAge = isPrivacyProtectedDueToAge;
-        mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isPrivacyProtectedDueToAge);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isPrivacyProtectedDueToAge)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isPrivacyProtectedDueToAge);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isPrivacyProtectedDueToAge)));
+            }
+        });
     }
     private synchronized void loadPrivacyProtectedSetting() {
         mPrivacyProtectedDueToAge = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_COPPA);
@@ -871,65 +1197,93 @@ public class TuneParameters {
     public synchronized String getPurchaseStatus() {
         return mPurchaseStatus;
     }
-    public synchronized void setPurchaseStatus(String purchaseStatus) {
+    public synchronized void setPurchaseStatus(final String purchaseStatus) {
         mPurchaseStatus = purchaseStatus;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PURCHASE_STATUS, purchaseStatus)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PURCHASE_STATUS, purchaseStatus)));
+            }
+        });
     }
 
     private String mReferralSource = null;
     public synchronized String getReferralSource() {
         return mReferralSource;
     }
-    public synchronized void setReferralSource(String referralPackage) {
+    public synchronized void setReferralSource(final String referralPackage) {
         mReferralSource = referralPackage;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRAL_SOURCE, referralPackage)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRAL_SOURCE, referralPackage)));
+            }
+        });
     }
 
     private String mReferralUrl = null;
     public synchronized String getReferralUrl() {
         return mReferralUrl;
     }
-    public synchronized void setReferralUrl(String referralUrl) {
+    public synchronized void setReferralUrl(final String referralUrl) {
         mReferralUrl = referralUrl;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRAL_URL, referralUrl)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRAL_URL, referralUrl)));
+            }
+        });
     }
 
     private String mReferrerDelay = null;
     public synchronized String getReferrerDelay() {
         return mReferrerDelay;
     }
-    public synchronized void setReferrerDelay(long referrerDelay) {
+    public synchronized void setReferrerDelay(final long referrerDelay) {
         mReferrerDelay = Long.toString(referrerDelay);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRER_DELAY, referrerDelay)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRER_DELAY, referrerDelay)));
+            }
+        });
     }
 
     private String mScreenDensity = null;
     public synchronized String getScreenDensity() {
         return mScreenDensity;
     }
-    public synchronized void setScreenDensity(String density) {
+    public synchronized void setScreenDensity(final String density) {
         mScreenDensity = density;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_DENSITY, Float.parseFloat(density))));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_DENSITY, Float.parseFloat(density))));
+            }
+        });
     }
 
     private String mScreenHeight = null;
     public synchronized String getScreenHeight() {
         return mScreenHeight;
     }
-    public synchronized void setScreenHeight(String screenheight) {
+    public synchronized void setScreenHeight(final String screenheight) {
         mScreenHeight = screenheight;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_HEIGHT, Integer.parseInt(screenheight))));
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_HEIGHT, Integer.parseInt(screenheight))));
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+            }
+        });
     }
 
     private String mScreenWidth = null;
     public synchronized String getScreenWidth() {
         return mScreenWidth;
     }
-    public synchronized void setScreenWidth(String screenwidth) {
+    public synchronized void setScreenWidth(final String screenwidth) {
         mScreenWidth = screenwidth;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_WIDTH, Integer.parseInt(screenwidth))));
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_WIDTH, Integer.parseInt(screenwidth))));
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+            }
+        });
     }
 
     /**
@@ -954,85 +1308,123 @@ public class TuneParameters {
     public synchronized String getTrackingId() {
         return mTrackingId;
     }
-    public synchronized void setTrackingId(String trackingId) {
+    public synchronized void setTrackingId(final String trackingId) {
         mTrackingId = trackingId;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TRACKING_ID, trackingId)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TRACKING_ID, trackingId)));
+            }
+        });
     }
 
     private String mTrusteId = null;
     public synchronized String getTRUSTeId() {
         return mTrusteId;
     }
-    public synchronized void setTRUSTeId(String tpid) {
+    public synchronized void setTRUSTeId(final String tpid) {
         mTrusteId = tpid;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TRUSTE_ID, tpid)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TRUSTE_ID, tpid)));
+            }
+        });
     }
     
     private String mTwUserId = null;
     public synchronized String getTwitterUserId() {
         return mTwUserId;
     }
-    public synchronized void setTwitterUserId(String twitter_user_id) {
+    public synchronized void setTwitterUserId(final String twitter_user_id) {
         mTwUserId = twitter_user_id;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TWITTER_USER_ID, twitter_user_id)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.TWITTER_USER_ID, twitter_user_id)));
+            }
+        });
     }
 
     private String mUserAgent = null;
     public synchronized String getUserAgent() {
         return mUserAgent;
     }
-    private synchronized void setUserAgent(String userAgent) {
+    private synchronized void setUserAgent(final String userAgent) {
         mUserAgent = userAgent;
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.USER_AGENT, userAgent)));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.USER_AGENT, userAgent)));
+            }
+        });
     }
-    
+
+    private String mUserEmail = null;
     public synchronized String getUserEmail() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAIL);
+        if (mUserEmail == null) {
+            mUserEmail = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAIL, null);
+        }
+        return mUserEmail;
     }
-    public synchronized void setUserEmail(String userEmail) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAIL, userEmail);
+    public synchronized void setUserEmail(final String userEmail) {
+        mUserEmail = userEmail;
         setUserEmailMd5(TuneUtils.md5(userEmail));
         setUserEmailSha1(TuneUtils.sha1(userEmail));
         setUserEmailSha256(TuneUtils.sha256(userEmail));
+
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAIL, userEmail);
+            }
+        });
     }
     
     private String mUserEmailMd5;
     public synchronized String getUserEmailMd5() {
         return mUserEmailMd5;
     }
-    public synchronized void setUserEmailMd5(String userEmailMd5) {
+    public synchronized void setUserEmailMd5(final String userEmailMd5) {
         mUserEmailMd5 = userEmailMd5;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_MD5)
-                        .withValue(userEmailMd5)
-                        .withHash(TuneHashType.MD5)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_MD5)
+                                .withValue(userEmailMd5)
+                                .withHash(TuneHashType.MD5)
+                                .build()));
+            }
+        });
     }
     
     private String mUserEmailSha1;
     public synchronized String getUserEmailSha1() {
         return mUserEmailSha1;
     }
-    public synchronized void setUserEmailSha1(String userEmailSha1) {
+    public synchronized void setUserEmailSha1(final String userEmailSha1) {
         mUserEmailSha1 = userEmailSha1;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA1)
-                        .withValue(userEmailSha1)
-                        .withHash(TuneHashType.SHA1)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA1)
+                                .withValue(userEmailSha1)
+                                .withHash(TuneHashType.SHA1)
+                                .build()));
+            }
+        });
     }
     
     private String mUserEmailSha256;
     public synchronized String getUserEmailSha256() {
         return mUserEmailSha256;
     }
-    public synchronized void setUserEmailSha256(String userEmailSha256) {
+    public synchronized void setUserEmailSha256(final String userEmailSha256) {
         mUserEmailSha256 = userEmailSha256;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA256)
-                        .withValue(userEmailSha256)
-                        .withHash(TuneHashType.SHA256)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA256)
+                                .withValue(userEmailSha256)
+                                .withHash(TuneHashType.SHA256)
+                                .build()));
+            }
+        });
     }
     
     private JSONArray mUserEmails = null;
@@ -1044,70 +1436,106 @@ public class TuneParameters {
         for (int i = 0; i < emails.length; i++) {
             mUserEmails.put(emails[i]);
         }
-        try {
-            TuneEventBus.post(new TuneUpdateUserProfile(
-                    TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAILS)
-                            .withValue(mUserEmails.join(","))
-                            .build()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                try {
+                    TuneEventBus.post(new TuneUpdateUserProfile(
+                            TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAILS)
+                                    .withValue(mUserEmails.join(","))
+                                    .build()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
+    private String mUserId = null;
     public synchronized String getUserId() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_ID);
+        if (mUserId == null) {
+            mUserId = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_ID, null);
+        }
+        return mUserId;
     }
-    public synchronized void setUserId(String user_id) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_ID, user_id);
-        TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.USER_ID, user_id)));
+    public synchronized void setUserId(final String user_id) {
+        mUserId = user_id;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_ID, user_id);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.USER_ID, user_id)));
+            }
+        });
     }
 
+    private String mUserName = null;
     public synchronized String getUserName() {
-        return mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_NAME);
+        if (mUserName == null) {
+            mUserName = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_NAME, null);
+        }
+        return mUserName;
     }
-    public synchronized void setUserName(String userName) {
-        mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_NAME, userName);
+    public synchronized void setUserName(final String userName) {
+        mUserName = userName;
         setUserNameMd5(TuneUtils.md5(userName));
         setUserNameSha1(TuneUtils.sha1(userName));
         setUserNameSha256(TuneUtils.sha256(userName));
+
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_NAME, userName);
+            }
+        });
     }
     
     private String mUserNameMd5;
     public synchronized String getUserNameMd5() {
         return mUserNameMd5;
     }
-    public synchronized void setUserNameMd5(String userNameMd5) {
+    public synchronized void setUserNameMd5(final String userNameMd5) {
         mUserNameMd5 = userNameMd5;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_MD5)
-                        .withValue(userNameMd5)
-                        .withHash(TuneHashType.MD5)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_MD5)
+                                .withValue(userNameMd5)
+                                .withHash(TuneHashType.MD5)
+                                .build()));
+            }
+        });
     }
     
     private String mUserNameSha1;
     public synchronized String getUserNameSha1() {
         return mUserNameSha1;
     }
-    public synchronized void setUserNameSha1(String userNameSha1) {
+    public synchronized void setUserNameSha1(final String userNameSha1) {
         mUserNameSha1 = userNameSha1;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_SHA1)
-                    .withValue(userNameSha1)
-                    .withHash(TuneHashType.SHA1)
-                    .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_SHA1)
+                                .withValue(userNameSha1)
+                                .withHash(TuneHashType.SHA1)
+                                .build()));
+            }
+        });
     }
     
     private String mUserNameSha256;
     public synchronized String getUserNameSha256() {
         return mUserNameSha256;
     }
-    public synchronized void setUserNameSha256(String userNameSha256) {
+    public synchronized void setUserNameSha256(final String userNameSha256) {
         mUserNameSha256 = userNameSha256;
-        TuneEventBus.post(new TuneUpdateUserProfile(
-                TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_SHA256)
-                        .withValue(userNameSha256)
-                        .withHash(TuneHashType.SHA256)
-                        .build()));
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_NAME_SHA256)
+                                .withValue(userNameSha256)
+                                .withHash(TuneHashType.SHA256)
+                                .build()));
+            }
+        });
     }
 }

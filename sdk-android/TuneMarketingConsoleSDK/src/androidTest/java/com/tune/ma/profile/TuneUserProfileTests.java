@@ -290,6 +290,16 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var2 == null);
     }
 
+    public void testRegisterWithGreekChars() {
+        String key = "Greek";
+        String defaultValue = "Εμπρός";
+
+        tune.registerCustomProfileString(key, defaultValue);
+        String test = tune.getCustomProfileString(key);
+
+        assertEquals(defaultValue, test);
+    }
+
     public void testSetWithWeirdName() {
         TuneTestWrapper.getInstance().registerCustomProfileString("foobar");
         TuneTestWrapper.getInstance().setCustomProfileStringValue(")*(#&(*foobar*)(*()", "bingbang");

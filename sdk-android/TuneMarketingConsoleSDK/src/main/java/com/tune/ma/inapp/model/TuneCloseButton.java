@@ -1,5 +1,6 @@
 package com.tune.ma.inapp.model;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -81,6 +82,7 @@ public class TuneCloseButton extends FrameLayout {
     private ImageButton close;
     private Activity messageActivity;
 
+    @SuppressLint("RtlHardcoded")
     public TuneCloseButton(Context context) {
         super(context);
 
@@ -116,6 +118,7 @@ public class TuneCloseButton extends FrameLayout {
         int marginRight = marginTop;
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(btnSize, btnSize);
+        // Suppressing warn about Gravity.RIGHT vs. Gravity.END in this instance per John (since this relates to positioning of an element and not text, no need to accommodate Right-To-Left positioning.)
         params.gravity = Gravity.RIGHT | Gravity.TOP;
         params.setMargins(0, marginTop, marginRight, 0);
         close.setLayoutParams(params);

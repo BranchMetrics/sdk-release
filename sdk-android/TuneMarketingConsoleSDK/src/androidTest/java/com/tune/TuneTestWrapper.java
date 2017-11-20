@@ -1,12 +1,12 @@
 package com.tune;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import com.tune.location.TuneLocationListener;
 import com.tune.ma.TuneManager;
 import com.tune.ma.configuration.TuneConfiguration;
 import com.tune.ma.eventbus.TuneEventBus;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
 
@@ -21,9 +21,9 @@ public class TuneTestWrapper extends Tune {
     private static final String PREFS_LOG_ID_OPEN = "mat_log_id_open";
     private static final String PREFS_TUNE = "com.mobileapptracking";
     
-    private static boolean online = true;
+    private static boolean online = false; //true;
     
-    private static TuneTestWrapper tune;
+    private static TuneTestWrapper tune = null;
     
     public TuneTestWrapper() {
         super();
@@ -40,13 +40,10 @@ public class TuneTestWrapper extends Tune {
         initialConfig.setUseConfigurationPlayer(true);
         initialConfig.setConfigurationPlayerFilenames(configurationPlayerFilenames);
         initialConfig.setShouldSendScreenViews(true);
-        TuneManager.init(context, initialConfig);
 
         tune = new TuneTestWrapper();
-        tune.mContext = context;
-        tune.pubQueue = Executors.newSingleThreadExecutor();
-        
-        tune.initAll(advertiserId, key);
+        Tune.initAll(tune, context, advertiserId, key, true, initialConfig);
+
         tune.locationListener = new TuneLocationListener(context);
         tune.eventQueue = new TuneTestQueue(context, tune);
 
@@ -59,11 +56,16 @@ public class TuneTestWrapper extends Tune {
         
         // make fake open id
         String logId = "1234567812345678-201401-" + TuneTestConstants.advertiserId;
-        context.getSharedPreferences(PREFS_LOG_ID_OPEN, Context.MODE_PRIVATE).edit().putString(PREFS_TUNE, logId).apply();
-
-        Tune.setInstance(tune);
+        new TuneSharedPrefsDelegate(context, PREFS_LOG_ID_OPEN).putString(PREFS_TUNE, logId);
 
         return tune;
+    }
+
+    public void shutDown() {
+        super.shutDown();
+
+        tune.clearSharedPrefs();
+        tune = null;
     }
 
     public static TuneConfiguration getTestingConfig(List<String> configurationPlayerFilenames) {
@@ -82,29 +84,12 @@ public class TuneTestWrapper extends Tune {
         return config;
     }
     
-    public void clearParams() {
-        if (tune != null && tune.params != null) { 
-            tune.params.clear();
-        }
-    }
-    
     public static synchronized TuneTestWrapper getInstance() {
         return tune;
     }
     
-    public void waitForInit() {
-        Date maxWait = new Date(new Date().getTime() + 60000);
-        
-        while (initialized == false && maxWait.after(new Date())) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-            }
-        }
-    }
-
     public ExecutorService getPubQueue() {
-        return tune.pubQueue;
+        return super.getPubQueue();
     }
 
     public void setTuneTestRequest(TuneTestRequest request) {
@@ -115,11 +100,8 @@ public class TuneTestWrapper extends Tune {
         online = toBeOnline;
     }
 
-    public synchronized boolean getOnline() {
-        return online;
-    }
-
-    public static synchronized boolean isOnline(Context context) {
+    @Override
+    public synchronized boolean isOnline(Context context) {
         return online;
     }
 
@@ -133,7 +115,7 @@ public class TuneTestWrapper extends Tune {
     }
 
     @Override
-    public void dumpQueue() {
+    public synchronized void dumpQueue() {
         if (online) {
             super.dumpQueue();
         }
@@ -148,14 +130,11 @@ public class TuneTestWrapper extends Tune {
     }
 
     public void clearSharedPrefs() {
-        SharedPreferences prefs = mContext.getSharedPreferences(TuneConstants.PREFS_TUNE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
-        editor.apply();
+        new TuneSharedPrefsDelegate(mContext, PREFS_TUNE).clearSharedPreferences();
     }
     
     public String readUserIdKey(String key) {
-        return mContext.getSharedPreferences(PREFS_TUNE, Context.MODE_PRIVATE).getString(key, "");
+        return new TuneSharedPrefsDelegate(mContext, PREFS_TUNE).getString(key);
     }
 
     public void setTimeLastMeasuredSession(long time) {

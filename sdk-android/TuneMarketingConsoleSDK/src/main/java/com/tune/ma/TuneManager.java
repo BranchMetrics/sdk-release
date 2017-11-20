@@ -148,7 +148,15 @@ public class TuneManager {
             TuneEventBus.unregister(instance.experimentManager);
             TuneEventBus.unregister(instance.pushManager);
             TuneEventBus.unregister(instance.inAppMessageManager);
+
+            if (instance.sessionManager != null) {
+                instance.sessionManager.destroy();
+            }
+            if (instance.analyticsManager != null) {
+                instance.analyticsManager.stopScheduledDispatch();
+            }
         }
+        TuneEventBus.disable();
         instance = null;
     }
 

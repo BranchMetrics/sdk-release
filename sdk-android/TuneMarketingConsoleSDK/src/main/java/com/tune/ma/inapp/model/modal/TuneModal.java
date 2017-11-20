@@ -91,7 +91,7 @@ public class TuneModal extends TuneInAppMessage {
 
     @Override
     public synchronized void load(Activity activity) {
-        if (!Tune.isOnline(activity)) {
+        if (!Tune.getInstance().isOnline(activity)) {
             TuneDebugLog.e("Device is offline, cannot load modal message");
             return;
         }
@@ -111,7 +111,7 @@ public class TuneModal extends TuneInAppMessage {
             return;
         }
 
-        if (!Tune.isOnline(lastActivity)) {
+        if (!Tune.getInstance().isOnline(lastActivity)) {
             TuneDebugLog.e("Device is offline, cannot display modal message");
             return;
         }

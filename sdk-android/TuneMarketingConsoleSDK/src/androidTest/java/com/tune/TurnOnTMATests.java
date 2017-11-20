@@ -36,7 +36,6 @@ public class TurnOnTMATests extends AndroidTestCase {
     @Override
     public void tearDown() {
         TuneEventBus.unregister(this);
-        Tune.clear();
     }
 
     // Test that TuneManager is init when turnOnTMA is true
@@ -44,6 +43,7 @@ public class TurnOnTMATests extends AndroidTestCase {
         tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_ON_TMA, null);
         TuneEventBus.register(this);
         assertNotNull(TuneManager.getInstance());
+        tune.shutDown();
     }
 
     // Test that TuneEventBus can post and receive when turnOnTMA is true
@@ -53,6 +53,7 @@ public class TurnOnTMATests extends AndroidTestCase {
         TuneEventBus.register(this);
         TuneEventBus.post(new TuneTestEvent());
         assertTrue(eventReceived);
+        tune.shutDown();
     }
 
     // Test that TuneEventBus is disabled when turnOnTMA is false
@@ -61,5 +62,6 @@ public class TurnOnTMATests extends AndroidTestCase {
         TuneEventBus.register(this);
         TuneEventBus.post(new TuneTestEvent());
         assertFalse(eventReceived);
+        tune.shutDown();
     }
 }

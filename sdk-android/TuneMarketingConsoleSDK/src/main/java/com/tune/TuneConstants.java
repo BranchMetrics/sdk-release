@@ -32,7 +32,10 @@ public class TuneConstants {
     public static final String KEY_USER_SESSION_COUNT = "ma_user_session_count";
     // Key for last session date
     public static final String KEY_LAST_SESSION_DATE = "ma_last_session_date";
-
+    // InstallBeginTimestamp
+    static final String KEY_INSTALL_BEGIN_TIMESTAMP = "install_begin_timestamp";
+    // ReferrerClickTimestamp
+    static final String KEY_REFERRER_CLICK_TIMESTAMP = "referrer_click_timestamp";
     // Url parameter key and response key for Tune Link invoke url
     public static final String KEY_INVOKE_URL = "invoke_url";
 
@@ -63,7 +66,7 @@ public class TuneConstants {
     // Set a network timeout time of 60s
     public static final int TIMEOUT = 60000;
     // Request delay time of 60s
-    static final long DELAY = 60000;
+    static final int DELAY = 60000;
 
     // Default currency code is USD
     static final String DEFAULT_CURRENCY_CODE = "USD";

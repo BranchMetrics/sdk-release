@@ -1,8 +1,10 @@
 package com.tune;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.tune.ma.utils.TuneDebugLog;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +13,7 @@ import java.util.concurrent.Semaphore;
 
 public class TuneEventQueue {
     // SharedPreferences for storing events that were not fired
-    private SharedPreferences eventQueue;
+    private TuneSharedPrefsDelegate eventQueue;
     
     // Binary semaphore for controlling adding to queue/dumping queue
     private Semaphore queueAvailable;
@@ -23,9 +25,17 @@ public class TuneEventQueue {
     private static long retryTimeout = 0;
     
     public TuneEventQueue(Context context, Tune tune) {
-        eventQueue = context.getSharedPreferences(TuneConstants.PREFS_QUEUE, Context.MODE_PRIVATE);
+        eventQueue = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_QUEUE);
         queueAvailable = new Semaphore(1, true);
         this.tune = tune;
+    }
+
+    public void acquireLock() throws InterruptedException {
+        queueAvailable.acquire();
+    }
+
+    public void releaseLock() {
+        queueAvailable.release();
     }
     
     /**
@@ -34,7 +44,7 @@ public class TuneEventQueue {
      */
     protected synchronized void setQueueSize(int size) {
         if (size < 0) size = 0;
-        eventQueue.edit().putInt("queuesize", size).apply();
+        eventQueue.putInt("queuesize", size);
     }
     
     /**
@@ -51,7 +61,14 @@ public class TuneEventQueue {
      */
     protected synchronized void removeKeyFromQueue(String key) {
         setQueueSize(getQueueSize() - 1);
-        eventQueue.edit().remove(key).apply();
+        eventQueue.remove(key);
+    }
+
+    /**
+     * Remove all keys from the queue, including the queue size (effectively making the size zero).
+     */
+    protected synchronized void clearQueue() {
+        eventQueue.clearSharedPreferences();
     }
     
     /**
@@ -69,7 +86,7 @@ public class TuneEventQueue {
      * @param key The key to modify.
      */
     protected synchronized void setQueueItemForKey(JSONObject item, String key) {
-        eventQueue.edit().putString(key, item.toString()).apply();
+        eventQueue.putString(key, item.toString());
     }
     
     protected class Add implements Runnable {
@@ -86,6 +103,8 @@ public class TuneEventQueue {
          * @param firstSession whether event should wait for advertising ID/referrer to be received
          */
         protected Add(String link, String data, JSONObject postBody, boolean firstSession) {
+            TuneDebugLog.d("Add() created");
+
             this.link = link;
             this.data = data;
             this.postBody = postBody;
@@ -94,8 +113,10 @@ public class TuneEventQueue {
 
         public void run() {
             try {
+                TuneDebugLog.d("Add() started");
+
                 // Acquire semaphore before modifying queue
-                queueAvailable.acquire();
+                acquireLock();
                 
                 // JSON-serialize the link and json to store in Shared Preferences as a string
                 JSONObject jsonEvent = new JSONObject();
@@ -117,139 +138,146 @@ public class TuneEventQueue {
                 Log.w(TuneConstants.TAG, "Interrupted adding event to queue");
                 e.printStackTrace();
             } finally {
-                queueAvailable.release();
+                releaseLock();
             }
+
+            TuneDebugLog.d("Add() complete");
         }
     }
     
     protected class Dump implements Runnable {
+        public Dump() {
+            TuneDebugLog.d("Dump() created");
+        }
 
         public void run() {
             int size = getQueueSize();
-            if (size == 0) return;
-            
-            try {
-                queueAvailable.acquire();
+            if (size > 0) {
+                try {
+                    TuneDebugLog.d("Dump() started");
 
-                int index = 1;
-                if (size > TuneConstants.MAX_DUMP_SIZE) {
-                    index = 1 + (size - TuneConstants.MAX_DUMP_SIZE);
-                }
+                    acquireLock();
 
-                // Iterate through events and do postbacks for each, using GetLink
-                for (; index <= size; index++) {
-                    String key = Integer.toString(index);
-                    String eventJson = getKeyFromQueue(key);
+                    int index = 1;
+                    if (size > TuneConstants.MAX_DUMP_SIZE) {
+                        index = 1 + (size - TuneConstants.MAX_DUMP_SIZE);
+                    }
 
-                    if (eventJson != null) {
-                        String link = null;
-                        String data = null;
-                        JSONObject postBody = null;
-                        boolean firstSession = false;
-                        try {
-                            // De-serialize the stored string from the queue to get URL and json values
-                            JSONObject event = new JSONObject(eventJson);
-                            link = event.getString("link");
-                            data = event.getString("data");
-                            postBody = event.getJSONObject("post_body");
-                            firstSession = event.getBoolean("first_session");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            // Can't rebuild saved request, remove from queue and return
-                            removeKeyFromQueue(key);
-                            return;
-                        }
-                        
-                        // For first session, try to wait for Google AID and install referrer before sending
-                        if (firstSession) {
-                            synchronized(tune.pool) {
-                                tune.pool.wait(TuneConstants.DELAY);
-                            }
-                        }
-                        
-                        if (tune != null) {
-                            boolean success = tune.makeRequest(link, data, postBody);
+                    // Iterate through events and do postbacks for each, using GetLink
+                    for (; index <= size; index++) {
+                        String key = Integer.toString(index);
+                        String eventJson = getKeyFromQueue(key);
 
-                            if (success) {
+                        if (eventJson != null) {
+                            String link = null;
+                            String data = null;
+                            JSONObject postBody = null;
+                            boolean firstSession = false;
+                            try {
+                                // De-serialize the stored string from the queue to get URL and json values
+                                JSONObject event = new JSONObject(eventJson);
+                                link = event.getString("link");
+                                data = event.getString("data");
+                                postBody = event.getJSONObject("post_body");
+                                firstSession = event.getBoolean("first_session");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                // Can't rebuild saved request, remove from queue and return
                                 removeKeyFromQueue(key);
-                                retryTimeout = 0; // reset retry timeout after success
-                            } else {
-                                // repeat this call
-                                index--;
-                                // update retry parameter
-                                // maybe try a regex parse instead...
-                                final String paramString = "&" + TuneUrlKeys.SDK_RETRY_ATTEMPT + "=";
-                                int retryStart = link.indexOf(paramString);
-                                if (retryStart > 0) {
-                                    // find the longest substring that legally parses as an int
-                                    int attempt = -1;
-                                    int parseStart = retryStart + paramString.length();
-                                    int parseEnd = parseStart + 1;
-                                    while (true) {
-                                        String attemptString = null;
-                                        try {
-                                            attemptString = link.substring(parseStart, parseEnd);
-                                        } catch (StringIndexOutOfBoundsException e) {
-                                            break; // use last successfully parsed value
-                                        }
-                                        try {
-                                            attempt = Integer.parseInt(attemptString);
-                                            parseEnd++;
-                                        } catch (NumberFormatException e) {
-                                            break; // use last successfully parsed value
-                                        }
-                                    }
-                                    attempt++;
-                                    // 'attempt' will always be at least 0 here
-                                    link = link.replaceFirst(paramString + "\\d+", paramString + attempt);
+                                return;
+                            }
 
-                                    // save updated link back to queue
+                            // For first session, try to wait for Google AID and install referrer before sending
+                            if (firstSession) {
+                                tune.waitForFirstRunData(TuneConstants.DELAY);
+                            }
+
+                            if (tune != null) {
+                                boolean success = tune.makeRequest(link, data, postBody);
+
+                                if (success) {
+                                    removeKeyFromQueue(key);
+                                    retryTimeout = 0; // reset retry timeout after success
+                                } else {
+                                    // repeat this call
+                                    index--;
+                                    // update retry parameter
+                                    // maybe try a regex parse instead...
+                                    final String paramString = "&" + TuneUrlKeys.SDK_RETRY_ATTEMPT + "=";
+                                    int retryStart = link.indexOf(paramString);
+                                    if (retryStart > 0) {
+                                        // find the longest substring that legally parses as an int
+                                        int attempt = -1;
+                                        int parseStart = retryStart + paramString.length();
+                                        int parseEnd = parseStart + 1;
+                                        while (true) {
+                                            String attemptString = null;
+                                            try {
+                                                attemptString = link.substring(parseStart, parseEnd);
+                                            } catch (StringIndexOutOfBoundsException e) {
+                                                break; // use last successfully parsed value
+                                            }
+                                            try {
+                                                attempt = Integer.parseInt(attemptString);
+                                                parseEnd++;
+                                            } catch (NumberFormatException e) {
+                                                break; // use last successfully parsed value
+                                            }
+                                        }
+                                        attempt++;
+                                        // 'attempt' will always be at least 0 here
+                                        link = link.replaceFirst(paramString + "\\d+", paramString + attempt);
+
+                                        // save updated link back to queue
+                                        try {
+                                            JSONObject event = new JSONObject(eventJson);
+                                            event.put("link", link);
+                                            setQueueItemForKey(event, key);
+                                        } catch (JSONException e) {
+                                            // error saving modified retry parameter, ignore
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    // choose new retry timeout, in seconds
+                                    if (retryTimeout == 0) {
+                                        retryTimeout = 30;
+                                    } else if (retryTimeout <= 30) {
+                                        retryTimeout = 90;
+                                    } else if (retryTimeout <= 90) {
+                                        retryTimeout = 10 * 60;
+                                    } else if (retryTimeout <= 10 * 60) {
+                                        retryTimeout = 60 * 60;
+                                    } else if (retryTimeout <= 60 * 60) {
+                                        retryTimeout = 6 * 60 * 60;
+                                    } else {
+                                        retryTimeout = 24 * 60 * 60;
+                                    }
+                                    // randomize and convert to milliseconds
+                                    double timeoutMs = (1 + 0.1 * Math.random()) * retryTimeout * 1000.;
+                                    // sleep this thread for awhile
                                     try {
-                                        JSONObject event = new JSONObject(eventJson);
-                                        event.put("link", link);
-                                        setQueueItemForKey(event, key);
-                                    } catch (JSONException e) {
-                                        // error saving modified retry parameter, ignore
-                                        e.printStackTrace();
+                                        TuneDebugLog.d("Dump() Sleeping " + timeoutMs + " milliseconds");
+                                        Thread.sleep((long) timeoutMs);
+                                    } catch (InterruptedException e) {
                                     }
                                 }
-                                // choose new retry timeout, in seconds
-                                if(retryTimeout == 0) {
-                                    retryTimeout = 30;
-                                } else if(retryTimeout <= 30) {
-                                    retryTimeout = 90;
-                                } else if(retryTimeout <= 90) {
-                                    retryTimeout = 10*60;
-                                } else if(retryTimeout <= 10*60) {
-                                    retryTimeout = 60*60;
-                                } else if(retryTimeout <= 60*60) {
-                                    retryTimeout = 6*60*60;
-                                } else {
-                                    retryTimeout = 24*60*60;
-                                }
-                                // randomize and convert to milliseconds
-                                double timeoutMs = (1 + 0.1*Math.random())*retryTimeout*1000.;
-                                // sleep this thread for awhile
-                                try {
-                                    Thread.sleep((long)timeoutMs);
-                                } catch (InterruptedException e) {
-                                }
+                            } else {
+                                TuneDebugLog.d("Dropping queued request because no TUNE object was found");
+                                removeKeyFromQueue(key);
                             }
                         } else {
-                            TuneUtils.log("Dropping queued request because no TUNE object was found");
+                            // eventJson null, queued event value was lost somehow
+                            TuneDebugLog.d("Null request skipped from queue");
                             removeKeyFromQueue(key);
                         }
-                    } else {
-                        // eventJson null, queued event value was lost somehow
-                        TuneUtils.log("Null request skipped from queue");
-                        removeKeyFromQueue(key);
-                    }
-                } // for each item in queue
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                queueAvailable.release();
+                    } // for each item in queue
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    releaseLock();
+                }
             }
+            TuneDebugLog.d("Dump() complete");
         }
         
     }

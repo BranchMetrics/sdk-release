@@ -23,39 +23,31 @@ public class TuneSessionManager {
     // Max time to allow between Activities to transition before we consider it a new session
     public static final int SESSION_TIMEOUT = 1000;
 
-    protected Context context;
     private Timer sessionEndTimer;
     private TuneSession session;
-    private ArrayList<Activity> connectedActivities = new ArrayList<Activity>();
+    private ArrayList<Activity> connectedActivities = new ArrayList<>();
 
     private boolean hasActivityVisible;
 
     private static TuneSessionManager instance = null;
 
-    protected TuneSessionManager() {
-    }
-
-    public static TuneSessionManager getInstance() {
-        if (instance == null) {
-            instance = new TuneSessionManager();
-        }
-        return instance;
-    }
-
     public static void clearInstance() {
-        clearTimer();
+        if (instance != null) {
+            clearTimer();
+            clearActivities();
+        }
         instance = null;
     }
 
-    public static void clearTimer() {
+    static void clearTimer() {
         if (instance.sessionEndTimer != null) {
             instance.sessionEndTimer.cancel();
             instance.sessionEndTimer = null;
         }
     }
 
-    public static void clearActivities() {
-        instance.connectedActivities = new ArrayList<Activity>();
+    static void clearActivities() {
+        instance.connectedActivities.clear();
     }
 
     // TODO: delete this constructor when UserProfileManager handles writing to SharedPreferences
@@ -64,8 +56,11 @@ public class TuneSessionManager {
         if (instance == null) {
             instance = new TuneSessionManager();
         }
-        instance.context = context;
         return instance;
+    }
+
+    public static void destroy() {
+        clearInstance();
     }
 
     @Subscribe(priority = TuneEventBus.PRIORITY_SECOND)

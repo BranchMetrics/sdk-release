@@ -150,7 +150,7 @@ public class TuneTestParams extends java.lang.Object {
         return ((checkKeyIsEqualToValue("sdk", "android") || checkKeyIsEqualToValue(
                 "s", "android"))
                 && checkKeyHasValue("ver")
-                && (checkKeyHasValue("mat_id") || checkKeyHasValue("mi")) && checkKeyHasValue("transaction_id"));
+                && (checkKeyHasValue(TuneUrlKeys.MAT_ID) || checkKeyHasValue("mi")) && checkKeyHasValue(TuneUrlKeys.TRANSACTION_ID));
     }
 
     public boolean checkDeviceValues() {

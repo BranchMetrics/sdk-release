@@ -1,6 +1,7 @@
 package com.tune.ma.analytics;
 
 import com.tune.TuneEvent;
+import com.tune.TuneTestConstants;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.event.session.TuneSessionEvent;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -12,7 +13,6 @@ import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.ma.eventbus.event.inapp.TuneInAppMessageActionTaken;
 import com.tune.ma.eventbus.event.inapp.TuneInAppMessageShown;
 import com.tune.ma.eventbus.event.push.TunePushOpened;
-import com.tune.ma.file.FileManager;
 import com.tune.ma.inapp.TestInAppMessage;
 import com.tune.ma.inapp.model.TuneTriggerEvent;
 import com.tune.ma.push.TunePushManager;
@@ -39,12 +39,8 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_INSTALL;
  */
 public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
-    private long elapsedTime;
-    private long startTime;
+    private static final int WAIT_TIME = TuneTestConstants.PARAMTEST_SLEEP;
     private MockApi mockApi;
-    private FileManager fileManager;
-
-    private static final int WAIT_TIME = 500;
 
     @Override
     public void setUp() throws Exception {
@@ -54,11 +50,6 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
         mockApi = new MockApi();
         TuneManager.getInstance().setApi(mockApi);
-
-        fileManager = TuneManager.getInstance().getFileManager();
-
-        elapsedTime = 0;
-        startTime = 0;
 
         TuneSharedPrefsDelegate sharedPrefs = new TuneSharedPrefsDelegate(context, TunePushManager.PREFS_TMA_PUSH);
         sharedPrefs.clearSharedPreferences();
@@ -83,8 +74,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
-
-        startTime = System.currentTimeMillis();
+        sleep(WAIT_TIME);
 
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("event1")));
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("event2")));
@@ -92,20 +82,10 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 1) {
             sleep(WAIT_TIME);
         }
-
-        elapsedTime = System.currentTimeMillis() - startTime;
-
-        // TODO: fix later, timing is weird on emulator
-        // Check that elapsedTime is about 10s, +/- 2000ms
-//        assertEquals(TuneTestConstants.ANALYTICS_DISPATCH_PERIOD * 1000, elapsedTime, 2000);
+        sleep(WAIT_TIME);
 
         // Check that 2 requests were made, one initial tracer and one event
         assertEquals(2, mockApi.getAnalyticsPostCount());
-
-        // TODO: fix later, timing is weird on emulator
-//        sleep(WAIT_TIME);
-        // Check that analytics were dispatched and deleted from disk
-//        assertEquals(0, fileManager.readAnalytics().length());
     }
 
     /**
@@ -118,8 +98,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
-
-        startTime = System.currentTimeMillis();
+        sleep(WAIT_TIME);
 
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("event1")));
 
@@ -127,12 +106,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 1) {
             sleep(WAIT_TIME);
         }
-
-        elapsedTime = System.currentTimeMillis() - startTime;
-
-        // TODO: fix later, timing is weird on emulator
-        // Check that analytics were dispatched and deleted from disk
-//        assertEquals(0, fileManager.readAnalytics().length());
+        sleep(WAIT_TIME);
 
         /*** Event #2 for dispatch #2 ***/
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("event2")));
@@ -141,20 +115,10 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 2) {
             sleep(WAIT_TIME);
         }
-
-        elapsedTime = System.currentTimeMillis() - startTime;
-
-        // TODO: fix later, timing is weird on emulator
-        // Check that elapsed time is about 20s, +/- 2000ms
-//        assertEquals(2 * TuneTestConstants.ANALYTICS_DISPATCH_PERIOD * 1000, elapsedTime, 2000);
+        sleep(WAIT_TIME);
 
         // Check that 3 requests were made, one initial tracer and two events
         assertEquals(3, mockApi.getAnalyticsPostCount());
-
-        // TODO: fix later, timing is weird on emulator
-//        sleep(WAIT_TIME);
-        // Check that analytics were dispatched and deleted from disk
-//        assertEquals(0, fileManager.readAnalytics().length());
     }
 
     /**
@@ -167,6 +131,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         // Check that a tracer event was sent
         assertTrue(mockApi.getPostedEvents().toString().contains("\"type\":\"TRACER\""));
@@ -179,6 +144,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
         String eventString = eventJson.toString();
@@ -190,6 +156,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         // Check that at least 2 events were sent - one foreground, one tracer, and possibly one push enabled
         assertTrue("eventJson length not 2, was " + eventJson.length(), eventJson.length() >= 2);
         assertTrue(2 == eventJson.length() || (3 == eventJson.length() && eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"")));
+
     }
 
     public void testAppBackgroundDispatch() throws JSONException {
@@ -199,12 +166,13 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
         String eventString = eventJson.toString();
         int totalEventCount = eventJson.length();
 
-        boolean foundPushEnabled = eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
+        boolean foundPushEnabled = hasPushEnabled(eventString);
 
         TuneEventBus.post(new TuneAppBackgrounded());
 
@@ -212,13 +180,14 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 1) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         eventJson = mockApi.getPostedEvents().getJSONArray("events");
         eventString = eventJson.toString();
 
         totalEventCount += eventJson.length();
 
-        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+        foundPushEnabled = foundPushEnabled || hasPushEnabled(eventString);
 
         // Check that at least 2 events were sent - one background, one tracer
         assertTrue(eventJson.length() >= 2);
@@ -241,6 +210,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");;
         String eventString = eventJson.toString();
@@ -256,13 +226,14 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 1) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
-        eventJson = mockApi.getPostedEvents().getJSONArray("events");;
+        eventJson = mockApi.getPostedEvents().getJSONArray("events");
         eventString = eventJson.toString();
 
         totalEventCount += eventJson.length();
 
-        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+        foundPushEnabled = foundPushEnabled || hasPushEnabled(eventString);
 
         // Check that a screen view event was sent
         assertTrue(eventString.contains("\"type\":\"PAGEVIEW\"") && eventString.contains("\"category\":\"MockActivity\""));
@@ -290,13 +261,14 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 0) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         JSONArray eventJson = mockApi.getPostedEvents().getJSONArray("events");
         String eventString = eventJson.toString();
 
         int totalEventCount = eventJson.length();
 
-        boolean foundPushEnabled = eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
+        boolean foundPushEnabled = hasPushEnabled(eventString);
 
         TuneEventBus.post(new TunePushOpened(new TunePushMessage("{\"appName\":\"test\"," +
                 "\"local_message_id\": \"test_message_id\"," +
@@ -318,13 +290,14 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         while (mockApi.getAnalyticsPostCount() <= 1) {
             sleep(WAIT_TIME);
         }
+        sleep(WAIT_TIME);
 
         eventJson = mockApi.getPostedEvents().getJSONArray("events");
-        eventString = eventJson.toString();
+        eventString += eventJson.toString();
 
         totalEventCount += eventJson.length();
 
-        foundPushEnabled = foundPushEnabled || (eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\""));
+        foundPushEnabled = foundPushEnabled || hasPushEnabled(eventString);
 
         // Check that at least 4 events were sent - one push opened, one push action, background, one tracer
         assertTrue("events length was " + eventJson.length(), eventJson.length() >= 4);
@@ -342,6 +315,11 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
         // Check that a push enabled event was sent
         assertTrue(foundPushEnabled);
+    }
+
+    private boolean hasPushEnabled(String eventString) {
+//        TuneUtils.log("*** Push Enabled Check: " + eventString);
+        return eventString.contains("\"type\":\"EVENT\"") && eventString.contains("\"action\":\"Push Enabled\"");
     }
 
     // Test that a DeeplinkOpened event with the deeplink url is sent when a deeplink open is detected

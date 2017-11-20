@@ -189,7 +189,7 @@ class TuneFBBridge {
     }
     
     // Sends event to FB SDK's logEvent
-    public static void logEvent(TuneEvent event) {
+    public static void logEvent(TuneParameters params, TuneEvent event) {
         if (logger != null) {
             try {
                 Class<?>[] methodParams = new Class[3];
@@ -206,8 +206,7 @@ class TuneFBBridge {
                  */
                 String fbEventName = event.getEventName();
                 double valueToSum = event.getRevenue();
-                TuneParameters tuneParams = TuneParameters.getInstance();
-                
+
                 String eventNameLower = event.getEventName().toLowerCase(Locale.US);
                 if (eventNameLower.contains("session")) {
                     // Don't send activation twice on first init
@@ -259,7 +258,7 @@ class TuneFBBridge {
                 addBundleValue(bundle, EVENT_PARAM_SEARCH_STRING, event.getSearchString());
                 addBundleValue(bundle, EVENT_PARAM_NUM_ITEMS, Integer.toString(event.getQuantity()));
                 addBundleValue(bundle, EVENT_PARAM_LEVEL, Integer.toString(event.getLevel()));
-                addBundleValue(bundle, "tune_referral_source", tuneParams.getReferralSource());
+                addBundleValue(bundle, "tune_referral_source", params.getReferralSource());
                 addBundleValue(bundle, "tune_source_sdk", "TUNE-MAT");
                 
                 Object[] args = new Object[3];

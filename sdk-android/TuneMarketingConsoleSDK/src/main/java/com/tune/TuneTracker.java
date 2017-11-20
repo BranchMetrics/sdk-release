@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
+
 import java.net.URLDecoder;
 
 /*
@@ -24,20 +26,14 @@ public class TuneTracker extends BroadcastReceiver {
                 if (rawReferrer != null) {
                     String referrer = URLDecoder.decode(rawReferrer, "UTF-8");
                     TuneUtils.log("TUNE received referrer " + referrer);
-                    
+
                     // Save the referrer value in SharedPreferences
-                    context.getSharedPreferences(TuneConstants.PREFS_TUNE, Context.MODE_PRIVATE).edit().putString(TuneConstants.KEY_REFERRER, referrer).apply();
-                    
+                    new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE).putString(TuneConstants.KEY_REFERRER, referrer);
+
                     // Notify threadpool waiting for referrer and advertising ID
                     Tune tune = Tune.getInstance();
                     if (tune != null) {
                         tune.setInstallReferrer(referrer);
-                        if (tune.gotAdvertisingId && !tune.notifiedPool) {
-                            synchronized (tune.pool) {
-                                tune.pool.notifyAll();
-                                tune.notifiedPool = true;
-                            }
-                        }
                     }
                 }
             }

@@ -6,7 +6,7 @@ public class EndpointTests extends TuneUnitTest {
 
     public void testSession() {
         tune.measureSession();
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
     }
@@ -14,7 +14,7 @@ public class EndpointTests extends TuneUnitTest {
     public void testUpdate() {
         tune.setExistingUser( true );
         tune.measureSession();
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "existing_user", "1" );
@@ -24,7 +24,7 @@ public class EndpointTests extends TuneUnitTest {
         final String eventName = "testEvent";
 
         tune.measureEvent( eventName );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -36,7 +36,7 @@ public class EndpointTests extends TuneUnitTest {
         final int eventId = 130;
 
         tune.measureEvent( eventId );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -75,7 +75,7 @@ public class EndpointTests extends TuneUnitTest {
             .withEventItems(testItems)
             .withReceipt(iapData, iapSignature);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -117,7 +117,7 @@ public class EndpointTests extends TuneUnitTest {
             .withEventItems(testItems)
             .withReceipt(iapData, iapSignature);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -137,7 +137,7 @@ public class EndpointTests extends TuneUnitTest {
             .withRevenue(revenue)
             .withCurrencyCode(currencyCode);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -156,7 +156,7 @@ public class EndpointTests extends TuneUnitTest {
             .withRevenue(revenue)
             .withCurrencyCode(currencyCode);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -177,7 +177,7 @@ public class EndpointTests extends TuneUnitTest {
             .withCurrencyCode(currencyCode)
             .withAdvertiserRefId(referenceId);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -199,7 +199,7 @@ public class EndpointTests extends TuneUnitTest {
             .withCurrencyCode(currencyCode)
             .withAdvertiserRefId(referenceId);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -224,7 +224,7 @@ public class EndpointTests extends TuneUnitTest {
             .withAdvertiserRefId(referenceId)
             .withReceipt(iapData, iapSignature);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -251,7 +251,7 @@ public class EndpointTests extends TuneUnitTest {
             .withAdvertiserRefId(referenceId)
             .withReceipt(iapData, iapSignature);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "conversion" );
@@ -268,7 +268,7 @@ public class EndpointTests extends TuneUnitTest {
         final String actionName = "install";
         
         tune.measureEvent( actionName );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "session" );
@@ -280,7 +280,7 @@ public class EndpointTests extends TuneUnitTest {
         final String actionName = "update";
         
         tune.measureEvent( actionName );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "session" );
@@ -290,10 +290,10 @@ public class EndpointTests extends TuneUnitTest {
 
     public void testEventOpen() {
         final String actionName = "open";
-        
+
         tune.measureEvent( actionName );
         sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
-        
+
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "session" );
         assertNoValueForKey( "site_event_name" );
@@ -304,7 +304,7 @@ public class EndpointTests extends TuneUnitTest {
         final String actionName = "session";
         
         tune.measureEvent( actionName );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "action", "session" );
@@ -316,7 +316,7 @@ public class EndpointTests extends TuneUnitTest {
         final String actionName = "close";
         
         tune.measureEvent( actionName );
-        sleep( TuneTestConstants.ENDPOINTTEST_SLEEP );
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
         assertTrue( "params should be empty " + params, params.checkIsEmpty() );
     }

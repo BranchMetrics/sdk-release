@@ -68,6 +68,8 @@ public class TuneUrlKeys {
     public static final String GOOGLE_AD_TRACKING_DISABLED = "google_ad_tracking_disabled";
     public static final String GOOGLE_AID = "google_aid";
     public static final String INSTALL_DATE = "insdate";
+    public static final String INSTALL_BEGIN_TIMESTAMP = "download_date";
+    public static final String REFERRER_CLICK_TIMESTAMP = "click_timestamp";
     public static final String INSTALL_REFERRER = "install_referrer";
     public static final String INSTALLER = "installer";
     public static final String LANGUAGE = "language";

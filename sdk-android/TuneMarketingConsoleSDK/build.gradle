@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.14.0'
+    PUBLISH_VERSION = '4.15.0'
 }
 
 android {
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionName '4.14.0'
+        versionName '4.15.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -61,6 +61,8 @@ configurations {
 }
 
 dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
     compile 'org.greenrobot:eventbus:3.0.0'
     javadocDeps 'org.greenrobot:eventbus:3.0.0'
 
@@ -78,7 +80,6 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile 'junit:junit:4.12'
-
 
     // SmartWhere is included in the 'full' sdk flavor
     fullCompile 'com.smartwhere:android-tune:17258.1'
@@ -233,7 +234,8 @@ task grantDebugPermissions {
             def permissions = [
                     'ACCESS_COARSE_LOCATION',
                     'ACCESS_FINE_LOCATION',
-                    'ACCESS_MOCK_LOCATION'
+                    'ACCESS_MOCK_LOCATION',
+                    'GET_ACCOUNTS'
             ]
             permissions.each {
                 String cmd = "${adb} -s ${device} shell pm grant ${applicationId} android.permission.${it}"

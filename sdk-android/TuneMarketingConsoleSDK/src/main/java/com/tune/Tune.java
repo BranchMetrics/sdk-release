@@ -14,10 +14,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author tony@hasoffers.com
@@ -71,7 +72,7 @@ public class Tune {
     // The context passed into the constructor
     protected Context mContext;
     // Thread pool for public method execution
-    protected ExecutorService pubQueue;
+    private ExecutorService pubQueue = null;
     // Queue interface object for storing events that were not fired
     protected TuneEventQueue eventQueue;
     // Location listener
@@ -81,8 +82,6 @@ public class Tune {
     // Interface for testing URL requests
     protected TuneTestRequest tuneRequest; // note: this has no setter - must subclass to set
 
-    // Whether variables were initialized correctly
-    protected boolean initialized;
     // Whether connectivity receiver is registered or not
     protected boolean isRegistered;
     // Whether to collect location or not
@@ -103,31 +102,41 @@ public class Tune {
 
     // Whether to show debug output
     private boolean debugMode;
+
+    // TODO: REFACTOR into FirstRun Logic
     // If this is the first session of the app lifecycle, wait for the advertising ID and referrer
     private boolean firstSession;
+
+    // TODO: REFACTOR into FirstRun Logic
     // Is this the first install with the Tune SDK. This will be true for the entire first session.
     protected boolean isFirstInstall;
-    // Whether we're invoking FB event logging
-    private boolean fbLogging;
+
+    // TODO: REFACTOR into FirstRun Logic
     // Time that SDK was initialized
     private long initTime;
+
+    // TODO: REFACTOR into FirstRun Logic
     // Time that SDK received referrer
     private long referrerTime;
+
+    // TODO: REFACTOR into FirstRun Logic
     // Time SDK last measuredSession
     protected long timeLastMeasuredSession;
 
-    // Whether an Advertising ID was received
-    boolean gotAdvertisingId;
-    // Whether INSTALL_REFERRER was received
-    boolean gotReferrer;
-    // Whether we've already notified the pool to stop waiting
-    boolean notifiedPool;
-    // Thread pool for running the request Runnables
-    ExecutorService pool;
+    // Whether we're invoking FB event logging
+    private boolean fbLogging;
 
-    private static volatile Tune tune = null;
+    // Thread pool for running the request Runnables
+    private final ExecutorService pool;
+
+    private static volatile Tune sTuneInstance = null;
+
+    // Container for FirstRun Logic
+    TuneFirstRunLogic firstRunLogic;
 
     protected Tune() {
+        pool = Executors.newSingleThreadExecutor();
+        firstRunLogic = new TuneFirstRunLogic();
     }
 
     /**
@@ -135,7 +144,7 @@ public class Tune {
      * @return Tune instance
      */
     public static synchronized Tune getInstance() {
-        return tune;
+        return sTuneInstance;
     }
 
     /**
@@ -171,10 +180,66 @@ public class Tune {
      * @return Tune instance with initialized values
      */
     public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM, TuneConfiguration configuration) {
-        if (tune == null) {
-            tune = new Tune();
-            tune.mContext = context.getApplicationContext();
-            tune.pubQueue = Executors.newSingleThreadExecutor();
+        if (sTuneInstance == null) {
+            initAll(new Tune(), context, advertiserId, conversionKey, turnOnIAM, configuration);
+        }
+
+        return sTuneInstance;
+    }
+
+    /**
+     * Wait for Initialization to complete.
+     * @param milliseconds Number of milliseconds to wait for initialization to complete.
+     * @return true if initialization completed in the time frame expected.
+     */
+    boolean waitForInit(long milliseconds) {
+        return params.waitForInitComplete(milliseconds);
+    }
+
+    // Package Private
+    void shutDown() {
+        TuneDebugLog.d("Tune shutDown()");
+
+        if (sTuneInstance != null) {
+            firstRunLogic.cancel();
+
+            synchronized(pool) {
+                pool.notifyAll();
+                pool.shutdown();
+            }
+
+            try {
+                pool.awaitTermination(1, TimeUnit.SECONDS);
+
+                // The executor is done, however it may have posted events.  It is difficult to know
+                // when those are done, but without a sleep() here, they generally are *not* done.
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                TuneDebugLog.e("Error waiting for Pool Shutdown", e);
+            }
+
+            pubQueue.shutdownNow();
+            TuneManager.destroy();
+        } else {
+            TuneDebugLog.d("Tune already shut down");
+        }
+
+        TuneEventBus.clearFlags();
+        TuneEventBus.disable();
+        TuneEventBus.clearCaches();
+        TuneManager.destroy();
+        params.destroy();
+
+        sTuneInstance = null;
+        TuneDebugLog.d("Tune shutDown() complete");
+    }
+
+    protected static synchronized Tune initAll(Tune tune, Context context, String advertiserId, String conversionKey, boolean turnOnIAM, TuneConfiguration configuration) {
+        if (sTuneInstance == null) {
+            sTuneInstance = tune;
+
+            sTuneInstance.mContext = context.getApplicationContext();
+            sTuneInstance.pubQueue = Executors.newSingleThreadExecutor();
 
             if (turnOnIAM && TuneUtils.hasPermission(context, Manifest.permission.INTERNET)) {
                 // Enable the event bus
@@ -186,39 +251,25 @@ public class Tune {
                 TuneEventBus.disable();
             }
 
-            tune.initAll(advertiserId, conversionKey);
+            sTuneInstance.initLocal(advertiserId, conversionKey);
 
             // Location listener init
-            tune.locationListener = new TuneLocationListener(context);
+            sTuneInstance.locationListener = new TuneLocationListener(context);
             // Check configuration for whether to collect location or not
             if (configuration != null) {
-                tune.collectLocation = configuration.shouldAutoCollectDeviceLocation();
-                if (tune.collectLocation) {
+                sTuneInstance.collectLocation = configuration.shouldAutoCollectDeviceLocation();
+                if (sTuneInstance.collectLocation) {
                     // Get initial location
-                    tune.locationListener.startListening();
+                    sTuneInstance.locationListener.startListening();
                 }
             }
+        } else {
+            TuneDebugLog.e("Tune Already Initialized");
         }
-        return tune;
+        return sTuneInstance;
     }
 
-    static void setInstance(Tune newTune) {
-        tune = newTune;
-    }
-
-    /**
-     * Clear Tune singleton so it may be re-initialized.
-     */
-    static synchronized void clear() {
-        tune = null;
-    }
-
-    /**
-     * Private initialization function for TUNE SDK.
-     * @param advertiserId the TUNE advertiser ID for the app
-     * @param conversionKey the TUNE conversion key for the app
-     */
-    protected void initAll(String advertiserId, String conversionKey) {
+    private void initLocal(String advertiserId, String conversionKey) {
         // Dplinkr init
         dplinkr = new TuneDeeplinker(advertiserId, conversionKey, mContext.getPackageName());
 
@@ -255,8 +306,6 @@ public class Tune {
             isFirstInstall = true;
             params.setInstallFlag();
         }
-
-        initialized = true;
     }
 
     /**
@@ -264,18 +313,19 @@ public class Tune {
      * @param key the conversion key
      */
     private void initLocalVariables(String key) {
-        pool = Executors.newSingleThreadExecutor();
         urlRequester = new TuneUrlRequester();
         encryption = new TuneEncryption(key.trim(), IV);
 
         initTime = System.currentTimeMillis();
-        gotReferrer = !(mContext.getSharedPreferences(TuneConstants.PREFS_TUNE, Context.MODE_PRIVATE).getString(TuneConstants.KEY_REFERRER, "").equals(""));
         firstSession = true;
-        initialized = false;
         isRegistered = false;
         debugMode = false;
         fbLogging = false;
         collectLocation = true;
+
+        if (params.getInstallReferrer() != null) {
+            firstRunLogic.receivedInstallReferrer();
+        }
     }
 
     /**
@@ -283,18 +333,24 @@ public class Tune {
      * @param context the app context to check connectivity from
      * @return whether Internet connection exists
      */
-    public static synchronized boolean isOnline(Context context) {
+    public synchronized boolean isOnline(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    protected synchronized void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
-        if (pool.isShutdown()) {
-            return;
-        }
+    protected ExecutorService getPubQueue() {
+        return pubQueue;
+    }
 
-        pool.execute(eventQueue.new Add(link, data, postBody, firstSession));
+    protected synchronized void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
+        synchronized(pool) {
+            if (pool.isShutdown()) {
+                return;
+            }
+
+            pool.execute(eventQueue.new Add(link, data, postBody, firstSession));
+        }
     }
 
     protected synchronized void dumpQueue() {
@@ -302,11 +358,13 @@ public class Tune {
             return;
         }
 
-        if (pool.isShutdown()) {
-            return;
-        }
+        synchronized(pool) {
+            if (pool.isShutdown()) {
+                return;
+            }
 
-        pool.execute(eventQueue.new Dump());
+            pool.execute(eventQueue.new Dump());
+        }
     }
 
     /**
@@ -328,7 +386,6 @@ public class Tune {
      */
     public void measureSessionInternal() {
         timeLastMeasuredSession = System.currentTimeMillis();
-        notifiedPool = false;
         measureEvent(new TuneEvent(TuneEvent.NAME_SESSION));
         if (debugMode) {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -376,94 +433,109 @@ public class Tune {
      */
     public void measureEvent(final TuneEvent eventData) {
         if (TextUtils.isEmpty(eventData.getEventName()) && eventData.getEventId() == 0) {
-            Log.w(TuneConstants.TAG, "Event name or ID cannot be null, empty, or zero");
+            TuneDebugLog.w(TuneConstants.TAG, "Event name or ID cannot be null, empty, or zero");
             return;
         }
 
-        // Post event to TuneEventBus for IAM
-        TuneEventBus.post(new TuneEventOccurred(eventData));
-
         updateLocation();
 
-        pubQueue.execute(new Runnable() {
+        measure(eventData);
+    }
+
+    private void runQueue(String tag, Runnable runnable) {
+        if (pubQueue != null) {
+            TuneDebugLog.d("Run Queue: " + tag);
+            synchronized (pubQueue) {
+                pubQueue.execute(runnable);
+            }
+        } else {
+            TuneDebugLog.e("Run Queue NULL: " + tag);
+        }
+
+    }
+
+    private void measureTuneLinkClick(final String clickedTuneLinkUrl) {
+        // Go Asynchronous
+        runQueue("measureTuneLinkClick", new Runnable() {
             public void run() {
-                measure(eventData);
+                String link = TuneUrlBuilder.appendTuneLinkParameters(params, clickedTuneLinkUrl);
+                String data = "";
+                JSONObject postBody = new JSONObject();
+
+                if (tuneRequest != null) {
+                    tuneRequest.constructedRequest(link, data, postBody);
+                }
+
+                // Send the Tune Link click request immediately
+                makeRequest(link, data, postBody);
+
+                if (tuneListener != null) {
+                    tuneListener.enqueuedActionWithRefId(null);
+                }
             }
         });
     }
 
-    private void measureTuneLinkClick(final String clickedTuneLinkUrl) {
-        if (!initialized) return;
+    private synchronized void measure(final TuneEvent eventData) {
+        // Go Asynchronous
+        runQueue("measure", new Runnable() {
+            public void run() {
+                if (sTuneInstance == null) {
+                    TuneDebugLog.e("TUNE is not initialized");
+                    return;
+                }
 
-        String link = TuneUrlBuilder.appendTuneLinkParameters(clickedTuneLinkUrl);
-        String data = "";
-        JSONObject postBody = new JSONObject();
+                // Post event to TuneEventBus for IAM
+                TuneEventBus.post(new TuneEventOccurred(eventData));
 
-        if (tuneRequest != null) {
-            tuneRequest.constructedRequest(link, data, postBody);
-        }
+                dumpQueue();
 
-        // Send the Tune Link click request immediately
-        tune.makeRequest(link, data, postBody);
+                params.setAction(TuneParameters.ACTION_CONVERSION); // Default to conversion
+                if (eventData.getEventName() != null) {
+                    String eventName = eventData.getEventName();
+                    if (fbLogging) {
+                        TuneFBBridge.logEvent(params, eventData);
+                    }
+                    if (TuneEvent.NAME_CLOSE.equals(eventName)) {
+                        return; // Don't send close events
+                    } else if (TuneEvent.NAME_OPEN.equals(eventName) || TuneEvent.NAME_INSTALL.equals(eventName) ||
+                            TuneEvent.NAME_UPDATE.equals(eventName) || TuneEvent.NAME_SESSION.equals(eventName)) {
+                        params.setAction(TuneParameters.ACTION_SESSION);
+                    }
+                }
 
-        if (tuneListener != null) {
-            tuneListener.enqueuedActionWithRefId(null);
-        }
+                if (eventData.getRevenue() > 0) {
+                    params.setIsPayingUser("1");
+                }
 
-        return;
-    }
+                String link = TuneUrlBuilder.buildLink(params, eventData, mPreloadData, debugMode);
+                String data = TuneUrlBuilder.buildDataUnencrypted(params, eventData);
+                JSONArray eventItemsJson = new JSONArray();
+                if (eventData.getEventItems() != null) {
+                    for (int i = 0; i < eventData.getEventItems().size(); i++) {
+                        eventItemsJson.put(eventData.getEventItems().get(i).toJson());
+                    }
+                }
+                JSONObject postBody = TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
 
-    private synchronized void measure(TuneEvent eventData) {
-        if (!initialized) return;
+                if (tuneRequest != null) {
+                    tuneRequest.constructedRequest(link, data, postBody);
+                }
 
-        dumpQueue();
+                addEventToQueue(link, data, postBody, firstSession);
+                // Mark firstSession false
+                firstSession = false;
+                dumpQueue();
 
-        params.setAction(TuneParameters.ACTION_CONVERSION); // Default to conversion
-        if (eventData.getEventName() != null) {
-            String eventName = eventData.getEventName();
-            if (fbLogging) {
-                TuneFBBridge.logEvent(eventData);
+                if (tuneListener != null) {
+                    tuneListener.enqueuedActionWithRefId(eventData.getRefId());
+                }
+
+                if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+                    TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
+                }
             }
-            if (TuneEvent.NAME_CLOSE.equals(eventName)) {
-                return; // Don't send close events
-            } else if (TuneEvent.NAME_OPEN.equals(eventName) || TuneEvent.NAME_INSTALL.equals(eventName) ||
-                       TuneEvent.NAME_UPDATE.equals(eventName) || TuneEvent.NAME_SESSION.equals(eventName)) {
-                params.setAction(TuneParameters.ACTION_SESSION);
-            }
-        }
-
-        if (eventData.getRevenue() > 0) {
-            params.setIsPayingUser("1");
-        }
-
-        String link = TuneUrlBuilder.buildLink(eventData, mPreloadData, debugMode);
-        String data = TuneUrlBuilder.buildDataUnencrypted(eventData);
-        JSONArray eventItemsJson = new JSONArray();
-        if (eventData.getEventItems() != null) {
-            for (int i = 0; i < eventData.getEventItems().size(); i++) {
-                eventItemsJson.put(eventData.getEventItems().get(i).toJson());
-            }
-        }
-        JSONObject postBody = TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
-
-        if (tuneRequest != null) {
-            tuneRequest.constructedRequest(link, data, postBody);
-        }
-
-        addEventToQueue(link, data, postBody, firstSession);
-        // Mark firstSession false
-        firstSession = false;
-        dumpQueue();
-
-        if (tuneListener != null) {
-            tuneListener.enqueuedActionWithRefId(eventData.getRefId());
-        }
-
-        if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
-            TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
-        }
-
-        return;
+        });
     }
 
     /**
@@ -487,7 +559,7 @@ public class Tune {
 
         updateLocation(); // If location not set before sending, try to get location again
 
-        String encData = TuneUrlBuilder.updateAndEncryptData(data, encryption);
+        String encData = TuneUrlBuilder.updateAndEncryptData(params, data, encryption);
         String fullLink = link + "&data=" + encData;
 
         if (tuneListener != null) {
@@ -1161,9 +1233,7 @@ public class Tune {
      * @param advertiserId TUNE advertiser ID
      */
     public void setAdvertiserId(final String advertiserId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAdvertiserId(advertiserId);
-        }});
+        params.setAdvertiserId(advertiserId);
     }
 
     /**
@@ -1176,9 +1246,7 @@ public class Tune {
      * @param age User age
      */
     public void setAge(final int age) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAge(Integer.toString(age));
-        }});
+        params.setAge(Integer.toString(age));
     }
 
     /**
@@ -1186,9 +1254,7 @@ public class Tune {
      * @param altitude device altitude
      */
     public void setAltitude(final double altitude) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAltitude(Double.toString(altitude));
-        }});
+        params.setAltitude(Double.toString(altitude));
     }
 
     /**
@@ -1212,9 +1278,7 @@ public class Tune {
      * @param androidIdMd5 ANDROID_ID MD5 hash
      */
     public void setAndroidIdMd5(final String androidIdMd5) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAndroidIdMd5(androidIdMd5);
-        }});
+        params.setAndroidIdMd5(androidIdMd5);
     }
 
     /**
@@ -1222,9 +1286,7 @@ public class Tune {
      * @param androidIdSha1 ANDROID_ID SHA-1 hash
      */
     public void setAndroidIdSha1(final String androidIdSha1) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setAndroidIdSha1(androidIdSha1);
-        }});
+        params.setAndroidIdSha1(androidIdSha1);
     }
 
     /**
@@ -1232,11 +1294,7 @@ public class Tune {
      * @param androidIdSha256 ANDROID_ID SHA-256 hash
      */
     public void setAndroidIdSha256(final String androidIdSha256) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setAndroidIdSha256(androidIdSha256);
-            }
-        });
+        params.setAndroidIdSha256(androidIdSha256);
     }
 
     /**
@@ -1244,15 +1302,11 @@ public class Tune {
      * @param adTrackingEnabled true if user has opted out of ad tracking at the app-level, false if not
      */
     public void setAppAdTrackingEnabled(final boolean adTrackingEnabled) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                if (adTrackingEnabled) {
-                    params.setAppAdTrackingEnabled(Integer.toString(1));
-                } else {
-                    params.setAppAdTrackingEnabled(Integer.toString(0));
-                }
-            }
-        });
+        if (adTrackingEnabled) {
+            params.setAppAdTrackingEnabled(Integer.toString(1));
+        } else {
+            params.setAppAdTrackingEnabled(Integer.toString(0));
+        }
     }
 
     /**
@@ -1260,11 +1314,7 @@ public class Tune {
      * @param conversionKey TUNE conversion key
      */
     public void setConversionKey(final String conversionKey) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setConversionKey(conversionKey);
-            }
-        });
+        params.setConversionKey(conversionKey);
     }
 
     /**
@@ -1272,15 +1322,11 @@ public class Tune {
      * @param currencyCode the currency code
      */
     public void setCurrencyCode(final String currencyCode) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                if (currencyCode == null || currencyCode.equals("")) {
-                    params.setCurrencyCode(TuneConstants.DEFAULT_CURRENCY_CODE);
-                } else {
-                    params.setCurrencyCode(currencyCode);
-                }
-            }
-        });
+        if (currencyCode == null || currencyCode.equals("")) {
+            params.setCurrencyCode(TuneConstants.DEFAULT_CURRENCY_CODE);
+        } else {
+            params.setCurrencyCode(currencyCode);
+        }
     }
 
     /**
@@ -1288,11 +1334,7 @@ public class Tune {
      * @param deviceBrand device brand
      */
     public void setDeviceBrand(final String deviceBrand) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setDeviceBrand(deviceBrand);
-            }
-        });
+        params.setDeviceBrand(deviceBrand);
     }
 
     /**
@@ -1300,11 +1342,7 @@ public class Tune {
      * @param deviceBuild device build
      */
     public void setDeviceBuild(final String deviceBuild) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setDeviceBuild(deviceBuild);
-            }
-        });
+        params.setDeviceBuild(deviceBuild);
     }
 
     /**
@@ -1312,11 +1350,7 @@ public class Tune {
      * @param deviceId device IMEI/MEID
      */
     public void setDeviceId(final String deviceId) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setDeviceId(deviceId);
-            }
-        });
+        params.setDeviceId(deviceId);
     }
 
     /**
@@ -1324,11 +1358,7 @@ public class Tune {
      * @param deviceModel device model
      */
     public void setDeviceModel(final String deviceModel) {
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                params.setDeviceModel(deviceModel);
-            }
-        });
+        params.setDeviceModel(deviceModel);
     }
 
     /**
@@ -1336,13 +1366,11 @@ public class Tune {
      * @param existing true if this user already had the app installed prior to updating to TUNE version
      */
     public void setExistingUser(final boolean existing) {
-        pubQueue.execute(new Runnable() { public void run() {
-            if (existing) {
-                params.setExistingUser(Integer.toString(1));
-            } else {
-                params.setExistingUser(Integer.toString(0));
-            }
-        }});
+        if (existing) {
+            params.setExistingUser(Integer.toString(1));
+        } else {
+            params.setExistingUser(Integer.toString(0));
+        }
     }
 
     /**
@@ -1350,9 +1378,7 @@ public class Tune {
      * @param userId the Facebook user id
      */
     public void setFacebookUserId(final String userId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setFacebookUserId(userId);
-        }});
+        params.setFacebookUserId(userId);
     }
 
     /**
@@ -1372,13 +1398,7 @@ public class Tune {
                 requestDeferredDeeplink();
             }
         }
-        gotAdvertisingId = true;
-        if (gotReferrer && !notifiedPool) {
-            synchronized (pool) {
-                pool.notifyAll();
-                notifiedPool = true;
-            }
-        }
+        firstRunLogic.receivedAdvertisingId();
     }
 
     /**
@@ -1386,9 +1406,7 @@ public class Tune {
      * @param gender use TuneGender.MALE, TuneGender.FEMALE
      */
     public void setGender(final TuneGender gender) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setGender(gender);
-        }});
+        params.setGender(gender);
     }
 
     /**
@@ -1408,13 +1426,7 @@ public class Tune {
                 requestDeferredDeeplink();
             }
         }
-        gotAdvertisingId = true;
-        if (gotReferrer && !notifiedPool) {
-            synchronized (pool) {
-                pool.notifyAll();
-                notifiedPool = true;
-            }
-        }
+        firstRunLogic.receivedAdvertisingId();
     }
 
     /**
@@ -1422,9 +1434,7 @@ public class Tune {
      * @param userId the Google user id
      */
     public void setGoogleUserId(final String userId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setGoogleUserId(userId);
-        }});
+        params.setGoogleUserId(userId);
     }
 
     /**
@@ -1433,14 +1443,18 @@ public class Tune {
      */
     public void setInstallReferrer(final String referrer) {
         // Record when referrer was received
-        gotReferrer = true;
         referrerTime = System.currentTimeMillis();
         if (params != null) {
             params.setReferrerDelay(referrerTime - initTime);
         }
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setInstallReferrer(referrer);
-        }});
+        params.setInstallReferrer(referrer);
+        firstRunLogic.receivedInstallReferrer();
+    }
+
+    // Called exclusively by TuneEventQueue.  This method will wait for the FirstRun startup sequence
+    // to complete.
+    void waitForFirstRunData(int timeToWait) {
+        firstRunLogic.waitForFirstRunData(mContext, timeToWait);
     }
 
     /**
@@ -1448,13 +1462,11 @@ public class Tune {
      * @param isPayingUser true if the user has produced revenue, false if not
      */
     public void setIsPayingUser(final boolean isPayingUser) {
-        pubQueue.execute(new Runnable() { public void run() {
-            if (isPayingUser) {
-                params.setIsPayingUser(Integer.toString(1));
-            } else {
-                params.setIsPayingUser(Integer.toString(0));
-            }
-        }});
+        if (isPayingUser) {
+            params.setIsPayingUser("1");
+        } else {
+            params.setIsPayingUser("0");
+        }
     }
 
     /**
@@ -1462,9 +1474,7 @@ public class Tune {
      * @param locale the device locale
      */
     public void setLocale(final String locale) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setLocale(locale);
-        }});
+        params.setLocale(locale);
     }
 
     /**
@@ -1487,13 +1497,7 @@ public class Tune {
         }
 
         setShouldAutoCollectDeviceLocation(false);
-
-        pubQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                params.setLocation(location);
-            }
-        });
+        params.setLocation(location);
     }
 
     /**
@@ -1502,10 +1506,7 @@ public class Tune {
      */
     public void setLatitude(final double latitude) {
         setShouldAutoCollectDeviceLocation(false);
-
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setLatitude(Double.toString(latitude));
-        }});
+        params.setLatitude(Double.toString(latitude));
     }
 
     /**
@@ -1514,10 +1515,7 @@ public class Tune {
      */
     public void setLongitude(final double longitude) {
         setShouldAutoCollectDeviceLocation(false);
-
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setLongitude(Double.toString(longitude));
-        }});
+        params.setLongitude(Double.toString(longitude));
     }
 
     /**
@@ -1533,9 +1531,7 @@ public class Tune {
      * @param macAddress device MAC address
      */
     public void setMacAddress(final String macAddress) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setMacAddress(macAddress);
-        }});
+        params.setMacAddress(macAddress);
     }
 
     /**
@@ -1543,9 +1539,7 @@ public class Tune {
      * @param osVersion device OS version
      */
     public void setOsVersion(final String osVersion) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setOsVersion(osVersion);
-        }});
+        params.setOsVersion(osVersion);
     }
 
     /**
@@ -1554,16 +1548,12 @@ public class Tune {
      */
     public void setPackageName(final String packageName) {
         dplinkr.setPackageName(packageName);
-        pubQueue.execute(new Runnable() {
-            public void run() {
-                String pkg = TextUtils.isEmpty(packageName) ? mContext.getPackageName() : packageName;
-                params.setPackageName(pkg);
+        String pkg = TextUtils.isEmpty(packageName) ? mContext.getPackageName() : packageName;
+        params.setPackageName(pkg);
 
-                if (TuneSmartWhere.isSmartWhereAvailable()) {
-                    TuneSmartWhere.getInstance().setPackageName(mContext, pkg);
-                }
-            }
-        });
+        if (TuneSmartWhere.isSmartWhereAvailable()) {
+            TuneSmartWhere.getInstance().setPackageName(mContext, pkg);
+        }
     }
 
     /**
@@ -1571,21 +1561,19 @@ public class Tune {
      * @param phoneNumber Phone number
      */
     public void setPhoneNumber(final String phoneNumber) {
-        pubQueue.execute(new Runnable() { public void run() {
-            if (TextUtils.isEmpty(phoneNumber)) {
-                params.setPhoneNumber(phoneNumber);
-            } else {
-                // Regex remove all non-digits from phoneNumber
-                String phoneNumberDigits = phoneNumber.replaceAll("\\D+", "");
-                // Convert to digits from foreign characters if needed
-                StringBuilder digitsBuilder = new StringBuilder();
-                for (int i = 0; i < phoneNumberDigits.length(); i++) {
-                    int numberParsed = Integer.parseInt(String.valueOf(phoneNumberDigits.charAt(i)));
-                    digitsBuilder.append(numberParsed);
-                }
-                params.setPhoneNumber(digitsBuilder.toString());
+        if (TextUtils.isEmpty(phoneNumber)) {
+            params.setPhoneNumber(phoneNumber);
+        } else {
+            // Regex remove all non-digits from phoneNumber
+            String phoneNumberDigits = phoneNumber.replaceAll("\\D+", "");
+            // Convert to digits from foreign characters if needed
+            StringBuilder digitsBuilder = new StringBuilder();
+            for (int i = 0; i < phoneNumberDigits.length(); i++) {
+                int numberParsed = Integer.parseInt(String.valueOf(phoneNumberDigits.charAt(i)));
+                digitsBuilder.append(numberParsed);
             }
-        }});
+            params.setPhoneNumber(digitsBuilder.toString());
+        }
     }
 
     /**
@@ -1636,10 +1624,7 @@ public class Tune {
         }
 
         // You can, however, turn "on" privacy protection regardless of age.
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setPrivacyProtectedDueToAge(isPrivacyProtected);
-        }});
-
+        params.setPrivacyProtectedDueToAge(isPrivacyProtected);
         return true;
     }
 
@@ -1668,9 +1653,7 @@ public class Tune {
      * @param referralCallingPackage The name of the callling package
      */
     public void setReferralCallingPackage(@Nullable final String referralCallingPackage) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setReferralSource(referralCallingPackage);
-        }});
+        params.setReferralSource(referralCallingPackage);
     }
 
     /**
@@ -1678,9 +1661,7 @@ public class Tune {
      * @param url deeplink with which app was invoked
      */
     public void setReferralUrl(final String url) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setReferralUrl(url);
-        }});
+        params.setReferralUrl(url);
 
         if (url != null && isTuneLink(url)) {
             try {
@@ -1692,11 +1673,7 @@ public class Tune {
             } catch (Exception e) {
                 dplinkr.handleFailedExpandedTuneLink("Error accessing invoke_url from clicked Tune Link");
             } finally {
-                pubQueue.execute(new Runnable() {
-                    public void run() {
-                        measureTuneLinkClick(url);
-                    }
-                });
+                measureTuneLinkClick(url);
             }
         }
     }
@@ -1706,9 +1683,7 @@ public class Tune {
      * @param tpid TRUSTe ID
      */
     public void setTRUSTeId(final String tpid) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setTRUSTeId(tpid);
-        }});
+        params.setTRUSTeId(tpid);
     }
 
     /**
@@ -1716,9 +1691,7 @@ public class Tune {
      * @param userId the Twitter user id
      */
     public void setTwitterUserId(final String userId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setTwitterUserId(userId);
-        }});
+        params.setTwitterUserId(userId);
     }
 
     /**
@@ -1726,9 +1699,7 @@ public class Tune {
      * @param userEmail the user email
      */
     public void setUserEmail(final String userEmail) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setUserEmail(userEmail);
-        }});
+        params.setUserEmail(userEmail);
     }
 
     /**
@@ -1736,9 +1707,7 @@ public class Tune {
      * @param userId the user id
      */
     public void setUserId(final String userId) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setUserId(userId);
-        }});
+        params.setUserId(userId);
     }
 
     /**
@@ -1746,9 +1715,7 @@ public class Tune {
      * @param userName the username
      */
     public void setUserName(final String userName) {
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setUserName(userName);
-        }});
+        params.setUserName(userName);
     }
 
     /**
@@ -1758,9 +1725,7 @@ public class Tune {
     public void setPluginName(final String pluginName) {
         // Validate plugin name
         if (Arrays.asList(TuneConstants.PLUGIN_NAMES).contains(pluginName)) {
-            pubQueue.execute(new Runnable() { public void run() {
                 params.setPluginName(pluginName);
-            }});
         } else {
             if (debugMode) {
                 throw new IllegalArgumentException("Plugin name not acceptable");
@@ -1782,16 +1747,14 @@ public class Tune {
      */
     public void setDebugMode(final boolean debug) {
         debugMode = debug;
-        pubQueue.execute(new Runnable() { public void run() {
-            params.setDebugMode(debug);
-            if (TuneSmartWhere.isSmartWhereAvailable()) {
-                TuneSmartWhere.getInstance().setDebugMode(mContext, debug);
-            }
+        params.setDebugMode(debug);
+        if (TuneSmartWhere.isSmartWhereAvailable()) {
+            TuneSmartWhere.getInstance().setDebugMode(mContext, debug);
+        }
 
-        }});
         if (debug) {
             TuneDebugLog.enableLog();
-            TuneDebugLog.setLogLevel(Log.DEBUG);
+            TuneDebugLog.setLogLevel(android.util.Log.DEBUG);
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
@@ -1799,7 +1762,7 @@ public class Tune {
                 }
             });
         } else {
-            TuneDebugLog.setLogLevel(Log.ERROR);
+            TuneDebugLog.setLogLevel(android.util.Log.ERROR);
         }
     }
 
@@ -1819,31 +1782,26 @@ public class Tune {
      * @param collectEmail whether to collect device email address
      */
     public void setEmailCollection(final boolean collectEmail) {
-        pubQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                boolean accountPermission = TuneUtils.hasPermission(mContext, Manifest.permission.GET_ACCOUNTS);
-                if (collectEmail && accountPermission) {
-                    // Set primary Gmail address as user email
-                    Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
-                    if (accounts.length > 0) {
-                        params.setUserEmail(accounts[0].name);
-                    }
-
-                    // Store the rest of email addresses
-                    HashMap<String, String> emailMap = new HashMap<String, String>();
-                    accounts = AccountManager.get(mContext).getAccounts();
-                    for (Account account : accounts) {
-                        if (Patterns.EMAIL_ADDRESS.matcher(account.name).matches()) {
-                            emailMap.put(account.name, account.type);
-                        }
-                        Set<String> emailKeys = emailMap.keySet();
-                        String[] emailArr = emailKeys.toArray(new String[emailKeys.size()]);
-                        params.setUserEmails(emailArr);
-                    }
-                }
+        boolean accountPermission = TuneUtils.hasPermission(mContext, Manifest.permission.GET_ACCOUNTS);
+        if (collectEmail && accountPermission) {
+            // Set primary Gmail address as user email
+            Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
+            if (accounts.length > 0) {
+                params.setUserEmail(accounts[0].name);
             }
-        });
+
+            // Store the rest of email addresses
+            HashMap<String, String> emailMap = new HashMap<String, String>();
+            accounts = AccountManager.get(mContext).getAccounts();
+            for (Account account : accounts) {
+                if (Patterns.EMAIL_ADDRESS.matcher(account.name).matches()) {
+                    emailMap.put(account.name, account.type);
+                }
+                Set<String> emailKeys = emailMap.keySet();
+                String[] emailArr = emailKeys.toArray(new String[emailKeys.size()]);
+                params.setUserEmails(emailArr);
+            }
+        }
     }
 
     /**

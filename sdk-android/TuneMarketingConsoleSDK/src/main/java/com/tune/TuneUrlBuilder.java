@@ -13,15 +13,11 @@ import java.util.Date;
 import java.util.UUID;
 
 class TuneUrlBuilder {
-    private static TuneParameters params;
-
     /**
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    public static String appendTuneLinkParameters(String clickedTuneLinkUrl) {
-        params = TuneParameters.getInstance();
-
+    public static String appendTuneLinkParameters(TuneParameters params, String clickedTuneLinkUrl) {
         final Uri uri = Uri.parse(clickedTuneLinkUrl);
         final Uri.Builder builder = uri.buildUpon();
 
@@ -40,9 +36,8 @@ class TuneUrlBuilder {
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    public static String buildLink(TuneEvent eventData, TunePreloadData preloaded, boolean debugMode) {
-        params = TuneParameters.getInstance();
-        
+    public static String buildLink(TuneParameters params, TuneEvent eventData, TunePreloadData preloaded, boolean debugMode) {
+
         StringBuilder link = new StringBuilder("https://").append(params.getAdvertiserId()).append(".");
         if (debugMode) {
             link.append(TuneConstants.TUNE_DOMAIN_DEBUG);
@@ -109,9 +104,7 @@ class TuneUrlBuilder {
      * Builds data in conversion link based on class member values, to be encrypted.
      * @return URL-encoded string based on class settings.
      */
-    public static synchronized String buildDataUnencrypted(TuneEvent eventData) {
-        params = TuneParameters.getInstance();
-
+    public static synchronized String buildDataUnencrypted(TuneParameters params, TuneEvent eventData) {
         StringBuilder link = new StringBuilder();
 
         link.append(TuneUrlKeys.CONNECTION_TYPE + "=" + params.getConnectionType());
@@ -136,6 +129,8 @@ class TuneUrlBuilder {
         safeAppend(link, TuneUrlKeys.GOOGLE_AID, params.getGoogleAdvertisingId());
         safeAppend(link, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, params.getGoogleAdTrackingLimited());
         safeAppend(link, TuneUrlKeys.INSTALL_DATE, params.getInstallDate());
+        safeAppend(link, TuneUrlKeys.INSTALL_BEGIN_TIMESTAMP, params.getInstallBeginTimestampSeconds());
+        safeAppend(link, TuneUrlKeys.REFERRER_CLICK_TIMESTAMP, params.getReferrerClickTimestampSeconds());
         safeAppend(link, TuneUrlKeys.INSTALLER, params.getInstaller());
         safeAppend(link, TuneUrlKeys.INSTALL_REFERRER, params.getInstallReferrer());
         safeAppend(link, TuneUrlKeys.LANGUAGE, params.getLanguage());
@@ -229,14 +224,13 @@ class TuneUrlBuilder {
      * Update the advertising ID and install referrer, if present, and encrypts the data string.
      * @return encrypted string
      */
-    public static synchronized String updateAndEncryptData(String data, TuneEncryption encryption) {
+    public static synchronized String updateAndEncryptData(TuneParameters params, String data, TuneEncryption encryption) {
         if (data == null) {
             data = "";
         }
 
         StringBuilder updatedData = new StringBuilder(data);
-        
-        params = TuneParameters.getInstance();
+
         if (params != null) {
             String gaid = params.getGoogleAdvertisingId();
             if (gaid != null && !data.contains("&" + TuneUrlKeys.GOOGLE_AID + "=")) {
@@ -266,6 +260,14 @@ class TuneUrlBuilder {
             String referralUrl = params.getReferralUrl();
             if (referralUrl != null && !data.contains("&" + TuneUrlKeys.REFERRAL_URL + "=")) {
                 safeAppend(updatedData, TuneUrlKeys.REFERRAL_URL, referralUrl);
+            }
+            String installBeginTimestamp = params.getInstallBeginTimestampSeconds();
+            if (installBeginTimestamp != null && !data.contains("&" + TuneUrlKeys.INSTALL_BEGIN_TIMESTAMP + "=")) {
+                safeAppend(updatedData, TuneUrlKeys.INSTALL_BEGIN_TIMESTAMP, installBeginTimestamp);
+            }
+            String referrerClickTimestamp = params.getReferrerClickTimestampSeconds();
+            if (referrerClickTimestamp != null && !data.contains("&" + TuneUrlKeys.REFERRER_CLICK_TIMESTAMP + "=")) {
+                safeAppend(updatedData, TuneUrlKeys.REFERRER_CLICK_TIMESTAMP, referrerClickTimestamp);
             }
             String userAgent = params.getUserAgent();
             if (userAgent != null && !data.contains("&" + TuneUrlKeys.USER_AGENT + "=")) {

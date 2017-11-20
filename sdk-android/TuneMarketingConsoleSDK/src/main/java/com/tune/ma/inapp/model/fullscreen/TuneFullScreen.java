@@ -1,5 +1,6 @@
 package com.tune.ma.inapp.model.fullscreen;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -72,7 +73,7 @@ public class TuneFullScreen extends TuneInAppMessage {
 
     @Override
     public synchronized void load(Activity activity) {
-        if (!Tune.isOnline(activity)) {
+        if (!Tune.getInstance().isOnline(activity)) {
             TuneDebugLog.e("Device is offline, cannot load fullscreen message");
             return;
         }
@@ -102,7 +103,7 @@ public class TuneFullScreen extends TuneInAppMessage {
             return;
         }
 
-        if (!Tune.isOnline(lastActivity)) {
+        if (!Tune.getInstance().isOnline(lastActivity)) {
             TuneDebugLog.e("Device is offline, cannot display full screen message");
             return;
         }
@@ -207,6 +208,7 @@ public class TuneFullScreen extends TuneInAppMessage {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private WebView setupWebView(Activity activity) {
         WebView webView = new WebView(activity);
 
@@ -229,6 +231,15 @@ public class TuneFullScreen extends TuneInAppMessage {
         // Not default before API level 11
         webView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
         WebSettings webSettings = webView.getSettings();
+
+        /**
+         * setJavaScriptEnabled(true) allows JavaScript to be run in the WebView. (This is necessary for IMv2.)
+         *
+         * While this technically can allow cross-site scripting and would be a vulnerability risk in the wild,
+         * this WebView will only be used by TUNE's customers for HTML/JS they serve to their app via TUNE's dashboard.
+         * It is a relatively low-risk usage in practice as it's customer-controlled content and part of a private method, so suppressing warn.
+         */
+
         webSettings.setJavaScriptEnabled(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setSupportZoom(false);

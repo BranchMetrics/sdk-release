@@ -1,5 +1,6 @@
 package com.tune;
 
+import com.tune.ma.utils.TuneDebugLog;
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONException;
@@ -27,9 +28,9 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
 
         tune.setOnline( false );
-        assertFalse( "should be offline", TuneTestWrapper.isOnline( getContext() ) );
+        assertFalse( "should be offline", Tune.getInstance().isOnline( getContext() ) );
         tune.setOnline( true );
-        assertTrue( "should be online", TuneTestWrapper.isOnline( getContext() ) );
+        assertTrue( "should be online", Tune.getInstance().isOnline( getContext() ) );
     }
 
     public void testOfflineFailureQueued() {
@@ -114,6 +115,15 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         
         assertTrue( "should have two success responses, found " + successResponses.size(), successResponses.size() == 2 );
     }
+
+    public void testEnqueueCountClear() {
+        // Run the test that enqueues two requests (and makes sure they are there)
+        testEnqueue2();
+
+        // Clear the queue.  The count of items should go to zero
+        queue.clearQueue();
+        assertTrue("should have enqueued two requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
+    }
     
     public void test400FailureDropped() {
         // This first test goes from offline -> online, triggering a dump. Sleep to let that complete
@@ -162,6 +172,8 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
     }
 
     public void testInvokeIdLookupBypassesQueue() {
+        final Object waitObject = new Object();
+
         // hit our failure endpoint, assert that the request gets requeued
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
@@ -170,17 +182,35 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
             @Override
             public void didReceiveDeeplink(String deeplink) {
                 receivedDeeplink = deeplink;
+                synchronized(waitObject) {
+                    waitObject.notify();
+                }
             }
 
             @Override
             public void didFailDeeplink(String error) {
+                // This isn't exactly what we are looking for, but it will help move things along.
+                receivedDeeplink = "Error: " + error;
             }
         };
         tune.registerDeeplinkListener(deeplinkListener);
 
+        // It takes some amount of time to receive the deeplink callback...
+        int retryCount = 3;
+        while (receivedDeeplink == null && retryCount-- > 0) {
+            synchronized (waitObject) {
+                try {
+                    waitObject.wait(TuneTestConstants.SERVERTEST_SLEEP);
+                } catch (InterruptedException e) {
+                    TuneDebugLog.d("registerDeeplinkListener() Interrupted", e);
+                }
+            }
+        }
+
         tune.measureSessionInternal();
         tune.setReferralUrl("https://tty-o.tlnk.io/serve?action=click&publisher_id=169564&site_id=68756&invoke_id=289304");
-        sleep( 50 );
+        assertTrue(waitForTuneNotification(TuneTestConstants.PARAMTEST_SLEEP));
+
         assertTrue("queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
         assertEquals("testing://allthethings?success=yes", receivedDeeplink);
     }

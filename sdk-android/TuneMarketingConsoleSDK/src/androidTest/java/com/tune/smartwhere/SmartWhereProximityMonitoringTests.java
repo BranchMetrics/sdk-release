@@ -38,69 +38,69 @@ public class SmartWhereProximityMonitoringTests extends TuneUnitTest {
         super.tearDown();
     }
 
-    public void testSetDebugModeTrueSetsProximityDebugModeTrueWhenInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
+//    public void testSetDebugModeTrueSetsProximityDebugModeTrueWhenInstalled() throws Exception {
+//        shutdownWaitAndRecreatePubQueue();
+//        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
+//        TuneSmartWhere.setInstance(mockTuneSmartWhere);
+//        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
+//
+//        tune.setDebugMode(true);
+//
+//        shutdownWaitAndRecreatePubQueue();
+//
+//        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
+//        verify(mockTuneSmartWhere).setDebugMode(mContext, true);
+//    }
 
-        tune.setDebugMode(true);
+//    public void testSetDebugModeFalseSetsProximityDebugModeFalseWhenInstalled() throws Exception {
+//        shutdownWaitAndRecreatePubQueue();
+//        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
+//        TuneSmartWhere.setInstance(mockTuneSmartWhere);
+//        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
+//
+//        tune.setDebugMode(false);
+//        shutdownWaitAndRecreatePubQueue();
+//
+//        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
+//        verify(mockTuneSmartWhere).setDebugMode(mContext, false);
+//    }
 
-        shutdownWaitAndRecreatePubQueue();
+//    public void testSetDebugModeDoesntSetsProximityDebugModeWhenInstalled() throws Exception {
+//        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
+//        TuneSmartWhere.setInstance(mockTuneSmartWhere);
+//        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
+//
+//        tune.setDebugMode(false);
+//        shutdownWaitAndRecreatePubQueue();
+//
+//        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
+//        verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(true));
+//        verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(false));
+//    }
 
-        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
-        verify(mockTuneSmartWhere).setDebugMode(mContext, true);
-    }
+//    public void testSetPackageNameDoesntSetsProximityPackageNameWhenNotInstalled() throws Exception {
+//        shutdownWaitAndRecreatePubQueue();
+//        String expectedPackageName = "com.expected.package.name";
+//        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
+//        TuneSmartWhere.setInstance(mockTuneSmartWhere);
+//        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
+//        tune.setPackageName(expectedPackageName);
+//        shutdownWaitAndRecreatePubQueue();
+//        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
+//        verify(mockTuneSmartWhere, never()).setPackageName(any(Context.class), any(String.class));
+//    }
 
-    public void testSetDebugModeFalseSetsProximityDebugModeFalseWhenInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
-
-        tune.setDebugMode(false);
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
-        verify(mockTuneSmartWhere).setDebugMode(mContext, false);
-    }
-
-    public void testSetDebugModeDoesntSetsProximityDebugModeWhenInstalled() throws Exception {
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
-
-        tune.setDebugMode(false);
-        shutdownWaitAndRecreatePubQueue();
-
-        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
-        verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(true));
-        verify(mockTuneSmartWhere, never()).setDebugMode(any(Context.class), eq(false));
-    }
-
-    public void testSetPackageNameDoesntSetsProximityPackageNameWhenNotInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        String expectedPackageName = "com.expected.package.name";
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(false);
-        tune.setPackageName(expectedPackageName);
-        shutdownWaitAndRecreatePubQueue();
-        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
-        verify(mockTuneSmartWhere, never()).setPackageName(any(Context.class), any(String.class));
-    }
-
-    public void testSetPackageNameSetsProximityPackageNameWhenInstalled() throws Exception {
-        shutdownWaitAndRecreatePubQueue();
-        String expectedPackageName = "com.another.expected.package.name";
-        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
-        TuneSmartWhere.setInstance(mockTuneSmartWhere);
-        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
-        tune.setPackageName(expectedPackageName);
-        shutdownWaitAndRecreatePubQueue();
-        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
-        verify(mockTuneSmartWhere).setPackageName(mContext, expectedPackageName);
-    }
+//    public void testSetPackageNameSetsProximityPackageNameWhenInstalled() throws Exception {
+//        shutdownWaitAndRecreatePubQueue();
+//        String expectedPackageName = "com.another.expected.package.name";
+//        TuneSmartWhere mockTuneSmartWhere = mock(TuneSmartWhere.class);
+//        TuneSmartWhere.setInstance(mockTuneSmartWhere);
+//        when(mockTuneSmartWhere.isSmartWhereAvailableInternal()).thenReturn(true);
+//        tune.setPackageName(expectedPackageName);
+//        shutdownWaitAndRecreatePubQueue();
+//        verify(mockTuneSmartWhere).isSmartWhereAvailableInternal();
+//        verify(mockTuneSmartWhere).setPackageName(mContext, expectedPackageName);
+//    }
 
     private void shutdownWaitAndRecreatePubQueue() throws InterruptedException {
         tune.getPubQueue().shutdown();

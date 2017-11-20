@@ -15,7 +15,7 @@ public class MockApi implements Api {
 
     JSONObject configuration;
 
-    boolean postResult;
+    boolean postResult = true; // Default to successful Analytics Post
     int analyticsPostCount;
     JSONObject postedEvents;
 
@@ -27,17 +27,6 @@ public class MockApi implements Api {
     int syncCount;
 
     public MockApi() {
-        playlistRequestCount = 0;
-        playlistResponse = null;
-
-        postResult = true; // Default to successful Analytics Post
-        analyticsPostCount = 0;
-
-        connectedAnalyticsPostCount = 0;
-
-        connectCount = 0;
-        disconnectCount = 0;
-        syncCount = 0;
     }
 
     // Interface Methods

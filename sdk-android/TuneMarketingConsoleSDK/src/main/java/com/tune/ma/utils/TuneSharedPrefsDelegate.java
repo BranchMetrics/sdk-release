@@ -34,6 +34,15 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
+     * Saves an Integer to SharedPreferences
+     * @param prefsKey SharedPreferences key to save under
+     * @param prefsValue SharedPreferences value to save
+     */
+    public synchronized void saveIntegerToSharedPreferences(String prefsKey, int prefsValue) {
+        prefs.edit().putInt(prefsKey, prefsValue).apply();
+    }
+
+    /**
      * Retrieves a String from SharedPreferences
      * @param prefsKey SharedPreferences key of the value requested
      * @return SharedPreferences value for the given key or an empty string if it doesn't exist
@@ -76,6 +85,25 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
+     * Retrieves an Integer from SharedPreferences
+     * @param prefsKey SharedPreferences key of the value requested
+     * @return SharedPreferences value for the given key or zero if it doesn't exist
+     */
+    public synchronized int getIntegerFromSharedPreferences(String prefsKey) {
+        return prefs.getInt(prefsKey, 0);
+    }
+
+    /**
+     * Retrieves an Integer from SharedPreferences
+     * @param prefsKey SharedPreferences key of the value requested
+     * @param defaultValue Value to return if the key does not exist
+     * @return SharedPreferences value for the given key or default value if it doesn't exist
+     */
+    public synchronized int getIntegerFromSharedPreferences(String prefsKey, int defaultValue) {
+        return prefs.getInt(prefsKey, defaultValue);
+    }
+
+    /**
      * Checks if a given key exists in the shared preferences
      * @param prefsKey SharedPreferences key of the value requested
      * @return true if the key exists otherwise false
@@ -97,5 +125,91 @@ public class TuneSharedPrefsDelegate {
 
     public synchronized Map<String, ?> getAll() {
         return prefs.getAll();
+    }
+
+    // === SharedPreferences Wrapper API ===========================================================
+
+    /**
+     * Retrieve an int value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if the key does not exist
+     * @return SharedPreferences value for the given key or default value if it doesn't exist
+     */
+    public int getInt(String key, int defaultValue) {
+        return getIntegerFromSharedPreferences(key, defaultValue);
+    }
+
+    /**
+     * Retrieve an int value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @return SharedPreferences value for the given key or zero if it doesn't exist
+     */
+    public int getInt(String key) {
+        return getIntegerFromSharedPreferences(key);
+    }
+
+    /**
+     * Saves a Integer to SharedPreferences
+     * @param key SharedPreferences key to save under
+     * @param value SharedPreferences value to save
+     */
+    public void putInt(String key, int value) {
+        saveIntegerToSharedPreferences(key, value);
+    }
+
+    /**
+     * Retrieve a boolean value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if the key does not exist
+     * @return SharedPreferences value for the given key or default value if it doesn't exist
+     */
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return getBooleanFromSharedPreferences(key, defaultValue);
+    }
+
+    /**
+     * Retrieve a boolean value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @return SharedPreferences value for the given key or false if it doesn't exist
+     */
+    public boolean getBoolean(String key) {
+        return getBooleanFromSharedPreferences(key);
+    }
+
+    /**
+     * Saves a Boolean to SharedPreferences
+     * @param key SharedPreferences key to save under
+     * @param value SharedPreferences value to save
+     */
+    public void putBoolean(String key, boolean value) {
+        saveBooleanToSharedPreferences(key, value);
+    }
+
+    /**
+     * Retrieve a String value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if the key does not exist
+     * @return SharedPreferences value for the given key or default value if it doesn't exist
+     */
+    public String getString(String key, String defaultValue) {
+        return getStringFromSharedPreferences(key, defaultValue);
+    }
+
+    /**
+     * Retrieve a String value from the preferences.
+     * @param key The name of the preference to retrieve
+     * @return SharedPreferences value for the given key or an empty String if it doesn't exist
+     */
+    public String getString(String key) {
+        return getStringFromSharedPreferences(key);
+    }
+
+    /**
+     * Saves a String to SharedPreferences
+     * @param key SharedPreferences key to save under
+     * @param value SharedPreferences value to save
+     */
+    public void putString(String key, String value) {
+        saveToSharedPreferences(key, value);
     }
 }

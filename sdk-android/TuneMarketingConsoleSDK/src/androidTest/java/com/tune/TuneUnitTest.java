@@ -7,6 +7,8 @@ import android.util.Log;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
+import com.tune.ma.profile.TuneUserProfile;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
 
@@ -27,46 +29,38 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        Log.d(logTag, "***SETUP STARTED***");
 
-        getContext().getSharedPreferences("com.tune.ma.profile", Context.MODE_PRIVATE).edit().clear().apply();
+        // Clear the Tune User Profile settings.  Note that this should have called
+        // <code> new TuneUserProfile(getContext()).deleteSharedPrefs(); </code> but the constructor
+        // for TuneUserProfile is very expensive.
+        new TuneSharedPrefsDelegate(getContext(), TuneUserProfile.PREFS_TMA_PROFILE).clearSharedPreferences();
 
-        tune = TuneTestWrapper.init(getContext(), TuneTestConstants.advertiserId,
-                TuneTestConstants.conversionKey);
+        tune = TuneTestWrapper.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey);
         tune.setGoogleAdvertisingId("4e45e24e-8f30-4651-98ec-a80c0fb08eb5", true);
         tune.setTuneTestRequest(this);
         TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, UUID.randomUUID().toString(), false));
 
-        if (tune != null) { // could be null if test has finished already
-            queue = tune.getEventQueue();
-            queue.clearQueue();
-        }
-
+        queue = tune.getEventQueue();
         params = new TuneTestParams();
+
+        tune.waitForInit(TuneTestConstants.SERVERTEST_SLEEP);
+        Log.d(logTag, "***SETUP COMPLETE***");
     }
 
     @Override
     protected void tearDown() throws Exception {
+        Log.d(logTag, "***TEARDOWN STARTED***");
+
         if (tune != null) {
-            tune.removeBroadcastReceiver();
-            tune.clearSharedPrefs();
-            tune.pool.shutdown();
-            tune.pool.awaitTermination(5, TimeUnit.SECONDS);
-            tune.getPubQueue().shutdownNow();
-            tune.setOnline(true);
-            tune.clearSharedPrefs();
-            if (queue != null) {
-                queue.clearQueue();
-            }
-            TuneManager.destroy();
+            tune.shutDown();
+            queue.clearQueue();
         }
-        tune.clearParams();
-        tune = null;
-        params = null;
+
         queue = null;
+        tune = null;
 
-        TuneEventBus.clearFlags();
-        TuneEventBus.disable();
-
+        Log.d(logTag, "***TEARDOWN COMPLETE***");
         super.tearDown();
     }
 
@@ -103,6 +97,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
     }
 
     // request callback
+    private Object mTestWaitObject = new Object();
     public void constructedRequest(String url, String data, JSONObject postBody) {
         if (params == null)
             return;
@@ -113,5 +108,23 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
                 params.extractParamsString(data));
         assertTrue("extracting JSON failed from " + postBody,
                 params.extractParamsJSON(postBody));
+
+        synchronized (mTestWaitObject) {
+            mTestWaitObject.notify();
+        }
+    }
+
+    protected boolean waitForTuneNotification(long milliseconds) {
+        boolean rc = false;
+        synchronized (mTestWaitObject) {
+            try {
+                mTestWaitObject.wait(milliseconds);
+                rc = true;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return rc;
     }
 }

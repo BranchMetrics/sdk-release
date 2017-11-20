@@ -10,12 +10,13 @@ import com.tune.ma.utils.TuneDebugLog;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 
 public class TuneEventBus {
-    public static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(com.tune.BuildConfig.DEBUG_MODE).build();
+    private static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(com.tune.BuildConfig.DEBUG_MODE).build();
 
     // Higher priorities get executed first.
     public static final int PRIORITY_FIRST = 100;
@@ -28,7 +29,7 @@ public class TuneEventBus {
 
     // Use a queue in order to store events that occur before TuneManager is ready
     // After TuneManager is initialized, events will be sent real-time over the bus
-    private static List<Object> eventQueue = new ArrayList<>();
+    private static List<Object> eventQueue = Collections.synchronizedList(new ArrayList<>());
 
     // Event Bus is disabled by default until turnOnTMA is true
     private static volatile boolean enabled = false;
@@ -124,7 +125,7 @@ public class TuneEventBus {
         enabled = true;
     }
 
-    protected static synchronized List<Object> getQueue() {
+    static synchronized List<Object> getQueue() {
         return eventQueue;
     }
 
@@ -146,5 +147,10 @@ public class TuneEventBus {
     // This method is only used for the EnableDisable tests
     public static boolean isEnabled() {
         return enabled;
+    }
+
+    /** For unit test primarily. */
+    public static void clearCaches() {
+        EVENT_BUS.clearCaches();
     }
 }

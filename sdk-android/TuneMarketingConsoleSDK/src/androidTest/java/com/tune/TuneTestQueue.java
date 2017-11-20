@@ -16,9 +16,7 @@ public class TuneTestQueue extends TuneEventQueue {
     }
 
     public synchronized void clearQueue() {
-        for (int i = getQueueSize(); i > 0; i--) {
-            removeKeyFromQueue(Integer.toString(i));
-        }
+        super.clearQueue();
     }
     
     public synchronized JSONObject getQueueItem( int index ) throws JSONException {

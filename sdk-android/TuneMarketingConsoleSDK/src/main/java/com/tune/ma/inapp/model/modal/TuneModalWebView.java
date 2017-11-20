@@ -1,5 +1,6 @@
 package com.tune.ma.inapp.model.modal;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
@@ -16,7 +17,8 @@ public class TuneModalWebView extends WebView {
     protected Context context;
     protected TuneModal modal;
 
-    public TuneModalWebView(Context context, TuneModal parentModal) {
+    @SuppressLint("SetJavaScriptEnabled")
+    protected TuneModalWebView(Context context, TuneModal parentModal) {
         super(context);
         this.context = context;
         this.modal = parentModal;
@@ -38,6 +40,15 @@ public class TuneModalWebView extends WebView {
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
         WebSettings settings = this.getSettings();
+
+        /**
+         * setJavaScriptEnabled(true) allows JavaScript to be run in the WebView. (This is necessary for IMv2.)
+         *
+         * While this technically can allow cross-site scripting and would be a vulnerability risk in the wild,
+         * this WebView will only be used by TUNE's customers for HTML/JS they serve to their app via TUNE's dashboard.
+         * It is a relatively low-risk usage in practice as it's customer-controlled content and part of a protected constructor, so suppressing warn.
+         */
+
         settings.setJavaScriptEnabled(true);
         settings.setLoadWithOverviewMode(true);
         settings.setSupportZoom(false);
