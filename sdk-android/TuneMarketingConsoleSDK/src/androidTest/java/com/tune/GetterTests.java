@@ -56,7 +56,7 @@ public class GetterTests extends TuneUnitTest {
         String mcc = tune.getMCC();
         if (mcc != null) {
             int value = Integer.parseInt(mcc);
-            assert(value != 0);
+            assertTrue(value != 0);
         }
     }
 
@@ -64,7 +64,7 @@ public class GetterTests extends TuneUnitTest {
         String mnc = tune.getMNC();
         if (mnc != null) {
             int value = Integer.parseInt(mnc);
-            assert(value != 0);
+            assertTrue(value != 0);
         }
     }
 
