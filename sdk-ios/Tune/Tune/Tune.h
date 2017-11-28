@@ -36,7 +36,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"4.14.0"
+#define TUNEVERSION @"4.14.1"
 
 
 @protocol TuneDelegate;
@@ -1038,6 +1038,14 @@ typedef enum {
  @param error Error object returned by Tune.
  */
 - (void)tuneDidFailWithError:(NSError *)error;
+
+/*!
+ Delegate method called when an action fails.  Provides request and response, if available.
+ @param error Error object returned by Tune.
+ @param request request url as string, if available
+ @param response response as string, if available
+ */
+- (void)tuneDidFailWithError:(NSError *)error request:(NSString *)request response:(NSString *)response;
 
 /*!
  Delegate method called when a deferred deeplink becomes available.

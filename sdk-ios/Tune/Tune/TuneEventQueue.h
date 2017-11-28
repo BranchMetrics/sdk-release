@@ -68,6 +68,8 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 - (void)queueRequestDidFailWithError:(NSError *)error;
 
+- (void)queueRequestDidFailWithError:(NSError *)error request:(NSString *)request response:(NSString *)response;
+
 @required
 
 /*!

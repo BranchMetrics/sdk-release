@@ -559,7 +559,6 @@ static NSSet * doNotEncryptSet;
     }
 }
 
-
 #pragma mark - Start app-to-app tracking session
 
 - (void)setMeasurement:(NSString*)targetAppPackageName
@@ -708,10 +707,13 @@ static NSSet * doNotEncryptSet;
 - (void)queueRequest:(NSString *)requestUrl didSucceedWithData:(NSData *)data {
     NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    if(!strData || [strData rangeOfString:[NSString stringWithFormat:@"\"%@\":true", TUNE_KEY_SUCCESS]].location == NSNotFound) {
-        [self notifyDelegateFailureWithErrorCode:TuneServerErrorResponse
-                                             key:TUNE_KEY_ERROR_TUNE_SERVER_ERROR
-                                         message:strData];
+    if (!strData || [strData rangeOfString:[NSString stringWithFormat:@"\"%@\":true", TUNE_KEY_SUCCESS]].location == NSNotFound) {
+        // This NSError setup is to maintain compatibility with previous implementation
+        NSDictionary *errorDetails = @{NSLocalizedFailureReasonErrorKey: TUNE_KEY_ERROR_TUNE_SERVER_ERROR,
+                                       NSLocalizedDescriptionKey: strData ? strData : @""};
+        NSError *error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN code:TuneServerErrorResponse userInfo:errorDetails];
+        
+        [self queueRequestDidFailWithError:error request:requestUrl response:strData];
         return;
     }
     
@@ -748,8 +750,17 @@ static NSSet * doNotEncryptSet;
 }
 
 - (void)queueRequestDidFailWithError:(NSError *)error {
-    if([self.delegate respondsToSelector:@selector(tuneDidFailWithError:)]) {
+    [self queueRequestDidFailWithError:error request:nil response:nil];
+}
+
+- (void)queueRequestDidFailWithError:(NSError *)error request:(NSString *)request response:(NSString *)response {
+    // legacy error callback without optional network information
+    if ([self.delegate respondsToSelector:@selector(tuneDidFailWithError:)]) {
         [self.delegate tuneDidFailWithError:error];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(tuneDidFailWithError:request:response:)]) {
+        [self.delegate tuneDidFailWithError:error request:request response:response];
     }
 }
 

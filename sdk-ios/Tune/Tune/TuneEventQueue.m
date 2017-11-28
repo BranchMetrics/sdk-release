@@ -621,11 +621,11 @@ static TuneEventQueue *sharedQueue = nil;
             NSInteger code = 0;
             if (error != nil) {
                 DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
-                    
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
-                    [_delegate queueRequestDidFailWithError:error];
+                
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                    [_delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
-                    
+                
                 urlResp = nil; // set response to nil and make sure that the request is retried
             }
                 
@@ -649,7 +649,7 @@ static TuneEventQueue *sharedQueue = nil;
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                     userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
                     userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
@@ -661,7 +661,7 @@ static TuneEventQueue *sharedQueue = nil;
                     NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                      code:TUNE_REQUEST_400_ERROR_CODE
                                                  userInfo:userInfo];
-                    [_delegate queueRequestDidFailWithError:e];
+                    [_delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
                 }
                 // leave newFirstItem nil to delete
             }
@@ -712,8 +712,8 @@ static TuneEventQueue *sharedQueue = nil;
         if (error != nil) {
             DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
             
-            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
-                [_delegate queueRequestDidFailWithError:error];
+            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                [_delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
             urlResp = nil; // set response to nil to make sure that the request is retried
         }
@@ -816,8 +816,8 @@ static TuneEventQueue *sharedQueue = nil;
             if (error != nil) {
                 DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
                 
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
-                    [_delegate queueRequestDidFailWithError:error];
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                    [_delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
                 
                 urlResp = nil; // set response to nil and make sure that the request is retried
@@ -843,7 +843,7 @@ static TuneEventQueue *sharedQueue = nil;
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
+                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                     userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
                     userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
@@ -855,7 +855,7 @@ static TuneEventQueue *sharedQueue = nil;
                     NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                      code:TUNE_REQUEST_400_ERROR_CODE
                                                  userInfo:userInfo];
-                    [_delegate queueRequestDidFailWithError:e];
+                    [_delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
                 }
                 // leave newFirstItem nil to delete
             }
@@ -906,8 +906,8 @@ static TuneEventQueue *sharedQueue = nil;
         if (error != nil) {
             DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
             
-            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:)]) {
-                [_delegate queueRequestDidFailWithError:error];
+            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                [_delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
             urlResp = nil; // set response to nil to make sure that the request is retried
         }

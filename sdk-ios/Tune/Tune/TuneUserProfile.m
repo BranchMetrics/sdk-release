@@ -560,10 +560,13 @@ static NSNumber *COPPA_MIN_AGE;
 - (void)registerVariable:(NSString *)variableName value:(id)value type:(TuneAnalyticsVariableDataType)type hashed:(BOOL)shouldAutoHash {
     if ([TuneAnalyticsVariable validateName:variableName]){
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:variableName];
+        NSSet *systemVariables = [TuneUserProfileKeys getSystemVariables];
         
-        if ([[TuneUserProfileKeys getSystemVariables] containsObject:prettyName]) {
-            ErrorLog(@"The variable '%@' is a system variable, and cannot be set in this manner. Please use another name.", prettyName);
-            return;
+        for (NSString *systemVariable in systemVariables) {
+            if ([prettyName caseInsensitiveCompare:systemVariable] == NSOrderedSame) {
+                ErrorLog(@"The variable '%@' is a system variable, and cannot be registered in this manner. Please use another name.", prettyName);
+                return;
+            }
         }
         
         if ([prettyName hasPrefix:@"TUNE_"]) {

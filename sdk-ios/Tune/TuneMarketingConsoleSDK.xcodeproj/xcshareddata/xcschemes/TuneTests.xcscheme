@@ -39,6 +39,11 @@
                BlueprintName = "TuneTests"
                ReferencedContainer = "container:TuneMarketingConsoleSDK.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "TuneDelegateTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

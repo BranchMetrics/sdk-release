@@ -102,6 +102,8 @@
 		17437A781F2FF9BC005CBA51 /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
 		17437A791F2FF9C2005CBA51 /* TuneSmartWhereTriggeredEventManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */; };
 		17616E031F217B690015C59E /* TuneSmartWherePublicAPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17616E021F217B690015C59E /* TuneSmartWherePublicAPITests.m */; };
+		1768F9D61FC26C6C005D2958 /* TuneDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17AB14871FBF62750076EF7E /* TuneDelegateTests.m */; };
+		1768F9D71FC26C70005D2958 /* NSURLSession+TuneDelegateMockServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */; };
 		323040011B97A3ED00DD8E65 /* TuneNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */; };
 		323040021B97A3ED00DD8E65 /* TuneNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040001B97A3ED00DD8E65 /* TuneNotification.m */; };
 		323040051B97A80500DD8E65 /* TuneNotificationProcessing.h in Headers */ = {isa = PBXBuildFile; fileRef = 323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */; };
@@ -1312,6 +1314,9 @@
 		0BECFEE01B86A00500501733 /* TuneSessionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSessionManagerTests.m; sourceTree = "<group>"; };
 		0BECFEE31B8703AA00501733 /* TuneAnalyticsEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAnalyticsEventTests.m; sourceTree = "<group>"; };
 		17616E021F217B690015C59E /* TuneSmartWherePublicAPITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TuneSmartWherePublicAPITests.m; path = ../Tune/TuneSmartWherePublicAPITests.m; sourceTree = "<group>"; };
+		1768F8E51FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+TuneDelegateMockServer.h"; sourceTree = "<group>"; };
+		1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+TuneDelegateMockServer.m"; sourceTree = "<group>"; };
+		17AB14871FBF62750076EF7E /* TuneDelegateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneDelegateTests.m; sourceTree = "<group>"; };
 		32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotification.h; sourceTree = "<group>"; };
 		323040001B97A3ED00DD8E65 /* TuneNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotification.m; sourceTree = "<group>"; };
 		323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotificationProcessing.h; sourceTree = "<group>"; };
@@ -1885,6 +1890,9 @@
 				0B770F411B66325E00C51B87 /* TuneTrackerInitializationTests.m */,
 				3F4BB1ED1B82514A0084864D /* TuneUserDefaultsUtilsTests.m */,
 				0B770F401B66325E00C51B87 /* TuneUtilsTests.m */,
+				17AB14871FBF62750076EF7E /* TuneDelegateTests.m */,
+				1768F8E51FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.h */,
+				1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */,
 			);
 			name = TuneTests;
 			path = TuneMarketingConsoleSDKTests;
@@ -3386,6 +3394,7 @@
 				F8F693D81CFFC15B00B453D9 /* TuneFBBridge.m in Sources */,
 				F8F694131CFFC15B00B453D9 /* TunePlaylist.m in Sources */,
 				F8F693DA1CFFC15B00B453D9 /* TuneInstallReceipt.m in Sources */,
+				1768F9D71FC26C70005D2958 /* NSURLSession+TuneDelegateMockServer.m in Sources */,
 				32AC66B01BA8F39E0069B549 /* TuneBlankAppDelegate.m in Sources */,
 				F8F694121CFFC15B00B453D9 /* TunePlaylistManager.m in Sources */,
 				F8F693DD1CFFC15B00B453D9 /* TuneReachability.m in Sources */,
@@ -3479,6 +3488,7 @@
 				9BE786E11F04580A006C2B55 /* SmartWhereForDelegateTest.m in Sources */,
 				DBCA43311B8E642300483318 /* TuneParametersTests.m in Sources */,
 				F8F693CF1CFFC15B00B453D9 /* UIViewController+NameTag.m in Sources */,
+				1768F9D61FC26C6C005D2958 /* TuneDelegateTests.m in Sources */,
 				3F3290C81B9635F600C472F8 /* TunePIIUtilsTests.m in Sources */,
 				32AC66AD1BA8F38E0069B549 /* TuneAppDelegateTests.m in Sources */,
 				F8F6943F1CFFC15B00B453D9 /* TuneStringUtils.m in Sources */,

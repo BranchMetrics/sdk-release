@@ -17,16 +17,16 @@
 
 @import AdSupport;
 
-typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
+typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
 
 // utility class so we can use the TuneDelegate like a callback block
-@interface TuneDeeplinkerDelegate : NSObject <TuneDelegate>
-@property (nonatomic, copy, readwrite) TuneDeepLinkerDelegateCallbackBlock block;
+@interface TuneDeeplinkerTestsDelegate : NSObject <TuneDelegate>
+@property (nonatomic, copy, readwrite) TuneDeeplinkerTestsDelegateCallbackBlock block;
 @end
 
-@implementation TuneDeeplinkerDelegate
+@implementation TuneDeeplinkerTestsDelegate
 
-- (instancetype)initWithBlock:(TuneDeepLinkerDelegateCallbackBlock)block {
+- (instancetype)initWithBlock:(TuneDeeplinkerTestsDelegateCallbackBlock)block {
     self = [super init];
     if (self) {
         self.block = block;
@@ -67,7 +67,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
 - (void)testLegacyCheckForDeferredDeepLinkSuccess {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Network call completed"];
     
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         [expectation fulfill];
         [Tune checkForDeferredDeeplink:nil];
@@ -91,7 +91,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
 - (void)testCheckForDeferredDeepLinkSuccess {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Network call completed"];
     
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         [expectation fulfill];
         [Tune registerDeeplinkListener:nil];
@@ -124,7 +124,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
 
     [Tune setShouldAutoCollectAppleAdvertisingIdentifier:YES];
     __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"Real IFA found"];
-    [Tune registerDeeplinkListener:[[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    [Tune registerDeeplinkListener:[[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         [expectation1 fulfill];
         [Tune registerDeeplinkListener:nil];
@@ -170,7 +170,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
     XCTestExpectation *expectation = [self expectationWithDescription:@"Expectation that never fulfills..."];
     __block int callCount = 0;
     
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         callCount++;
     }];
@@ -296,7 +296,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
     __block NSString *deepLinkReceived;
     __block int callCount = 0;
 
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         callCount++;
 
@@ -329,7 +329,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
     __block NSString *deepLinkReceived;
     __block int callCount = 0;
     
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         callCount++;
         
@@ -362,7 +362,7 @@ typedef void(^TuneDeepLinkerDelegateCallbackBlock)(BOOL, NSString *);
     XCTestExpectation *expectation = [self expectationWithDescription:@"Expectation that never fulfills..."];
     __block int callCount = 0;
     
-    TuneDeeplinkerDelegate *delegate = [[TuneDeeplinkerDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
+    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
         callCount++;
     }];

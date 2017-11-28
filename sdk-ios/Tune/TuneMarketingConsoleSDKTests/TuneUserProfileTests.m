@@ -400,6 +400,30 @@
     [[TuneSkyhookCenter defaultCenter] removeObserver:simpleObserver name:TuneUserProfileVariablesCleared object:nil];
 }
 
+- (void)testAllowCustomVariableValuesToBeSetRegardlessOfNameCase {
+    [[TuneManager currentManager].userProfile registerString:@"Cat" withDefault:@"Tabby"];
+    [[TuneManager currentManager].userProfile registerString:@"cat" withDefault:@"Siamese"];
+    
+    TuneAnalyticsVariable *var = [[TuneManager currentManager].userProfile getProfileVariable:@"Cat"];
+    TuneAnalyticsVariable *var2 = [[TuneManager currentManager].userProfile getProfileVariable:@"cat"];
+    
+    [[TuneManager currentManager].userProfile setStringValue:@"Mink" forVariable:@"Cat"];
+    [[TuneManager currentManager].userProfile setStringValue:@"Burmese" forVariable:@"cat"];
+    
+    TuneAnalyticsVariable *var3 = [[TuneManager currentManager].userProfile getProfileVariable:@"Cat"];
+    TuneAnalyticsVariable *var4 = [[TuneManager currentManager].userProfile getProfileVariable:@"cat"];
+    
+    XCTAssertTrue([var.name isEqualToString:@"Cat"]);
+    XCTAssertTrue([var.value isEqualToString:@"Tabby"]);
+    XCTAssertTrue([var2.name isEqualToString:@"cat"]);
+    XCTAssertTrue([var2.value isEqualToString:@"Siamese"]);
+    
+    XCTAssertTrue([var3.name isEqualToString:@"Cat"]);
+    XCTAssertTrue([var3.value isEqualToString:@"Mink"]);
+    XCTAssertTrue([var4.name isEqualToString:@"cat"]);
+    XCTAssertTrue([var4.value isEqualToString:@"Burmese"]);
+}
+
 - (void)testClearCustomProfile {
     [[TuneSkyhookCenter defaultCenter] startSkyhookQueue];
     [[TuneSkyhookCenter defaultCenter] addObserver:simpleObserver selector:@selector(skyhookPosted:) name:TuneUserProfileVariablesCleared object:nil];
@@ -525,6 +549,23 @@
     var = [self getDictionary:output key:TUNE_KEY_USER_NAME_SHA256][0];
     XCTAssertTrue([var[@"hash"] isEqualToString:@"sha256"]);
     XCTAssertTrue([var[@"value"] isEqualToString:@"53149a84ca2e85a9c853b7fb017c58c16cdc48fed3759be89b008d73d1b6d834"]);
+}
+// Test to make sure checks of custom variables are case-insensitive when registering them
+- (void)testPreventCollisionOfCustomVariableWithProfileVariable {
+    [[TuneManager currentManager].userProfile registerString:@"Language" withDefault:@"Dravanian"];
+    [[TuneManager currentManager].userProfile registerString:@"Device Token" withDefault:@"Knicknack"];
+    [[TuneManager currentManager].userProfile registerString:@"Butterfly" withDefault:@"Monarch"];
+    
+    TuneAnalyticsVariable *var = [[TuneManager currentManager].userProfile getProfileVariable:@"Language"];
+    TuneAnalyticsVariable *var2 = [[TuneManager currentManager].userProfile getProfileVariable:@"Device Token"];
+    TuneAnalyticsVariable *var3 = [[TuneManager currentManager].userProfile getProfileVariable:@"DeviceToken"];
+    TuneAnalyticsVariable *var4 = [[TuneManager currentManager].userProfile getProfileVariable:@"Butterfly"];
+    
+    XCTAssertNil(var);
+    XCTAssertNil(var2);
+    XCTAssertNil(var3);
+    XCTAssertTrue([var4.name isEqualToString:@"Butterfly"]);
+    XCTAssertTrue([var4.value isEqualToString:@"Monarch"]);
 }
 
 - (void)testPreventAddingCustomProfileVariablesStartingWithTune {
