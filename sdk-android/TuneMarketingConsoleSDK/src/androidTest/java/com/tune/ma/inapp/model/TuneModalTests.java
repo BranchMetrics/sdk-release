@@ -37,7 +37,9 @@ public class TuneModalTests extends TuneUnitTest {
 
             message = new TuneModal(inAppMessage) {
                 @Override
-                public void display() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void display() {
                     return;
                 }
             };

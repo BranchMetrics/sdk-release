@@ -280,14 +280,24 @@ public class TuneUserProfile {
         return result;
     }
 
-    public synchronized List<TuneAnalyticsVariable> getCopyOfVars() {
+    public synchronized List<TuneAnalyticsVariable> getCopyOfNonRedactedVars(Set<String> redactedKeys) {
         List<TuneAnalyticsVariable> result = new LinkedList<>();
         for (TuneAnalyticsVariable var: variables.values()) {
-            result.add(new TuneAnalyticsVariable(var));
+            if (redactedKeys.contains(var.getName())) {
+                // Key is redacted, and will not be appended.
+                // TuneUtils.log("REDACTED Key: " + var.getName());
+            } else {
+                result.add(new TuneAnalyticsVariable(var));
+            }
         }
 
         for (TuneAnalyticsVariable sessionVariable: sessionVariables) {
-            result.add(sessionVariable);
+            if (redactedKeys.contains(sessionVariable.getName())) {
+                // Key is redacted, and will not be appended.
+                // TuneUtils.log("REDACTED Session Key: " + sessionVariable.getName());
+            } else {
+                result.add(sessionVariable);
+            }
         }
         return result;
     }

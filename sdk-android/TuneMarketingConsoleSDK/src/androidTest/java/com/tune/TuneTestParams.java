@@ -31,13 +31,13 @@ public class TuneTestParams extends java.lang.Object {
         // Log.d( "PARAMS", "extracting from " + string );
         String[] components = string.split("&");
         for (int i = 0; i < components.length; i++) {
-            if (components[i].equals(""))
+            if (components[i].length() == 0)
                 continue;
 
             String[] keyValue = components[i].split("=");
             if (keyValue.length != 2)
                 continue;
-            if (keyValue[0].equals(""))
+            if (keyValue[0].length() == 0)
                 continue;
             if (keyValue[0].equals("da"))
                 continue; // this is the encrypted data param
@@ -50,7 +50,7 @@ public class TuneTestParams extends java.lang.Object {
         return true;
     }
 
-    public Hashtable<String, Object> hashFromJSON(JSONObject json) {
+    private Hashtable<String, Object> hashFromJSON(JSONObject json) {
         Hashtable<String, Object> hash = new Hashtable<String, Object>();
 
         Iterator<?> iter = json.keys();
@@ -91,12 +91,12 @@ public class TuneTestParams extends java.lang.Object {
         if (params == null)
             params = new Hashtable<String, Object>();
 
-        if (values.containsKey("data"))
-            params.put(kDataItemKey, values.get("data"));
+        if (values.containsKey(TuneUrlKeys.EVENT_ITEMS))
+            params.put(kDataItemKey, values.get(TuneUrlKeys.EVENT_ITEMS));
 
         for (Enumeration<String> keys = values.keys(); keys.hasMoreElements();) {
             String key = keys.nextElement();
-            if (!key.equals("data"))
+            if (!key.equals(TuneUrlKeys.EVENT_ITEMS))
                 params.put(key, values.get(key));
         }
 
@@ -123,58 +123,58 @@ public class TuneTestParams extends java.lang.Object {
         return (checkKeyHasValue(key) && params.get(key).equals(value));
     }
 
-    public boolean checkAppValues() {
-        boolean retval = ((checkKeyIsEqualToValue("advertiser_id",
+    private boolean checkAppValues() {
+        boolean retval = ((checkKeyIsEqualToValue(TuneUrlKeys.ADVERTISER_ID,
                 TuneTestConstants.advertiserId) || checkKeyIsEqualToValue("adv",
                 TuneTestConstants.advertiserId))
-                && (checkKeyIsEqualToValue("package_name",
+                && (checkKeyIsEqualToValue(TuneUrlKeys.PACKAGE_NAME,
                         TuneTestConstants.appId) || checkKeyIsEqualToValue("pn",
                         TuneTestConstants.appId))
-                && (checkKeyIsEqualToValue("app_version", "0") || checkKeyIsEqualToValue(
-                        "av", "0")) && (checkKeyHasValue("app_name") || checkKeyHasValue("an")));
+                && (checkKeyIsEqualToValue(TuneUrlKeys.APP_VERSION, "0") || checkKeyIsEqualToValue(
+                        "av", "0")) && (checkKeyHasValue(TuneUrlKeys.APP_NAME) || checkKeyHasValue("an")));
         if (!retval) {
             Log.d("PARAMS",
                     "app values: "
-                            + checkKeyIsEqualToValue("advertiser_id",
+                            + checkKeyIsEqualToValue(TuneUrlKeys.ADVERTISER_ID,
                                     TuneTestConstants.advertiserId)
                             + " "
-                            + checkKeyIsEqualToValue("package_name",
+                            + checkKeyIsEqualToValue(TuneUrlKeys.PACKAGE_NAME,
                                     TuneTestConstants.appId) + " "
-                            + checkKeyIsEqualToValue("app_version", "0") + " "
-                            + checkKeyHasValue("app_name"));
+                            + checkKeyIsEqualToValue(TuneUrlKeys.APP_VERSION, "0") + " "
+                            + checkKeyHasValue(TuneUrlKeys.APP_NAME));
         }
         return retval;
     }
 
-    public boolean checkSdkValues() {
-        return ((checkKeyIsEqualToValue("sdk", "android") || checkKeyIsEqualToValue(
-                "s", "android"))
-                && checkKeyHasValue("ver")
-                && (checkKeyHasValue(TuneUrlKeys.MAT_ID) || checkKeyHasValue("mi")) && checkKeyHasValue(TuneUrlKeys.TRANSACTION_ID));
+    private boolean checkSdkValues() {
+        return ((checkKeyIsEqualToValue(TuneUrlKeys.SDK, "android") || checkKeyIsEqualToValue("s", "android"))
+                && checkKeyHasValue(TuneUrlKeys.SDK_VER)
+                && (checkKeyHasValue(TuneUrlKeys.MAT_ID) || checkKeyHasValue("mi"))
+                && checkKeyHasValue(TuneUrlKeys.TRANSACTION_ID));
     }
 
-    public boolean checkDeviceValues() {
-        boolean retval = ((checkKeyHasValue("language") || checkKeyHasValue("l"))
-                && checkKeyHasValue("locale")
-                && checkKeyHasValue("screen_density")
-                && checkKeyHasValue("screen_layout_size")
-                && checkKeyHasValue("connection_type")
-                && (checkKeyHasValue("os_version") || checkKeyHasValue("ov"))
-                && checkKeyHasValue("build")
-                && checkKeyHasValue("device_cpu_type")
-                && (checkKeyHasValue("device_brand") || checkKeyHasValue("db"))
-                && (checkKeyHasValue("device_model") || checkKeyHasValue("dm")));
+    private boolean checkDeviceValues() {
+        boolean retval = ((checkKeyHasValue(TuneUrlKeys.LANGUAGE) || checkKeyHasValue("l"))
+                && checkKeyHasValue(TuneUrlKeys.LOCALE)
+                && checkKeyHasValue(TuneUrlKeys.SCREEN_DENSITY)
+                && checkKeyHasValue(TuneUrlKeys.SCREEN_LAYOUT_SIZE)
+                && checkKeyHasValue(TuneUrlKeys.CONNECTION_TYPE)
+                && (checkKeyHasValue(TuneUrlKeys.OS_VERSION) || checkKeyHasValue("ov"))
+                && checkKeyHasValue(TuneUrlKeys.DEVICE_BUILD)
+                && checkKeyHasValue(TuneUrlKeys.DEVICE_CPU_TYPE)
+                && (checkKeyHasValue(TuneUrlKeys.DEVICE_BRAND) || checkKeyHasValue("db"))
+                && (checkKeyHasValue(TuneUrlKeys.DEVICE_MODEL) || checkKeyHasValue("dm")));
 
         if (!retval) {
             Log.d("PARAMS", "device values: "
-                    + checkKeyHasValue("language") + " "
-                    + checkKeyHasValue("screen_density") + " "
-                    + checkKeyHasValue("screen_layout_size") + " "
-                    + checkKeyHasValue("connection_type") + " "
-                    + checkKeyHasValue("os_version") + " "
-                    + checkKeyHasValue("device_cpu_type") + " "
-                    + checkKeyHasValue("device_brand") + " "
-                    + checkKeyHasValue("device_model"));
+                    + checkKeyHasValue(TuneUrlKeys.LANGUAGE) + " "
+                    + checkKeyHasValue(TuneUrlKeys.SCREEN_DENSITY) + " "
+                    + checkKeyHasValue(TuneUrlKeys.SCREEN_LAYOUT_SIZE) + " "
+                    + checkKeyHasValue(TuneUrlKeys.CONNECTION_TYPE) + " "
+                    + checkKeyHasValue(TuneUrlKeys.OS_VERSION) + " "
+                    + checkKeyHasValue(TuneUrlKeys.DEVICE_CPU_TYPE) + " "
+                    + checkKeyHasValue(TuneUrlKeys.DEVICE_BRAND) + " "
+                    + checkKeyHasValue(TuneUrlKeys.DEVICE_MODEL));
         }
         return retval;
     }
@@ -198,25 +198,25 @@ public class TuneTestParams extends java.lang.Object {
         String foundName = new String(name);
         switch (foundName) {
             case "itemname":
-                foundName = "item";
+                foundName = TuneEventItem.ITEM;
                 break;
             case "unitPrice":
-                foundName = "unit_price";
+                foundName = TuneEventItem.UNIT_PRICE;
                 break;
             case "attribute1":
-                foundName = "attribute_sub1";
+                foundName = TuneUrlKeys.ATTRIBUTE1;
                 break;
             case "attribute2":
-                foundName = "attribute_sub2";
+                foundName = TuneUrlKeys.ATTRIBUTE2;
                 break;
             case "attribute3":
-                foundName = "attribute_sub3";
+                foundName = TuneUrlKeys.ATTRIBUTE3;
                 break;
             case "attribute4":
-                foundName = "attribute_sub4";
+                foundName = TuneUrlKeys.ATTRIBUTE4;
                 break;
             case "attribute5":
-                foundName = "attribute_sub5";
+                foundName = TuneUrlKeys.ATTRIBUTE5;
                 break;
             default:
         }

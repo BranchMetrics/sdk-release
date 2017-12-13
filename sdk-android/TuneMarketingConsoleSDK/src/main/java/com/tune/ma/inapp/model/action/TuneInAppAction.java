@@ -195,18 +195,32 @@ public class TuneInAppAction {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof TuneInAppAction)) return false;
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof TuneInAppAction)) {
+            return false;
+        }
 
         TuneInAppAction that = (TuneInAppAction) obj;
+        if (type != that.type) {
+            return false;
+        }
 
-        if (type != that.type) return false;
-        if (!name.equals(that.name)) return false;
-        if (deeplink != null && that.deeplink != null ? !deeplink.equals(that.deeplink) : deeplink != that.deeplink) return false;
-        if (deepActionId != null && that.deepActionId != null ? !deepActionId.equals(that.deepActionId) : deepActionId != that.deepActionId) return false;
-        if (deepActionData != null && that.deepActionData != null ? !deepActionData.equals(that.deepActionData) : deepActionData != that.deepActionData) return false;
+        if (!name.equals(that.name)) {
+            return false;
+        }
 
-        return true;
+        if (deeplink != null && that.deeplink != null ? !deeplink.equals(that.deeplink) : deeplink != that.deeplink) {
+            return false;
+        }
+
+        if (deepActionId != null && that.deepActionId != null ? !deepActionId.equals(that.deepActionId) : deepActionId != that.deepActionId) {
+            return false;
+        }
+
+        return deepActionData != null && that.deepActionData != null ? deepActionData.equals(that.deepActionData) : deepActionData == that.deepActionData;
     }
 
     @Override

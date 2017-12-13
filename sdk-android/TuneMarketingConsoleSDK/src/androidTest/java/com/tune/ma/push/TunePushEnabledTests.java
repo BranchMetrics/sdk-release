@@ -52,8 +52,9 @@ public class TunePushEnabledTests extends TuneUnitTest {
             super(context, appName);
         }
 
-        // For these tests we never want this method to fire
         @Override
+        // For these tests we never want this method to fire; suppressing lint warn
+        @SuppressWarnings("UnnecessaryReturnStatement")
         protected void registerInBackground(final boolean unregisterFirst) {
             return;
         }

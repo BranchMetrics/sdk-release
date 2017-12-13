@@ -14,7 +14,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -549,7 +548,7 @@ public class Tune {
         TuneDebugLog.d("Sending event to server...");
 
         final boolean removeRequestFromQueue = true;
-        final boolean retryRequest = !removeRequestFromQueue;
+        final boolean retryRequestInQueue = false;
 
         if (link == null) { // This is an internal method and link should always be set, but for customer stability we will prevent NPEs
             TuneDebugLog.e(TuneConstants.TAG, "CRITICAL internal Tune request link is null");
@@ -576,7 +575,7 @@ public class Tune {
         if (!response.has("success")) { // if response is empty, it should be requeued
             TuneDebugLog.e("Request failed, event will remain in queue");
             safeReportFailureToTuneListener(response);
-            return retryRequest;
+            return retryRequestInQueue;
         }
 
         checkForExpandedTuneLinks(link, response);
@@ -588,7 +587,7 @@ public class Tune {
         } catch (JSONException e) {
             TuneDebugLog.e("Error parsing response " + response + " to check for success", e);
             safeReportFailureToTuneListener(response);
-            return retryRequest;
+            return retryRequestInQueue;
         }
 
         safeReportSuccessOrFailureToTuneListener(response, success);
@@ -715,17 +714,7 @@ public class Tune {
      * @return age, if set. If no value is set this method returns 0.
      */
     public int getAge() {
-        String ageString = params.getAge();
-        int age = 0;
-        if (ageString != null) {
-            try {
-                age = Integer.parseInt(ageString);
-            } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing age value " + ageString, e);
-            }
-        }
-
-        return age;
+        return params.getAgeNumeric();
     }
 
     /**
@@ -758,20 +747,11 @@ public class Tune {
 
     /**
      * Get whether the user has app-level ad tracking enabled or not.
+     * Note that COPPA rules apply.
      * @return app-level ad tracking enabled or not
      */
     public boolean getAppAdTrackingEnabled() {
-        String appAdTrackingEnabledString = params.getAppAdTrackingEnabled();
-        int adTrackingEnabled = 0;
-        if (appAdTrackingEnabledString != null) {
-            try {
-                adTrackingEnabled = Integer.parseInt(appAdTrackingEnabledString);
-            } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
-            }
-        }
-
-        return (adTrackingEnabled == 1);
+        return params.getAppAdTrackingEnabled();
     }
 
     /**
@@ -891,18 +871,11 @@ public class Tune {
 
     /**
      * Gets whether use of the Fire Advertising ID is limited by user request.
+     * Note that COPPA rules apply.
      * @return whether tracking is limited
      */
     public boolean getFireAdTrackingLimited() {
-        String fireAdTrackingLimitedString = params.getFireAdTrackingLimited();
-        int fireAdTrackingLimited = 0;
-        try {
-            fireAdTrackingLimited = Integer.parseInt(fireAdTrackingLimitedString);
-        } catch (NumberFormatException e) {
-            TuneDebugLog.e(TuneConstants.TAG, "Error parsing fireAdTrackingLimited value " + fireAdTrackingLimitedString, e);
-        }
-
-        return (fireAdTrackingLimited != 0);
+        return params.getFireAdTrackingLimited();
     }
 
     /**
@@ -930,18 +903,11 @@ public class Tune {
 
     /**
      * Gets whether use of the Google Play Services Advertising ID is limited by user request.
+     * Note that COPPA rules apply.
      * @return whether tracking is limited
      */
     public boolean getGoogleAdTrackingLimited() {
-        String googleAdTrackingLimitedString = params.getGoogleAdTrackingLimited();
-        int googleAdTrackingLimited = 0;
-        try {
-            googleAdTrackingLimited = Integer.parseInt(googleAdTrackingLimitedString);
-        } catch (NumberFormatException e) {
-            TuneDebugLog.e(TuneConstants.TAG, "Error parsing googleAdTrackingLimited value " + googleAdTrackingLimitedString, e);
-        }
-
-        return (googleAdTrackingLimited != 0);
+        return params.getGoogleAdTrackingLimited();
     }
 
     /**
@@ -992,11 +958,7 @@ public class Tune {
      * @return true if the age has been set to less than 13 OR this profile has been set explicitly as privacy protected.
      */
     public boolean isPrivacyProtectedDueToAge() {
-        int age = getAge();
-        boolean isCoppaAgeRestricted = (age > 0 && age < TuneConstants.COPPA_MINIMUM_AGE);
-        boolean isExplicitlySetAsProtected = params.isPrivacyProtectedDueToAge();
-
-        return (isCoppaAgeRestricted || isExplicitlySetAsProtected);
+        return params.isPrivacyProtectedDueToAge();
     }
 
     /**
@@ -1303,9 +1265,9 @@ public class Tune {
      */
     public void setAppAdTrackingEnabled(final boolean adTrackingEnabled) {
         if (adTrackingEnabled) {
-            params.setAppAdTrackingEnabled(Integer.toString(1));
+            params.setAppAdTrackingEnabled(TuneConstants.PREF_SET);
         } else {
-            params.setAppAdTrackingEnabled(Integer.toString(0));
+            params.setAppAdTrackingEnabled(TuneConstants.PREF_UNSET);
         }
     }
 
@@ -1367,9 +1329,9 @@ public class Tune {
      */
     public void setExistingUser(final boolean existing) {
         if (existing) {
-            params.setExistingUser(Integer.toString(1));
+            params.setExistingUser(TuneConstants.PREF_SET);
         } else {
-            params.setExistingUser(Integer.toString(0));
+            params.setExistingUser(TuneConstants.PREF_UNSET);
         }
     }
 
@@ -1624,7 +1586,7 @@ public class Tune {
         }
 
         // You can, however, turn "on" privacy protection regardless of age.
-        params.setPrivacyProtectedDueToAge(isPrivacyProtected);
+        params.setPrivacyExplicitlySetAsProtected(isPrivacyProtected);
         return true;
     }
 

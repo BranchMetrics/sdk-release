@@ -41,8 +41,6 @@ public class TuneConstants {
 
     // Server domain
     static final String TUNE_DOMAIN = "engine.mobileapptracking.com";
-    // Server domain for debug
-    static final String TUNE_DOMAIN_DEBUG = "debug.engine.mobileapptracking.com";
     // Deeplink endpoint
     public static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
 

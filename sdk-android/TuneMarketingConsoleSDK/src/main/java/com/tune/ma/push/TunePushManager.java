@@ -320,12 +320,9 @@ public class TunePushManager {
         if (tooYoungForPush) {
             // COPPA doesn't allow us to send push to people we know to be younger than 13
             return false;
-        } else if (endUserPushEnabled && developerPushEnabled) {
-            return true;
-        } else {
-            // if the app user OR developer has explicitly turned off push make sure we don't set it to enabled.
-            return false;
         }
+        // otherwise push is decided by considering the user and developer properties
+        return endUserPushEnabled && developerPushEnabled;
     }
 
     private boolean isPushStatusDetermined() {

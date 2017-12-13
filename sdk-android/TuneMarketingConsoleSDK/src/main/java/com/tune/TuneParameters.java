@@ -36,7 +36,9 @@ import org.json.JSONException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -298,7 +300,7 @@ public class TuneParameters {
                     }
 
                     // Get Fire limit ad tracking preference
-                    isLAT = (Secure.getInt(contentResolver, TuneConstants.FIRE_LIMIT_AD_TRACKING_KEY) == 0) ? false : true;
+                    isLAT = Secure.getInt(contentResolver, TuneConstants.FIRE_LIMIT_AD_TRACKING_KEY) != 0;
 
                     // mTune's params may not be initialized by the time this thread finishes
                     if (mTune.params == null) {
@@ -400,6 +402,20 @@ public class TuneParameters {
     public synchronized String getAge() {
         return mAge;
     }
+    public synchronized int getAgeNumeric() {
+        String ageString = getAge();
+        int age = 0;
+        if (ageString != null) {
+            try {
+                age = Integer.parseInt(ageString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing age value " + ageString, e);
+            }
+        }
+
+        return age;
+    }
+
     public synchronized void setAge(final String age) {
         mAge = age;
         mExecutor.execute(new Runnable() {
@@ -473,7 +489,21 @@ public class TuneParameters {
     }
     
     private String mAppAdTracking = null;
-    public synchronized String getAppAdTrackingEnabled() {
+    // COPPA rules apply
+    public synchronized boolean getAppAdTrackingEnabled() {
+        String appAdTrackingEnabledString = getAppAdTrackingEnabledParameter();
+        int adTrackingEnabled = 0;
+        if (appAdTrackingEnabledString != null) {
+            try {
+                adTrackingEnabled = Integer.parseInt(appAdTrackingEnabledString);
+            } catch (NumberFormatException e) {
+                TuneDebugLog.e(TuneConstants.TAG, "Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
+            }
+        }
+
+        return (isPrivacyProtectedDueToAge() ? false : adTrackingEnabled != 0);
+    }
+    private synchronized String getAppAdTrackingEnabledParameter() {
         return mAppAdTracking;
     }
     public synchronized void setAppAdTrackingEnabled(final String adTrackingEnabled) {
@@ -719,7 +749,19 @@ public class TuneParameters {
     }
 
     private String mFireAdTrackingLimited = null;
-    public synchronized String getFireAdTrackingLimited() {
+    // COPPA rules apply
+    public synchronized boolean getFireAdTrackingLimited() {
+        String fireAdTrackingLimitedString = getFireAdTrackingLimitedParameter();
+        int fireAdTrackingLimited = 0;
+        try {
+            fireAdTrackingLimited = Integer.parseInt(fireAdTrackingLimitedString);
+        } catch (NumberFormatException e) {
+            TuneDebugLog.e(TuneConstants.TAG, "Error parsing fireAdTrackingLimited value " + fireAdTrackingLimitedString, e);
+        }
+
+        return (isPrivacyProtectedDueToAge() ? false : fireAdTrackingLimited != 0);
+    }
+    private synchronized String getFireAdTrackingLimitedParameter() {
         return mFireAdTrackingLimited;
     }
     public synchronized void setFireAdTrackingLimited(final String limited) {
@@ -736,12 +778,16 @@ public class TuneParameters {
         return mGender;
     }
     public synchronized void setGender(TuneGender gender) {
-        if (gender == TuneGender.MALE) {
-            mGender = "0";
-        } else if (gender == TuneGender.FEMALE) {
-            mGender = "1";
-        } else {
-            mGender = "";
+        switch(gender) {
+            case MALE:
+                mGender = "0";
+                break;
+            case FEMALE:
+                mGender = "1";
+                break;
+            default:
+                mGender = "";
+                break;
         }
         mExecutor.execute(new Runnable() {
             public void run() {
@@ -770,7 +816,19 @@ public class TuneParameters {
     }
 
     private String mGaidLimited = null;
-    public synchronized String getGoogleAdTrackingLimited() {
+    // COPPA rules apply
+    public synchronized boolean getGoogleAdTrackingLimited() {
+        String googleAdTrackingLimitedString = getGoogleAdTrackingLimitedParameter();
+        int googleAdTrackingLimited = 0;
+        try {
+            googleAdTrackingLimited = Integer.parseInt(googleAdTrackingLimitedString);
+        } catch (NumberFormatException e) {
+            TuneDebugLog.e(TuneConstants.TAG, "Error parsing googleAdTrackingLimited value " + googleAdTrackingLimitedString, e);
+        }
+
+        return (isPrivacyProtectedDueToAge() ? false : googleAdTrackingLimited != 0);
+    }
+    private synchronized String getGoogleAdTrackingLimitedParameter() {
         return mGaidLimited;
     }
     public synchronized void setGoogleAdTrackingLimited(final String limited) {
@@ -1176,21 +1234,31 @@ public class TuneParameters {
         });
     }
 
-    private boolean mPrivacyProtectedDueToAge = false;
-    public synchronized boolean isPrivacyProtectedDueToAge() {
-        return mPrivacyProtectedDueToAge;
+    private boolean mPrivacyExplicitlySetAsProtected = false;
+    private synchronized boolean isPrivacyExplicitlySetAsProtected() {
+        return mPrivacyExplicitlySetAsProtected;
     }
-    public synchronized void setPrivacyProtectedDueToAge(final boolean isPrivacyProtectedDueToAge) {
-        mPrivacyProtectedDueToAge = isPrivacyProtectedDueToAge;
+    public synchronized void setPrivacyExplicitlySetAsProtected(final boolean isSet) {
+        mPrivacyExplicitlySetAsProtected = isSet;
         mExecutor.execute(new Runnable() {
             public void run() {
-                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isPrivacyProtectedDueToAge);
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isPrivacyProtectedDueToAge)));
+                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isSet);
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isSet)));
             }
         });
     }
     private synchronized void loadPrivacyProtectedSetting() {
-        mPrivacyProtectedDueToAge = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_COPPA);
+        mPrivacyExplicitlySetAsProtected = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_COPPA);
+    }
+
+    /**
+     * @return True if COPPA rules apply
+     */
+    public synchronized boolean isPrivacyProtectedDueToAge() {
+        int age = getAgeNumeric();
+        boolean isCoppaAgeRestricted = (age > 0 && age < TuneConstants.COPPA_MINIMUM_AGE);
+
+        return (isCoppaAgeRestricted || isPrivacyExplicitlySetAsProtected());
     }
 
     private String mPurchaseStatus = null;
@@ -1267,7 +1335,7 @@ public class TuneParameters {
         mExecutor.execute(new Runnable() {
             public void run() {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_HEIGHT, Integer.parseInt(screenheight))));
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_LAYOUT_SIZE, getScreenWidth() + "x" + getScreenHeight())));
             }
         });
     }
@@ -1281,7 +1349,7 @@ public class TuneParameters {
         mExecutor.execute(new Runnable() {
             public void run() {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneProfileKeys.SCREEN_WIDTH, Integer.parseInt(screenwidth))));
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_SIZE, getScreenWidth() + "x" + getScreenHeight())));
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.SCREEN_LAYOUT_SIZE, getScreenWidth() + "x" + getScreenHeight())));
             }
         });
     }
@@ -1538,4 +1606,16 @@ public class TuneParameters {
             }
         });
     }
+
+
+    public static Set<String> getRedactedKeys() {
+        Set<String> redactKeys = new HashSet<>();
+        if (Tune.getInstance().isPrivacyProtectedDueToAge()) {
+            redactKeys.addAll(TuneUrlKeys.getRedactedUrlKeys());
+            redactKeys.addAll(TuneProfileKeys.getRedactedProfileKeys());
+        }
+
+        return redactKeys;
+    }
+
 }

@@ -47,7 +47,7 @@ public class ParametersTests extends TuneUnitTest {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
+        // NOTE that COPPA redacts many of the default values
         assertKeyValue( "age", expectedAge );
         assertEquals(age, tune.getAge());
     }
@@ -352,6 +352,52 @@ public class ParametersTests extends TuneUnitTest {
 
         setPrivacyProtectedDueToAgeAndWait(false);                                  // COPPA(false)
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be disabled again
+    }
+
+    public void testIsCOPPA_True() {
+        final int age = TuneConstants.COPPA_MINIMUM_AGE - 1;
+        tune.setAge(age);
+
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.IS_COPPA, TuneConstants.PREF_SET );
+    }
+
+    public void testIsCOPPA_False() {
+        final int age = TuneConstants.COPPA_MINIMUM_AGE + 1;
+        tune.setAge(age);
+
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.IS_COPPA, TuneConstants.PREF_UNSET );
+    }
+
+    public void testIsCOPPA_AdTracking() {
+        // Default test -- tracking params should be SET
+        String googleAdvertisingId = UUID.randomUUID().toString();
+
+        tune.setGoogleAdvertisingId(googleAdvertisingId, true);
+        tune.setAppAdTrackingEnabled(true);
+        tune.measureEvent("session");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.APP_AD_TRACKING, TuneConstants.PREF_SET );
+        assertKeyValue( TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_SET );
+
+        // Re-create the test params so the old ones are not counted here.
+        params = new TuneTestParams();
+
+        // COPPA TEST -- tracking params should now be UNSET
+        tune.setAppAdTrackingEnabled(true);
+        tune.setAge(TuneConstants.COPPA_MINIMUM_AGE - 1);
+
+        tune.measureEvent("session");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.APP_AD_TRACKING, TuneConstants.PREF_UNSET );
+        assertKeyValue( TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET );
     }
 
     // Only use this method for checking if age has been fully propagated.
@@ -875,7 +921,7 @@ public class ParametersTests extends TuneUnitTest {
 
     public void testAppAdTrackingTrue() {
         boolean appAdTracking = true;
-        final String expectedAppAdTracking = Integer.toString( 1 );
+        final String expectedAppAdTracking = TuneConstants.PREF_SET;
         
         tune.setAppAdTrackingEnabled(appAdTracking);
         tune.measureEvent("registration");
@@ -888,7 +934,7 @@ public class ParametersTests extends TuneUnitTest {
 
     public void testAppAppAdTrackingFalse() {
         boolean appAdTracking = false;
-        final String expectedAppAdTracking = Integer.toString( 0 );
+        final String expectedAppAdTracking = TuneConstants.PREF_UNSET;
         
         tune.setAppAdTrackingEnabled( appAdTracking );
         tune.measureEvent("registration");
@@ -896,16 +942,6 @@ public class ParametersTests extends TuneUnitTest {
         
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
         assertKeyValue( "app_ad_tracking", expectedAppAdTracking );
-        assertFalse(tune.getAppAdTrackingEnabled());
-    }
-
-    public void testAppAppAdTrackingNull() {
-        // do not set app tracking enabled so that it is null
-        tune.measureEvent("registration");
-        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("app_ad_tracking");
         assertFalse(tune.getAppAdTrackingEnabled());
     }
 

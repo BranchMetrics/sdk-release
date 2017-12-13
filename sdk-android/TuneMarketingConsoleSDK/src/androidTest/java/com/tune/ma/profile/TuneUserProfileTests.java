@@ -1,6 +1,8 @@
 package com.tune.ma.profile;
 
+import com.tune.TuneConstants;
 import com.tune.TuneLocation;
+import com.tune.TuneParameters;
 import com.tune.TuneTestConstants;
 import com.tune.TuneTestWrapper;
 import com.tune.TuneUnitTest;
@@ -20,7 +22,9 @@ import org.json.JSONException;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Created by charlesgilliam on 1/25/16.
@@ -710,7 +714,6 @@ public class TuneUserProfileTests extends TuneUnitTest {
 
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
-        assertNull(profile.getProfileVariable(TuneProfileKeys.USER_EMAIL));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_EMAIL_MD5));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_EMAIL_SHA1));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_EMAIL_SHA256));
@@ -721,7 +724,6 @@ public class TuneUserProfileTests extends TuneUnitTest {
 
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
-        assertNull(profile.getProfileVariable(TuneProfileKeys.USER_NAME));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_NAME_MD5));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_NAME_SHA1));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_NAME_SHA256));
@@ -732,7 +734,6 @@ public class TuneUserProfileTests extends TuneUnitTest {
 
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
-        assertNull(profile.getProfileVariable(TuneProfileKeys.USER_PHONE));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_PHONE_MD5));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_PHONE_SHA1));
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_PHONE_SHA256));
@@ -775,73 +776,58 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("1", profile.getProfileVariableValue(TuneUrlKeys.IS_PAYING_USER));
     }
 
-    /*
+    // Test a smattering of different cases directly against the system keys
+    public void testIsSystemVariable() {
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SESSION_ID.toUpperCase()));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SCREEN_HEIGHT.toUpperCase()));
 
-- (void)testHashedString {
-    [[TuneManager currentManager].userProfile registerString:@"c1" withDefault:@"foobar" hashed:YES];
-    TuneAnalyticsVariable *var = [[TuneManager currentManager].userProfile getProfileVariable:@"c1"];
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.PUBLISHER_ID.toUpperCase()));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.REFERRAL_URL.toUpperCase()));
+    }
 
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashNone);
-    XCTAssertTrue(var.shouldAutoHash);
-}
+    public void testRedactedProfileKeys() {
+        Set<String> setA = TuneProfileKeys.getAllProfileKeys();
+        assertTrue(setA.contains(TuneProfileKeys.SESSION_ID));
+        assertTrue(setA.contains(TuneProfileKeys.SCREEN_HEIGHT));
 
-- (void)testPreHashedVariablesOnlyHashedOnce {
-    [[TuneManager currentManager].userProfile setUserName:@"Jim Rogers"];
+        setA.removeAll(TuneProfileKeys.getRedactedProfileKeys());
 
-    NSArray *output = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
+        assertTrue(setA.contains(TuneProfileKeys.SESSION_ID));
+        assertFalse(setA.contains(TuneProfileKeys.SCREEN_HEIGHT));  // Should be redacted
+    }
 
-    XCTAssertTrue([self getDictionary:output key:TUNE_KEY_USER_NAME_MD5].count == 1);
-    NSDictionary *var = [self getDictionary:output key:TUNE_KEY_USER_NAME_MD5][0];
-    XCTAssertTrue([var[@"hash"] isEqualToString:@"md5"]);
-    XCTAssertTrue([var[@"value"] isEqualToString:@"4518c3ca8d0dcb253e66a5ab16495ec2"]);
+    public void testRedactedURLKeys() {
+        Set<String> setA = TuneUrlKeys.getAllUrlKeys();
+        assertTrue(setA.contains(TuneUrlKeys.PUBLISHER_ID));
+        assertTrue(setA.contains(TuneUrlKeys.REFERRAL_URL));
 
-    XCTAssertTrue([self getDictionary:output key:TUNE_KEY_USER_NAME_SHA1].count == 1);
-    var = [self getDictionary:output key:TUNE_KEY_USER_NAME_SHA1][0];
-    XCTAssertTrue([var[@"hash"] isEqualToString:@"sha1"]);
-    XCTAssertTrue([var[@"value"] isEqualToString:@"15dc14109c5f7d263f2aebf8d0ebfb7ae2d9a118"]);
+        setA.removeAll(TuneUrlKeys.getRedactedUrlKeys());
 
-    XCTAssertTrue([self getDictionary:output key:TUNE_KEY_USER_NAME_SHA256].count == 1);
-    var = [self getDictionary:output key:TUNE_KEY_USER_NAME_SHA256][0];
-    XCTAssertTrue([var[@"hash"] isEqualToString:@"sha256"]);
-    XCTAssertTrue([var[@"value"] isEqualToString:@"53149a84ca2e85a9c853b7fb017c58c16cdc48fed3759be89b008d73d1b6d834"]);
-}
+        assertTrue(setA.contains(TuneUrlKeys.PUBLISHER_ID));
+        assertFalse(setA.contains(TuneUrlKeys.REFERRAL_URL));  // Should be redacted
+    }
 
-- (void)testVariationIdsAreAddedCorrectly {
-    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableValue:@"variation1", TunePayloadSessionVariableName: @"TUNE_ACTIVE_VARIATION_ID", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeProfile}];
+    public void testIsCOPPA_Redacted() {
+        // Screen Width is one that gets redacted if COPPA
+        // Wait for the system variables to come in.
+        sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
-    NSArray *output = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
-    NSDictionary *var = [self getDictionary:output key:@"TUNE_ACTIVE_VARIATION_ID"][0];
-    XCTAssertTrue([var[@"type"] isEqualToString:@"string"]);
-    XCTAssertTrue([var[@"value"] isEqualToString:@"variation1"]);
+        boolean found = false;
+        List<TuneAnalyticsVariable> profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        for (TuneAnalyticsVariable variable : profile) {
+            if (variable.getName().equals(TuneProfileKeys.SCREEN_WIDTH)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
 
+        // Now get the Keys when COPPA is true
+        tune.setAge(TuneConstants.COPPA_MINIMUM_AGE - 1);
+        profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        for (TuneAnalyticsVariable variable : profile) {
+            assertFalse(variable.getName().equals(TuneProfileKeys.SCREEN_WIDTH));
+        }
+    }
 
-    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableValue:@"variation2", TunePayloadSessionVariableName: @"TUNE_ACTIVE_VARIATION_ID", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeProfile}];
-
-    output = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
-    XCTAssertTrue([self getDictionary:output key:@"TUNE_ACTIVE_VARIATION_ID"].count == 2);
-
-    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionVariableToSet object:nil userInfo:@{ TunePayloadSessionVariableValue:@"variation2", TunePayloadSessionVariableName: @"TUNE_ACTIVE_VARIATION_ID", TunePayloadSessionVariableSaveType: TunePayloadSessionVariableSaveTypeProfile}];
-
-    output = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
-    XCTAssertTrue([self getDictionary:output key:@"TUNE_ACTIVE_VARIATION_ID"].count == 2);
-}
-
-- (void)testSetVersionVariableValueShouldUpdateValue {
-    [[TuneManager currentManager].userProfile registerVersion:@"apiVersion"];
-
-    TuneAnalyticsVariable *var = [[TuneManager currentManager].userProfile getProfileVariable:@"apiVersion"];
-
-    XCTAssertTrue([var.name isEqualToString:@"apiVersion"], @"variable name should be set, got: %@", var.name);
-    XCTAssertNil(var.value, @"variable value should be set");
-    XCTAssertEqual(var.type, TuneAnalyticsVariableVersionType, @"variable type should be set");
-
-    [[TuneManager currentManager].userProfile setVersionValue:@"2.4.15" forVariable:@"apiVersion"];
-
-    var = [[TuneManager currentManager].userProfile getProfileVariable:@"apiVersion"];
-
-    XCTAssertTrue([var.name isEqualToString:@"apiVersion"], @"variable name should be set");
-    XCTAssertTrue([var.value isEqualToString:@"2.4.15"], @"variable value should be updated");
-    XCTAssertEqual(var.type, TuneAnalyticsVariableVersionType, @"variable type should be set");
-}
-     */
 }

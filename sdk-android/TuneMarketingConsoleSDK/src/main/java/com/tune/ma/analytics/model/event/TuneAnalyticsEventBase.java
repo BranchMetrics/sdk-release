@@ -1,5 +1,7 @@
 package com.tune.ma.analytics.model.event;
 
+import com.tune.TuneParameters;
+import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsEventItem;
@@ -65,7 +67,7 @@ public abstract class TuneAnalyticsEventBase {
             if (TuneManager.getInstance().getProfileManager() != null) {
                 this.submitter = new TuneAnalyticsSubmitter(TuneManager.getInstance().getProfileManager());
                 this.appId = TuneManager.getInstance().getProfileManager().getAppId();
-                this.profile = TuneManager.getInstance().getProfileManager().getCopyOfVars();
+                this.profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
             }
             if (TuneManager.getInstance().getSessionManager() != null) {
                 this.sessionTime = TuneManager.getInstance().getSessionManager().getSecondsSinceSessionStart();

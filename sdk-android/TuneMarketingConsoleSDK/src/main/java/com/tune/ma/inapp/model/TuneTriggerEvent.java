@@ -104,10 +104,8 @@ public class TuneTriggerEvent {
         if (this.limit != other.limit) {
             return false;
         }
-        if (this.scope != other.scope) {
-            return false;
-        }
-        return true;
+
+        return this.scope == other.scope;
     }
 
     @Override

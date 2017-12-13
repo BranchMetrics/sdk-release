@@ -287,8 +287,6 @@ public class TuneAnalyticsManager {
 
         // Save event to local JSON file
         TuneManager.getInstance().getFileManager().writeAnalytics(event);
-
-        return;
     }
 
     public TuneTracerEvent buildTracerEvent() {

@@ -1,5 +1,9 @@
 package com.tune;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by johng on 12/30/15.
  */
@@ -86,7 +90,7 @@ public class TuneUrlKeys {
     public static final String PURCHASE_STATUS = "android_purchase_status";
     public static final String REFERRER_DELAY = "referrer_delay";
     public static final String SCREEN_DENSITY = "screen_density";
-    public static final String SCREEN_SIZE = "screen_layout_size";
+    public static final String SCREEN_LAYOUT_SIZE = "screen_layout_size";
     public static final String SDK_PLUGIN = "sdk_plugin";
     public static final String SDK_VERSION = "sdk_version";
     public static final String TRUSTE_ID = "truste_tpid";
@@ -136,4 +140,153 @@ public class TuneUrlKeys {
     public static final String RECEIPT_DATA = "store_iap_data";
     public static final String RECEIPT_SIGNATURE = "store_iap_signature";
     public static final String USER_EMAILS = "user_emails";
+
+    /**
+     * WARNING: It is very important that all new profile variables get added to this array OR to the REDACT array
+     */
+    private static final String[] URL_KEYS = new String[] {
+        TuneUrlKeys.ADVERTISER_ID,
+        TuneUrlKeys.ADVERTISER_SUB_AD,
+        TuneUrlKeys.ADVERTISER_SUB_ADGROUP,
+        TuneUrlKeys.ADVERTISER_SUB_CAMPAIGN,
+        TuneUrlKeys.ADVERTISER_SUB_KEYWORD,
+        TuneUrlKeys.ADVERTISER_SUB_PUBLISHER,
+        TuneUrlKeys.ADVERTISER_SUB_SITE,
+        TuneUrlKeys.AGE,
+        TuneUrlKeys.AGENCY_ID,
+        TuneUrlKeys.ANDROID_ID_MD5,
+        TuneUrlKeys.ANDROID_ID_SHA1,
+        TuneUrlKeys.ANDROID_ID_SHA256,
+        TuneUrlKeys.APP_AD_TRACKING,                       // (change value to "1")
+        TuneUrlKeys.APP_NAME,
+        TuneUrlKeys.APP_VERSION,
+        TuneUrlKeys.APP_VERSION_NAME,
+        TuneUrlKeys.ATTRIBUTE1,
+        TuneUrlKeys.ATTRIBUTE2,
+        TuneUrlKeys.ATTRIBUTE3,
+        TuneUrlKeys.ATTRIBUTE4,
+        TuneUrlKeys.ATTRIBUTE5,
+        TuneUrlKeys.CONTENT_ID,
+        TuneUrlKeys.CONTENT_TYPE,
+        TuneUrlKeys.DATE1,
+        TuneUrlKeys.DATE2,
+        TuneUrlKeys.DEBUG_MODE,
+        TuneUrlKeys.EVENT_ID,
+        TuneUrlKeys.EVENT_ITEMS,
+        TuneUrlKeys.EVENT_NAME,
+        TuneUrlKeys.EXISTING_USER,
+        TuneUrlKeys.FIRE_AD_TRACKING_DISABLED,
+        TuneUrlKeys.FIRE_AID,
+        TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED,           // (Set to protected)
+        TuneUrlKeys.GOOGLE_AID,
+        TuneUrlKeys.INSTALLER,
+        TuneUrlKeys.INSTALL_BEGIN_TIMESTAMP,
+        TuneUrlKeys.INSTALL_DATE,
+        TuneUrlKeys.INSTALL_REFERRER,
+        TuneUrlKeys.IS_COPPA,
+        TuneUrlKeys.LANGUAGE,
+        TuneUrlKeys.LAST_OPEN_LOG_ID,
+        TuneUrlKeys.LEVEL,
+        TuneUrlKeys.MAT_ID,
+        TuneUrlKeys.OFFER_ID,
+        TuneUrlKeys.PACKAGE_NAME,
+        TuneUrlKeys.PUBLISHER_ID,
+        TuneUrlKeys.PUBLISHER_REF_ID,
+        TuneUrlKeys.PUBLISHER_SUB1,
+        TuneUrlKeys.PUBLISHER_SUB2,
+        TuneUrlKeys.PUBLISHER_SUB3,
+        TuneUrlKeys.PUBLISHER_SUB4,
+        TuneUrlKeys.PUBLISHER_SUB5,
+        TuneUrlKeys.PUBLISHER_SUB_AD,
+        TuneUrlKeys.PUBLISHER_SUB_ADGROUP,
+        TuneUrlKeys.PUBLISHER_SUB_CAMPAIGN,
+        TuneUrlKeys.PUBLISHER_SUB_KEYWORD,
+        TuneUrlKeys.PUBLISHER_SUB_PUBLISHER,
+        TuneUrlKeys.PUBLISHER_SUB_SITE,
+        TuneUrlKeys.PURCHASE_STATUS,
+        TuneUrlKeys.QUANTITY,
+        TuneUrlKeys.RATING,
+        TuneUrlKeys.RECEIPT_DATA,
+        TuneUrlKeys.RECEIPT_SIGNATURE,
+        TuneUrlKeys.REFERRAL_SOURCE,
+        TuneUrlKeys.REFERRER_CLICK_TIMESTAMP,
+        TuneUrlKeys.REFERRER_DELAY,
+        TuneUrlKeys.REF_ID,
+        TuneUrlKeys.RESPONSE_FORMAT,
+        TuneUrlKeys.REVENUE,
+        TuneUrlKeys.SDK,
+        TuneUrlKeys.SDK_PLUGIN,
+        TuneUrlKeys.SDK_RETRY_ATTEMPT,
+        TuneUrlKeys.SDK_VER,
+        TuneUrlKeys.SDK_VERSION,
+        TuneUrlKeys.SEARCH_STRING,
+        TuneUrlKeys.SYSTEM_DATE,
+        TuneUrlKeys.TRACKING_ID,
+        TuneUrlKeys.TRANSACTION_ID,
+        TuneUrlKeys.USER_ID,
+    };
+
+    private static final String[] URL_KEYS_REDACT = new String[] {
+        TuneUrlKeys.ACTION,
+        TuneUrlKeys.ALTITUDE,
+        TuneUrlKeys.ANDROID_ID,
+        TuneUrlKeys.CONNECTION_TYPE,
+        TuneUrlKeys.COUNTRY_CODE,
+        TuneUrlKeys.CURRENCY_CODE,
+        TuneUrlKeys.DEVICE_BRAND,
+        TuneUrlKeys.DEVICE_BUILD,
+        TuneUrlKeys.DEVICE_CARRIER,
+        TuneUrlKeys.DEVICE_CPU_SUBTYPE,
+        TuneUrlKeys.DEVICE_CPU_TYPE,
+        TuneUrlKeys.DEVICE_FORM,
+        TuneUrlKeys.DEVICE_ID,
+        TuneUrlKeys.DEVICE_MODEL,
+        TuneUrlKeys.FACEBOOK_USER_ID,
+        TuneUrlKeys.GENDER,
+        TuneUrlKeys.GOOGLE_USER_ID,
+        TuneUrlKeys.IS_PAYING_USER,
+        TuneUrlKeys.LATITUDE,
+        TuneUrlKeys.LOCALE,
+        TuneUrlKeys.LONGITUDE,
+        TuneUrlKeys.MAC_ADDRESS,
+        TuneUrlKeys.MOBILE_COUNTRY_CODE,
+        TuneUrlKeys.MOBILE_NETWORK_CODE,
+        TuneUrlKeys.OPEN_LOG_ID,
+        TuneUrlKeys.OS_VERSION,
+        TuneUrlKeys.REFERRAL_URL,
+        TuneUrlKeys.SCREEN_DENSITY,
+        TuneUrlKeys.SCREEN_LAYOUT_SIZE,
+        TuneUrlKeys.TRUSTE_ID,
+        TuneUrlKeys.TWITTER_USER_ID,
+        TuneUrlKeys.USER_AGENT,
+        TuneUrlKeys.USER_EMAILS,
+        TuneUrlKeys.USER_EMAIL_MD5,
+        TuneUrlKeys.USER_EMAIL_SHA1,
+        TuneUrlKeys.USER_EMAIL_SHA256,
+        TuneUrlKeys.USER_NAME_MD5,
+        TuneUrlKeys.USER_NAME_SHA1,
+        TuneUrlKeys.USER_NAME_SHA256,
+        TuneUrlKeys.USER_PHONE_MD5,
+        TuneUrlKeys.USER_PHONE_SHA1,
+        TuneUrlKeys.USER_PHONE_SHA256,
+    };
+
+    /**
+     * Return a Set of All Url Keys, both redacted and non-redacted
+     * @return the full Set of Url Keys
+     */
+    public static final Set<String> getAllUrlKeys() {
+        Set<String> keys = new HashSet<>(Arrays.asList(URL_KEYS));
+        keys.addAll(getRedactedUrlKeys());
+
+        return keys;
+    }
+
+    /**
+     * @return the set of redacted Url Keys
+     */
+    public static final Set<String> getRedactedUrlKeys() {
+        return new HashSet<>(Arrays.asList(URL_KEYS_REDACT));
+    }
+
 }

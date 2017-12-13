@@ -59,17 +59,23 @@ public class TuneInAppMessageTests extends TuneUnitTest {
 
             message = new TuneInAppMessage(inAppMessage) {
                 @Override
-                public void display() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void display() {
                     return;
                 }
 
                 @Override
-                public void dismiss() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void dismiss() {
                     return;
                 }
 
                 @Override
-                public void load(Activity activity) {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void load(Activity activity) {
                     return;
                 }
             };
@@ -278,17 +284,23 @@ public class TuneInAppMessageTests extends TuneUnitTest {
 
             message = new TuneInAppMessage(inAppMessage) {
                 @Override
-                public void display() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void display() {
                     return;
                 }
 
                 @Override
-                public void dismiss() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void dismiss() {
                     return;
                 }
 
                 @Override
-                public void load(Activity activity) {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void load(Activity activity) {
                     return;
                 }
             };
@@ -320,17 +332,23 @@ public class TuneInAppMessageTests extends TuneUnitTest {
 
             message = new TuneInAppMessage(inAppMessage) {
                 @Override
-                public void display() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void display() {
                     return;
                 }
 
                 @Override
-                public void dismiss() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void dismiss() {
                     return;
                 }
 
                 @Override
-                public void load(Activity activity) {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void load(Activity activity) {
                     return;
                 }
             };
@@ -363,17 +381,23 @@ public class TuneInAppMessageTests extends TuneUnitTest {
 
             message = new TuneInAppMessage(inAppMessage) {
                 @Override
-                public void display() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void display() {
                     return;
                 }
 
                 @Override
-                public void dismiss() {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void dismiss() {
                     return;
                 }
 
                 @Override
-                public void load(Activity activity) {
+                // For these tests we never want this method to fire; suppressing lint warn
+                @SuppressWarnings("UnnecessaryReturnStatement")
+                public synchronized void load(Activity activity) {
                     return;
                 }
             };
