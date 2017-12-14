@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by charlesgilliam on 1/25/16.
@@ -807,10 +808,13 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertFalse(setA.contains(TuneUrlKeys.REFERRAL_URL));  // Should be redacted
     }
 
-    public void testIsCOPPA_Redacted() {
-        // Screen Width is one that gets redacted if COPPA
-        // Wait for the system variables to come in.
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+    /**
+     * This test checks COPPA Redaction when using {@link com.tune.Tune#setAge(int)}
+     * This test uses SCREEN_WIDTH as it is one that should be redacted.
+     */
+    public void testIsCOPPA_RedactedOnAge() {
+        ProfileChangedReceiver receiver = new ProfileChangedReceiver(TuneUrlKeys.IS_COPPA);
+        TuneEventBus.register(receiver);
 
         boolean found = false;
         List<TuneAnalyticsVariable> profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
@@ -822,11 +826,115 @@ public class TuneUserProfileTests extends TuneUnitTest {
         }
         assertTrue(found);
 
+        // COPPA should not be set, and should not exist yet
+        assertNull(getCOPPAValueFromProfileList(profile));
+
         // Now get the Keys when COPPA is true
         tune.setAge(TuneConstants.COPPA_MINIMUM_AGE - 1);
+
+        receiver.doWait(TuneTestConstants.PARAMTEST_SLEEP);
         profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
         for (TuneAnalyticsVariable variable : profile) {
             assertFalse(variable.getName().equals(TuneProfileKeys.SCREEN_WIDTH));
+        }
+
+        // COPPA should be set now
+        assertEquals(TuneConstants.PREF_SET, getCOPPAValueFromProfileList(profile));
+
+        // remove the COPPA privacy restriction and test unset
+        tune.setAge(TuneConstants.COPPA_MINIMUM_AGE + 1);
+        receiver.doWait(TuneTestConstants.PARAMTEST_SLEEP);
+        profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        assertEquals(TuneConstants.PREF_UNSET, getCOPPAValueFromProfileList(profile));
+
+        TuneEventBus.unregister(receiver);
+    }
+
+    /**
+     * This test checks COPPA Redaction when using {@link com.tune.Tune#setPrivacyProtectedDueToAge(boolean)}
+     * This test uses SCREEN_WIDTH as it is one that should be redacted.
+     */
+    public void testIsCOPPA_RedactedOnPrivacyProtected() {
+        ProfileChangedReceiver receiver = new ProfileChangedReceiver(TuneUrlKeys.IS_COPPA);
+        TuneEventBus.register(receiver);
+
+        boolean found = false;
+        List<TuneAnalyticsVariable> profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        for (TuneAnalyticsVariable variable : profile) {
+            if (variable.getName().equals(TuneProfileKeys.SCREEN_WIDTH)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+
+        // COPPA should not be set, and should not exist yet
+        assertNull(getCOPPAValueFromProfileList(profile));
+
+        // Now get the Keys when COPPA is true
+        tune.setPrivacyProtectedDueToAge(true);
+
+        receiver.doWait(TuneTestConstants.PARAMTEST_SLEEP);
+        profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        for (TuneAnalyticsVariable variable : profile) {
+            assertFalse(variable.getName().equals(TuneProfileKeys.SCREEN_WIDTH));
+        }
+
+        // COPPA should be set now
+        assertEquals(TuneConstants.PREF_SET, getCOPPAValueFromProfileList(profile));
+
+        // remove the COPPA privacy restriction and test unset
+        tune.setPrivacyProtectedDueToAge(false);
+        receiver.doWait(TuneTestConstants.PARAMTEST_SLEEP);
+        profile = TuneManager.getInstance().getProfileManager().getCopyOfNonRedactedVars(TuneParameters.getRedactedKeys());
+        assertEquals(TuneConstants.PREF_UNSET, getCOPPAValueFromProfileList(profile));
+
+        TuneEventBus.unregister(receiver);
+    }
+
+    private String getCOPPAValueFromProfileList(List<TuneAnalyticsVariable> profile) {
+        String coppaFound = null;
+
+        for (TuneAnalyticsVariable variable : profile) {
+            if (variable.getName().equals(TuneUrlKeys.IS_COPPA)) {
+                coppaFound = variable.getValue();
+                break;
+            }
+        }
+
+        return coppaFound;
+    }
+
+    /**
+     * Helper class to wait for UserProfile keys to show up
+     */
+    class ProfileChangedReceiver {
+        private String mProfileKey;
+        private Object mWaitObject;
+
+        public ProfileChangedReceiver(String profileKey) {
+            mProfileKey = profileKey;
+            mWaitObject = new Object();
+        }
+
+        @Subscribe
+        public void onEvent(TuneUpdateUserProfile event) {
+            // Notify when the key comes in
+            if (event.getVariable().getName().equals(mProfileKey)) {
+                synchronized (mWaitObject) {
+                    mWaitObject.notify();
+                }
+            }
+        }
+
+        public final void doWait(long millis) {
+            synchronized (mWaitObject) {
+                try {
+                    mWaitObject.wait(millis);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

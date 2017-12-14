@@ -125,7 +125,6 @@ class TuneFirstRunLogic {
     }
 
     private static final int InstallReferrerResponse_GeneralException = -100;
-    private static final int InstallReferrerResponse_RemoteException = -101;
     private static final int InstallReferrerClientConnectionTimout = 5000;
 
     private void startInstallReferrerClientConnection(Context context) {
@@ -201,9 +200,11 @@ class TuneFirstRunLogic {
 
             googleInstallReferrerSequenceComplete(details != null);
 
-        } catch (RemoteException e) {
+        } catch (Exception e) {
+            // While a RemoteException needs to be caught per the API signature, we have observed an "IllegalStateException"
+            // from a customer.  Attribution will need to come in through the default BroadcastReceiver
             TuneDebugLog.e("FirstRun::ReferrerDetails exception", e);
-            onInstallReferrerResponseError(InstallReferrerResponse_RemoteException);
+            onInstallReferrerResponseError(InstallReferrerResponse_GeneralException);
         }
     }
 

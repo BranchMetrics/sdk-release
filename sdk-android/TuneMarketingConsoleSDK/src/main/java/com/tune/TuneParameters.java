@@ -418,6 +418,7 @@ public class TuneParameters {
 
     public synchronized void setAge(final String age) {
         mAge = age;
+        savePrivacyProtectionState();
         mExecutor.execute(new Runnable() {
             public void run() {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.AGE, Integer.parseInt(age))));
@@ -1240,12 +1241,7 @@ public class TuneParameters {
     }
     public synchronized void setPrivacyExplicitlySetAsProtected(final boolean isSet) {
         mPrivacyExplicitlySetAsProtected = isSet;
-        mExecutor.execute(new Runnable() {
-            public void run() {
-                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isSet);
-                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isSet)));
-            }
-        });
+        savePrivacyProtectionState();
     }
     private synchronized void loadPrivacyProtectedSetting() {
         mPrivacyExplicitlySetAsProtected = mPrefs.getBooleanFromSharedPreferences(TuneConstants.KEY_COPPA);
@@ -1259,6 +1255,19 @@ public class TuneParameters {
         boolean isCoppaAgeRestricted = (age > 0 && age < TuneConstants.COPPA_MINIMUM_AGE);
 
         return (isCoppaAgeRestricted || isPrivacyExplicitlySetAsProtected());
+    }
+
+    /**
+     * Save the COPPA PrivacyProtection state for both AA and IAM
+     */
+    private void savePrivacyProtectionState() {
+        final boolean isPrivacyProtected = isPrivacyProtectedDueToAge();
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.IS_COPPA, isPrivacyProtected)));
+                mPrefs.saveBooleanToSharedPreferences(TuneConstants.KEY_COPPA, isPrivacyProtected);
+            }
+        });
     }
 
     private String mPurchaseStatus = null;
