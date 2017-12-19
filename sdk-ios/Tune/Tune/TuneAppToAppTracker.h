@@ -14,18 +14,18 @@
 
 @property (nonatomic, weak) id <TuneEventQueueDelegate> delegate;
 
-- (void)startMeasurementSessionForTargetBundleId:(NSString*)targetBundleId
-                               publisherBundleId:(NSString*)publisherBundleId
-                                    advertiserId:(NSString*)advertiserId
-                                      campaignId:(NSString*)campaignId
-                                     publisherId:(NSString*)publisherId
+- (void)startMeasurementSessionForTargetBundleId:(NSString *)targetBundleId
+                               publisherBundleId:(NSString *)publisherBundleId
+                                    advertiserId:(NSString *)advertiserId
+                                      campaignId:(NSString *)campaignId
+                                     publisherId:(NSString *)publisherId
                                         redirect:(BOOL)shouldRedirect
-                                      domainName:(NSString*)domainName;
+                                      domainName:(NSString *)domainName;
 
-+ (NSString*)getPublisherBundleId;
-+ (NSString*)getSessionDateTime;
-+ (NSString*)getAdvertiserId;
-+ (NSString*)getCampaignId;
-+ (NSString*)getTrackingId;
++ (NSString *)getPublisherBundleId;
++ (NSString *)getSessionDateTime;
++ (NSString *)getAdvertiserId;
++ (NSString *)getCampaignId;
++ (NSString *)getTrackingId;
 
 @end

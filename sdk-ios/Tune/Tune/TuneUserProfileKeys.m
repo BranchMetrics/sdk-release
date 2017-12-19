@@ -163,7 +163,8 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
 
 @implementation TuneUserProfileKeys
 
-+ (NSSet *)getSystemVariables {
++ (NSSet *)systemVariables {
+    
     /* This is a set of all profile variables that we (can) register.  The user is not
      *     allowed to register anything with these names since it could cause conflicts.
      *
@@ -176,153 +177,320 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
      *
      * This was in Atom so your exact regex may slightly differ by syntax.
      */
-    return [NSSet setWithObjects:
-            TUNE_KEY_SESSION_ID,
-            TUNE_KEY_SESSION_LAST_DATE,
-            TUNE_KEY_SESSION_CURRENT_DATE,
-            TUNE_KEY_SESSION_COUNT,
-            TUNE_KEY_IS_FIRST_SESSION,
-            
-            TUNE_KEY_INSTALL_RECEIPT,
-            
-            TUNE_KEY_INSDATE,
-            TUNE_KEY_SESSION_DATETIME,
-            TUNE_KEY_SYSTEM_DATE,
-            
-            TUNE_KEY_REFERRAL_URL,
-            TUNE_KEY_REFERRAL_SOURCE,
-            TUNE_KEY_REDIRECT_URL,
-            
-            TUNE_KEY_INSTALL_LOG_ID,
-            TUNE_KEY_UPDATE_LOG_ID,
-            TUNE_KEY_OPEN_LOG_ID,
-            TUNE_KEY_LAST_OPEN_LOG_ID,
-            
-            TUNE_KEY_CURRENCY_CODE,
-            
-            TUNE_KEY_OS_JAILBROKE,
-            
-            TUNE_KEY_TRACKING_ID,
-            TUNE_KEY_MAT_ID,
-            TUNE_KEY_FB_COOKIE_ID,
-            
-            TUNE_KEY_IOS_IFV,
-            TUNE_KEY_IOS_IFA,
-            TUNE_KEY_IOS_AD_TRACKING,
-            
-            TUNE_KEY_IAD_ATTRIBUTION,
-            TUNE_KEY_IAD_IMPRESSION_DATE,
-            TUNE_KEY_IAD_CLICK_DATE,
-            TUNE_KEY_IAD_CONVERSION_DATE,
-            
-            TUNE_KEY_APP_AD_TRACKING,
-            
-            TUNE_KEY_IS_PAYING_USER,
-            
-            TUNE_KEY_EXISTING_USER,
-            TUNE_KEY_USER_EMAIL,
-            TUNE_KEY_USER_EMAIL_MD5,
-            TUNE_KEY_USER_EMAIL_SHA1,
-            TUNE_KEY_USER_EMAIL_SHA256,
-            TUNE_KEY_USER_ID,
-            TUNE_KEY_USER_NAME,
-            TUNE_KEY_USER_NAME_MD5,
-            TUNE_KEY_USER_NAME_SHA1,
-            TUNE_KEY_USER_NAME_SHA256,
-            TUNE_KEY_USER_PHONE,
-            TUNE_KEY_USER_PHONE_MD5,
-            TUNE_KEY_USER_PHONE_SHA1,
-            TUNE_KEY_USER_PHONE_SHA256,
-            TUNE_KEY_FACEBOOK_USER_ID,
-            TUNE_KEY_TWITTER_USER_ID,
-            TUNE_KEY_GOOGLE_USER_ID,
-            
-            TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE,
-            TUNE_KEY_AGE,
-            TUNE_KEY_GENDER,
-            
-            TUNE_KEY_LATITUDE,
-            TUNE_KEY_LONGITUDE,
-            TUNE_KEY_ALTITUDE,
-            TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
-            TUNE_KEY_LOCATION_TIMESTAMP,
-            TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
-            
-            TUNE_KEY_TRUSTE_TPID,
-            
-            TUNE_KEY_OS_TYPE,
-            TUNE_KEY_DEVICE_MODEL,
-            TUNE_KEY_DEVICE_CPUTYPE,
-            TUNE_KEY_DEVICE_CPUSUBTYPE,
-            TUNE_KEY_DEVICE_CARRIER,
-            TUNE_KEY_DEVICE_BRAND,
-            TUNE_KEY_SCREEN_HEIGHT,
-            TUNE_KEY_SCREEN_WIDTH,
-            TUNE_KEY_SCREEN_SIZE,
-            TUNE_KEY_SCREEN_DENSITY,
-            TUNE_KEY_CARRIER_COUNTRY_CODE,
-            TUNE_KEY_CARRIER_COUNTRY_CODE_ISO,
-            TUNE_KEY_CARRIER_NETWORK_CODE,
-            TUNE_KEY_COUNTRY_CODE,
-            TUNE_KEY_OS_VERSION,
-            TUNE_KEY_LANGUAGE,
-            
-            TUNE_KEY_LOCATION_AUTH_STATUS,
-            TUNE_KEY_BLUETOOTH_STATE,
-            
-            TUNE_KEY_SITE_EVENT_ID,
-            TUNE_KEY_SITE_EVENT_NAME,
-            TUNE_KEY_APP_NAME,
-            TUNE_KEY_APP_VERSION,
-            TUNE_KEY_APP_VERSION_NAME,
-            TUNE_KEY_ADVERTISER_ID,
-            TUNE_KEY_KEY,
-            TUNE_KEY_PACKAGE_NAME,
-            
-            TUNE_KEY_DEVICE_FORM,
-            TUNE_KEY_DEVICE_FORM_TV,
-            TUNE_KEY_DEVICE_FORM_WEARABLE,
-            
-            TUNE_KEY_ADVERTISER_SUB_AD,
-            TUNE_KEY_ADVERTISER_SUB_ADGROUP,
-            TUNE_KEY_ADVERTISER_SUB_CAMPAIGN,
-            TUNE_KEY_ADVERTISER_SUB_KEYWORD,
-            TUNE_KEY_ADVERTISER_SUB_PUBLISHER,
-            TUNE_KEY_ADVERTISER_SUB_SITE,
-            TUNE_KEY_AGENCY_ID,
-            TUNE_KEY_OFFER_ID,
-            TUNE_KEY_PRELOAD_DATA,
-            TUNE_KEY_PUBLISHER_REF_ID,
-            TUNE_KEY_PUBLISHER_SUB_AD,
-            TUNE_KEY_PUBLISHER_SUB_AD_NAME,
-            TUNE_KEY_PUBLISHER_SUB_AD_REF,
-            TUNE_KEY_PUBLISHER_SUB_ADGROUP,
-            TUNE_KEY_PUBLISHER_SUB_CAMPAIGN,
-            TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME,
-            TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF,
-            TUNE_KEY_PUBLISHER_SUB_KEYWORD,
-            TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF,
-            TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME,
-            TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF,
-            TUNE_KEY_PUBLISHER_SUB_PUBLISHER,
-            TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF,
-            TUNE_KEY_PUBLISHER_SUB_SITE,
-            TUNE_KEY_PUBLISHER_SUB1,
-            TUNE_KEY_PUBLISHER_SUB2,
-            TUNE_KEY_PUBLISHER_SUB3,
-            TUNE_KEY_PUBLISHER_SUB4,
-            TUNE_KEY_PUBLISHER_SUB5,
-            
-            TUNE_KEY_INTERFACE_IDIOM,
-            TUNE_KEY_HARDWARE_TYPE,
-            TUNE_KEY_MINUTES_FROM_GMT,
-            TUNE_KEY_SDK_VERSION,
-            TUNE_KEY_DEVICE_TOKEN,
-            TUNE_KEY_PUSH_ENABLED,
-            
-            TUNE_KEY_GEO_COORDINATE,
-            TUNE_KEY_IS_TESTFLIGHT_BUILD,
-            nil];
+    
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[TUNE_KEY_SESSION_ID,
+                                             TUNE_KEY_SESSION_LAST_DATE,
+                                             TUNE_KEY_SESSION_CURRENT_DATE,
+                                             TUNE_KEY_SESSION_COUNT,
+                                             TUNE_KEY_IS_FIRST_SESSION,
+                                             
+                                             TUNE_KEY_INSTALL_RECEIPT,
+                                             
+                                             TUNE_KEY_INSDATE,
+                                             TUNE_KEY_SESSION_DATETIME,
+                                             TUNE_KEY_SYSTEM_DATE,
+                                             
+                                             TUNE_KEY_REFERRAL_URL,
+                                             TUNE_KEY_REFERRAL_SOURCE,
+                                             TUNE_KEY_REDIRECT_URL,
+                                             
+                                             TUNE_KEY_INSTALL_LOG_ID,
+                                             TUNE_KEY_UPDATE_LOG_ID,
+                                             TUNE_KEY_OPEN_LOG_ID,
+                                             TUNE_KEY_LAST_OPEN_LOG_ID,
+                                             
+                                             TUNE_KEY_CURRENCY_CODE,
+                                             
+                                             TUNE_KEY_OS_JAILBROKE,
+                                             
+                                             TUNE_KEY_TRACKING_ID,
+                                             TUNE_KEY_MAT_ID,
+                                             TUNE_KEY_FB_COOKIE_ID,
+                                             
+                                             TUNE_KEY_IOS_IFV,
+                                             TUNE_KEY_IOS_IFA,
+                                             TUNE_KEY_IOS_AD_TRACKING,
+                                             
+                                             TUNE_KEY_IAD_ATTRIBUTION,
+                                             TUNE_KEY_IAD_IMPRESSION_DATE,
+                                             TUNE_KEY_IAD_CLICK_DATE,
+                                             TUNE_KEY_IAD_CONVERSION_DATE,
+                                             
+                                             TUNE_KEY_APP_AD_TRACKING,
+                                             
+                                             TUNE_KEY_IS_PAYING_USER,
+                                             
+                                             TUNE_KEY_EXISTING_USER,
+                                             TUNE_KEY_USER_EMAIL,
+                                             TUNE_KEY_USER_EMAIL_MD5,
+                                             TUNE_KEY_USER_EMAIL_SHA1,
+                                             TUNE_KEY_USER_EMAIL_SHA256,
+                                             TUNE_KEY_USER_ID,
+                                             TUNE_KEY_USER_NAME,
+                                             TUNE_KEY_USER_NAME_MD5,
+                                             TUNE_KEY_USER_NAME_SHA1,
+                                             TUNE_KEY_USER_NAME_SHA256,
+                                             TUNE_KEY_USER_PHONE,
+                                             TUNE_KEY_USER_PHONE_MD5,
+                                             TUNE_KEY_USER_PHONE_SHA1,
+                                             TUNE_KEY_USER_PHONE_SHA256,
+                                             TUNE_KEY_FACEBOOK_USER_ID,
+                                             TUNE_KEY_TWITTER_USER_ID,
+                                             TUNE_KEY_GOOGLE_USER_ID,
+                                             
+                                             // TUNE_KEY_IS_COPPA exists to prevent namespace clashes, no value is stored
+                                             // Based on TUNE_KEY_AGE and TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE
+                                             TUNE_KEY_IS_COPPA,
+                                             
+                                             TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE,
+                                             TUNE_KEY_AGE,
+                                             TUNE_KEY_GENDER,
+                                             
+                                             TUNE_KEY_LATITUDE,
+                                             TUNE_KEY_LONGITUDE,
+                                             TUNE_KEY_ALTITUDE,
+                                             TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
+                                             TUNE_KEY_LOCATION_TIMESTAMP,
+                                             TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
+                                             
+                                             TUNE_KEY_TRUSTE_TPID,
+                                             
+                                             TUNE_KEY_OS_TYPE,
+                                             TUNE_KEY_DEVICE_MODEL,
+                                             TUNE_KEY_DEVICE_CPUTYPE,
+                                             TUNE_KEY_DEVICE_CPUSUBTYPE,
+                                             TUNE_KEY_DEVICE_CARRIER,
+                                             TUNE_KEY_DEVICE_BRAND,
+                                             TUNE_KEY_SCREEN_HEIGHT,
+                                             TUNE_KEY_SCREEN_WIDTH,
+                                             TUNE_KEY_SCREEN_SIZE,
+                                             TUNE_KEY_SCREEN_DENSITY,
+                                             TUNE_KEY_CARRIER_COUNTRY_CODE,
+                                             TUNE_KEY_CARRIER_COUNTRY_CODE_ISO,
+                                             TUNE_KEY_CARRIER_NETWORK_CODE,
+                                             TUNE_KEY_COUNTRY_CODE,
+                                             TUNE_KEY_OS_VERSION,
+                                             TUNE_KEY_LANGUAGE,
+                                             
+                                             TUNE_KEY_LOCATION_AUTH_STATUS,
+                                             TUNE_KEY_BLUETOOTH_STATE,
+                                             
+                                             TUNE_KEY_SITE_EVENT_ID,
+                                             TUNE_KEY_SITE_EVENT_NAME,
+                                             TUNE_KEY_APP_NAME,
+                                             TUNE_KEY_APP_VERSION,
+                                             TUNE_KEY_APP_VERSION_NAME,
+                                             TUNE_KEY_ADVERTISER_ID,
+                                             TUNE_KEY_KEY,
+                                             TUNE_KEY_PACKAGE_NAME,
+                                             
+                                             TUNE_KEY_DEVICE_FORM,
+                                             TUNE_KEY_DEVICE_FORM_TV,
+                                             TUNE_KEY_DEVICE_FORM_WEARABLE,
+                                             
+                                             TUNE_KEY_ADVERTISER_SUB_AD,
+                                             TUNE_KEY_ADVERTISER_SUB_ADGROUP,
+                                             TUNE_KEY_ADVERTISER_SUB_CAMPAIGN,
+                                             TUNE_KEY_ADVERTISER_SUB_KEYWORD,
+                                             TUNE_KEY_ADVERTISER_SUB_PUBLISHER,
+                                             TUNE_KEY_ADVERTISER_SUB_SITE,
+                                             TUNE_KEY_AGENCY_ID,
+                                             TUNE_KEY_OFFER_ID,
+                                             TUNE_KEY_PRELOAD_DATA,
+                                             TUNE_KEY_PUBLISHER_REF_ID,
+                                             TUNE_KEY_PUBLISHER_SUB_AD,
+                                             TUNE_KEY_PUBLISHER_SUB_AD_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_AD_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_ADGROUP,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_KEYWORD,
+                                             TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_PUBLISHER,
+                                             TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_SITE,
+                                             TUNE_KEY_PUBLISHER_SUB1,
+                                             TUNE_KEY_PUBLISHER_SUB2,
+                                             TUNE_KEY_PUBLISHER_SUB3,
+                                             TUNE_KEY_PUBLISHER_SUB4,
+                                             TUNE_KEY_PUBLISHER_SUB5,
+                                             
+                                             TUNE_KEY_INTERFACE_IDIOM,
+                                             TUNE_KEY_HARDWARE_TYPE,
+                                             TUNE_KEY_MINUTES_FROM_GMT,
+                                             TUNE_KEY_SDK_VERSION,
+                                             TUNE_KEY_DEVICE_TOKEN,
+                                             TUNE_KEY_PUSH_ENABLED,
+                                             
+                                             TUNE_KEY_GEO_COORDINATE,
+                                             TUNE_KEY_IS_TESTFLIGHT_BUILD]];
+    });
+    
+    return set;
+}
+
+// When privacy protection is enabled, Tune redacts Personally identifiable information (PII) from server calls.
+// System variables on this white list are not PII and can be sent to the server.  All other system variables are assumed to be PII and will be redacted.
++ (NSSet *)privacyProtectionWhiteList {
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[TUNE_KEY_SESSION_ID,
+                                             TUNE_KEY_SESSION_LAST_DATE,
+                                             TUNE_KEY_SESSION_CURRENT_DATE,
+                                             TUNE_KEY_SESSION_COUNT,
+                                             TUNE_KEY_IS_FIRST_SESSION,
+                                             
+                                             TUNE_KEY_INSTALL_RECEIPT,
+                                             
+                                             TUNE_KEY_INSDATE,
+                                             TUNE_KEY_SESSION_DATETIME,
+                                             TUNE_KEY_SYSTEM_DATE,
+                                             
+//                                             TUNE_KEY_REFERRAL_URL,
+//                                             TUNE_KEY_REFERRAL_SOURCE,
+//                                             TUNE_KEY_REDIRECT_URL,
+                                             
+//                                             TUNE_KEY_INSTALL_LOG_ID,
+//                                             TUNE_KEY_UPDATE_LOG_ID,
+//                                             TUNE_KEY_OPEN_LOG_ID,
+//                                             TUNE_KEY_LAST_OPEN_LOG_ID,
+                                             
+//                                             TUNE_KEY_CURRENCY_CODE,
+                                             
+//                                             TUNE_KEY_OS_JAILBROKE,
+                                             
+//                                             TUNE_KEY_TRACKING_ID,
+                                             TUNE_KEY_MAT_ID,
+//                                             TUNE_KEY_FB_COOKIE_ID,
+                                             
+                                             TUNE_KEY_IOS_IFV,
+                                             TUNE_KEY_IOS_IFA,
+                                             TUNE_KEY_IOS_AD_TRACKING,
+                                             
+//                                             TUNE_KEY_IAD_ATTRIBUTION,
+//                                             TUNE_KEY_IAD_IMPRESSION_DATE,
+//                                             TUNE_KEY_IAD_CLICK_DATE,
+//                                             TUNE_KEY_IAD_CONVERSION_DATE,
+                                             
+                                             TUNE_KEY_APP_AD_TRACKING,
+                                             
+//                                             TUNE_KEY_IS_PAYING_USER,
+                                             
+                                             TUNE_KEY_EXISTING_USER,
+//                                             TUNE_KEY_USER_EMAIL,
+//                                             TUNE_KEY_USER_EMAIL_MD5,
+//                                             TUNE_KEY_USER_EMAIL_SHA1,
+//                                             TUNE_KEY_USER_EMAIL_SHA256,
+//                                             TUNE_KEY_USER_ID,
+//                                             TUNE_KEY_USER_NAME,
+//                                             TUNE_KEY_USER_NAME_MD5,
+//                                             TUNE_KEY_USER_NAME_SHA1,
+//                                             TUNE_KEY_USER_NAME_SHA256,
+//                                             TUNE_KEY_USER_PHONE,
+//                                             TUNE_KEY_USER_PHONE_MD5,
+//                                             TUNE_KEY_USER_PHONE_SHA1,
+//                                             TUNE_KEY_USER_PHONE_SHA256,
+//                                             TUNE_KEY_FACEBOOK_USER_ID,
+//                                             TUNE_KEY_TWITTER_USER_ID,
+//                                             TUNE_KEY_GOOGLE_USER_ID,
+                                             
+                                             TUNE_KEY_IS_COPPA,
+                                             TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE,
+                                             TUNE_KEY_AGE,
+//                                             TUNE_KEY_GENDER,
+                                             
+//                                             TUNE_KEY_LATITUDE,
+//                                             TUNE_KEY_LONGITUDE,
+//                                             TUNE_KEY_ALTITUDE,
+//                                             TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
+//                                             TUNE_KEY_LOCATION_TIMESTAMP,
+//                                             TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
+                                             
+//                                             TUNE_KEY_TRUSTE_TPID,
+                                             
+                                             TUNE_KEY_OS_TYPE,
+//                                             TUNE_KEY_DEVICE_MODEL,
+//                                             TUNE_KEY_DEVICE_CPUTYPE,
+//                                             TUNE_KEY_DEVICE_CPUSUBTYPE,
+//                                             TUNE_KEY_DEVICE_CARRIER,
+//                                             TUNE_KEY_DEVICE_BRAND,
+//                                             TUNE_KEY_SCREEN_HEIGHT,
+//                                             TUNE_KEY_SCREEN_WIDTH,
+//                                             TUNE_KEY_SCREEN_SIZE,
+//                                             TUNE_KEY_SCREEN_DENSITY,
+//                                             TUNE_KEY_CARRIER_COUNTRY_CODE,
+//                                             TUNE_KEY_CARRIER_COUNTRY_CODE_ISO,
+//                                             TUNE_KEY_CARRIER_NETWORK_CODE,
+//                                             TUNE_KEY_COUNTRY_CODE,
+//                                             TUNE_KEY_OS_VERSION,
+//                                             TUNE_KEY_LANGUAGE,
+                                             
+//                                             TUNE_KEY_LOCATION_AUTH_STATUS,
+//                                             TUNE_KEY_BLUETOOTH_STATE,
+                                             
+                                             TUNE_KEY_SITE_EVENT_ID,
+                                             TUNE_KEY_SITE_EVENT_NAME,
+                                             TUNE_KEY_APP_NAME,
+                                             TUNE_KEY_APP_VERSION,
+                                             TUNE_KEY_APP_VERSION_NAME,
+                                             TUNE_KEY_ADVERTISER_ID,
+                                             TUNE_KEY_KEY,
+                                             TUNE_KEY_PACKAGE_NAME,
+                                             
+//                                             TUNE_KEY_DEVICE_FORM,
+//                                             TUNE_KEY_DEVICE_FORM_TV,
+//                                             TUNE_KEY_DEVICE_FORM_WEARABLE,
+                                             
+                                             TUNE_KEY_ADVERTISER_SUB_AD,
+                                             TUNE_KEY_ADVERTISER_SUB_ADGROUP,
+                                             TUNE_KEY_ADVERTISER_SUB_CAMPAIGN,
+                                             TUNE_KEY_ADVERTISER_SUB_KEYWORD,
+                                             TUNE_KEY_ADVERTISER_SUB_PUBLISHER,
+                                             TUNE_KEY_ADVERTISER_SUB_SITE,
+                                             TUNE_KEY_AGENCY_ID,
+                                             TUNE_KEY_OFFER_ID,
+                                             TUNE_KEY_PRELOAD_DATA,
+                                             TUNE_KEY_PUBLISHER_REF_ID,
+                                             TUNE_KEY_PUBLISHER_SUB_AD,
+                                             TUNE_KEY_PUBLISHER_SUB_AD_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_AD_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_ADGROUP,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_CAMPAIGN_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_KEYWORD,
+                                             TUNE_KEY_PUBLISHER_SUB_KEYWORD_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_PLACEMENT_NAME,
+                                             TUNE_KEY_PUBLISHER_SUB_PLACEMENT_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_PUBLISHER,
+                                             TUNE_KEY_PUBLISHER_SUB_PUBLISHER_REF,
+                                             TUNE_KEY_PUBLISHER_SUB_SITE,
+                                             TUNE_KEY_PUBLISHER_SUB1,
+                                             TUNE_KEY_PUBLISHER_SUB2,
+                                             TUNE_KEY_PUBLISHER_SUB3,
+                                             TUNE_KEY_PUBLISHER_SUB4,
+                                             TUNE_KEY_PUBLISHER_SUB5,
+                                             
+                                             TUNE_KEY_INTERFACE_IDIOM,
+//                                             TUNE_KEY_HARDWARE_TYPE,
+//                                             TUNE_KEY_MINUTES_FROM_GMT,
+                                             TUNE_KEY_SDK_VERSION,
+//                                             TUNE_KEY_DEVICE_TOKEN,
+                                             TUNE_KEY_PUSH_ENABLED
+                                             
+//                                             TUNE_KEY_GEO_COORDINATE,
+//                                             TUNE_KEY_IS_TESTFLIGHT_BUILD
+                                             ]];
+    });
+    
+    return set;
 }
 
 @end

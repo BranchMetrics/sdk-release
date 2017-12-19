@@ -112,7 +112,6 @@ NSString * const TUNE_STRING_FALSE                               = @"false";
 
 NSString * const TUNE_SERVER_DOMAIN_COOKIE_TRACKING              = @"https://launch1.co";
 NSString * const TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD        = @"engine.mobileapptracking.com";
-NSString * const TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG  = @"debug.engine.mobileapptracking.com";
 NSString * const TUNE_SERVER_DOMAIN_REGULAR_TRACKING_STAGE       = @"engine.stage.mobileapptracking.com";
 NSString * const TUNE_SERVER_PATH_TRACKING_ENGINE                = @"serve";
 

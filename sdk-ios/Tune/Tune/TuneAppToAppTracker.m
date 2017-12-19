@@ -38,6 +38,25 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     return self;
 }
 
+- (NSString *)buildLinkForTargetBundleId:(NSString*)targetBundleId
+                   advertiserId:(NSString*)advertiserId
+                     campaignId:(NSString*)campaignId
+                    publisherId:(NSString*)publisherId
+                     domainName:(NSString*)domainName {
+    
+    NSString *link = [NSString stringWithFormat:@"%@://%@/%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
+                         TUNE_KEY_HTTPS, domainName, TUNE_SERVER_PATH_TRACKING_ENGINE,
+                         TUNE_KEY_ACTION, TUNE_EVENT_CLICK,
+                         TUNE_KEY_PUBLISHER_ADVERTISER_ID, advertiserId,
+                         TUNE_KEY_PACKAGE_NAME, targetBundleId,
+                         TUNE_KEY_CAMPAIGN_ID, campaignId,
+                         TUNE_KEY_PUBLISHER_ID, publisherId,
+                         TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_XML];
+    
+    DebugLog(@"app-to-app tracking link: %@", link);
+    return link;
+}
+
 - (void)startMeasurementSessionForTargetBundleId:(NSString*)targetBundleId
                                publisherBundleId:(NSString*)publisherBundleId
                                     advertiserId:(NSString*)advertiserId
@@ -52,16 +71,8 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     if (!campaignId) campaignId = TUNE_STRING_EMPTY;
     if (!publisherId) publisherId = TUNE_STRING_EMPTY;
     
-    NSString *strLink = [NSString stringWithFormat:@"%@://%@/%@?%@=%@&%@=%@&%@=%@&%@=%@&%@=%@&%@=%@",
-                         TUNE_KEY_HTTPS, domainName, TUNE_SERVER_PATH_TRACKING_ENGINE,
-                         TUNE_KEY_ACTION, TUNE_EVENT_CLICK,
-                         TUNE_KEY_PUBLISHER_ADVERTISER_ID, advertiserId,
-                         TUNE_KEY_PACKAGE_NAME, targetBundleId,
-                         TUNE_KEY_CAMPAIGN_ID, campaignId,
-                         TUNE_KEY_PUBLISHER_ID, publisherId,
-                         TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_XML];
-    
-    DebugLog(@"app-to-app tracking link: %@", strLink);
+    NSString* strLink;
+    strLink = [self buildLinkForTargetBundleId:targetBundleId advertiserId:advertiserId campaignId:campaignId publisherId: publisherId domainName: domainName];
     
     NSMutableDictionary *dictItems = [NSMutableDictionary dictionary];
     [dictItems setValue:targetBundleId forKey:TUNE_KEY_TARGET_BUNDLE_ID];
@@ -71,7 +82,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     [dictItems setValue:campaignId forKey:TUNE_KEY_CAMPAIGN_ID];
     [dictItems setValue:publisherId forKey:TUNE_KEY_PUBLISHER_ID];
     
-    NSURL * url = [NSURL URLWithString:strLink];
+    NSURL* url = [NSURL URLWithString:strLink];
     NSURLRequest * request = [NSURLRequest requestWithURL:url
                                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                           timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];

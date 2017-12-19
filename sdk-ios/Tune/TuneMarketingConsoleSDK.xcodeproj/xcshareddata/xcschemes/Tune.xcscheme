@@ -57,6 +57,9 @@
                <Test
                   Identifier = "TuneDeeplinkerTests">
                </Test>
+               <Test
+                  Identifier = "TuneDelegateTests">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>

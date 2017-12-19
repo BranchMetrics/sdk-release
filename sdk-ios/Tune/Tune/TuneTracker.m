@@ -49,46 +49,40 @@
 #import <WatchKit/WatchKit.h>
 #endif
 
-static const int TUNE_CONVERSION_KEY_LENGTH      = 32;
+static const int TUNE_CONVERSION_KEY_LENGTH = 32;
 
 #if TESTING
-    const NSTimeInterval TUNE_SESSION_QUEUING_DELAY  = 1.;
+    // lower delay while running unit tests, just for test performance.
+    static const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 1.;
 #else
     // delay the session requests to allow deferred deep linking requests to complete
-    const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
+    static const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
 #endif
 
-const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
-const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 11;
-const NSTimeInterval MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL = 300.; // 5 min
-const NSTimeInterval TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION = 3.;
-const NSTimeInterval TUNE_IAD_CHECK_INITIAL_DELAY = TUNE_SESSION_QUEUING_DELAY > TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION ? TUNE_SESSION_QUEUING_DELAY - TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION : 0;
-const NSTimeInterval TUNE_IAD_CHECK_RETRY_SHORT_DELAY = 5.;
-const NSTimeInterval TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY = 30.;
-const NSTimeInterval TUNE_IAD_CHECK_RETRY_LONG_DELAY = 60.;
+static const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
+static const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 11;
+static const NSTimeInterval MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL = 300.; // 5 min
+static const NSTimeInterval TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION = 3.;
+static const NSTimeInterval TUNE_IAD_CHECK_INITIAL_DELAY = TUNE_SESSION_QUEUING_DELAY > TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION ? TUNE_SESSION_QUEUING_DELAY - TUNE_IAD_CHECK_MIN_INTERVAL_BEFORE_FIRST_SESSION : 0;
+static const NSTimeInterval TUNE_IAD_CHECK_RETRY_SHORT_DELAY = 5.;
+static const NSTimeInterval TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY = 30.;
+static const NSTimeInterval TUNE_IAD_CHECK_RETRY_LONG_DELAY = 60.;
 
-const NSTimeInterval MAX_WAIT_TIME_FOR_INIT     = 1.0;
-const NSTimeInterval TIME_STEP_FOR_INIT_WAIT    = 0.1;
+static const NSTimeInterval MAX_WAIT_TIME_FOR_INIT = 1.0;
+static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
 
-const NSInteger MAX_REFERRAL_URL_LENGTH         = 8192; // 8 KB
+static const NSInteger MAX_REFERRAL_URL_LENGTH = 8192; // 8 KB
 
-static NSSet * ignoreParams;
-static NSSet * doNotEncryptSet;
-
-@interface TuneEventItem(PrivateMethods)
-
+@interface TuneEventItem()
 + (NSArray *)dictionaryArrayForEventItems:(NSArray *)items;
-
 - (NSDictionary *)dictionary;
-
 @end
 
 
 @interface TuneTracker() <TuneEventQueueDelegate>
-{
-    TuneAppToAppTracker *appToAppTracker;
-    TuneRegionMonitor *regionMonitor;
-}
+
+@property (nonatomic, strong, readwrite) TuneAppToAppTracker *appToAppTracker;
+@property (nonatomic, strong, readwrite) TuneRegionMonitor *regionMonitor;
 
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
@@ -98,71 +92,89 @@ static NSSet * doNotEncryptSet;
 
 @end
 
-
 @implementation TuneTracker
 
-
-#pragma mark - init methods
-+ (void)initialize {
-    ignoreParams = [NSSet setWithObjects:TUNE_KEY_REDIRECT_URL, TUNE_KEY_KEY, nil];
-    
-    doNotEncryptSet = [NSSet setWithObjects:TUNE_KEY_ADVERTISER_ID, TUNE_KEY_ACTION,
-                       TUNE_KEY_SITE_EVENT_ID, TUNE_KEY_SDK, TUNE_KEY_VER, TUNE_KEY_SITE_EVENT_NAME,
-                       TUNE_KEY_REFERRAL_URL, TUNE_KEY_REFERRAL_SOURCE, TUNE_KEY_TRACKING_ID, TUNE_KEY_PACKAGE_NAME,
-                       TUNE_KEY_TRANSACTION_ID, TUNE_KEY_RESPONSE_FORMAT, nil];
+// unit tests rely on knowing the session queuing delay value
++ (NSTimeInterval)sessionQueuingDelay {
+    return TUNE_SESSION_QUEUING_DELAY;
 }
 
-- (id)init {
-    if(self = [super init]) {
++ (NSSet *)doNotEncryptSet {
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[TUNE_KEY_ADVERTISER_ID,
+                                             TUNE_KEY_ACTION,
+                                             TUNE_KEY_SITE_EVENT_ID,
+                                             TUNE_KEY_SDK,
+                                             TUNE_KEY_VER,
+                                             TUNE_KEY_SITE_EVENT_NAME,
+                                             TUNE_KEY_REFERRAL_URL,
+                                             TUNE_KEY_REFERRAL_SOURCE,
+                                             TUNE_KEY_TRACKING_ID,
+                                             TUNE_KEY_PACKAGE_NAME,
+                                             TUNE_KEY_TRANSACTION_ID,
+                                             TUNE_KEY_RESPONSE_FORMAT]];
+    });
+    return set;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
         // delay user-agent collection to avoid threading related app crash
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             // initiate collection of user agent string
             [TuneUserAgentCollector startCollection];
         });
         
-#if TARGET_OS_IOS
+        #if TARGET_OS_IOS
         // provide access to location when available
         [TuneLocationHelper class];
-#endif
+        #endif
         
         [TuneEventQueue setDelegate:self];
         
         // !!! very important to init some parms here
-        _shouldUseCookieTracking = NO; // by default do not use cookie tracking
+        self.shouldUseCookieTracking = NO; // by default do not use cookie tracking
         
-#if !TARGET_OS_WATCH
+        #if !TARGET_OS_WATCH
         // collect IFA if accessible
         [[TuneManager currentManager].userProfile updateIFA];
-#endif
+        #endif
     }
+    
     return self;
 }
 
-
 #pragma mark - Public Methods
 
-- (TuneRegionMonitor*)regionMonitor {
-    if( !regionMonitor )
-        regionMonitor = [TuneRegionMonitor new];
-    return regionMonitor;
+// override default property getter, we want to lazy load the location module since not all clients use location
+- (TuneRegionMonitor *)regionMonitor {
+    if (!_regionMonitor) {
+        _regionMonitor = [TuneRegionMonitor new];
+    }
+    return _regionMonitor;
 }
 
 - (void)startTracker {
     self.trackerStarted = NO;
     
-    if(0 == [[TuneManager currentManager].userProfile advertiserId].length) {
+    if (0 == [[TuneManager currentManager].userProfile advertiserId].length) {
         [self notifyDelegateFailureWithErrorCode:TuneNoAdvertiserIDProvided
                                              key:TUNE_KEY_ERROR_TUNE_ADVERTISER_ID_MISSING
                                          message:@"No TUNE Advertiser Id provided."];
         return;
     }
-    if(0 == [[TuneManager currentManager].userProfile conversionKey].length) {
+    
+    if (0 == [[TuneManager currentManager].userProfile conversionKey].length) {
         [self notifyDelegateFailureWithErrorCode:TuneNoConversionKeyProvided
                                              key:TUNE_KEY_ERROR_TUNE_CONVERSION_KEY_MISSING
                                          message:@"No TUNE Conversion Key provided."];
         return;
     }
-    if(TUNE_CONVERSION_KEY_LENGTH != [[TuneManager currentManager].userProfile conversionKey].length) {
+    
+    if (TUNE_CONVERSION_KEY_LENGTH != [[TuneManager currentManager].userProfile conversionKey].length) {
         [self notifyDelegateFailureWithErrorCode:TuneInvalidConversionKey
                                              key:TUNE_KEY_ERROR_TUNE_CONVERSION_KEY_INVALID
                                          message:[NSString stringWithFormat:@"Invalid TUNE Conversion Key provided, length = %lu. Expected key length = %d", (unsigned long)[[TuneManager currentManager].userProfile conversionKey].length, TUNE_CONVERSION_KEY_LENGTH]];
@@ -181,7 +193,7 @@ static NSSet * doNotEncryptSet;
 #endif
                                             object:nil];
     
-    _firstSessionOnAppActive = YES;
+    self.firstSessionOnAppActive = YES;
 }
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
@@ -189,7 +201,7 @@ static NSSet * doNotEncryptSet;
     
     // 07-Nov-2014: limit the referral url length,
     // so that the NSXMLParser does not run out of memory
-    if(urlString.length > MAX_REFERRAL_URL_LENGTH) {
+    if (urlString.length > MAX_REFERRAL_URL_LENGTH) {
         urlString = [urlString substringToIndex:MAX_REFERRAL_URL_LENGTH];
     }
     
@@ -566,10 +578,10 @@ static NSSet * doNotEncryptSet;
                offerId:(NSString*)offerId
            publisherId:(NSString*)publisherId
               redirect:(BOOL)shouldRedirect {
-    appToAppTracker = [TuneAppToAppTracker new];
-    appToAppTracker.delegate = self;
+    self.appToAppTracker = [TuneAppToAppTracker new];
+    self.appToAppTracker.delegate = self;
     
-    [appToAppTracker startMeasurementSessionForTargetBundleId:targetAppPackageName
+    [self.appToAppTracker startMeasurementSessionForTargetBundleId:targetAppPackageName
                                             publisherBundleId:[TuneUtils bundleId]
                                                  advertiserId:targetAppAdvertiserId
                                                    campaignId:offerId
@@ -670,7 +682,7 @@ static NSSet * doNotEncryptSet;
     NSDate *runDate = [NSDate date];
     
     if( [event.actionName isEqualToString:TUNE_EVENT_SESSION] )
-        runDate = [runDate dateByAddingTimeInterval:TUNE_SESSION_QUEUING_DELAY];
+        runDate = [runDate dateByAddingTimeInterval:[TuneTracker sessionQueuingDelay]];
     
     // fire the event tracking request
     [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName refId:event.refId encryptParams:encryptParams postData:postDict runDate:runDate];
@@ -826,11 +838,13 @@ static NSSet * doNotEncryptSet;
     // part of the url that needs encryption
     NSMutableString* encryptedParams = [NSMutableString stringWithCapacity:512];
     
-    if( [TuneManager currentManager].configuration.staging && ![ignoreParams containsObject:TUNE_KEY_STAGING] )
+    if ([TuneManager currentManager].configuration.staging) {
         [nonEncryptedParams appendFormat:@"%@=1", TUNE_KEY_STAGING];
-    
-    if( event.postConversion && ![ignoreParams containsObject:TUNE_KEY_POST_CONVERSION] )
+    }
+        
+    if (event.postConversion) {
         [nonEncryptedParams appendFormat:@"&%@=1", TUNE_KEY_POST_CONVERSION];
+    }
     
     NSString *keySiteEvent = event.eventName ? TUNE_KEY_SITE_EVENT_NAME : TUNE_KEY_SITE_EVENT_ID;
     
@@ -848,7 +862,9 @@ static NSSet * doNotEncryptSet;
     [self addValue:event.actionName                                                         forKey:TUNE_KEY_ACTION                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile advertiserId]                  forKey:TUNE_KEY_ADVERTISER_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile age]                           forKey:TUNE_KEY_AGE                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile appAdTracking]                 forKey:TUNE_KEY_APP_AD_TRACKING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+
+    [self addValue:[[TuneManager currentManager].userProfile appAdTracking] forKey:TUNE_KEY_APP_AD_TRACKING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
     [self addValue:[[TuneManager currentManager].userProfile appBundleId]                   forKey:TUNE_KEY_APP_BUNDLE_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appName]                       forKey:TUNE_KEY_APP_NAME                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appVersion]                    forKey:TUNE_KEY_APP_VERSION              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -919,7 +935,10 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile installDate]                   forKey:TUNE_KEY_INSDATE                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile installLogId]                  forKey:TUNE_KEY_INSTALL_LOG_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile isTestFlightBuild]             forKey:TUNE_KEY_IS_TESTFLIGHT_BUILD      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled]   forKey:TUNE_KEY_IOS_AD_TRACKING      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
+
+    [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled] forKey:TUNE_KEY_IOS_AD_TRACKING encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    
     [self addValue:[[TuneManager currentManager].userProfile appleAdvertisingIdentifier]    forKey:TUNE_KEY_IOS_IFA                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile appleVendorIdentifier]         forKey:TUNE_KEY_IOS_IFV                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
@@ -928,7 +947,6 @@ static NSSet * doNotEncryptSet;
     }
     
     [self addValue:[[TuneManager currentManager].userProfile payingUser]                    forKey:TUNE_KEY_IS_PAYING_USER           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile conversionKey]                 forKey:TUNE_KEY_KEY                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile language]                      forKey:TUNE_KEY_LANGUAGE                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile locale]                        forKey:TUNE_KEY_LOCALE                   encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile lastOpenLogId]                 forKey:TUNE_KEY_LAST_OPEN_LOG_ID         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -938,7 +956,6 @@ static NSSet * doNotEncryptSet;
     [self addValue:[[TuneManager currentManager].userProfile jailbroken]                    forKey:TUNE_KEY_OS_JAILBROKE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile osVersion]                     forKey:TUNE_KEY_OS_VERSION               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile packageName]                   forKey:TUNE_KEY_PACKAGE_NAME             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile redirectUrl]                   forKey:TUNE_KEY_REDIRECT_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile referralSource]                forKey:TUNE_KEY_REFERRAL_SOURCE          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile referralUrl]                   forKey:TUNE_KEY_REFERRAL_URL             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:TUNE_KEY_JSON                                                            forKey:TUNE_KEY_RESPONSE_FORMAT          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -1046,18 +1063,16 @@ static NSSet * doNotEncryptSet;
     *encryptParams = encryptedParams;
 }
 
-- (void)addValue:(id)value
-          forKey:(NSString*)key
- encryptedParams:(NSMutableString*)encryptedParams
- plaintextParams:(NSMutableString*)plaintextParams {
-    if( value == nil || [ignoreParams containsObject:key]) {
+- (void)addValue:(id)value forKey:(NSString*)key encryptedParams:(NSMutableString*)encryptedParams plaintextParams:(NSMutableString*)plaintextParams {
+    
+    if (value == nil || [[TuneManager currentManager].userProfile shouldRedactKey:key]) {
         return;
     }
     
-    if( [key isEqualToString:TUNE_KEY_PACKAGE_NAME] || [key isEqualToString:TUNE_KEY_DEBUG] ) {
+    if ([key isEqualToString:TUNE_KEY_PACKAGE_NAME] || [key isEqualToString:TUNE_KEY_DEBUG]) {
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:plaintextParams];
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:encryptedParams];
-    } else if( [doNotEncryptSet containsObject:key] ) {
+    } else if ([[TuneTracker doNotEncryptSet] containsObject:key]) {
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:plaintextParams];
     } else {
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:encryptedParams];

@@ -25,6 +25,10 @@
 
 #import <OCMock/OCMock.h>
 
+@interface TuneTracker()
++ (NSTimeInterval)sessionQueuingDelay;
+@end
+
 static BOOL forcedNetworkStatus;
 
 @interface TuneQueueTests : TuneXCTestCase <TuneDelegate> {
@@ -129,7 +133,7 @@ static BOOL forcedNetworkStatus;
     XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
     [Tune measureSession];
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + 0.1, &finished);
     XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
     
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
@@ -142,7 +146,7 @@ static BOOL forcedNetworkStatus;
     forcedNetworkStatus = NO;
     [Tune measureEventName:@"registration"];
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.1, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + 0.1, &finished);
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     
     finished = NO;
@@ -161,7 +165,7 @@ static BOOL forcedNetworkStatus;
 - (void)testEnqueue2 {
     forcedNetworkStatus = NO;
     [Tune measureSession];
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.5, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + 0.5, &finished);
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     
     [Tune measureEventName:@"yourMomEvent"];
@@ -176,7 +180,7 @@ static BOOL forcedNetworkStatus;
     
     forcedNetworkStatus = NO;
     [Tune measureSession];
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + 0.5, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + 0.5, &finished);
 
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
@@ -245,12 +249,12 @@ static BOOL forcedNetworkStatus;
 #endif
     
     [Tune measureSession];
-    waitFor( TUNE_SESSION_QUEUING_DELAY );
+    waitFor([TuneTracker sessionQueuingDelay]);
     XCTAssertFalse( [callFailed boolValue], @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( [callSuccess boolValue], @"session call should not have been attempted after 1 sec" );
     XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected 1 queued request, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     XCTAssertFalse( [callFailed boolValue], @"session call should not have failed" );
     XCTAssertTrue( [callSuccess boolValue], @"session call should have succeeded" );
     XCTAssertEqual( [successMessages count], 1, @"call should have succeeded" );
@@ -272,7 +276,7 @@ static BOOL forcedNetworkStatus;
     
     [Tune measureSession];
     [Tune measureEventName:@"event name"];
-    waitFor( TUNE_SESSION_QUEUING_DELAY );
+    waitFor([TuneTracker sessionQueuingDelay]);
 
     XCTAssertFalse( [callFailed boolValue], @"no calls should have been attempted after 1 sec" );
     XCTAssertFalse( [callSuccess boolValue], @"no calls should have been attempted after 1 sec" );
@@ -280,8 +284,8 @@ static BOOL forcedNetworkStatus;
     
     NSDate *startTime = [NSDate date];
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
+
     NSLog(@"time spent = %f", [[NSDate date] timeIntervalSinceDate:startTime]);
     
     finished = NO;
@@ -308,8 +312,8 @@ static BOOL forcedNetworkStatus;
     
     [Tune measureSession];
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
+
     NSMutableArray *requests = [TuneEventQueue events];
     NSString *strUrl = requests[0][@"url"];
     NSString *searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
@@ -318,7 +322,7 @@ static BOOL forcedNetworkStatus;
     
     ////////////
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     
     requests = [TuneEventQueue events];
     strUrl = requests[0][@"url"];
@@ -364,7 +368,7 @@ static BOOL forcedNetworkStatus;
     
     ////////////
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     XCTAssertTrue( [callFailed boolValue], @"session call should have failed" );
     XCTAssertFalse( [callSuccess boolValue], @"session call should not have succeeded" );
     

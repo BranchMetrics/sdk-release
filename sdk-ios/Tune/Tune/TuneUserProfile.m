@@ -39,82 +39,94 @@
 
 #import "TuneConstants.h"
 
-#if TARGET_OS_IOS
-static CTTelephonyNetworkInfo *netInfo;
-#endif
-
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
 #endif
 
-NSDictionary *profileVariablesToSave;
-NSSet *profileVariablesToNotSendToMA;
-NSSet *profileVariablesToOnlySendOnFirstSession;
+@interface TuneUserProfile()
 
-@implementation TuneUserProfile {
-    NSMutableDictionary *_userVariables;
-    NSMutableSet *_userCustomVariables;
-    NSMutableSet *currentVariations;
-}
+#if TARGET_OS_IOS
+@property (nonatomic, strong, readwrite) CTTelephonyNetworkInfo *netInfo;
+#endif
 
-static NSNumber *COPPA_MIN_AGE;
+@property (nonatomic, strong, readwrite) NSMutableDictionary *userVariables;
+@property (nonatomic, strong, readwrite) NSMutableSet *userCustomVariables;
+@property (nonatomic, strong, readwrite) NSMutableSet *currentVariations;
+
+@end
+
+@implementation TuneUserProfile
 
 #pragma mark - Initialization
 
-+ (void)initialize {
-#if TARGET_OS_IOS
-    netInfo = [CTTelephonyNetworkInfo new];
-#endif
++ (NSDictionary *)profileVariablesToSave {
+    static NSDictionary *dictionary;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dictionary = @{ TUNE_KEY_SESSION_ID           : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_MAT_ID               : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_MAT_INSTALL_LOG_ID   : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_MAT_UPDATE_LOG_ID    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_OPEN_LOG_ID          : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_LAST_OPEN_LOG_ID     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_IAD_ATTRIBUTION      : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_USER_EMAIL_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
+                        TUNE_KEY_USER_EMAIL_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
+                        TUNE_KEY_USER_EMAIL_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
+                        TUNE_KEY_USER_ID              : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_USER_NAME_MD5        : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
+                        TUNE_KEY_USER_NAME_SHA1       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
+                        TUNE_KEY_USER_NAME_SHA256     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
+                        TUNE_KEY_USER_PHONE_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
+                        TUNE_KEY_USER_PHONE_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
+                        TUNE_KEY_USER_PHONE_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
+                        TUNE_KEY_IS_PAYING_USER       : @[TUNE_DATA_TYPE_BOOLEAN, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_SESSION_COUNT        : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_SESSION_CURRENT_DATE : @[TUNE_DATA_TYPE_DATETIME, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_SESSION_LAST_DATE    : @[TUNE_DATA_TYPE_DATETIME, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_DEVICE_TOKEN         : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_PUSH_ENABLED         : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
+                        TUNE_KEY_IS_FIRST_SESSION     : @[TUNE_DATA_TYPE_BOOLEAN, TUNE_HASH_TYPE_NONE]
+                        };
+    });
     
-    COPPA_MIN_AGE = @13;
-    
-    profileVariablesToSave = @{ TUNE_KEY_SESSION_ID           : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_MAT_ID               : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_MAT_INSTALL_LOG_ID   : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_MAT_UPDATE_LOG_ID    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_OPEN_LOG_ID          : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_LAST_OPEN_LOG_ID     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_IAD_ATTRIBUTION      : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_USER_EMAIL_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                                TUNE_KEY_USER_EMAIL_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
-                                TUNE_KEY_USER_EMAIL_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
-                                TUNE_KEY_USER_ID              : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_USER_NAME_MD5        : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                                TUNE_KEY_USER_NAME_SHA1       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
-                                TUNE_KEY_USER_NAME_SHA256     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
-                                TUNE_KEY_USER_PHONE_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                                TUNE_KEY_USER_PHONE_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
-                                TUNE_KEY_USER_PHONE_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
-                                TUNE_KEY_IS_PAYING_USER       : @[TUNE_DATA_TYPE_BOOLEAN, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_SESSION_COUNT        : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_SESSION_CURRENT_DATE : @[TUNE_DATA_TYPE_DATETIME, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_SESSION_LAST_DATE    : @[TUNE_DATA_TYPE_DATETIME, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_DEVICE_TOKEN         : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_PUSH_ENABLED         : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                                TUNE_KEY_IS_FIRST_SESSION     : @[TUNE_DATA_TYPE_BOOLEAN, TUNE_HASH_TYPE_NONE]
-                             };
-    
-    profileVariablesToNotSendToMA = [[NSSet alloc] initWithArray:@[
-                                                                   TUNE_KEY_LONGITUDE,
-                                                                   TUNE_KEY_LATITUDE,
-                                                                   TUNE_KEY_ALTITUDE,
-                                                                   TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
-                                                                   TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
-                                                                   TUNE_KEY_LOCATION_TIMESTAMP
-                                                                   ]];
-    
-    profileVariablesToOnlySendOnFirstSession = [[NSSet alloc] initWithArray:@[
-                                                                              TUNE_KEY_INSTALL_RECEIPT
-                                                                              ]];
+    return dictionary;
 }
 
-- (id)initWithTuneManager:(TuneManager *)tuneManager {
++ (NSSet *)profileVariablesToNotSendToMA {
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[TUNE_KEY_LONGITUDE,
+                                             TUNE_KEY_LATITUDE,
+                                             TUNE_KEY_ALTITUDE,
+                                             TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
+                                             TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
+                                             TUNE_KEY_LOCATION_TIMESTAMP]];
+    });
+    return set;
+}
+
++ (NSSet *)profileVariablesToOnlySendOnFirstSession {
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[TUNE_KEY_INSTALL_RECEIPT]];
+    });
+    return set;
+}
+
+- (instancetype)initWithTuneManager:(TuneManager *)tuneManager {
     self = [super initWithTuneManager:tuneManager];
     
-    if(self) {
-        _userVariables = [[NSMutableDictionary alloc] init];
-        _userCustomVariables = [[NSMutableSet alloc] init];
-        currentVariations = [[NSMutableSet alloc] init];
+    if (self) {
+#if TARGET_OS_IOS
+        self.netInfo = [CTTelephonyNetworkInfo new];
+#endif
+        
+        self.userVariables = [NSMutableDictionary new];
+        self.userCustomVariables = [NSMutableSet new];
+        self.currentVariations = [NSMutableSet new];
         
         [self loadSavedProfile];
         
@@ -166,6 +178,7 @@ static NSNumber *COPPA_MIN_AGE;
         [self setSDKVersion:[TuneConfiguration frameworkVersion]];
         [self setMinutesFromGMT:@((int)[[NSTimeZone localTimeZone] secondsFromGMT] / 60)];
         [self setLocale:[[NSLocale currentLocale] localeIdentifier]];
+        [self updateCoppaStatus];
         
 #if TARGET_OS_IOS
         // FB cookie id
@@ -247,7 +260,7 @@ static NSNumber *COPPA_MIN_AGE;
             // Restore variable values for each name in custom variables
             for (NSString *variableName in _userCustomVariables) {
                 TuneAnalyticsVariable *storedVariable = [TuneUserDefaultsUtils userDefaultCustomVariableforKey:variableName];
-                // If stored variable exists, restore it to _userVariables
+                // If stored variable exists, restore it to userVariables
                 if (storedVariable) {
                     [self storeProfileVar:storedVariable];
                 }
@@ -283,7 +296,7 @@ static NSNumber *COPPA_MIN_AGE;
     TuneAnalyticsVariable *newVariable = [TuneAnalyticsVariable analyticsVariableWithName:name value:value];
 
     @synchronized(self) {
-        [currentVariations addObjectsFromArray:newVariable.toArrayOfDicts];
+        [self.currentVariations addObjectsFromArray:newVariable.toArrayOfDicts];
     }
 }
 
@@ -330,13 +343,27 @@ static NSNumber *COPPA_MIN_AGE;
     return [self getProfileValue:TUNE_KEY_DEVICE_TOKEN];
 }
 
-- (BOOL)tooYoungForTargetedAds {
-    if ([self privacyProtectedDueToAge]) {
-        return YES;
-    }
+- (void)updateCoppaStatus {
+    BOOL isCoppa = NO;
     
-    // Can be read as age < COPPA_MIN_AGE, when age is available
-    return self.age != nil && [self.age compare:COPPA_MIN_AGE] == NSOrderedAscending;
+    if ([self privacyProtectedDueToAge]) {
+        isCoppa = YES;
+    
+    } else {
+        NSNumber *coppaAgeLimit = @13;
+        
+        // Can be read as age < coppaAgeLimit, when age is available
+        isCoppa = self.age != nil && [self.age compare:coppaAgeLimit] == NSOrderedAscending;
+    }
+    [self storeProfileKey:TUNE_KEY_IS_COPPA value:@(isCoppa) type:TuneAnalyticsVariableBooleanType];
+}
+
+- (BOOL)tooYoungForTargetedAds {
+    NSNumber *value = (NSNumber *)[self getProfileValue:TUNE_KEY_IS_COPPA];
+    if (value) {
+        return value.boolValue;
+    }
+    return NO;
 }
 
 #if TARGET_OS_IOS
@@ -361,7 +388,7 @@ static NSNumber *COPPA_MIN_AGE;
 #else
 
 - (void)checkIfPushIsEnabled {
-    [self setPushEnabled:[@NO stringValue]];
+    [self setPushEnabled:[@(NO) stringValue]];
 }
 
 #endif
@@ -372,6 +399,10 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (NSString *)pushEnabled {
+    if ([self tooYoungForTargetedAds]) {
+        return [@(NO) stringValue];
+    }
+    
     return [self getProfileValue:TUNE_KEY_PUSH_ENABLED];
 }
 
@@ -488,7 +519,7 @@ static NSNumber *COPPA_MIN_AGE;
     
     
 #if TARGET_OS_IOS
-    CTCarrier *carrier = [netInfo subscriberCellularProvider];
+    CTCarrier *carrier = [self.netInfo subscriberCellularProvider];
     [self setDeviceCarrier:[carrier carrierName]];
     [self setMobileCountryCode:[carrier mobileCountryCode]];
     [self setMobileCountryCodeISO:[carrier isoCountryCode]];
@@ -560,7 +591,7 @@ static NSNumber *COPPA_MIN_AGE;
 - (void)registerVariable:(NSString *)variableName value:(id)value type:(TuneAnalyticsVariableDataType)type hashed:(BOOL)shouldAutoHash {
     if ([TuneAnalyticsVariable validateName:variableName]){
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:variableName];
-        NSSet *systemVariables = [TuneUserProfileKeys getSystemVariables];
+        NSSet *systemVariables = [TuneUserProfileKeys systemVariables];
         
         for (NSString *systemVariable in systemVariables) {
             if ([prettyName caseInsensitiveCompare:systemVariable] == NSOrderedSame) {
@@ -643,7 +674,7 @@ static NSNumber *COPPA_MIN_AGE;
         if([[self getCustomProfileVariables] containsObject:prettyName]){
             TuneAnalyticsVariable *var = [self getProfileVariable:prettyName];
             
-            // If var is nil, then there wasn't a value stored in the _userVariables dictionary. This occurs when the variable is initially set and doesn't
+            // If var is nil, then there wasn't a value stored in the userVariables dictionary. This occurs when the variable is initially set and doesn't
             // have a value stored in NSUserDefaults, or when the value is cleared.
             if (var == nil || var.type == type) {
                 TuneAnalyticsVariable *toStore = [TuneAnalyticsVariable analyticsVariableWithName:prettyName value:value type:type];
@@ -692,7 +723,7 @@ static NSNumber *COPPA_MIN_AGE;
     [TuneUserDefaultsUtils clearCustomVariable:key];
     
     @synchronized(self) {
-        [_userVariables removeObjectForKey:key];
+        [self.userVariables removeObjectForKey:key];
     }
 }
 
@@ -738,8 +769,8 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (id)getProfileValue:(NSString *)key {
     @synchronized(self) {
-        if ([_userVariables objectForKey: key] != nil) {
-            return [(TuneAnalyticsVariable *)[_userVariables objectForKey: key] value];
+        if ([self.userVariables objectForKey: key] != nil) {
+            return [(TuneAnalyticsVariable *)[self.userVariables objectForKey: key] value];
         };
     }
         
@@ -748,8 +779,8 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (TuneAnalyticsVariable *)getProfileVariable:(NSString *)key {
     @synchronized(self) {
-        if ([_userVariables objectForKey: key] != nil) {
-            return (TuneAnalyticsVariable *)[_userVariables objectForKey: key];
+        if ([self.userVariables objectForKey: key] != nil) {
+            return (TuneAnalyticsVariable *)[self.userVariables objectForKey: key];
         } else {
             return nil;
         }
@@ -760,7 +791,7 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (NSDictionary *)getProfileVariables {
     @synchronized(self){
-        return [NSDictionary dictionaryWithDictionary:_userVariables];
+        return [NSDictionary dictionaryWithDictionary:self.userVariables];
     }
 }
 
@@ -794,9 +825,9 @@ static NSNumber *COPPA_MIN_AGE;
     @synchronized(self) {
         NSString *key = var.name;
         
-        [_userVariables setObject:[var copy] forKey:key];
+        [self.userVariables setObject:[var copy] forKey:key];
         
-        if ([profileVariablesToSave objectForKey:key] != nil) {
+        if ([[TuneUserProfile profileVariablesToSave] objectForKey:key] != nil) {
             [TuneUserDefaultsUtils setUserDefaultValue:var.value forKey:key];
         } else if ([[self getCustomProfileVariables] containsObject:key]) {
             [TuneUserDefaultsUtils setUserDefaultCustomVariable:[var copy] forKey:key];
@@ -974,6 +1005,10 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (NSNumber *)appleAdvertisingTrackingEnabled {
+    if ([self tooYoungForTargetedAds]) {
+        return @(NO);
+    }
+    
     return [self getProfileValue:TUNE_KEY_IOS_AD_TRACKING];
 }
 
@@ -1066,7 +1101,7 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected {
     [self storeProfileKey:TUNE_KEY_PRIVACY_PROTECTED_DUE_TO_AGE value:@(privacyProtected) type:TuneAnalyticsVariableBooleanType];
-    [self checkIfPushIsEnabled];
+    [self updateCoppaStatus];
 }
 
 - (BOOL)privacyProtectedDueToAge {
@@ -1075,7 +1110,7 @@ static NSNumber *COPPA_MIN_AGE;
 
 - (void)setAge:(NSNumber *)age {
     [self storeProfileKey:TUNE_KEY_AGE value:age type:TuneAnalyticsVariableNumberType];
-    [self checkIfPushIsEnabled];
+    [self updateCoppaStatus];
 }
 
 - (NSNumber *)age {
@@ -1095,6 +1130,10 @@ static NSNumber *COPPA_MIN_AGE;
 }
 
 - (NSNumber *)appAdTracking {
+    if ([self tooYoungForTargetedAds]) {
+        return @(NO);
+    }
+    
     return [self getProfileValue:TUNE_KEY_APP_AD_TRACKING];
 }
 
@@ -1688,11 +1727,11 @@ static NSNumber *COPPA_MIN_AGE;
 - (void)loadSavedProfile {
     // We don't load custom variables because they are loaded on app foreground
     
-    for (NSString *profileKey in profileVariablesToSave) {
+    for (NSString *profileKey in [TuneUserProfile profileVariablesToSave]) {
         NSString *value = [TuneUserDefaultsUtils userDefaultValueforKey:profileKey];
         if (value) {
-            TuneAnalyticsVariableDataType type = [TuneAnalyticsVariable stringToDataType:[profileVariablesToSave objectForKey:profileKey][0]];
-            TuneAnalyticsVariableHashType hashType = [TuneAnalyticsVariable stringToHashType:[profileVariablesToSave objectForKey:profileKey][1]];
+            TuneAnalyticsVariableDataType type = [TuneAnalyticsVariable stringToDataType:[[TuneUserProfile profileVariablesToSave] objectForKey:profileKey][0]];
+            TuneAnalyticsVariableHashType hashType = [TuneAnalyticsVariable stringToHashType:[[TuneUserProfile profileVariablesToSave] objectForKey:profileKey][1]];
             
             [self storeProfileKey:profileKey value:value type:type hashType:hashType shouldAutoHash:NO];
         }
@@ -1705,6 +1744,20 @@ static NSNumber *COPPA_MIN_AGE;
 
 #pragma mark - Marshaling profile into other formats.
 
+// Determine if PII should be redacted for a profile variable key
+// Also used by TuneTracker.m
+- (BOOL)shouldRedactKey:(NSString *)key {
+    if ([[TuneManager currentManager].userProfile tooYoungForTargetedAds]) {
+        
+        // only redact system variables that are not on the whitelist, custom variables are the responsibility of the client app
+        if ([[TuneUserProfileKeys systemVariables] containsObject:key] && ![[TuneUserProfileKeys privacyProtectionWhiteList] containsObject:key]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
 - (NSArray *)toArrayOfDictionaries {
     NSMutableArray *result = [[NSMutableArray alloc] init];
     NSDictionary *variables = [self getProfileVariables];
@@ -1712,17 +1765,20 @@ static NSNumber *COPPA_MIN_AGE;
     @synchronized(self) {
         for (NSString *key in variables) {
             TuneAnalyticsVariable *var = [variables objectForKey:key];
-        
-            if (![profileVariablesToNotSendToMA containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
+            if (![[TuneUserProfile profileVariablesToNotSendToMA] containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
+                
                 // If this is a variable we should only send once and this is not the first session, skip it
-                if ([profileVariablesToOnlySendOnFirstSession containsObject:key] && ![[self isFirstSession] boolValue]) {
+                if ([[TuneUserProfile profileVariablesToOnlySendOnFirstSession] containsObject:key] && ![[self isFirstSession] boolValue]) {
                     continue;
                 }
-                [result addObjectsFromArray:[var toArrayOfDicts]];
+            
+                if (![self shouldRedactKey:key]) {
+                    [result addObjectsFromArray:[var toArrayOfDicts]];
+                }
             }
         }
 
-        [result addObjectsFromArray:currentVariations.allObjects];
+        [result addObjectsFromArray:self.currentVariations.allObjects];
     }
     
     return result;

@@ -108,10 +108,8 @@ NSString *const TuneConfigurationPreviewModeKey = @"previewMode";
 - (NSString*)domainName {
     if(_staging) {
         return TUNE_SERVER_DOMAIN_REGULAR_TRACKING_STAGE;
-    } else {
-        // on prod, use a different server domain name when debug mode is enabled
-        return [_debugMode boolValue] ? TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD_DEBUG : TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD;
     }
+    return TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD;
 }
 
 - (void)setDefaultConfiguration {

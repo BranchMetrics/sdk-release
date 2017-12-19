@@ -26,6 +26,10 @@
 
 #import "TuneXCTestCase.h"
 
+@interface TuneTracker()
++ (NSTimeInterval)sessionQueuingDelay;
+@end
+
 @interface TuneTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
     
@@ -334,7 +338,7 @@
     
     waitFor(0.5);
     
-    waitFor1( TUNE_SESSION_QUEUING_DELAY + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
+    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );

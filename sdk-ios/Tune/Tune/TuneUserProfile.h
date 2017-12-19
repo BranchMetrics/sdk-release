@@ -80,6 +80,7 @@
 /////////////////////////////////////////////////
 
 - (BOOL)tooYoungForTargetedAds;
+- (BOOL)shouldRedactKey:(NSString *)key;
 
 - (NSString *)deviceId;
 

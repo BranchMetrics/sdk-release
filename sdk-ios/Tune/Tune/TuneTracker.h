@@ -12,9 +12,6 @@
 @class TuneEvent;
 @class TuneRegionMonitor;
 
-FOUNDATION_EXPORT const NSTimeInterval TUNE_SESSION_QUEUING_DELAY;
-
-
 @protocol TuneDelegate;
 @protocol TuneTrackerDelegate;
 

@@ -162,6 +162,7 @@ FOUNDATION_EXPORT NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD;
 
 @interface TuneUserProfileKeys : NSObject
 
-+ (NSSet *)getSystemVariables;
++ (NSSet *)systemVariables;
++ (NSSet *)privacyProtectionWhiteList;
 
 @end
