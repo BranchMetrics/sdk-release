@@ -262,6 +262,8 @@ public class Tune {
                     sTuneInstance.locationListener.startListening();
                 }
             }
+
+            TuneDebugLog.alwaysLog("Initializing Tune Version " + getSDKVersion());
         } else {
             TuneDebugLog.e("Tune Already Initialized");
         }

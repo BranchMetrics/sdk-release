@@ -364,6 +364,9 @@ public class TuneBanner extends TuneInAppMessage {
         setPreloaded(false);
         setVisible(false);
 
+        // On close, clear WebView content
+        bannerLayout.getWebView().loadUrl("about:blank");
+
         int animationId = 0;
         switch (getTransition()) {
             case FADE_IN:

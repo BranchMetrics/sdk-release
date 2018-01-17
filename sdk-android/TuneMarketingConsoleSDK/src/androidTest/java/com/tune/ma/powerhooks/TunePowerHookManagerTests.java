@@ -111,7 +111,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         postPlaylistChangedWithPhookJson("name", phookJson);
 
         Map<String, TunePowerHookValue> phooksAfter = phookManager.getPowerHooks();
-        assertEquals(0, phooks.size());
+        assertEquals(1, phooksAfter.size());
         assertEquals("nonregistered", phookManager.getValueForHookById("name"));
     }
 

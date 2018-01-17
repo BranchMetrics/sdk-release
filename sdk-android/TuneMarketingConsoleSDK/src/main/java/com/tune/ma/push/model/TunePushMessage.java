@@ -53,13 +53,24 @@ public class TunePushMessage {
 
     private boolean silentPush;
 
+    // This constructor is purely for getting push id into the fiveline to match with in-app message trigger events
+    public static TunePushMessage initForTriggerEvent(String pushId) {
+        TunePushMessage message = new TunePushMessage();
+        message.campaign = new TuneCampaign("", pushId, 0);
+        return message;
+    }
+
     private TunePushMessage() {
     }
 
     public TunePushMessage(String jsonString) throws JSONException {
         JSONObject json = new JSONObject(jsonString);
 
-        appName = json.getString(JSON_APP_NAME);
+        // Optional
+        if (json.has(JSON_APP_NAME)) {
+            appName = json.getString(JSON_APP_NAME);
+        }
+
         appId = json.getString(BUNDLE_APP_ID);
         alertMessage = json.getString(BUNDLE_ALERT_KEY);
 
@@ -73,13 +84,6 @@ public class TunePushMessage {
         }
 
         messageIdentifier = json.getString(JSON_MESSAGE_ID);
-    }
-
-    // This constructor is purely for getting push id into the fiveline to match with in-app message trigger events
-    public static TunePushMessage initForTriggerEvent(String pushId) {
-        TunePushMessage message = new TunePushMessage();
-        message.campaign = new TuneCampaign("", pushId, 0);
-        return message;
     }
 
     public TunePushMessage(Bundle extras, String appName) throws Exception {

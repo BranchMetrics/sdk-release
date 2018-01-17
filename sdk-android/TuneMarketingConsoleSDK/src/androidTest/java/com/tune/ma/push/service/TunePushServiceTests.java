@@ -7,6 +7,7 @@ import com.tune.ma.TuneManager;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TunePushListener;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -68,6 +69,34 @@ public class TunePushServiceTests extends TuneUnitTest {
         assertNull(TuneManager.getInstance());
         assertTrue(tunePushService.notifyListener(message));
     }
+
+    @Test
+    public void testPushMessageRequiredKeys() throws Exception {
+        TunePushMessage message = new TunePushMessage(createJsonString_SDK377());
+
+        assertNotNull(message.getAppId());
+        assertNotNull(message.getAlertMessage());
+        assertNotNull(message.getCampaign());
+        assertNotNull(message.getMessageIdentifier());
+
+        String testString = message.toJson();
+        assertNotNull(testString);
+    }
+
+    private String createJsonString_SDK377() {
+        String jsonString = "{\n" +
+                "  \"app_id\":\"841da02630cbbf8be55581c57d48eb82\",\n" +
+                "  \"alert\":\"Sample Notification!\",\n" +
+                "  \"ARTPID\":\"030c73605125d101072006e9e\",\n" +
+                "  \"CAMPAIGN_ID\":\"030c73605125d101072006e9e\",\n" +
+                "  \"LENGTH_TO_REPORT\":604800,\n" +
+                "  \"local_message_id\":1234567890,\n" +
+                "  \"payload\":\"{\\\"ABC\\\":{\\\"D\\\":\\\"E\\\",\\\"FG\\\":\\\"030c73605125d101072006e9e\\\"}}\"\n" +
+                " }";
+
+        return jsonString;
+    }
+
 
 
     private class TestPushListener implements TunePushListener {

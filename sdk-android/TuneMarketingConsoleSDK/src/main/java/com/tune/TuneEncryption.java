@@ -33,19 +33,19 @@ public class TuneEncryption {
 
     /**
      * Encrypt text.
-     * @param text String to encrypt
+     * @param plainText String to encrypt
      * @return AES-encrypted string
      * @throws Exception if the given key is inappropriate for initializing this cipher.
      */
-    public byte[] encrypt(String text) throws Exception {
-        if (text == null || text.length() == 0) throw new Exception("Empty string");
+    byte[] encrypt(String plainText) throws Exception {
+        if (plainText == null || plainText.length() == 0) throw new Exception("Empty string");
 
         byte[] encrypted = null;
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, keyspec, ivspec);
 
-            encrypted = cipher.doFinal(padString(text).getBytes());
+            encrypted = cipher.doFinal(padString(plainText).getBytes());
         } catch (Exception e) {
             throw new Exception("[encrypt] " + e.getMessage());
         }
@@ -55,19 +55,20 @@ public class TuneEncryption {
 
     /**
      * Decrypt an encrypted string.
-     * @param code Encrypted string to decrypt
+     * @param encryptedText Encrypted string to decrypt
      * @return AES-decrypted string
      * @throws Exception if the encrypted string cannot be decrypted.
      */
-    public byte[] decrypt(String code) throws Exception {
-        if (code == null || code.length() == 0) throw new Exception("Empty string");
+    @SuppressWarnings("unused")
+    byte[] decrypt(String encryptedText) throws Exception {
+        if (encryptedText == null || encryptedText.length() == 0) throw new Exception("Empty string");
 
         byte[] decrypted = null;
 
         try {
             cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
 
-            decrypted = cipher.doFinal(TuneUtils.hexToBytes(code));
+            decrypted = cipher.doFinal(TuneUtils.hexToBytes(encryptedText));
         } catch (Exception e) {
             throw new Exception("[decrypt] " + e.getMessage());
         }

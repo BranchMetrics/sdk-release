@@ -3,7 +3,8 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '4.15.3'
+    PUBLISH_FLAVORS = ['lite', 'full']
+    PUBLISH_VERSION = '4.16.0'
 }
 
 android {
@@ -13,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionName '4.15.3'
+        versionName '4.16.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,16 +29,17 @@ android {
         }
     }
 
+    flavorDimensions "default"
     productFlavors {
         lite {
+            dimension "default"
             versionNameSuffix "-lite"
         }
         full {
+            dimension "default"
 //            versionNameSuffix "-full"
         }
     }
-
-    defaultPublishConfig "fullRelease"
 
     lintOptions {
         abortOnError false
@@ -54,8 +56,8 @@ android {
 configurations {
     // Initializes placeholder configurations that the Android plugin can use when targeting
     // the corresponding variant of the app.
-    liteReleaseCompile {}
-    fullReleaseCompile {}
+    liteCompile {}
+    fullCompile {}
 
     javadocDeps
 }
@@ -289,4 +291,5 @@ artifacts {
 
 // Allow us to build as an Android Studio library
 // https://medium.com/@tigr/how-to-publish-your-android-studio-library-to-jcenter-5384172c4739#.vg4grvo60
-apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
+//apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
+apply from: 'android-release-aar-flavor.gradle'

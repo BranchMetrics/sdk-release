@@ -77,21 +77,6 @@ public class TuneGooglePlayServicesDelegate {
         return (String) getGoogleCloudMessaging().getField("MESSAGE_TYPE_MESSAGE").get(null);
     }
 
-    public static int isGooglePlayServicesAvailable(Context context) throws Exception {
-        // Performs: int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this.context);
-        Method playServicesUtilGetter = getGooglePlayServicesUtil().getMethod("isGooglePlayServicesAvailable", Context.class);
-        Object[] playServicesUtilArgs = new Object[1];
-        playServicesUtilArgs[0] = context;
-        Integer result = (Integer) playServicesUtilGetter.invoke(null, playServicesUtilArgs);
-        return result.intValue();
-    }
-
-    public static int getConnectionResultSuccessField() throws Exception {
-        // Performs: Integer result = ConnectionResult.SUCCESS;
-        Integer result = (Integer) getConnectionResult().getField("SUCCESS").get(null);
-        return result.intValue();
-    }
-
     private static Object getGoogleApiAvailabilityInstance() throws Exception {
         // Performs: GoogleApiAvailability result = GoogleApiAvailability.getInstance();.
         Method gcmGetter = getGoogleApiAvailability().getMethod("getInstance");

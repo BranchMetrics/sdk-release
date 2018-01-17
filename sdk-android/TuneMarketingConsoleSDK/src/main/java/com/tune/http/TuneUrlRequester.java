@@ -23,6 +23,8 @@ public class TuneUrlRequester implements UrlRequester {
         }
 
         BufferedInputStream is = null;
+        boolean foundError = false;
+        String response = null;
 
         try {
             URL myurl = new URL(deeplinkURL);
@@ -31,20 +33,38 @@ public class TuneUrlRequester implements UrlRequester {
             conn.setRequestProperty("X-MAT-Key", conversionKey);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
-            
+
+            // This will throw an exception if there is no connection available.
             conn.connect();
-            
-            boolean error = false;
+
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 is = new BufferedInputStream(conn.getInputStream());
             } else {
-                error = true;
+                foundError = true;
                 is = new BufferedInputStream(conn.getErrorStream());
             }
             
-            String response = TuneUtils.readStream(is);
-            if (error) {
+            response = TuneUtils.readStream(is);
+        } catch (Exception e) {
+            foundError = true;
+            response = e.getMessage();
+
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Send the callback the response.  This is wrapped in a try/catch in case the callback
+        // tries to throw an exception back through this API.
+        try {
+            if (foundError) {
                 // Notify listener of error
                 listener.didFailDeeplink(response);
             } else {
@@ -53,12 +73,6 @@ public class TuneUrlRequester implements UrlRequester {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

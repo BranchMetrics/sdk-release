@@ -256,7 +256,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
 
         String appId = tune.getAppId();
         // Check that app id is still the expected value on re-init
-        assertEquals(expectedAppId, tune.getAppId());
+        assertEquals(expectedAppId, appId);
         // Check that app id is not the md5 of the infamous "null|null|android"
         assertFalse(appId.equals("a3095d6697f9d75815a50a9feb36812c"));
 
@@ -295,7 +295,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
 
         String appId = tune.getAppId();
         // Check that app id is still the expected value on next session
-        assertEquals(expectedAppId, tune.getAppId());
+        assertEquals(expectedAppId, appId);
 
         // Restore TMA disabled status
         prefsDelegate.saveBooleanToSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED, false);

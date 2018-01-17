@@ -165,32 +165,6 @@ public class TunePushManager {
         return registeredAlready;
     }
 
-    protected boolean isGooglePlayServicesAvailable() {
-        // NOTE: we used to check for isGooglePlayServicesAvailable() when registering, but since push can still work if
-        //        this check fails we decided to disable it for now. Since everything push related is try-catch'd
-        //        due to the reflection we won't crash.
-        //   Keeping this around in case we want to use it again in the future to pop up a dialog, etc.
-        boolean playServicesInstalled = false;
-        try {
-            int resultCode = TuneGooglePlayServicesDelegate.isGooglePlayServicesAvailable(this.context);
-            int connectionResultSuccess = TuneGooglePlayServicesDelegate.getConnectionResultSuccessField();
-            if (resultCode == connectionResultSuccess) {
-                playServicesInstalled = true;
-                TuneDebugLog.i("Play Services are enabled");
-            } else {
-                if (TuneGooglePlayServicesDelegate.isUserRecoverable(resultCode)) {
-                    // we don't invite the app user to download google play services. That will be up to the app developer to detect and set up as they like
-                    TuneDebugLog.e("User needs to install Google Play Services.");
-                } else {
-                    TuneDebugLog.e("This device does not support Push Notifications.");
-                }
-            }
-        } catch (Exception e) {
-            TuneDebugLog.w("Failed to check if google play services is available: ", e);
-        }
-        return playServicesInstalled;
-    }
-
     private boolean isAppVersionSameForStoredRegistrationId() {
         String registeredAppVersion = sharedPrefs.getStringFromSharedPreferences(PROPERTY_APP_VERSION);
         if (registeredAppVersion == null) {
@@ -426,23 +400,24 @@ public class TunePushManager {
             return false;
         }
     }
-
-    private void checkPushSettings(String methodName) {
-        checkPushPermissionsHelper("com.google.android.c2dm.permission.RECEIVE", methodName);
-        checkPushPermissionsHelper(Manifest.permission.WAKE_LOCK, methodName);
-        checkPushPermissionsHelper(context.getPackageName() + ".permission.C2D_MESSAGE", methodName);
-        try {
-            Object gcm = TuneGooglePlayServicesDelegate.getGCMInstance(context);
-        } catch (Exception e) {
-            TuneDebugLog.IAMConfigError("Could not find com.google.android.gms.gcm.GoogleCloudMessaging, make sure you are building with it.");
-        }
-    }
-
-    private void checkPushPermissionsHelper(String permission, String methodName) {
-        if (!TuneUtils.hasPermission(context, permission)) {
-            TuneDebugLog.IAMConfigError(TuneStringUtils.format("You need the '%s' permission in your manifest to use push and '%s'", permission, methodName));
-        }
-    }
+// IMPORTANT: 'checkPushSettings' can be a little flakey (giving false positives) until such a time that it stops giving false positives we shouldn't do it.
+//    private void checkPushSettings(String methodName) {
+//        checkPushPermissionsHelper("com.google.android.c2dm.permission.RECEIVE", methodName);
+//        checkPushPermissionsHelper(Manifest.permission.WAKE_LOCK, methodName);
+//        checkPushPermissionsHelper(context.getPackageName() + ".permission.C2D_MESSAGE", methodName);
+//        try {
+//            Object gcm = TuneGooglePlayServicesDelegate.getGCMInstance(context);
+//        } catch (Exception e) {
+//            TuneDebugLog.IAMConfigError("Could not find com.google.android.gms.gcm.GoogleCloudMessaging, make sure you are building with it.");
+//        }
+//    }
+//
+//    IMPORTANT: Because 'checkPushSettings' is commented out (see above comment), 'checkPushPermissionsHelper' is also commented out (as that is the only usage)
+//    private void checkPushPermissionsHelper(String permission, String methodName) {
+//        if (!TuneUtils.hasPermission(context, permission)) {
+//            TuneDebugLog.IAMConfigError(TuneStringUtils.format("You need the '%s' permission in your manifest to use push and '%s'", permission, methodName));
+//        }
+//    }
 
     public void setTunePushListener(TunePushListener tunePushListener) {
         this.tunePushListener = tunePushListener;

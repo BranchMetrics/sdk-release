@@ -7,7 +7,6 @@ import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.analytics.model.constants.TuneAnalyticsManagerState;
 import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 import com.tune.ma.analytics.model.event.TuneCustomEvent;
 import com.tune.ma.analytics.model.event.TuneDeeplinkOpenedEvent;
@@ -63,7 +62,6 @@ public class TuneAnalyticsManager {
 
     private ScheduledThreadPoolExecutor scheduler;
     private TuneAnalyticsListener listener;
-    private TuneAnalyticsManagerState state;
     private Set<TuneAnalyticsVariable> sessionVariables;
 
     private Boolean shouldQueueCustomEvents;
@@ -73,7 +71,6 @@ public class TuneAnalyticsManager {
 
     public TuneAnalyticsManager(Context context) {
         this.context = context;
-        this.state = TuneAnalyticsManagerState.NOT_TRACKING;
         this.sessionVariables = new HashSet<>();
 
         this.shouldQueueCustomEvents = true;
@@ -237,40 +234,12 @@ public class TuneAnalyticsManager {
         event.setTags(finalTags);
     }
 
-    public boolean currentlyTrackingEvents() {
-        return true;
-//        return (service.getConfiguration().isAnalyticsAlwaysOn() || service.getPlaylistManagerForUser().hasActiveTest()) && !this.isPaused;
-    }
-
-    public TuneAnalyticsManagerState getState() {
-        return state;
-    }
-    public void setState(TuneAnalyticsManagerState state) {
-        TuneDebugLog.d("TuneAnalyticsManager state set to " + state.toString());
-        this.state = state;
-    }
-
-    // TODO: We should extend TuneAnalyticsListener to be more generic and useful for all TMA client debugging
-    // TODO: similar to how TuneListener is currently used
-    public TuneAnalyticsListener getListener() {
-        return listener;
-    }
     public void setListener(TuneAnalyticsListener listener) {
         this.listener = listener;
     }
 
     public void storeAndTrackAnalyticsEvent(boolean force, TuneAnalyticsEventBase event) {
-//        // TODO: check if TMA is enabled
-//        if (getState() == TuneAnalyticsManagerState.NOT_TRACKING) {
-//            TuneDebugLog.d(TMAConstants.ARTISAN_ANALYTICS_TAG, String.format("Event not logged in db, due to ARAnalyticsManager state  %s", getState().toString()));
-//            return false;
-//        }
-//
-//        if (!currentlyTrackingEvents() && !force) {
-//            TuneDebugLog.d(TMAConstants.ARTISAN_ANALYTICS_TAG, "No variants are currently running, so events are not being stored");
-//            return false;
-//        }
-
+        // TODO: check if TMA is enabled
         // If connected mode is enabled, don't write to file,
         // Instead send to connected endpoint immediately
         addSessionVariablesToEvent(event);

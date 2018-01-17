@@ -1,0 +1,144 @@
+// ./gradlew clean build generateRelease
+apply plugin: 'maven'
+
+def groupId = project.PUBLISH_GROUP_ID
+def artifactId = project.PUBLISH_ARTIFACT_ID
+def version = project.PUBLISH_VERSION
+String[] flavors = project.ext.PUBLISH_FLAVORS
+
+def localReleaseDest = "${buildDir}/release/${version}"
+
+task androidJavadocs(type: Javadoc) {
+    failOnError = false
+    source = android.sourceSets.main.java.srcDirs
+    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    classpath += files(ext.androidJar)
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+// NOTE that we have specialized knowledge that we don't append a suffix for the flavor "full"
+def flavorSuffix = { String thisFlavor ->
+    String suffix = "-${thisFlavor}"
+    if (thisFlavor == "full") {
+        suffix = "";
+    }
+
+    return suffix;
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "file://${localReleaseDest}")
+
+        /**
+         * Add filters for every product flavor
+         */
+        for (String flavor : flavors) {
+            println "Configuring ${flavor} POM"
+
+            // If you want to deploy more than one artifact you need to define filters to select each of those artifacts.
+            def flavorRelease = "${flavor}Release"
+            MavenPom pomx = addFilter(flavorRelease) { artifact, file ->
+                artifact.name.contains(flavor)
+            }
+
+            // Add Dependencies per-flavor
+            def addPomDependencies = { String thisFlavor, MavenPom thisPom ->
+                println "Configuring POM for ${thisFlavor}"
+
+                String suffix = flavorSuffix(thisFlavor)
+
+                thisPom.setArtifactId("${artifactId}${suffix}")
+                thisPom.setGroupId(groupId)
+                thisPom.setVersion("${version}")
+                thisPom.setPackaging("aar")
+
+                thisPom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    // Add all the 'compile' dependencies to the POM
+                    configurations.compile.allDependencies.withType(ModuleDependency) { ModuleDependency dp ->
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+
+                        dependencyNode.appendNode('groupId', dp.group)
+                        dependencyNode.appendNode('artifactId', dp.name)
+                        dependencyNode.appendNode('version', dp.version)
+                        dependencyNode.appendNode('scope', 'compile')
+                    }
+
+                    // Add any flavorCompile specific dependencies
+                    def flavorCompile = configurations.getByName("${thisFlavor}Compile")
+                    flavorCompile.allDependencies.withType(ModuleDependency) { ModuleDependency dp ->
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+
+                        dependencyNode.appendNode('groupId', dp.group)
+                        dependencyNode.appendNode('artifactId', dp.name)
+                        dependencyNode.appendNode('version', dp.version)
+                        dependencyNode.appendNode('scope', 'compile')
+                    }
+                }
+            }
+
+            addPomDependencies(flavor, pomx)
+        }
+    }
+}
+
+// TODO: Figure out how to combine Full and Lite versions of this task.
+// Essentially include this flavor, and exclude all others.
+task zipReleaseLite(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    exclude "**com/tune/tune-marketing-console-sdk/**"
+    archiveName "release-${version}-lite.zip"
+}
+
+// TODO: Figure out how to combine Full and Lite versions of this task.
+// Essentially include this flavor, and exclude all others.
+task zipReleaseFull(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    exclude "**com/tune/tune-marketing-console-sdk-lite/**"
+    archiveName "release-${version}.zip"
+}
+
+task generateRelease {
+    doLast {
+        println "Release ${version} can be found at ${localReleaseDest}/"
+        println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+    }
+}
+
+generateRelease.dependsOn(uploadArchives)
+generateRelease.dependsOn(zipReleaseLite)
+generateRelease.dependsOn(zipReleaseFull)
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+
+    def aarLocation = "${buildDir}/outputs/aar"
+
+    if (new File("${aarLocation}").exists()) {
+        new File("${aarLocation}").eachFile() { file ->
+            if (file.toString().contains("release")) {
+                archives file: file
+                println "Archiving " + file.toString()
+            }
+        }
+    }
+}
+
+
+
+
+

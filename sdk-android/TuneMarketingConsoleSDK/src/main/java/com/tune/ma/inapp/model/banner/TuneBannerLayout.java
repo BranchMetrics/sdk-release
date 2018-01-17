@@ -27,7 +27,7 @@ public class TuneBannerLayout extends FrameLayout {
         this.webView = webView;
         this.parentBanner = banner;
 
-        this.addView(webView, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        this.addView(webView, FrameLayout.LayoutParams.MATCH_PARENT, TuneBanner.getBannerHeightPixels(activity));
     }
 
     public Activity getActivity() {

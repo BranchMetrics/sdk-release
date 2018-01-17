@@ -13,9 +13,9 @@ import java.util.Set;
 
 public class TuneEvent implements Serializable {
     private static final long serialVersionUID = -7616393848331704848L;
-    
+
     public static final String DEVICE_FORM_WEARABLE = "wearable";
-    
+
     public static final String REGISTRATION = "registration";
     public static final String LOGIN = "login";
     public static final String ADD_TO_WISHLIST = "add_to_wishlist";

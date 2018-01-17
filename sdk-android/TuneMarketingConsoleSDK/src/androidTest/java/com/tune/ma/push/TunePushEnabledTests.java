@@ -62,12 +62,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testPushShouldBeDisabledIfPreferredEvenIfServicesAreInstalled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -81,45 +76,10 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertFalse(enabledReceiver.isEnabled());
         assertTrue(enabledReceiver.isUpdated());
     }
-/*
-    // These tests currently does not apply because we are not currently checking against google play services
-    public void testPushShouldBeDisabledIfNoPreferenceSetAndPlayServicesIsNotAvailable() throws Exception {
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            @Override
-            public boolean isGooglePlayServicesAvailable() {
-                return false;
-            }
-        };
-
-        // no preference set
-        pushManager.initializePush();
-
-        assertEquals(TuneAnalyticsVariable.IOS_BOOLEAN_FALSE, userProfile.getProfileVariableValue(TuneProfileKeys.IS_PUSH_ENABLED));
-    }
-
-    public void testPushShouldBeDisabled() throws Exception {
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            @Override
-            public boolean isGooglePlayServicesAvailable() {
-                return false;
-            }
-        };
-
-        pushManager.storePushEnabledPreference(false);
-        pushManager.initializePush();
-
-        assertEquals(TuneAnalyticsVariable.IOS_BOOLEAN_FALSE, userProfile.getProfileVariableValue(TuneProfileKeys.IS_PUSH_ENABLED));
-    }
-    */
 
     public void testPushShouldBeEnabled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -136,12 +96,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testPushShouldBeEnabledIfNoPreferenceSetAndPlayServicesIsAvailable() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -158,12 +113,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testPushEnabledWhenUserSetsItAsEnabled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -200,12 +150,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testPushEnabledWhenDeveloperOpsOut() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -245,12 +190,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testSettingEnabledBeforeSenderIdIsOkay() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -323,12 +263,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
 
     public void testTooYoungOverridesAllOther() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
-        pushManager = new TunePushManagerTesterBase(getContext()) {
-            /*@Override
-            public boolean isGooglePlayServicesAvailable() {
-                return true;
-            }*/
-        };
+        pushManager = new TunePushManagerTesterBase(getContext());
 
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
