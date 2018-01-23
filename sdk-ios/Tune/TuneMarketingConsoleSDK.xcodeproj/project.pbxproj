@@ -106,6 +106,8 @@
 		1768F9D61FC26C6C005D2958 /* TuneDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17AB14871FBF62750076EF7E /* TuneDelegateTests.m */; };
 		1768F9D71FC26C70005D2958 /* NSURLSession+TuneDelegateMockServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */; };
 		176E6D3C1FDEF9AD00418D1E /* TuneNotRedactedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 176E6D3A1FDEF7A400418D1E /* TuneNotRedactedTests.m */; };
+		291ED62420100671000FB422 /* TuneUserAgentCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 291ED62320100671000FB422 /* TuneUserAgentCollectorTests.m */; };
+		291ED62520100681000FB422 /* TuneUserAgentCollectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 291ED62320100671000FB422 /* TuneUserAgentCollectorTests.m */; };
 		323040011B97A3ED00DD8E65 /* TuneNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */; };
 		323040021B97A3ED00DD8E65 /* TuneNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040001B97A3ED00DD8E65 /* TuneNotification.m */; };
 		323040051B97A80500DD8E65 /* TuneNotificationProcessing.h in Headers */ = {isa = PBXBuildFile; fileRef = 323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */; };
@@ -1321,6 +1323,7 @@
 		1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+TuneDelegateMockServer.m"; sourceTree = "<group>"; };
 		176E6D3A1FDEF7A400418D1E /* TuneNotRedactedTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotRedactedTests.m; sourceTree = "<group>"; };
 		17AB14871FBF62750076EF7E /* TuneDelegateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneDelegateTests.m; sourceTree = "<group>"; };
+		291ED62320100671000FB422 /* TuneUserAgentCollectorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneUserAgentCollectorTests.m; sourceTree = "<group>"; };
 		32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotification.h; sourceTree = "<group>"; };
 		323040001B97A3ED00DD8E65 /* TuneNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotification.m; sourceTree = "<group>"; };
 		323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotificationProcessing.h; sourceTree = "<group>"; };
@@ -1899,6 +1902,7 @@
 				1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */,
 				1713E72C1FD0BA6D00214122 /* TuneRedactedTests.m */,
 				176E6D3A1FDEF7A400418D1E /* TuneNotRedactedTests.m */,
+				291ED62320100671000FB422 /* TuneUserAgentCollectorTests.m */,
 			);
 			name = TuneTests;
 			path = TuneMarketingConsoleSDKTests;
@@ -3504,6 +3508,7 @@
 				F8F694041CFFC15B00B453D9 /* TuneAnalyticsItem.m in Sources */,
 				DBCA43321B8E642300483318 /* TunePreloadDataTests.m in Sources */,
 				F8F693C91CFFC15B00B453D9 /* TuneJSONUtils.m in Sources */,
+				291ED62420100671000FB422 /* TuneUserAgentCollectorTests.m in Sources */,
 				F8F693FB1CFFC15B00B453D9 /* TuneSlideInMessageView.m in Sources */,
 				F8F693EC1CFFC15B00B453D9 /* TuneMessageStyling.m in Sources */,
 				F8F694271CFFC15B00B453D9 /* TuneEventItem.m in Sources */,
@@ -3806,6 +3811,7 @@
 				F853CFEC1D00C9FD006CCC98 /* TuneExperimentManager.m in Sources */,
 				F853CFC11D00C988006CCC98 /* TuneStorageKeys.m in Sources */,
 				F853CFBD1D00C982006CCC98 /* TuneTracker.m in Sources */,
+				291ED62520100681000FB422 /* TuneUserAgentCollectorTests.m in Sources */,
 				F846614D1C3B4F0C005C42CC /* TuneServerTests.m in Sources */,
 				F853CFC71D00C998006CCC98 /* TuneInAppUtils.m in Sources */,
 				F8E39FE71D6227FE008D4794 /* TunePushUtils.m in Sources */,

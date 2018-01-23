@@ -8,6 +8,7 @@
 
 #import "TuneUserAgentCollector.h"
 #import "TuneUtils.h"
+#import "TuneUserDefaultsUtils.h"
 
 @interface TuneUserAgentCollector()
 #if TARGET_OS_IOS
@@ -21,6 +22,8 @@
 @end
 
 static TuneUserAgentCollector *collector;
+static NSString *TuneUserAgentCollectorUserAgent = @"tuneUserAgentCollectorUserAgent";
+static NSString *TuneUserAgentCollectorOsVersion = @"tuneUserAgentCollectorOsVersion";
 
 @implementation TuneUserAgentCollector
 
@@ -44,7 +47,13 @@ static TuneUserAgentCollector *collector;
         if( !collector.hasStarted ) {
 #endif
             collector.hasStarted = YES;
-            
+
+            NSString *cachedUserAgent = [self cachedUserAgentForOSVersion:[UIDevice currentDevice].systemVersion];
+            if (cachedUserAgent) {
+                collector.userAgent = cachedUserAgent;
+                return;
+            }
+
             Class webViewClass = [TuneUtils getClassFromString:@"UIWebView"];
             if( webViewClass && [webViewClass class] ) {
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -63,6 +72,23 @@ static TuneUserAgentCollector *collector;
     return collector.userAgent;
 }
 
+#pragma mark - Private Methods
+
++ (NSString *)cachedUserAgentForOSVersion:(NSString *)osVersion
+{
+    NSString *userAgent = [TuneUserDefaultsUtils userDefaultValueforKey:TuneUserAgentCollectorUserAgent];
+    NSString *cachedOsVersion = [TuneUserDefaultsUtils userDefaultValueforKey:TuneUserAgentCollectorOsVersion];
+    if([cachedOsVersion isEqualToString:osVersion]) {
+        return userAgent;
+    }
+    return nil;
+}
+
++ (void)saveUserAgent:(NSString *)userAgent forOSVersion:(NSString *)osVersion
+{
+    [TuneUserDefaultsUtils setUserDefaultValue:userAgent forKey:TuneUserAgentCollectorUserAgent];
+    [TuneUserDefaultsUtils setUserDefaultValue:osVersion forKey:TuneUserAgentCollectorOsVersion];
+}
 
 #pragma mark - UIWebViewDelegate Methods
 
@@ -78,6 +104,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
     
     // in some rare cases when the user-agent string contains null garbage values, return nil
     collector.userAgent = [agent hasPrefix:@"(null)"] ? nil : agent;
+    [self.class saveUserAgent:collector.userAgent forOSVersion:[UIDevice currentDevice].systemVersion];
     
     return NO;
 }
