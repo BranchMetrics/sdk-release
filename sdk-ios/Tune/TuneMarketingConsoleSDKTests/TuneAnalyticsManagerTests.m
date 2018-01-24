@@ -20,6 +20,7 @@
 #import "TuneAnalyticsVariable.h"
 #import "TuneBlankViewController.h"
 #import "TuneConfiguration.h"
+#import "TuneDeeplink.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
 #import "TuneFileManager.h"
@@ -148,6 +149,30 @@
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"schemaVersion\":\"2.0\""]);
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"control\":null"]);
         XCTAssertTrue([(NSString *)[storedAnalytics objectForKey:key] containsString:@"\"type\":\"EVENT\""]);
+    }
+}
+
+- (void)testHandleDeeplinkOpened {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    TuneDeeplink *deeplink = [[TuneDeeplink alloc] initWithNSURL:[NSURL URLWithString:@"myapp://deeplink/path?dog=maru&user=john"]];
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneAppOpenedFromURL object:nil userInfo:@{TunePayloadDeeplink:deeplink}];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        NSString *eventString = (NSString *)[storedAnalytics objectForKey:key];
+        // assert action
+        XCTAssertTrue([eventString containsString:@"\"action\":\"DeeplinkOpened\""]);
+        XCTAssertTrue([eventString containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"category\":\"myapp://deeplink/path\""]);
+        XCTAssertTrue([eventString containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([eventString containsString:@"\"control\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"type\":\"APP_OPENED_BY_URL\""]);
     }
 }
 
@@ -438,6 +463,98 @@
     // Confirm that the event wasn't stored locally.
     NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
     XCTAssertTrue([storedAnalytics count] == 0);
+}
+
+#pragma mark - In-App Messaging
+
+- (void)testHandleInAppMessageShown {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    TuneAnalyticsVariable *campaignStepVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_CAMPAIGN_STEP_IDENTIFIER value:@"test_campaign_step_id"];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneInAppMessageShown object:nil userInfo:@{TunePayloadInAppMessageID: @"test_message_id", TunePayloadCampaignStep: campaignStepVariable}];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        NSString *eventString = (NSString *)[storedAnalytics objectForKey:key];
+        // assert action
+        XCTAssertTrue([eventString containsString:@"\"action\":\"TUNE_IN_APP_MESSAGE_ACTION_SHOWN\""]);
+        XCTAssertTrue([eventString containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"category\":\"test_message_id\""]);
+        XCTAssertTrue([eventString containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([eventString containsString:@"\"control\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"type\":\"IN_APP_MESSAGE\""]);
+    }
+}
+
+- (void)testHandleInAppMessageDismissed {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    // Record analytics event
+    TuneAnalyticsVariable *campaignStepVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_CAMPAIGN_STEP_IDENTIFIER value:@"test_campaign_step_id"];
+    TuneAnalyticsVariable *secondsDisplayedVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_IN_APP_MESSAGE_SECONDS_DISPLAYED value:@5 type:TuneAnalyticsVariableNumberType];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneInAppMessageDismissed
+                                            object:nil
+                                          userInfo:@{TunePayloadInAppMessageID: @"test_message_id",
+                                                     TunePayloadInAppMessageDismissedAction: TUNE_IN_APP_MESSAGE_ACTION_DISMISSED_AFTER_DURATION,
+                                                     TunePayloadCampaignStep: campaignStepVariable,
+                                                     TunePayloadInAppMessageSecondsDisplayed: secondsDisplayedVariable}];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        NSString *eventString = (NSString *)[storedAnalytics objectForKey:key];
+        // assert action
+        XCTAssertTrue([eventString containsString:@"\"action\":\"TUNE_IN_APP_MESSAGE_ACTION_DISMISSED_AFTER_DURATION\""]);
+        XCTAssertTrue([eventString containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"category\":\"test_message_id\""]);
+        XCTAssertTrue([eventString containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([eventString containsString:@"\"control\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"type\":\"IN_APP_MESSAGE\""]);
+    }
+}
+
+- (void)testHandleInAppMessageUnspecifiedAction {
+    [TuneFileManager deleteAnalyticsFromDisk];
+    
+    // Record analytics event
+    TuneAnalyticsVariable *campaignStepVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_CAMPAIGN_STEP_IDENTIFIER value:@"test_campaign_step_id"];
+    TuneAnalyticsVariable *secondsDisplayedVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_IN_APP_MESSAGE_SECONDS_DISPLAYED value:@3 type:TuneAnalyticsVariableNumberType];
+    TuneAnalyticsVariable *unspecifiedActionVariable = [TuneAnalyticsVariable analyticsVariableWithName:TUNE_IN_APP_MESSAGE_UNSPECIFIED_ACTION_NAME value:@"test_unspecified_action_name"];
+    
+    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneInAppMessageDismissedWithUnspecifiedAction
+                                            object:nil
+                                          userInfo:@{TunePayloadInAppMessageID: @"test_message_id",
+                                                     TunePayloadInAppMessageDismissedAction: unspecifiedActionVariable,
+                                                     TunePayloadCampaignStep: campaignStepVariable,
+                                                     TunePayloadInAppMessageSecondsDisplayed: secondsDisplayedVariable}];
+    
+    [analyticsManager waitForOperationsToFinish];
+    
+    NSDictionary *storedAnalytics = [TuneFileManager loadAnalyticsFromDisk];
+    NSArray *storedAnalyticsKeys = [storedAnalytics allKeys];
+    
+    XCTAssertTrue([storedAnalytics count] == 1);
+    for (NSString *key in storedAnalyticsKeys) {
+        NSString *eventString = (NSString *)[storedAnalytics objectForKey:key];
+        // assert action
+        XCTAssertTrue([eventString containsString:@"\"action\":\"TUNE_IN_APP_MESSAGE_UNSPECIFIED_ACTION_NAME\""]);
+        XCTAssertTrue([eventString containsString:@"\"controlEvent\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"category\":\"test_message_id\""]);
+        XCTAssertTrue([eventString containsString:@"\"schemaVersion\":\"2.0\""]);
+        XCTAssertTrue([eventString containsString:@"\"control\":null"]);
+        XCTAssertTrue([eventString containsString:@"\"type\":\"IN_APP_MESSAGE\""]);
+    }
 }
 
 #pragma mark - Helpers

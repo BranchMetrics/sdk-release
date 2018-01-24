@@ -52,7 +52,7 @@ NSString *const TunePlaylistManagerFinishedPlaylistDownload  = @"TunePlaylistMan
 NSString *const TunePlaylistManagerFirstPlaylistDownloaded = @"TunePlaylistManagerFirstPlaylistDownloaded";
 
 #pragma mark - TunePlaylist
-NSString *const TunePlaylistAssetsDownloaded = @"TunePlaylistAssetsDownloaded";
+NSString *const TunePlaylistUpdatePlaylist = @"TunePlaylistUpdatePlaylist";
 
 #pragma mark - Device Token
 NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken = @"TuneRegisteredForRemoteNotificationsWithDeviceToken";
@@ -71,3 +71,4 @@ NSString *const TuneDeepActionTriggered = @"TuneDeepActionTriggered";
 #pragma mark - In App Message
 NSString *const TuneInAppMessageShown = @"TuneInAppMessageShown";
 NSString *const TuneInAppMessageDismissed = @"TuneInAppMessageDismissed";
+NSString *const TuneInAppMessageDismissedWithUnspecifiedAction = @"TuneInAppMessageDismissedWithUnspecifiedAction";

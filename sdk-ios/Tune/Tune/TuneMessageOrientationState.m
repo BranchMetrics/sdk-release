@@ -31,38 +31,8 @@
 #endif
 
 + (CGSize)getCalculatedWindowSizeForCurrentOrientation {
-    return [[TuneMessageOrientationState sharedState] _getCalculatedWindowSizeForCurrentOrientation];
-}
-
-- (CGSize)_getCalculatedWindowSizeForCurrentOrientation {
-    CGFloat currentScreenWidth = [UIScreen mainScreen].bounds.size.width;
-    CGFloat currentScreenHeight = [UIScreen mainScreen].bounds.size.height;
-
-#if TARGET_OS_IOS
-    UIInterfaceOrientation orientation = [TuneMessageOrientationState getCurrentOrientation];
-    
-    if ( (orientation == UIDeviceOrientationLandscapeLeft) ||
-        (orientation == UIDeviceOrientationLandscapeRight) ) {
-        if (currentScreenHeight > currentScreenWidth) {
-            // Need to switch these they are incorrect
-            return CGSizeMake(currentScreenHeight,currentScreenWidth);
-        }
-        else {
-            // They'are correct
-            return CGSizeMake(currentScreenWidth,currentScreenHeight);
-        }
-    }
-    else {
-        if (currentScreenWidth > currentScreenHeight) {
-            // Need to switch these they are incorrect
-            return CGSizeMake(currentScreenHeight,currentScreenWidth);
-        }
-        else {
-            // They'are correct
-            return CGSizeMake(currentScreenWidth,currentScreenHeight);
-        }
-    }
-#endif
+    CGFloat currentScreenWidth = [UIApplication sharedApplication].keyWindow.bounds.size.width;
+    CGFloat currentScreenHeight = [UIApplication sharedApplication].keyWindow.bounds.size.height;
     return CGSizeMake(currentScreenWidth,currentScreenHeight);
 }
 

@@ -163,4 +163,10 @@ static NSString *tune_ignoredCharacters = @"!*'\"();:@&=+$,/?%#[] \n";
     return range.location != NSNotFound;
 }
 
++ (NSString *)reduceUrlToPath:(NSURL *)url {
+    NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+    urlComponents.query = nil; // Strip out query parameters.
+    return urlComponents.string;
+}
+
 @end

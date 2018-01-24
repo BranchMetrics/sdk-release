@@ -78,9 +78,6 @@ TunePlaylistManager *playlistManager;
         TunePlaylist *instance = [[TunePlaylist alloc] initWithDictionary:dictionaryArg];
         
         playlistInstanceMock = OCMPartialMock(instance);
-        OCMStub([playlistInstanceMock retrieveInAppMessageAssets]).andDo(^(NSInvocation *retrieveInvocation) {
-            [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistAssetsDownloaded object:playlistInstanceMock userInfo:nil];
-        });
         
         [invocation setReturnValue:&playlistInstanceMock];
     });

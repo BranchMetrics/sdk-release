@@ -101,4 +101,12 @@
  */
 + (BOOL)string:(NSString *)string containsString:(NSString *)subString;
 
+/**
+ Reduces a url to up to its path component, stripping off query parameters
+ 
+ @param url The url to reduce
+ 
+ @returns NSString* A reduced url without query parameters
+ */
++ (NSString *)reduceUrlToPath:(NSURL *)url;
 @end

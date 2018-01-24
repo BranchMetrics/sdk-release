@@ -19,7 +19,7 @@
 #import "TuneDeepAction.h"
 #import "TunePlaylistManager.h"
 #import "TuneDeviceDetails.h"
-#import "TuneBaseMessageFactory.h"
+#import "TuneInAppMessage.h"
 #import "TuneJSONUtils.h"
 #import "TuneUtils.h"
 
@@ -184,10 +184,10 @@ NSString *const SUPPORTED_ORIENTATIONS_KEY = @"supported_orientations";
     // If we have a In-App message in our Playlist then we're previewing an In-App Message
     if (playlist.fromConnectedMode) {
         if (playlist.inAppMessages.count == 1) {
-            TuneBaseMessageFactory *messageFactory = [[playlist.inAppMessages allValues] firstObject];
+            TuneInAppMessage *messageFactory = [[playlist.inAppMessages allValues] firstObject];
             // Wait a short bit of time otherwise the message will dissapear immediately.
             //   This is likely because the message gets attached to the dismissing 'Connected...' popup
-            [messageFactory performSelector:@selector(buildAndShowMessage) withObject:nil afterDelay:0.6];
+            [messageFactory performSelector:@selector(display) withObject:nil afterDelay:0.6];
         }
         
         // Remove our observer.
@@ -210,7 +210,7 @@ NSString *const SUPPORTED_ORIENTATIONS_KEY = @"supported_orientations";
                 NSLog(@"Got last connected playlist:\n%@", [TuneJSONUtils createPrettyJSONFromDictionary:response.responseDictionary withSecretTMADepth:nil]);
             }
             // This fires off a process that will result in the playlist being updated.
-            [newPlaylist retrieveInAppMessageAssets];
+            [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistUpdatePlaylist object:newPlaylist userInfo:nil];
         } else {
             ErrorLog(@"SDK failed to get last playlist (for connected mode) from Marketing Automation servers. Error: %@", [response.error localizedDescription]);
         }

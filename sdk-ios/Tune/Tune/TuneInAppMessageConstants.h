@@ -25,25 +25,11 @@ enum TuneMessageLocationType {
 typedef enum TuneMessageLocationType TuneMessageLocationType;
 
 enum TuneMessageType {
-    TuneMessageTypeSlideIn = 1,
-    TuneMessageTypePopup,
-    TuneMessageTypeTakeOver
+    TuneMessageTypeBanner = 1,
+    TuneMessageTypeModal,
+    TuneMessageTypeFullScreen
 };
 typedef enum TuneMessageType TuneMessageType;
-
-enum TuneMessageButtonType {
-    TuneMessageButtonTypeNA = 1,
-    TuneMessageButtonTypeCta,
-    TuneMessageButtonTypeCancel,
-};
-typedef enum TuneMessageButtonType TuneMessageButtonType;
-
-enum TuneTapBehavior {
-    TuneTapBehaviorPowerHook = 1,
-    TuneTapBehaviorURL,
-    TuneTapBehaviorDismiss
-};
-typedef enum TuneTapBehavior TuneTapBehavior;
 
 enum TuneMessageDeviceOrientation {
     TuneMessageOrientationPhonePortrait_480 = 1,
@@ -70,16 +56,6 @@ enum TuneMessageDeviceOrientation {
 };
 typedef enum TuneMessageDeviceOrientation TuneMessageDeviceOrientation;
 
-enum TuneMessageCloseButtonColor {
-    TunePopUpMessageCloseButtonColorRed = 1,
-    TunePopUpMessageCloseButtonColorBlack,
-    TuneSlideInMessageCloseButtonColorWhite,
-    TuneSlideInMessageCloseButtonColorBlack,
-    TuneTakeOverMessageCloseButtonColorRed,
-    TuneTakeOverMessageCloseButtonColorBlack
-};
-typedef enum TuneMessageCloseButtonColor TuneMessageCloseButtonColor;
-
 enum TuneMessageBackgroundMaskType {
     TuneMessageBackgroundMaskTypeLight = 1,
     TuneMessageBackgroundMaskTypeDark,
@@ -88,17 +64,11 @@ enum TuneMessageBackgroundMaskType {
 };
 typedef enum TuneMessageBackgroundMaskType TuneMessageBackgroundMaskType;
 
-enum TuneTakeOverMessageCloseButtonLocationType {
-    TuneTakeOverMessageCloseButtonLocationLeft = 1,
-    TuneTakeOverMessageCloseButtonLocationRight
+enum TuneModalMessageEdgeStyle {
+    TuneModalMessageSquareCorners = 1,
+    TuneModalMessageRoundedCorners
 };
-typedef enum TuneTakeOverMessageCloseButtonLocationType TuneTakeOverMessageCloseButtonLocationType;
-
-enum TunePopUpMessageEdgeStyle {
-    TunePopUpMessageSquareCorners = 1,
-    TunePopUpMessageRoundedCorners
-};
-typedef enum TunePopUpMessageEdgeStyle TunePopUpMessageEdgeStyle;
+typedef enum TuneModalMessageEdgeStyle TuneModalMessageEdgeStyle;
 
 
 @interface TuneInAppMessageConstants : NSObject

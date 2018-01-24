@@ -44,11 +44,29 @@
     
     XCTAssertEqual(0, [TuneDateUtils daysBetween:dt and:dt]);
     
-    XCTAssertEqual(1, [TuneDateUtils daysBetween:dt and:[dt dateByAddingTimeInterval:86400]]);
-    XCTAssertEqual(2, [TuneDateUtils daysBetween:dt and:[dt dateByAddingTimeInterval:86400 * 2]]);
+    NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+    dayComponent.day = 1;
     
-    XCTAssertEqual(-1, [TuneDateUtils daysBetween:dt and:[dt dateByAddingTimeInterval:-86400]]);
-    XCTAssertEqual(-2, [TuneDateUtils daysBetween:dt and:[dt dateByAddingTimeInterval:-86400 * 2]]);
+    NSDateComponents *twoDayComponent = [[NSDateComponents alloc] init];
+    twoDayComponent.day = 2;
+    
+    NSDateComponents *dayAgoComponent = [[NSDateComponents alloc] init];
+    dayAgoComponent.day = -1;
+    
+    NSDateComponents *twoDaysAgoComponent = [[NSDateComponents alloc] init];
+    twoDaysAgoComponent.day = -2;
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDate *oneDayLater = [calendar dateByAddingComponents:dayComponent toDate:dt options:0];
+    NSDate *twoDaysLater = [calendar dateByAddingComponents:twoDayComponent toDate:dt options:0];
+    NSDate *oneDayAgo = [calendar dateByAddingComponents:dayAgoComponent toDate:dt options:0];
+    NSDate *twoDaysAgo = [calendar dateByAddingComponents:twoDaysAgoComponent toDate:dt options:0];
+    
+    XCTAssertEqual(1, [TuneDateUtils daysBetween:dt and:oneDayLater]);
+    XCTAssertEqual(2, [TuneDateUtils daysBetween:dt and:twoDaysLater]);
+    
+    XCTAssertEqual(-1, [TuneDateUtils daysBetween:dt and:oneDayAgo]);
+    XCTAssertEqual(-2, [TuneDateUtils daysBetween:dt and:twoDaysAgo]);
 }
 
 @end

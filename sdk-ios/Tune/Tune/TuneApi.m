@@ -20,7 +20,7 @@
 
 NSString *const TuneApiConfigEndpoint                 = @"/sdk_api/{api_version}/apps/{app_id}/configuration";
 NSString *const TuneApiSyncSDKEndpoint                = @"/sdk_api/{api_version}/apps/{app_id}/sync";
-NSString *const TuneApiPlaylistEndpoint               = @"/sdk_api/{api_version}/apps/{app_id}/devices/{device_id}/playlist";
+NSString *const TuneApiPlaylistEndpoint               = @"/sdk_api/v4/apps/{app_id}/devices/{device_id}/playlist";
 NSString *const TuneApiConnectedPlaylistEndpoint      = @"/sdk_api/{api_version}/apps/{app_id}/devices/{device_id}/connected_playlist";
 NSString *const TuneApiDiscoveryModeEndpoint          = @"/sdk_api/{api_version}/apps/{app_id}/devices/{device_id}/discovery";
 NSString *const TuneApiConnectEndpoint                = @"/sdk_api/{api_version}/apps/{app_id}/devices/{device_id}/connect";

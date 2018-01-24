@@ -7,15 +7,17 @@
 //
 
 #import "TuneModule.h"
-#import "TuneBaseMessageFactory.h"
+#import "TuneInAppMessage.h"
 
 @interface TuneTriggerManager : TuneModule {
     NSMutableDictionary *_messageDisplayFrequencyDictionary;
 }
 
-@property (strong, nonatomic) NSMutableDictionary *messageTriggers;
-@property (strong, nonatomic) TuneBaseMessageFactory *messageToShow;
+@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableArray<TuneInAppMessage *> *> *inAppMessagesByEvents;
+@property (nonatomic, strong, readwrite) TuneInAppMessage *messageToShow;
+@property (nonatomic, assign, readwrite) BOOL firstPlaylistDownloaded;
+@property (nonatomic, strong, readwrite) NSMutableSet *triggerEventsSeenPriorToPlaylistDownload;
 
-- (void)triggerMessage:(TuneBaseMessageFactory *)inAppMessage fromEvent:(NSString *)event;
+- (void)triggerMessage:(TuneInAppMessage *)inAppMessage fromEvent:(NSString *)event;
 
 @end

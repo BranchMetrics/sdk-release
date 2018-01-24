@@ -112,17 +112,6 @@ static NSString* const testKey = @"fakeTuneKey";
     XCTAssertEqualObjects(actual, expected, @"incorrect url encoding, input = %@, expected = %@, actual = %@", input, expected, actual);
 }
 
-- (void)testDontCrashIfCantDownloadImages {
-    NSMutableDictionary *results = @{@"WTFQBBURL.nope": @YES}.mutableCopy;
-    dispatch_group_t group = dispatch_group_create();
-    
-    [TuneInAppUtils downloadImages:results withDispatchGroup:group];
-    
-    waitFor(0.1);
-    
-    XCTAssertFalse([results[@"WTFQBBURL.nope"] boolValue]);
-}
-
 - (void)testObjectRespondsToSelector {
     id inputObject = [NSString class];
     SEL inputSEL = @selector(stringWithFormat:);

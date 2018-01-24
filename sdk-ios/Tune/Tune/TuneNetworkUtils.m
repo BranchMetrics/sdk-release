@@ -13,13 +13,13 @@ TuneReachability *reachability;
 @implementation TuneNetworkUtils
 
 +(void)initialize {
-#if !TARGET_OS_WATCH
+    #if TARGET_OS_IOS
     reachability = [TuneReachability reachabilityForInternetConnection];
     [reachability startNotifier];
-#endif
+    #endif
 }
 
-#if !TARGET_OS_WATCH
+#if TARGET_OS_IOS
 + (TuneNetworkStatus)networkReachabilityStatus {
     return [reachability currentReachabilityStatus];
 }
@@ -27,11 +27,11 @@ TuneReachability *reachability;
 
 + (BOOL)isNetworkReachable {
     BOOL reachable =
-#if TARGET_OS_WATCH
+    #if !TARGET_OS_IOS
     YES;
-#else
+    #else
     TuneNotReachable != [self networkReachabilityStatus];
-#endif
+    #endif
     DebugLog(@"TuneNetworkUtils: isNetworkReachable: status = %d", reachable);
     
     return reachable;

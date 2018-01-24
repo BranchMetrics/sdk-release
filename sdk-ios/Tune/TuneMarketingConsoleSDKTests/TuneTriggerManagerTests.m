@@ -13,29 +13,33 @@
 #import "DictionaryLoader.h"
 #import "TunePlaylist.h"
 #import "TuneSkyhookCenter.h"
-#import "TuneiOS8SlideInMessageView.h"
+#import "TuneBannerMessageView.h"
 #import "TuneAnalyticsEvent.h"
 #import "TuneAnalyticsConstants.h"
 #import "TuneDeviceDetails.h"
-#import "TuneSlideInMessageFactory.h"
+#import "TuneBannerMessage.h"
 #import "TuneXCTestCase.h"
+#import "TuneEvent.h"
 
 @interface TuneTriggerManagerTests : TuneXCTestCase {
-    NSDictionary *slideInDictionary;
-    TunePlaylist *slideInPlaylist;
+    NSDictionary *bannerDictionary;
+    TunePlaylist *bannerPlaylist;
     
     TuneSkyhookCenter *skyhookCenter;
     
-    TuneAnalyticsEvent *pageViewEvent;
-    NSString *pageViewEventMd5;
+    TuneEvent *testEvent;
     
     // Mocks
     id deviceDetailsMock;
+    
+    XCTestExpectation *expectation;
 }
 
 @end
 
 @implementation TuneTriggerManagerTests
+
+static int EXPECTATION_TIMEOUT = 2;
 
 - (void)setUp {
     [super setUp];
@@ -44,17 +48,10 @@
     
     skyhookCenter = [TuneSkyhookCenter defaultCenter];
     
-    slideInDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"SlideInMessage1"];
-    slideInPlaylist = [TunePlaylist playlistWithDictionary:slideInDictionary];
+    bannerDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"SlideInMessage1"];
+    bannerPlaylist = [TunePlaylist playlistWithDictionary:bannerDictionary];
     
-    pageViewEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_PAGEVIEW
-                                                           action:nil
-                                                         category:@"ADProductListCollectionViewController::ODS-eB-Bvq-view-RLy-jj-RKC"
-                                                          control:nil
-                                                     controlEvent:nil
-                                                             tags:nil
-                                                            items:nil];
-    pageViewEventMd5 = [pageViewEvent getEventMd5];
+    testEvent = [TuneEvent eventWithName:@"testEvent"];
     
     deviceDetailsMock = OCMClassMock([TuneDeviceDetails class]);
     
@@ -66,6 +63,7 @@
     [deviceDetailsMock stopMocking];
     
     [[TuneManager currentManager].triggerManager clearMessageDisplayFrequencyDictionary];
+    [[[TuneManager currentManager].triggerManager messageToShow] dismiss];
     
     [super tearDown];
 }
@@ -73,39 +71,48 @@
 #pragma mark - First Playlist Downloaded Trigger
 
 - (void)testTriggerManagerTriggersFirstPlaylistDownloadedEvent {
-    NSMutableDictionary *mutableSlideIn = slideInDictionary.mutableCopy;
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    NSMutableDictionary *mutableSlideIn = bannerDictionary.mutableCopy;
     // Set the triggerEvent to the MD5 hash of the First Playlist Downloaded event. (Application|||FirstPlaylistDownloaded|SESSION)
     mutableSlideIn[@"messages"][@"message_id_1"][@"triggerEvent"] = @"c1f8bd652909257485fb70e803d93915";
     TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableSlideIn];
     
     __block BOOL firstPlaylistDownloadedEventTriggeredMessage = NO;
-    id slideInFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         firstPlaylistDownloadedEventTriggeredMessage = YES;
+        [expectation fulfill];
     });
 
     [skyhookCenter postSkyhook:TunePlaylistManagerFirstPlaylistDownloaded object:nil userInfo:@{TunePayloadFirstPlaylistDownloaded: newPlaylist }];
     
+    [self waitForMessageToDisplay];
+    
     XCTAssertTrue(firstPlaylistDownloadedEventTriggeredMessage);
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
 #pragma mark - Different Frequencies
 
 - (void)testTriggerManagerTriggersInAppMessageForEveryTimeFrequency {
     // Setup the TriggerManager with out Slide In message
-    [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: slideInPlaylist }];
+    [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: bannerPlaylist }];
     
      __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(slideInPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(bannerPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         callCount++;
+        [expectation fulfill];
     });
     
     for (int i = 0; i < 4; i++) {
         // Post the event that triggers the Slide In message
-        [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+        [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+        
+        expectation = [self expectationWithDescription:@"Waiting for message to display"];
+        [self waitForMessageToDisplay];
     }
     
     // Test that the message continues to show even after foreground/background
@@ -113,133 +120,164 @@
     
     for (int i = 0; i < 4; i++) {
         // Post the event that triggers the Slide In message
-        [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+        [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+        
+        expectation = [self expectationWithDescription:@"Waiting for message to display"];
+        [self waitForMessageToDisplay];
     }
     
     XCTAssertEqual(callCount, 8);
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersOnlyOnceFrequency {
-    NSMutableDictionary *mutableSlideIn = slideInDictionary.mutableCopy;
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    NSMutableDictionary *mutableSlideIn = bannerDictionary.mutableCopy;
     mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"1";
     mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"1";
     TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableSlideIn];
     
     __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         callCount++;
+        [expectation fulfill];
     });
     
     [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: newPlaylist }];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
     
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
     
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    
+    [self waitForMessageToDisplay];
     
     XCTAssertEqual(callCount, 1);
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXTimesPerSessionFrequency {
-    NSMutableDictionary *mutableSlideIn = slideInDictionary.mutableCopy;
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"3";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"SESSION";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
-    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableSlideIn];
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    NSMutableDictionary *mutableBanner = bannerDictionary.mutableCopy;
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"3";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"SESSION";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
+    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableBanner];
     
     __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         callCount++;
+        if (callCount == 3 || callCount == 5) {
+            [expectation fulfill];
+        }
     });
     
     [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: newPlaylist }];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    
+    [self waitForMessageToDisplay];
     
     XCTAssertEqual(callCount, 3);
     
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
-    
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    
+
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+
+    [self waitForMessageToDisplay];
+
     XCTAssertEqual(callCount, 5);
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXTimesAnEventHappensFrequency {
-    NSMutableDictionary *mutableSlideIn = slideInDictionary.mutableCopy;
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"2";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"EVENT";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
-    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableSlideIn];
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    NSMutableDictionary *mutableBanner = bannerDictionary.mutableCopy;
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"2";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"EVENT";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
+    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableBanner];
     
     __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         callCount++;
+        if (callCount == 2) {
+            [expectation fulfill];
+        }
     });
     
     [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: newPlaylist }];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    
+    [self waitForMessageToDisplay];
     
     XCTAssertEqual(callCount, 2);
     
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
     
     XCTAssertEqual(callCount, 2);
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
 - (void)testTriggerManagerTriggersXDaysSinceEventHappensFrequency {
-    NSMutableDictionary *mutableSlideIn = slideInDictionary.mutableCopy;
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"3";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"DAYS";
-    mutableSlideIn[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
-    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableSlideIn];
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    NSMutableDictionary *mutableBanner = bannerDictionary.mutableCopy;
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"limit"] = @"3";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"scope"] = @"DAYS";
+    mutableBanner[@"messages"][@"message_id_1"][@"displayFrequency"][@"lifetimeMaximum"] = @"0";
+    TunePlaylist *newPlaylist = [[TunePlaylist alloc] initWithDictionary:mutableBanner];
     
     __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
+    id bannerFactoryMock = OCMPartialMock(newPlaylist.inAppMessages[@"message_id_1"]);
+    OCMStub([bannerFactoryMock display]).andDo(^(NSInvocation *invocation) {
         callCount++;
+        [expectation fulfill];
     });
     
     [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: newPlaylist }];
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    
+    [self waitForMessageToDisplay];
     
     XCTAssertEqual(callCount, 1);
     
@@ -247,43 +285,27 @@
     id nsDateMock = OCMClassMock([NSDate class]);
     OCMStub(ClassMethod([nsDateMock date])).andReturn(threeDaysFromNow);
     
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    [skyhookCenter postSkyhook:TuneCustomEventOccurred object:nil userInfo:@{ TunePayloadCustomEvent: testEvent }];
+    
+    [self waitForMessageToDisplay];
     
     XCTAssertEqual(callCount, 2);
     
     [nsDateMock stopMocking];
     
-    [slideInFactoryMock stopMocking];
+    [bannerFactoryMock stopMocking];
 }
 
-- (void)testDontShowIfNotAllImagesDownloaded {
-    // Setup the TriggerManager with out Slide In message
-    [skyhookCenter postSkyhook:TunePlaylistManagerCurrentPlaylistChanged object:nil userInfo:@{ TunePayloadNewPlaylist: slideInPlaylist }];
-    
-    __block int callCount = 0;
-    id slideInFactoryMock = OCMPartialMock(slideInPlaylist.inAppMessages[@"message_id_1"]);
-    OCMStub([slideInFactoryMock buildAndShowMessage]).andDo(^(NSInvocation *invocation) {
-        callCount++;
-    });
-    OCMStub([slideInFactoryMock hasAllAssets]).andReturn(NO);
-    
-    for (int i = 0; i < 4; i++) {
-        // Post the event that triggers the Slide In message
-        [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    }
-    
-    // Test that the message continues to show even after foreground/background
-    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
-    
-    for (int i = 0; i < 4; i++) {
-        // Post the event that triggers the Slide In message
-        [skyhookCenter postSkyhook:TuneEventTracked object:nil userInfo:@{ TunePayloadTrackedEvent: pageViewEvent }];
-    }
-    
-    XCTAssertEqual(callCount, 0);
-    
-    [slideInFactoryMock stopMocking];
+- (void)waitForMessageToDisplay {
+    // Wait for message to get displayed, expectation is fulfilled in message display method
+    [self waitForExpectationsWithTimeout:EXPECTATION_TIMEOUT handler:^(NSError *error) {
+        if (error) {
+            XCTFail(@"Expectation failed with error: %@", error);
+        }
+    }];
 }
 
 @end

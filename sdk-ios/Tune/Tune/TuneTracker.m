@@ -59,6 +59,7 @@ static const int TUNE_CONVERSION_KEY_LENGTH = 32;
     static const NSTimeInterval TUNE_SESSION_QUEUING_DELAY = 5.;
 #endif
 
+#if TARGET_OS_IOS
 static const NSUInteger MIN_IAD_CHECK_REQUEST_ATTEMPTS = 1;
 static const NSUInteger MAX_IAD_CHECK_REQUEST_ATTEMPTS = 11;
 static const NSTimeInterval MAX_IAD_CHECK_TIME_INTERVAL_SINCE_APP_INSTALL = 300.; // 5 min
@@ -67,6 +68,7 @@ static const NSTimeInterval TUNE_IAD_CHECK_INITIAL_DELAY = TUNE_SESSION_QUEUING_
 static const NSTimeInterval TUNE_IAD_CHECK_RETRY_SHORT_DELAY = 5.;
 static const NSTimeInterval TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY = 30.;
 static const NSTimeInterval TUNE_IAD_CHECK_RETRY_LONG_DELAY = 60.;
+#endif
 
 static const NSTimeInterval MAX_WAIT_TIME_FOR_INIT = 1.0;
 static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;

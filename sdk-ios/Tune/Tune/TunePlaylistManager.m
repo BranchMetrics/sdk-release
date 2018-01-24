@@ -69,10 +69,10 @@ NSOperationQueue *playlistCallbackQueue;
 
 - (void)registerSkyhooks {
     [self unregisterSkyhooks];
-    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(didEnterForegroundSkyhook:) name:TuneSessionManagerSessionDidStart object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(didEnterBackgroundSkyhook:) name:TuneSessionManagerSessionDidEnd object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(playlistProcessed:) name:TunePlaylistAssetsDownloaded object:nil];
-    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(handleOnFirstPlaylistDownloaded:) name:TunePlaylistManagerFirstPlaylistDownloaded object:nil];
+    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(didEnterForegroundSkyhook:) name:TuneSessionManagerSessionDidStart object:nil priority:TuneSkyhookPriorityFirst];
+    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(didEnterBackgroundSkyhook:) name:TuneSessionManagerSessionDidEnd object:nil priority:TuneSkyhookPriorityFirst];
+    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(playlistProcessed:) name:TunePlaylistUpdatePlaylist object:nil priority:TuneSkyhookPriorityFirst];
+    [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(handleOnFirstPlaylistDownloaded:) name:TunePlaylistManagerFirstPlaylistDownloaded object:nil priority:TuneSkyhookPriorityFirst];
 }
 
 #pragma mark - Skyhook Calls
@@ -165,13 +165,15 @@ NSOperationQueue *playlistCallbackQueue;
                 [self handleOnFirstPlaylistDownloaded:nil];
             } else {
                 newPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
+                
                 if ([TuneManager currentManager].configuration.echoPlaylists) {
                     NSLog(@"Got playlist:\n%@", [TuneJSONUtils createPrettyJSONFromDictionary:playlistDictionary withSecretTMADepth:nil]);
                 }
             }
             
             if (newPlaylist) {
-                [newPlaylist retrieveInAppMessageAssets];
+                // Save the new playlist
+                [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistUpdatePlaylist object:newPlaylist userInfo:nil];
             } else {
                 // Even if the playlist manager failed to download and no new playlist was returned, we still post the Finished Download Skyhook.
                 [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistManagerFinishedPlaylistDownload object:self];

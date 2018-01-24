@@ -13,7 +13,7 @@
 
 + (BOOL)isNetworkReachable;
 
-#if !TARGET_OS_WATCH
+#if TARGET_OS_IOS
 + (TuneNetworkStatus)networkReachabilityStatus;
 #endif
 

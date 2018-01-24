@@ -7,37 +7,51 @@
 //
 
 #import "TuneCampaign.h"
+#import "TuneInAppMessage.h"
+#import "TuneInAppMessageAction.h"
 #import "TuneInAppMessageConstants.h"
+#import "TuneCloseButton.h"
 
-#if IDE_XCODE_8_OR_HIGHER
+@class TuneCloseButton;
+
+#if TARGET_OS_IOS
+@import WebKit;
 #import <QuartzCore/QuartzCore.h>
-@interface TuneBaseInAppMessageView : UIView <CAAnimationDelegate> {
+@interface TuneBaseInAppMessageView : UIView <CAAnimationDelegate, WKNavigationDelegate>
 #else
-@interface TuneBaseInAppMessageView : UIView {
+@interface TuneBaseInAppMessageView : UIView
 #endif
-    NSString *_messageID;
-    NSString *_campaignStepID;
-    
-    TuneCampaign *_campaign;
-    
-    // Timestamp of when the message was shown
-    NSDate *_messageShownTimestamp;
-}
 
-@property (nonatomic) BOOL needToLayoutView;
-@property (nonatomic) BOOL needToAddToUIWindow;
-@property (nonatomic) TuneMessageDeviceOrientation landscapeLeftType;
-@property (nonatomic) TuneMessageDeviceOrientation landscapeRightType;
-@property (nonatomic) TuneMessageDeviceOrientation portraitType;
-@property (nonatomic) TuneMessageDeviceOrientation portraitUpsideDownType;
+@property (nonatomic, copy, readwrite) NSString *messageID;
+@property (nonatomic, copy, readwrite) NSString *campaignStepID;
+@property (nonatomic, strong, readwrite) TuneCampaign *campaign;
+@property (nonatomic, copy, readwrite) NSString *html;
+@property (nonatomic, strong, readwrite) NSDictionary<NSString *, TuneInAppMessageAction *> *tuneActions;
+@property (nonatomic, strong, readwrite) NSDate *messageShownTimestamp;
+
+@property (nonatomic, readwrite) BOOL needToLayoutView;
+@property (nonatomic, readwrite) BOOL needToAddToUIWindow;
+@property (nonatomic, readwrite) TuneMessageDeviceOrientation landscapeLeftType;
+@property (nonatomic, readwrite) TuneMessageDeviceOrientation landscapeRightType;
+@property (nonatomic, readwrite) TuneMessageDeviceOrientation portraitType;
+@property (nonatomic, readwrite) TuneMessageDeviceOrientation portraitUpsideDownType;
+
+@property (nonatomic, readwrite) TuneMessageTransition transitionType;
+#if TARGET_OS_IOS
+@property (nonatomic, strong, readwrite) WKWebView *webView;
+#endif
+
+@property (nonatomic, strong, readwrite) UIActivityIndicatorView *indicator;
+@property (nonatomic, strong, readwrite) TuneCloseButton *closeButton;
+
+@property (nonatomic, weak, readwrite) TuneInAppMessage *parentMessage;
+
+@property (nonatomic) CGFloat statusBarOffset;
 
 - (void)dismissAndWait;
 - (void)dismiss;
 
-- (void)setMessageID:(NSString *)messageID;
-- (void)setCampaignStepID:(NSString *)campaignStepID;
-- (void)setCampaign:(TuneCampaign *)campaign;
 - (void)recordMessageShown;
-- (void)recordMessageDismissedWithAction:(NSString *)dissmissedAction;
+- (void)recordMessageDismissedWithAction:(NSString *)dismissedAction;
 
 @end

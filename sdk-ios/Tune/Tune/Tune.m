@@ -680,6 +680,69 @@ static TuneTracker *_sharedManager = nil;
     return [[TuneManager currentManager].playlistManager isUserInAnySegmentIds:segmentIds];
 }
 
+#pragma mark - In-App Messaging API
+
+// TODO: revisit deep copying later if necessary
+
+//+ (NSArray<TuneInAppMessage *> *)getInAppMessagesForCustomEvent:(NSString *)eventName {
+//    TuneAnalyticsEvent *customEvent = [[TuneAnalyticsEvent alloc] initWithTuneEvent:TUNE_EVENT_TYPE_BASE
+//                                                                             action:eventName
+//                                                                           category:TUNE_EVENT_CATEGORY_CUSTOM
+//                                                                            control:nil
+//                                                                       controlEvent:nil
+//                                                                              event:nil];
+//    return [self getInAppMessagesByTriggerEvents][[customEvent getEventMd5]];
+//}
+//
+//+ (NSArray<TuneInAppMessage *> *)getInAppMessagesForPushOpened:(NSString *)pushId {
+//    TuneAnalyticsEvent *pushOpenedEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_PUSH_NOTIFICATION
+//                                                                                 action:TUNE_EVENT_ACTION_NOTIFICATION_OPENED
+//                                                                               category:pushId
+//                                                                                control:nil
+//                                                                           controlEvent:nil
+//                                                                                   tags:nil
+//                                                                                  items:nil];
+//    return [self getInAppMessagesByTriggerEvents][[pushOpenedEvent getEventMd5]];
+//}
+//
+//+ (NSArray<TuneInAppMessage *> *)getInAppMessagesForPushEnabled:(BOOL)pushEnabled {
+//    NSString *eventAction = pushEnabled ? TunePushEnabled : TunePushDisabled;
+//    TuneAnalyticsEvent *pushEnabledEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
+//                                                                                  action:eventAction
+//                                                                                category:TUNE_EVENT_CATEGORY_APPLICATION
+//                                                                                 control:nil
+//                                                                            controlEvent:nil
+//                                                                                    tags:nil
+//                                                                                   items:nil];
+//    return [self getInAppMessagesByTriggerEvents][[pushEnabledEvent getEventMd5]];
+//}
+//
+//+ (NSArray<TuneInAppMessage *> *)getInAppMessagesForStartsApp {
+//    TuneAnalyticsEvent *firstPlaylistDownloadedEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_SESSION
+//                                                                                              action:TUNE_EVENT_ACTION_FIRST_PLAYLIST_DOWNLOADED
+//                                                                                            category:TUNE_EVENT_CATEGORY_APPLICATION
+//                                                                                             control:nil
+//                                                                                        controlEvent:nil
+//                                                                                                tags:nil
+//                                                                                               items:nil];
+//    return [self getInAppMessagesByTriggerEvents][[firstPlaylistDownloadedEvent getEventMd5]];
+//}
+//
+//+ (NSArray<TuneInAppMessage *> *)getInAppMessagesForScreenViewed:(UIViewController *)viewController {
+//    TuneAnalyticsEvent *pageViewEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_PAGEVIEW
+//                                                                               action:nil
+//                                                                             category:viewController.tuneScreenName
+//                                                                              control:nil
+//                                                                         controlEvent:nil
+//                                                                                 tags:nil
+//                                                                                items:nil];
+//    return [self getInAppMessagesByTriggerEvents][[pageViewEvent getEventMd5]];
+//}
+//
+//+ (NSDictionary<NSString *, NSArray<TuneInAppMessage *> *> *)getInAppMessagesByTriggerEvents {
+//    return [[TuneManager currentManager].triggerManager.inAppMessagesByEvents mutableCopy];
+//}
+
 #pragma mark - Measure Methods
 
 + (void)measureSession {

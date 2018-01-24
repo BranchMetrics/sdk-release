@@ -29,6 +29,7 @@
 #import "UIViewController+TuneAnalytics.h"
 #import "TuneState.h"
 #import "TuneEvent+Internal.h"
+#import "TuneStringUtils.h"
 
 // Class extension to store the private properties.
 @interface TuneAnalyticsManager() {
@@ -145,6 +146,11 @@
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(handleInAppMessageDismissed:)
                                               name:TuneInAppMessageDismissed
+                                            object:nil];
+    
+    [[TuneSkyhookCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleInAppMessageDismissedWithUnspecifiedAction:)
+                                              name:TuneInAppMessageDismissedWithUnspecifiedAction
                                             object:nil];
     
     // Listen for registration of device with APN
@@ -348,10 +354,13 @@
             }
         }
         
+        // Only keep up to the path of the url for the analytics event
+        NSString *reducedUrl = [TuneStringUtils reduceUrlToPath:openedURL];
+        
         // Create the deeplink opened event.
         TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:deeplink.eventType
                                                                                     action:TUNE_EVENT_ACTION_DEEPLINK_OPENED
-                                                                                  category:nil
+                                                                                  category:reducedUrl
                                                                                    control:nil
                                                                               controlEvent:nil
                                                                                       tags:[analyticsVars allObjects]
@@ -484,7 +493,6 @@
     NSString *secondsDisplayedVariable = (NSString *)[payload userInfo][TunePayloadInAppMessageSecondsDisplayed];
     NSString *dismissedAction = (NSString *)[payload userInfo][TunePayloadInAppMessageDismissedAction];
 
-
     TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_IN_APP_MESSAGE
                                                                                 action:dismissedAction
                                                                               category:messageID
@@ -493,6 +501,25 @@
                                                                                   tags:@[campaignStepVariable, secondsDisplayedVariable]
                                                                                  items:nil];
 
+    // Log the event
+    [self storeAndTrackAnalyticsEvent:analyticsEvent];
+}
+
+- (void)handleInAppMessageDismissedWithUnspecifiedAction:(TuneSkyhookPayload *)payload {
+    NSString *messageID = (NSString *)[payload userInfo][TunePayloadInAppMessageID];
+    NSString *campaignStepVariable = (NSString *)[payload userInfo][TunePayloadCampaignStep];
+    NSString *secondsDisplayedVariable = (NSString *)[payload userInfo][TunePayloadInAppMessageSecondsDisplayed];
+    NSString *unspecifiedActionVariable = (NSString *)[payload userInfo][TunePayloadInAppMessageDismissedAction];
+    
+    
+    TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_IN_APP_MESSAGE
+                                                                                action:TUNE_IN_APP_MESSAGE_UNSPECIFIED_ACTION_NAME
+                                                                              category:messageID
+                                                                               control:nil
+                                                                          controlEvent:nil
+                                                                                  tags:@[campaignStepVariable, secondsDisplayedVariable, unspecifiedActionVariable]
+                                                                                 items:nil];
+    
     // Log the event
     [self storeAndTrackAnalyticsEvent:analyticsEvent];
 }

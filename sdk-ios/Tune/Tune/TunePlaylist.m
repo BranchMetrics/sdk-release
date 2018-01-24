@@ -7,8 +7,7 @@
 //
 
 #import "TunePlaylist.h"
-#import "TuneBaseMessageFactory.h"
-#import "TuneInAppMessageFactory.h"
+#import "TuneInAppMessage.h"
 #import "TuneSkyhookCenter.h"
 
 NSString *const TunePlaylistExperimentDetailsKey = @"experiment_details";
@@ -57,7 +56,7 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
             self.experimentDetails = dictionary;
         } else if ([key isEqualToString:TunePlaylistInAppMessagesKey]) {
             [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *messageID, NSDictionary *messageDictionary, BOOL *stopDict) {
-                TuneBaseMessageFactory *messageFactory = [TuneInAppMessageFactory buildMessageFromMessageDictionary:messageDictionary];
+                TuneInAppMessage *messageFactory = [TuneInAppMessage buildMessageFromMessageDictionary:messageDictionary];
                 // Do we have a valid factory?
                 if (messageFactory) {
                     inAppMessages[messageID] = messageFactory;
@@ -71,33 +70,6 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     }];
     
     self.inAppMessages = inAppMessages;
-}
-
-#pragma mark - In-App Message Asset Handling
-
-- (void)retrieveInAppMessageAssets  {
-    if (self.retrievingInAppMessageAssets) { return; }
-    self.retrievingInAppMessageAssets = YES;
-    dispatch_group_t group = dispatch_group_create();
-    for (TuneBaseMessageFactory *message in self.inAppMessages.allValues) {
-        [message acquireImagesWithDispatchGroup:group];
-    }
-    
-    __block TunePlaylist *_self = self;
-    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-        // playlist update complete!
-        [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistAssetsDownloaded object:_self userInfo:nil];
-        _self.retrievingInAppMessageAssets = NO;
-    });
-}
-
-- (BOOL)hasAllInAppMessageAssets {
-    BOOL returnValue = YES;
-    for (TuneBaseMessageFactory *messageFactory in self.inAppMessages.allValues) {
-        returnValue &= [messageFactory hasAllAssets];
-    }
-
-    return returnValue;
 }
 
 #pragma mark - Comparison
@@ -157,7 +129,7 @@ NSString *const TunePlaylistSchemaVersionKey = @"schema_version";
     }
     
     NSMutableDictionary *inAppMessageDictionary = [NSMutableDictionary dictionary];
-    [self.inAppMessages enumerateKeysAndObjectsUsingBlock:^(NSString *message_id, TuneBaseMessageFactory *message, BOOL *stop) {
+    [self.inAppMessages enumerateKeysAndObjectsUsingBlock:^(NSString *message_id, TuneInAppMessage *message, BOOL *stop) {
         inAppMessageDictionary[message_id] = [message toDictionary];
     }];
     playlist[TunePlaylistInAppMessagesKey] = inAppMessageDictionary;

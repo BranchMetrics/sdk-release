@@ -50,7 +50,7 @@ FOUNDATION_EXPORT NSString *const TunePlaylistManagerFinishedPlaylistDownload;
 FOUNDATION_EXPORT NSString *const TunePlaylistManagerFirstPlaylistDownloaded;
 
 #pragma mark - TunePlaylist
-FOUNDATION_EXPORT NSString *const TunePlaylistAssetsDownloaded;
+FOUNDATION_EXPORT NSString *const TunePlaylistUpdatePlaylist;
 
 #pragma mark - Device Token
 FOUNDATION_EXPORT NSString *const TuneRegisteredForRemoteNotificationsWithDeviceToken;
@@ -70,3 +70,4 @@ FOUNDATION_EXPORT NSString *const TuneDeepActionTriggered;
 #pragma mark - In App Message
 FOUNDATION_EXPORT NSString *const TuneInAppMessageShown;
 FOUNDATION_EXPORT NSString *const TuneInAppMessageDismissed;
+FOUNDATION_EXPORT NSString *const TuneInAppMessageDismissedWithUnspecifiedAction;

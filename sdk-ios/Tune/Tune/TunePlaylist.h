@@ -22,15 +22,11 @@ FOUNDATION_EXPORT NSString *const TunePlaylistSchemaVersionKey;
 @property (nonatomic, copy) NSDictionary *segments;
 @property (nonatomic, copy) NSString     *schemaVersion;
 
-@property (assign, nonatomic) BOOL retrievingInAppMessageAssets;
 @property (assign, nonatomic) BOOL fromDisk;
 @property (assign, nonatomic) BOOL fromConnectedMode;
 
 - (id)initWithDictionary:(NSDictionary *)playlist;
 + (id)playlistWithDictionary:(NSDictionary *)playlist;
-
-- (void)retrieveInAppMessageAssets;
-- (BOOL)hasAllInAppMessageAssets;
 
 - (NSDictionary *)toDictionary;
 
