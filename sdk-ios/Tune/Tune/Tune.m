@@ -447,10 +447,18 @@ static TuneTracker *_sharedManager = nil;
 
 + (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value {
     [[TuneManager currentManager].userProfile registerString:variableName withDefault:value];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:value forKey:variableName];
+    }
 }
 
 + (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldHash {
     [[TuneManager currentManager].userProfile registerString:variableName withDefault:value hashed:shouldHash];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:value forKey:variableName];
+    }
 }
 
 + (void)registerCustomProfileBoolean:(NSString *)variableName withDefault:(NSNumber *)value {
@@ -463,6 +471,10 @@ static TuneTracker *_sharedManager = nil;
 
 + (void)registerCustomProfileNumber:(NSString *)variableName withDefault:(NSNumber *)value {
     [[TuneManager currentManager].userProfile registerNumber:variableName withDefault:value];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:[value stringValue] forKey:variableName];
+    }
 }
 
 + (void)registerCustomProfileGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value {
@@ -475,6 +487,10 @@ static TuneTracker *_sharedManager = nil;
 
 + (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name {
     [[TuneManager currentManager].userProfile setStringValue:value forVariable:name];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:value forKey:name];
+    }
 }
 
 + (void)setCustomProfileBooleanValue:(NSNumber *)value forVariable:(NSString *)name {
@@ -487,6 +503,10 @@ static TuneTracker *_sharedManager = nil;
 
 + (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name {
     [[TuneManager currentManager].userProfile setNumberValue:value forVariable:name];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:[value stringValue] forKey:name];
+    }
 }
 
 + (void)setCustomProfileGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name {
@@ -515,10 +535,18 @@ static TuneTracker *_sharedManager = nil;
 
 + (void)clearCustomProfileVariable:(NSString *)name {
     [[TuneManager currentManager].userProfile clearCustomVariables:[NSSet setWithObject:name]];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper clearAttributeValue:name];
+    }
 }
 
 + (void)clearAllCustomProfileVariables {
     [[TuneManager currentManager].userProfile clearCustomProfile];
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper clearAllAttributeValues];
+    }
 }
 
 #pragma mark - Getter Methods

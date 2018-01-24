@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TuneSkyhookPayload.h"
+#import "TuneAnalyticsVariable.h"
 
 @protocol SmartWhereDelegate
 @end
@@ -70,6 +71,43 @@
  */
 - (void)processMappedEvent:(TuneSkyhookPayload*) payload;
 
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param value String value of the attribute value
+ * @param key Strting value of the attribute name
+ */
+- (void) setAttributeValue:(NSString*) value forKey: (NSString*) key;
+
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param tuneAnalyticsVariable TuneAnalyticsVariable
+ */
+- (void)setAttributeValueFromAnalyticsVariable:(TuneAnalyticsVariable *)tuneAnalyticsVariable;
+
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param payload TuneSkyhookPayload containing a TuneEvent with tags
+ */
+- (void)setAttributeValuesFromPayload:(TuneSkyhookPayload*) payload;
+
+/*!
+ * Clear a custom user attribute.
+ * @param variableName String value of the attribute name
+ */
+- (void)clearAttributeValue:(NSString*) variableName;
+
+/*!
+ * Clear all custom user attributes.
+ */
+- (void)clearAllAttributeValues;
+
+/*!
+ * Set custom user tracking attributes that will be sent as metadata in tracking calls.
+ * @param value String value of the attribute value
+ * @param key Strting value of the attribute name
+ */
+- (void) setTrackingAttributeValue:(NSString*) value forKey: (NSString*) key;
+
 @end
 
 #ifndef TUNE_SW_EventActionType_Defined
@@ -100,6 +138,7 @@ typedef enum TUNE_SW_EventActionType : NSInteger {
 typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
     TUNE_SW_swNfcTap = 0,
     TUNE_SW_swQRScan = 1,
+    TUNE_SW_swNfcTapCancel = 2,
     TUNE_SW_swBleEnter = 10,
     TUNE_SW_swBleHover = 11,
     TUNE_SW_swBleDwell = 12,
