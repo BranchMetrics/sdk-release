@@ -1,7 +1,0 @@
-framework module Tune_watchOS {
-  umbrella header "Tune_watchOS.h"
-  exclude header "UIViewController+NameTag.h"
-  
-  export *
-  module * { export * }
-}

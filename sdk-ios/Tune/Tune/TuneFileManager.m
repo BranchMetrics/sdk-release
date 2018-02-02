@@ -12,6 +12,7 @@
 #import "TuneModule.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneConfiguration.h"
+#import "TuneUtils.h"
 
 static NSObject *_remoteConfigFileLock;
 static NSObject *_analyticsFileLock;
@@ -269,7 +270,7 @@ NSUInteger const TUNE_FULL_ANALYTICS_DELETE_COUNT = 10;
 }
 
 + (NSString *)getLocalConfigurationPath {
-    return [[NSBundle bundleForClass:[self class]] pathForResource:TUNE_LOCAL_CONFIG_FILE_NAME ofType:@"plist"];
+    return [[TuneUtils currentBundle] pathForResource:TUNE_LOCAL_CONFIG_FILE_NAME ofType:@"plist"];;
 }
 
 + (NSString *)getImageFilePathForImageNamed:(NSString *)name {

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AEEA55E41C571011004506D8 /* Tune.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA55E31C571011004506D8 /* Tune.framework */; };
 		AEEA5E4B1C583E200078C52D /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4A1C583E200078C52D /* AdSupport.framework */; };
 		AEEA5E4D1C583E2A0078C52D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */; };
 		AEEA5E4F1C583E360078C52D /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEEA5E4E1C583E360078C52D /* iAd.framework */; };
@@ -27,7 +26,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AEEA55E31C571011004506D8 /* Tune.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Tune.framework; path = "../../../../Library/Developer/Xcode/DerivedData/MobileAppTracker-fwzvjtrtmaurhgcvaeuvpujstmcp/Build/Products/Debug-iphoneos/Tune.framework"; sourceTree = "<group>"; };
 		AEEA5E4A1C583E200078C52D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		AEEA5E4E1C583E360078C52D /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
@@ -65,7 +63,6 @@
 				AEEA5E4F1C583E360078C52D /* iAd.framework in Frameworks */,
 				AEEA5E4D1C583E2A0078C52D /* CoreTelephony.framework in Frameworks */,
 				AEEA5E4B1C583E200078C52D /* AdSupport.framework in Frameworks */,
-				AEEA55E41C571011004506D8 /* Tune.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,7 +81,6 @@
 				AEEA5E4E1C583E360078C52D /* iAd.framework */,
 				AEEA5E4C1C583E2A0078C52D /* CoreTelephony.framework */,
 				AEEA5E4A1C583E200078C52D /* AdSupport.framework */,
-				AEEA55E31C571011004506D8 /* Tune.framework */,
 				F84F6B101BBBAF55003B25A4 /* TestApp_iOS */,
 				F84F6B0F1BBBAF55003B25A4 /* Products */,
 			);

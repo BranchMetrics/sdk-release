@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-               BuildableName = "TestApp_iOS.app"
-               BlueprintName = "TestApp_iOS"
-               ReferencedContainer = "container:TestApp_ios.xcodeproj">
+               BlueprintIdentifier = "174C3255201BE37E00772F28"
+               BuildableName = "Tune_tvOS.framework"
+               BlueprintName = "Tune_tvOS"
+               ReferencedContainer = "container:Tune.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,27 +27,26 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       language = ""
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "42EAA53F1860F4B800041A8D"
-               BuildableName = "MobileAppTracker Tests.xctest"
-               BlueprintName = "MobileAppTrackerTests_ios"
-               ReferencedContainer = "container:../Tune/MobileAppTracker.xcodeproj">
+               BlueprintIdentifier = "174C325D201BE38000772F28"
+               BuildableName = "Tune_tvOSTests.xctest"
+               BlueprintName = "Tune_tvOSTests"
+               ReferencedContainer = "container:Tune.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_iOS.app"
-            BlueprintName = "TestApp_iOS"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BlueprintIdentifier = "174C3255201BE37E00772F28"
+            BuildableName = "Tune_tvOS.framework"
+            BlueprintName = "Tune_tvOS"
+            ReferencedContainer = "container:Tune.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,22 +63,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_iOS.app"
-            BlueprintName = "TestApp_iOS"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BlueprintIdentifier = "174C3255201BE37E00772F28"
+            BuildableName = "Tune_tvOS.framework"
+            BlueprintName = "Tune_tvOS"
+            ReferencedContainer = "container:Tune.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
-         <AdditionalOption
-            key = "NSZombieEnabled"
-            value = "YES"
-            isEnabled = "YES">
-         </AdditionalOption>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
@@ -88,16 +81,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F84F6B0D1BBBAF55003B25A4"
-            BuildableName = "TestApp_iOS.app"
-            BlueprintName = "TestApp_iOS"
-            ReferencedContainer = "container:TestApp_ios.xcodeproj">
+            BlueprintIdentifier = "174C3255201BE37E00772F28"
+            BuildableName = "Tune_tvOS.framework"
+            BlueprintName = "Tune_tvOS"
+            ReferencedContainer = "container:Tune.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

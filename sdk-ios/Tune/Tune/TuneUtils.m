@@ -219,8 +219,17 @@ BOOL isAlertVisible;
 + (NSBundle *)currentBundle {
     NSBundle *currentBundle = nil;
 #if TESTING
-    currentBundle = [NSBundle bundleForClass:[self class]];
+    // Test resources are part of the test bundle, reroute to it instead of the main bundle.
+    Class classTests = NSClassFromString(@"TuneUtilsTests");
+    currentBundle = [NSBundle bundleForClass:classTests];
+
+    // Why not use the more common [NSBundle bundleForClass:[self class]]?
+    // Since TuneUtils is part of the framework, bundleForClass will return the framework bundle!
+    // This leads to unit test failures due to missing data.
+    // currentBundle = [NSBundle bundleForClass:[self class]];
 #else
+    
+    // Within an app, configuration files and other resources are part of the main bundle.
     currentBundle = [NSBundle mainBundle];
 #endif
     return currentBundle;
