@@ -1,10 +1,13 @@
 package com.tune;
 
+import android.text.TextUtils;
+
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.utils.TuneDebugLog;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -42,10 +45,6 @@ public class TuneEvent implements Serializable {
 
     private String eventName;
 
-    /**
-     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #eventName }instead.
-     */
-    @Deprecated private int eventId;
     private double revenue;
     private String currencyCode;
     private String refId;
@@ -96,20 +95,15 @@ public class TuneEvent implements Serializable {
     );
     
     /**
-     * Initialize TuneEvent with an event name
+     * Initialize TuneEvent with an event name.
      * @param eventName Event name in TUNE system
+     * @throws InvalidParameterException if the eventName parameter is null or empty
      */
-    public TuneEvent(String eventName) {
+    public TuneEvent(String eventName) throws InvalidParameterException {
+        if (TextUtils.isEmpty(eventName)) {
+            throw new InvalidParameterException("Invalid Event name");
+        }
         this.eventName = eventName;
-    }
-    
-    /**
-     * Initialize TuneEvent with an event ID
-     * @param eventId Event ID in TUNE system
-     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #TuneEvent(String eventName)} instead.
-     */
-    @Deprecated public TuneEvent(int eventId) {
-        this.eventId = eventId;
     }
     
     /**
@@ -406,14 +400,6 @@ public class TuneEvent implements Serializable {
     
     public String getEventName() {
         return eventName;
-    }
-
-    /**
-     * @return the Event Id.
-     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #getEventName()}instead.
-     */
-    @Deprecated public int getEventId() {
-        return eventId;
     }
 
     public double getRevenue() {

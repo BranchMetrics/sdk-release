@@ -60,10 +60,6 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.REFERRAL_URL, params.getReferralUrl());
         safeAppend(link, redactKeys, TuneUrlKeys.TRACKING_ID, params.getTrackingId());
 
-        if (eventData.getEventId() != 0) {
-            safeAppend(link, redactKeys, TuneUrlKeys.EVENT_ID, Integer.toString(eventData.getEventId()));
-        }
-
         if (!TuneParameters.ACTION_SESSION.equals(params.getAction()) && !TuneParameters.ACTION_CLICK.equals(params.getAction())) {
             safeAppend(link, redactKeys, TuneUrlKeys.EVENT_NAME, eventData.getEventName());
         }

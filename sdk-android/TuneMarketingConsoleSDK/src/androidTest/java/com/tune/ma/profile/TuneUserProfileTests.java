@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by charlesgilliam on 1/25/16.
@@ -417,6 +416,44 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(l.getLatitude() == gotten.getLatitude());
         assertTrue(l.getLongitude() == gotten.getLongitude());
     }
+
+    public void testPublicGettersWithDefault_ThenSettersWithNoValue() {
+        // Shortcut to register some variables
+        testPublicGettersNoDefault();
+
+        String nullString = null;
+        TuneTestWrapper.getInstance().setCustomProfileStringValue("testString", nullString);
+        assertEquals(null, TuneTestWrapper.getInstance().getCustomProfileString("testString"));
+
+        Date nullDate = null;
+        TuneTestWrapper.getInstance().setCustomProfileDate("testDate", nullDate);
+        assertEquals(null, TuneTestWrapper.getInstance().getCustomProfileDate("testDate"));
+
+        TuneLocation nullLocation = null;
+        TuneTestWrapper.getInstance().setCustomProfileGeolocation("testLocation", nullLocation);
+        assertEquals(null, TuneTestWrapper.getInstance().getCustomProfileGeolocation("testLocation"));
+    }
+
+    public void testPublicClearCustomProfileVariable_WithNoValue() {
+        String nullString = null;
+
+        // This should just log, but not do anything else
+        TuneTestWrapper.getInstance().clearCustomProfileVariable(nullString);
+
+        // With debugMode on, this should throw an exception
+        TuneTestWrapper.getInstance().setDebugMode(true);
+        boolean caughtException = false;
+        try {
+            TuneTestWrapper.getInstance().clearCustomProfileVariable(nullString);
+            assertFalse(true);
+        } catch (IllegalArgumentException e) {
+            // This is expected
+            caughtException = true;
+        }
+
+        assertTrue(caughtException);
+    }
+
 
     public void testPublicGettersBeforeRegistration() {
         assertNull(TuneTestWrapper.getInstance().getCustomProfileString("testString"));

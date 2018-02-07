@@ -7,6 +7,6 @@ public class TuneBackgroundEvent extends TuneSessionEvent {
     public TuneBackgroundEvent() {
         super();
 
-        action = BACKGROUNDED;
+        setAction(BACKGROUNDED);
     }
 }

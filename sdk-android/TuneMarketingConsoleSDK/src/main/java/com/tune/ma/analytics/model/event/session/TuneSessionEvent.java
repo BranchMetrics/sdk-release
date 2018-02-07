@@ -15,8 +15,8 @@ public abstract class TuneSessionEvent extends TuneAnalyticsEventBase {
     public TuneSessionEvent() {
         super();
 
-        category = APPLICATION_CATEGORY;
-        eventType = TuneEventType.SESSION;
+        setCategory(APPLICATION_CATEGORY);
+        setEventType(TuneEventType.SESSION);
     }
 
 }

@@ -10,7 +10,7 @@ import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
 public class TuneClearVariablesEvent extends TuneTracerEvent {
     public TuneClearVariablesEvent(TuneCustomProfileVariablesCleared event) {
         super();
-        action = CLEAR_VARIABLES;
-        category = TextUtils.join(",", event.getVars());
+        setAction(CLEAR_VARIABLES);
+        setCategory(TextUtils.join(",", event.getVars()));
     }
 }

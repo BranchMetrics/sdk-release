@@ -1,7 +1,6 @@
 package com.tune.ma.analytics.model.event;
 
 import com.tune.TuneParameters;
-import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsEventItem;
@@ -23,8 +22,8 @@ import java.util.Set;
  * Base class for all analytics events.
  */
 public abstract class TuneAnalyticsEventBase {
-    public static final String APPLICATION_CATEGORY = "Application";
-    public static final String CUSTOM_CATEGORY = "Custom";
+    protected static final String APPLICATION_CATEGORY = "Application";
+    static final String CUSTOM_CATEGORY = "Custom";
 
     private static final String SCHEMA_VERSION_VALUE = "2.0";
 
@@ -43,22 +42,22 @@ public abstract class TuneAnalyticsEventBase {
     private static final String TAGS = "tags";
     private static final String TIMESTAMP = "timestamp";
 
-    protected TuneAnalyticsSubmitter submitter;
-    protected TuneEventType eventType;
+    private TuneAnalyticsSubmitter submitter;
+    private TuneEventType eventType;
 
-    protected String action;
-    protected String appId;
-    protected String category;
-    protected String control;
-    protected String controlEvent;
-    protected String eventId;
+    private String action;
+    private String appId;
+    private String category;
+    private String control;
+    private String controlEvent;
+    private String eventId;
 
-    protected Set<TuneAnalyticsVariable> tags;
-    protected List<TuneAnalyticsEventItem> items;
-    protected List<TuneAnalyticsVariable> profile;
+    private Set<TuneAnalyticsVariable> tags;
+    private List<TuneAnalyticsEventItem> items;
+    private List<TuneAnalyticsVariable> profile;
 
-    protected double sessionTime = -1;
-    protected double timeStamp = -1;
+    private double sessionTime = -1;
+    private double timeStamp = -1;
 
     public TuneAnalyticsEventBase() {
         this.timeStamp = System.currentTimeMillis() / 1000.0;
@@ -74,15 +73,15 @@ public abstract class TuneAnalyticsEventBase {
             }
         }
 
-        this.items = new ArrayList<TuneAnalyticsEventItem>();
-        this.tags = new HashSet<TuneAnalyticsVariable>();
+        this.items = new ArrayList<>();
+        this.tags = new HashSet<>();
     }
 
     public String getAction() {
         return action;
     }
 
-    public void setAction(String action) {
+    protected void setAction(String action) {
         this.action = action;
     }
 
@@ -90,7 +89,7 @@ public abstract class TuneAnalyticsEventBase {
         return category;
     }
 
-    public void setCategory(String category) {
+    protected void setCategory(String category) {
         this.category = category;
     }
 
@@ -98,7 +97,7 @@ public abstract class TuneAnalyticsEventBase {
         return control;
     }
 
-    public void setControl(String control) {
+    protected void setControl(String control) {
         this.control = control;
     }
 
@@ -106,7 +105,7 @@ public abstract class TuneAnalyticsEventBase {
         return controlEvent;
     }
 
-    public void setControlEvent(String controlEvent) {
+    protected void setControlEvent(String controlEvent) {
         this.controlEvent = controlEvent;
     }
 
@@ -114,7 +113,7 @@ public abstract class TuneAnalyticsEventBase {
         return eventId;
     }
 
-    public void setEventId(String id) {
+    protected void setEventId(String id) {
         this.eventId = id;
     }
 
@@ -122,13 +121,16 @@ public abstract class TuneAnalyticsEventBase {
         return eventType;
     }
 
+    protected void setEventType(TuneEventType eventType) { this.eventType = eventType; }
+
     public List<TuneAnalyticsEventItem> getItems() {
         return items;
     }
 
-    public void setItems(List<TuneAnalyticsEventItem> items) {
+    protected void setItems(List<TuneAnalyticsEventItem> items) {
         this.items = items;
     }
+    protected void addItem(TuneAnalyticsEventItem item) { this.items.add(item); }
 
     public Set<TuneAnalyticsVariable> getTags() {
         return tags;
@@ -137,12 +139,18 @@ public abstract class TuneAnalyticsEventBase {
     public void setTags(Set<TuneAnalyticsVariable> tags) {
         this.tags = tags;
     }
+    protected void addTag(TuneAnalyticsVariable tag) {
+        this.tags.add(tag);
+    }
+    protected void addTags(Set<TuneAnalyticsVariable> tags) {
+        this.tags.addAll(tags);
+    }
 
     public double getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(long timeStamp) {
+    protected void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 

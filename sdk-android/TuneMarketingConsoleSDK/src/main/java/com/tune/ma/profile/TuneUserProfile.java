@@ -1,6 +1,7 @@
 package com.tune.ma.profile;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.tune.Tune;
 import com.tune.TuneUrlKeys;
@@ -252,7 +253,10 @@ public class TuneUserProfile {
     }
 
     private synchronized void storeProfileVariable(TuneAnalyticsVariable value, boolean updatePrefs) {
-        String name = value.getName();
+        String name = (value == null ? null : value.getName());
+        if (TextUtils.isEmpty(name)) {
+            return;
+        }
         variables.put(name, value);
         if (updatePrefs && (variablesToSave.contains(name) || customVariables.contains(name))) {
             sharedPrefs.saveToSharedPreferences(name, value.toJsonForLocalStorage().toString());

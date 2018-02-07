@@ -44,24 +44,6 @@ public class DeeplinkTests extends TuneUnitTest {
         tune.setIsFirstInstall(false);
     }
 
-    public void testDeferredDeeplinkLegacy() {
-        tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
-
-        tune.checkForDeferredDeeplink(makeDeeplinkListener());
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
-
-        // Check that deep link was received
-        assertFalse(mWaitObject.failedDeeplink);
-        assertTrue(mWaitObject.receivedDeeplink);
-        resetReceivedDeeplinkChecks();
-
-        tune.checkForDeferredDeeplink(makeDeeplinkListener());
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
-
-        // Should not request deeplink twice, but also should not get error
-        assertFalse(mWaitObject.didCallback);
-    }
-
     public void testDeferredDeeplinkSuccess() {
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
 

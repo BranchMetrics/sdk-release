@@ -493,6 +493,10 @@ public class TuneParameters {
     // COPPA rules apply
     public synchronized boolean getAppAdTrackingEnabled() {
         String appAdTrackingEnabledString = getAppAdTrackingEnabledParameter();
+        if (TextUtils.isEmpty(appAdTrackingEnabledString)) {
+            return false;
+        }
+
         int adTrackingEnabled = 0;
         if (appAdTrackingEnabledString != null) {
             try {
@@ -753,6 +757,10 @@ public class TuneParameters {
     // COPPA rules apply
     public synchronized boolean getFireAdTrackingLimited() {
         String fireAdTrackingLimitedString = getFireAdTrackingLimitedParameter();
+        if (TextUtils.isEmpty(fireAdTrackingLimitedString)) {
+            return false;
+        }
+
         int fireAdTrackingLimited = 0;
         try {
             fireAdTrackingLimited = Integer.parseInt(fireAdTrackingLimitedString);
@@ -820,6 +828,10 @@ public class TuneParameters {
     // COPPA rules apply
     public synchronized boolean getGoogleAdTrackingLimited() {
         String googleAdTrackingLimitedString = getGoogleAdTrackingLimitedParameter();
+        if (TextUtils.isEmpty(googleAdTrackingLimitedString)) {
+            return false;
+        }
+
         int googleAdTrackingLimited = 0;
         try {
             googleAdTrackingLimited = Integer.parseInt(googleAdTrackingLimitedString);
@@ -1362,15 +1374,6 @@ public class TuneParameters {
             }
         });
     }
-
-    /**
-     * @return the SDK Version
-     * @deprecated Use {@link Tune#getSDKVersion()}  }
-     */
-    public synchronized String getSdkVersion() {
-        return Tune.getSDKVersion();
-    }
-    // no setter
 
     private String mTimeZone = null;
     public synchronized String getTimeZone() {

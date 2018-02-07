@@ -1,13 +1,12 @@
 package com.tune.ma.push.service;
 
-import android.app.IntentService;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 
+import com.google.android.gms.gcm.GcmListenerService;
 import com.tune.TuneConstants;
 import com.tune.ma.TuneManager;
 import com.tune.ma.configuration.TuneConfigurationConstants;
-import com.tune.ma.push.TuneGooglePlayServicesDelegate;
 import com.tune.ma.push.TunePushManager;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TunePushListener;
@@ -17,30 +16,17 @@ import com.tune.ma.utils.TuneStringUtils;
 
 import java.util.Set;
 
-public class TunePushService extends IntentService {
-
-    public TunePushService() {
-        super("TunePushService");
-    }
+public class TunePushService extends GcmListenerService {
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        TuneDebugLog.d("PushService received intent");
+    public void onMessageReceived(String from, Bundle data) {
+        TuneDebugLog.d("PushService received data");
 
-        handleIntent(intent);
-
-        // Release the wake lock provided by the WakefulBroadcastReceiver.
-        TunePushReceiver.completeWakefulIntent(intent);
+        handleMessage(getApplicationContext(), data);
     }
 
-    private void handleIntent(Intent intent) {
-        if (intent == null) {
-            TuneDebugLog.w("PushService received null intent.");
-            return;
-        }
-
-        Bundle extras = intent.getExtras();
-        TuneSharedPrefsDelegate prefs = new TuneSharedPrefsDelegate(getApplicationContext(), TuneConstants.PREFS_TUNE);
+    private static void handleMessage(Context context, Bundle extras) {
+        TuneSharedPrefsDelegate prefs = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE);
 
         if (prefs.getBooleanFromSharedPreferences(TuneConfigurationConstants.TUNE_TMA_DISABLED) ||
                 prefs.getBooleanFromSharedPreferences(TuneConfigurationConstants.TUNE_TMA_PERMANENTLY_DISABLED)) {
@@ -48,31 +34,20 @@ public class TunePushService extends IntentService {
             return;
         }
 
-        if (extras.isEmpty()) {
-            TuneDebugLog.w("The received intent did not have any extras, so there is nothing to process.");
+        if (extras == null || extras.isEmpty()) {
+            TuneDebugLog.w("The received message did not have any data, so there is nothing to process.");
             return;
         }
 
         try {
-            Object gcm = TuneGooglePlayServicesDelegate.getGCMInstance(this);
-
-            String gcmMessageType = TuneGooglePlayServicesDelegate.getMessageType(gcm, intent);
-
-            String messageType = TuneGooglePlayServicesDelegate.getGoogleCloudMessagingMessageTypeMessageField();
-
-            if (gcmMessageType != null && gcmMessageType.equals(messageType)) {
-                tryEchoPush(extras);
-                buildAndSendMessage(extras);
-            } else {
-                TuneDebugLog.w(TuneStringUtils.format("Tune doesn't handle messageType \"%s\" expected \"%s\"", gcmMessageType, messageType));
-            }
-
+            tryEchoPush(extras);
+            buildAndSendMessage(context, extras);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    protected boolean notifyListener(TunePushMessage message) {
+    protected static boolean notifyListener(TunePushMessage message) {
         boolean displayNotification = true;
         if (TuneManager.getInstance() != null) {
             TunePushManager pushManager = TuneManager.getInstance().getPushManager();
@@ -86,8 +61,8 @@ public class TunePushService extends IntentService {
         return displayNotification;
     }
 
-    private void buildAndSendMessage(Bundle extras) {
-        String appName = this.getApplicationInfo().loadLabel(this.getPackageManager()).toString();
+    private static void buildAndSendMessage(Context context, Bundle extras) {
+        String appName = context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
         try {
             TunePushMessage message = new TunePushMessage(extras, appName);
             boolean displayNotification = notifyListener(message);
@@ -96,14 +71,14 @@ public class TunePushService extends IntentService {
                 return;
             }
             TuneDebugLog.i("Tune pushing notification w/ msg: " + message.getAlertMessage());
-            TuneNotificationManagerDelegate notificationManager = new TuneNotificationManagerDelegate(this);
+            TuneNotificationManagerDelegate notificationManager = new TuneNotificationManagerDelegate(context);
             notificationManager.postPushNotification(message);
         } catch (Exception e) {
             TuneDebugLog.e("Failed to build push message: " + e);
         }
     }
 
-    private void tryEchoPush(Bundle extras) {
+    private static void tryEchoPush(Bundle extras) {
         try {
             if (TuneManager.getInstance() != null && TuneManager.getInstance().getConfigurationManager().echoPushes()) {
                 Set<String> keys = extras.keySet();

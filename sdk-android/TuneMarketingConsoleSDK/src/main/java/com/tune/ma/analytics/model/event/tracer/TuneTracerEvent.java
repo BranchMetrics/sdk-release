@@ -12,6 +12,6 @@ public class TuneTracerEvent extends TuneAnalyticsEventBase {
 
     public TuneTracerEvent() {
         super();
-        eventType = TuneEventType.TRACER;
+        setEventType(TuneEventType.TRACER);
     }
 }

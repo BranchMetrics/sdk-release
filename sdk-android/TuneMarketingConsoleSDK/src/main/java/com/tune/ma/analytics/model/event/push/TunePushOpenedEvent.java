@@ -9,6 +9,6 @@ public class TunePushOpenedEvent extends TunePushEvent {
     public TunePushOpenedEvent(TunePushMessage message) {
         super(message);
 
-        action = "NotificationOpened";
+        setAction("NotificationOpened");
     }
 }

@@ -1,11 +1,13 @@
 package com.tune.ma.push.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -20,6 +22,8 @@ import org.json.JSONException;
 
 public class TuneNotificationManagerDelegate {
     public static final int DEFAULT_ICON = android.R.drawable.presence_online;
+    public static final String DEFAULT_CHANNEL_ID = "TUNE_CHANNEL";
+    public static final String DEFAULT_CHANNEL_NAME = "IAM Engagement";
 
     private NotificationManager notificationManager;
     private Context context;
@@ -59,12 +63,25 @@ public class TuneNotificationManagerDelegate {
         } else {
             builder = new NotificationCompat.Builder(context.getApplicationContext());
             builder.setSmallIcon(iconId);
+
+            // Notification channels are required for Android-O and on
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Create default TUNE channel
+                NotificationChannel tuneChannel = new NotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(tuneChannel);
+                builder.setChannelId(tuneChannel.getId());
+            }
         }
 
         builder.setTicker(message.getTicker()); // Message when notif. first shows in tray
         builder.setContentTitle(message.getTitle());
         builder.setContentText(message.getAlertMessage());
         builder.setContentIntent(tapIntent);
+
+        // Use server-passed channel ID if exists
+        if (message.getChannelId() != null) {
+            builder.setChannelId(message.getChannelId());
+        }
 
         // Check if we should set a specific NotificationStyle
         setNotificationBuilderStyle(builder, message);

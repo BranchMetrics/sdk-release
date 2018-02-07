@@ -31,7 +31,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     }
 
     public void testSession() {
-        tune.measureSession();
+        tune.measureSessionInternal();
         
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
 
@@ -62,7 +62,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     public void testUpdate() {
         tune.setExistingUser( true );
-        tune.measureSession();
+        tune.measureSessionInternal();
 
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         

@@ -10,11 +10,11 @@ public class TunePushActionEvent extends TunePushEvent {
         super(message);
 
         if (message.isOpenActionDeepAction()) {
-            action = "INAPP_DEEP_ACTION";
+            setAction("INAPP_DEEP_ACTION");
         } else if (message.isOpenActionDeepLink()) {
-            action = "INAPP_OPEN_URL";
+            setAction("INAPP_OPEN_URL");
         } else {
-            action = "INAPP_NO_ACTION";
+            setAction("INAPP_NO_ACTION");
         }
     }
 }

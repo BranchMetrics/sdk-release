@@ -8,6 +8,6 @@ public class TuneFirstPlaylistDownloadedEvent extends TuneSessionEvent {
     public TuneFirstPlaylistDownloadedEvent() {
         super();
 
-        action = FIRST_PLAYLIST_DOWNLOADED;
+        setAction(FIRST_PLAYLIST_DOWNLOADED);
     }
 }

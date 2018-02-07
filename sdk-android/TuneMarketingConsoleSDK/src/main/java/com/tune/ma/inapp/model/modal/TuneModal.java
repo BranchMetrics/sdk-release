@@ -1,7 +1,6 @@
 package com.tune.ma.inapp.model.modal;
 
 import android.app.Activity;
-import android.support.v4.app.FragmentActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -117,7 +116,7 @@ public class TuneModal extends TuneInAppMessage {
         }
 
         // Execute any pending transactions first
-        ((FragmentActivity) lastActivity).getSupportFragmentManager().executePendingTransactions();
+        lastActivity.getFragmentManager().executePendingTransactions();
 
         if (modalDialogFragment == null) {
             modalDialogFragment = TuneModalDialogFragment.newInstance(this);
@@ -128,7 +127,7 @@ public class TuneModal extends TuneInAppMessage {
             return;
         }
 
-        modalDialogFragment.show(((FragmentActivity) lastActivity).getSupportFragmentManager(), "TUNE_MODAL_" + this.getId());
+        modalDialogFragment.show(lastActivity.getFragmentManager(), "TUNE_MODAL_" + this.getId());
 
         setVisible(true);
     }
@@ -228,7 +227,7 @@ public class TuneModal extends TuneInAppMessage {
 
         // On close, reset preloaded status
         setPreloaded(false);
-        modalDialogFragment = (TuneModalDialogFragment)((FragmentActivity)activity).getSupportFragmentManager().findFragmentByTag("TUNE_MODAL_" + this.getId());
+        modalDialogFragment = (TuneModalDialogFragment)(activity.getFragmentManager().findFragmentByTag("TUNE_MODAL_" + this.getId()));
         // If we can't find our fragment anymore, it was either destroyed or hasn't been created yet, so we don't need to worry about closing it
         if (modalDialogFragment == null) {
             return;

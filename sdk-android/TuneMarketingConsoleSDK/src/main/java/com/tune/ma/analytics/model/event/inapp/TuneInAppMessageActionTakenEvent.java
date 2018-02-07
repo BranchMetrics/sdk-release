@@ -11,8 +11,8 @@ public class TuneInAppMessageActionTakenEvent extends TuneInAppMessageEvent {
     public TuneInAppMessageActionTakenEvent(TuneInAppMessage message, String actionName, int secondsDisplayed) {
         super(message);
 
-        action = actionName;
+        setAction(actionName);
 
-        tags.add(TuneAnalyticsVariable.Builder(ANALYTICS_SECONDS_DISPLAYED_KEY).withValue(secondsDisplayed).build());
+        addTag(TuneAnalyticsVariable.Builder(ANALYTICS_SECONDS_DISPLAYED_KEY).withValue(secondsDisplayed).build());
     }
 }

@@ -6,6 +6,7 @@ import com.tune.mocks.MockUrlRequester;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 public class QueueTests extends TuneUnitTest implements TuneListener {
@@ -59,7 +60,21 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
 
     public void testEmptyEventNotEnqueued() {
         tune.setOnline( false );
-        tune.measureEvent("");
+
+        // This should not throw an exception, because debug mode is off
+        String nullString = null;
+        tune.measureEvent(nullString);
+
+        // Turning on debug mode will cause it to throw
+        tune.setDebugMode(true);
+        try {
+            tune.measureEvent("");
+            assertFalse(true);
+        } catch (InvalidParameterException e) {
+            // This is expected
+        }
+
+        // In either case, nothing will be queued.
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "should have enqueued zero requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );

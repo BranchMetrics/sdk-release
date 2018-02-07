@@ -10,8 +10,8 @@ public class TuneDeeplinkOpenedEvent extends TuneAnalyticsEventBase {
     public TuneDeeplinkOpenedEvent(String deeplinkUrl) {
         super();
 
-        category = deeplinkUrl;
-        eventType = TuneEventType.APP_OPENED_BY_URL;
-        action = "DeeplinkOpened";
+        setCategory(deeplinkUrl);
+        setEventType(TuneEventType.APP_OPENED_BY_URL);
+        setAction("DeeplinkOpened");
     }
 }

@@ -9,7 +9,7 @@ public class TuneScreenViewEvent extends TuneAnalyticsEventBase {
     public TuneScreenViewEvent(String screenName) {
         super();
 
-        category = screenName;
-        eventType = TuneEventType.PAGEVIEW;
+        setCategory(screenName);
+        setEventType(TuneEventType.PAGEVIEW);
     }
 }

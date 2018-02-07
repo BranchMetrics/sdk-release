@@ -48,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -369,20 +370,6 @@ public class Tune {
     }
 
     /**
-     * Main session measurement function.
-     * @deprecated As of Tune Android SDK v4.8.0 you do not need to explicitly call this method for native Tune Android SDK integrations.
-     * The session will be measured as part of the call to TuneActivity's onResume, which may be called automatically with the
-     * activity lifecycle callbacks registered via your Application class as part of the normal Tune SDK integration.
-     * Tune Android SDK plugins should call {@link #measureSessionInternal()} instead. This method will be removed in Tune Android SDK v5.0.0
-     */
-    @Deprecated
-    public void measureSession() {
-        TuneDebugLog.w("Call to DEPRECATED method tune.measureSession() As of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0");
-
-        measureSessionInternal();
-    }
-
-    /**
      * Measure new session. Tune Android SDK plugins may use this method to trigger session measurement events. This should be called in the equivalent of onResume().
      */
     public void measureSessionInternal() {
@@ -408,22 +395,17 @@ public class Tune {
 
     /**
      * Event measurement function that measures an event for the given eventName.
-     * @param eventName event name in TUNE system
+     * @param eventName event name in TUNE system.  The eventName parameter cannot be null or empty
      */
     public void measureEvent(String eventName) {
-        measureEvent(new TuneEvent(eventName));
-    }
-
-    /**
-     * Event measurement function that measures an event for the given eventId.
-     * @param eventId event ID in TUNE system
-     * @deprecated TUNE does not support measuring events using event IDs. Please use {@link #measureEvent(String)} or {@link #measureEvent(TuneEvent)} methods. This method will be removed in Tune Android SDK v5.0.0
-     */
-    @Deprecated
-    public void measureEvent(int eventId) {
-        TuneUtils.log("Call to DEPRECATED method tune.measureEvent(int) Tune does not support measuring events using event IDs. Please use tune.measureEvent(String) instead. This method will be removed in Tune Android SDK v5.0.0");
-
-        measureEvent(new TuneEvent(eventId));
+        try {
+            measureEvent(new TuneEvent(eventName));
+        } catch (IllegalArgumentException e) {
+            TuneDebugLog.e("measureEvent() " + e.getMessage());
+            if (debugMode) {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -433,11 +415,6 @@ public class Tune {
      * @param eventData custom data to associate with the event
      */
     public void measureEvent(final TuneEvent eventData) {
-        if (TextUtils.isEmpty(eventData.getEventName()) && eventData.getEventId() == 0) {
-            TuneDebugLog.w(TuneConstants.TAG, "Event name or ID cannot be null, empty, or zero");
-            return;
-        }
-
         updateLocation();
 
         measure(eventData);
@@ -1593,25 +1570,6 @@ public class Tune {
     }
 
     /**
-     * Set referral sources from Activity
-     * @param act Activity to get referring package name and url scheme from
-     * @deprecated as of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0
-     */
-    @Deprecated
-    public void setReferralSources(final Activity act) {
-        TuneDebugLog.w("Call to DEPRECATED method tune.setReferralSources() As of Tune Android SDK v4.8.0 you do not need to call this method directly. This method will be removed in Tune Android SDK v5.0.0");
-
-        setReferralCallingPackage(act.getCallingPackage());
-        Intent intent = act.getIntent();
-        if (intent != null) {
-            Uri uri = intent.getData();
-            if (uri != null) {
-                setReferralUrl(uri.toString());
-            }
-        }
-    }
-
-    /**
      * Set the package that invoked the activity. Typically this value is from {@link Activity#getCallingPackage} and may be null.
      *
      * @param referralCallingPackage The name of the callling package
@@ -2421,30 +2379,6 @@ public class Tune {
      *****************/
 
     /**
-     * Checks for a deferred deeplink if exists.
-     * Opens deferred deeplink if found and returns value in the registered {@code TuneDeeplinkListener}
-     * @param listener listener for deeplink value or error
-     * @deprecated Instead, register your {@link TuneDeeplinkListener} via {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)}. As of Tune Android SDK v4.8.0 this method delegates to {@link Tune#registerDeeplinkListener(TuneDeeplinkListener)} so that there is only ever one listener at a time. This method is planned for removal in Tune Android SDK v5.0.0.
-     */
-    @Deprecated
-    public void checkForDeferredDeeplink(TuneDeeplinkListener listener) {
-        TuneDebugLog.w("Call to DEPRECATED method tune.checkForDeferredDeeplink(TuneDeeplinkListener) instead call tune.registerDeeplinkListener(TuneDeeplinkListener). This method will be removed in Tune Android SDK v5.0.0");
-
-        registerDeeplinkListener(listener);
-    }
-
-    /**
-     * @deprecated as of Tune Android SDK v4.8.0 use {@link #registerDeeplinkListener(TuneDeeplinkListener)} instead. This method will be removed in Tune Android SDK v5.0.0
-     * @param listener will be called with deferred deeplinks after install or expanded Tune links.
-     */
-    @Deprecated
-    public void setDeeplinkListener(TuneDeeplinkListener listener) {
-        TuneDebugLog.w("Call to DEPRECATED method tune.setDeeplinkListener(TuneDeeplinkListener) instead call tune.registerDeeplinkListener(TuneDeeplinkListener). This method will be removed in Tune Android SDK v5.0.0");
-
-        registerDeeplinkListener(listener);
-    }
-
-    /**
      * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}.
      */
     public void unregisterDeeplinkListener() {
@@ -2753,14 +2687,18 @@ public class Tune {
      * <br>
 
      * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.
+     * @param variableName Variable to which this value should be assigned.  Passing null or an empty string value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileStringValue(String variableName, String value) {
         if (TuneManager.getProfileForUser("setCustomProfileStringValue") == null) {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        if (TextUtils.isEmpty(value)) {
+            clearCustomProfileVariable(variableName);
+        } else {
+            TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        }
     }
 
     /**
@@ -2772,14 +2710,18 @@ public class Tune {
      * <br>
 
      * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.
+     * @param variableName Variable to which this value should be assigned.  Passing a null value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileDate(String variableName, Date value) {
         if (TuneManager.getProfileForUser("setCustomProfileDate") == null) {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        if (value == null) {
+            clearCustomProfileVariable(variableName);
+        } else {
+            TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        }
     }
 
     /**
@@ -2848,14 +2790,18 @@ public class Tune {
      * <br>
 
      * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.
+     * @param variableName Variable to which this value should be assigned.  Passing a null value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileGeolocation(String variableName, TuneLocation value) {
         if (TuneManager.getProfileForUser("setCustomProfileGeolocation") == null) {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        if (value == null) {
+            clearCustomProfileVariable(variableName);
+        } else {
+            TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+        }
     }
 
     // Get
@@ -2974,11 +2920,18 @@ public class Tune {
      * This must be called after the associated register call.
      * <br>
      * NOTE: This will not stop the variable from being registered again on the next {@link android.app.Application#onCreate()}.
-     * @param variableName Name of the custom profile variable to clear.
+     * @param variableName Name of the custom profile variable to clear.  The profile variable cannot be null or an empty string.
      */
     public void clearCustomProfileVariable(String variableName) {
         if (TuneManager.getProfileForUser("clearCustomProfileVariable") == null) {
             return;
+        }
+
+        if (TextUtils.isEmpty(variableName)) {
+            TuneDebugLog.e("Invalid custom profile variable");
+            if (debugMode) {
+                throw new IllegalArgumentException("Invalid custom profile variable");
+            }
         }
 
         TuneManager.getInstance().getProfileManager().clearCertainCustomProfileVariable(variableName);

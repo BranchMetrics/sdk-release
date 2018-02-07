@@ -28,6 +28,8 @@ public class TuneNotificationBuilder {
     private int visibility;
     private Uri sound;
     private long[] vibratePattern;
+    private String channelId;
+
     private boolean onlyAlertOnce;
     private boolean isSmallIconSet;
     private boolean isLargeIconSet;
@@ -40,6 +42,7 @@ public class TuneNotificationBuilder {
     private boolean isOnlyAlertOnceSet;
     private boolean isNoSoundSet;
     private boolean isNoVibrateSet;
+    private boolean isChannelIdSet;
 
     /**
      * Creates a new TuneNotificationBuilder to pass into {@link com.tune.Tune#setPushNotificationBuilder(com.tune.ma.push.settings.TuneNotificationBuilder)}. <br>
@@ -56,13 +59,18 @@ public class TuneNotificationBuilder {
      * }
      * TuneNotificationBuilder builder = new TuneNotificationBuilder(smallIcon);
      * }
+     * <br>
+     * Important: If you do not provide a channel id for your notifications, we will use a default TUNE channel.
+     * <br>
      * @param smallIconId Android resource Id for the small notification icon.
+     * @param channelId Channel id for notifications on Android O and newer
      */
-    public TuneNotificationBuilder(int smallIconId) {
+    public TuneNotificationBuilder(int smallIconId, String channelId) {
         this.isSmallIconSet = true;
         this.smallIconId = smallIconId;
+        this.isChannelIdSet = true;
+        this.channelId = channelId;
     }
-
 
     /**
      * Set the large icon that is shown in Tune Push Notifications.
@@ -227,6 +235,10 @@ public class TuneNotificationBuilder {
             builder.setSmallIcon(smallIconId);
         }
 
+        if (isChannelIdSet) {
+            builder.setChannelId(channelId);
+        }
+
         if (isLargeIconSet) {
             Bitmap bm = BitmapFactory.decodeResource(context.getResources(), largeIconId);
             builder.setLargeIcon(bm);
@@ -276,7 +288,7 @@ public class TuneNotificationBuilder {
      * @return whether TuneNotificationBuilder has any customized fields
      */
     public boolean hasCustomization() {
-        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet || isSoundSet || isVibrateSet || isOnlyAlertOnceSet || isNoSoundSet || isNoVibrateSet;
+        return isColorSet || isGroupKeySet || isLargeIconSet || isSmallIconSet || isSortKeySet || isVisibilitySet || isSoundSet || isVibrateSet || isOnlyAlertOnceSet || isNoSoundSet || isNoVibrateSet || isChannelIdSet;
     }
 
     /**
@@ -323,6 +335,7 @@ public class TuneNotificationBuilder {
     private static final String JSON_NO_SOUND = "noSound";
     private static final String JSON_NO_VIBRATE = "noVibrate";
     private static final String JSON_ONLY_ALERT_ONCE = "onlyAlertOnce";
+    private static final String JSON_CHANNEL_ID = "channelId";
 
     // TODO: These two methods should not be exposed to the end user.
     public JSONObject toJson() throws JSONException {
@@ -330,6 +343,10 @@ public class TuneNotificationBuilder {
 
         if (isSmallIconSet) {
             result.put(JSON_SMALL_ICON_ID, smallIconId);
+        }
+
+        if (isChannelIdSet) {
+            result.put(JSON_CHANNEL_ID, channelId);
         }
 
         if (isLargeIconSet) {
@@ -357,7 +374,13 @@ public class TuneNotificationBuilder {
         }
 
         if (isVibrateSet) {
-            result.put(JSON_VIBRATE, new JSONArray(vibratePattern));
+            // Manually constructing JSONArray since JSONArray(Object) requires API 19
+            JSONArray jsonArray = new JSONArray();
+            for (long v : vibratePattern) {
+                jsonArray.put(v);
+            }
+
+            result.put(JSON_VIBRATE, jsonArray);
         }
 
         if (isOnlyAlertOnceSet) {
@@ -377,7 +400,7 @@ public class TuneNotificationBuilder {
 
     public static TuneNotificationBuilder fromJson(String json) throws JSONException {
         JSONObject j = new JSONObject(json);
-        TuneNotificationBuilder result = new TuneNotificationBuilder(j.getInt(JSON_SMALL_ICON_ID));
+        TuneNotificationBuilder result = new TuneNotificationBuilder(j.getInt(JSON_SMALL_ICON_ID), j.getString(JSON_CHANNEL_ID));
 
         // NOTE: When we serialize if the appropriate 'isFooBarSet' variable is false we won't serialize
         //        This means that if the key doesn't appear in the json when we deserialize, it wasn't set

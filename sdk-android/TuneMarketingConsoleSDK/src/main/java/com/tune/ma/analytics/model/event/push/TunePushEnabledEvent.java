@@ -10,8 +10,8 @@ public class TunePushEnabledEvent extends TuneAnalyticsEventBase {
     public TunePushEnabledEvent(boolean status) {
         super();
 
-        category = APPLICATION_CATEGORY;
-        action = status ? "Push Enabled" : "Push Disabled";
-        eventType = TuneEventType.EVENT;
+        setCategory(APPLICATION_CATEGORY);
+        setAction(status ? "Push Enabled" : "Push Disabled");
+        setEventType(TuneEventType.EVENT);
     }
 }

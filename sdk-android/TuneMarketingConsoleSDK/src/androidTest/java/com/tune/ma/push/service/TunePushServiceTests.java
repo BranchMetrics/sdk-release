@@ -7,7 +7,6 @@ import com.tune.ma.TuneManager;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TunePushListener;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -32,6 +31,7 @@ public class TunePushServiceTests extends TuneUnitTest {
         pushMessageExtras.putString("CAMPAIGN_ID", "fakeCampaignId");
         pushMessageExtras.putString("LENGTH_TO_REPORT", "1");
         pushMessageExtras.putString("payload", "{}");
+        pushMessageExtras.putString("channel_id", "unit_test_channel");
     }
 
     @Test
@@ -81,6 +81,22 @@ public class TunePushServiceTests extends TuneUnitTest {
 
         String testString = message.toJson();
         assertNotNull(testString);
+    }
+
+    @Test
+    public void testPushMessageReadsChannelId() throws Exception {
+        TunePushMessage message = new TunePushMessage(pushMessageExtras, "appName");
+
+        assertNotNull(message.getChannelId());
+        assertEquals("unit_test_channel", message.getChannelId());
+    }
+
+    @Test
+    public void testPushMessageWithoutChannelIdDoesntFail() throws Exception {
+        pushMessageExtras.remove("channel_id");
+        TunePushMessage message = new TunePushMessage(pushMessageExtras, "appName");
+
+        assertNull(message.getChannelId());
     }
 
     private String createJsonString_SDK377() {

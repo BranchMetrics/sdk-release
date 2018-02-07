@@ -25,6 +25,7 @@ public class TunePushMessage {
     private static final String BUNDLE_CAMPAIGN_ID = "CAMPAIGN_ID";
     private static final String BUNDLE_LENGTH_TO_REPORT = "LENGTH_TO_REPORT";
     private static final String BUNDLE_SILENT_PUSH_KEY = "silent_push";
+    private static final String BUNDLE_CHANNEL_ID_KEY = "channel_id";
     // This is added in the receiver so it won't be in the bundle we originally get
     private static final String JSON_APP_NAME = "appName";
     // This is created when the message is created from a bundle, so won't appear in it
@@ -44,6 +45,7 @@ public class TunePushMessage {
     private String appName;
     private TuneCampaign campaign;
     private String messageIdentifier;
+    private String channelId;
 
     private String style;
     private Bitmap image;
@@ -84,6 +86,10 @@ public class TunePushMessage {
         }
 
         messageIdentifier = json.getString(JSON_MESSAGE_ID);
+
+        if (json.has(BUNDLE_CHANNEL_ID_KEY)) {
+            channelId = json.getString(BUNDLE_CHANNEL_ID_KEY);
+        }
     }
 
     public TunePushMessage(Bundle extras, String appName) throws Exception {
@@ -95,6 +101,10 @@ public class TunePushMessage {
 
         appId = checkGet(extras, BUNDLE_APP_ID);
         alertMessage = checkGet(extras, BUNDLE_ALERT_KEY);
+
+        if (extras.containsKey(BUNDLE_CHANNEL_ID_KEY)) {
+            channelId = extras.getString(BUNDLE_CHANNEL_ID_KEY);
+        }
 
         String pushId = checkGet(extras, BUNDLE_PUSH_ID_KEY);
         String campaignId = checkGet(extras, BUNDLE_CAMPAIGN_ID);
@@ -208,6 +218,10 @@ public class TunePushMessage {
         return messageIdInt;
     }
 
+    public String getChannelId() {
+        return channelId;
+    }
+
     public String getMessageIdentifier() {
         return messageIdentifier;
     }
@@ -247,6 +261,7 @@ public class TunePushMessage {
             }
 
             object.put(JSON_MESSAGE_ID, messageIdentifier);
+            object.put(BUNDLE_CHANNEL_ID_KEY, channelId);
         } catch (JSONException e) {
             e.printStackTrace();
         }

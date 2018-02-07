@@ -21,9 +21,9 @@ public abstract class TuneInAppMessageEvent extends TuneAnalyticsEventBase {
     public TuneInAppMessageEvent(TuneInAppMessage message) {
         super();
 
-        category = message.getId();
-        eventType = TuneEventType.IN_APP_MESSAGE;
+        setCategory(message.getId());
+        setEventType(TuneEventType.IN_APP_MESSAGE);
 
-        tags.add(TuneAnalyticsVariable.Builder(ANALYTICS_CAMPAIGN_STEP_ID_KEY).withValue(message.getCampaignStepId()).build());
+        addTag(TuneAnalyticsVariable.Builder(ANALYTICS_CAMPAIGN_STEP_ID_KEY).withValue(message.getCampaignStepId()).build());
     }
 }

@@ -10,6 +10,6 @@ public class TuneInAppMessageShownEvent extends TuneInAppMessageEvent {
     public TuneInAppMessageShownEvent(TuneInAppMessage message) {
         super(message);
 
-        action = ANALYTICS_ACTION_SHOWN;
+        setAction(ANALYTICS_ACTION_SHOWN);
     }
 }

@@ -60,14 +60,6 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         }
     }
 
-    public void testConvertingIdEventToTuneAnalyticsEvent() {
-        TuneEvent eventToConvert = new TuneEvent(123);
-        TuneCustomEvent event = new TuneCustomEvent(eventToConvert);
-
-        assertEquals("Custom", event.getCategory());
-        assertEquals("123", event.getAction());
-    }
-
     /**
      * Test that TuneEvent saves tags correctly when converted to TuneAnalyticsEventBase
      */

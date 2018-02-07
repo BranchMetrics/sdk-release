@@ -11,9 +11,9 @@ public class TuneInAppMessageUnspecifiedActionTakenEvent extends TuneInAppMessag
     public TuneInAppMessageUnspecifiedActionTakenEvent(TuneInAppMessage message, String unspecifiedActionName, int secondsDisplayed) {
         super(message);
 
-        action = ANALYTICS_UNSPECIFIED_ACTION;
+        setAction(ANALYTICS_UNSPECIFIED_ACTION);
 
-        tags.add(TuneAnalyticsVariable.Builder(ANALYTICS_UNSPECIFIED_ACTION_KEY).withValue(unspecifiedActionName).build());
-        tags.add(TuneAnalyticsVariable.Builder(ANALYTICS_SECONDS_DISPLAYED_KEY).withValue(secondsDisplayed).build());
+        addTag(TuneAnalyticsVariable.Builder(ANALYTICS_UNSPECIFIED_ACTION_KEY).withValue(unspecifiedActionName).build());
+        addTag(TuneAnalyticsVariable.Builder(ANALYTICS_SECONDS_DISPLAYED_KEY).withValue(secondsDisplayed).build());
     }
 }
