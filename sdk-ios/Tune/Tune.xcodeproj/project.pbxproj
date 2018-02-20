@@ -29,6 +29,17 @@
 			name = TuneUniversal;
 			productName = TuneUniversal;
 		};
+		17BAA1862025376200F26DD3 /* TuneUniversal_static */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 17BAA1872025376200F26DD3 /* Build configuration list for PBXAggregateTarget "TuneUniversal_static" */;
+			buildPhases = (
+				17BAA18B202537AF00F26DD3 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = TuneUniversal_static;
+			productName = TuneUniversal_static;
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -676,6 +687,268 @@
 		1792D614201941FA00D2F7BA /* TuneInAppMessageTests.json in Resources */ = {isa = PBXBuildFile; fileRef = 1792D60E201941F900D2F7BA /* TuneInAppMessageTests.json */; };
 		1792D615201941FA00D2F7BA /* TuneInAppMessageTests_SingleBannerWithStartsAppTrigger.json in Resources */ = {isa = PBXBuildFile; fileRef = 1792D60F201941F900D2F7BA /* TuneInAppMessageTests_SingleBannerWithStartsAppTrigger.json */; };
 		1792D616201941FA00D2F7BA /* TuneInAppMessageTests_SingleBannerWithPushDisabledTrigger.json in Resources */ = {isa = PBXBuildFile; fileRef = 1792D610201941F900D2F7BA /* TuneInAppMessageTests_SingleBannerWithPushDisabledTrigger.json */; };
+		17BAA0782025344800F26DD3 /* TuneIfa.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE781B79B6F000501733 /* TuneIfa.m */; };
+		17BAA0792025344800F26DD3 /* TuneUserProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6461B6F433C008101CE /* TuneUserProfile.m */; };
+		17BAA07A2025344800F26DD3 /* TuneUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A461B65F9B8005216E2 /* TuneUtils.m */; };
+		17BAA07B2025344800F26DD3 /* TuneSkyhookPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59E91B65F949005216E2 /* TuneSkyhookPayload.m */; };
+		17BAA07C2025344800F26DD3 /* TuneStorageKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA92CAC1BA399DB00150B12 /* TuneStorageKeys.m */; };
+		17BAA07D2025344800F26DD3 /* TuneRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A721B65F9FB005216E2 /* TuneRequestsQueue.m */; };
+		17BAA07E2025344800F26DD3 /* TuneConnectedModeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1008671BCC1E7500C7F7F3 /* TuneConnectedModeManager.m */; };
+		17BAA07F2025344800F26DD3 /* TuneBannerMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3D220192A3A00D2F7BA /* TuneBannerMessage.m */; };
+		17BAA0802025344800F26DD3 /* TuneInAppUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF5356F1B94D97700B76885 /* TuneInAppUtils.m */; };
+		17BAA0812025344800F26DD3 /* TuneCloseButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3C720192A0000D2F7BA /* TuneCloseButton.m */; };
+		17BAA0822025344800F26DD3 /* TunePreloadData.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59C91B65F922005216E2 /* TunePreloadData.m */; };
+		17BAA0832025344800F26DD3 /* TuneAnalyticsVariable.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6221B6F1B61008101CE /* TuneAnalyticsVariable.m */; };
+		17BAA0842025344800F26DD3 /* TuneEncrypter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2E1B65F9B8005216E2 /* TuneEncrypter.m */; };
+		17BAA0852025344800F26DD3 /* TuneButtonUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535A41B9529D200B76885 /* TuneButtonUtils.m */; };
+		17BAA0862025344800F26DD3 /* TuneConfigurationKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B3686921B75D4A5005D9C5C /* TuneConfigurationKeys.m */; };
+		17BAA0872025344800F26DD3 /* TuneInstallReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A341B65F9B8005216E2 /* TuneInstallReceipt.m */; };
+		17BAA0882025344800F26DD3 /* NSObject+TuneSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB91353F1B680CB6006534E0 /* NSObject+TuneSBJSON.m */; };
+		17BAA0892025344800F26DD3 /* TuneFullScreenMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3DF20192A5500D2F7BA /* TuneFullScreenMessageView.m */; };
+		17BAA08A2025344800F26DD3 /* TuneJSONUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9135441B680CB6006534E0 /* TuneJSONUtils.m */; };
+		17BAA08B2025344800F26DD3 /* TuneSkyhookObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59EB1B65F949005216E2 /* TuneSkyhookObserver.m */; };
+		17BAA08C2025344800F26DD3 /* TunePIIUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */; };
+		17BAA08D2025344800F26DD3 /* TuneMessageOrientationState.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535A81B952CC200B76885 /* TuneMessageOrientationState.m */; };
+		17BAA08E2025344800F26DD3 /* TuneSmartWhereHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F87DE3741DA6FFF40054037A /* TuneSmartWhereHelper.m */; };
+		17BAA08F2025344800F26DD3 /* TuneDebugUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */; };
+		17BAA0902025344800F26DD3 /* TuneRegionMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A3C1B65F9B8005216E2 /* TuneRegionMonitor.m */; };
+		17BAA0912025344800F26DD3 /* TuneAnalyticsEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6241B6F1B61008101CE /* TuneAnalyticsEvent.m */; };
+		17BAA0922025344800F26DD3 /* UIViewController+TuneAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = DBCA43461B8E7DCD00483318 /* UIViewController+TuneAnalytics.m */; };
+		17BAA0932025344800F26DD3 /* TuneInAppMessageConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF5357B1B94E8AA00B76885 /* TuneInAppMessageConstants.m */; };
+		17BAA0942025344800F26DD3 /* UIViewController+NameTag.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9226081BB11903003ACA12 /* UIViewController+NameTag.m */; };
+		17BAA0952025344800F26DD3 /* TuneConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6411B6F1FAC008101CE /* TuneConfiguration.m */; };
+		17BAA0962025344800F26DD3 /* TuneLabelUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA92CA01BA21FDD00150B12 /* TuneLabelUtils.m */; };
+		17BAA0972025344800F26DD3 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
+		17BAA0982025344800F26DD3 /* TuneHttpResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = F83B850F1B7C0EC200994318 /* TuneHttpResponse.m */; };
+		17BAA0992025344800F26DD3 /* TuneAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3230402F1B98C9EF00DD8E65 /* TuneAppDelegate.m */; };
+		17BAA09A2025344800F26DD3 /* TuneCallbackBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5741B941ED90071B996 /* TuneCallbackBlock.m */; };
+		17BAA09B2025344800F26DD3 /* TuneSwizzleBlacklist.m in Sources */ = {isa = PBXBuildFile; fileRef = DBCA434A1B8E8E1200483318 /* TuneSwizzleBlacklist.m */; };
+		17BAA09C2025344800F26DD3 /* TuneDeeplink.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B9A42D1BBB3703006E3D4F /* TuneDeeplink.m */; };
+		17BAA09D2025344800F26DD3 /* TunePushInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F7522A51D0A4D8D00E65703 /* TunePushInfo.m */; };
+		17BAA09E2025344800F26DD3 /* TuneState.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE89B1B7D1AA500A98BF9 /* TuneState.m */; };
+		17BAA09F2025344800F26DD3 /* TuneSBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9135491B680CB6006534E0 /* TuneSBJsonBase.m */; };
+		17BAA0A02025344800F26DD3 /* TuneDeepActionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F23B6441BBB1903003CE408 /* TuneDeepActionManager.m */; };
+		17BAA0A12025344800F26DD3 /* TuneNetworkUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8A6A9ED1D79D0AC00389F65 /* TuneNetworkUtils.m */; };
+		17BAA0A22025344800F26DD3 /* TuneSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9135471B680CB6006534E0 /* TuneSBJSON.m */; };
+		17BAA0A32025344800F26DD3 /* TuneManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59B21B65F922005216E2 /* TuneManager.m */; };
+		17BAA0A42025344800F26DD3 /* TuneSBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = DB91354D1B680CB6006534E0 /* TuneSBJsonWriter.m */; };
+		17BAA0A52025344800F26DD3 /* TuneEventItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59C51B65F922005216E2 /* TuneEventItem.m */; };
+		17BAA0A62025344800F26DD3 /* TuneDeviceDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE8641B7D164300A98BF9 /* TuneDeviceDetails.m */; };
+		17BAA0A72025344800F26DD3 /* TuneRequestsQueuePart.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A741B65F9FB005216E2 /* TuneRequestsQueuePart.m */; };
+		17BAA0A82025344800F26DD3 /* Tune.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59BC1B65F922005216E2 /* Tune.m */; };
+		17BAA0A92025344800F26DD3 /* TuneFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE881B7B8C6900501733 /* TuneFileManager.m */; };
+		17BAA0AA2025344800F26DD3 /* TuneLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE7D1B79CC1D00501733 /* TuneLocation.m */; };
+		17BAA0AB2025344800F26DD3 /* TunePowerHookValue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24D6E61B67E2A3000C7462 /* TunePowerHookValue.m */; };
+		17BAA0AC2025344800F26DD3 /* TuneApi.m in Sources */ = {isa = PBXBuildFile; fileRef = F83B85151B7C0FFB00994318 /* TuneApi.m */; };
+		17BAA0AD2025344800F26DD3 /* TuneFullScreenMessageDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3BD201929E300D2F7BA /* TuneFullScreenMessageDefaults.m */; };
+		17BAA0AE2025344800F26DD3 /* TuneInAppMessageAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3CB20192A1700D2F7BA /* TuneInAppMessageAction.m */; };
+		17BAA0AF2025344800F26DD3 /* TuneFBBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A321B65F9B8005216E2 /* TuneFBBridge.m */; };
+		17BAA0B02025344800F26DD3 /* TuneSkyhookConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59ED1B65F949005216E2 /* TuneSkyhookConstants.m */; };
+		17BAA0B12025344800F26DD3 /* TuneBannerMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3E220192A5600D2F7BA /* TuneBannerMessageView.m */; };
+		17BAA0B22025344800F26DD3 /* TuneModalMessageDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3BF201929E300D2F7BA /* TuneModalMessageDefaults.m */; };
+		17BAA0B32025344800F26DD3 /* NSData+TuneGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE9B1B7DA93400501733 /* NSData+TuneGZIP.m */; };
+		17BAA0B42025344800F26DD3 /* NSString+TuneSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DB9135411B680CB6006534E0 /* NSString+TuneSBJSON.m */; };
+		17BAA0B52025344800F26DD3 /* TuneLocationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A381B65F9B8005216E2 /* TuneLocationHelper.m */; };
+		17BAA0B62025344800F26DD3 /* TuneModalMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3E320192A5600D2F7BA /* TuneModalMessageView.m */; };
+		17BAA0B72025344800F26DD3 /* TuneSkyhookCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59E71B65F949005216E2 /* TuneSkyhookCenter.m */; };
+		17BAA0B82025344800F26DD3 /* TuneMessageAction.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535901B94F97A00B76885 /* TuneMessageAction.m */; };
+		17BAA0B92025344800F26DD3 /* TuneAnalyticsDispatchEventsOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE971B7D31D200501733 /* TuneAnalyticsDispatchEventsOperation.m */; };
+		17BAA0BA2025344800F26DD3 /* TuneFullScreenMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3D320192A3A00D2F7BA /* TuneFullScreenMessage.m */; };
+		17BAA0BB2025344800F26DD3 /* TuneXmlUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8F88F121B85233A0060CDE7 /* TuneXmlUtils.m */; };
+		17BAA0BC2025344800F26DD3 /* TunePointerSet.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535731B94DB1F00B76885 /* TunePointerSet.m */; };
+		17BAA0BD2025344800F26DD3 /* TuneExperimentDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD184AC1BB3594000AAE0E1 /* TuneExperimentDetails.m */; };
+		17BAA0BE2025344800F26DD3 /* TunePushUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8E39FDD1D622284008D4794 /* TunePushUtils.m */; };
+		17BAA0BF2025344800F26DD3 /* TuneDeepAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F23B6471BBB2493003CE408 /* TuneDeepAction.m */; };
+		17BAA0C02025344800F26DD3 /* TuneStoreKitDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A401B65F9B8005216E2 /* TuneStoreKitDelegate.m */; };
+		17BAA0C12025344800F26DD3 /* TuneJSONPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DB40D32E1B8690E20034F218 /* TuneJSONPlayer.m */; };
+		17BAA0C22025344800F26DD3 /* TuneArrayUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB514E3D1B7BD280000706EE /* TuneArrayUtils.m */; };
+		17BAA0C32025344800F26DD3 /* TuneCampaign.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5811B94CB030071B996 /* TuneCampaign.m */; };
+		17BAA0C42025344800F26DD3 /* TuneAnalyticsSubmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCAB5CB1B73BC2300A30F91 /* TuneAnalyticsSubmitter.m */; };
+		17BAA0C52025344800F26DD3 /* TuneInAppMessageExperimentDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1BC5EF1BBB6C01009FD499 /* TuneInAppMessageExperimentDetails.m */; };
+		17BAA0C62025344800F26DD3 /* TuneUserProfileKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F25EEC81B756A3900DD3C21 /* TuneUserProfileKeys.m */; };
+		17BAA0C72025344800F26DD3 /* TuneTriggerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535CD1B96290E00B76885 /* TuneTriggerManager.m */; };
+		17BAA0C82025344800F26DD3 /* TuneHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE8D21B7D466500A98BF9 /* TuneHttpRequest.m */; };
+		17BAA0C92025344800F26DD3 /* TuneImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA92C781B9F4D6700150B12 /* TuneImageUtils.m */; };
+		17BAA0CA2025344800F26DD3 /* TuneMessageStyling.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535A01B95285900B76885 /* TuneMessageStyling.m */; };
+		17BAA0CB2025344800F26DD3 /* TunePlaylistManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DB40D2E71B86515C0034F218 /* TunePlaylistManager.m */; };
+		17BAA0CC2025344800F26DD3 /* TuneSkyhookPayloadConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6261B6F1B61008101CE /* TuneSkyhookPayloadConstants.m */; };
+		17BAA0CD2025344800F26DD3 /* TuneConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AE8947091CC55D5A00525862 /* TuneConstants.m */; };
+		17BAA0CE2025344800F26DD3 /* TuneAnalyticsItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B36868A1B741CDA005D9C5C /* TuneAnalyticsItem.m */; };
+		17BAA0CF2025344800F26DD3 /* TuneReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A3A1B65F9B8005216E2 /* TuneReachability.m */; };
+		17BAA0D02025344800F26DD3 /* TuneMultipartContent.m in Sources */ = {isa = PBXBuildFile; fileRef = F87CE8011B7CF75A00A98BF9 /* TuneMultipartContent.m */; };
+		17BAA0D12025344800F26DD3 /* TuneEventKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A400A1B83A813005DE80A /* TuneEventKeys.m */; };
+		17BAA0D22025344800F26DD3 /* TuneDateUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24D6EA1B67E494000C7462 /* TuneDateUtils.m */; };
+		17BAA0D32025344800F26DD3 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
+		17BAA0D42025344800F26DD3 /* TuneTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A421B65F9B8005216E2 /* TuneTracker.m */; };
+		17BAA0D52025344800F26DD3 /* TuneViewUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535AC1B960A9A00B76885 /* TuneViewUtils.m */; };
+		17BAA0D62025344800F26DD3 /* TuneExperimentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1BC5EC1BBB5FEE009FD499 /* TuneExperimentManager.m */; };
+		17BAA0D72025344800F26DD3 /* TuneUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A441B65F9B8005216E2 /* TuneUserAgentCollector.m */; };
+		17BAA0D82025344800F26DD3 /* TuneBaseInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF535801B94EC4300B76885 /* TuneBaseInAppMessageView.m */; };
+		17BAA0D92025344800F26DD3 /* TuneSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFEDD1B82804000501733 /* TuneSessionManager.m */; };
+		17BAA0DA2025344800F26DD3 /* TuneMessageDisplayFrequency.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0FF5851B94CB710071B996 /* TuneMessageDisplayFrequency.m */; };
+		17BAA0DB2025344800F26DD3 /* TuneSmartWhereTriggeredEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */; };
+		17BAA0DC2025344800F26DD3 /* TuneModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59B01B65F922005216E2 /* TuneModule.m */; };
+		17BAA0DD2025344800F26DD3 /* TuneAnalyticsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D61C1B6F1B61008101CE /* TuneAnalyticsManager.m */; };
+		17BAA0DE2025344800F26DD3 /* TuneAnalyticsConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B42D6201B6F1B61008101CE /* TuneAnalyticsConstants.m */; };
+		17BAA0DF2025344800F26DD3 /* TunePowerHookManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24D6DE1B66B97F000C7462 /* TunePowerHookManager.m */; };
+		17BAA0E02025344800F26DD3 /* TunePlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA2B5E11B7BFDD800843E5D /* TunePlaylist.m */; };
+		17BAA0E12025344800F26DD3 /* TuneAnalyticsDispatchToConnectedModeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BAAF1911BBDC6E9002A243C /* TuneAnalyticsDispatchToConnectedModeOperation.m */; };
+		17BAA0E22025344800F26DD3 /* TuneEventQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A301B65F9B8005216E2 /* TuneEventQueue.m */; };
+		17BAA0E32025344800F26DD3 /* TuneNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040001B97A3ED00DD8E65 /* TuneNotification.m */; };
+		17BAA0E42025344800F26DD3 /* TuneStringUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24D6E21B66CA0B000C7462 /* TuneStringUtils.m */; };
+		17BAA0E52025344800F26DD3 /* TunePowerHookExperimentDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD184B41BB3594B00AAE0E1 /* TunePowerHookExperimentDetails.m */; };
+		17BAA0E62025344800F26DD3 /* TuneDeeplinkConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B9A42F1BBB3703006E3D4F /* TuneDeeplinkConstants.m */; };
+		17BAA0E72025344800F26DD3 /* TuneFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B52709F1B7141E40019ED0E /* TuneFileUtils.m */; };
+		17BAA0E82025344800F26DD3 /* TuneModalMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3D020192A3900D2F7BA /* TuneModalMessage.m */; };
+		17BAA0E92025344800F26DD3 /* TuneImageAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA92C731B9F479F00150B12 /* TuneImageAssets.m */; };
+		17BAA0EA2025344800F26DD3 /* TuneKeyStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A361B65F9B8005216E2 /* TuneKeyStrings.m */; };
+		17BAA0EB2025344800F26DD3 /* TuneSBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DB91354B1B680CB6006534E0 /* TuneSBJsonParser.m */; };
+		17BAA0EC2025344800F26DD3 /* TuneCampaignStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA92CA71BA3969300150B12 /* TuneCampaignStateManager.m */; };
+		17BAA0ED2025344800F26DD3 /* TuneEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB59C31B65F922005216E2 /* TuneEvent.m */; };
+		17BAA0EE2025344800F26DD3 /* TuneInAppMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3D120192A3A00D2F7BA /* TuneInAppMessage.m */; };
+		17BAA0EF2025344800F26DD3 /* TuneIadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F81A46101D9EF54D00D50867 /* TuneIadUtils.m */; };
+		17BAA0F02025344800F26DD3 /* TuneDeviceUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F8F88F0C1B8512690060CDE7 /* TuneDeviceUtils.m */; };
+		17BAA0F12025344800F26DD3 /* TuneBannerMessageDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1792D3BB201929E300D2F7BA /* TuneBannerMessageDefaults.m */; };
+		17BAA0F22025344800F26DD3 /* TuneAppToAppTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A281B65F9B8005216E2 /* TuneAppToAppTracker.m */; };
+		17BAA0F32025344800F26DD3 /* TuneHttpUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F83B851D1B7C114A00994318 /* TuneHttpUtils.m */; };
+		17BAA0F42025344800F26DD3 /* TuneUserDefaultsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F4BB1EA1B824B2C0084864D /* TuneUserDefaultsUtils.m */; };
+		17BAA0F52025344800F26DD3 /* TuneNotificationProcessing.m in Sources */ = {isa = PBXBuildFile; fileRef = 323040041B97A80500DD8E65 /* TuneNotificationProcessing.m */; };
+		17BAA0F82025344800F26DD3 /* TuneImageAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA92C751B9F480500150B12 /* TuneImageAssets.h */; };
+		17BAA0F92025344800F26DD3 /* TuneLabelUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA92C9F1BA21FDD00150B12 /* TuneLabelUtils.h */; };
+		17BAA0FA2025344800F26DD3 /* TunePlaylistManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DB40D2E61B86515C0034F218 /* TunePlaylistManager.h */; };
+		17BAA0FB2025344800F26DD3 /* TuneViewUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF535AB1B960A9A00B76885 /* TuneViewUtils.h */; };
+		17BAA0FC2025344800F26DD3 /* TuneExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5F11BBB6D8F009FD499 /* TuneExperimentDetails+Internal.h */; };
+		17BAA0FD2025344800F26DD3 /* TuneSBJsonBase.h in Headers */ = {isa = PBXBuildFile; fileRef = DB9135481B680CB6006534E0 /* TuneSBJsonBase.h */; };
+		17BAA0FE2025344800F26DD3 /* TunePowerHookManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DB24D6DD1B66B97F000C7462 /* TunePowerHookManager.h */; };
+		17BAA0FF2025344800F26DD3 /* TuneCloseButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3C620192A0000D2F7BA /* TuneCloseButton.h */; };
+		17BAA1002025344800F26DD3 /* TuneEvent+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A261B65F9B8005216E2 /* TuneEvent+Internal.h */; };
+		17BAA1012025344800F26DD3 /* TunePushInfo+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F7522A71D0B24EE00E65703 /* TunePushInfo+Internal.h */; };
+		17BAA1022025344800F26DD3 /* Tune.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59BB1B65F922005216E2 /* Tune.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1032025344800F26DD3 /* TunePlaylist.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA2B5E01B7BFDD800843E5D /* TunePlaylist.h */; };
+		17BAA1042025344800F26DD3 /* TuneFileUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B52709E1B7140420019ED0E /* TuneFileUtils.h */; };
+		17BAA1052025344800F26DD3 /* TuneAppToAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A271B65F9B8005216E2 /* TuneAppToAppTracker.h */; };
+		17BAA1062025344800F26DD3 /* TuneCampaignStateManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA92CA61BA3969300150B12 /* TuneCampaignStateManager.h */; };
+		17BAA1072025344800F26DD3 /* TuneFBBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A311B65F9B8005216E2 /* TuneFBBridge.h */; };
+		17BAA1082025344800F26DD3 /* TuneKeyStrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A351B65F9B8005216E2 /* TuneKeyStrings.h */; };
+		17BAA1092025344800F26DD3 /* TuneDeeplinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */; };
+		17BAA10A2025344800F26DD3 /* TuneSkyhookCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59E61B65F949005216E2 /* TuneSkyhookCenter.h */; };
+		17BAA10B2025344800F26DD3 /* TuneCampaign.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0FF5801B94CB030071B996 /* TuneCampaign.h */; };
+		17BAA10C2025344800F26DD3 /* TuneNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = 32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */; };
+		17BAA10D2025344800F26DD3 /* TuneStorageKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA92CAB1BA399DB00150B12 /* TuneStorageKeys.h */; };
+		17BAA10E2025344800F26DD3 /* TuneSkyhookConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59EC1B65F949005216E2 /* TuneSkyhookConstants.h */; };
+		17BAA10F2025344800F26DD3 /* TuneState.h in Headers */ = {isa = PBXBuildFile; fileRef = F87CE89A1B7D1AA500A98BF9 /* TuneState.h */; };
+		17BAA1102025344800F26DD3 /* TuneSBJsonParser.h in Headers */ = {isa = PBXBuildFile; fileRef = DB91354A1B680CB6006534E0 /* TuneSBJsonParser.h */; };
+		17BAA1112025344800F26DD3 /* TuneTriggerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF535CC1B96290E00B76885 /* TuneTriggerManager.h */; };
+		17BAA1122025344800F26DD3 /* TuneConnectedModeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1008661BCC1E7500C7F7F3 /* TuneConnectedModeManager.h */; };
+		17BAA1132025344800F26DD3 /* TuneDateUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DB24D6E91B67E494000C7462 /* TuneDateUtils.h */; };
+		17BAA1142025344800F26DD3 /* Tune+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A251B65F9B8005216E2 /* Tune+Internal.h */; };
+		17BAA1152025344800F26DD3 /* TuneDeeplink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9A42C1BBB3703006E3D4F /* TuneDeeplink.h */; };
+		17BAA1162025344800F26DD3 /* TuneIfa.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE771B79B6F000501733 /* TuneIfa.h */; };
+		17BAA1172025344800F26DD3 /* TuneSkyhookObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59EA1B65F949005216E2 /* TuneSkyhookObserver.h */; };
+		17BAA1182025344800F26DD3 /* TuneFullScreenMessageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3DE20192A5500D2F7BA /* TuneFullScreenMessageView.h */; };
+		17BAA1192025344800F26DD3 /* TuneBannerMessageDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3BA201929E200D2F7BA /* TuneBannerMessageDefaults.h */; };
+		17BAA11A2025344800F26DD3 /* TuneAnalyticsDispatchEventsOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE961B7D31AE00501733 /* TuneAnalyticsDispatchEventsOperation.h */; };
+		17BAA11B2025344800F26DD3 /* TuneEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59C21B65F922005216E2 /* TuneEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA11C2025344800F26DD3 /* TuneDeviceUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F88F0B1B8512690060CDE7 /* TuneDeviceUtils.h */; };
+		17BAA11D2025344800F26DD3 /* TuneReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A391B65F9B8005216E2 /* TuneReachability.h */; };
+		17BAA11E2025344800F26DD3 /* NSString+TuneSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB9135401B680CB6006534E0 /* NSString+TuneSBJSON.h */; };
+		17BAA11F2025344800F26DD3 /* TuneXmlUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8F88F111B85233A0060CDE7 /* TuneXmlUtils.h */; };
+		17BAA1202025344800F26DD3 /* TunePowerHookExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD184B31BB3594B00AAE0E1 /* TunePowerHookExperimentDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1212025344800F26DD3 /* TuneModalMessageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3E120192A5600D2F7BA /* TuneModalMessageView.h */; };
+		17BAA1222025344800F26DD3 /* UIViewController+TuneAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = DBCA43451B8E7DCD00483318 /* UIViewController+TuneAnalytics.h */; };
+		17BAA1232025344800F26DD3 /* TuneTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A411B65F9B8005216E2 /* TuneTracker.h */; };
+		17BAA1242025344800F26DD3 /* TuneModalMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3D420192A3A00D2F7BA /* TuneModalMessage.h */; };
+		17BAA1252025344800F26DD3 /* TuneHttpResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = F83B850E1B7C0EC200994318 /* TuneHttpResponse.h */; };
+		17BAA1262025344800F26DD3 /* TuneInAppMessageAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3CA20192A1700D2F7BA /* TuneInAppMessageAction.h */; };
+		17BAA1272025344800F26DD3 /* NSObject+TuneSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB91353E1B680CB6006534E0 /* NSObject+TuneSBJSON.h */; };
+		17BAA1282025344800F26DD3 /* TuneInstallReceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A331B65F9B8005216E2 /* TuneInstallReceipt.h */; };
+		17BAA1292025344800F26DD3 /* TuneAnalyticsDispatchToConnectedModeOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BAAF1901BBDC0E7002A243C /* TuneAnalyticsDispatchToConnectedModeOperation.h */; };
+		17BAA12A2025344800F26DD3 /* TunePIIUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */; };
+		17BAA12B2025344800F26DD3 /* TuneInAppMessageConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF5357A1B94E8AA00B76885 /* TuneInAppMessageConstants.h */; };
+		17BAA12C2025344800F26DD3 /* TunePowerHookExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD184C01BB45F4600AAE0E1 /* TunePowerHookExperimentDetails+Internal.h */; };
+		17BAA12D2025344800F26DD3 /* TuneInAppUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF5356E1B94D97700B76885 /* TuneInAppUtils.h */; };
+		17BAA12E2025344800F26DD3 /* TuneSmartWhereHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F87DE3731DA6FFF40054037A /* TuneSmartWhereHelper.h */; };
+		17BAA12F2025344800F26DD3 /* TuneManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59B11B65F922005216E2 /* TuneManager.h */; };
+		17BAA1302025344800F26DD3 /* TuneStoreKitDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A3F1B65F9B8005216E2 /* TuneStoreKitDelegate.h */; };
+		17BAA1312025344800F26DD3 /* TuneSmartWhereTriggeredEventManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */; };
+		17BAA1322025344800F26DD3 /* TuneMessageOrientationState.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF535A71B952CC200B76885 /* TuneMessageOrientationState.h */; };
+		17BAA1332025344800F26DD3 /* TuneFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE851B7B8C5B00501733 /* TuneFileManager.h */; };
+		17BAA1342025344800F26DD3 /* TuneUserDefaultsUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F4BB1E81B824B0A0084864D /* TuneUserDefaultsUtils.h */; };
+		17BAA1352025344800F26DD3 /* TuneDeepActionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F23B6431BBB18EE003CE408 /* TuneDeepActionManager.h */; };
+		17BAA1362025344800F26DD3 /* TuneImageUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA92C771B9F4D6700150B12 /* TuneImageUtils.h */; };
+		17BAA1372025344800F26DD3 /* TuneButtonUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF535A31B9529D200B76885 /* TuneButtonUtils.h */; };
+		17BAA1382025344800F26DD3 /* TuneEventQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2F1B65F9B8005216E2 /* TuneEventQueue.h */; };
+		17BAA1392025344800F26DD3 /* TuneAnalyticsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D61F1B6F1B61008101CE /* TuneAnalyticsConstants.h */; };
+		17BAA13A2025344800F26DD3 /* TuneAnalyticsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D61B1B6F1B60008101CE /* TuneAnalyticsManager.h */; };
+		17BAA13B2025344800F26DD3 /* TuneAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3230402E1B98C9EF00DD8E65 /* TuneAppDelegate.h */; };
+		17BAA13C2025344800F26DD3 /* TuneEventKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F5A40081B83A801005DE80A /* TuneEventKeys.h */; };
+		17BAA13D2025344800F26DD3 /* TuneConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = F8868EE01C0FA880007E2F9C /* TuneConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA13E2025344800F26DD3 /* TuneLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE7C1B79CC1D00501733 /* TuneLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA13F2025344800F26DD3 /* TuneInAppMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3D520192A3A00D2F7BA /* TuneInAppMessage.h */; };
+		17BAA1402025344800F26DD3 /* TuneEncrypter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2D1B65F9B8005216E2 /* TuneEncrypter.h */; };
+		17BAA1412025344800F26DD3 /* TuneIadUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F81A460F1D9EF54D00D50867 /* TuneIadUtils.h */; };
+		17BAA1422025344800F26DD3 /* TuneNetworkUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8A6A9EC1D79D0AC00389F65 /* TuneNetworkUtils.h */; };
+		17BAA1432025344800F26DD3 /* TuneNotificationProcessing.h in Headers */ = {isa = PBXBuildFile; fileRef = 323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */; };
+		17BAA1442025344800F26DD3 /* TuneDeeplinkConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9A42E1BBB3703006E3D4F /* TuneDeeplinkConstants.h */; };
+		17BAA1452025344800F26DD3 /* TuneJSONPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = DB40D32D1B8690E20034F218 /* TuneJSONPlayer.h */; };
+		17BAA1462025344800F26DD3 /* TuneCallbackBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0FF5731B941ED90071B996 /* TuneCallbackBlock.h */; };
+		17BAA1472025344800F26DD3 /* TuneMessageStyling.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF5359F1B95285900B76885 /* TuneMessageStyling.h */; };
+		17BAA1482025344800F26DD3 /* TuneModalMessageDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3BC201929E300D2F7BA /* TuneModalMessageDefaults.h */; };
+		17BAA1492025344800F26DD3 /* TuneDebugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA14A2025344800F26DD3 /* TuneMessageAction.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF5358F1B94F97A00B76885 /* TuneMessageAction.h */; };
+		17BAA14B2025344800F26DD3 /* TuneConfigurationKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B3686911B75D3EF005D9C5C /* TuneConfigurationKeys.h */; };
+		17BAA14C2025344800F26DD3 /* TunePowerHookValue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB24D6E51B67E2A3000C7462 /* TunePowerHookValue.h */; };
+		17BAA14D2025344800F26DD3 /* NSData+TuneGZIP.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE9A1B7DA91B00501733 /* NSData+TuneGZIP.h */; };
+		17BAA14E2025344800F26DD3 /* TuneUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A451B65F9B8005216E2 /* TuneUtils.h */; };
+		17BAA14F2025344800F26DD3 /* TuneRequestsQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A711B65F9FB005216E2 /* TuneRequestsQueue.h */; };
+		17BAA1502025344800F26DD3 /* TuneConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D6401B6F1E32008101CE /* TuneConfiguration.h */; };
+		17BAA1512025344800F26DD3 /* TuneJSONUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DB9135431B680CB6006534E0 /* TuneJSONUtils.h */; };
+		17BAA1522025344800F26DD3 /* TuneAnalyticsVariable.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D6211B6F1B61008101CE /* TuneAnalyticsVariable.h */; };
+		17BAA1532025344800F26DD3 /* TuneEventItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59C41B65F922005216E2 /* TuneEventItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1542025344800F26DD3 /* TuneHttpRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = F87CE8D11B7D466500A98BF9 /* TuneHttpRequest.h */; };
+		17BAA1552025344800F26DD3 /* TunePointerSet.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF535721B94DB1F00B76885 /* TunePointerSet.h */; };
+		17BAA1562025344800F26DD3 /* TuneStringUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DB24D6E11B66CA0B000C7462 /* TuneStringUtils.h */; };
+		17BAA1572025344800F26DD3 /* TuneArrayUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DB514E3C1B7BD280000706EE /* TuneArrayUtils.h */; };
+		17BAA1582025344800F26DD3 /* TuneEventItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD219931B98D63100626DC6 /* TuneEventItem+Internal.h */; };
+		17BAA1592025344800F26DD3 /* TuneApi.h in Headers */ = {isa = PBXBuildFile; fileRef = F83B85141B7C0FFB00994318 /* TuneApi.h */; };
+		17BAA15A2025344800F26DD3 /* TuneAnalyticsEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D6231B6F1B61008101CE /* TuneAnalyticsEvent.h */; };
+		17BAA15B2025344800F26DD3 /* TuneSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFEDC1B827FDF00501733 /* TuneSessionManager.h */; };
+		17BAA15C2025344800F26DD3 /* TuneBannerMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3CE20192A3900D2F7BA /* TuneBannerMessage.h */; };
+		17BAA15D2025344800F26DD3 /* TuneMultipartContent.h in Headers */ = {isa = PBXBuildFile; fileRef = F87CE8001B7CF75A00A98BF9 /* TuneMultipartContent.h */; };
+		17BAA15E2025344800F26DD3 /* TuneSkyhookPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59E81B65F949005216E2 /* TuneSkyhookPayload.h */; };
+		17BAA15F2025344800F26DD3 /* TuneRequestsQueuePart.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A731B65F9FB005216E2 /* TuneRequestsQueuePart.h */; };
+		17BAA1602025344800F26DD3 /* TunePreloadData.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59C81B65F922005216E2 /* TunePreloadData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1612025344800F26DD3 /* TuneUserProfileKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F25EEC61B756A1F00DD3C21 /* TuneUserProfileKeys.h */; };
+		17BAA1622025344800F26DD3 /* TuneAnalyticsSubmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCAB5CA1B73BC0F00A30F91 /* TuneAnalyticsSubmitter.h */; };
+		17BAA1632025344800F26DD3 /* TuneSBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = DB91354C1B680CB6006534E0 /* TuneSBJsonWriter.h */; };
+		17BAA1642025344800F26DD3 /* TuneBaseInAppMessageView.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF5357F1B94EC4300B76885 /* TuneBaseInAppMessageView.h */; };
+		17BAA1652025344800F26DD3 /* TuneSkyhookPayloadConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D6251B6F1B61008101CE /* TuneSkyhookPayloadConstants.h */; };
+		17BAA1662025344800F26DD3 /* TuneLocation+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE7B1B79CC1D00501733 /* TuneLocation+Internal.h */; };
+		17BAA1672025344800F26DD3 /* TuneExperimentManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5EB1BBB5FDD009FD499 /* TuneExperimentManager.h */; };
+		17BAA1682025344800F26DD3 /* TuneMessageDisplayFrequency.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0FF5841B94CB710071B996 /* TuneMessageDisplayFrequency.h */; };
+		17BAA1692025344800F26DD3 /* UIViewController+NameTag.h in Headers */ = {isa = PBXBuildFile; fileRef = DB9226071BB11903003ACA12 /* UIViewController+NameTag.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA16A2025344800F26DD3 /* TuneSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB9135461B680CB6006534E0 /* TuneSBJSON.h */; };
+		17BAA16B2025344800F26DD3 /* TuneBannerMessageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3E020192A5500D2F7BA /* TuneBannerMessageView.h */; };
+		17BAA16C2025344800F26DD3 /* TuneDeepAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F23B6461BBB2493003CE408 /* TuneDeepAction.h */; };
+		17BAA16D2025344800F26DD3 /* TuneRegionMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A3B1B65F9B8005216E2 /* TuneRegionMonitor.h */; };
+		17BAA16E2025344800F26DD3 /* TuneModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59AF1B65F922005216E2 /* TuneModule.h */; };
+		17BAA16F2025344800F26DD3 /* TunePushUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F8E39FDC1D622284008D4794 /* TunePushUtils.h */; };
+		17BAA1702025344800F26DD3 /* TuneUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A431B65F9B8005216E2 /* TuneUserAgentCollector.h */; };
+		17BAA1712025344800F26DD3 /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */; };
+		17BAA1722025344800F26DD3 /* TuneFullScreenMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3CF20192A3900D2F7BA /* TuneFullScreenMessage.h */; };
+		17BAA1732025344800F26DD3 /* TuneSwizzleBlacklist.h in Headers */ = {isa = PBXBuildFile; fileRef = DBCA43491B8E8E1200483318 /* TuneSwizzleBlacklist.h */; };
+		17BAA1742025344800F26DD3 /* TuneDeviceDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = F87CE8631B7D164300A98BF9 /* TuneDeviceDetails.h */; };
+		17BAA1752025344800F26DD3 /* TuneAnalyticsItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B3686891B741CC8005D9C5C /* TuneAnalyticsItem.h */; };
+		17BAA1762025344800F26DD3 /* TuneInAppMessageExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5EE1BBB6BE5009FD499 /* TuneInAppMessageExperimentDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1772025344800F26DD3 /* TuneExperimentDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3FD184AB1BB3594000AAE0E1 /* TuneExperimentDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1782025344800F26DD3 /* TunePushInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F7522A41D0A4D7A00E65703 /* TunePushInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		17BAA1792025344800F26DD3 /* TuneHttpUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F83B851C1B7C114A00994318 /* TuneHttpUtils.h */; };
+		17BAA17A2025344800F26DD3 /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A371B65F9B8005216E2 /* TuneLocationHelper.h */; };
+		17BAA17B2025344800F26DD3 /* TuneInAppMessageExperimentDetails+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F1BC5F21BBB6DF3009FD499 /* TuneInAppMessageExperimentDetails+Internal.h */; };
+		17BAA17C2025344800F26DD3 /* TuneUserProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B42D6451B6F431A008101CE /* TuneUserProfile.h */; };
+		17BAA17D2025344800F26DD3 /* TuneFullScreenMessageDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3BE201929E300D2F7BA /* TuneFullScreenMessageDefaults.h */; };
+		17BAA17F2025344800F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
+		17BAA18C2028D4EA00F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -828,7 +1101,6 @@
 		17301C721FFEE5A6001ADCC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../TuneTests/Info.plist; sourceTree = "<group>"; };
 		174C3256201BE37E00772F28 /* Tune_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		174C3258201BE37F00772F28 /* Tune_tvOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tune_tvOS.h; sourceTree = "<group>"; };
-		174C3259201BE37F00772F28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		174C325E201BE38000772F28 /* Tune_tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tune_tvOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		174C3263201BE38100772F28 /* Tune_tvOSTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tune_tvOSTests.m; sourceTree = "<group>"; };
 		174C3265201BE38100772F28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -872,6 +1144,7 @@
 		1792D610201941F900D2F7BA /* TuneInAppMessageTests_SingleBannerWithPushDisabledTrigger.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TuneInAppMessageTests_SingleBannerWithPushDisabledTrigger.json; sourceTree = "<group>"; };
 		179C50BE1FFF0C7B00A2253B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		17AB14871FBF62750076EF7E /* TuneDelegateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneDelegateTests.m; sourceTree = "<group>"; };
+		17BAA1842025344800F26DD3 /* Tune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotification.h; sourceTree = "<group>"; };
 		323040001B97A3ED00DD8E65 /* TuneNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotification.m; sourceTree = "<group>"; };
 		323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotificationProcessing.h; sourceTree = "<group>"; };
@@ -1124,6 +1397,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		17BAA0F62025344800F26DD3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1220,6 +1500,7 @@
 				17301C6B1FFEE5A6001ADCC2 /* TuneTests.xctest */,
 				174C3256201BE37E00772F28 /* Tune_tvOS.framework */,
 				174C325E201BE38000772F28 /* Tune_tvOSTests.xctest */,
+				17BAA1842025344800F26DD3 /* Tune.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1460,7 +1741,6 @@
 			isa = PBXGroup;
 			children = (
 				174C3258201BE37F00772F28 /* Tune_tvOS.h */,
-				174C3259201BE37F00772F28 /* Info.plist */,
 			);
 			path = Tune_tvOS;
 			sourceTree = "<group>";
@@ -1927,6 +2207,7 @@
 				0BCB59BB1B65F922005216E2 /* Tune.h */,
 				0BCB59BC1B65F922005216E2 /* Tune.m */,
 				F8868EE01C0FA880007E2F9C /* TuneConstants.h */,
+				AE8947091CC55D5A00525862 /* TuneConstants.m */,
 				3263C3111D5156FD0035DBDB /* TuneDebugUtilities.h */,
 				3263C3131D51573E0035DBDB /* TuneDebugUtilities.m */,
 				0BCB59C21B65F922005216E2 /* TuneEvent.h */,
@@ -1945,7 +2226,6 @@
 				3FD184B41BB3594B00AAE0E1 /* TunePowerHookExperimentDetails.m */,
 				0BCB59C81B65F922005216E2 /* TunePreloadData.h */,
 				0BCB59C91B65F922005216E2 /* TunePreloadData.m */,
-				AE8947091CC55D5A00525862 /* TuneConstants.m */,
 				3F7522A41D0A4D7A00E65703 /* TunePushInfo.h */,
 				3F7522A51D0A4D8D00E65703 /* TunePushInfo.m */,
 			);
@@ -2292,6 +2572,147 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		17BAA0F72025344800F26DD3 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17BAA0F82025344800F26DD3 /* TuneImageAssets.h in Headers */,
+				17BAA0F92025344800F26DD3 /* TuneLabelUtils.h in Headers */,
+				17BAA0FA2025344800F26DD3 /* TunePlaylistManager.h in Headers */,
+				17BAA0FB2025344800F26DD3 /* TuneViewUtils.h in Headers */,
+				17BAA0FC2025344800F26DD3 /* TuneExperimentDetails+Internal.h in Headers */,
+				17BAA0FD2025344800F26DD3 /* TuneSBJsonBase.h in Headers */,
+				17BAA0FE2025344800F26DD3 /* TunePowerHookManager.h in Headers */,
+				17BAA0FF2025344800F26DD3 /* TuneCloseButton.h in Headers */,
+				17BAA1002025344800F26DD3 /* TuneEvent+Internal.h in Headers */,
+				17BAA1012025344800F26DD3 /* TunePushInfo+Internal.h in Headers */,
+				17BAA1022025344800F26DD3 /* Tune.h in Headers */,
+				17BAA1032025344800F26DD3 /* TunePlaylist.h in Headers */,
+				17BAA1042025344800F26DD3 /* TuneFileUtils.h in Headers */,
+				17BAA1052025344800F26DD3 /* TuneAppToAppTracker.h in Headers */,
+				17BAA1062025344800F26DD3 /* TuneCampaignStateManager.h in Headers */,
+				17BAA1072025344800F26DD3 /* TuneFBBridge.h in Headers */,
+				17BAA1082025344800F26DD3 /* TuneKeyStrings.h in Headers */,
+				17BAA1092025344800F26DD3 /* TuneDeeplinker.h in Headers */,
+				17BAA10A2025344800F26DD3 /* TuneSkyhookCenter.h in Headers */,
+				17BAA10B2025344800F26DD3 /* TuneCampaign.h in Headers */,
+				17BAA10C2025344800F26DD3 /* TuneNotification.h in Headers */,
+				17BAA10D2025344800F26DD3 /* TuneStorageKeys.h in Headers */,
+				17BAA10E2025344800F26DD3 /* TuneSkyhookConstants.h in Headers */,
+				17BAA10F2025344800F26DD3 /* TuneState.h in Headers */,
+				17BAA1102025344800F26DD3 /* TuneSBJsonParser.h in Headers */,
+				17BAA1112025344800F26DD3 /* TuneTriggerManager.h in Headers */,
+				17BAA1122025344800F26DD3 /* TuneConnectedModeManager.h in Headers */,
+				17BAA1132025344800F26DD3 /* TuneDateUtils.h in Headers */,
+				17BAA1142025344800F26DD3 /* Tune+Internal.h in Headers */,
+				17BAA1152025344800F26DD3 /* TuneDeeplink.h in Headers */,
+				17BAA1162025344800F26DD3 /* TuneIfa.h in Headers */,
+				17BAA1172025344800F26DD3 /* TuneSkyhookObserver.h in Headers */,
+				17BAA1182025344800F26DD3 /* TuneFullScreenMessageView.h in Headers */,
+				17BAA1192025344800F26DD3 /* TuneBannerMessageDefaults.h in Headers */,
+				17BAA11A2025344800F26DD3 /* TuneAnalyticsDispatchEventsOperation.h in Headers */,
+				17BAA11B2025344800F26DD3 /* TuneEvent.h in Headers */,
+				17BAA11C2025344800F26DD3 /* TuneDeviceUtils.h in Headers */,
+				17BAA11D2025344800F26DD3 /* TuneReachability.h in Headers */,
+				17BAA11E2025344800F26DD3 /* NSString+TuneSBJSON.h in Headers */,
+				17BAA11F2025344800F26DD3 /* TuneXmlUtils.h in Headers */,
+				17BAA1202025344800F26DD3 /* TunePowerHookExperimentDetails.h in Headers */,
+				17BAA1212025344800F26DD3 /* TuneModalMessageView.h in Headers */,
+				17BAA1222025344800F26DD3 /* UIViewController+TuneAnalytics.h in Headers */,
+				17BAA1232025344800F26DD3 /* TuneTracker.h in Headers */,
+				17BAA1242025344800F26DD3 /* TuneModalMessage.h in Headers */,
+				17BAA1252025344800F26DD3 /* TuneHttpResponse.h in Headers */,
+				17BAA1262025344800F26DD3 /* TuneInAppMessageAction.h in Headers */,
+				17BAA1272025344800F26DD3 /* NSObject+TuneSBJSON.h in Headers */,
+				17BAA1282025344800F26DD3 /* TuneInstallReceipt.h in Headers */,
+				17BAA1292025344800F26DD3 /* TuneAnalyticsDispatchToConnectedModeOperation.h in Headers */,
+				17BAA12A2025344800F26DD3 /* TunePIIUtils.h in Headers */,
+				17BAA12B2025344800F26DD3 /* TuneInAppMessageConstants.h in Headers */,
+				17BAA12C2025344800F26DD3 /* TunePowerHookExperimentDetails+Internal.h in Headers */,
+				17BAA12D2025344800F26DD3 /* TuneInAppUtils.h in Headers */,
+				17BAA12E2025344800F26DD3 /* TuneSmartWhereHelper.h in Headers */,
+				17BAA12F2025344800F26DD3 /* TuneManager.h in Headers */,
+				17BAA1302025344800F26DD3 /* TuneStoreKitDelegate.h in Headers */,
+				17BAA1312025344800F26DD3 /* TuneSmartWhereTriggeredEventManager.h in Headers */,
+				17BAA1322025344800F26DD3 /* TuneMessageOrientationState.h in Headers */,
+				17BAA1332025344800F26DD3 /* TuneFileManager.h in Headers */,
+				17BAA1342025344800F26DD3 /* TuneUserDefaultsUtils.h in Headers */,
+				17BAA1352025344800F26DD3 /* TuneDeepActionManager.h in Headers */,
+				17BAA1362025344800F26DD3 /* TuneImageUtils.h in Headers */,
+				17BAA1372025344800F26DD3 /* TuneButtonUtils.h in Headers */,
+				17BAA1382025344800F26DD3 /* TuneEventQueue.h in Headers */,
+				17BAA1392025344800F26DD3 /* TuneAnalyticsConstants.h in Headers */,
+				17BAA13A2025344800F26DD3 /* TuneAnalyticsManager.h in Headers */,
+				17BAA13B2025344800F26DD3 /* TuneAppDelegate.h in Headers */,
+				17BAA13C2025344800F26DD3 /* TuneEventKeys.h in Headers */,
+				17BAA13D2025344800F26DD3 /* TuneConstants.h in Headers */,
+				17BAA13E2025344800F26DD3 /* TuneLocation.h in Headers */,
+				17BAA13F2025344800F26DD3 /* TuneInAppMessage.h in Headers */,
+				17BAA1402025344800F26DD3 /* TuneEncrypter.h in Headers */,
+				17BAA1412025344800F26DD3 /* TuneIadUtils.h in Headers */,
+				17BAA1422025344800F26DD3 /* TuneNetworkUtils.h in Headers */,
+				17BAA1432025344800F26DD3 /* TuneNotificationProcessing.h in Headers */,
+				17BAA1442025344800F26DD3 /* TuneDeeplinkConstants.h in Headers */,
+				17BAA1452025344800F26DD3 /* TuneJSONPlayer.h in Headers */,
+				17BAA1462025344800F26DD3 /* TuneCallbackBlock.h in Headers */,
+				17BAA1472025344800F26DD3 /* TuneMessageStyling.h in Headers */,
+				17BAA1482025344800F26DD3 /* TuneModalMessageDefaults.h in Headers */,
+				17BAA1492025344800F26DD3 /* TuneDebugUtilities.h in Headers */,
+				17BAA14A2025344800F26DD3 /* TuneMessageAction.h in Headers */,
+				17BAA14B2025344800F26DD3 /* TuneConfigurationKeys.h in Headers */,
+				17BAA14C2025344800F26DD3 /* TunePowerHookValue.h in Headers */,
+				17BAA14D2025344800F26DD3 /* NSData+TuneGZIP.h in Headers */,
+				17BAA14E2025344800F26DD3 /* TuneUtils.h in Headers */,
+				17BAA14F2025344800F26DD3 /* TuneRequestsQueue.h in Headers */,
+				17BAA1502025344800F26DD3 /* TuneConfiguration.h in Headers */,
+				17BAA1512025344800F26DD3 /* TuneJSONUtils.h in Headers */,
+				17BAA1522025344800F26DD3 /* TuneAnalyticsVariable.h in Headers */,
+				17BAA1532025344800F26DD3 /* TuneEventItem.h in Headers */,
+				17BAA1542025344800F26DD3 /* TuneHttpRequest.h in Headers */,
+				17BAA1552025344800F26DD3 /* TunePointerSet.h in Headers */,
+				17BAA1562025344800F26DD3 /* TuneStringUtils.h in Headers */,
+				17BAA1572025344800F26DD3 /* TuneArrayUtils.h in Headers */,
+				17BAA1582025344800F26DD3 /* TuneEventItem+Internal.h in Headers */,
+				17BAA1592025344800F26DD3 /* TuneApi.h in Headers */,
+				17BAA15A2025344800F26DD3 /* TuneAnalyticsEvent.h in Headers */,
+				17BAA15B2025344800F26DD3 /* TuneSessionManager.h in Headers */,
+				17BAA15C2025344800F26DD3 /* TuneBannerMessage.h in Headers */,
+				17BAA15D2025344800F26DD3 /* TuneMultipartContent.h in Headers */,
+				17BAA15E2025344800F26DD3 /* TuneSkyhookPayload.h in Headers */,
+				17BAA15F2025344800F26DD3 /* TuneRequestsQueuePart.h in Headers */,
+				17BAA1602025344800F26DD3 /* TunePreloadData.h in Headers */,
+				17BAA1612025344800F26DD3 /* TuneUserProfileKeys.h in Headers */,
+				17BAA1622025344800F26DD3 /* TuneAnalyticsSubmitter.h in Headers */,
+				17BAA1632025344800F26DD3 /* TuneSBJsonWriter.h in Headers */,
+				17BAA1642025344800F26DD3 /* TuneBaseInAppMessageView.h in Headers */,
+				17BAA1652025344800F26DD3 /* TuneSkyhookPayloadConstants.h in Headers */,
+				17BAA1662025344800F26DD3 /* TuneLocation+Internal.h in Headers */,
+				17BAA1672025344800F26DD3 /* TuneExperimentManager.h in Headers */,
+				17BAA1682025344800F26DD3 /* TuneMessageDisplayFrequency.h in Headers */,
+				17BAA1692025344800F26DD3 /* UIViewController+NameTag.h in Headers */,
+				17BAA16A2025344800F26DD3 /* TuneSBJSON.h in Headers */,
+				17BAA16B2025344800F26DD3 /* TuneBannerMessageView.h in Headers */,
+				17BAA16C2025344800F26DD3 /* TuneDeepAction.h in Headers */,
+				17BAA16D2025344800F26DD3 /* TuneRegionMonitor.h in Headers */,
+				17BAA16E2025344800F26DD3 /* TuneModule.h in Headers */,
+				17BAA16F2025344800F26DD3 /* TunePushUtils.h in Headers */,
+				17BAA1702025344800F26DD3 /* TuneUserAgentCollector.h in Headers */,
+				17BAA1712025344800F26DD3 /* TuneCWorks.h in Headers */,
+				17BAA1722025344800F26DD3 /* TuneFullScreenMessage.h in Headers */,
+				17BAA1732025344800F26DD3 /* TuneSwizzleBlacklist.h in Headers */,
+				17BAA1742025344800F26DD3 /* TuneDeviceDetails.h in Headers */,
+				17BAA1752025344800F26DD3 /* TuneAnalyticsItem.h in Headers */,
+				17BAA1762025344800F26DD3 /* TuneInAppMessageExperimentDetails.h in Headers */,
+				17BAA1772025344800F26DD3 /* TuneExperimentDetails.h in Headers */,
+				17BAA1782025344800F26DD3 /* TunePushInfo.h in Headers */,
+				17BAA1792025344800F26DD3 /* TuneHttpUtils.h in Headers */,
+				17BAA17A2025344800F26DD3 /* TuneLocationHelper.h in Headers */,
+				17BAA17B2025344800F26DD3 /* TuneInAppMessageExperimentDetails+Internal.h in Headers */,
+				17BAA17C2025344800F26DD3 /* TuneUserProfile.h in Headers */,
+				17BAA17D2025344800F26DD3 /* TuneFullScreenMessageDefaults.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -2367,6 +2788,24 @@
 			productReference = 174C325E201BE38000772F28 /* Tune_tvOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		17BAA0762025344800F26DD3 /* Tune_static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17BAA1802025344800F26DD3 /* Build configuration list for PBXNativeTarget "Tune_static" */;
+			buildPhases = (
+				17BAA0772025344800F26DD3 /* Sources */,
+				17BAA0F62025344800F26DD3 /* Frameworks */,
+				17BAA0F72025344800F26DD3 /* Headers */,
+				17BAA17E2025344800F26DD3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Tune_static;
+			productName = Tune;
+			productReference = 17BAA1842025344800F26DD3 /* Tune.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2405,6 +2844,14 @@
 						DevelopmentTeam = MN489GLUZK;
 						ProvisioningStyle = Automatic;
 					};
+					17BAA0762025344800F26DD3 = {
+						ProvisioningStyle = Automatic;
+					};
+					17BAA1862025376200F26DD3 = {
+						CreatedOnToolsVersion = 9.2;
+						DevelopmentTeam = MN489GLUZK;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 0BCB598F1B65EF6A005216E2 /* Build configuration list for PBXProject "Tune" */;
@@ -2425,6 +2872,8 @@
 				174C325D201BE38000772F28 /* Tune_tvOSTests */,
 				178F059520053DF20088C0ED /* TuneUniversal */,
 				1761D4A72020FB0E007FA9CA /* TuneUniversal_tvOS */,
+				17BAA0762025344800F26DD3 /* Tune_static */,
+				17BAA1862025376200F26DD3 /* TuneUniversal_static */,
 			);
 		};
 /* End PBXProject section */
@@ -2460,6 +2909,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17BAA18C2028D4EA00F26DD3 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2467,6 +2917,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17BAA17E2025344800F26DD3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17BAA17F2025344800F26DD3 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2484,7 +2942,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}_tvOS\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvsimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target \"${FRAMEWORK_NAME}\" -sdk appletvsimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvsimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target \"${FRAMEWORK_NAME}\" -sdk appletvos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-appletvuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
+			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\n# tvOS framework has _tvOS appended\nFRAMEWORK_NAME=\"${PROJECT_NAME}_tvOS\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvsimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvsimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvsimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-appletvuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
 		};
 		178F059A20053FA80088C0ED /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2498,6 +2956,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-iphoneuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
+		};
+		17BAA18B202537AF00F26DD3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\n# static framework has the same name as the dynamic framework!  Target name is different.\nTARGET_NAME=\"${PROJECT_NAME}_static\"\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal-static\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-iphoneuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2889,6 +3360,139 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		17BAA0772025344800F26DD3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17BAA0782025344800F26DD3 /* TuneIfa.m in Sources */,
+				17BAA0792025344800F26DD3 /* TuneUserProfile.m in Sources */,
+				17BAA07A2025344800F26DD3 /* TuneUtils.m in Sources */,
+				17BAA07B2025344800F26DD3 /* TuneSkyhookPayload.m in Sources */,
+				17BAA07C2025344800F26DD3 /* TuneStorageKeys.m in Sources */,
+				17BAA07D2025344800F26DD3 /* TuneRequestsQueue.m in Sources */,
+				17BAA07E2025344800F26DD3 /* TuneConnectedModeManager.m in Sources */,
+				17BAA07F2025344800F26DD3 /* TuneBannerMessage.m in Sources */,
+				17BAA0802025344800F26DD3 /* TuneInAppUtils.m in Sources */,
+				17BAA0812025344800F26DD3 /* TuneCloseButton.m in Sources */,
+				17BAA0822025344800F26DD3 /* TunePreloadData.m in Sources */,
+				17BAA0832025344800F26DD3 /* TuneAnalyticsVariable.m in Sources */,
+				17BAA0842025344800F26DD3 /* TuneEncrypter.m in Sources */,
+				17BAA0852025344800F26DD3 /* TuneButtonUtils.m in Sources */,
+				17BAA0862025344800F26DD3 /* TuneConfigurationKeys.m in Sources */,
+				17BAA0872025344800F26DD3 /* TuneInstallReceipt.m in Sources */,
+				17BAA0882025344800F26DD3 /* NSObject+TuneSBJSON.m in Sources */,
+				17BAA0892025344800F26DD3 /* TuneFullScreenMessageView.m in Sources */,
+				17BAA08A2025344800F26DD3 /* TuneJSONUtils.m in Sources */,
+				17BAA08B2025344800F26DD3 /* TuneSkyhookObserver.m in Sources */,
+				17BAA08C2025344800F26DD3 /* TunePIIUtils.m in Sources */,
+				17BAA08D2025344800F26DD3 /* TuneMessageOrientationState.m in Sources */,
+				17BAA08E2025344800F26DD3 /* TuneSmartWhereHelper.m in Sources */,
+				17BAA08F2025344800F26DD3 /* TuneDebugUtilities.m in Sources */,
+				17BAA0902025344800F26DD3 /* TuneRegionMonitor.m in Sources */,
+				17BAA0912025344800F26DD3 /* TuneAnalyticsEvent.m in Sources */,
+				17BAA0922025344800F26DD3 /* UIViewController+TuneAnalytics.m in Sources */,
+				17BAA0932025344800F26DD3 /* TuneInAppMessageConstants.m in Sources */,
+				17BAA0942025344800F26DD3 /* UIViewController+NameTag.m in Sources */,
+				17BAA0952025344800F26DD3 /* TuneConfiguration.m in Sources */,
+				17BAA0962025344800F26DD3 /* TuneLabelUtils.m in Sources */,
+				17BAA0972025344800F26DD3 /* TuneDeeplinker.m in Sources */,
+				17BAA0982025344800F26DD3 /* TuneHttpResponse.m in Sources */,
+				17BAA0992025344800F26DD3 /* TuneAppDelegate.m in Sources */,
+				17BAA09A2025344800F26DD3 /* TuneCallbackBlock.m in Sources */,
+				17BAA09B2025344800F26DD3 /* TuneSwizzleBlacklist.m in Sources */,
+				17BAA09C2025344800F26DD3 /* TuneDeeplink.m in Sources */,
+				17BAA09D2025344800F26DD3 /* TunePushInfo.m in Sources */,
+				17BAA09E2025344800F26DD3 /* TuneState.m in Sources */,
+				17BAA09F2025344800F26DD3 /* TuneSBJsonBase.m in Sources */,
+				17BAA0A02025344800F26DD3 /* TuneDeepActionManager.m in Sources */,
+				17BAA0A12025344800F26DD3 /* TuneNetworkUtils.m in Sources */,
+				17BAA0A22025344800F26DD3 /* TuneSBJSON.m in Sources */,
+				17BAA0A32025344800F26DD3 /* TuneManager.m in Sources */,
+				17BAA0A42025344800F26DD3 /* TuneSBJsonWriter.m in Sources */,
+				17BAA0A52025344800F26DD3 /* TuneEventItem.m in Sources */,
+				17BAA0A62025344800F26DD3 /* TuneDeviceDetails.m in Sources */,
+				17BAA0A72025344800F26DD3 /* TuneRequestsQueuePart.m in Sources */,
+				17BAA0A82025344800F26DD3 /* Tune.m in Sources */,
+				17BAA0A92025344800F26DD3 /* TuneFileManager.m in Sources */,
+				17BAA0AA2025344800F26DD3 /* TuneLocation.m in Sources */,
+				17BAA0AB2025344800F26DD3 /* TunePowerHookValue.m in Sources */,
+				17BAA0AC2025344800F26DD3 /* TuneApi.m in Sources */,
+				17BAA0AD2025344800F26DD3 /* TuneFullScreenMessageDefaults.m in Sources */,
+				17BAA0AE2025344800F26DD3 /* TuneInAppMessageAction.m in Sources */,
+				17BAA0AF2025344800F26DD3 /* TuneFBBridge.m in Sources */,
+				17BAA0B02025344800F26DD3 /* TuneSkyhookConstants.m in Sources */,
+				17BAA0B12025344800F26DD3 /* TuneBannerMessageView.m in Sources */,
+				17BAA0B22025344800F26DD3 /* TuneModalMessageDefaults.m in Sources */,
+				17BAA0B32025344800F26DD3 /* NSData+TuneGZIP.m in Sources */,
+				17BAA0B42025344800F26DD3 /* NSString+TuneSBJSON.m in Sources */,
+				17BAA0B52025344800F26DD3 /* TuneLocationHelper.m in Sources */,
+				17BAA0B62025344800F26DD3 /* TuneModalMessageView.m in Sources */,
+				17BAA0B72025344800F26DD3 /* TuneSkyhookCenter.m in Sources */,
+				17BAA0B82025344800F26DD3 /* TuneMessageAction.m in Sources */,
+				17BAA0B92025344800F26DD3 /* TuneAnalyticsDispatchEventsOperation.m in Sources */,
+				17BAA0BA2025344800F26DD3 /* TuneFullScreenMessage.m in Sources */,
+				17BAA0BB2025344800F26DD3 /* TuneXmlUtils.m in Sources */,
+				17BAA0BC2025344800F26DD3 /* TunePointerSet.m in Sources */,
+				17BAA0BD2025344800F26DD3 /* TuneExperimentDetails.m in Sources */,
+				17BAA0BE2025344800F26DD3 /* TunePushUtils.m in Sources */,
+				17BAA0BF2025344800F26DD3 /* TuneDeepAction.m in Sources */,
+				17BAA0C02025344800F26DD3 /* TuneStoreKitDelegate.m in Sources */,
+				17BAA0C12025344800F26DD3 /* TuneJSONPlayer.m in Sources */,
+				17BAA0C22025344800F26DD3 /* TuneArrayUtils.m in Sources */,
+				17BAA0C32025344800F26DD3 /* TuneCampaign.m in Sources */,
+				17BAA0C42025344800F26DD3 /* TuneAnalyticsSubmitter.m in Sources */,
+				17BAA0C52025344800F26DD3 /* TuneInAppMessageExperimentDetails.m in Sources */,
+				17BAA0C62025344800F26DD3 /* TuneUserProfileKeys.m in Sources */,
+				17BAA0C72025344800F26DD3 /* TuneTriggerManager.m in Sources */,
+				17BAA0C82025344800F26DD3 /* TuneHttpRequest.m in Sources */,
+				17BAA0C92025344800F26DD3 /* TuneImageUtils.m in Sources */,
+				17BAA0CA2025344800F26DD3 /* TuneMessageStyling.m in Sources */,
+				17BAA0CB2025344800F26DD3 /* TunePlaylistManager.m in Sources */,
+				17BAA0CC2025344800F26DD3 /* TuneSkyhookPayloadConstants.m in Sources */,
+				17BAA0CD2025344800F26DD3 /* TuneConstants.m in Sources */,
+				17BAA0CE2025344800F26DD3 /* TuneAnalyticsItem.m in Sources */,
+				17BAA0CF2025344800F26DD3 /* TuneReachability.m in Sources */,
+				17BAA0D02025344800F26DD3 /* TuneMultipartContent.m in Sources */,
+				17BAA0D12025344800F26DD3 /* TuneEventKeys.m in Sources */,
+				17BAA0D22025344800F26DD3 /* TuneDateUtils.m in Sources */,
+				17BAA0D32025344800F26DD3 /* TuneCWorks.m in Sources */,
+				17BAA0D42025344800F26DD3 /* TuneTracker.m in Sources */,
+				17BAA0D52025344800F26DD3 /* TuneViewUtils.m in Sources */,
+				17BAA0D62025344800F26DD3 /* TuneExperimentManager.m in Sources */,
+				17BAA0D72025344800F26DD3 /* TuneUserAgentCollector.m in Sources */,
+				17BAA0D82025344800F26DD3 /* TuneBaseInAppMessageView.m in Sources */,
+				17BAA0D92025344800F26DD3 /* TuneSessionManager.m in Sources */,
+				17BAA0DA2025344800F26DD3 /* TuneMessageDisplayFrequency.m in Sources */,
+				17BAA0DB2025344800F26DD3 /* TuneSmartWhereTriggeredEventManager.m in Sources */,
+				17BAA0DC2025344800F26DD3 /* TuneModule.m in Sources */,
+				17BAA0DD2025344800F26DD3 /* TuneAnalyticsManager.m in Sources */,
+				17BAA0DE2025344800F26DD3 /* TuneAnalyticsConstants.m in Sources */,
+				17BAA0DF2025344800F26DD3 /* TunePowerHookManager.m in Sources */,
+				17BAA0E02025344800F26DD3 /* TunePlaylist.m in Sources */,
+				17BAA0E12025344800F26DD3 /* TuneAnalyticsDispatchToConnectedModeOperation.m in Sources */,
+				17BAA0E22025344800F26DD3 /* TuneEventQueue.m in Sources */,
+				17BAA0E32025344800F26DD3 /* TuneNotification.m in Sources */,
+				17BAA0E42025344800F26DD3 /* TuneStringUtils.m in Sources */,
+				17BAA0E52025344800F26DD3 /* TunePowerHookExperimentDetails.m in Sources */,
+				17BAA0E62025344800F26DD3 /* TuneDeeplinkConstants.m in Sources */,
+				17BAA0E72025344800F26DD3 /* TuneFileUtils.m in Sources */,
+				17BAA0E82025344800F26DD3 /* TuneModalMessage.m in Sources */,
+				17BAA0E92025344800F26DD3 /* TuneImageAssets.m in Sources */,
+				17BAA0EA2025344800F26DD3 /* TuneKeyStrings.m in Sources */,
+				17BAA0EB2025344800F26DD3 /* TuneSBJsonParser.m in Sources */,
+				17BAA0EC2025344800F26DD3 /* TuneCampaignStateManager.m in Sources */,
+				17BAA0ED2025344800F26DD3 /* TuneEvent.m in Sources */,
+				17BAA0EE2025344800F26DD3 /* TuneInAppMessage.m in Sources */,
+				17BAA0EF2025344800F26DD3 /* TuneIadUtils.m in Sources */,
+				17BAA0F02025344800F26DD3 /* TuneDeviceUtils.m in Sources */,
+				17BAA0F12025344800F26DD3 /* TuneBannerMessageDefaults.m in Sources */,
+				17BAA0F22025344800F26DD3 /* TuneAppToAppTracker.m in Sources */,
+				17BAA0F32025344800F26DD3 /* TuneHttpUtils.m in Sources */,
+				17BAA0F42025344800F26DD3 /* TuneUserDefaultsUtils.m in Sources */,
+				17BAA0F52025344800F26DD3 /* TuneNotificationProcessing.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2931,7 +3535,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3000,7 +3603,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = YES;
@@ -3044,10 +3646,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3074,11 +3674,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3105,11 +3703,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3232,7 +3828,6 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -3241,13 +3836,14 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = Tune_tvOS/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = Tune_tvOS/Tune_tvOS.modulemap;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3269,17 +3865,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Tune_tvOS/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = Tune_tvOS/Tune_tvOS.modulemap;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3301,17 +3897,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Tune_tvOS/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = Tune_tvOS/Tune_tvOS.modulemap;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tune.Tune-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -3467,6 +4063,127 @@
 			};
 			name = Release;
 		};
+		17BAA1812025344800F26DD3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = Tune/Tune.modulemap;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tune.Tune;
+				PRODUCT_NAME = Tune;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		17BAA1822025344800F26DD3 /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = Tune/Tune.modulemap;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tune.Tune;
+				PRODUCT_NAME = Tune;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Test;
+		};
+		17BAA1832025344800F26DD3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/Tune/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = Tune/Tune.modulemap;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tune.Tune;
+				PRODUCT_NAME = Tune;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		17BAA1882025376200F26DD3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MN489GLUZK;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		17BAA1892025376200F26DD3 /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MN489GLUZK;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Test;
+		};
+		17BAA18A2025376200F26DD3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MN489GLUZK;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		F876222F1C3C72DA0072E102 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3493,7 +4210,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3605,6 +4321,26 @@
 				178F059720053DF20088C0ED /* Debug */,
 				178F059820053DF20088C0ED /* Test */,
 				178F059920053DF20088C0ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17BAA1802025344800F26DD3 /* Build configuration list for PBXNativeTarget "Tune_static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17BAA1812025344800F26DD3 /* Debug */,
+				17BAA1822025344800F26DD3 /* Test */,
+				17BAA1832025344800F26DD3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17BAA1872025376200F26DD3 /* Build configuration list for PBXAggregateTarget "TuneUniversal_static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17BAA1882025376200F26DD3 /* Debug */,
+				17BAA1892025376200F26DD3 /* Test */,
+				17BAA18A2025376200F26DD3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

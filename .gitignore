@@ -19,5 +19,11 @@ Resources/Configuration/Private.xcconfig
 .pid_file
 .sass-cache
 
+# iOS SDK
+sdk-ios/Legacy/
+sdk-ios/Tune/OCMock/ocmock-3.4.1.dmg
+sdk-ios/build-test/
+sdk-ios/cocoapod-test/
+
 #appledoc
 docs/docset-installed.txt

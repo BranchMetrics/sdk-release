@@ -1288,6 +1288,13 @@
 }
 
 - (void)setReferralUrl:(NSString *)url {
+    NSInteger maxReferralURL = 1024;
+    
+    // limit url length so that the NSXMLParser does not run out of memory
+    if (url.length > maxReferralURL) {
+        url = [url substringToIndex:maxReferralURL];
+    }
+    
     [self storeProfileKey:TUNE_KEY_REFERRAL_URL value:url];
 }
 - (NSString *)referralUrl {

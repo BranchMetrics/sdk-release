@@ -70,10 +70,8 @@ static const NSTimeInterval TUNE_IAD_CHECK_RETRY_MEDIUM_DELAY = 30.;
 static const NSTimeInterval TUNE_IAD_CHECK_RETRY_LONG_DELAY = 60.;
 #endif
 
-static const NSTimeInterval MAX_WAIT_TIME_FOR_INIT = 1.0;
+static const NSTimeInterval MAX_WAIT_TIME_FOR_INIT = 5.0;
 static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
-
-static const NSInteger MAX_REFERRAL_URL_LENGTH = 8192; // 8 KB
 
 @interface TuneEventItem()
 + (NSArray *)dictionaryArrayForEventItems:(NSArray *)items;
@@ -199,14 +197,7 @@ static const NSInteger MAX_REFERRAL_URL_LENGTH = 8192; // 8 KB
 }
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication {
-    // include the params -- referring app and url -- in the next tracking request
-    
-    // 07-Nov-2014: limit the referral url length,
-    // so that the NSXMLParser does not run out of memory
-    if (urlString.length > MAX_REFERRAL_URL_LENGTH) {
-        urlString = [urlString substringToIndex:MAX_REFERRAL_URL_LENGTH];
-    }
-    
+    // include the params -- referring app and url -- in the next tracking request    
     [[TuneManager currentManager].userProfile setReferralUrl:urlString];
     [[TuneManager currentManager].userProfile setReferralSource:sourceApplication];
     
