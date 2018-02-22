@@ -3,6 +3,7 @@ package com.tune;
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONObject;
+//import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -131,7 +132,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     // TODO: Android emulator does not have Google AID
 //    public void testGoogleAdvertisingIdAutoCollect() {
-//        tune.measureSession();
+//        tune.measureSessionInternal();
 //        sleep( TuneTestConstants.PARAMTEST_SLEEP );
 //
 //        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
@@ -167,10 +168,10 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     }
 
     @Override
+    // Method is mocked for testing purposes; no need for data argument
     public void didSucceedWithData(JSONObject data) {
         Log("test succeeded");
         callSuccess = true;
-        serverResponse = data;
     }
 
     @Override

@@ -176,7 +176,6 @@ public class TuneParameters {
             setDeviceBrand(Build.MANUFACTURER);
             setDeviceBuild(Build.DISPLAY);
             setDeviceCpuType(System.getProperty("os.arch"));
-            //setDeviceCpuSubtype(SystemProperties.get("ro.product.cpu.abi"));
             setOsVersion(Build.VERSION.RELEASE);
             // Screen density
             setScreenDensity(Float.toString(TuneScreenUtils.getScreenDensity(context)));
@@ -666,6 +665,7 @@ public class TuneParameters {
     public synchronized String getDeviceCpuSubtype() {
         return mDeviceCpuSubtype;
     }
+
     public synchronized void setDeviceCpuSubtype(final String cpuType) {
         mDeviceCpuSubtype = cpuType;
         mExecutor.execute(new Runnable() {

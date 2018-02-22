@@ -69,29 +69,29 @@ public class TuneSessionTests extends TuneUnitTest {
         super.tearDown();
     }
 
-    public void freshSessionProfile() {
-        TuneManager.destroy();
-        TuneManager.init(context, null);
-
-        sessionManager = TuneManager.getInstance().getSessionManager();
-        userProfile = TuneManager.getInstance().getProfileManager();
-    }
-
-    public void checkProfileMemAndPrefsDoesntExist(String key) {
-        assertNull(userProfile.getProfileVariable(key));
-        assertNull(userProfile.getProfileVariableFromPrefs(key));
-    }
-
-    public void checkProfileMemAndPrefsValueNull(String key) {
-        assertNotNull("Profile variable for " + key + " was null", userProfile.getProfileVariable(key));
-        assertNull(userProfile.getProfileVariable(key).getValue());
-        assertNull(userProfile.getProfileVariableFromPrefs(key).getValue());
-    }
-
-    public void checkProfileMemAndPrefs(String key, String against) {
-        assertTrue(userProfile.getProfileVariable(key).getValue() + " does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariable(key).getValue()));
-        assertTrue(userProfile.getProfileVariableFromPrefs(key).getValue() + " from prefs does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariableFromPrefs(key).getValue()));
-    }
+//    public void freshSessionProfile() {
+//        TuneManager.destroy();
+//        TuneManager.init(context, null);
+//
+//        sessionManager = TuneManager.getInstance().getSessionManager();
+//        userProfile = TuneManager.getInstance().getProfileManager();
+//    }
+//
+//    public void checkProfileMemAndPrefsDoesntExist(String key) {
+//        assertNull(userProfile.getProfileVariable(key));
+//        assertNull(userProfile.getProfileVariableFromPrefs(key));
+//    }
+//
+//    public void checkProfileMemAndPrefsValueNull(String key) {
+//        assertNotNull("Profile variable for " + key + " was null", userProfile.getProfileVariable(key));
+//        assertNull(userProfile.getProfileVariable(key).getValue());
+//        assertNull(userProfile.getProfileVariableFromPrefs(key).getValue());
+//    }
+//
+//    public void checkProfileMemAndPrefs(String key, String against) {
+//        assertTrue(userProfile.getProfileVariable(key).getValue() + " does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariable(key).getValue()));
+//        assertTrue(userProfile.getProfileVariableFromPrefs(key).getValue() + " from prefs does not equal expected " + against, against.equalsIgnoreCase(userProfile.getProfileVariableFromPrefs(key).getValue()));
+//    }
 
     public void testSessionStart() {
         assertNull(sessionManager.getSession());

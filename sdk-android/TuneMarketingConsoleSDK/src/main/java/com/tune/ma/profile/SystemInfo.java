@@ -17,11 +17,6 @@ public class SystemInfo {
     private final String tabletOrPhone;
     private static final String TABLET = "tablet";
     private static final String PHONE = "phone";
-    private String packageName;
-
-    public String tabletOrPhone() {
-        return tabletOrPhone;
-    }
 
     public SystemInfo(Context context) {
         this.device = android.os.Build.DEVICE;
@@ -32,23 +27,14 @@ public class SystemInfo {
         try {
             PackageManager pm = context.getPackageManager();
             PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            this.packageName = context.getPackageName();
             this.appBuild = pInfo.versionCode;
         } catch (NameNotFoundException exception) {
             exception.printStackTrace();
         }
     }
 
-    protected int calculateMinutesFromGMTForCalendar(Calendar calendar) {
-        return (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)) / 60000;
-    }
-
     public static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-    }
-
-    public String getDevice() {
-        return device;
     }
 
     public String getModel() {
@@ -61,10 +47,6 @@ public class SystemInfo {
 
     public String getTabletOrPhone() {
         return tabletOrPhone;
-    }
-
-    public String getPackageName() {
-        return packageName;
     }
 
     public String getAppBuild() {

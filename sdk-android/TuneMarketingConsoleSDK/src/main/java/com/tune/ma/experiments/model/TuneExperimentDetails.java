@@ -53,6 +53,7 @@ public class TuneExperimentDetails {
     /**
      * Get the Experiment Id.
      * The experiment id is a unique identifier for an experiment.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The id of the experiment.
      */
     public String getExperimentId() {
@@ -62,6 +63,7 @@ public class TuneExperimentDetails {
     /**
      * Get the Experiment Name.
      * The experiment name is the same that you would see in Tune Marketing Automation Tools.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The name of the experiment.
      */
     public String getExperimentName() {
@@ -70,6 +72,7 @@ public class TuneExperimentDetails {
 
     /**
      * Get the Experiment Type.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The type of the experiment.
      */
     public String getExperimentType() {
@@ -79,6 +82,7 @@ public class TuneExperimentDetails {
     /**
      * Get the Current Variant Id.
      * The variant id is a unique identifier for the variation of an Tune Marketing Automation Experiment.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The current variant id for the experiment.
      */
     public String getCurrentVariantId() {
@@ -88,6 +92,7 @@ public class TuneExperimentDetails {
     /**
      * Get the Current Variant Name.
      * The variant name is the same that you would see in Tune Marketing Automation Tools. Unless the names were edited in Artisan tools they are "Control", "B", "C", etc.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The current variant name for the experiment.
      */
     public String getCurrentVariantName() {
@@ -97,10 +102,10 @@ public class TuneExperimentDetails {
     /**
      * Get the Current Variant Letter.
      * This will the be same as 'currentVariantName' unless you gave it a new name. Otherwise it will give the associated variation letter to the name.
+     * @see <a href="https://developers.tune.com/sdk/experiments/#code-platform-android">Experiments</a>
      * @return The current variant letter for the experiment.
      */
     public String getCurrentVariantLetter() {
         return currentVariantLetter;
     }
-
 }

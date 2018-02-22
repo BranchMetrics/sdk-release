@@ -82,5 +82,4 @@ public class TuneDeepActionManager {
     public void onEvent(TuneDeepActionCalled event) {
         executeDeepAction(event.getActivity(), event.getDeepActionId(), event.getDeepActionParams());
     }
-
 }

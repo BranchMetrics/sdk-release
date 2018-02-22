@@ -74,6 +74,11 @@ public class TuneConfiguration {
 
     }
 
+    /**
+     * Enables debug output from TUNE in LogCat
+     * @param debugLoggingOn Whether to enable debug mode
+     * @see <a href="https://developers.tune.com/sdk/advanced-configuration/#code-platform-android">Advanced Configuration</a>
+     */
     public void setDebugLoggingOn(boolean debugLoggingOn) {
         this.debugLoggingOn = debugLoggingOn;
     }
@@ -89,7 +94,6 @@ public class TuneConfiguration {
     /**
      * Enables debug output from TUNE in LogCat
      * @param debugMode Whether to enable debug mode
-     * @see <a href="https://developers.mobileapptracking.com/advanced-config/">Advanced Configuration</a>
      */
     public void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
@@ -206,7 +210,7 @@ public class TuneConfiguration {
     /**
      * Set whether to autocollect device location if location is enabled
      * @param shouldAutoCollectDeviceLocation Autocollect device location, default is true
-     * @see <a href="https://developers.mobileapptracking.com/advanced-config/">Advanced Configuration</a>
+     * @see <a href="https://developers.tune.com/sdk/advanced-configuration/#code-platform-android">Advanced Configuration</a>
      */
     public void setShouldAutoCollectDeviceLocation(boolean shouldAutoCollectDeviceLocation) {
         this.autoCollectDeviceLocation = shouldAutoCollectDeviceLocation;
@@ -219,7 +223,7 @@ public class TuneConfiguration {
     /**
      * Set whether to collect screen views
      * @param shouldSendScreenViews Collect names of screens (Activities) seen, default is false
-     * @see <a href="https://developers.mobileapptracking.com/advanced-config/">Advanced Configuration</a>
+     * @see <a href="https://developers.tune.com/sdk/advanced-configuration/#code-platform-android">Advanced Configuration</a>
      */
     public void setShouldSendScreenViews(boolean shouldSendScreenViews) {
         this.sendScreenViews = shouldSendScreenViews;
@@ -264,7 +268,7 @@ public class TuneConfiguration {
     /**
      * Set filters for PII (Personally Identifiable Information) to not be sent from SDK
      * @param PIIFiltersAsStrings Regular expressions for data that should be redacted before sending
-     * @see <a href="https://developers.mobileapptracking.com/advanced-config/">Advanced Configuration</a>
+     * @see <a href="https://developers.tune.com/sdk/advanced-configuration/#code-platform-android">Advanced Configuration</a>
      */
     public void setPIIFiltersAsStrings(List<String> PIIFiltersAsStrings) {
         this.PIIFiltersAsStrings = PIIFiltersAsStrings;

@@ -13,8 +13,6 @@ public class MockApi implements Api {
     JSONObject playlistResponse;
     int playlistRequestCount;
 
-    JSONObject configuration;
-
     boolean postResult = true; // Default to successful Analytics Post
     int analyticsPostCount;
     JSONObject postedEvents;
@@ -93,9 +91,10 @@ public class MockApi implements Api {
         return analyticsPostCount;
     }
 
-    public int getConnectedAnalyticsPostCount() {
-        return connectedAnalyticsPostCount;
-    }
+// Method used solely in testConnectedCallsEvent in TuneConnectedModeTests, which is currently commented out due to timing issues.
+//    public int getConnectedAnalyticsPostCount() {
+//        return connectedAnalyticsPostCount;
+//    }
 
     public int getConnectCount() {
         return connectCount;
@@ -113,19 +112,12 @@ public class MockApi implements Api {
         return postedEvents;
     }
 
-    public JSONObject getPostedConnectedEvent() {
-        return postedConnectedEvent;
-    }
+// Method used solely in testConnectedCallsEvent in TuneConnectedModeTests, which is currently commented out due to timing issues.
+//    public JSONObject getPostedConnectedEvent() {
+//        return postedConnectedEvent;
+//    }
 
     public void setPlaylistResponse(JSONObject playlistResponse) {
         this.playlistResponse = playlistResponse;
-    }
-
-    public void setConfiguration(JSONObject configuration) {
-        this.configuration = configuration;
-    }
-
-    public void setPostResult(boolean postResult) {
-        this.postResult = postResult;
     }
 }

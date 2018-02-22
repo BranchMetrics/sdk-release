@@ -32,8 +32,6 @@ public class TuneFileManager implements FileManager {
     private static final Object CONFIGURATION_LOCK = new Object();
     private static final Object PLAYLIST_LOCK = new Object();
 
-    private static final String TAG = "FileManager";
-
     public TuneFileManager(Context context) {
         this.context = context;
     }

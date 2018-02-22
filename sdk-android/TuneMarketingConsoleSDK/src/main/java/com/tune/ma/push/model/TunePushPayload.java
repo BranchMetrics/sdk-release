@@ -49,10 +49,6 @@ public class TunePushPayload {
         return getOnOpenAction() != null && getOnOpenAction().getDeepLinkURL() != null;
     }
 
-    public boolean isNeitherDeepActionOrDeepLink() {
-        return getOnOpenAction() == null || getOnOpenAction().isNeitherPowerHookNorDeepLink();
-    }
-
     @Override
     public String toString() {
         return toJson().toString();

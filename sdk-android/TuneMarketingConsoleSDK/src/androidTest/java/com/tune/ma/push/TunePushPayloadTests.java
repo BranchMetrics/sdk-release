@@ -52,7 +52,6 @@ public class TunePushPayloadTests extends TestCase {
     }
 
     public void testToStringForPowerHook() throws Exception {
-        String payloadString = "{\"ANA\":{\"DAD\":{\"blockKey2\":\"blockValue2\",\"blockKey1\":\"blockValue1\"},\"DA\":\"deepActionName\"}}";
         TunePushPayload payload = buildPowerHookPushPayload();
 
         JSONObject jsonObject = new JSONObject(payload.toString());

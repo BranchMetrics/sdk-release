@@ -9,10 +9,11 @@ import com.tune.mocks.MockActivity;
  * Created by johng on 2/10/16.
  */
 public class LocationTests extends TuneUnitTest {
-    public static final double GPS_LATITUDE = -12.34;
-    public static final double GPS_LONGITUDE = 23.45;
-    public static final double NETWORK_LATITUDE = 111.11;
-    public static final double NETWORK_LONGITUDE = -111.11;
+      //Commenting out method per 8/8/16 TO DO in LocationTests.java, where the method was originally used. Tests still broken as of 12/5/2017.
+//    public static final double GPS_LATITUDE = -12.34;
+//    public static final double GPS_LONGITUDE = 23.45;
+//    public static final double NETWORK_LATITUDE = 111.11;
+//    public static final double NETWORK_LONGITUDE = -111.11;
 
     private static final int LOCATION_SLEEP = 1000;
 

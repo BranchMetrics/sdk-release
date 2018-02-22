@@ -36,10 +36,6 @@ public class TunePlaylist {
     public TunePlaylist() {
     }
 
-    public String getSchemaVersion() {
-        return schemaVersion;
-    }
-
     public void setSchemaVersion(String schemaVersion) {
         this.schemaVersion = schemaVersion;
     }

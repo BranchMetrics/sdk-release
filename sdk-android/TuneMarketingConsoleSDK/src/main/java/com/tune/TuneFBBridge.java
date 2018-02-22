@@ -106,11 +106,6 @@ class TuneFBBridge {
 
     /** Parameter key used to specify the level achieved in a EVENT_NAME_LEVEL_ACHIEVED event. */
     public static final String EVENT_PARAM_LEVEL = "fb_level";
-
-    /**
-     * Parameter key used to specify source application package
-     */
-    public static final String EVENT_PARAM_SOURCE_APPLICATION = "fb_mobile_launch_source";
     
     private static Object logger;
     private static boolean justActivated = false;

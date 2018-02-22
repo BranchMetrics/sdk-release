@@ -138,20 +138,12 @@ public class TunePowerHookValue implements Cloneable {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
     public void setStartDate(String startDate) {
         this.startDate = TuneDateUtils.parseIso8601(startDate);
     }
 
     public Date getEndDate() {
         return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
     }
 
     public void setEndDate(String endDate) {

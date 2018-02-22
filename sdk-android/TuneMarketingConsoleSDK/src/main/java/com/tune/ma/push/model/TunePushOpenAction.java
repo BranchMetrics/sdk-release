@@ -66,10 +66,6 @@ public class TunePushOpenAction {
         return autoCancelFlag == null || "1".equals(autoCancelFlag);
     }
 
-    public boolean isNeitherPowerHookNorDeepLink() {
-        return deepActionId == null && deepLinkURL == null;
-    }
-
     public JSONObject toJson() {
         JSONObject object = new JSONObject();
         try {

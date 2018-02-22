@@ -44,7 +44,6 @@ public final class TuneOptional<T> {
      * Instead, use {@link #isPresent()}.
      */
     public static<T> TuneOptional<T> empty() {
-        @SuppressWarnings("unchecked")
         TuneOptional<T> t = (TuneOptional<T>) EMPTY;
         return t;
     }

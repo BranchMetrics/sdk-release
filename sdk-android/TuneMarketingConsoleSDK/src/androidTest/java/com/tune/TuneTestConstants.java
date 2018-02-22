@@ -12,6 +12,5 @@ public class TuneTestConstants {
 
     public static final int ANALYTICS_DISPATCH_PERIOD = 5;
     public static final int PLAYLIST_REQUEST_PERIOD = 5;
-    public static final int CONNECT_POST_PERIOD = 1;
 }
 

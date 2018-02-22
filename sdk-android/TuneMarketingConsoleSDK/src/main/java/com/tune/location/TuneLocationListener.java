@@ -123,7 +123,11 @@ public class TuneLocationListener implements LocationListener {
             timer.cancel();
         }
         // Stop receiving location updates
-        locationManager.removeUpdates(this);
+        try {
+            locationManager.removeUpdates(this);
+        } catch (Exception e) {
+            // Catching all exceptions.
+        }
         // Set listening status to false
         listening = false;
     }

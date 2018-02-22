@@ -34,15 +34,17 @@ public class MockActivity extends Activity {
         return listener;
     }
 
-    public static void pushGPSLocation() {
-        // Set a mock GPS location
-        mockGpsProvider.pushLocation(LocationTests.GPS_LATITUDE, LocationTests.GPS_LONGITUDE);
-    }
+// Commenting out method per 8/8/16 TO DO in LocationTests.java, where the method was originally used. Tests still broken as of 12/5/2017.
+//    public static void pushGPSLocation() {
+//        // Set a mock GPS location
+//        mockGpsProvider.pushLocation(LocationTests.GPS_LATITUDE, LocationTests.GPS_LONGITUDE);
+//    }
 
-    public static void pushNetworkLocation() {
-        // Set a mock network location
-        mockNetworkProvider.pushLocation(LocationTests.NETWORK_LATITUDE, LocationTests.NETWORK_LONGITUDE);
-    }
+// Commenting out method per 8/8/16 TO DO in LocationTests.java, where the method was originally used. Tests still broken as of 12/5/2017.
+//    public static void pushNetworkLocation() {
+//        // Set a mock network location
+//        mockNetworkProvider.pushLocation(LocationTests.NETWORK_LATITUDE, LocationTests.NETWORK_LONGITUDE);
+//    }
 
     public static void clear() {
         mockGpsProvider.shutdown();

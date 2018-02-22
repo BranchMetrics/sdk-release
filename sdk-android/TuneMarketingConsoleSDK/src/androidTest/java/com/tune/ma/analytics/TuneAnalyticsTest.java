@@ -17,9 +17,6 @@ public class TuneAnalyticsTest extends TuneUnitTest {
     public Context context;
     protected TuneAnalyticsManager analyticsManager;
 
-    @Mock
-    TuneActivity activity;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();

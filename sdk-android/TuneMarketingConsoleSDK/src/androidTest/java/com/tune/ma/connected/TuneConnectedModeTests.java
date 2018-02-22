@@ -52,6 +52,8 @@ public class TuneConnectedModeTests extends TuneUnitTest {
     }
 
 // TODO: REVISIT.  Timing on this is too weird to fix.
+// Jennifer checked this test Dec 2017 (in case some of John's IMv2 fixes had improved stability in running it.)
+// It's still inconsistent failing with no obvious pattern as to why, so remains commented out.
 //    public void testConnectedCallsEvent() {
 //        // Spoof connected mode being turned on
 //        TuneEventBus.post(new TuneConnectedModeTurnedOn());

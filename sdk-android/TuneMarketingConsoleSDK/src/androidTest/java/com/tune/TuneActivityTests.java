@@ -262,7 +262,7 @@ public class TuneActivityTests extends TuneUnitTest {
         public TestEventBusListener() {
             deeplinkOpenedCount = 0;
         }
-
+        
         @Subscribe
         public void onEvent(TuneDeeplinkOpened event) {
             deeplinkOpenedCount++;

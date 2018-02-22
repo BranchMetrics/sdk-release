@@ -177,13 +177,6 @@ public class EnableDisableMATests extends TuneUnitTest {
         TuneManager.init(getContext(), TuneTestWrapper.getTestingConfig(configs));
     }
 
-    private void setEnabledTo(Boolean value) throws Exception {
-        JSONObject fakeRemoteJson = new JSONObject();
-        fakeRemoteJson.put("enabled", value);
-
-        TuneManager.getInstance().getConfigurationManager().updateConfigurationFromRemoteJson(fakeRemoteJson);
-    }
-
     private void postPlaylistChangedWithPhookJson(String name, JSONObject phookJson) throws JSONException {
         JSONObject phooksJson = new JSONObject();
         phooksJson.put(name, phookJson);

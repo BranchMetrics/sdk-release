@@ -28,26 +28,6 @@ public class TuneSession implements Serializable {
         return createdDate;
     }
 
-    public void setCreatedDate(long createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public long getLastSessionDate() {
-        return lastSessionDate;
-    }
-
-    public void setLastSessionDate(long lastSessionDate) {
-        this.lastSessionDate = lastSessionDate;
-    }
-
-    public int getUserSessionCount() {
-        return userSessionCount;
-    }
-
-    public void setUserSessionCount(int userSessionCount) {
-        this.userSessionCount = userSessionCount;
-    }
-
     public void setSessionLength(long sessionLength) {
         this.sessionLength = sessionLength;
     }

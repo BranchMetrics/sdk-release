@@ -62,16 +62,8 @@ public class MockFileManager implements FileManager {
 
     }
 
-    public void setConfigurationResult(JSONObject configurationResult) {
-        this.configurationResult = configurationResult;
-    }
-
     public void setPlaylistResult(JSONObject playlistResult) {
         this.playlistResult = playlistResult;
-    }
-
-    public void setAnalyticsResult(JSONArray analyticsResult) {
-        this.analyticsResult = analyticsResult;
     }
 
     public int getAnalyticsCount() {

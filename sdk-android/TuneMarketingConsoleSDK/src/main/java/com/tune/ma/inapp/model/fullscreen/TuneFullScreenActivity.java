@@ -44,9 +44,16 @@ public class TuneFullScreenActivity extends FragmentActivity {
         TuneInAppMessageManager messageManager = TuneManager.getInstance().getInAppMessageManager();
         if (messageManager == null) {
             finish();
+            return;
         }
         // Load the html for this message id from the TuneInAppMessageManager's messages
         message = (TuneFullScreen)messageManager.getMessagesByIds().get(messageId);
+
+        // If message doesn't exist, we can't display anything, so close the activity
+        if (message == null) {
+            finish();
+            return;
+        }
 
         setRequestedOrientation(orientation);
 
@@ -146,11 +153,13 @@ public class TuneFullScreenActivity extends FragmentActivity {
     @Override
     public void onDestroy() {
         // Clean up and free resources
-        WebView webView = message.getWebView();
-        if (webView != null && webView.getParent() != null) {
-            ((ViewGroup) webView.getParent()).removeView(webView);
-            // Clear webview contents
-            webView.loadUrl("about:blank");
+        if (message != null) {
+            WebView webView = message.getWebView();
+            if (webView != null && webView.getParent() != null) {
+                ((ViewGroup) webView.getParent()).removeView(webView);
+                // Clear webview contents
+                webView.loadUrl("about:blank");
+            }
         }
         super.onDestroy();
     }

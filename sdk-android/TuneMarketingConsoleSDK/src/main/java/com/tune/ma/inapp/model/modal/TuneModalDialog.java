@@ -24,10 +24,6 @@ public class TuneModalDialog extends Dialog {
         setContentView(this.layout);
     }
 
-    public Activity getActivity() {
-        return this.activity;
-    }
-
     public TuneModalLayout getLayout() {
         return this.layout;
     }

@@ -23,9 +23,6 @@ import java.util.UUID;
  * Created by johng on 4/18/16.
  */
 public class TunePlaylistCallbackTests extends TuneUnitTest {
-    @Mock
-    TuneActivity activity;
-
     TunePlaylistManager playlistManager;
     TunePowerHookManager powerhookManager;
     TuneSessionManager sessionManager;

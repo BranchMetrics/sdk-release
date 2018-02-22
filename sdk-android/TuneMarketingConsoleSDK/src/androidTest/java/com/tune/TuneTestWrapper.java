@@ -121,14 +121,6 @@ public class TuneTestWrapper extends Tune {
         }
     }
 
-    public void removeBroadcastReceiver() {
-        if( isRegistered ) {
-            isRegistered = false;
-            mContext.unregisterReceiver(networkStateReceiver);
-            networkStateReceiver = null;
-        }
-    }
-
     public void clearSharedPrefs() {
         new TuneSharedPrefsDelegate(mContext, PREFS_TUNE).clearSharedPreferences();
     }

@@ -59,7 +59,6 @@ public class TuneEncryption {
      * @return AES-decrypted string
      * @throws Exception if the encrypted string cannot be decrypted.
      */
-    @SuppressWarnings("unused")
     byte[] decrypt(String encryptedText) throws Exception {
         if (encryptedText == null || encryptedText.length() == 0) throw new Exception("Empty string");
 
