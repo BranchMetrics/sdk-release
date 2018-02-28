@@ -3,10 +3,13 @@ package com.tune.ma.inapp.model.modal;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -42,6 +45,24 @@ public class TuneModalDialogFragment extends DialogFragment {
     public synchronized Dialog onCreateDialog(Bundle savedInstanceState) {
         modalDialog = setupModalDialog();
         loadHtml(parentModal.getHtml());
+
+        // Workaround for DialogFragment to respect immersive mode
+        // https://stackoverflow.com/a/24549869/508608
+        getDialog().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        getDialog().getWindow().getDecorView().setSystemUiVisibility(getActivity().getWindow().getDecorView().getSystemUiVisibility());
+
+        getDialog().setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                //Clear the not focusable flag from the window
+                getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+                //Update the WindowManager with the new attributes (no nicer way I know of to do this)..
+                WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+                wm.updateViewLayout(getDialog().getWindow().getDecorView(), getDialog().getWindow().getAttributes());
+            }
+        });
+
         return modalDialog;
     }
 

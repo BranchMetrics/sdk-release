@@ -145,6 +145,7 @@ public class TuneUrlKeys {
      * WARNING: It is very important that all new profile variables get added to this array OR to the REDACT array
      */
     private static final String[] URL_KEYS = new String[] {
+        TuneUrlKeys.ACTION,
         TuneUrlKeys.ADVERTISER_ID,
         TuneUrlKeys.ADVERTISER_SUB_AD,
         TuneUrlKeys.ADVERTISER_SUB_ADGROUP,
@@ -227,7 +228,6 @@ public class TuneUrlKeys {
     };
 
     private static final String[] URL_KEYS_REDACT = new String[] {
-        TuneUrlKeys.ACTION,
         TuneUrlKeys.ALTITUDE,
         TuneUrlKeys.ANDROID_ID,
         TuneUrlKeys.CONNECTION_TYPE,

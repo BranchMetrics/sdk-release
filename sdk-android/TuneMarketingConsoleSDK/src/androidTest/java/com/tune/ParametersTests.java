@@ -400,6 +400,15 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue( TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET );
     }
 
+    public void testSetCOPPADoesntRemoveAction() {
+        tune.setPrivacyProtectedDueToAge(true);
+
+        tune.measureEvent("session");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.ACTION, "session" );
+    }
+
     // Only use this method for checking if age has been fully propagated.
     private void setAgeAndWait(int age) {
         tune.setAge(age);

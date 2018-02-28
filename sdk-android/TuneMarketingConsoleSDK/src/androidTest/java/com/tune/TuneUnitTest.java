@@ -1,26 +1,24 @@
 package com.tune;
 
-import android.content.Context;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.profile.TuneUserProfile;
+import com.tune.ma.push.TunePushManager;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
-    protected static final String logTag = "TUNE Tests";
+    private static final String logTag = "TUNE Tests";
 
     protected TuneTestWrapper tune;
-    protected TuneTestParams params;
-    protected TuneTestQueue queue;
+    TuneTestParams params;
+    TuneTestQueue queue;
 
     public TuneUnitTest() {
         super();
@@ -35,6 +33,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         // <code> new TuneUserProfile(getContext()).deleteSharedPrefs(); </code> but the constructor
         // for TuneUserProfile is very expensive.
         new TuneSharedPrefsDelegate(getContext(), TuneUserProfile.PREFS_TMA_PROFILE).clearSharedPreferences();
+        new TuneSharedPrefsDelegate(getContext(), TunePushManager.PREFS_TMA_PUSH).clearSharedPreferences();
 
         tune = TuneTestWrapper.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey);
         tune.setGoogleAdvertisingId("4e45e24e-8f30-4651-98ec-a80c0fb08eb5", true);
@@ -72,7 +71,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         }
     }
 
-    public void assertKeyValue(String key, String value) {
+    void assertKeyValue(String key, String value) {
         if (!value.equals(params.valueForKey(key)))
             Log.d(logTag, "failing params are " + params);
         assertTrue("key '" + key + "' must equal '" + value + "', found '"
@@ -80,24 +79,24 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
                 value.equals(params.valueForKey(key)));
     }
 
-    public void assertHasValueForKey( String key ) {
+    void assertHasValueForKey( String key ) {
         assertTrue( "must have a value for '" + key + "', found none",
                 params.checkKeyHasValue( key ) );
     }
 
-    public void assertNoValueForKey(String key) {
+    void assertNoValueForKey(String key) {
         assertFalse(
                 "must not have a value for '" + key + "', found '"
                         + params.valueForKey(key) + "'",
                 params.checkKeyHasValue(key));
     }
 
-    protected void Log(String string) {
+    void Log(String string) {
         Log.d(logTag, string);
     }
 
     // request callback
-    private Object mTestWaitObject = new Object();
+    private final Object mTestWaitObject = new Object();
     public void constructedRequest(String url, String data, JSONObject postBody) {
         if (params == null)
             return;
@@ -114,7 +113,7 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         }
     }
 
-    protected boolean waitForTuneNotification(long milliseconds) {
+    boolean waitForTuneNotification(long milliseconds) {
         boolean rc = false;
         synchronized (mTestWaitObject) {
             try {
