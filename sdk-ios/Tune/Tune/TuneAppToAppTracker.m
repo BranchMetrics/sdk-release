@@ -14,6 +14,7 @@
 #import "TuneNetworkUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
+#import "TuneHttpUtils.h"
 
 static NSString * const TUNE_PASTEBOARD_NAME_TRACKING_COOKIE = @"com.tune.sdkpbref";
 
@@ -22,21 +23,11 @@ static NSString * const TUNE_APP_TO_APP_TRACKING_STATUS = @"TUNE_APP_TO_APP_TRAC
 static const NSInteger TUNE_APP_TO_APP_REQUEST_FAILED_ERROR_CODE = 1401;
 static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
 
-@interface TuneAppToAppTracker() {
-    NSOperationQueue *sendQueue;
-    void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *connectionError);
-}
+@interface TuneAppToAppTracker()
+
 @end
 
-
 @implementation TuneAppToAppTracker
-
-- (id)init {
-    if( self = [super init] ) {
-        sendQueue = [NSOperationQueue new];
-    }
-    return self;
-}
 
 - (NSString *)buildLinkForTargetBundleId:(NSString*)targetBundleId
                    advertiserId:(NSString*)advertiserId
@@ -64,6 +55,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
                                      publisherId:(NSString*)publisherId
                                         redirect:(BOOL)shouldRedirect
                                       domainName:(NSString*)domainName {
+    
     if( ![TuneNetworkUtils isNetworkReachable] ) return;
     
     if (!targetBundleId) targetBundleId = TUNE_STRING_EMPTY;
@@ -83,40 +75,15 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     [dictItems setValue:publisherId forKey:TUNE_KEY_PUBLISHER_ID];
     
     NSURL* url = [NSURL URLWithString:strLink];
-    NSURLRequest * request = [NSURLRequest requestWithURL:url
-                                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                          timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
+    NSURLRequest * request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL];
 
-    __weak typeof(self) weakSelf = self;
-    completionHandler = ^(NSData *data, NSURLResponse *response, NSError *connectionError) {
-        if( connectionError != nil )
-            [weakSelf failedToRequestTrackingId:dictItems withError:connectionError];
-        else
-            [weakSelf storeToPasteBoardTrackingId:@{TUNE_KEY_SERVER_RESPONSE: data}];
-    };
-    
-    // TODO: consider using common helper method in TuneHttpUtils
-    if( [NSURLSession class] ) {
-        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
-        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
-    } else {
-        SEL ector = @selector(sendAsynchronousRequest:queue:completionHandler:);
-        if( [NSURLConnection respondsToSelector:ector] ) {
-            // iOS 6
-            NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[NSURLConnection methodSignatureForSelector:ector]];
-            [invocation setTarget:[NSURLConnection class]];
-            [invocation setSelector:ector];
-            [invocation setArgument:&request atIndex:2];
-            [invocation setArgument:&sendQueue atIndex:3];
-            void (^connectionCompletionHandler)(NSURLResponse *response, NSData *data, NSError *connectionError) =
-            ^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                completionHandler( data, response, connectionError );
-            };
-            [invocation setArgument:&connectionCompletionHandler atIndex:4];
-            [invocation invoke];
+    [TuneHttpUtils performAsynchronousRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error != nil) {
+            [self failedToRequestTrackingId:dictItems withError:error];
+        } else {
+            [self storeToPasteBoardTrackingId:@{TUNE_KEY_SERVER_RESPONSE: data}];
         }
-    }
+    }];
 }
 
 - (void)failedToRequestTrackingId:(NSMutableDictionary *)params withError:(NSError *)error {

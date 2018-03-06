@@ -30,6 +30,12 @@
 @property (nonatomic, assign) BOOL allowDuplicateRequests;
 #endif
 
++ (TuneTracker *)sharedInstance;
+
+#if TESTING
++ (void)resetSharedInstance;
+#endif
+
 - (void)startTracker;
 
 - (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication;

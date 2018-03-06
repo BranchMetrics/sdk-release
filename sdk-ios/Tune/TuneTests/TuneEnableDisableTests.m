@@ -42,7 +42,7 @@
 - (void)setUp {
     [super setUpWithMocks:@[]];
     
-    [TuneManager nilModules];
+    [[TuneManager currentManager] nilModules];
     
     observer = [[SimpleObserver alloc] init];
     activatedObserver = [[SimpleObserver alloc] init];
@@ -109,7 +109,7 @@
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneConfigurationUpdated object:nil];
     
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     
     XCTAssertNotNil([TuneManager currentManager].userProfile);
     XCTAssertNotNil([TuneManager currentManager].configuration);
@@ -150,7 +150,7 @@
     // Should not send this since we start in the Active state when opted in (and no need for this Activated skyhook)
     [[TuneSkyhookCenter defaultCenter] addObserver:observer selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     
     
     XCTAssertNotNil([TuneManager currentManager].userProfile);
@@ -195,7 +195,7 @@
     [TuneUserDefaultsUtils clearUserDefaultValue:TMAStatePermanentlyDisabled];
     [TuneState updateTMADisabledState:YES];
     
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     
     XCTAssertNotNil([TuneManager currentManager].userProfile);
     XCTAssertNotNil([TuneManager currentManager].configuration);
@@ -343,7 +343,7 @@
     
     [TuneState updateTMAPermanentlyDisabledState:YES];
     
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     
     XCTAssertNotNil([TuneManager currentManager].userProfile);
     XCTAssertNotNil([TuneManager currentManager].configuration);
@@ -463,7 +463,7 @@
 - (void)testEnabledToDisabledToEnabled {
     [defaults setObject:@(NO) forKey:@"TMAStateDisabled"];
     
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:activatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMAActivated object:nil];
     [[TuneSkyhookCenter defaultCenter] addObserver:deactivatedObserver selector:@selector(skyhookPosted:) name:TuneStateTMADeactivated object:nil];

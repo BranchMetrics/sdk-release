@@ -60,7 +60,7 @@
 - (void)testInstallPostConversion {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    id tune = [[Tune class] performSelector:@selector(sharedManager)];
+    id tune = [[TuneTracker class] performSelector:@selector(sharedInstance)];
     waitFor( 0.1 ); // let it initialize
     [tune performSelector:@selector(measureInstallPostConversion)];
 #pragma clang diagnostic pop

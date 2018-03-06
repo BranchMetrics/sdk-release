@@ -181,7 +181,7 @@
 - (void)testInstallPostConversion {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-    id tune = [[Tune class] performSelector:@selector(sharedManager)];
+    id tune = [[TuneTracker class] performSelector:@selector(sharedInstance)];
     waitFor( 1. );
     [tune performSelector:@selector(measureInstallPostConversion)];
 #pragma clang diagnostic pop
@@ -642,4 +642,25 @@
     }
 }
 
+#pragma mark - Tune public API getters
+
+- (void)testGetIAMAppId {
+    [Tune initializeWithTuneAdvertiserId:@"091234567" tuneConversionKey:@"doesnotmatter" tunePackageName:@"com.testing.tune.sdk" wearable:NO];
+    XCTAssertEqualObjects(@"52a0acdf89cca5f776ef45eb5b22ec09", [Tune getIAMAppId]);
+}
+
+- (void)testGetIAMDeviceIdentifierIfNoAdvertisingIdSet {
+    [Tune setAppleAdvertisingIdentifier:nil advertisingTrackingEnabled:NO];
+    waitForQueuesToFinish();
+    XCTAssertNotNil([Tune getIAMDeviceIdentifier]);
+    XCTAssertEqualObjects([Tune tuneId], [Tune getIAMDeviceIdentifier]);
+}
+
+- (void)testGetIAMDeviceIdentifierIfAdvertisingIdSet {
+    NSUUID *newIdfa = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
+    [Tune setAppleAdvertisingIdentifier:newIdfa advertisingTrackingEnabled:YES];
+    waitForQueuesToFinish();
+    XCTAssertNotNil([Tune getIAMDeviceIdentifier]);
+    XCTAssertEqualObjects(@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F", [Tune getIAMDeviceIdentifier]);
+}
 @end

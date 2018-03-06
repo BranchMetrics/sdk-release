@@ -42,46 +42,19 @@
 
 #define PLUGIN_NAMES (@[@"air", @"cocos2dx", @"corona", @"marmalade", @"phonegap", @"react-native", @"titanium", @"unity", @"xamarin"])
 
-static NSOperationQueue *opQueue = nil;
-static TuneManager *_tuneManager;
-
-
-static TuneTracker *_sharedManager = nil;
-
 @implementation Tune
 
-#pragma mark - Private Initialization Methods
-
-+ (void)initialize {
-    @synchronized(self) {
-        if (!opQueue) {
-            opQueue = [NSOperationQueue new];
-            opQueue.maxConcurrentOperationCount = 1;
-            [TuneManager instantiateModules];
-        }
-    }
-}
-
-+ (TuneTracker *)sharedManager {
-    // note that the initialization is slow (potentially hundreds of milliseconds),
-    // so call this function on a background thread if it might be the first time
-    static dispatch_once_t onceToken;
-    #if TESTING
-    if (_sharedManagerOverride){
-        _sharedManager = _sharedManagerOverride;
-    }
-    #endif
-    if (!_sharedManager) {
-        dispatch_once(&onceToken, ^{
-            _sharedManager = [[TuneTracker alloc] init];
-        });
-    }
-
-    return _sharedManager;
-}
-
-
 #pragma mark - Init Method
+
++ (NSOperationQueue *) tuneQueue {
+    static NSOperationQueue *queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = [NSOperationQueue new];
+        [queue setMaxConcurrentOperationCount:1];
+    });
+    return queue;
+}
 
 + (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key {
     [self initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:nil wearable:NO];
@@ -125,35 +98,34 @@ static TuneTracker *_sharedManager = nil;
         tuneManager.configurationPlayer = configurationPlayer;
     }
 
-    [[self sharedManager] startTracker];
+    [[TuneTracker sharedInstance] startTracker];
 }
 
 #pragma mark - Debugging Helper Methods
 
 + (void)setDebugMode:(BOOL)enable {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [TuneManager currentManager].configuration.debugMode = @(enable);
-
-#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        
+        #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] setDebugMode:enable];
         }
-#endif
+        #endif
     }];
 }
 
 + (void)setDelegate:(id<TuneDelegate>)delegate {
-    [TuneDeeplinker setDelegate:delegate];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneDeeplinker setDelegate:delegate];
 
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].delegate = delegate;
-#if DEBUG
+        [TuneTracker sharedInstance].delegate = delegate;
+        #if DEBUG
         [TuneManager currentManager].userProfile.delegate = (id <TuneUserProfileDelegate>)delegate;
         [TuneManager currentManager].configuration.delegate = (id <TuneConfigurationDelegate>)delegate;
-#endif
+        #endif
     }];
 }
-
 
 #pragma mark - Behavior Flags
 
@@ -183,15 +155,15 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)automateIapEventMeasurement:(BOOL)automate {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutomateIapMeasurement:automate];
     }];
 }
 
 + (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit {
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].fbLogging = logging;
-        [self sharedManager].fbLimitUsage = limit;
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneTracker sharedInstance].fbLogging = logging;
+        [TuneTracker sharedInstance].fbLimitUsage = limit;
     }];
 }
 
@@ -200,20 +172,20 @@ static TuneTracker *_sharedManager = nil;
 
 #ifdef TUNE_USE_LOCATION
 + (void)setRegionDelegate:(id<TuneRegionDelegate>)delegate {
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].regionMonitor.delegate = delegate;
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneTracker sharedInstance].regionMonitor.delegate = delegate;
     }];
 }
 #endif
 
 + (void)setExistingUser:(BOOL)existingUser {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setExistingUser: @(existingUser)];
     }];
 }
 
 + (void)setCurrencyCode:(NSString *)currencyCode {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setCurrencyCode:currencyCode];
     }];
 }
@@ -221,21 +193,21 @@ static TuneTracker *_sharedManager = nil;
 + (void)setPackageName:(NSString *)packageName {
     [TuneDeeplinker setTunePackageName:packageName];
     
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPackageName:packageName];
-#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        
+        #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] setPackageName:packageName];
         }
-#endif
+        #endif
     }];
 }
 
-+ (void)setAppleAdvertisingIdentifier:(NSUUID *)ifa
-           advertisingTrackingEnabled:(BOOL)adTrackingEnabled {
++ (void)setAppleAdvertisingIdentifier:(NSUUID *)ifa advertisingTrackingEnabled:(BOOL)adTrackingEnabled {
     [TuneDeeplinker setAppleIfa:ifa.UUIDString appleAdTrackingEnabled:adTrackingEnabled];
     
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:NO];
         [[TuneManager currentManager].userProfile setAppleAdvertisingIdentifier:ifa.UUIDString];
         [[TuneManager currentManager].userProfile setAppleAdvertisingTrackingEnabled:@(adTrackingEnabled)];
@@ -243,28 +215,27 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setAppleVendorIdentifier:(NSUUID *)appleVendorIdentifier {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoGenerateVendorIdentifier:NO];
         [[TuneManager currentManager].userProfile setAppleVendorIdentifier:[appleVendorIdentifier UUIDString]];
     }];
 }
 
 + (void)setJailbroken:(BOOL)jailbroken {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:NO];
-
         [[TuneManager currentManager].userProfile setJailbroken:@(jailbroken)];
     }];
 }
 
 + (void)setShouldAutoDetectJailbroken:(BOOL)autoDetect {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoDetectJailbroken:autoDetect];
     }];
 }
 
 + (void)setShouldAutoCollectDeviceLocation:(BOOL)autoCollect {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:autoCollect];
     }];
 }
@@ -279,76 +250,75 @@ static TuneTracker *_sharedManager = nil;
         trackEnabled = ifaInfo.trackingEnabled;
     }
     
-    [TuneDeeplinker setAppleIfa:strIfa
-              appleAdTrackingEnabled:trackEnabled];
+    [TuneDeeplinker setAppleIfa:strIfa appleAdTrackingEnabled:trackEnabled];
     
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectAdvertisingIdentifier:autoCollect];
     }];
 }
 
 + (void)setShouldAutoGenerateAppleVendorIdentifier:(BOOL)autoGenerate {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoGenerateVendorIdentifier:autoGenerate];
     }];
 }
 
 + (void)setTRUSTeId:(NSString *)tpid; {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setTRUSTeId:tpid];
     }];
 }
 
 + (void)setUserEmail:(NSString *)userEmail {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setUserEmail:userEmail];
     }];
 }
 
 + (void)setUserId:(NSString *)userId {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setUserId:userId];
     }];
 }
 
 + (void)setUserName:(NSString *)userName {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setUserName:userName];
     }];
 }
 
 + (void)setPhoneNumber:(NSString *)phoneNumber {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPhoneNumber:phoneNumber];
     }];
 }
 
 + (void)setFacebookUserId:(NSString *)facebookUserId {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setFacebookUserId:facebookUserId];
     }];
 }
 
 + (void)setTwitterUserId:(NSString *)twitterUserId {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setTwitterUserId:twitterUserId];
     }];
 }
 
 + (void)setGoogleUserId:(NSString *)googleUserId {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setGoogleUserId:googleUserId];
     }];
 }
 
 + (void)setAge:(NSInteger)userAge {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setAge:@(userAge)];
     }];
 }
 
 + (void)setPrivacyProtectedDueToAge:(BOOL)privacyProtected {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPrivacyProtectedDueToAge:privacyProtected];
     }];
 }
@@ -359,58 +329,60 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setGender:(TuneGender)userGender {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         NSNumber *gen = (TuneGenderFemale == userGender || TuneGenderMale == userGender) ? @(userGender) : nil;
         [[TuneManager currentManager].userProfile setGender:gen];
     }];
 }
 
 + (void)setLocation:(TuneLocation *)location {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].configuration setShouldAutoCollectDeviceLocation:NO];
         [[TuneManager currentManager].userProfile setLocation:location];
     }];
 }
 
 + (void)setAppAdMeasurement:(BOOL)enable {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setAppAdTracking:@(enable)];
     }];
 }
 
 + (void)setPluginName:(NSString *)pluginName {
-    [opQueue addOperationWithBlock:^{
-        if( pluginName == nil )
+    [[self tuneQueue] addOperationWithBlock:^{
+        if (pluginName == nil) {
             [TuneManager currentManager].configuration.pluginName = pluginName;
-        else
-            for( NSString *allowedName in PLUGIN_NAMES )
-                if( [pluginName isEqualToString:allowedName] ) {
+        } else {
+            for (NSString *allowedName in PLUGIN_NAMES) {
+                if ([pluginName isEqualToString:allowedName]) {
                     [TuneManager currentManager].configuration.pluginName = pluginName;
                     break;
                 }
+            }
+        }
     }];
 }
 
 + (void)setLocationAuthorizationStatus:(NSInteger)authStatus { // private method
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [TuneManager currentManager].userProfile.locationAuthorizationStatus = @(authStatus);
     }];
 }
 
 + (void)setBluetoothState:(NSInteger)bluetoothState { // private method
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [TuneManager currentManager].userProfile.bluetoothState = @(bluetoothState);
     }];
 }
 
 + (void)setPayingUser:(BOOL)isPayingUser {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPayingUser:@(isPayingUser)];
     }];
 }
 
 + (void)setPreloadData:(TunePreloadData *)preloadData {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPreloadData:preloadData];
     }];
 }
@@ -474,27 +446,39 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setStringValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setStringValue:value forVariable:name];
+    }];
 }
 
 + (void)setCustomProfileBooleanValue:(NSNumber *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setBooleanValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setBooleanValue:value forVariable:name];
+    }];
 }
 
 + (void)setCustomProfileDateTimeValue:(NSDate *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setDateTimeValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setDateTimeValue:value forVariable:name];
+    }];
 }
 
 + (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setNumberValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setNumberValue:value forVariable:name];
+    }];
 }
 
 + (void)setCustomProfileGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setGeolocationValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setGeolocationValue:value forVariable:name];
+    }];
 }
 
 + (void)setCustomProfileVersionValue:(NSString *)value forVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile setVersionValue:value forVariable:name];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile setVersionValue:value forVariable:name];
+    }];
 }
 
 + (NSString *)getCustomProfileString:(NSString *)name {
@@ -502,7 +486,11 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (NSDate *)getCustomProfileDateTime:(NSString *)name {
-    return [[TuneManager currentManager].userProfile getCustomProfileDateTime:name];
+    __block NSDate *tmp;
+    dispatch_sync([self tuneQueue], ^() {
+        tmp = [[TuneManager currentManager].userProfile getCustomProfileDateTime:name];
+    });
+    return tmp;
 }
 
 + (NSNumber *)getCustomProfileNumber:(NSString *)name {
@@ -514,11 +502,15 @@ static TuneTracker *_sharedManager = nil;
 }
 
 + (void)clearCustomProfileVariable:(NSString *)name {
-    [[TuneManager currentManager].userProfile clearCustomVariables:[NSSet setWithObject:name]];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile clearCustomVariables:[NSSet setWithObject:name]];
+    }];
 }
 
 + (void)clearAllCustomProfileVariables {
-    [[TuneManager currentManager].userProfile clearCustomProfile];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneManager currentManager].userProfile clearCustomProfile];
+    }];
 }
 
 #pragma mark - Getter Methods
@@ -543,31 +535,38 @@ static TuneTracker *_sharedManager = nil;
     return [[TuneManager currentManager].userProfile deviceToken];
 }
 
++ (nonnull NSString *)getIAMAppId {
+    return [[TuneManager currentManager].userProfile hashedAppId];
+}
+
++ (nonnull NSString *)getIAMDeviceIdentifier {
+    return [[TuneManager currentManager].userProfile deviceId];
+}
 
 #pragma mark - Power Hook API
 
-+(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue {
++ (void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue {
     [Tune registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:nil approvedValues:nil];
 }
 
-+(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description {
++ (void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description {
     [Tune registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:description approvedValues:nil];
 }
 
-+(void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description approvedValues:(NSArray *)approvedValues {
++ (void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue description:(NSString *)description approvedValues:(NSArray *)approvedValues {
     [[TuneManager currentManager].powerHookManager registerHookWithId:hookId friendlyName:friendlyName defaultValue:defaultValue description:description approvedValues:approvedValues];
 }
 
 
-+(NSString *)getValueForHookById:(NSString *)hookId {
++ (NSString *)getValueForHookById:(NSString *)hookId {
     return [[TuneManager currentManager].powerHookManager getValueForHookById:hookId];
 }
 
-+(void)setValueForHookById:(NSString *)hookId value:(NSString *)value {
++ (void)setValueForHookById:(NSString *)hookId value:(NSString *)value {
     [[TuneManager currentManager].powerHookManager setValueForHookById:hookId value:value];
 }
 
-+(void)onPowerHooksChanged:(void (^)(void)) block {
++ (void)onPowerHooksChanged:(void (^)(void)) block {
     [[TuneManager currentManager].powerHookManager onPowerHooksChanged:block];
 }
 
@@ -767,27 +766,21 @@ static TuneTracker *_sharedManager = nil;
     [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneCustomEventOccurred
                                                   object:nil
                                                 userInfo:@{ TunePayloadCustomEvent: event }];
-
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] measureEvent:event];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneTracker sharedInstance] measureEvent:event];
     }];
 }
 
 #pragma mark - Other Methods
 
-// Helper method for testing so we hold up execution before asserts.
-+ (void)waitUntilAllOperationsAreFinishedOnQueue {
-    [opQueue waitUntilAllOperationsAreFinished];
-}
-
 + (void)setUseCookieMeasurement:(BOOL)enable {
-    [opQueue addOperationWithBlock:^{
-        [self sharedManager].shouldUseCookieTracking = enable;
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneTracker sharedInstance].shouldUseCookieTracking = enable;
     }];
 }
 
 + (void)setRedirectUrl:(NSString *)redirectURL {
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setRedirectUrl:redirectURL];
     }];
 }
@@ -798,8 +791,8 @@ static TuneTracker *_sharedManager = nil;
                      publisherId:(NSString *)targetAdvertiserPublisherId
                         redirect:(BOOL)shouldRedirect
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] setMeasurement:targetAppPackageName
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneTracker sharedInstance] setMeasurement:targetAppPackageName
                                 advertiserId:targetAppAdvertiserId
                                      offerId:targetAdvertiserOfferId
                                  publisherId:targetAdvertiserPublisherId
@@ -832,20 +825,20 @@ static TuneTracker *_sharedManager = nil;
             // Only send click for tlnk.io app link opens
             if (isTuneLink) {
                 // Measure Tune Link click
-                [opQueue addOperationWithBlock:^{
-                    [[self sharedManager] measureTuneLinkClick:urlString];
+                [[self tuneQueue] addOperationWithBlock:^{
+                    [[TuneTracker sharedInstance] measureTuneLinkClick:urlString];
                 }];
             }
         }
     }
     
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneTracker sharedInstance] applicationDidOpenURL:urlString sourceApplication:sourceApplication];
         
         // Process any Marketing Automation info in deeplink url
         [TuneDeeplink processDeeplinkURL:url];
     }];
-    
+
     return handled;
 }
 
@@ -875,8 +868,8 @@ static TuneTracker *_sharedManager = nil;
                                majorId:(NSUInteger)majorId
                                minorId:(NSUInteger)minorId
 {
-    [opQueue addOperationWithBlock:^{
-        [[self sharedManager].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [[TuneTracker sharedInstance].regionMonitor addBeaconRegion:UUID nameId:nameId majorId:majorId minorId:minorId];
     }];
 }
 #endif
@@ -895,7 +888,7 @@ static TuneTracker *_sharedManager = nil;
     }
     
 #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
-    [opQueue addOperationWithBlock:^{
+    [[self tuneQueue] addOperationWithBlock:^{
         TuneSmartWhereHelper *tuneSharedSmartWhereHelper = [TuneSmartWhereHelper getInstance];
         TuneUserProfile *profile = [TuneManager currentManager].userProfile;
         [tuneSharedSmartWhereHelper startMonitoringWithTuneAdvertiserId:[profile advertiserId] tuneConversionKey:[profile conversionKey] packageName:[profile packageName]];
@@ -920,14 +913,13 @@ static TuneTracker *_sharedManager = nil;
 #pragma mark - Testing Helpers
 
 #if TESTING
-static TuneTracker *_sharedManagerOverride = nil;
 
-+ (void)reInitSharedManagerOverride {
-    _sharedManagerOverride = [[TuneTracker alloc] init];
++ (void)resetTuneTrackerSharedInstance {
+    [TuneTracker resetSharedInstance];
 }
 
 + (void)setAllowDuplicateRequests:(BOOL)allowDup {
-    _sharedManagerOverride.allowDuplicateRequests = allowDup;
+    [TuneTracker sharedInstance].allowDuplicateRequests = allowDup;
 }
 #endif
 

@@ -33,8 +33,6 @@
 
 @property (nonatomic, strong) NSSet *registeredTuneLinkDomains;
 
-@property (nonatomic, copy) void (^completionHandler)(NSData *data, NSURLResponse *response, NSError *connectionError);
-
 @end
 
 static const NSTimeInterval TUNE_NSURLCONNECTION_DEFAULT_TIMEOUT = 60.;
@@ -42,7 +40,6 @@ static const NSTimeInterval TUNE_NSURLCONNECTION_DEFAULT_TIMEOUT = 60.;
 static const NSString *TLNK_IO = @"tlnk.io";
 
 static TuneDeeplinker *dplinkr;
-
 
 @implementation TuneDeeplinker
 
@@ -138,7 +135,7 @@ static TuneDeeplinker *dplinkr;
                                                        timeoutInterval:TUNE_NSURLCONNECTION_DEFAULT_TIMEOUT];
     [request addValue:dplinkr.tuneConvKey forHTTPHeaderField:@"X-MAT-Key"];
     
-    dplinkr.completionHandler = ^(NSData *data, NSURLResponse *response, NSError *connectionError) {
+    [TuneHttpUtils performAsynchronousRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *connectionError) {
         NSError *error = nil;
         
         if( !connectionError ) {
@@ -181,9 +178,7 @@ static TuneDeeplinker *dplinkr;
                 [deepDelegate tuneDidFailDeeplinkWithError:error];
             }
         }
-    };
-    
-    [TuneHttpUtils performAsynchronousRequest:request completionHandler:dplinkr.completionHandler];
+    }];
 }
 
 + (void)handleFailedExpandedTuneLink:(NSString *)errorMessage {

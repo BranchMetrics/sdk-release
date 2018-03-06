@@ -132,7 +132,10 @@
 }
 
 - (BOOL)sessionStarted {
-    return !!self.sessionId.length;
+    if (self.sessionId && self.sessionId.length > 0) {
+        return YES;
+    }
+    return NO;
 }
 
 - (NSTimeInterval)timeSinceSessionStart {

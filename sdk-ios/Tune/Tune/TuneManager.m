@@ -29,20 +29,111 @@
 
 @implementation TuneManager
 
-static TuneManager *_instance;
-static dispatch_once_t onceToken;
+// This is NOT recommended by Apple
++ (void)initialize {
+    [[TuneManager sharedInstance] instantiateModules];
+}
 
-#pragma mark - Initialization/Deallocation
-
+// ObjC singletons are usually named sharedSomething or just shared.  For example:  [UIApplication sharedApplication]
+// Eventually switch to using just sharedInstance
 + (TuneManager *)currentManager {
+    return [self sharedInstance];
+}
+
++ (TuneManager *)sharedInstance {
+    static TuneManager *sharedInstance;
+    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _instance = [[TuneManager alloc] init];
-        _instance.concurrentQueue = dispatch_queue_create("com.tune.concurrentQueue", DISPATCH_QUEUE_CONCURRENT);
-        
-        [_instance registerSkyhooks];
+        sharedInstance = [TuneManager new];
     });
+    return sharedInstance;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+
+    }
+    return self;
+}
+
+- (void)instantiateModules {
+    [self instantiateAAModules];
     
-    return _instance;
+    // If we are disabled or permanently disabled then don't even start these modules
+    if (![TuneState isTMADisabled]) {
+        InfoLog(@"STARTING WITH TMA ON");
+        [self instantiateTMAModules];
+    } else {
+        InfoLog(@"STARTING WITH TMA OFF");
+    }
+}
+
+- (void)instantiateAAModules {
+    self.userProfile = [TuneUserProfile moduleWithTuneManager:self];
+    [self.userProfile registerSkyhooks];
+    
+    self.configuration = [TuneConfiguration moduleWithTuneManager:self];
+    [self.configuration registerSkyhooks];
+    
+    self.state = [TuneState moduleWithTuneManager:self];
+    [self.state registerSkyhooks];
+    
+    self.sessionManager = [TuneSessionManager moduleWithTuneManager:self];
+    [self.sessionManager registerSkyhooks];
+    
+    self.triggeredEventManager = [TuneSmartWhereTriggeredEventManager moduleWithTuneManager:self];
+    [self.triggeredEventManager registerSkyhooks];
+    
+    // These need to be started, but don't bother registering its skyhooks unless TMA is actually on
+    self.powerHookManager = [TunePowerHookManager moduleWithTuneManager:self];
+    self.deepActionManager = [TuneDeepActionManager moduleWithTuneManager:self];
+    self.playlistManager = [TunePlaylistManager moduleWithTuneManager:self];
+}
+
+- (void)instantiateTMAModules {
+    // The PowerHookManager must be brought up before the PlaylistManager since it needs to listen to changes in the playlist from the skyhooks
+    [self.powerHookManager bringUp];
+    [self.deepActionManager bringUp];
+    [self.playlistManager bringUp];
+    
+    if (self.experimentManager == nil) {
+        self.experimentManager = [TuneExperimentManager moduleWithTuneManager:self];
+        [self.experimentManager registerSkyhooks];
+    } else {
+        [self.experimentManager bringUp];
+    }
+    
+    if (self.connectedModeManager == nil) {
+        self.connectedModeManager = [TuneConnectedModeManager moduleWithTuneManager:self];
+        [self.connectedModeManager registerSkyhooks];
+    } else {
+        [self.connectedModeManager bringUp];
+    }
+    
+    if (self.analyticsManager == nil) {
+        self.analyticsManager = [TuneAnalyticsManager moduleWithTuneManager:self];
+        [self.analyticsManager registerSkyhooks];
+    } else {
+        [self.analyticsManager bringUp];
+    }
+    
+    if (self.triggerManager == nil) {
+        self.triggerManager = [TuneTriggerManager moduleWithTuneManager:self];
+        [self.triggerManager registerSkyhooks];
+    } else {
+        [self.triggerManager bringUp];
+    }
+    
+    if (self.campaignStateManager == nil) {
+        self.campaignStateManager = [TuneCampaignStateManager moduleWithTuneManager:self];
+        [self.campaignStateManager registerSkyhooks];
+    } else {
+        [self.campaignStateManager bringUp];
+    }
+    
+    // Load the playlist for disk before we give control to the user
+    [self.playlistManager loadPlaylistFromDisk];
 }
 
 #pragma mark - Skyhook management
@@ -56,121 +147,35 @@ static dispatch_once_t onceToken;
     [[TuneSkyhookCenter defaultCenter] addObserver:self selector:@selector(handleSaveUserDefaults:) name:TuneSessionManagerSessionDidEnd object:nil priority:TuneSkyhookPriorityLast];
 }
 
-#pragma mark - Instantiate Modules
-
-+ (void)instantiateModules {
-    TuneManager *_tuneManager = [TuneManager currentManager];
-    
-    _tuneManager.userProfile = [TuneUserProfile moduleWithTuneManager:_tuneManager];
-    [_tuneManager.userProfile registerSkyhooks];
-    
-    _tuneManager.configuration = [TuneConfiguration moduleWithTuneManager:_tuneManager];
-    [_tuneManager.configuration registerSkyhooks];
-    
-    _tuneManager.state = [TuneState moduleWithTuneManager:_tuneManager];
-    [_tuneManager.state registerSkyhooks];
-    
-    _tuneManager.sessionManager = [TuneSessionManager moduleWithTuneManager:_tuneManager];
-    [_tuneManager.sessionManager registerSkyhooks];
-    
-    _tuneManager.triggeredEventManager = [TuneSmartWhereTriggeredEventManager moduleWithTuneManager:_tuneManager];
-    [_tuneManager.triggeredEventManager registerSkyhooks];
-    
-    // These need to be started, but don't bother registering its skyhooks unless TMA is actually on
-    _tuneManager.powerHookManager = [TunePowerHookManager moduleWithTuneManager:_tuneManager];
-    _tuneManager.deepActionManager = [TuneDeepActionManager moduleWithTuneManager:_tuneManager];
-    _tuneManager.playlistManager = [TunePlaylistManager moduleWithTuneManager:_tuneManager];
-    
-    // If we are disabled or permanently disabled then don't even start these modules
-    if (![TuneState isTMADisabled]) {
-        InfoLog(@"STARTING WITH TMA ON");
-        [TuneManager instantiateTMAModules];
-    } else {
-        InfoLog(@"STARTING WITH TMA OFF");
-    }
-}
-
-+ (void)instantiateTMAModules {
-    TuneManager *_tuneManager = [TuneManager currentManager];
-    
-    // The PowerHookManager must be brought up before the PlaylistManager since it needs to listen to changes in the playlist from the skyhooks
-    [_tuneManager.powerHookManager bringUp];
-    [_tuneManager.deepActionManager bringUp];
-    [_tuneManager.playlistManager bringUp];
-    
-    if (_tuneManager.experimentManager == nil) {
-        _tuneManager.experimentManager = [TuneExperimentManager moduleWithTuneManager:_tuneManager];
-        [_tuneManager.experimentManager registerSkyhooks];
-    } else {
-        [_tuneManager.experimentManager bringUp];
-    }
-    
-    if (_tuneManager.connectedModeManager == nil) {
-        _tuneManager.connectedModeManager = [TuneConnectedModeManager moduleWithTuneManager:_tuneManager];
-        [_tuneManager.connectedModeManager registerSkyhooks];
-    } else {
-        [_tuneManager.connectedModeManager bringUp];
-    }
-
-    if (_tuneManager.analyticsManager == nil) {
-        _tuneManager.analyticsManager = [TuneAnalyticsManager moduleWithTuneManager:_tuneManager];
-        [_tuneManager.analyticsManager registerSkyhooks];
-    } else {
-        [_tuneManager.analyticsManager bringUp];
-    }
-    
-    if (_tuneManager.triggerManager == nil) {
-        _tuneManager.triggerManager = [TuneTriggerManager moduleWithTuneManager:_tuneManager];
-        [_tuneManager.triggerManager registerSkyhooks];
-    } else {
-        [_tuneManager.triggerManager bringUp];
-    }
-    
-    if (_tuneManager.campaignStateManager == nil) {
-        _tuneManager.campaignStateManager = [TuneCampaignStateManager moduleWithTuneManager:_tuneManager];
-        [_tuneManager.campaignStateManager registerSkyhooks];
-    } else {
-        [_tuneManager.campaignStateManager bringUp];
-    }
-    
-    // Load the playlist for disk before we give control to the user
-    [_tuneManager.playlistManager loadPlaylistFromDisk];
-}
-
 #pragma mark - Handle Enable/Disable
 
 - (void)handleTMAEnable:(TuneSkyhookPayload*)payload {
     if (![NSThread isMainThread]) {
-        [self performSelectorOnMainThread:@selector(handleTMAEnable:)
-                               withObject:nil
-                            waitUntilDone:YES];
+        [self performSelectorOnMainThread:@selector(handleTMAEnable:) withObject:nil waitUntilDone:YES];
         return;
     }
     
     DebugLog(@"TURNING TMA ON");
     
-    [TuneManager instantiateTMAModules];
+    [[TuneManager sharedInstance] instantiateTMAModules];
 }
 
 - (void)handleTMADisable:(TuneSkyhookPayload*)payload {
     if (![NSThread isMainThread]) {
-        [self performSelectorOnMainThread:@selector(handleTMADisable:)
-                               withObject:nil
-                            waitUntilDone:YES];
+        [self performSelectorOnMainThread:@selector(handleTMADisable:) withObject:nil waitUntilDone:YES];
         return;
     }
     
     DebugLog(@"TURNING TMA OFF");
     
-    TuneManager *_tuneManager = [TuneManager currentManager];
-    [_tuneManager.analyticsManager bringDown];
-    [_tuneManager.sessionManager bringDown];
-    [_tuneManager.powerHookManager bringDown];
-    [_tuneManager.playlistManager bringDown];
-    [_tuneManager.campaignStateManager bringDown];
-    [_tuneManager.triggerManager bringDown];
-    [_tuneManager.deepActionManager bringDown];
-    [_tuneManager.connectedModeManager bringDown];
+    [self.analyticsManager bringDown];
+    [self.sessionManager bringDown];
+    [self.powerHookManager bringDown];
+    [self.playlistManager bringDown];
+    [self.campaignStateManager bringDown];
+    [self.triggerManager bringDown];
+    [self.deepActionManager bringDown];
+    [self.connectedModeManager bringDown];
 }
 
 #pragma mark - Handle NSUserDefaults Saving
@@ -182,39 +187,35 @@ static dispatch_once_t onceToken;
 #pragma mark - Testing Helpers
 
 #if TESTING
-+ (void)nilModules {
-    /* WARNING! This module may not be wholey safe.  It is used for the enable/disable/permanently-disable tests
-     +                since they need a fresh slate for each test.
-     +     */
-    TuneManager *_tuneManager = [TuneManager currentManager];
-
-    [_tuneManager.analyticsManager unregisterSkyhooks];
-    [_tuneManager.configuration unregisterSkyhooks];
-    [_tuneManager.powerHookManager unregisterSkyhooks];
-    [_tuneManager.state unregisterSkyhooks];
-    [_tuneManager.userProfile unregisterSkyhooks];
-    [_tuneManager.playlistManager unregisterSkyhooks];
-    [_tuneManager.sessionManager unregisterSkyhooks];
-    [_tuneManager.triggerManager unregisterSkyhooks];
-    [_tuneManager.campaignStateManager unregisterSkyhooks];
-    [_tuneManager.experimentManager unregisterSkyhooks];
-    [_tuneManager.deepActionManager unregisterSkyhooks];
-    [_tuneManager.connectedModeManager unregisterSkyhooks];
+- (void)nilModules {
+    /* WARNING! This module may not be wholey safe.  It is used for the enable/disable/permanently-disable tests since they need a fresh slate for each test. */
+    [self.analyticsManager unregisterSkyhooks];
+    [self.configuration unregisterSkyhooks];
+    [self.powerHookManager unregisterSkyhooks];
+    [self.state unregisterSkyhooks];
+    [self.userProfile unregisterSkyhooks];
+    [self.playlistManager unregisterSkyhooks];
+    [self.sessionManager unregisterSkyhooks];
+    [self.triggerManager unregisterSkyhooks];
+    [self.campaignStateManager unregisterSkyhooks];
+    [self.experimentManager unregisterSkyhooks];
+    [self.deepActionManager unregisterSkyhooks];
+    [self.connectedModeManager unregisterSkyhooks];
     
-    _tuneManager.analyticsManager = nil;
-    _tuneManager.configuration = nil;
-    _tuneManager.powerHookManager = nil;
-    _tuneManager.state = nil;
-    _tuneManager.userProfile = nil;
-    _tuneManager.playlistManager = nil;
-    _tuneManager.playlistPlayer = nil;
-    _tuneManager.configurationPlayer = nil;
-    _tuneManager.sessionManager = nil;
-    _tuneManager.triggerManager = nil;
-    _tuneManager.campaignStateManager = nil;
-    _tuneManager.experimentManager = nil;
-    _tuneManager.deepActionManager = nil;
-    _tuneManager.connectedModeManager = nil;
+    self.analyticsManager = nil;
+    self.configuration = nil;
+    self.powerHookManager = nil;
+    self.state = nil;
+    self.userProfile = nil;
+    self.playlistManager = nil;
+    self.playlistPlayer = nil;
+    self.configurationPlayer = nil;
+    self.sessionManager = nil;
+    self.triggerManager = nil;
+    self.campaignStateManager = nil;
+    self.experimentManager = nil;
+    self.deepActionManager = nil;
+    self.connectedModeManager = nil;
 }
 #endif
 

@@ -70,7 +70,7 @@ void RESET_EVERYTHING_OPTIONAL_MOCKING(BOOL shouldMockPlaylistManager, BOOL shou
     [[TuneManager currentManager] registerSkyhooks];
     
     // Make sure that all singletons are fresh
-    [TuneManager nilModules];
+    [[TuneManager currentManager] nilModules];
     
     // Clear out all settings
     clearUserDefaults();
@@ -78,12 +78,12 @@ void RESET_EVERYTHING_OPTIONAL_MOCKING(BOOL shouldMockPlaylistManager, BOOL shou
     [TuneState updateTMADisabledState:NO];
     
     // Bring the modules up
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     pointMAUrlsToNothing();
     
     // Make sure shared manager is new
-    [TuneEventQueue resetSharedInstance];
-    [Tune reInitSharedManagerOverride];
+    [TuneEventQueue resetSharedQueue];
+    [Tune resetTuneTrackerSharedInstance];
     
     if(shouldCreateMocks && (shouldMockPlaylistManager || shouldMockAnalyticsManager)) {
         mockTuneManager = OCMPartialMock([TuneManager currentManager]);
@@ -187,12 +187,12 @@ void waitFor( NSTimeInterval duration ) {
 }
 
 void waitForQueuesToFinish() {
-    [Tune waitUntilAllOperationsAreFinishedOnQueue];
-    [[TuneEventQueue sharedInstance] waitUntilAllOperationsAreFinishedOnQueue];
+    [[Tune tuneQueue] waitUntilAllOperationsAreFinished];
+    [[TuneEventQueue sharedQueue] waitUntilAllOperationsAreFinishedOnQueue];
 }
 
 void emptyRequestQueue() {
-    [TuneEventQueue drainQueue];
+    [[TuneEventQueue sharedQueue] drainQueue];
 }
 
 int char2hex(unsigned char c) {

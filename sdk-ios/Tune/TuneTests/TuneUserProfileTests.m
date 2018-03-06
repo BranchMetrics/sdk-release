@@ -905,4 +905,21 @@
     XCTAssertFalse([profileArray containsObject:receiptVar[0]]);
 }
 
+- (void)testProfileVariablesDeepCopy {
+    NSDictionary *original = [[TuneManager currentManager].userProfile userVariables];
+    NSDictionary *copy = [[TuneManager currentManager].userProfile getProfileVariables];
+
+    XCTAssertEqual(original.count, copy.count);
+    
+    NSArray *originalKeys = [[original allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    NSArray *copyKeys = [[copy allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    for (int i=0; i<originalKeys.count; i++) {
+        id originalObject = [original objectForKey:[originalKeys objectAtIndex:i]];
+        id copyObject = [copy objectForKey:[copyKeys objectAtIndex:i]];
+        
+        // confirm objects are different
+        XCTAssert(originalObject != copyObject);
+    }
+}
+
 @end

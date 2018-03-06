@@ -36,7 +36,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"5.0.1"
+#define TUNEVERSION @"5.0.2"
 
 
 @protocol TuneDelegate;
@@ -646,6 +646,27 @@
  */
 + (NSString *)getPushToken;
 
+/*!
+ Gets the In-App Marketing (IAM) app identifier for this app.
+ 
+ The IAM app identifier is derived from your TUNE advertiser id and package name (bundle identifier).
+ 
+ NOTE: This should be called after `initializeWithTuneAdvertiserId:tuneConversionKey:`. If called before it will not be correct.
+ 
+ @return In-App Marketing (IAM) App Id
+ */
++ (nonnull NSString *)getIAMAppId;
+
+/*!
+ Gets the In-App Marketing (IAM) device identifier for this device/user.
+ 
+ The IAM app identifier is either the Apple Advertising Identifier (IFA) or the TUNE ID.
+ 
+ NOTE: This should be called after `initializeWithTuneAdvertiserId:tuneConversionKey:`. If called before it may not be correct.
+ 
+ @return the In-App Marketing (IAM) device identifier
+ */
++ (nonnull NSString *)getIAMDeviceIdentifier;
 
 #pragma mark - Power Hook API
 

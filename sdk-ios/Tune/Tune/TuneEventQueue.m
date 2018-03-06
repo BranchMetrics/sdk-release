@@ -50,28 +50,15 @@ static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
 
 #pragma mark - Private variables
 
-@interface TuneEventQueue() {
-    /*!
-     Shared NSOperationQueue.
-     */
-    NSOperationQueue *requestOpQueue;
-    
-    /*!
-     List of queued events.
-     */
-    NSMutableArray *events;
-    
-    /*!
-     Disk location of file used for storing serialized events.
-     */
-    NSString *storageDir;
-}
+@interface TuneEventQueue()
+
+@property (nonatomic, strong, readwrite) NSOperationQueue *requestOpQueue;
+@property (nonatomic, strong, readwrite) NSMutableArray *events;
+@property (nonatomic, copy, readwrite) NSString *storageDir;
 
 @property (nonatomic, weak) id <TuneEventQueueDelegate> delegate;
-@property (nonatomic, strong) NSObject *eventLock;
 
 #if TESTING
-@property (nonatomic, readonly) NSMutableArray *events;
 @property (nonatomic, assign) BOOL forceError;
 @property (nonatomic, assign) NSInteger forcedErrorCode;
 
@@ -81,35 +68,27 @@ static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
 
 @end
 
-
-/*!
- Shared singleton event queue object.
- */
-static TuneEventQueue *sharedQueue = nil;
-
-
 @implementation TuneEventQueue
-
-#if TESTING
-@synthesize events = events;
-#endif
-
 
 #pragma mark - Initialization
 
-+ (void)initialize {
-    sharedQueue = [TuneEventQueue new];
+static dispatch_once_t sharedQueueOnceToken;
+
++ (TuneEventQueue *)sharedQueue {
+    static TuneEventQueue *queue;
+    dispatch_once(&sharedQueueOnceToken, ^{
+        queue = [TuneEventQueue new];
+    });
+    return queue;
 }
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
-    if( self ) {
-        _eventLock = [[NSObject alloc] init];
-        requestOpQueue = [NSOperationQueue new];
-        requestOpQueue.maxConcurrentOperationCount = 1;
+    if (self) {
+        self.requestOpQueue = [NSOperationQueue new];
+        self.requestOpQueue.maxConcurrentOperationCount = 1;
         
         [self addNetworkAndAppNotificationListeners];
-        
         [self createQueueStorageDirectory];
         [self loadQueue];
         
@@ -150,9 +129,8 @@ static TuneEventQueue *sharedQueue = nil;
  Creates a disk folder to be used to store the serialized event queue.
  */
 - (void)createQueueStorageDirectory {
-    // create queue storage directory
-    storageDir = [self queueStorageDirectory];
-    [TuneFileUtils createDirectory:storageDir];
+    self.storageDir = [self queueStorageDirectory];
+    [TuneFileUtils createDirectory:self.storageDir];
 }
 
 - (NSString *)queueStorageDirectory {
@@ -196,7 +174,7 @@ static TuneEventQueue *sharedQueue = nil;
  Reads disk file that may contain legacy request queue and prepends the items to the main event queue.
  */
 - (void)prependItemsFromLegacyQueue {
-    @synchronized(_eventLock) {
+    @synchronized(self) {
         // if a legacy queue exists
         if([TuneRequestsQueue exists]) {
             // load legacy queue items
@@ -214,7 +192,7 @@ static TuneEventQueue *sharedQueue = nil;
             // prepend legacy items
             if( [legacyItems count] > 0 ) {
                 for( item in [legacyItems reverseObjectEnumerator] )
-                    [events insertObject:[NSMutableDictionary dictionaryWithDictionary:item] atIndex:0];
+                    [self.events insertObject:[NSMutableDictionary dictionaryWithDictionary:item] atIndex:0];
                 [self saveQueue];
             }
             
@@ -222,10 +200,6 @@ static TuneEventQueue *sharedQueue = nil;
             [legacyQueue closedown];
         }
     }
-}
-
-+ (void)setDelegate:(id<TuneEventQueueDelegate>)delegate {
-    sharedQueue.delegate = delegate;
 }
 
 #pragma mark - Notification Handlers
@@ -236,22 +210,22 @@ static TuneEventQueue *sharedQueue = nil;
 
 #pragma mark - Request handling
 
-+ (void)enqueueUrlRequest:(NSString*)trackingLink
+- (void)enqueueUrlRequest:(NSString*)trackingLink
               eventAction:(NSString*)actionName
                     refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
                  postData:(NSDictionary*)postData
                   runDate:(NSDate*)runDate {
-    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:YES];
+    [self enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:YES];
 }
 
-+ (void)sendUrlRequestImmediately:(NSString*)trackingLink
+- (void)sendUrlRequestImmediately:(NSString*)trackingLink
                       eventAction:(NSString*)actionName
                             refId:(NSString*)refId
                     encryptParams:(NSString*)encryptParams
                          postData:(NSDictionary*)postData
                           runDate:(NSDate*)runDate {
-    [sharedQueue enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:NO];
+    [self enqueueUrlRequest:trackingLink eventAction:actionName refId:refId encryptParams:encryptParams postData:postData runDate:runDate shouldQueue:NO];
 }
 
 - (void)enqueueUrlRequest:(NSString*)trackingLink
@@ -275,8 +249,8 @@ static TuneEventQueue *sharedQueue = nil;
     [item setValue:refId forKey:TUNE_KEY_REF_ID];
     
     if (shouldQueue) {
-        @synchronized(_eventLock) {
-            [events addObject:item];
+        @synchronized(self) {
+            [self.events addObject:item];
             
             [self saveQueue];
         }
@@ -287,6 +261,7 @@ static TuneEventQueue *sharedQueue = nil;
     }
 }
 
+// why is this so complex to increment the stupid retry count?
 - (void)appendOrIncrementRetryCount:(NSString**)trackingLink sendDate:(NSDate**)sendDate {
     NSInteger retryCount = 0;
     NSString *searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_RETRY_COUNT];
@@ -305,19 +280,15 @@ static TuneEventQueue *sharedQueue = nil;
                          [*trackingLink substringToIndex:searchResult.location + searchResult.length],
                          (long)retryCount,
                          [*trackingLink substringFromIndex:searchResult.location + searchResult.length + valueLength]];
-        *sendDate = [*sendDate dateByAddingTimeInterval:[[self class] retryDelayForAttempt:retryCount]];
+        *sendDate = [*sendDate dateByAddingTimeInterval:[self retryDelayForAttempt:retryCount]];
     }
 }
 
-+ (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId {
-    [sharedQueue updateEnqueuedEventsWithReferralUrl:url referralSource:bundleId];
-}
-
 - (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId {
-    @synchronized(_eventLock) {
+    @synchronized(self) {
         // start updating events from the end of queue
-        for (long i = events.count - 1; i >= 0; --i) {
-            NSMutableDictionary *dictEvent = events[i];
+        for (long i = self.events.count - 1; i >= 0; --i) {
+            NSMutableDictionary *dictEvent = self.events[i];
             
             if (![dictEvent[TUNE_KEY_NETWORK_REQUEST_PENDING] boolValue]) {
                 [dictEvent setValue:url forKey:TUNE_KEY_REFERRAL_URL];
@@ -334,20 +305,16 @@ static TuneEventQueue *sharedQueue = nil;
     }
 }
 
-+ (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict))completionHandler {
-    [sharedQueue updateEnqueuedSessionEventWithIadAttributionInfo:iadInfo impressionDate:impressionDate completionHandler:completionHandler];
-}
-
 - (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict))completionHandler {
     BOOL updated = NO;
     NSString *refId = nil;
     NSString *url = nil;
     NSDictionary *postDict = nil;
     
-    @synchronized(_eventLock) {
+    @synchronized(self) {
         // extract the very first "session" event if it is still enqueued
         
-        NSMutableDictionary *dictEvent = events.count > 0 ? events[0] : nil;
+        NSMutableDictionary *dictEvent = self.events.count > 0 ? self.events[0] : nil;
         
         if (![TuneUtils isFirstSessionRequestComplete] && ![dictEvent[TUNE_KEY_NETWORK_REQUEST_PENDING] boolValue] && [dictEvent[TUNE_KEY_ACTION] isEqualToString:TUNE_EVENT_SESSION]) {
             if (impressionDate) {
@@ -393,7 +360,7 @@ static TuneEventQueue *sharedQueue = nil;
     completionHandler(updated, refId, url, postDict);
 }
 
-+ (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt {
+- (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt {
 #if TESTING
     return 0.2;
 #else
@@ -548,7 +515,7 @@ static TuneEventQueue *sharedQueue = nil;
             [NSThread sleepUntilDate:runDate];
         }
         
-        @synchronized(_eventLock) {
+        @synchronized(self) {
             request[TUNE_KEY_NETWORK_REQUEST_PENDING] = @(YES);
         }
         
@@ -622,8 +589,8 @@ static TuneEventQueue *sharedQueue = nil;
             if (error != nil) {
                 DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
                 
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
-                    [_delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
+                if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                    [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
                 
                 urlResp = nil; // set response to nil and make sure that the request is retried
@@ -642,14 +609,14 @@ static TuneEventQueue *sharedQueue = nil;
                 
             // if the network request was successful, great
             if (code >= 200 && code <= 299) {
-                if ([_delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
-                    [_delegate queueRequest:fullRequestString didSucceedWithData:data];
+                if ([self.delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
+                    [self.delegate queueRequest:fullRequestString didSucceedWithData:data];
                 }
                 // leave newFirstItem nil to delete
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                     userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
                     userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
@@ -661,7 +628,7 @@ static TuneEventQueue *sharedQueue = nil;
                     NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                      code:TUNE_REQUEST_400_ERROR_CODE
                                                  userInfo:userInfo];
-                    [_delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
+                    [self.delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
                 }
                 // leave newFirstItem nil to delete
             }
@@ -678,14 +645,14 @@ static TuneEventQueue *sharedQueue = nil;
             }
             
             // pop or replace event from queue
-            @synchronized(_eventLock) {
-                NSUInteger index = [events indexOfObject:request];
+            @synchronized(self) {
+                NSUInteger index = [self.events indexOfObject:request];
                 
                 if (index != NSNotFound) {
                     if (newFirstItem == nil) {
-                        [events removeObjectAtIndex:index];
+                        [self.events removeObjectAtIndex:index];
                     } else {
-                        [events replaceObjectAtIndex:index withObject:newFirstItem];
+                        [self.events replaceObjectAtIndex:index withObject:newFirstItem];
                     }
                 }
                 
@@ -712,8 +679,8 @@ static TuneEventQueue *sharedQueue = nil;
         if (error != nil) {
             DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
             
-            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
-                [_delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
+            if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
             urlResp = nil; // set response to nil to make sure that the request is retried
         }
@@ -726,14 +693,14 @@ static TuneEventQueue *sharedQueue = nil;
  Fires each enqueued event until the queue is emptied. Fires the next event only when the previous event request has finished.
  */
 - (void)dumpQueue {
-    [requestOpQueue addOperationWithBlock:^{
+    [self.requestOpQueue addOperationWithBlock:^{
         if( ![TuneNetworkUtils isNetworkReachable] ) return;
         
         // get first request
         NSMutableDictionary *request = nil;
-        @synchronized(_eventLock) {
-            if( [events count] < 1 ) return;
-            request = events[0];
+        @synchronized(self) {
+            if( [self.events count] < 1 ) return;
+            request = self.events[0];
         }
         
         // sleep until fire date
@@ -742,7 +709,7 @@ static TuneEventQueue *sharedQueue = nil;
             [NSThread sleepUntilDate:runDate];
         }
         
-        @synchronized(_eventLock) {
+        @synchronized(self) {
             request[TUNE_KEY_NETWORK_REQUEST_PENDING] = @(YES);
         }
         
@@ -816,8 +783,8 @@ static TuneEventQueue *sharedQueue = nil;
             if (error != nil) {
                 DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
                 
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
-                    [_delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
+                if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                    [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
                 
                 urlResp = nil; // set response to nil and make sure that the request is retried
@@ -836,14 +803,14 @@ static TuneEventQueue *sharedQueue = nil;
             
             // if the network request was successful, great
             if (code >= 200 && code <= 299) {
-                if ([_delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
-                    [_delegate queueRequest:fullRequestString didSucceedWithData:data];
+                if ([self.delegate respondsToSelector:@selector(queueRequest:didSucceedWithData:)]) {
+                    [self.delegate queueRequest:fullRequestString didSucceedWithData:data];
                 }
                 // leave newFirstItem nil to delete
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if ( code == 400 && headers[@"X-MAT-Responder"] != nil ) {
-                if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                     userInfo[NSLocalizedFailureReasonErrorKey] = @"Bad Request";
                     userInfo[NSLocalizedDescriptionKey] = @"HTTP 400/Bad Request received from Tune server";
@@ -855,7 +822,7 @@ static TuneEventQueue *sharedQueue = nil;
                     NSError *e = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                      code:TUNE_REQUEST_400_ERROR_CODE
                                                  userInfo:userInfo];
-                    [_delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
+                    [self.delegate queueRequestDidFailWithError:e request:fullRequestString response:response.debugDescription];
                 }
                 // leave newFirstItem nil to delete
             }
@@ -872,14 +839,14 @@ static TuneEventQueue *sharedQueue = nil;
             }
             
             // pop or replace event from queue
-            @synchronized(_eventLock) {
-                NSUInteger index = [events indexOfObject:request];
+            @synchronized(self) {
+                NSUInteger index = [self.events indexOfObject:request];
                 
                 if (index != NSNotFound) {
                     if (newFirstItem == nil) {
-                        [events removeObjectAtIndex:index];
+                        [self.events removeObjectAtIndex:index];
                     } else {
-                        [events replaceObjectAtIndex:index withObject:newFirstItem];
+                        [self.events replaceObjectAtIndex:index withObject:newFirstItem];
                     }
                 }
                 
@@ -906,8 +873,8 @@ static TuneEventQueue *sharedQueue = nil;
         if (error != nil) {
             DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
             
-            if ([_delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
-                [_delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
+            if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
+                [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
             urlResp = nil; // set response to nil to make sure that the request is retried
         }
@@ -921,12 +888,12 @@ static TuneEventQueue *sharedQueue = nil;
 
 /*! Reads file from disk, deserializes and refills the network request queue.
  
- Note: Calls to loadQueue should be wrapped in @synchronized(_eventLock){}
+ Note: Calls to loadQueue should be wrapped in @synchronized(self){}
  */
 - (void)loadQueue {
-    events = [NSMutableArray array];
+    self.events = [NSMutableArray array];
     
-    NSString *path = [storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
+    NSString *path = [self.storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
     
     if( ![[NSFileManager defaultManager] fileExistsAtPath:path] )
         return;
@@ -957,7 +924,7 @@ static TuneEventQueue *sharedQueue = nil;
     }
     
     for (NSDictionary *dict in queue) {
-        [events addObject:[NSMutableDictionary dictionaryWithDictionary:dict]];
+        [self.events addObject:[NSMutableDictionary dictionaryWithDictionary:dict]];
     }
 }
 
@@ -966,18 +933,18 @@ static TuneEventQueue *sharedQueue = nil;
  Note: Calls to saveQueue should be wrapped in @synchronized(eventLock){}
  */
 - (void)saveQueue {
-    if (!events) {
+    if (!self.events) {
         return;
     }
     
     NSError *error = nil;
-    NSData *serializedQueue = [NSJSONSerialization dataWithJSONObject:events options:0 error:&error];
+    NSData *serializedQueue = [NSJSONSerialization dataWithJSONObject:self.events options:0 error:&error];
     if( error != nil ) {
         ErrorLog( @"Error serializing event queue for storage: %@", error );
         return;
     }
     
-    NSString *path = [storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
+    NSString *path = [self.storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
     if( ![serializedQueue writeToFile:path atomically:YES] ) {
         ErrorLog( @"Error writing event queue to file: %@", error );
         return;
@@ -989,56 +956,42 @@ static TuneEventQueue *sharedQueue = nil;
 
 #if TESTING
 
++ (void)resetSharedQueue {
+    sharedQueueOnceToken = 0;
+}
+     
 - (void)waitUntilAllOperationsAreFinishedOnQueue {
-    [requestOpQueue waitUntilAllOperationsAreFinished];
+    [self.requestOpQueue waitUntilAllOperationsAreFinished];
 }
 
 - (void)cancelAllOperationsOnQueue {
-    [requestOpQueue cancelAllOperations];
+    [self.requestOpQueue cancelAllOperations];
 }
 
-+ (void)resetSharedInstance {
-    sharedQueue = [TuneEventQueue new];
-}
-
-+ (instancetype)sharedInstance {
-    return sharedQueue;
-}
-
-+ (NSMutableArray *)events {
-    @synchronized(sharedQueue.eventLock) {
-        return sharedQueue.events;
+- (NSDictionary *)eventAtIndex:(NSUInteger)index {
+    @synchronized(self) {
+        return [self.events objectAtIndex:index];
     }
 }
 
-+ (NSDictionary *)eventAtIndex:(NSUInteger)index {
-    @synchronized(sharedQueue.eventLock) {
-        return [sharedQueue.events objectAtIndex:index];
+- (NSUInteger)queueSize {
+    @synchronized(self) {
+        return [self.events count];
     }
 }
 
-+ (NSUInteger)queueSize {
-    @synchronized(sharedQueue.eventLock) {
-        return [sharedQueue.events count];
-    }
-}
-
-+ (void)drainQueue {
-    @synchronized(sharedQueue.eventLock) {
-        [sharedQueue.events removeAllObjects];
+- (void)drainQueue {
+    @synchronized(self) {
+        [self.events removeAllObjects];
         
-        [sharedQueue saveQueue];
+        [self saveQueue];
     }
-    [sharedQueue cancelAllOperationsOnQueue];
+    [self cancelAllOperationsOnQueue];
 }
 
-+ (void)dumpQueue {
-    [sharedQueue dumpQueue];
-}
-
-+ (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code {
-    sharedQueue.forceError = isError;
-    sharedQueue.forcedErrorCode = isError ? code : 0;
+- (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code {
+    self.forceError = isError;
+    self.forcedErrorCode = isError ? code : 0;
 }
 
 #endif

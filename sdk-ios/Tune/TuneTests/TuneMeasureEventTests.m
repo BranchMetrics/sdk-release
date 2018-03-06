@@ -57,7 +57,7 @@
     [skyhookCenter startSkyhookQueue];
     
     // Need to wait due to operation queue.
-    [Tune waitUntilAllOperationsAreFinishedOnQueue];
+    [[Tune tuneQueue] waitUntilAllOperationsAreFinished];
     [skyhookCenter waitTilQueueFinishes];
     
     XCTAssertNotNil(customEventFromSkyhook);

@@ -10,16 +10,20 @@
 
 @interface TuneEventQueue (Testing)
 
+// expose private properties
+@property (nonatomic, strong, readwrite) NSMutableArray *events;
+@property (nonatomic, weak) id <TuneEventQueueDelegate> delegate;
+
++ (void)resetSharedQueue;
+
 - (void)waitUntilAllOperationsAreFinishedOnQueue;
 - (void)cancelAllOperationsOnQueue;
-+ (void)resetSharedInstance;
-+ (instancetype)sharedInstance;
-+ (NSMutableArray *)events;
-+ (NSDictionary *)eventAtIndex:(NSUInteger)index;
-+ (NSUInteger)queueSize;
-+ (void)drainQueue;
-+ (void)dumpQueue;
-+ (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code;
-+ (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt;
+- (NSMutableArray *)events;
+- (NSDictionary *)eventAtIndex:(NSUInteger)index;
+- (NSUInteger)queueSize;
+- (void)drainQueue;
+- (void)dumpQueue;
+- (void)setForceNetworkError:(BOOL)isError code:(NSInteger)code;
+- (NSTimeInterval)retryDelayForAttempt:(NSInteger)attempt;
 
 @end

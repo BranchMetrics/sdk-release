@@ -45,9 +45,8 @@
 @property (strong, nonatomic) TuneConnectedModeManager *connectedModeManager;
 @property (strong, nonatomic) TuneSmartWhereTriggeredEventManager *triggeredEventManager;
 
-@property (strong, nonatomic) dispatch_queue_t concurrentQueue;
 
 + (TuneManager *)currentManager;
-+ (void)instantiateModules;
+- (void)instantiateModules;
 
 @end

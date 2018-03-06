@@ -172,7 +172,7 @@
 
     // NOTE: We need to instantiate everything again here since the only time things are loaded from
     //       NSUserDefaults for the UserProfile is on instantiation
-    [TuneManager instantiateModules];
+    [[TuneManager currentManager] instantiateModules];
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
     [Tune setDelegate:self];
     waitForQueuesToFinish();

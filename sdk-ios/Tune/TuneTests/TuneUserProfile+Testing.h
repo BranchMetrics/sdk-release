@@ -10,6 +10,9 @@
 
 @interface TuneUserProfile (Testing)
 
+// Expose for testing
+@property (nonatomic, strong, readwrite) NSMutableDictionary *userVariables;
+
 - (void)storeProfileKey:(NSString *)key value:(id)value;
 - (void)initiateSession:(TuneSkyhookPayload *)payload;
 - (NSSet *)getCustomProfileVariables;

@@ -94,6 +94,23 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
 
 @implementation TuneTracker
 
+static dispatch_once_t sharedInstanceOnceToken;
+
++ (TuneTracker *)sharedInstance {
+    static TuneTracker *tuneTracker;
+    dispatch_once(&sharedInstanceOnceToken, ^{
+        tuneTracker = [TuneTracker new];
+    });
+    return tuneTracker;
+}
+
+#if TESTING
+// Test design requires a singleton reset button.  ಠ_ಠ
++ (void)resetSharedInstance {
+    sharedInstanceOnceToken = 0;
+}
+#endif
+
 // unit tests rely on knowing the session queuing delay value
 + (NSTimeInterval)sessionQueuingDelay {
     return TUNE_SESSION_QUEUING_DELAY;
@@ -133,7 +150,7 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
         [TuneLocationHelper class];
         #endif
         
-        [TuneEventQueue setDelegate:self];
+        [[TuneEventQueue sharedQueue] setDelegate:self];
         
         // !!! very important to init some parms here
         self.shouldUseCookieTracking = NO; // by default do not use cookie tracking
@@ -201,7 +218,7 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
     [[TuneManager currentManager].userProfile setReferralUrl:urlString];
     [[TuneManager currentManager].userProfile setReferralSource:sourceApplication];
     
-    [TuneEventQueue updateEnqueuedEventsWithReferralUrl:urlString referralSource:sourceApplication];
+    [[TuneEventQueue sharedQueue]updateEnqueuedEventsWithReferralUrl:urlString referralSource:sourceApplication];
 }
 
 #pragma mark - Skyhook Observer
@@ -311,7 +328,7 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
         [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_IAD_ATTRIBUTION_CHECKED];
         
         __weak typeof(self) weakSelf = self;
-        [TuneEventQueue updateEnqueuedSessionEventWithIadAttributionInfo:attributionInfo impressionDate:impressionDate completionHandler:^(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict) {
+        [[TuneEventQueue sharedQueue] updateEnqueuedSessionEventWithIadAttributionInfo:attributionInfo impressionDate:impressionDate completionHandler:^(BOOL updated, NSString *refId, NSString *url, NSDictionary *postDict) {
             if (updated) {
                 [weakSelf notifyDelegateRequestEnqueuedWithRefId:refId url:url postData:postDict];
             } else {
@@ -498,7 +515,7 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
     NSString *clickLink = [self buildUrlStringForClick:clickedTuneLinkUrl];
     
     // Fire the click event request
-    [TuneEventQueue sendUrlRequestImmediately:clickLink eventAction:TUNE_EVENT_CLICK refId:nil encryptParams:nil postData:nil runDate:[NSDate date]];
+    [[TuneEventQueue sharedQueue] sendUrlRequestImmediately:clickLink eventAction:TUNE_EVENT_CLICK refId:nil encryptParams:nil postData:nil runDate:[NSDate date]];
     
     // Notify delegate of enqueued request
     [self notifyDelegateRequestEnqueuedWithRefId:nil url:clickLink postData:nil];
@@ -678,7 +695,7 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
         runDate = [runDate dateByAddingTimeInterval:[TuneTracker sessionQueuingDelay]];
     
     // fire the event tracking request
-    [TuneEventQueue enqueueUrlRequest:trackingLink eventAction:event.actionName refId:event.refId encryptParams:encryptParams postData:postDict runDate:runDate];
+    [[TuneEventQueue sharedQueue] enqueueUrlRequest:trackingLink eventAction:event.actionName refId:event.refId encryptParams:encryptParams postData:postDict runDate:runDate];
     
     NSString *reqUrl = [NSString stringWithFormat:@"%@%@", trackingLink, encryptParams];
     [self notifyDelegateRequestEnqueuedWithRefId:event.refId url:reqUrl postData:postDict];

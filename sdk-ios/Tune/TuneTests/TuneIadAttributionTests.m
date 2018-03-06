@@ -90,7 +90,7 @@
     
     classMockTuneUserDefaultUtils = OCMClassMock([TuneUserDefaultsUtils class]);
     
-    mockTuneTracker = OCMPartialMock([Tune sharedManager]);
+    mockTuneTracker = OCMPartialMock([TuneTracker sharedInstance]);
     
     params = [TuneTestParams new];
     

@@ -51,7 +51,7 @@
     [super setUp];
     
     // This suite expects nothing else running in the background
-    [TuneManager nilModules];
+    [[TuneManager currentManager] nilModules];
     
     mockApplication = OCMClassMock([UIApplication class]);
     OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);

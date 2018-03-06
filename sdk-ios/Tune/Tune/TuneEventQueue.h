@@ -17,12 +17,12 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 @interface TuneEventQueue : NSObject
 
-+ (void)setDelegate:(id<TuneEventQueueDelegate>)delegate;
++ (TuneEventQueue *)sharedQueue;
 
 /*!
  Method used to enqueue a request in the main Tune event queue.
  */
-+ (void)enqueueUrlRequest:(NSString*)trackingLink
+- (void)enqueueUrlRequest:(NSString*)trackingLink
               eventAction:(NSString*)actionName
                     refId:(NSString*)refId
             encryptParams:(NSString*)encryptParams
@@ -32,7 +32,7 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 /*!
  Method used to immediately send a request, bypassing the main Tune event queue.
  */
-+ (void)sendUrlRequestImmediately:(NSString*)trackingLink
+- (void)sendUrlRequestImmediately:(NSString*)trackingLink
                       eventAction:(NSString*)actionName
                             refId:(NSString*)refId
                     encryptParams:(NSString*)encryptParams
@@ -42,7 +42,7 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
 /*!
  Update currently enqueued requests to include the provided referral_url and referral_source.
  */
-+ (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;
+- (void)updateEnqueuedEventsWithReferralUrl:(NSString *)url referralSource:(NSString *)bundleId;
 
 /*!
  If a session request is currently enqueued, include the provided iAd attribution info in the request url / post data.
@@ -50,7 +50,9 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  @param impressionDate iAd attribution impression date available on iOS 8 to be used to update the enqueued session request
  @param completionHandler Completion handler block that contains updated url / postData when the update is successful
  */
-+ (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString * refId, NSString *url, NSDictionary *postData))completionHandler;
+- (void)updateEnqueuedSessionEventWithIadAttributionInfo:(NSDictionary *)iadInfo impressionDate:(NSDate *)impressionDate completionHandler:(void(^)(BOOL updated, NSString * refId, NSString *url, NSDictionary *postData))completionHandler;
+
+- (void)setDelegate:(id<TuneEventQueueDelegate>)delegate;
 
 @end
 

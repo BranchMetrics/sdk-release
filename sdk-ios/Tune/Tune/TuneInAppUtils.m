@@ -9,7 +9,6 @@
 #import "TuneInAppUtils.h"
 #import "TuneFileUtils.h"
 #import "TuneFileManager.h"
-#import "TuneManager.h"
 #import "TuneMessageAction.h"
 #import "TuneUtils.h"
 
@@ -60,11 +59,6 @@
     }
     
     return messageLocationType;
-}
-
-// Wut. (disapproval)
-+ (id)getProperty:(NSString *)property fromDictionary:(NSDictionary *)dictionary {
-    return dictionary[property];
 }
 
 #pragma mark - Reading Values from Dictionary

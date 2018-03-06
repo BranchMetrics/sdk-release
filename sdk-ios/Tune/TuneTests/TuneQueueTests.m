@@ -64,7 +64,7 @@ static BOOL forcedNetworkStatus;
     callFailed = nil;
     callSuccess = nil;
     
-    eventQueue = [TuneEventQueue sharedInstance];
+    eventQueue = [TuneEventQueue sharedQueue];
     
     emptyRequestQueue();
     
@@ -91,20 +91,22 @@ static BOOL forcedNetworkStatus;
     emptyRequestQueue();
     waitForQueuesToFinish();
     
-    [TuneEventQueue setForceNetworkError:NO code:0];
+    [[TuneEventQueue sharedQueue] setForceNetworkError:NO code:0];
     
     [super tearDown];
 }
 
 - (void)checkAndClearExpectedQueueSize:(NSInteger)queueSize {
-    NSLog(@"checkAndClearExpectedQueueSize: cur queue size = %d", (unsigned int)[TuneEventQueue queueSize]);
+    NSLog(@"checkAndClearExpectedQueueSize: cur queue size = %d", (unsigned int)[[TuneEventQueue sharedQueue] queueSize]);
     
-    XCTAssertEqual( [TuneEventQueue queueSize], queueSize, @"expected %d queued requests, found %d", (int)queueSize, (unsigned int)[TuneEventQueue queueSize] );
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, queueSize, @"expected %d queued requests, found %d", (int)queueSize, (unsigned int)size);
     
     emptyRequestQueue();
     
     NSUInteger count = 0;
-    XCTAssertEqual( [TuneEventQueue queueSize], count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)[TuneEventQueue queueSize] );
+    size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)size);
 }
 
 - (NSUInteger)countOccurrencesOfSubstring:(NSString *)searchString inString:(NSString *)mainString {
@@ -189,7 +191,8 @@ static BOOL forcedNetworkStatus;
     waitFor( 0.5 );
     XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
-    XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests" );
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 2, @"expected 2 queued requests" );
     forcedNetworkStatus = YES;
 
 //    [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
@@ -224,7 +227,8 @@ static BOOL forcedNetworkStatus;
     [Tune measureEventName:@"event2"];
     waitFor( 1. );
     
-    XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests" );
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 2, @"expected 2 queued requests" );
     
     forcedNetworkStatus = YES;
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
@@ -252,7 +256,9 @@ static BOOL forcedNetworkStatus;
     waitFor([TuneTracker sessionQueuingDelay]);
     XCTAssertFalse( [callFailed boolValue], @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( [callSuccess boolValue], @"session call should not have been attempted after 1 sec" );
-    XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected 1 queued request, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
+    
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 1, @"expected 1 queued request, but found %lu", (unsigned long)size);
     
     waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     XCTAssertFalse( [callFailed boolValue], @"session call should not have failed" );
@@ -280,7 +286,9 @@ static BOOL forcedNetworkStatus;
 
     XCTAssertFalse( [callFailed boolValue], @"no calls should have been attempted after 1 sec" );
     XCTAssertFalse( [callSuccess boolValue], @"no calls should have been attempted after 1 sec" );
-    XCTAssertEqual( [TuneEventQueue queueSize], 2, @"expected 2 queued requests, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
+    
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 2, @"expected 2 queued requests, but found %lu", (unsigned long)size);
     
     NSDate *startTime = [NSDate date];
     
@@ -304,7 +312,7 @@ static BOOL forcedNetworkStatus;
 - (void)testNoDuplicateParamsInRetriedRequest {
     forcedNetworkStatus = YES;
     
-    [TuneEventQueue setForceNetworkError:YES code:500];
+    [[TuneEventQueue sharedQueue] setForceNetworkError:YES code:500];
     
 #if !TARGET_OS_TV
     [Tune setDebugMode:YES];
@@ -314,7 +322,7 @@ static BOOL forcedNetworkStatus;
     
     waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
 
-    NSMutableArray *requests = [TuneEventQueue events];
+    NSMutableArray *requests = [[TuneEventQueue sharedQueue] events];
     NSString *strUrl = requests[0][@"url"];
     NSString *searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
     NSUInteger count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
@@ -324,7 +332,7 @@ static BOOL forcedNetworkStatus;
     
     waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
     
-    requests = [TuneEventQueue events];
+    requests = [[TuneEventQueue sharedQueue] events];
     strUrl = requests[0][@"url"];
     searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
     count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
@@ -333,11 +341,11 @@ static BOOL forcedNetworkStatus;
     ////////////
     
     NSInteger retry = 1;
-    NSTimeInterval retryDelay = [TuneEventQueue retryDelayForAttempt:retry];
+    NSTimeInterval retryDelay = [[TuneEventQueue sharedQueue] retryDelayForAttempt:retry];
     
     waitFor( retryDelay + 0.5);
     
-    requests = [TuneEventQueue events];
+    requests = [[TuneEventQueue sharedQueue] events];
     strUrl = requests[0][@"url"];
     searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
     count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
@@ -347,7 +355,7 @@ static BOOL forcedNetworkStatus;
 - (void)testRetryCount {
     forcedNetworkStatus = YES;
     
-    [TuneEventQueue setForceNetworkError:YES code:500];
+    [[TuneEventQueue sharedQueue] setForceNetworkError:YES code:500];
     
 #if !TARGET_OS_TV
     [Tune setDebugMode:YES];
@@ -358,9 +366,11 @@ static BOOL forcedNetworkStatus;
     waitFor( 0.1 );
     XCTAssertFalse( [callFailed boolValue], @"session call should not have been attempted after 1 sec" );
     XCTAssertFalse( [callSuccess boolValue], @"session call should not have been attempted after 1 sec" );
-    XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected 1 queued request, but found %lu", (unsigned long)[TuneEventQueue queueSize] );
     
-    NSMutableArray *requests = [TuneEventQueue events];
+    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 1, @"expected 1 queued request, but found %lu", (unsigned long)size);
+    
+    NSMutableArray *requests = [[TuneEventQueue sharedQueue] events];
     NSString *strUrl = requests[0][@"url"];
     NSString *searchString = [NSString stringWithFormat:@"&%@=0", TUNE_KEY_RETRY_COUNT];
     
@@ -372,9 +382,10 @@ static BOOL forcedNetworkStatus;
     XCTAssertTrue( [callFailed boolValue], @"session call should have failed" );
     XCTAssertFalse( [callSuccess boolValue], @"session call should not have succeeded" );
     
-    XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected %d queued requests, found %d", 1, (unsigned int)[TuneEventQueue queueSize] );
+    size = [[TuneEventQueue sharedQueue] queueSize];
+    XCTAssertEqual(size, 1, @"expected %d queued requests, found %d", 1, (unsigned int)size);
     
-    requests = [TuneEventQueue events];
+    requests = [[TuneEventQueue sharedQueue] events];
     
     XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
     
@@ -387,11 +398,11 @@ static BOOL forcedNetworkStatus;
     
     finished = NO;
     NSInteger retry = 1;
-    NSTimeInterval retryDelay = [TuneEventQueue retryDelayForAttempt:retry];
+    NSTimeInterval retryDelay = [[TuneEventQueue sharedQueue] retryDelayForAttempt:retry];
     
     waitFor1( retryDelay + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
     
-    requests = [TuneEventQueue events];
+    requests = [[TuneEventQueue sharedQueue] events];
     
     XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
     

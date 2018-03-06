@@ -98,7 +98,6 @@
     }
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        // This must be on the main thread. I have no idea why.
         [locationManager startMonitoringForRegion:region];
 #if DEBUG_REGION
         [self printRegions];

@@ -11,6 +11,6 @@
 @interface TuneManager (Testing)
 
 - (void) registerSkyhooks;
-+ (void) nilModules;
+- (void) nilModules;
 
 @end

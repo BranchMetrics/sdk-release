@@ -31,7 +31,7 @@
     [super setUp];
 
     // This suite expects nothing else running in the background
-    [TuneManager nilModules];
+    [[TuneManager currentManager] nilModules];
     
     [TuneUserDefaultsUtils clearUserDefaultValue:TuneViewedCampaignsKey];
     

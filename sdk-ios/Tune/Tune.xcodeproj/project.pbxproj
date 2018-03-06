@@ -949,6 +949,7 @@
 		17BAA17D2025344800F26DD3 /* TuneFullScreenMessageDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3BE201929E300D2F7BA /* TuneFullScreenMessageDefaults.h */; };
 		17BAA17F2025344800F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
 		17BAA18C2028D4EA00F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
+		764F275F2049FF9C00A63F02 /* TuneNotInitializedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1145,6 +1146,8 @@
 		179C50BE1FFF0C7B00A2253B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		17AB14871FBF62750076EF7E /* TuneDelegateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneDelegateTests.m; sourceTree = "<group>"; };
 		17BAA1842025344800F26DD3 /* Tune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D582F5202D239600F18FE5 /* NSURLSession+Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+Logging.h"; sourceTree = "<group>"; };
+		17D582F6202D239600F18FE5 /* NSURLSession+Logging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+Logging.m"; sourceTree = "<group>"; };
 		32303FFF1B97A3ED00DD8E65 /* TuneNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotification.h; sourceTree = "<group>"; };
 		323040001B97A3ED00DD8E65 /* TuneNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneNotification.m; sourceTree = "<group>"; };
 		323040031B97A80500DD8E65 /* TuneNotificationProcessing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneNotificationProcessing.h; sourceTree = "<group>"; };
@@ -1213,6 +1216,7 @@
 		3FE85AF51B87F921008E706B /* TuneAnalyticsItemTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneAnalyticsItemTests.m; sourceTree = "<group>"; };
 		3FEBF7FD1B8E5CE60030EF4D /* TunePIIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TunePIIUtils.h; sourceTree = "<group>"; };
 		3FEBF7FE1B8E5CE60030EF4D /* TunePIIUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TunePIIUtils.m; sourceTree = "<group>"; };
+		764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneNotInitializedTests.m; sourceTree = "<group>"; };
 		9B7BD8121F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneSmartWhereTriggeredEventManager.h; sourceTree = "<group>"; };
 		9B7BD8131F0EA03E0093F28D /* TuneSmartWhereTriggeredEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereTriggeredEventManager.m; sourceTree = "<group>"; };
 		9B7BD81D1F0ED6260093F28D /* TuneSmartWhereTriggeredEventManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSmartWhereTriggeredEventManagerTests.m; sourceTree = "<group>"; };
@@ -1660,6 +1664,7 @@
 				176E6D3A1FDEF7A400418D1E /* TuneNotRedactedTests.m */,
 				1792D608201941DF00D2F7BA /* TuneDeepActionManager+Testing.h */,
 				1792D609201941DF00D2F7BA /* TuneInAppMessageTests.m */,
+				764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */,
 			);
 			path = TuneTests;
 			sourceTree = "<group>";
@@ -2139,6 +2144,8 @@
 		DBCA43441B8E7D4D00483318 /* Swizzles */ = {
 			isa = PBXGroup;
 			children = (
+				17D582F5202D239600F18FE5 /* NSURLSession+Logging.h */,
+				17D582F6202D239600F18FE5 /* NSURLSession+Logging.m */,
 				DBCA43451B8E7DCD00483318 /* UIViewController+TuneAnalytics.h */,
 				DBCA43461B8E7DCD00483318 /* UIViewController+TuneAnalytics.m */,
 			);
@@ -3146,6 +3153,7 @@
 				17301D9D1FFEEC2F001ADCC2 /* TuneSmartWherePublicAPITests.m in Sources */,
 				17301DB91FFEEC68001ADCC2 /* TuneParametersTests.m in Sources */,
 				17301DB31FFEEC68001ADCC2 /* TuneEncrypterTests.m in Sources */,
+				764F275F2049FF9C00A63F02 /* TuneNotInitializedTests.m in Sources */,
 				17301D891FFEEC08001ADCC2 /* TunePowerHookValueTests.m in Sources */,
 				17301DBF1FFEEC68001ADCC2 /* TuneUserDefaultsUtilsTests.m in Sources */,
 				17301D8C1FFEEC0F001ADCC2 /* TuneCampaignStateManagerTests.m in Sources */,

@@ -12,7 +12,7 @@
 
 @interface Tune ()
 
-+ (TuneTracker *)sharedManager;
++ (NSOperationQueue *)tuneQueue;
 
 // These aren't currently enabled, but will be in a later release
 

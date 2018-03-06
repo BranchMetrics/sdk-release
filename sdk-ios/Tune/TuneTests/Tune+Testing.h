@@ -12,7 +12,7 @@
 @interface Tune (Testing)
 
 + (void)setPluginName:(NSString *)pluginName;
-+ (void)reInitSharedManagerOverride;
++ (void)resetTuneTrackerSharedInstance;
 + (void)setAllowDuplicateRequests:(BOOL)allowDup;
 
 + (void)waitUntilAllOperationsAreFinishedOnQueue;

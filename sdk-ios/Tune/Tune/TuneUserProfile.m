@@ -120,6 +120,7 @@
     self = [super initWithTuneManager:tuneManager];
     
     if (self) {
+        
 #if TARGET_OS_IOS
         self.netInfo = [CTTelephonyNetworkInfo new];
 #endif
@@ -255,10 +256,10 @@
         @synchronized(self) {
             // Restore saved custom profile variable names
             NSString *customVariablesJson = (NSString *)[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_CUSTOM_VARIABLES];
-            [_userCustomVariables addObjectsFromArray:[TuneJSONUtils createArrayFromJSONString:customVariablesJson]];
+            [self.userCustomVariables addObjectsFromArray:[TuneJSONUtils createArrayFromJSONString:customVariablesJson]];
             
             // Restore variable values for each name in custom variables
-            for (NSString *variableName in _userCustomVariables) {
+            for (NSString *variableName in self.userCustomVariables) {
                 TuneAnalyticsVariable *storedVariable = [TuneUserDefaultsUtils userDefaultCustomVariableforKey:variableName];
                 // If stored variable exists, restore it to userVariables
                 if (storedVariable) {
@@ -275,7 +276,7 @@
 - (void)endSession:(TuneSkyhookPayload *)payload {
     // Save custom profile variable names
     @synchronized(self) {
-        NSString *customVariablesJson = [TuneJSONUtils createJSONStringFromArray:[_userCustomVariables allObjects]];
+        NSString *customVariablesJson = [TuneJSONUtils createJSONStringFromArray:[self.userCustomVariables allObjects]];
         [TuneUserDefaultsUtils setUserDefaultValue:customVariablesJson forKey:TUNE_KEY_CUSTOM_VARIABLES];
     }
 }
@@ -757,13 +758,15 @@
 
 - (void)addCustomProfileVariable:(NSString *)value {
     @synchronized(self) {
-        [_userCustomVariables addObject:value];
+        [self.userCustomVariables addObject:value];
     }
 }
 
 - (NSSet *)getCustomProfileVariables {
     @synchronized(self) {
-        return [_userCustomVariables copy];
+        // One layer deep copy, requires all contents conform to NSCopying
+        // NSString does conform to NSCopying
+        return [[NSSet alloc] initWithSet:self.userCustomVariables copyItems:YES];
     }
 }
 
@@ -791,7 +794,9 @@
 
 - (NSDictionary *)getProfileVariables {
     @synchronized(self){
-        return [NSDictionary dictionaryWithDictionary:self.userVariables];
+        // One layer deep copy, requires all contents conform to NSCopying
+        // TuneAnalyticsVariable does conform to NSCopying
+        return [[NSDictionary alloc] initWithDictionary:self.userVariables copyItems:YES];
     }
 }
 

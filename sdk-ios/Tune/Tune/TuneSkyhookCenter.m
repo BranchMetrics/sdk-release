@@ -33,29 +33,29 @@ static TuneSkyhookCenter *defaultCenter = nil;
 
 #if !TARGET_OS_WATCH
             // Proxy the NSNotificationCenter
-            NSNotificationCenter *notifcationCenter = [NSNotificationCenter defaultCenter];
+            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
             UIApplication *application = [UIApplication sharedApplication];
             
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationDidBecomeActive:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidBecomeActive:)
                                       name:UIApplicationDidBecomeActiveNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationDidEnterBackground:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidEnterBackground:)
                                       name:UIApplicationDidEnterBackgroundNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationDidFinishLaunching:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidFinishLaunching:)
                                       name:UIApplicationDidFinishLaunchingNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationWillTerminate:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillTerminate:)
                                       name:UIApplicationWillTerminateNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationWillResignActive:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillResignActive:)
                                       name:UIApplicationWillResignActiveNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationWillEnterForeground:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillEnterForeground:)
                                       name:UIApplicationWillEnterForegroundNotification object:application];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationLowMemory:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationLowMemory:)
                                       name:UIApplicationDidReceiveMemoryWarningNotification object:application];
 
 #if TARGET_OS_IOS
-            [notifcationCenter addObserver:defaultCenter selector:@selector(deviceOrientationDidChange:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(deviceOrientationDidChange:)
                                       name:UIDeviceOrientationDidChangeNotification object:nil];
-            [notifcationCenter addObserver:defaultCenter selector:@selector(applicationStatusBarChanged:)
+            [notificationCenter addObserver:defaultCenter selector:@selector(applicationStatusBarChanged:)
                                       name:UIApplicationDidChangeStatusBarOrientationNotification object:application];
 #endif
             

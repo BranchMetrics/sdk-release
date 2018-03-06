@@ -12,7 +12,6 @@
 #import "TuneConfiguration.h"
 #import "TuneDeviceDetails.h"
 #import "TuneJSONUtils.h"
-#import "TuneManager.h"
 #import "TuneStringUtils.h"
 #import "TuneUtils.h"
 
@@ -163,7 +162,8 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
 }
 
 - (void)performAsynchronousRequestWithCompletionBlock:(void (^)(TuneHttpResponse* response))completionBlock {
-    dispatch_async([[TuneManager currentManager] concurrentQueue], ^{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         TuneHttpResponse *response = [self sendRequest];
         if (completionBlock != nil) {
             completionBlock(response);
