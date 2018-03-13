@@ -57,8 +57,6 @@ public class TuneConstants {
     // IS_COPPA Minimum Age restriction (US)
     public static final int COPPA_MINIMUM_AGE = 13;
 
-    // Debug log tag
-    static final String TAG = "TUNE";
     // Max number of events to dump when queued
     static final int MAX_DUMP_SIZE = 50;
     // Set a network timeout time of 60s

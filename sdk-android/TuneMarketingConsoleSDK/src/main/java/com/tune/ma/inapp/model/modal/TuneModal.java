@@ -5,9 +5,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.inapp.model.TuneInAppMessage;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 
 import org.json.JSONObject;

@@ -18,11 +18,11 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.inapp.model.TuneCloseButton;
 import com.tune.ma.inapp.model.TuneInAppMessage;
-import com.tune.ma.utils.TuneDebugLog;
 
 import org.json.JSONObject;
 

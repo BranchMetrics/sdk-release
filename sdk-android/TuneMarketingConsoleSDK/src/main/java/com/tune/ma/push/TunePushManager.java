@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.tune.TuneConstants;
+import com.tune.TuneDebugLog;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
@@ -22,10 +23,8 @@ import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
 import com.tune.ma.push.settings.TunePushListener;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
-import com.tune.ma.utils.TuneStringUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;

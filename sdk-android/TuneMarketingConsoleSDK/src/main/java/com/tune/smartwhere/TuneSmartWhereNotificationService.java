@@ -3,7 +3,7 @@ package com.tune.smartwhere;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.tune.TuneUtils;
+import com.tune.TuneDebugLog;
 
 import java.lang.reflect.Method;
 
@@ -25,11 +25,11 @@ public class TuneSmartWhereNotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        TuneUtils.log("TuneSmartWhereNotificationService: onHandleIntent");
+        TuneDebugLog.d("TuneSmartWhereNotificationService: onHandleIntent");
         if (intent != null && intent.getAction() != null && intent.getAction().equals(TUNE_SMARTWHERE_INTENT_ACTION)) {
             Object proximityNotification = intent.hasExtra(TUNE_SMARTWHERE_INTENT_EXTRA) ? intent.getSerializableExtra(TUNE_SMARTWHERE_INTENT_EXTRA) : null;
             String title = proximityNotification != null ? getTitleFromProximityNotification(proximityNotification) : null;
-            TuneUtils.log("TuneSmartWhereNotificationService: proximityNotification = " + title);
+            TuneDebugLog.d("TuneSmartWhereNotificationService: proximityNotification = " + title);
         }
     }
 

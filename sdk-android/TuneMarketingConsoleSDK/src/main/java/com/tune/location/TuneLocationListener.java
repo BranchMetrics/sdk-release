@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.tune.TuneDebugLog;
 import com.tune.TuneUtils;
-import com.tune.ma.utils.TuneDebugLog;
 
 import java.util.Timer;
 import java.util.TimerTask;

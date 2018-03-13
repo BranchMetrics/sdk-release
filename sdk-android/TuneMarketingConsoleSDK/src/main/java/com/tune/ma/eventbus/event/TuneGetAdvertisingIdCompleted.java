@@ -11,8 +11,15 @@ public class TuneGetAdvertisingIdCompleted {
     public TuneGetAdvertisingIdCompleted(Type type, String deviceId, boolean limitAdTrackingEnabled) {
         this.type = type;
         this.deviceId = deviceId;
-        if (type == Type.GOOGLE_AID || type == Type.FIRE_AID) {
-            this.limitAdTrackingEnabled = limitAdTrackingEnabled;
+        switch(type) {
+            case PLATFORM_AID:
+            case GOOGLE_AID:
+            case FIRE_AID:
+                this.limitAdTrackingEnabled = limitAdTrackingEnabled;
+                break;
+
+            default:
+                break;
         }
     }
 
@@ -29,8 +36,9 @@ public class TuneGetAdvertisingIdCompleted {
     }
 
     public enum Type {
-        GOOGLE_AID,
-        FIRE_AID,
+        PLATFORM_AID,
+        @Deprecated GOOGLE_AID,
+        @Deprecated FIRE_AID,
         ANDROID_ID
     }
 }

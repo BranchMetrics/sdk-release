@@ -3,6 +3,7 @@ package com.tune.ma;
 import android.content.Context;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.http.Api;
 import com.tune.http.TuneApi;
 import com.tune.ma.analytics.TuneAnalyticsManager;
@@ -22,7 +23,6 @@ import com.tune.ma.powerhooks.TunePowerHookManager;
 import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.push.TunePushManager;
 import com.tune.ma.session.TuneSessionManager;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJSONPlayer;
 import com.tune.ma.utils.TuneStringUtils;
 

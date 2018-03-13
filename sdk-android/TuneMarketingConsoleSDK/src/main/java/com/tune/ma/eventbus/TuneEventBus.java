@@ -1,11 +1,11 @@
 package com.tune.ma.eventbus;
 
+import com.tune.TuneDebugLog;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
-import com.tune.ma.utils.TuneDebugLog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,6 +73,11 @@ public class TuneEventBus {
                     // We received a GAID, update GAID user profile values
                     eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AID, advertisingIdEvent.getDeviceId())));
                     eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, advertisingIdEvent.getLimitAdTrackingEnabled())));
+                    break;
+                case PLATFORM_AID:
+                    // We received a Platform Advertising ID, update PLATFORM_AID user profile values
+                    eventQueue.add(0, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PLATFORM_AID, advertisingIdEvent.getDeviceId())));
+                    eventQueue.add(1, new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, advertisingIdEvent.getLimitAdTrackingEnabled())));
                     break;
                 default:
                     break;

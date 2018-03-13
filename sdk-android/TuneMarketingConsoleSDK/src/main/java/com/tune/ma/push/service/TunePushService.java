@@ -5,12 +5,12 @@ import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
 import com.tune.TuneConstants;
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.configuration.TuneConfigurationConstants;
 import com.tune.ma.push.TunePushManager;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TunePushListener;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 import com.tune.ma.utils.TuneStringUtils;
 

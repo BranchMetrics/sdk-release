@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
@@ -14,7 +15,6 @@ import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
 import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -89,7 +89,7 @@ public class TuneUserProfile {
         storeProfileVariable(new TuneAnalyticsVariable(TuneUrlKeys.SDK_VERSION, Tune.getSDKVersion(), TuneVariableType.VERSION));
         Integer minutesFromGMT = (TimeZone.getDefault().getRawOffset() / 1000) / 60;
         storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.MINUTES_FROM_GMT, minutesFromGMT));
-        storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.OS_TYPE, "android"));
+        storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.OS_TYPE, "android"));  // Not to be confused with SDK Type
 
         SystemInfo sysInfo = new SystemInfo(context);
         storeProfileVariable(new TuneAnalyticsVariable(TuneProfileKeys.HARDWARE_TYPE, sysInfo.getModel()));
@@ -118,19 +118,16 @@ public class TuneUserProfile {
         sb.append("|");
         sb.append(packageName);
         sb.append("|");
-        sb.append("android");
+        sb.append("android");   // Not to be confused with SDK Type
 
         return TuneUtils.md5(sb.toString());
     }
 
     public String getDeviceId() {
-        String GAID = getProfileVariableValue(TuneUrlKeys.GOOGLE_AID);
-        String fireAid = getProfileVariableValue(TuneUrlKeys.FIRE_AID);
+        String platformAid = getProfileVariableValue(TuneUrlKeys.PLATFORM_AID);
         String androidId = getProfileVariableValue(TuneUrlKeys.ANDROID_ID);
-        if (GAID != null) {
-            return GAID;
-        } else if (fireAid != null) {
-            return fireAid;
+        if (platformAid != null) {
+            return platformAid;
         } else if (androidId != null) {
             return androidId;
         } else {
@@ -289,7 +286,7 @@ public class TuneUserProfile {
         for (TuneAnalyticsVariable var: variables.values()) {
             if (redactedKeys.contains(var.getName())) {
                 // Key is redacted, and will not be appended.
-                // TuneUtils.log("REDACTED Key: " + var.getName());
+                // TuneDebugLog.d("REDACTED Key: " + var.getName());
             } else {
                 result.add(new TuneAnalyticsVariable(var));
             }
@@ -298,7 +295,7 @@ public class TuneUserProfile {
         for (TuneAnalyticsVariable sessionVariable: sessionVariables) {
             if (redactedKeys.contains(sessionVariable.getName())) {
                 // Key is redacted, and will not be appended.
-                // TuneUtils.log("REDACTED Session Key: " + sessionVariable.getName());
+                // TuneDebugLog.d("REDACTED Session Key: " + sessionVariable.getName());
             } else {
                 result.add(sessionVariable);
             }

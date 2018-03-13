@@ -1,6 +1,7 @@
 package com.tune.http;
 
 import com.tune.TuneConstants;
+import com.tune.TuneDebugLog;
 import com.tune.TuneDeeplinkListener;
 import com.tune.TuneUtils;
 
@@ -111,7 +112,7 @@ public class TuneUrlRequester implements UrlRequester {
             conn.connect();
             int responseCode = conn.getResponseCode();
             if (debugMode) {
-                TuneUtils.log("Request completed with status " + responseCode);
+                TuneDebugLog.d("Request completed with status " + responseCode);
             }
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 is = new BufferedInputStream(conn.getInputStream());
@@ -122,35 +123,31 @@ public class TuneUrlRequester implements UrlRequester {
             String responseAsString = TuneUtils.readStream(is);
             if (debugMode) {
                 // Output server response
-                TuneUtils.log("Server response: " + responseAsString);
+                TuneDebugLog.d("Server response: " + responseAsString);
             }
-            // Try to parse response and print
-            JSONObject responseJson = new JSONObject();
-            try {
+
+            String matResponderHeader = conn.getHeaderField("X-MAT-Responder");
+            if (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE) {
+                // Try to parse response and print
                 JSONTokener tokener = new JSONTokener(responseAsString);
-                responseJson = new JSONObject(tokener);
+                JSONObject responseJson = new JSONObject(tokener);
                 if (debugMode) {
                     logResponse(responseJson);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            String matResponderHeader = conn.getHeaderField("X-MAT-Responder");
-            if (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE) {
+
                 return responseJson;
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
             else if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST && matResponderHeader != null) {
                 if (debugMode) {
-                    TuneUtils.log("Request received 400 error from TUNE server, won't be retried");
+                    TuneDebugLog.d("Request received 400 error from TUNE server, won't be retried");
                 }
                 return null; // don't retry
             }
             // for all other codes, assume the server/connection is broken and will be fixed later
         } catch (Exception e) {
             if (debugMode) {
-                TuneUtils.log("Request error with URL " + url);
+                TuneDebugLog.d("Request error with URL " + url);
             }
             e.printStackTrace();
         } finally {
@@ -173,7 +170,7 @@ public class TuneUrlRequester implements UrlRequester {
                 // Output if any errors occurred
                 if (response.has("errors") && response.getJSONArray("errors").length() != 0) {
                     String errorMsg = response.getJSONArray("errors").getString(0);
-                    TuneUtils.log("Event was rejected by server with error: " + errorMsg);
+                    TuneDebugLog.d("Event was rejected by server with error: " + errorMsg);
                 } else if (response.has("log_action") && 
                            !response.getString("log_action").equals("null") && 
                            !response.getString("log_action").equals("false") &&
@@ -186,9 +183,9 @@ public class TuneUrlRequester implements UrlRequester {
                             String status = conversion.getString("status");
                             if (status.equals("rejected")) {
                                 String statusCode = conversion.getString("status_code");
-                                TuneUtils.log("Event was rejected by server: status code " + statusCode);
+                                TuneDebugLog.d("Event was rejected by server: status code " + statusCode);
                             } else {
-                                TuneUtils.log("Event was accepted by server");
+                                TuneDebugLog.d("Event was accepted by server");
                             }
                         }
                     }
@@ -198,12 +195,12 @@ public class TuneUrlRequester implements UrlRequester {
                         JSONObject options = response.getJSONObject("options");
                         if (options.has("conversion_status")) {
                             String conversionStatus = options.getString("conversion_status");
-                            TuneUtils.log("Event was " + conversionStatus + " by server");
+                            TuneDebugLog.d("Event was " + conversionStatus + " by server");
                         }
                     }
                 }
             } catch (JSONException e) {
-                TuneUtils.log("Server response status could not be parsed");
+                TuneDebugLog.d("Server response status could not be parsed");
                 e.printStackTrace();
             }
         }

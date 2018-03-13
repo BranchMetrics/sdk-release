@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-import com.tune.ma.utils.TuneDebugLog;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;

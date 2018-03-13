@@ -3,11 +3,11 @@ package com.tune.ma.configuration;
 import android.content.Context;
 
 import com.tune.TuneConstants;
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneConnectedModeTurnedOn;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
@@ -152,7 +152,7 @@ public class TuneConfigurationManager {
         debugLoggingOn = config.debugLoggingOn();
         if (debugLoggingOn) {
             TuneDebugLog.enableLog();
-            TuneDebugLog.setLogLevel(TuneDebugLog.DEBUG);
+            TuneDebugLog.setLogLevel(TuneDebugLog.Level.DEBUG);
         }
         debugMode = config.debugMode(); //TODO Show an alert if debug mode is enabled?
         playlistHostPort = config.getPlaylistHostPort();

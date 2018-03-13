@@ -21,11 +21,11 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.TuneUtils;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.inapp.TuneScreenUtils;
 import com.tune.ma.inapp.model.TuneInAppMessage;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 
 import org.json.JSONObject;

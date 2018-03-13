@@ -67,10 +67,6 @@ public class TuneUrlKeys {
     public static final String DEVICE_CPU_SUBTYPE = "device_cpu_subtype";
     public static final String DEVICE_ID = "device_id";
     public static final String DEVICE_MODEL = "device_model";
-    public static final String FIRE_AD_TRACKING_DISABLED = "fire_ad_tracking_disabled";
-    public static final String FIRE_AID = "fire_aid";
-    public static final String GOOGLE_AD_TRACKING_DISABLED = "google_ad_tracking_disabled";
-    public static final String GOOGLE_AID = "google_aid";
     public static final String INSTALL_DATE = "insdate";
     public static final String INSTALL_BEGIN_TIMESTAMP = "download_date";
     public static final String REFERRER_CLICK_TIMESTAMP = "click_timestamp";
@@ -95,6 +91,14 @@ public class TuneUrlKeys {
     public static final String SDK_VERSION = "sdk_version";
     public static final String TRUSTE_ID = "truste_tpid";
     public static final String USER_AGENT = "conversion_user_agent";
+
+    // AID and AD Tracking
+    @Deprecated public static final String FIRE_AD_TRACKING_DISABLED = "fire_ad_tracking_disabled";
+    @Deprecated public static final String FIRE_AID = "fire_aid";
+    @Deprecated public static final String GOOGLE_AD_TRACKING_DISABLED = "google_ad_tracking_disabled";
+    @Deprecated public static final String GOOGLE_AID = "google_aid";
+    public static final String PLATFORM_AD_TRACKING_DISABLED = "platform_ad_tracking_disabled";
+    public static final String PLATFORM_AID = "platform_aid";
 
     // Event data keys
     public static final String ATTRIBUTE1 = "attribute_sub1";
@@ -191,6 +195,8 @@ public class TuneUrlKeys {
         TuneUrlKeys.MAT_ID,
         TuneUrlKeys.OFFER_ID,
         TuneUrlKeys.PACKAGE_NAME,
+        TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED,
+        TuneUrlKeys.PLATFORM_AID,
         TuneUrlKeys.PUBLISHER_ID,
         TuneUrlKeys.PUBLISHER_REF_ID,
         TuneUrlKeys.PUBLISHER_SUB1,

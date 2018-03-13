@@ -147,7 +147,9 @@ public class TuneTestParams extends java.lang.Object {
     }
 
     private boolean checkSdkValues() {
-        return ((checkKeyIsEqualToValue(TuneUrlKeys.SDK, "android") || checkKeyIsEqualToValue("s", "android"))
+        // NOTE that this test will check that the SDK "has" a value, not if it is Android or Fire.
+
+        return ((checkKeyHasValue(TuneUrlKeys.SDK) || checkKeyHasValue("s"))
                 && checkKeyHasValue(TuneUrlKeys.SDK_VER)
                 && (checkKeyHasValue(TuneUrlKeys.MAT_ID) || checkKeyHasValue("mi"))
                 && checkKeyHasValue(TuneUrlKeys.TRANSACTION_ID));

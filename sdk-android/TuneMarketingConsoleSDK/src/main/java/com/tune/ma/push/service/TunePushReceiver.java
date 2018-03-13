@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.google.android.gms.gcm.GcmReceiver;
-import com.tune.ma.utils.TuneDebugLog;
+import com.tune.TuneDebugLog;
 
 /**
  * TunePushReceiver

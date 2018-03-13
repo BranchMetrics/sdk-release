@@ -5,10 +5,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.deepactions.TuneDeepActionManager;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 
 import org.json.JSONObject;

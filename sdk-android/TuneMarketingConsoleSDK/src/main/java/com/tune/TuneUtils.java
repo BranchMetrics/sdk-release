@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.tune.ma.inapp.TuneScreenUtils;
 
@@ -24,42 +23,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class TuneUtils {
-
-    public static void log(String message) {
-        Log.d(TuneConstants.TAG, message);
-    }
-
-    /**
-     * Log with Timestamp
-     * @param message Message to log
-     * @param last (Optional) Last Timestamp for logging elapsed time
-     * @return now, in milliseconds.  Use this for subsequent Timestamp logging
-     */
-    public static long logTimestamp(String message, long... last) {
-        long now = System.currentTimeMillis();
-        StringBuilder sb = new StringBuilder();
-        sb.append("TIMESTAMP");
-        sb.append("(");
-        sb.append(now);
-        sb.append(")");
-
-        if (last.length > 0) {
-            sb.append("\tELAPSED[");
-            sb.append(now - last[0]);
-        }
-        for (int i = 1; i < last.length; i++) {
-            sb.append("],");
-            sb.append(now - last[i]);
-        }
-        if (last.length > 0) {
-            sb.append("]");
-        }
-        sb.append("\t");
-        sb.append(message);
-
-        Log.d(TuneConstants.TAG, sb.toString());
-        return now;
-    }
 
     /**
      * Reads an InputStream and converts it to a String

@@ -3,8 +3,8 @@ package com.tune.smartwhere;
 import android.content.Context;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.TuneEvent;
-import com.tune.TuneUtils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -148,7 +148,7 @@ public class TuneSmartWhere {
                 Method startService = targetClass.getMethod(TUNE_SMARTWHERE_METHOD_START_SERVICE, Context.class);
                 startService.invoke(targetClass, context);
             } catch (Exception e) {
-                TuneUtils.log("TuneSmartWhere.startMonitoring: " + e.getLocalizedMessage());
+                TuneDebugLog.d("TuneSmartWhere.startMonitoring", e);
             }
         }
     }
@@ -173,7 +173,7 @@ public class TuneSmartWhere {
                 Method stopService = targetClass.getMethod(TUNE_SMARTWHERE_METHOD_STOP_SERVICE, Context.class);
                 stopService.invoke(targetClass, context);
             } catch (Exception e) {
-                TuneUtils.log("TuneSmartWhere.stopMonitoring: " + e.getLocalizedMessage());
+                TuneDebugLog.d("TuneSmartWhere.stopMonitoring", e);
             }
         }
     }
@@ -194,7 +194,7 @@ public class TuneSmartWhere {
                 Method configureService = targetClass.getMethod(TUNE_SMARTWHERE_METHOD_CONFIGURE_SERVICE, Context.class, HashMap.class);
                 configureService.invoke(targetClass, context, config);
             } catch (Exception e) {
-                TuneUtils.log("TuneSmartWhere.setDebugMode: " + e.getLocalizedMessage());
+                TuneDebugLog.d("TuneSmartWhere.setDebugMode", e);
             }
         }
     }
@@ -215,7 +215,7 @@ public class TuneSmartWhere {
                 Method configureService = targetClass.getMethod(TUNE_SMARTWHERE_METHOD_CONFIGURE_SERVICE, Context.class, HashMap.class);
                 configureService.invoke(targetClass, context, config);
             } catch (Exception e) {
-                TuneUtils.log("TuneSmartWhere.setPackageName: " + e.getLocalizedMessage());
+                TuneDebugLog.d("TuneSmartWhere.setPackageName", e);
             }
         }
     }
@@ -236,7 +236,7 @@ public class TuneSmartWhere {
                     processMappedEvent.invoke(targetClass, context, eventName);
                 }
             } catch (Exception e) {
-                TuneUtils.log("TuneSmartWhere.processMappedEvent: " + e.getLocalizedMessage());
+                TuneDebugLog.d("TuneSmartWhere.processMappedEvent", e);
             }
         }
     }

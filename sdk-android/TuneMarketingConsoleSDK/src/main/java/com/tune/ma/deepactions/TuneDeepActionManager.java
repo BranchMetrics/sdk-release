@@ -2,10 +2,10 @@ package com.tune.ma.deepactions;
 
 import android.app.Activity;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.deepactions.model.TuneDeepAction;
 import com.tune.ma.eventbus.event.deepaction.TuneDeepActionCalled;
 import com.tune.ma.model.TuneDeepActionCallback;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneStringUtils;
 
 import org.greenrobot.eventbus.Subscribe;

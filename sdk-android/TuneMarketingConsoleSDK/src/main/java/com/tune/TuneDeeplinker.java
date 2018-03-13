@@ -1,6 +1,5 @@
 package com.tune;
 
-import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
@@ -10,23 +9,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TuneDeeplinker {
-    public static final String TLNK_IO = "tlnk.io";
+    private static final String TLNK_IO = "tlnk.io";
 
     private final Set<String> registeredTuneLinkDomains;
 
     private final String advertiserId;
     private final String conversionKey;
     private String packageName;
-    private String googleAdvertisingId;
-    private int isGoogleLimitAdTrackingEnabled;
-    private String fireAdvertisingId;
-    private int isFireLimitAdTrackingEnabled;
+    private String platformAdvertisingId;
+    private int isPlatformLimitAdTrackingEnabled;
     private String androidId;
     private String userAgent;
     private TuneDeeplinkListener listener;
     private boolean haveRequestedDeferredDeeplink;
 
-    public TuneDeeplinker(String advertiserId, String conversionKey, String packageName) {
+    TuneDeeplinker(String advertiserId, String conversionKey, String packageName) {
         this.advertiserId = advertiserId;
         this.conversionKey = conversionKey;
         this.packageName = packageName;
@@ -34,29 +31,24 @@ public class TuneDeeplinker {
         registeredTuneLinkDomains.add(TLNK_IO);
     }
 
-    public void setPackageName(String packageName) {
+    void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 
-    public void setUserAgent(String userAgent) {
+    private void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
 
-    public String getUserAgent() {
+    private String getUserAgent() {
         return userAgent;
     }
 
-    public void setFireAdvertisingId(String fireAdvertisingId, int isLATEnabled) {
-        this.fireAdvertisingId = fireAdvertisingId;
-        this.isFireLimitAdTrackingEnabled = isLATEnabled;
+    void setPlatformAdvertisingId(String advertisingId, int isLATEnabled) {
+        this.platformAdvertisingId = advertisingId;
+        this.isPlatformLimitAdTrackingEnabled = isLATEnabled;
     }
-    
-    public void setGoogleAdvertisingId(String googleAdvertisingId, int isLATEnabled) {
-        this.googleAdvertisingId = googleAdvertisingId;
-        this.isGoogleLimitAdTrackingEnabled = isLATEnabled;
-    }
-    
-    public void setAndroidId(String androidId) {
+
+    void setAndroidId(String androidId) {
         this.androidId = androidId;
     }
 
@@ -64,17 +56,15 @@ public class TuneDeeplinker {
         this.listener = listener;
     }
 
-    public void requestDeferredDeeplink(String userAgent, final Context context, final UrlRequester urlRequester) {
+    void requestDeferredDeeplink(String userAgent, final UrlRequester urlRequester) {
         setUserAgent(userAgent);
-        checkForDeferredDeeplink(context, urlRequester);
+        checkForDeferredDeeplink(urlRequester);
     }
 
-    public String buildDeferredDeepLinkRequestURL() {
+    private String buildDeferredDeepLinkRequestURL() {
         String advertisingId = androidId;
-        if (googleAdvertisingId != null) {
-            advertisingId = googleAdvertisingId;
-        } else if (fireAdvertisingId != null) {
-            advertisingId = fireAdvertisingId;
+        if (platformAdvertisingId != null) {
+            advertisingId = platformAdvertisingId;
         }
 
         // Construct deeplink endpoint url
@@ -83,25 +73,23 @@ public class TuneDeeplinker {
                 .authority(advertiserId + "." + TuneConstants.DEEPLINK_DOMAIN)
                 .appendPath("v1")
                 .appendPath("link.txt")
-                .appendQueryParameter("platform", "android")
-                .appendQueryParameter("advertiser_id", advertiserId)
-                .appendQueryParameter("ver", Tune.getSDKVersion())
-                .appendQueryParameter("package_name", packageName)
+                .appendQueryParameter("platform", "android")    // Not to be confused with SDK Type
+                .appendQueryParameter(TuneUrlKeys.ADVERTISER_ID, advertiserId)
+                .appendQueryParameter(TuneUrlKeys.SDK_VER, Tune.getSDKVersion())
+                .appendQueryParameter(TuneUrlKeys.PACKAGE_NAME, packageName)
                 .appendQueryParameter("ad_id", advertisingId)
                 .appendQueryParameter("user_agent", getUserAgent());
 
-        if (googleAdvertisingId != null) {
-            uri.appendQueryParameter("google_ad_tracking_disabled", Integer.toString(isGoogleLimitAdTrackingEnabled));
-        }
-
-        if (fireAdvertisingId != null) {
-            uri.appendQueryParameter("fire_ad_tracking_disabled", Integer.toString(isFireLimitAdTrackingEnabled));
+        // REVISIT: As of 20180308 this is not used by the server, however it is an open question if it will be useful in the future.
+        // Reference: SDK-296
+        if (platformAdvertisingId != null) {
+            uri.appendQueryParameter(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, Integer.toString(isPlatformLimitAdTrackingEnabled));
         }
 
         return uri.build().toString();
     }
 
-    private void checkForDeferredDeeplink(final Context context, final UrlRequester urlRequester) {
+    private void checkForDeferredDeeplink(final UrlRequester urlRequester) {
         // If we have already checked, don't check again, if no one is listening, don't check
         if (listener == null) {
             return;
@@ -118,7 +106,7 @@ public class TuneDeeplinker {
         }
 
         // If no device identifiers collected, return
-        if (googleAdvertisingId == null && fireAdvertisingId == null && androidId == null) {
+        if (platformAdvertisingId == null && androidId == null) {
             listener.didFailDeeplink("No device identifiers collected");
             return;
         }
@@ -134,25 +122,25 @@ public class TuneDeeplinker {
         }).start();
     }
 
-    public void handleFailedExpandedTuneLink(String errorMessage) {
+    void handleFailedExpandedTuneLink(String errorMessage) {
         if (listener != null) {
             listener.didFailDeeplink(errorMessage);
         }
     }
 
-    public void handleExpandedTuneLink(String invokeUrl) {
+    void handleExpandedTuneLink(String invokeUrl) {
         if (listener != null) {
             listener.didReceiveDeeplink(invokeUrl);
         }
     }
 
-    public void registerCustomTuneLinkDomain(String domain) {
+    void registerCustomTuneLinkDomain(String domain) {
         if (domain != null) {
             registeredTuneLinkDomains.add(domain);
         }
     }
 
-    public boolean isTuneLink(@NonNull String appLinkUrl) {
+    boolean isTuneLink(@NonNull String appLinkUrl) {
         boolean isTuneLink = false;
         try {
             Uri appLink = Uri.parse(appLinkUrl);

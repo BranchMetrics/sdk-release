@@ -38,7 +38,6 @@ import com.tune.ma.model.TuneDeepActionCallback;
 import com.tune.ma.push.TunePushInfo;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
 import com.tune.ma.push.settings.TunePushListener;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
 import com.tune.smartwhere.TuneSmartwhereConfiguration;
@@ -48,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,7 +76,7 @@ public class Tune {
     // Location listener
     protected TuneLocationListener locationListener;
     // Parameters container
-    protected TuneParameters params;
+    protected TuneParameters params = new TuneParameters();
     // Interface for testing URL requests
     protected TuneTestRequest tuneRequest; // note: this has no setter - must subclass to set
 
@@ -144,6 +142,9 @@ public class Tune {
      * @return Tune instance
      */
     public static synchronized Tune getInstance() {
+        if (sTuneInstance == null) {
+            TuneDebugLog.d("Tune Instance is null", new Exception("Null Singleton"));
+        }
         return sTuneInstance;
     }
 
@@ -275,7 +276,7 @@ public class Tune {
         // Dplinkr init
         dplinkr = new TuneDeeplinker(advertiserId, conversionKey, mContext.getPackageName());
 
-        params = TuneParameters.init(this, mContext, advertiserId, conversionKey);
+        params.init(this, mContext, advertiserId, conversionKey);
 
         initLocalVariables(conversionKey);
 
@@ -530,7 +531,7 @@ public class Tune {
         final boolean retryRequestInQueue = false;
 
         if (link == null) { // This is an internal method and link should always be set, but for customer stability we will prevent NPEs
-            TuneDebugLog.e(TuneConstants.TAG, "CRITICAL internal Tune request link is null");
+            TuneDebugLog.e("CRITICAL internal Tune request link is null");
             safeReportFailureToTuneListener("Internal Tune request link is null");
             return removeRequestFromQueue;
         }
@@ -710,7 +711,7 @@ public class Tune {
             try {
                 altitude = Double.parseDouble(altitudeString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing altitude value " + altitudeString, e);
+                TuneDebugLog.e("Error parsing altitude value " + altitudeString, e);
             }
         }
         return altitude;
@@ -752,7 +753,7 @@ public class Tune {
             try {
                 appVersion = Integer.parseInt(appVersionString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing appVersion value " + appVersionString, e);
+                TuneDebugLog.e("Error parsing appVersion value " + appVersionString, e);
             }
 
         }
@@ -843,7 +844,9 @@ public class Tune {
     /**
      * Gets the Fire Advertising ID.
      * @return Fire advertising ID
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#getPlatformAdvertisingId()}
      */
+    @Deprecated
     public String getFireAdvertisingId() {
         return params.getFireAdvertisingId();
     }
@@ -852,9 +855,11 @@ public class Tune {
      * Gets whether use of the Fire Advertising ID is limited by user request.
      * Note that COPPA rules apply.
      * @return whether tracking is limited
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#getPlatformAdTrackingLimited()}
      */
+    @Deprecated
     public boolean getFireAdTrackingLimited() {
-        return params.getFireAdTrackingLimited();
+        return params.getPlatformAdTrackingLimited();
     }
 
     /**
@@ -875,7 +880,9 @@ public class Tune {
     /**
      * Gets the Google Play Services Advertising ID.
      * @return Google advertising ID
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#getPlatformAdvertisingId()}
      */
+    @Deprecated
     public String getGoogleAdvertisingId() {
         return params.getGoogleAdvertisingId();
     }
@@ -884,9 +891,11 @@ public class Tune {
      * Gets whether use of the Google Play Services Advertising ID is limited by user request.
      * Note that COPPA rules apply.
      * @return whether tracking is limited
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#getPlatformAdTrackingLimited()}
      */
+    @Deprecated
     public boolean getGoogleAdTrackingLimited() {
-        return params.getGoogleAdTrackingLimited();
+        return params.getPlatformAdTrackingLimited();
     }
 
     /**
@@ -908,7 +917,7 @@ public class Tune {
             try {
                 installDate = Long.parseLong(installDateString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing installDate value " + installDateString, e);
+                TuneDebugLog.e("Error parsing installDate value " + installDateString, e);
             }
         }
         return installDate;
@@ -969,7 +978,7 @@ public class Tune {
             try {
                 latitude = Double.parseDouble(latitudeString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing latitude value " + latitudeString, e);
+                TuneDebugLog.e("Error parsing latitude value " + latitudeString, e);
             }
         }
 
@@ -997,7 +1006,7 @@ public class Tune {
             try {
                 longitude = Double.parseDouble(longitudeString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing longitude value " + longitudeString, e);
+                TuneDebugLog.e("Error parsing longitude value " + longitudeString, e);
             }
         }
 
@@ -1059,6 +1068,23 @@ public class Tune {
      */
     public String getPackageName() {
         return params.getPackageName();
+    }
+
+    /**
+     * Gets whether use of the Platform Advertising ID is limited by user request.
+     * Note that COPPA rules apply.
+     * @return whether tracking is limited
+     */
+    public boolean getPlatformAdTrackingLimited() {
+        return params.getPlatformAdTrackingLimited();
+    }
+
+    /**
+     * Gets the Platform Advertising ID.
+     * @return Platform advertising ID
+     */
+    public String getPlatformAdvertisingId() {
+        return params.getPlatformAdvertisingId();
     }
 
     /**
@@ -1240,7 +1266,7 @@ public class Tune {
 
     /**
      * Sets whether app-level ad tracking is enabled.
-     * @param adTrackingEnabled true if user has opted out of ad tracking at the app-level, false if not
+     * @param adTrackingEnabled false if user has opted out of ad tracking at the app-level, true if the user has opted in
      */
     public void setAppAdTrackingEnabled(final boolean adTrackingEnabled) {
         if (adTrackingEnabled) {
@@ -1326,20 +1352,17 @@ public class Tune {
      * Sets the Amazon Fire Advertising ID.
      * @param adId Amazon Fire advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#setPlatformAdvertisingId(String, boolean)}
      */
+    @Deprecated
     public void setFireAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled ? 1 : 0;
 
         if (params != null) {
             params.setFireAdvertisingId(adId);
             params.setFireAdTrackingLimited(Integer.toString(intLimit));
-
-            if (dplinkr != null) {
-                dplinkr.setFireAdvertisingId(adId, intLimit);
-                requestDeferredDeeplink();
-            }
         }
-        firstRunLogic.receivedAdvertisingId();
+        setPlatformAdvertisingId(adId, isLATEnabled);
     }
 
     /**
@@ -1354,20 +1377,17 @@ public class Tune {
      * Sets the Google Play Services Advertising ID.
      * @param adId Google Play advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
+     * @deprecated As of SDK v5.1.0.   Use {@link Tune#setPlatformAdvertisingId(String, boolean)}
      */
+    @Deprecated
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled ? 1 : 0;
 
         if (params != null) {
             params.setGoogleAdvertisingId(adId);
             params.setGoogleAdTrackingLimited(Integer.toString(intLimit));
-
-            if (dplinkr != null) {
-                dplinkr.setGoogleAdvertisingId(adId, intLimit);
-                requestDeferredDeeplink();
-            }
         }
-        firstRunLogic.receivedAdvertisingId();
+        setPlatformAdvertisingId(adId, isLATEnabled);
     }
 
     /**
@@ -1433,7 +1453,7 @@ public class Tune {
      */
     public void setLocation(final TuneLocation location) {
         if (location == null) {
-            TuneDebugLog.e(TuneConstants.TAG, "Location may not be null");
+            TuneDebugLog.e("Location may not be null");
             return;
         }
 
@@ -1518,6 +1538,26 @@ public class Tune {
     }
 
     /**
+     * Sets the Platform Advertising ID.
+     * @param adId Advertising ID
+     * @param isLATEnabled whether user has enabled limit ad tracking
+     */
+    public void setPlatformAdvertisingId(final String adId, boolean isLATEnabled) {
+        final int intLimit = isLATEnabled ? 1 : 0;
+
+        if (params != null) {
+            params.setPlatformAdvertisingId(adId);
+            params.setPlatformAdTrackingLimited(Integer.toString(intLimit));
+
+            if (dplinkr != null) {
+                dplinkr.setPlatformAdvertisingId(adId, intLimit);
+                requestDeferredDeeplink();
+            }
+        }
+        firstRunLogic.receivedAdvertisingId();
+    }
+
+    /**
      * Sets publisher information for device preloaded apps
      * @param preloadData Preload app attribution data
      */
@@ -1579,7 +1619,7 @@ public class Tune {
     }
 
     /**
-     * Set referral url (deeplink). You usually do not need to call this directly. If called, this method should be called BEFORE {@link #measureSessionInternal()} or {@link #measureSession()}
+     * Set referral url (deeplink). You usually do not need to call this directly. If called, this method should be called BEFORE {@link #measureSessionInternal()}
      * @param url deeplink with which app was invoked
      */
     public void setReferralUrl(final String url) {
@@ -1676,7 +1716,7 @@ public class Tune {
 
         if (debug) {
             TuneDebugLog.enableLog();
-            TuneDebugLog.setLogLevel(android.util.Log.DEBUG);
+            TuneDebugLog.setLogLevel(TuneDebugLog.Level.DEBUG);
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
@@ -1684,7 +1724,8 @@ public class Tune {
                 }
             });
         } else {
-            TuneDebugLog.setLogLevel(android.util.Log.ERROR);
+            TuneDebugLog.disableLog();
+            TuneDebugLog.setLogLevel(TuneDebugLog.Level.ERROR);
         }
     }
 
@@ -2408,7 +2449,7 @@ public class Tune {
         final boolean shouldRequestDeferredDeeplink = isFirstInstall && dplinkr != null && params != null;
 
         if (shouldRequestDeferredDeeplink) {
-            dplinkr.requestDeferredDeeplink(params.getUserAgent(), mContext, urlRequester);
+            dplinkr.requestDeferredDeeplink(params.getUserAgent(), urlRequester);
         }
     }
 
@@ -2901,13 +2942,43 @@ public class Tune {
     /**
      * Returns In-App Marketing's generated app ID value
      * @return App ID in In-App Marketing, or null if IAM was not enabled
+     * @deprecated use {@link #getIAMAppId()} instead
      */
+    @Deprecated
     public String getAppId() {
-        if (TuneManager.getProfileForUser("getAppId") == null) {
+        return getIAMAppId();
+    }
+
+    /**
+     * Returns In-App Marketing's generated application identifier
+     *
+     * This value changes if the package name or advertiser id set in the Tune SDK initialization changes.
+     *
+     * @return App ID for In-App Marketing, or null if IAM was not enabled
+     */
+    public String getIAMAppId() {
+        if (TuneManager.getProfileForUser("getIAMAppId") == null) {
             return null;
         }
 
         return TuneManager.getInstance().getProfileManager().getAppId();
+    }
+
+    /**
+     * Returns the identifier for this device's profile for In-App Marketing
+     *
+     * NOTE: the device's advertising identifiers, including the Google Advertising Identifier
+     * are fetched asynchronously after the Tune SDK is initialized and may change this value.
+     * We recommend fetching this value some time after the Tune SDK is initialized.
+     *
+     * @return Device profile identifier for In-App Marketing, or null if IAM was not enabled
+     */
+    public String getIAMDeviceId() {
+        if (TuneManager.getProfileForUser("getIAMDeviceId") == null) {
+            return null;
+        }
+
+        return TuneManager.getInstance().getProfileManager().getDeviceId();
     }
 
     // Clear

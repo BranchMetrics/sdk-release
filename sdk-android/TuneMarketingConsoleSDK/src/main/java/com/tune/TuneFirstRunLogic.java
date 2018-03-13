@@ -3,12 +3,10 @@ package com.tune;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
-import com.tune.ma.utils.TuneDebugLog;
 
 /**
  * First Run Logic
@@ -216,7 +214,7 @@ class TuneFirstRunLogic {
      *     <li>FEATURE_NOT_SUPPORTED -- Install referrer API not available on current device.  Try checking the broadcast.</li>
      *     <li>DEVELOPER_ERROR -- Error caused by incorrect usage. E.g: Already connecting to the service or Client was already closed and can't be reused.</li>
      * </ul>
-     * @param responseCode
+     * @param responseCode Response Code
      */
     private void onInstallReferrerResponseError(int responseCode) {
         // Implementation Note:  It doesn't really matter what the error is other than for logging

@@ -36,6 +36,9 @@ public class TurnOnTMATests extends AndroidTestCase {
     @Override
     public void tearDown() {
         TuneEventBus.unregister(this);
+        if (tune != null) {
+            tune.shutDown();
+        }
     }
 
     // Test that TuneManager is init when turnOnTMA is true
@@ -43,7 +46,6 @@ public class TurnOnTMATests extends AndroidTestCase {
         tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_ON_TMA, null);
         TuneEventBus.register(this);
         assertNotNull(TuneManager.getInstance());
-        tune.shutDown();
     }
 
     // Test that TuneEventBus can post and receive when turnOnTMA is true
@@ -53,7 +55,6 @@ public class TurnOnTMATests extends AndroidTestCase {
         TuneEventBus.register(this);
         TuneEventBus.post(new TuneTestEvent());
         assertTrue(eventReceived);
-        tune.shutDown();
     }
 
     // Test that TuneEventBus is disabled when turnOnTMA is false
@@ -62,6 +63,26 @@ public class TurnOnTMATests extends AndroidTestCase {
         TuneEventBus.register(this);
         TuneEventBus.post(new TuneTestEvent());
         assertFalse(eventReceived);
-        tune.shutDown();
     }
+
+    public void testGetIAMAppIDWhenIAMNotEnabled() {
+        tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_OFF_TMA, null);
+        assertNull(tune.getIAMAppId());
+    }
+
+    public void testGetIAMDeviceIDWhenIAMNotEnabled() {
+        tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_OFF_TMA, null);
+        assertNull(tune.getIAMDeviceId());
+    }
+
+    public void testGetIAMAppIDWhenIAMEnabled() {
+        tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_ON_TMA, null);
+        assertNotNull(tune.getIAMAppId());
+    }
+
+    public void testGetIAMDeviceIDWhenIAMEnabled() {
+        tune = Tune.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TURN_ON_TMA, null);
+        assertNotNull(tune.getIAMDeviceId());
+    }
+
 }

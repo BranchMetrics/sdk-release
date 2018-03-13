@@ -25,7 +25,7 @@ public class TuneTracker extends BroadcastReceiver {
                 String rawReferrer = intent.getStringExtra("referrer");
                 if (rawReferrer != null) {
                     String referrer = URLDecoder.decode(rawReferrer, "UTF-8");
-                    TuneUtils.log("TUNE received referrer " + referrer);
+                    TuneDebugLog.d("TUNE received referrer " + referrer);
 
                     // Save the referrer value in SharedPreferences
                     new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE).putString(TuneConstants.KEY_REFERRER, referrer);

@@ -176,11 +176,9 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     public void testAndroidIdNull() {
-        final String androidId = null;
-
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
-        tune.setAndroidId(androidId);
+        tune.setAndroidId(null);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
@@ -344,13 +342,13 @@ public class ParametersTests extends TuneUnitTest {
     public void testSetCOPPA_isPushEnabled() {
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be enabled by default
 
-        setPrivacyProtectedDueToAgeAndWait(false);                                  // COPPA(false)
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(false));                      // COPPA(false)
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should still be enabled
 
-        setPrivacyProtectedDueToAgeAndWait(true);                                   // COPPA(true)
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(true));                       // COPPA(true)
         assertFalse(TuneManager.getInstance().getPushManager().isPushEnabled());    // Should not be enabled
 
-        setPrivacyProtectedDueToAgeAndWait(false);                                  // COPPA(false)
+        assertTrue(setPrivacyProtectedDueToAgeAndWait(false));                      // COPPA(false)
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be disabled again
     }
 
@@ -463,11 +461,10 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(expectedCurrencyCode, tune.getCurrencyCode());
     }
 
-    public void testCurrencyCodeNull() {
-        final String currencyCode = null;
+    public void testCurrencyCode() {
         final String expectedCurrencyCode = "USD";
         
-        tune.setCurrencyCode( currencyCode );
+        tune.setCurrencyCode( null );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
@@ -687,23 +684,33 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertKeyValue(TuneUrlKeys.FIRE_AID, fireAdvertisingId);
-        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, "1");
+        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, TuneConstants.PREF_SET);
         assertEquals(fireAdvertisingId, tune.getFireAdvertisingId());
         assertTrue(tune.getFireAdTrackingLimited());
+
+        // Check that the platform advertising id is also set
+        assertKeyValue(TuneUrlKeys.PLATFORM_AID, fireAdvertisingId);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_SET);
+        assertEquals(fireAdvertisingId, tune.getPlatformAdvertisingId());
+        assertTrue(tune.getPlatformAdTrackingLimited());
     }
 
     public void testSetFireAdvertisingIdNull() {
-        String fireAdvertisingId = null;
-
-        tune.setFireAdvertisingId(fireAdvertisingId, false);
+        tune.setFireAdvertisingId(null, false);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey(TuneUrlKeys.FIRE_AID);
-        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, "0");
-        assertEquals(fireAdvertisingId, tune.getFireAdvertisingId());
+        assertKeyValue(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(null, tune.getFireAdvertisingId());
         assertFalse(tune.getFireAdTrackingLimited());
+
+        // Check that the platform advertising id is also *NOT* set
+        assertNoValueForKey(TuneUrlKeys.PLATFORM_AID);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(null, tune.getPlatformAdvertisingId());
+        assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
     public void testGenderMale() {
@@ -756,9 +763,6 @@ public class ParametersTests extends TuneUnitTest {
 
 
     public void testGoogleAdvertisingId() {
-        // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-
         String googleAdvertisingId = UUID.randomUUID().toString();
 
         tune.setGoogleAdvertisingId(googleAdvertisingId, false);
@@ -767,26 +771,33 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertKeyValue(TuneUrlKeys.GOOGLE_AID, googleAdvertisingId);
-        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, "0");
+        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
         assertEquals(googleAdvertisingId, tune.getGoogleAdvertisingId());
         assertFalse(tune.getGoogleAdTrackingLimited());
+
+        // Check that the platform advertising id is also *NOT* set
+        assertKeyValue(TuneUrlKeys.PLATFORM_AID, googleAdvertisingId);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(googleAdvertisingId, tune.getPlatformAdvertisingId());
+        assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
     public void testSetGoogleAdvertisingIdNull() {
-        // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-
-        String googleAdvertisingId = null;
-
-        tune.setGoogleAdvertisingId(googleAdvertisingId, false);
+        tune.setGoogleAdvertisingId(null, false);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey(TuneUrlKeys.GOOGLE_AID);
-        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, "0");
-        assertEquals(googleAdvertisingId, tune.getGoogleAdvertisingId());
+        assertKeyValue(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(null, tune.getGoogleAdvertisingId());
         assertFalse(tune.getGoogleAdTrackingLimited());
+
+        // Check that the platform advertising id is also *NOT* set
+        assertNoValueForKey(TuneUrlKeys.PLATFORM_AID);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(null, tune.getPlatformAdvertisingId());
+        assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
     public void testGoogleUserId() {
@@ -929,10 +940,9 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     public void testAppAdTrackingTrue() {
-        boolean appAdTracking = true;
         final String expectedAppAdTracking = TuneConstants.PREF_SET;
         
-        tune.setAppAdTrackingEnabled(appAdTracking);
+        tune.setAppAdTrackingEnabled(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
@@ -942,10 +952,9 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     public void testAppAppAdTrackingFalse() {
-        boolean appAdTracking = false;
         final String expectedAppAdTracking = TuneConstants.PREF_UNSET;
         
-        tune.setAppAdTrackingEnabled( appAdTracking );
+        tune.setAppAdTrackingEnabled(false);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
         
@@ -1170,6 +1179,32 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
     }
 
+    public void testPlatformAdvertisingId() {
+        String platformAdvertisingId = UUID.randomUUID().toString();
+
+        tune.setPlatformAdvertisingId(platformAdvertisingId, true);
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.PLATFORM_AID, platformAdvertisingId);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_SET);
+        assertEquals(platformAdvertisingId, tune.getPlatformAdvertisingId());
+        assertTrue(tune.getPlatformAdTrackingLimited());
+    }
+
+    public void testSetPlatformAdvertisingIdNull() {
+        tune.setPlatformAdvertisingId(null, false);
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.PLATFORM_AID);
+        assertKeyValue(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET);
+        assertEquals(null, tune.getPlatformAdvertisingId());
+        assertFalse(tune.getPlatformAdTrackingLimited());
+    }
+
     public void testPluginName() {
         final String[] testPluginNames = {
                 "air",
@@ -1357,4 +1392,20 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue(matcher.matches());
     }
+
+    /**
+     * The goal here is to call something that eventually gets to {@link TuneUrlBuilder#appendTuneLinkParameters(TuneParameters, String)}
+     * so that we can check to see if the {@link TuneParameters#ACTION_CLICK} was appended, even if privacy rules apply.
+     * Reference: SDK-542
+     */
+    public void testTuneLinkParameters() {
+        final String clickedTuneLinkUrl = "https://tlnk.io/some.url";
+        tune.setPrivacyProtectedDueToAge(true);
+
+        tune.setReferralUrl(clickedTuneLinkUrl);
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertKeyValue( TuneUrlKeys.ACTION, TuneParameters.ACTION_CLICK );
+    }
+
 }

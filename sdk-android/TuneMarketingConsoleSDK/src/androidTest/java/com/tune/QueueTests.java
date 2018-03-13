@@ -1,6 +1,5 @@
 package com.tune;
 
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONException;

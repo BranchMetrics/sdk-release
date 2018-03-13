@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneActivityConnected;
@@ -18,7 +19,6 @@ import com.tune.ma.eventbus.event.deepaction.TuneDeepActionCalled;
 import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.model.TunePushOpenAction;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneOptional;
 
 import java.lang.ref.WeakReference;

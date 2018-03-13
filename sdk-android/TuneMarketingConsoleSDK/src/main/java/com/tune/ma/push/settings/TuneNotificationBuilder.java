@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
-import com.tune.ma.utils.TuneDebugLog;
+import com.tune.TuneDebugLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;

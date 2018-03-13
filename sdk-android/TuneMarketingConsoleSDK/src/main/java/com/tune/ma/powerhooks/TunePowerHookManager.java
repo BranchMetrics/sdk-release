@@ -1,9 +1,9 @@
 package com.tune.ma.powerhooks;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneStringUtils;
 

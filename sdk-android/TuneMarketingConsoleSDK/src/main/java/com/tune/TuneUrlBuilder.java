@@ -1,9 +1,6 @@
 package com.tune;
 
 import android.net.Uri;
-import android.util.Log;
-
-import com.tune.ma.profile.TuneProfileKeys;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +9,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,10 +27,7 @@ class TuneUrlBuilder {
             builder.appendQueryParameter(TuneUrlKeys.RESPONSE_FORMAT, "json");
         }
 
-        // COPPA check
-        if (!params.isPrivacyProtectedDueToAge()) {
-            builder.appendQueryParameter(TuneUrlKeys.ACTION, TuneParameters.ACTION_CLICK);
-        }
+        builder.appendQueryParameter(TuneUrlKeys.ACTION, TuneParameters.ACTION_CLICK);
         return builder.toString();
     }
 
@@ -52,7 +45,7 @@ class TuneUrlBuilder {
         link.append("&" + TuneUrlKeys.TRANSACTION_ID + "=").append(UUID.randomUUID().toString());
         link.append("&" + TuneUrlKeys.SDK_RETRY_ATTEMPT + "=0");
 
-        safeAppend(link, redactKeys, TuneUrlKeys.SDK, "android");
+        safeAppend(link, redactKeys, TuneUrlKeys.SDK, params.getSDKType().toString());
         safeAppend(link, redactKeys, TuneUrlKeys.ACTION, params.getAction());
         safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_ID, params.getAdvertiserId());
         safeAppend(link, redactKeys, TuneUrlKeys.PACKAGE_NAME, params.getPackageName());
@@ -149,6 +142,7 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.OPEN_LOG_ID, params.getOpenLogId());
         safeAppend(link, redactKeys, TuneUrlKeys.OS_VERSION, params.getOsVersion());
         safeAppend(link, redactKeys, TuneUrlKeys.SDK_PLUGIN, params.getPluginName());
+        safeAppend(link, redactKeys, TuneUrlKeys.PLATFORM_AID, params.getPlatformAdvertisingId());
         safeAppend(link, redactKeys, TuneUrlKeys.PURCHASE_STATUS, params.getPurchaseStatus());
         safeAppend(link, redactKeys, TuneUrlKeys.REFERRER_DELAY, params.getReferrerDelay());
         safeAppend(link, redactKeys, TuneUrlKeys.SCREEN_DENSITY, params.getScreenDensity());
@@ -215,8 +209,10 @@ class TuneUrlBuilder {
         // These are handled differently with regards to COPPA.
         safeAppend(link, redactKeys, TuneUrlKeys.IS_COPPA, (params.isPrivacyProtectedDueToAge() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
         safeAppend(link, redactKeys, TuneUrlKeys.APP_AD_TRACKING, (params.getAppAdTrackingEnabled() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
-        safeAppend(link, redactKeys, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, (params.getGoogleAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
-        safeAppend(link, redactKeys, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, (params.getFireAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+
+        safeAppend(link, redactKeys, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET)); // DEPRECATED
+        safeAppend(link, redactKeys, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));   // DEPRECATED
+        safeAppend(link, redactKeys, TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
 
         return link.toString();
     }
@@ -237,14 +233,22 @@ class TuneUrlBuilder {
         if (params != null) {
             String gaid = params.getGoogleAdvertisingId();
             if (gaid != null && !data.contains("&" + TuneUrlKeys.GOOGLE_AID + "=")) {
+                // DEPRECATED
                 safeAppend(updatedData, redactKeys, TuneUrlKeys.GOOGLE_AID, gaid);
-                safeAppend(updatedData, redactKeys, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, (params.getGoogleAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+                safeAppend(updatedData, redactKeys, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
             }
 
             String fireAid = params.getFireAdvertisingId();
             if (fireAid != null && !data.contains("&" + TuneUrlKeys.FIRE_AID + "=")) {
+                // DEPRECATED
                 safeAppend(updatedData, redactKeys, TuneUrlKeys.FIRE_AID, fireAid);
-                safeAppend(updatedData, redactKeys, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, (params.getFireAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+                safeAppend(updatedData, redactKeys, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+            }
+
+            String platformAid = params.getPlatformAdvertisingId();
+            if (platformAid != null && !data.contains("&" + TuneUrlKeys.PLATFORM_AID + "=")) {
+                safeAppend(updatedData, redactKeys, TuneUrlKeys.PLATFORM_AID, platformAid);
+                safeAppend(updatedData, redactKeys, TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
             }
 
             String androidId = params.getAndroidId();
@@ -331,7 +335,7 @@ class TuneUrlBuilder {
                 postData.put(TuneUrlKeys.USER_EMAILS, emails);
             }
         } catch (JSONException e) {
-            TuneUtils.log("Could not build JSON body of request");
+            TuneDebugLog.d("Could not build JSON body of request");
             e.printStackTrace();
         }
 
@@ -345,13 +349,12 @@ class TuneUrlBuilder {
         if (value != null && !value.equals("")) {
             if (redactKeys.contains(key)) {
                 // Key is redacted, and will not be appended.
-                // TuneUtils.log("REDACTED: " + key);
+                // TuneDebugLog.d("REDACTED: " + key);
             } else {
                 try {
                     link.append("&" + key + "=" + URLEncoder.encode(value, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
-                    Log.w(TuneConstants.TAG, "failed encoding value " + value + " for key " + key);
-                    e.printStackTrace();
+                    TuneDebugLog.w("failed encoding value " + value + " for key " + key, e);
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.tune;
 
 import com.tune.ma.TuneManager;
-import com.tune.ma.utils.TuneDebugLog;
 
 /**
  * Created by johng on 8/1/16.
@@ -19,7 +18,7 @@ public class TuneDebugUtilities {
             return;
         }
 
-        TuneDebugLog.w(TuneConstants.TAG, "forceSetUserInSegmentId is set, do not release with this enabled!!");
+        TuneDebugLog.w("forceSetUserInSegmentId is set, do not release with this enabled!!");
         TuneManager.getInstance().getPlaylistManager().forceSetUserInSegmentId(segmentId, isInSegment);
     }
 }

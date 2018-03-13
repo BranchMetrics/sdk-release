@@ -11,11 +11,11 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.push.TunePushManager;
 import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.model.TunePushStyle;
 import com.tune.ma.push.settings.TuneNotificationBuilder;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;

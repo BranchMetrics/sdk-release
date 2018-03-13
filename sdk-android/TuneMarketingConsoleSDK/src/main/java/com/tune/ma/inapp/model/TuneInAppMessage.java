@@ -2,6 +2,7 @@ package com.tune.ma.inapp.model;
 
 import android.app.Activity;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.campaign.model.TuneCampaign;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -11,7 +12,6 @@ import com.tune.ma.eventbus.event.inapp.TuneInAppMessageShown;
 import com.tune.ma.eventbus.event.inapp.TuneInAppMessageUnspecifiedActionTaken;
 import com.tune.ma.inapp.model.action.TuneInAppAction;
 import com.tune.ma.utils.TuneDateUtils;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 
 import org.json.JSONObject;

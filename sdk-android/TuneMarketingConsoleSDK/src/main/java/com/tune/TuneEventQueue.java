@@ -1,9 +1,7 @@
 package com.tune;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
@@ -126,7 +124,7 @@ public class TuneEventQueue {
                     jsonEvent.put("post_body", postBody);
                     jsonEvent.put("first_session", firstSession);
                 } catch (JSONException e) {
-                    Log.w(TuneConstants.TAG, "Failed creating event for queueing");
+                    TuneDebugLog.w("Failed creating event for queueing");
                     e.printStackTrace();
                     return;
                 }
@@ -135,7 +133,7 @@ public class TuneEventQueue {
                 String eventIndex = Integer.toString(count);
                 setQueueItemForKey(jsonEvent, eventIndex);
             } catch (InterruptedException e) {
-                Log.w(TuneConstants.TAG, "Interrupted adding event to queue");
+                TuneDebugLog.w("Interrupted adding event to queue");
                 e.printStackTrace();
             } finally {
                 releaseLock();

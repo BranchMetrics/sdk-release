@@ -27,7 +27,6 @@ import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import com.tune.ma.inapp.TuneScreenUtils;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONArray;
@@ -63,26 +62,22 @@ public class TuneParameters {
     private TuneSharedPrefsDelegate mPrefs;
     private CountDownLatch initializationComplete;
 
-    public TuneParameters() {
+    TuneParameters() {
     }
     
-    public static TuneParameters init(Tune tune, Context context, String advertiserId, String conversionKey) {
-        TuneParameters INSTANCE = new TuneParameters();
-
+    public void init(Tune tune, Context context, String advertiserId, String conversionKey) {
         // Only instantiate and populate common params the first time
-        INSTANCE.mTune = tune;
-        INSTANCE.mContext = context;
-        INSTANCE.mExecutor = Executors.newSingleThreadExecutor();
+        mTune = tune;
+        mContext = context;
+        mExecutor = Executors.newSingleThreadExecutor();
 
         // Two primary threads that need to complete
-        INSTANCE.initializationComplete = new CountDownLatch(2);
+        initializationComplete = new CountDownLatch(2);
 
-        INSTANCE.mPrefs = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE);
-        INSTANCE.populateParams(context, advertiserId, conversionKey);
+        mPrefs = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE);
+        populateParams(context, advertiserId, conversionKey);
 
-        INSTANCE.initializationComplete.countDown();
-
-        return INSTANCE;
+        initializationComplete.countDown();
     }
     
     public void destroy() {
@@ -131,11 +126,12 @@ public class TuneParameters {
             setAdvertiserId(advertiserId.trim());
             setConversionKey(conversionKey.trim());
 
+            // Fetch the Advertising Id in the background
+            new Thread(new GetAdvertisingId(context)).start();
+
             // Default params
             setCurrencyCode(TuneConstants.DEFAULT_CURRENCY_CODE);
 
-            new Thread(new GetAdvertisingId(context)).start();
-            
             // Retrieve user agent
             calculateUserAgent();
 
@@ -225,7 +221,7 @@ public class TuneParameters {
 
             return true;
         } catch (Exception e) {
-            TuneUtils.log("MobileAppTracking params initialization failed");
+            TuneDebugLog.d("MobileAppTracking params initialization failed");
             e.printStackTrace();
             return false;
         }
@@ -254,81 +250,94 @@ public class TuneParameters {
         public GetAdvertisingId(Context context) {
             weakContext = new WeakReference<Context>(context);
         }
-        
-        public void run() {
+
+        private boolean obtainGoogleAidInfo() {
             try {
                 Class<?>[] adIdMethodParams = new Class[1];
                 adIdMethodParams[0] = Context.class;
-                
+
                 // Call the AdvertisingIdClient's getAdvertisingIdInfo method with Context
                 Method adIdMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient").getDeclaredMethod("getAdvertisingIdInfo", Context.class);
                 Object adInfo = adIdMethod.invoke(null, new Object[] { weakContext.get() });
-                
+
                 Method getIdMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient$Info").getDeclaredMethod("getId");
                 deviceId = (String) getIdMethod.invoke(adInfo);
                 // Don't save advertising id if it's all zeroes
                 if (deviceId.equals(TuneConstants.UUID_EMPTY)) {
                     deviceId = null;
                 }
-                
+
                 Method getLATMethod = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient$Info").getDeclaredMethod("isLimitAdTrackingEnabled");
                 isLAT = ((Boolean) getLATMethod.invoke(adInfo)).booleanValue();
-                
-                // mTune's params may not be initialized by the time this thread finishes
-                if (mTune.params == null) {
-                    // Call the setters manually
-                    setGoogleAdvertisingId(deviceId);
-                    int intLimit = isLAT ? 1 : 0;
-                    setGoogleAdTrackingLimited(Integer.toString(intLimit));
-                }
+
                 // Set GAID in SDK singleton
                 mTune.setGoogleAdvertisingId(deviceId, isLAT);
 
                 // Post event that getting Google Advertising ID completed
                 TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, deviceId, isLAT));
+                TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.PLATFORM_AID, deviceId, isLAT));
             } catch (Exception e) {
-                // GAID retrieval failed, try to get Fire Advertising ID
-                ContentResolver contentResolver = weakContext.get().getContentResolver();
-
-                try {
-                    // Get Fire Advertising ID
-                    deviceId = Secure.getString(contentResolver, TuneConstants.FIRE_ADVERTISING_ID_KEY);
-                    // Don't save advertising id if it's all zeroes
-                    if (deviceId.equals(TuneConstants.UUID_EMPTY)) {
-                        deviceId = null;
-                    }
-
-                    // Get Fire limit ad tracking preference
-                    isLAT = Secure.getInt(contentResolver, TuneConstants.FIRE_LIMIT_AD_TRACKING_KEY) != 0;
-
-                    // mTune's params may not be initialized by the time this thread finishes
-                    if (mTune.params == null) {
-                        // Call the setters manually
-                        setFireAdvertisingId(deviceId);
-                        int intLimit = isLAT ? 1 : 0;
-                        setFireAdTrackingLimited(Integer.toString(intLimit));
-                    }
-                    // Set Fire Advertising ID in SDK singleton
-                    mTune.setFireAdvertisingId(deviceId, isLAT);
-
-                    // Post event that getting Fire Advertising ID completed
-                    TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.FIRE_AID, deviceId, isLAT));
-                } catch (Exception e1) {
-                    TuneUtils.log("TUNE SDK failed to get Advertising Id, collecting ANDROID_ID instead");
-
-                    deviceId = Secure.getString(contentResolver, Secure.ANDROID_ID);
-                    // mTune's params may not be initialized by the time this thread finishes
-                    if (mTune.params == null) {
-                        // Call the setter manually
-                        setAndroidId(deviceId);
-                    }
-                    // Set ANDROID_ID in SDK singleton, in order to set ANDROID_ID for dplinkr
-                    mTune.setAndroidId(deviceId);
-
-                    // Post event that getting Android ID completed
-                    TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.ANDROID_ID, deviceId, isLAT));
-                }
+                TuneDebugLog.d("Failed to get Google AID Info");
             }
+
+            return !TextUtils.isEmpty(deviceId);
+        }
+
+        private boolean obtainFireAidInfo() {
+            ContentResolver contentResolver = weakContext.get().getContentResolver();
+
+            try {
+                // Get Fire Advertising ID
+                deviceId = Secure.getString(contentResolver, TuneConstants.FIRE_ADVERTISING_ID_KEY);
+                // Don't save advertising id if it's all zeroes
+                if (TextUtils.isEmpty(deviceId) || deviceId.equals(TuneConstants.UUID_EMPTY)) {
+                    deviceId = null;
+                }
+
+                // Get Fire limit ad tracking preference
+                isLAT = Secure.getInt(contentResolver, TuneConstants.FIRE_LIMIT_AD_TRACKING_KEY) != 0;
+
+                // Set Fire Advertising ID in SDK singleton
+                mTune.setFireAdvertisingId(deviceId, isLAT);
+
+                // Post event that getting Fire Advertising ID completed
+                TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.FIRE_AID, deviceId, isLAT));
+                TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.PLATFORM_AID, deviceId, isLAT));
+            } catch (Exception e1) {
+                TuneDebugLog.d("Failed to get Fire AID Info");
+            }
+
+            return !TextUtils.isEmpty(deviceId);
+        }
+
+        private boolean obtainDefaultAidInfo() {
+            ContentResolver contentResolver = weakContext.get().getContentResolver();
+
+            deviceId = Secure.getString(contentResolver, Secure.ANDROID_ID);
+
+            // Set ANDROID_ID in SDK singleton, in order to set ANDROID_ID for dplinkr
+            mTune.setAndroidId(deviceId);
+
+            // Post event that getting Android ID completed
+            TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.ANDROID_ID, deviceId, isLAT));
+            TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.PLATFORM_AID, deviceId, isLAT));
+
+            return !TextUtils.isEmpty(deviceId);
+        }
+
+        public void run() {
+            if (obtainGoogleAidInfo()) {
+                // Successfully obtained Google Advertising Info
+                TuneParameters.this.setSDKType(SDKTYPE.ANDROID);
+            } else if (obtainFireAidInfo()) {
+                // Successfully obtained Fire Advertising Info
+                TuneParameters.this.setSDKType(SDKTYPE.FIRE);
+            } else {
+                TuneDebugLog.d("TUNE SDK failed to get Advertising Id, collecting ANDROID_ID instead");
+                obtainDefaultAidInfo();
+                TuneParameters.this.setSDKType(SDKTYPE.ANDROID);
+            }
+
             initializationComplete.countDown();
         }
     }
@@ -408,7 +417,7 @@ public class TuneParameters {
             try {
                 age = Integer.parseInt(ageString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing age value " + ageString, e);
+                TuneDebugLog.e("Error parsing age value " + ageString, e);
             }
         }
 
@@ -501,7 +510,7 @@ public class TuneParameters {
             try {
                 adTrackingEnabled = Integer.parseInt(appAdTrackingEnabledString);
             } catch (NumberFormatException e) {
-                TuneDebugLog.e(TuneConstants.TAG, "Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
+                TuneDebugLog.e("Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
             }
         }
 
@@ -740,11 +749,12 @@ public class TuneParameters {
         });
     }
 
-    private String mFireAdvertisingId = null;
-    public synchronized String getFireAdvertisingId() {
+    @Deprecated private String mFireAdvertisingId = null;
+    @Deprecated synchronized String getFireAdvertisingId() {
         return mFireAdvertisingId;
     }
-    public synchronized void setFireAdvertisingId(final String adId) {
+    @Deprecated synchronized void setFireAdvertisingId(final String adId) {
+        // Retain FIRE_AID until fully deprecated.
         mFireAdvertisingId = adId;
         mExecutor.execute(new Runnable() {
             public void run() {
@@ -753,35 +763,15 @@ public class TuneParameters {
         });
     }
 
-    private String mFireAdTrackingLimited = null;
-    // COPPA rules apply
-    public synchronized boolean getFireAdTrackingLimited() {
-        String fireAdTrackingLimitedString = getFireAdTrackingLimitedParameter();
-        if (TextUtils.isEmpty(fireAdTrackingLimitedString)) {
-            return false;
-        }
-
-        int fireAdTrackingLimited = 0;
-        try {
-            fireAdTrackingLimited = Integer.parseInt(fireAdTrackingLimitedString);
-        } catch (NumberFormatException e) {
-            TuneDebugLog.e(TuneConstants.TAG, "Error parsing fireAdTrackingLimited value " + fireAdTrackingLimitedString, e);
-        }
-
-        return (isPrivacyProtectedDueToAge() ? false : fireAdTrackingLimited != 0);
-    }
-    private synchronized String getFireAdTrackingLimitedParameter() {
-        return mFireAdTrackingLimited;
-    }
-    public synchronized void setFireAdTrackingLimited(final String limited) {
-        mFireAdTrackingLimited = limited;
+    @Deprecated synchronized void setFireAdTrackingLimited(final String limited) {
+        // Retain FIRE_AD_TRACKING Limited until fully deprecated.
         mExecutor.execute(new Runnable() {
             public void run() {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, limited)));
             }
         });
     }
-    
+
     private String mGender = null;
     public synchronized String getGender() {
         return mGender;
@@ -811,11 +801,12 @@ public class TuneParameters {
 
     }
 
-    private String mGaid = null;
-    public synchronized String getGoogleAdvertisingId() {
+    @Deprecated private String mGaid = null;
+    @Deprecated synchronized String getGoogleAdvertisingId() {
         return mGaid;
     }
-    public synchronized void setGoogleAdvertisingId(final String adId) {
+    @Deprecated synchronized void setGoogleAdvertisingId(final String adId) {
+        // Retain GOOGLE_AID until fully deprecated.
         mGaid = adId;
         mExecutor.execute(new Runnable() {
             public void run() {
@@ -824,28 +815,8 @@ public class TuneParameters {
         });
     }
 
-    private String mGaidLimited = null;
-    // COPPA rules apply
-    public synchronized boolean getGoogleAdTrackingLimited() {
-        String googleAdTrackingLimitedString = getGoogleAdTrackingLimitedParameter();
-        if (TextUtils.isEmpty(googleAdTrackingLimitedString)) {
-            return false;
-        }
-
-        int googleAdTrackingLimited = 0;
-        try {
-            googleAdTrackingLimited = Integer.parseInt(googleAdTrackingLimitedString);
-        } catch (NumberFormatException e) {
-            TuneDebugLog.e(TuneConstants.TAG, "Error parsing googleAdTrackingLimited value " + googleAdTrackingLimitedString, e);
-        }
-
-        return (isPrivacyProtectedDueToAge() ? false : googleAdTrackingLimited != 0);
-    }
-    private synchronized String getGoogleAdTrackingLimitedParameter() {
-        return mGaidLimited;
-    }
-    public synchronized void setGoogleAdTrackingLimited(final String limited) {
-        mGaidLimited = limited;
+    @Deprecated synchronized void setGoogleAdTrackingLimited(final String limited) {
+        // Retain GOOGLE_AD_TRACKING_DISABLED Limited until fully deprecated.
         mExecutor.execute(new Runnable() {
             public void run() {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, limited)));
@@ -1234,6 +1205,48 @@ public class TuneParameters {
                         .build()));
     }
 
+    private String mPlatformAdvertisingId = null;
+    public synchronized String getPlatformAdvertisingId() {
+        return mPlatformAdvertisingId;
+    }
+    public synchronized void setPlatformAdvertisingId(final String adId) {
+        mPlatformAdvertisingId = adId;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PLATFORM_AID, adId)));
+            }
+        });
+    }
+
+    private String mPlatformAdTrackingLimited = null;
+    // COPPA rules apply
+    public synchronized boolean getPlatformAdTrackingLimited() {
+        String platformAdTrackingLimitedString = getPlatformAdTrackingLimitedParameter();
+        if (TextUtils.isEmpty(platformAdTrackingLimitedString)) {
+            return false;
+        }
+
+        int platformAdTrackingLimited = 0;
+        try {
+            platformAdTrackingLimited = Integer.parseInt(platformAdTrackingLimitedString);
+        } catch (NumberFormatException e) {
+            TuneDebugLog.e("Error parsing platformAdTrackingLimited value " + platformAdTrackingLimitedString, e);
+        }
+
+        return (isPrivacyProtectedDueToAge() ? false : platformAdTrackingLimited != 0);
+    }
+    private synchronized String getPlatformAdTrackingLimitedParameter() {
+        return mPlatformAdTrackingLimited;
+    }
+    public synchronized void setPlatformAdTrackingLimited(final String limited) {
+        mPlatformAdTrackingLimited = limited;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.PLATFORM_AD_TRACKING_DISABLED, limited)));
+            }
+        });
+    }
+
     private String mPluginName = null;
     public synchronized String getPluginName() {
         return mPluginName;
@@ -1332,6 +1345,24 @@ public class TuneParameters {
                 TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable(TuneUrlKeys.REFERRER_DELAY, referrerDelay)));
             }
         });
+    }
+
+    enum SDKTYPE {
+        ANDROID,
+        FIRE;
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase();
+        }
+    };
+
+    private SDKTYPE mSDKType = SDKTYPE.ANDROID;
+    public synchronized SDKTYPE getSDKType() {
+        return mSDKType;
+    }
+    public synchronized void setSDKType(SDKTYPE sdkType) {
+        mSDKType = sdkType;
     }
 
     private String mScreenDensity = null;

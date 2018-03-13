@@ -3,6 +3,7 @@ package com.tune.ma.analytics;
 import android.content.Context;
 import android.net.Uri;
 
+import com.tune.TuneDebugLog;
 import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsListener;
@@ -36,7 +37,6 @@ import com.tune.ma.eventbus.event.push.TunePushOpened;
 import com.tune.ma.eventbus.event.userprofile.TuneCustomProfileVariablesCleared;
 import com.tune.ma.inapp.model.TuneInAppMessage;
 import com.tune.ma.push.model.TunePushMessage;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
 import com.tune.ma.utils.TuneStringUtils;
 

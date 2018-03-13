@@ -3,6 +3,7 @@ package com.tune.http;
 import android.net.Uri;
 
 import com.tune.Tune;
+import com.tune.TuneDebugLog;
 import com.tune.TuneUrlKeys;
 import com.tune.TuneUtils;
 import com.tune.ma.TuneManager;
@@ -10,7 +11,6 @@ import com.tune.ma.analytics.model.TuneAnalyticsListener;
 import com.tune.ma.configuration.TuneConfigurationManager;
 import com.tune.ma.profile.TuneProfileKeys;
 import com.tune.ma.profile.TuneUserProfile;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneStringUtils;
 
 import org.json.JSONException;

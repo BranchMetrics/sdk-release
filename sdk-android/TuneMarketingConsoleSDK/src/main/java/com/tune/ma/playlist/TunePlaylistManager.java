@@ -1,8 +1,8 @@
 package com.tune.ma.playlist;
 
 import android.text.TextUtils;
-import android.util.Log;
 
+import com.tune.TuneDebugLog;
 import com.tune.ma.TuneManager;
 import com.tune.ma.configuration.TuneConfigurationManager;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -13,9 +13,7 @@ import com.tune.ma.eventbus.event.TunePlaylistManagerFirstPlaylistDownloaded;
 import com.tune.ma.model.TuneCallback;
 import com.tune.ma.model.TuneCallbackHolder;
 import com.tune.ma.playlist.model.TunePlaylist;
-import com.tune.ma.utils.TuneDebugLog;
 import com.tune.ma.utils.TuneJsonUtils;
-import com.tune.ma.utils.TuneStringUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
@@ -380,7 +378,7 @@ public class TunePlaylistManager {
                         }
                     });
                 } catch (Exception e) {
-                    TuneDebugLog.e(TuneStringUtils.format("Exception in executing firstPlaylistDownload callback. %s", Log.getStackTraceString(e)));
+                    TuneDebugLog.e("Exception in executing firstPlaylistDownload callback.", e);
                 }
             }
 
