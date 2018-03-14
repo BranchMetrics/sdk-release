@@ -1350,11 +1350,10 @@ public class Tune {
 
     /**
      * Sets the Amazon Fire Advertising ID.
+     * Note that this is auto-collected at initialization if running on a Fire device
      * @param adId Amazon Fire advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
-     * @deprecated As of SDK v5.1.0.   Use {@link Tune#setPlatformAdvertisingId(String, boolean)}
      */
-    @Deprecated
     public void setFireAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled ? 1 : 0;
 
@@ -1375,11 +1374,10 @@ public class Tune {
 
     /**
      * Sets the Google Play Services Advertising ID.
+     * Note that this is auto-collected at initialization if Google Play Services is available
      * @param adId Google Play advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
-     * @deprecated As of SDK v5.1.0.   Use {@link Tune#setPlatformAdvertisingId(String, boolean)}
      */
-    @Deprecated
     public void setGoogleAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled ? 1 : 0;
 
@@ -1542,7 +1540,7 @@ public class Tune {
      * @param adId Advertising ID
      * @param isLATEnabled whether user has enabled limit ad tracking
      */
-    public void setPlatformAdvertisingId(final String adId, boolean isLATEnabled) {
+    void setPlatformAdvertisingId(final String adId, boolean isLATEnabled) {
         final int intLimit = isLATEnabled ? 1 : 0;
 
         if (params != null) {
