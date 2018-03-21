@@ -298,24 +298,24 @@ static NSString *MessageDisplayFrequencyDictionaryKey = @"tune-message-display-f
 }
 
 - (void)handleRemoteNotificationRegistrationUpdated:(TuneSkyhookPayload *)payload {
-    BOOL newStatus = [TunePushUtils isAlertPushNotificationEnabled];
-    
-    if (nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS]) {
-        BOOL oldStatus = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS] boolValue];
-        
-        if (oldStatus != newStatus) {
-            // Create the push notification registration status changed event.
-            NSString *eventAction = newStatus ? TunePushEnabled : TunePushDisabled;
-            TuneAnalyticsEvent *event = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
-                                                                               action:eventAction
-                                                                             category:TUNE_EVENT_CATEGORY_APPLICATION
-                                                                              control:nil
-                                                                         controlEvent:nil
-                                                                                 tags:nil
-                                                                                items:nil];
-            [self eventOccurred:event];
+    [TunePushUtils checkNotificationSettingsWithCompletion:^(BOOL pushEnabled) {
+        if (nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS]) {
+            BOOL oldStatus = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS] boolValue];
+            
+            if (oldStatus != pushEnabled) {
+                // Create the push notification registration status changed event.
+                NSString *eventAction = pushEnabled ? TunePushEnabled : TunePushDisabled;
+                TuneAnalyticsEvent *event = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
+                                                                                   action:eventAction
+                                                                                 category:TUNE_EVENT_CATEGORY_APPLICATION
+                                                                                  control:nil
+                                                                             controlEvent:nil
+                                                                                     tags:nil
+                                                                                    items:nil];
+                [self eventOccurred:event];
+            }
         }
-    }
+    }];
 }
 
 - (void)handleAppBackgrounded:(TuneSkyhookPayload *)payload {

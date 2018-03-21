@@ -370,25 +370,31 @@ const int EXPECTATION_TIMEOUT = 2;
 }
 
 - (void)testMessageTriggeredByPushDisabled {
-    expectation = [self expectationWithDescription:@"Waiting for message to display"];
-    
     [TuneUserDefaultsUtils setUserDefaultValue:@YES forKey:TUNE_KEY_PUSH_ENABLED_STATUS];
-    
+
     playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TuneInAppMessageTests_SingleBannerWithPushDisabledTrigger"].mutableCopy;
     TunePlaylist *newPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
     newPlaylist.fromDisk = NO;
     newPlaylist.fromConnectedMode = NO;
-    
+
     [[TuneSkyhookCenter defaultCenter] addObserver:simpleObserver selector:@selector(skyhookPosted:) name:TunePlaylistUpdatePlaylist object:nil];
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TunePlaylistUpdatePlaylist object:newPlaylist userInfo:nil];
-    
+
+    // deviceToken set is async on main because it relies on UIApplication
     [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneRegisteredForRemoteNotificationsWithDeviceToken object:self userInfo:@{@"deviceToken" : @"123"}];
+
+    expectation = [self expectationWithDescription:@"Waiting for message to display"];
+    __block TuneInAppMessage *message;
     
-    // Check that the message that should be triggered is now visible
-    TuneInAppMessage *message = [TuneManager currentManager].triggerManager.messageToShow;
-    
-    // Add an observer on message visible property
-    [message addObserver:self forKeyPath:NSStringFromSelector(@selector(visible)) options:0 context:nil];
+    // wait for main to finish up setting deviceToken before trying to look at messages
+    dispatch_async(dispatch_get_main_queue(), ^{
+
+        // Check that the message that should be triggered is now visible
+        message = [TuneManager currentManager].triggerManager.messageToShow;
+        
+        // Add an observer on message visible property
+        [message addObserver:self forKeyPath:NSStringFromSelector(@selector(visible)) options:0 context:nil];
+    });
     
     // Wait for message visible status to change
     [self waitForExpectationsWithTimeout:EXPECTATION_TIMEOUT handler:^(NSError *error) {

@@ -12,6 +12,6 @@
 
 #pragma mark - Push Notification Status Helper
 
-+ (BOOL)isAlertPushNotificationEnabled;
++ (void)checkNotificationSettingsWithCompletion:(void(^)(BOOL pushEnabled))completion;
 
 @end

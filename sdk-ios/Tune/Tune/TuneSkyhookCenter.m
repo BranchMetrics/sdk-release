@@ -8,74 +8,74 @@
 
 #import "TuneSkyhookCenter.h"
 
+@interface TuneSkyhookCenter()
+
+@property (nonatomic, strong, readwrite) NSOperationQueue *skyhookQueue;
+@property (nonatomic, strong, readwrite) NSMutableDictionary *hooks;
+
+@end
+
 @implementation TuneSkyhookCenter
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
     
-    @autoreleasepool {
-        if (self) {
-            _hooks = [[NSMutableDictionary alloc] init];
-            [self initSkyhookQueue];
-        }
+    if (self) {
+        self.hooks = [NSMutableDictionary new];
+        [self initSkyhookQueue];
     }
     
     return self;
 }
 
-static TuneSkyhookCenter *defaultCenter = nil;
+static dispatch_once_t defaultCenterOnceToken;
 
 + (TuneSkyhookCenter *)defaultCenter {
-    @synchronized(self) {
+    static TuneSkyhookCenter *defaultCenter;
+    dispatch_once(&defaultCenterOnceToken, ^{
+        defaultCenter = [self new];
         
-        if (defaultCenter == nil) {
-            defaultCenter = [[self alloc] init];
-
 #if !TARGET_OS_WATCH
-            // Proxy the NSNotificationCenter
-            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-
-            UIApplication *application = [UIApplication sharedApplication];
-            
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidBecomeActive:)
-                                      name:UIApplicationDidBecomeActiveNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidEnterBackground:)
-                                      name:UIApplicationDidEnterBackgroundNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidFinishLaunching:)
-                                      name:UIApplicationDidFinishLaunchingNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillTerminate:)
-                                      name:UIApplicationWillTerminateNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillResignActive:)
-                                      name:UIApplicationWillResignActiveNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillEnterForeground:)
-                                      name:UIApplicationWillEnterForegroundNotification object:application];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationLowMemory:)
-                                      name:UIApplicationDidReceiveMemoryWarningNotification object:application];
-
-#if TARGET_OS_IOS
-            [notificationCenter addObserver:defaultCenter selector:@selector(deviceOrientationDidChange:)
-                                      name:UIDeviceOrientationDidChangeNotification object:nil];
-            [notificationCenter addObserver:defaultCenter selector:@selector(applicationStatusBarChanged:)
-                                      name:UIApplicationDidChangeStatusBarOrientationNotification object:application];
-#endif
-            
-            // Handle Session Start/End for managing Skyhook Queue
-            [defaultCenter addObserver:defaultCenter
-                              selector:@selector(handleSessionStart)
-                                  name:TuneSessionManagerSessionDidStart
-                                object:nil];
-
-            [defaultCenter addObserver:defaultCenter
-                              selector:@selector(handleSessionEnd)
-                                  name:TuneSessionManagerSessionDidEnd
-                                object:nil];
-#endif
-        }
+        // Proxy the NSNotificationCenter
+        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
         
-        return defaultCenter;
-    }
+        UIApplication *application = [UIApplication sharedApplication];
+        
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidBecomeActive:)
+                                   name:UIApplicationDidBecomeActiveNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidEnterBackground:)
+                                   name:UIApplicationDidEnterBackgroundNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationDidFinishLaunching:)
+                                   name:UIApplicationDidFinishLaunchingNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillTerminate:)
+                                   name:UIApplicationWillTerminateNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillResignActive:)
+                                   name:UIApplicationWillResignActiveNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationWillEnterForeground:)
+                                   name:UIApplicationWillEnterForegroundNotification object:application];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationLowMemory:)
+                                   name:UIApplicationDidReceiveMemoryWarningNotification object:application];
+        
+#if TARGET_OS_IOS
+        [notificationCenter addObserver:defaultCenter selector:@selector(deviceOrientationDidChange:)
+                                   name:UIDeviceOrientationDidChangeNotification object:nil];
+        [notificationCenter addObserver:defaultCenter selector:@selector(applicationStatusBarChanged:)
+                                   name:UIApplicationDidChangeStatusBarOrientationNotification object:application];
+#endif
+        
+        // Handle Session Start/End for managing Skyhook Queue
+        [defaultCenter addObserver:defaultCenter selector:@selector(handleSessionStart) name:TuneSessionManagerSessionDidStart object:nil];
+        
+        [defaultCenter addObserver:defaultCenter selector:@selector(handleSessionEnd) name:TuneSessionManagerSessionDidEnd object:nil];
+#endif
+        
+    });
+    
+    return defaultCenter;
 }
 
+// Prior to iOS 9, NotificationCenter can send events to dealloc'd objects, resulting in a crash.  Observers must remove themselves in dealloc.
+// https://developer.apple.com/library/content/releasenotes/Foundation/RN-FoundationOlderNotes/index.html#10_11NotificationCenter
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -93,35 +93,35 @@ static TuneSkyhookCenter *defaultCenter = nil;
 # pragma mark - Skyhook Queue Methods
 
 - (void)clearSkyhookQueue {
-    [_skyhookQueue cancelAllOperations];
+    [self.skyhookQueue cancelAllOperations];
 }
 
 - (void)initSkyhookQueue {
-    _skyhookQueue = [NSOperationQueue new];
+    self.skyhookQueue = [NSOperationQueue new];
     [self stopSkyhookQueue];
-    [_skyhookQueue setMaxConcurrentOperationCount:1];
+    [self.skyhookQueue setMaxConcurrentOperationCount:1];
 }
 
 - (void)stopSkyhookQueue {
-    [_skyhookQueue setSuspended:YES];
+    [self.skyhookQueue setSuspended:YES];
 }
 
 - (void)stopAndClearSkyhookQueue {
     // If the skyhook queue is suspended (like in the case where the user comments out `startArtisan`)
     // and we call `waitUntilAllOperationsAreFinished` it will block indefinitely. So we only stop the
     // queue and block if it's running.
-    if (!_skyhookQueue.suspended) {
+    if (!self.skyhookQueue.suspended) {
         [self waitTilQueueFinishes];
         [self stopSkyhookQueue];
     }
     [self clearSkyhookQueue];
 }
 - (void)startSkyhookQueue {
-    [_skyhookQueue setSuspended:NO];
+    [self.skyhookQueue setSuspended:NO];
 }
 
 - (void)waitTilQueueFinishes {
-    [_skyhookQueue waitUntilAllOperationsAreFinished];
+    [self.skyhookQueue waitUntilAllOperationsAreFinished];
 }
 
 - (void)postQueuedSkyhook:(NSString *)hookName {
@@ -137,7 +137,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
     NSInvocationOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self
                                                                             selector:@selector(postSkyhookOperation:)
                                                                               object:payload];
-    [_skyhookQueue addOperation:operation];
+    [self.skyhookQueue addOperation:operation];
 }
 
 - (void)postSkyhookOperation:(TuneSkyhookPayload *)payload {
@@ -148,10 +148,10 @@ static TuneSkyhookCenter *defaultCenter = nil;
 
 - (void)addObserver:(id)hookObserver selector:(SEL)hookSelector name:(NSString *)hookName object:(id)hookSender priority:(int)priority {
     @synchronized(self) {
-        NSMutableArray *observers = _hooks[hookName];
+        NSMutableArray *observers = self.hooks[hookName];
         if (observers == nil) {
             observers = [NSMutableArray array];
-            _hooks[hookName] = observers;
+            self.hooks[hookName] = observers;
         };
         
         __block long insertIndex = -1;
@@ -182,7 +182,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
 
 - (void)removeObserver:(id)hookObserver name:(NSString *)hookName object:(id)hookSender {
     @synchronized(self) {
-        NSMutableArray *observers = _hooks[hookName];
+        NSMutableArray *observers = self.hooks[hookName];
         if (observers == nil) return;
         
         __block NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
@@ -199,7 +199,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
 }
 
 - (void)removeObserver:(id)hookObserver {
-    for (NSString *hookName in [_hooks allKeys]) {
+    for (NSString *hookName in [self.hooks allKeys]) {
         [self removeObserver:hookObserver name:hookName object:nil];
     }
 }
@@ -207,7 +207,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
 /* Removes a specific TuneSkyhookObserver from a given hook */
 - (void)removeSkyhookObserver:(TuneSkyhookObserver *)hookObserver name:(NSString *)hookName {
     @synchronized(self) {
-        NSMutableArray *observers = _hooks[hookName];
+        NSMutableArray *observers = self.hooks[hookName];
         [observers removeObject:hookObserver];
     }
 }
@@ -230,7 +230,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
     NSMutableArray *observers;
     
     @synchronized(self) {
-        observers = [_hooks[hookName] copy];
+        observers = [self.hooks[hookName] copy];
     }
     
     if (observers == nil) return;
@@ -254,14 +254,14 @@ static TuneSkyhookCenter *defaultCenter = nil;
 }
 
 - (BOOL)hasObserverForHook:(NSString *)hookName {
-    return [_hooks[hookName] count] != 0;
+    return [self.hooks[hookName] count] != 0;
 }
 
 - (NSString *)debugHook:(NSString *)hookName {
     NSDictionary *hooks = nil;
     
     @synchronized(self) {
-        hooks = [_hooks copy];
+        hooks = [self.hooks copy];
     }
     
     __block NSString *returnString = @"";
@@ -327,7 +327,7 @@ static TuneSkyhookCenter *defaultCenter = nil;
 
 #if TESTING
 + (void)nilDefaultCenter {
-    defaultCenter = nil;
+    defaultCenterOnceToken = 0;
 }
 #endif
 

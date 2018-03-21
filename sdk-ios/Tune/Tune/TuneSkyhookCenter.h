@@ -11,10 +11,7 @@
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayloadConstants.h"
 
-@interface TuneSkyhookCenter : NSObject {
-    NSMutableDictionary *_hooks;
-    NSOperationQueue *_skyhookQueue;
-}
+@interface TuneSkyhookCenter : NSObject
 
 /* Returns the default skyhook center */
 + (TuneSkyhookCenter *)defaultCenter;

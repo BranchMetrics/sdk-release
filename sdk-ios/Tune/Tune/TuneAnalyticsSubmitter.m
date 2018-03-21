@@ -20,7 +20,7 @@
 - (instancetype)init {
     self = [super init];
     
-    if(self) {
+    if (self) {
         _sessionId = [[TuneManager currentManager].userProfile.sessionId copy];
         _deviceId = [[TuneManager currentManager].userProfile.deviceId copy];
         _ifa = [TuneDeviceUtils currentDeviceIsTestFlight] ? _deviceId : [[TuneManager currentManager].userProfile.appleAdvertisingIdentifier copy];

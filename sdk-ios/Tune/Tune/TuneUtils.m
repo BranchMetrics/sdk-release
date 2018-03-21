@@ -603,17 +603,9 @@ BOOL isAlertVisible;
 }
 
 + (void)showAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    if ([NSThread isMainThread]) {
-        [self innerShowAlertWithTitle:title
-                              message:message
-                      completionBlock:completionHandler];
-    } else {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self innerShowAlertWithTitle:title
-                                  message:message
-                          completionBlock:completionHandler];
-        }];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self innerShowAlertWithTitle:title message:message completionBlock:completionHandler];
+    });
 }
 
 #if TARGET_OS_WATCH

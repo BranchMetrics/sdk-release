@@ -105,7 +105,7 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
     DebugLog(@"TuneUtils storeToPasteBoardTrackingId: %@", response);
     
     NSString *strSuccess = [TuneUtils parseXmlString:response forTag:TUNE_KEY_SUCCESS];
-    NSString *strRedirectUrl = [TuneUtils parseXmlString:response forTag:TUNE_KEY_URL];
+    __block NSString *strRedirectUrl = [TuneUtils parseXmlString:response forTag:TUNE_KEY_URL];
 //#if TARGET_OS_IOS
 //    NSString *strTrackingId = [TuneUtils parseXmlString:response forTag:TUNE_KEY_TRACKING_ID];
 //    NSString *strPublisherBundleId = [params valueForKey:TUNE_KEY_PACKAGE_NAME];
@@ -146,7 +146,11 @@ static const NSInteger TUNE_APP_TO_APP_RESPONSE_ERROR_CODE = 1402;
         
         if(redirect && 0 < [strRedirectUrl length]) {
 #if !TARGET_OS_WATCH
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:strRedirectUrl]];
+            
+            // UIApplication should be called on main, it's a UI class
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:strRedirectUrl]];
+            });
 #endif
         }
     } else {

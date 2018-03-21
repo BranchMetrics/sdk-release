@@ -445,28 +445,28 @@
 }
 
 - (void)handleRemoteNotificationAuthStatus {
-    BOOL newStatus = [TunePushUtils isAlertPushNotificationEnabled];
-    
-    if (nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS]) {
-        BOOL oldStatus = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS] boolValue];
-        
-        if (oldStatus != newStatus) {
-            // Create the push notification registration status changed event.
-            NSString *eventAction = newStatus ? TunePushEnabled : TunePushDisabled;
-            TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
-                                                                                        action:eventAction
-                                                                                      category:TUNE_EVENT_CATEGORY_APPLICATION
-                                                                                       control:nil
-                                                                                  controlEvent:nil
-                                                                                          tags:nil
-                                                                                         items:nil];
+    [TunePushUtils checkNotificationSettingsWithCompletion:^(BOOL pushEnabled) {
+        if (nil != [TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS]) {
+            BOOL oldStatus = [[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_PUSH_ENABLED_STATUS] boolValue];
             
-            // Log the event
-            [self storeAndTrackAnalyticsEvent:analyticsEvent];
+            if (oldStatus != pushEnabled) {
+                // Create the push notification registration status changed event.
+                NSString *eventAction = pushEnabled ? TunePushEnabled : TunePushDisabled;
+                TuneAnalyticsEvent *analyticsEvent = [[TuneAnalyticsEvent alloc] initWithEventType:TUNE_EVENT_TYPE_BASE
+                                                                                            action:eventAction
+                                                                                          category:TUNE_EVENT_CATEGORY_APPLICATION
+                                                                                           control:nil
+                                                                                      controlEvent:nil
+                                                                                              tags:nil
+                                                                                             items:nil];
+                
+                // Log the event
+                [self storeAndTrackAnalyticsEvent:analyticsEvent];
+            }
         }
-    }
-    
-    [TuneUserDefaultsUtils setUserDefaultValue:@(newStatus) forKey:TUNE_KEY_PUSH_ENABLED_STATUS];
+        
+        [TuneUserDefaultsUtils setUserDefaultValue:@(pushEnabled) forKey:TUNE_KEY_PUSH_ENABLED_STATUS];
+    }];
 }
 
 #pragma mark - In App Messages

@@ -34,6 +34,11 @@
 #import "TuneUserDefaultsUtils.h"
 #import "TuneXCTestCase.h"
 
+// Expose private methods for testing
+@interface TunePushUtils()
++ (BOOL)isAlertPushNotificationEnabled;
+@end
+
 @interface TuneAnalyticsManagerTests : TuneXCTestCase {
     id mockApplication;
     id mockTimer;
@@ -300,6 +305,7 @@
         XCTAssertTrue([evt.action isEqualToString:expectedEventAction]);
     });
     
+    // set push status to NO
     __block BOOL forcedPushStatus = NO;
     id classMockTunePushUtils = OCMClassMock([TunePushUtils class]);
     OCMStub(ClassMethod([classMockTunePushUtils isAlertPushNotificationEnabled])).andDo(^(NSInvocation *invocation) {
@@ -314,66 +320,136 @@
     TuneSkyhookCenter *skyhookCenter = [TuneSkyhookCenter defaultCenter];
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertFalse(analyticsStoreAndTrackCalled);
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"This test relies on side effects"];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertFalse(analyticsStoreAndTrackCalled);
+        [expectation fulfill];
+    });
     
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+
+    }];
+
+    // set push status to YES
+    forcedPushStatus = YES;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+
+    __block XCTestExpectation *expectation2 = [self expectationWithDescription:@"This test relies on side effects"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertTrue(analyticsStoreAndTrackCalled);
+        [expectation2 fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
+    
+    // set push to YES and storeAndTrack to NO
+    forcedPushStatus = YES;
+    analyticsStoreAndTrackCalled = NO;
+    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+
+    __block XCTestExpectation *expectation3 = [self expectationWithDescription:@"This test relies on side effects"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertFalse(analyticsStoreAndTrackCalled);
+        
+        [expectation3 fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
+    
+    // set storeAndTrack to YES
+    oldStatus = YES;
     forcedPushStatus = NO;
-    analyticsStoreAndTrackCalled = NO;
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+
+    __block XCTestExpectation *expectation4 = [self expectationWithDescription:@"This test relies on side effects"];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertFalse(analyticsStoreAndTrackCalled);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertTrue(analyticsStoreAndTrackCalled);
+        
+        [expectation4 fulfill];
+    });
     
-    forcedPushStatus = YES;
-    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertTrue(analyticsStoreAndTrackCalled);
-    
-    forcedPushStatus = YES;
-    analyticsStoreAndTrackCalled = NO;
-    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
-    
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertFalse(analyticsStoreAndTrackCalled);
-    
+    // Toggle push change
     oldStatus = YES;
     forcedPushStatus = NO;
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertFalse([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    __block XCTestExpectation *expectation5 = [self expectationWithDescription:@"This test relies on side effects"];
     
-    //////////////////////////
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [expectation5 fulfill];
+    });
     
-    oldStatus = YES;
-    forcedPushStatus = NO;
-    [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
+    
     oldStatus = NO;
     forcedPushStatus = YES;
     [skyhookCenter postSkyhook:TuneRegisteredForRemoteNotificationsWithDeviceToken object:nil userInfo:@{@"deviceToken":@"1234567894561234567891234567890000"}];
+
+    __block XCTestExpectation *expectation6 = [self expectationWithDescription:@"This test relies on side effects"];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertTrue(analyticsStoreAndTrackCalled);
+        [expectation6 fulfill];
+    });
     
-    //////////////////////////
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
     
     oldStatus = YES;
     forcedPushStatus = NO;
     [skyhookCenter postSkyhook:TuneSessionManagerSessionDidStart object:nil userInfo:@{}];
+    
+    __block XCTestExpectation *expectation7 = [self expectationWithDescription:@"This test relies on side effects"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [expectation7 fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
+    
     oldStatus = NO;
     forcedPushStatus = YES;
     [skyhookCenter postSkyhook:TuneFailedToRegisterForRemoteNotifications object:nil userInfo:@{}];
+
+    __block XCTestExpectation *expectation8 = [self expectationWithDescription:@"This test relies on side effects"];
     
-    XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
-    XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
-    XCTAssertTrue(analyticsStoreAndTrackCalled);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"]);
+        XCTAssertTrue([[TuneUserDefaultsUtils userDefaultValueforKey:@"TUNE_PUSH_ENABLED_STATUS"] boolValue]);
+        XCTAssertTrue(analyticsStoreAndTrackCalled);
+        [expectation8 fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
     
     [classMockTunePushUtils stopMocking];
 }

@@ -36,6 +36,7 @@
 #import "TuneDeviceUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
+#import "TunePushUtils.h"
 
 #import "TuneConstants.h"
 
@@ -370,20 +371,15 @@
 #if TARGET_OS_IOS
 
 - (void)checkIfPushIsEnabled {
-    BOOL pushEnabled = NO;
-    
     if (![self tooYoungForTargetedAds]) {
         
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-            // iOS8 and after way to get notification types
-            pushEnabled = UIUserNotificationTypeAlert == (UIUserNotificationTypeAlert & [UIApplication sharedApplication].currentUserNotificationSettings.types);
-        } else {
-            // Pre iOS8 way to get notification types
-            pushEnabled = UIUserNotificationTypeAlert == (UIUserNotificationTypeAlert & [UIApplication sharedApplication].enabledRemoteNotificationTypes);
-        }
+        [TunePushUtils checkNotificationSettingsWithCompletion:^(BOOL pushEnabled) {
+            [self setPushEnabled:[@(pushEnabled) stringValue]];
+        }];
+
+    } else {
+        [self setPushEnabled:[@(NO) stringValue]];
     }
-    
-    [self setPushEnabled:[@(pushEnabled) stringValue]];
 }
 
 #else

@@ -77,13 +77,30 @@
 }
 
 - (void)applicationStateChanged {
-    UIApplication *application = [UIApplication sharedApplication];
+    [self applicationStateChangedWithCompletion:^(BOOL isActive) {
+        if (isActive) {
+            [self startSession];
+        } else {
+            [self endSession];
+        }
+    }];
+}
+
+// This method calls the completion block on Main Thread!  If it's expensive do a dispatch async to a background thread.
+- (void)applicationStateChangedWithCompletion:(void(^)(BOOL isActive))completion {
     
-    if (application.applicationState == UIApplicationStateActive) {
-        [self startSession];
-    } else if (application.applicationState == UIApplicationStateBackground) {
-        [self endSession];
-    }
+    // UIApplication should be called on main, it's a UI class
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
+            if (completion) {
+                completion(YES);
+            }
+        } else if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+            if (completion) {
+                completion(NO);
+            }
+        }
+    });
 }
 
 // Starts a session. This may be called multiple times, but it

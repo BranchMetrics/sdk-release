@@ -55,10 +55,20 @@
     
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationDidBecomeActiveNotification object:self];
     
-    XCTAssertNotNil([sessionManager sessionId]);
-    XCTAssertNotNil([sessionManager sessionStartTime]);
-    XCTAssertTrue([sessionManager sessionStarted]);
-    XCTAssertTrue([sessionManager timeSinceSessionStart] > 0);
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"This test relies on side effects"];
+
+    // The data this test is checking for is on the main queue, we need to give it a chance to run before we check.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        XCTAssertNotNil([sessionManager sessionId]);
+        XCTAssertNotNil([sessionManager sessionStartTime]);
+        XCTAssertTrue([sessionManager sessionStarted]);
+        XCTAssertTrue([sessionManager timeSinceSessionStart] > 0);
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
 }
 
 - (void)testSessionDidntActuallyStart {

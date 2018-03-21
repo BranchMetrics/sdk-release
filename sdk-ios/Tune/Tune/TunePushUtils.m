@@ -12,6 +12,7 @@
 
 #pragma mark - Push Notification Status Helper
 
+// This must be called on Main Thread!
 + (BOOL)isAlertPushNotificationEnabled {
     BOOL pushEnabled = NO;
     
@@ -26,6 +27,17 @@
 #endif
     
     return pushEnabled;
+}
+
+// This method calls the completion block on Main Thread!  If it's expensive do a dispatch async to a background thread.
++ (void)checkNotificationSettingsWithCompletion:(void(^)(BOOL pushEnabled))completion {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __block BOOL pushEnabled = [self isAlertPushNotificationEnabled];
+
+        if (completion) {
+            completion(pushEnabled);
+        }
+    });
 }
 
 @end

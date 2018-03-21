@@ -68,13 +68,23 @@
     OCMStub([mockApplication applicationState]).andReturn(UIApplicationStateActive);
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationDidBecomeActiveNotification object:self];
     
-    TuneAnalyticsEvent *testEvent = [[TuneAnalyticsEvent alloc] initCustomEventWithAction:@"Sample Action"];
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"This test relies on side effects"];
     
-    XCTAssertTrue([testEvent.submitter.ifa isEqualToString:@"idfa"], @"Actually: %@", testEvent.submitter.ifa);
-    XCTAssertTrue([testEvent.submitter.sessionId isEqualToString:[[TuneManager currentManager].userProfile sessionId]]);
-    XCTAssertTrue([testEvent.submitter.deviceId isEqualToString:[[TuneManager currentManager].userProfile deviceId]]);
+    // The data this test is checking for is on the main queue, we need to give it a chance to run before we check.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TuneAnalyticsEvent *testEvent = [[TuneAnalyticsEvent alloc] initCustomEventWithAction:@"Sample Action"];
+        XCTAssertTrue([testEvent.submitter.ifa isEqualToString:@"idfa"], @"Actually: %@", testEvent.submitter.ifa);
+        XCTAssertTrue([testEvent.submitter.sessionId isEqualToString:[[TuneManager currentManager].userProfile sessionId]]);
+        XCTAssertTrue([testEvent.submitter.deviceId isEqualToString:[[TuneManager currentManager].userProfile deviceId]]);
+        
+        XCTAssertTrue([testEvent.appId isEqualToString:[[TuneManager currentManager].userProfile hashedAppId]]);
+        
+        [expectation fulfill];
+    });
     
-    XCTAssertTrue([testEvent.appId isEqualToString:[[TuneManager currentManager].userProfile hashedAppId]]);
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        
+    }];
 }
 
 @end
