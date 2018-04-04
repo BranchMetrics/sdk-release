@@ -42,10 +42,6 @@ import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
 import com.tune.smartwhere.TuneSmartwhereConfiguration;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -56,6 +52,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @author tony@hasoffers.com
@@ -138,7 +138,7 @@ public class Tune {
     }
 
     /**
-     * Get existing TUNE singleton object
+     * Get existing TUNE singleton object.
      * @return Tune instance
      */
     public static synchronized Tune getInstance() {
@@ -155,7 +155,8 @@ public class Tune {
      * @param conversionKey TUNE conversion key
      * @return Tune instance with initialized values
      */
-    public static synchronized Tune init(Context context, String advertiserId, String conversionKey) {
+    public static synchronized Tune init(Context context,
+                                         String advertiserId, String conversionKey) {
         return init(context, advertiserId, conversionKey, false);
     }
 
@@ -167,7 +168,9 @@ public class Tune {
      * @param turnOnIAM Whether to enable Tune In-App Marketing or not
      * @return Tune instance with initialized values
      */
-    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM) {
+    public static synchronized Tune init(Context context,
+                                         String advertiserId, String conversionKey,
+                                         boolean turnOnIAM) {
         return init(context, advertiserId, conversionKey, turnOnIAM, new TuneConfiguration());
     }
 
@@ -180,7 +183,12 @@ public class Tune {
      * @param configuration custom SDK configuration
      * @return Tune instance with initialized values
      */
-    public static synchronized Tune init(Context context, String advertiserId, String conversionKey, boolean turnOnIAM, TuneConfiguration configuration) {
+    public static synchronized Tune init(Context context,
+                                         String advertiserId, String conversionKey,
+                                         boolean turnOnIAM, TuneConfiguration configuration) {
+        // SDK version declaration format for Google. See SDK-579
+        String sdkVersionString = BuildConfig.SDK_VERSION_STRING;
+
         if (sTuneInstance == null) {
             initAll(new Tune(), context, advertiserId, conversionKey, turnOnIAM, configuration);
         }
@@ -204,7 +212,7 @@ public class Tune {
         if (sTuneInstance != null) {
             firstRunLogic.cancel();
 
-            synchronized(pool) {
+            synchronized (pool) {
                 pool.notifyAll();
                 pool.shutdown();
             }
@@ -235,7 +243,9 @@ public class Tune {
         TuneDebugLog.d("Tune shutDown() complete");
     }
 
-    protected static synchronized Tune initAll(Tune tune, Context context, String advertiserId, String conversionKey, boolean turnOnIAM, TuneConfiguration configuration) {
+    protected static synchronized Tune initAll(Tune tune, Context context,
+                                               String advertiserId, String conversionKey,
+                                               boolean turnOnIAM, TuneConfiguration configuration) {
         if (sTuneInstance == null) {
             sTuneInstance = tune;
 
@@ -297,6 +307,7 @@ public class Tune {
             try {
                 mContext.unregisterReceiver(networkStateReceiver);
             } catch (java.lang.IllegalArgumentException e) {
+                TuneDebugLog.d("Invalid state.", e);
             }
             isRegistered = false;
         }
@@ -312,7 +323,7 @@ public class Tune {
     }
 
     /**
-     * Initialize class variables
+     * Initialize class variables.
      * @param key the conversion key
      */
     private void initLocalVariables(String key) {
@@ -347,7 +358,7 @@ public class Tune {
     }
 
     protected synchronized void addEventToQueue(String link, String data, JSONObject postBody, boolean firstSession) {
-        synchronized(pool) {
+        synchronized (pool) {
             if (pool.isShutdown()) {
                 return;
             }
@@ -361,7 +372,7 @@ public class Tune {
             return;
         }
 
-        synchronized(pool) {
+        synchronized (pool) {
             if (pool.isShutdown()) {
                 return;
             }
@@ -371,7 +382,9 @@ public class Tune {
     }
 
     /**
-     * Measure new session. Tune Android SDK plugins may use this method to trigger session measurement events. This should be called in the equivalent of onResume().
+     * Measure new session.
+     * Tune Android SDK plugins may use this method to trigger session measurement events.
+     * This should be called in the equivalent of onResume().
      */
     public void measureSessionInternal() {
         timeLastMeasuredSession = System.currentTimeMillis();
@@ -477,8 +490,10 @@ public class Tune {
                     }
                     if (TuneEvent.NAME_CLOSE.equals(eventName)) {
                         return; // Don't send close events
-                    } else if (TuneEvent.NAME_OPEN.equals(eventName) || TuneEvent.NAME_INSTALL.equals(eventName) ||
-                            TuneEvent.NAME_UPDATE.equals(eventName) || TuneEvent.NAME_SESSION.equals(eventName)) {
+                    } else if (TuneEvent.NAME_OPEN.equals(eventName)
+                            || TuneEvent.NAME_INSTALL.equals(eventName)
+                            || TuneEvent.NAME_UPDATE.equals(eventName)
+                            || TuneEvent.NAME_SESSION.equals(eventName)) {
                         params.setAction(TuneParameters.ACTION_SESSION);
                     }
                 }
@@ -495,7 +510,8 @@ public class Tune {
                         eventItemsJson.put(eventData.getEventItems().get(i).toJson());
                     }
                 }
-                JSONObject postBody = TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
+                JSONObject postBody =
+                        TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
 
                 if (tuneRequest != null) {
                     tuneRequest.constructedRequest(link, data, postBody);
@@ -518,7 +534,7 @@ public class Tune {
     }
 
     /**
-     * Helper function for making single request and displaying response
+     * Helper function for making single request and displaying response.
      * @param link Url address
      * @param data Url link data
      * @param postBody Url post body
@@ -619,7 +635,7 @@ public class Tune {
 
     private void checkForExpandedTuneLinks(String link, JSONObject response) {
         try {
-            if (isTuneLinkMeasurementRequest(link) && !isInvokeUrlParameterInReferralUrl()){
+            if (isTuneLinkMeasurementRequest(link) && !isInvokeUrlParameterInReferralUrl()) {
                 if (response.has(TuneConstants.KEY_INVOKE_URL)) {
                     dplinkr.handleExpandedTuneLink(response.getString(TuneConstants.KEY_INVOKE_URL));
                 } else {
@@ -651,13 +667,13 @@ public class Tune {
     }
 
     /**
-     * If location autocollect is enabled,
-     * tries to get latest location from TuneLocationListener, triggering update if needed
+     * Update Location if autocollect is enabled.
+     * If location autocollect is enabled, tries to get latest location from TuneLocationListener,
+     * triggering an update if needed
      */
     protected void updateLocation() {
         if (collectLocation) {
-            if (params.getLocation() == null &&
-                    locationListener != null) {
+            if (params.getLocation() == null && locationListener != null) {
                 Location lastLocation = locationListener.getLastLocation();
                 if (lastLocation != null) {
                     params.setLocation(new TuneLocation(lastLocation));
@@ -671,7 +687,7 @@ public class Tune {
      ******************/
 
     /**
-     * Gets the action of the event
+     * Gets the action of the event.
      * @return install/update/conversion
      */
     public String getAction() {
@@ -688,7 +704,6 @@ public class Tune {
 
     /**
      * Gets the user age.
-     *
      * NOTE: this value must be set with {@link Tune#setAge(int)} otherwise this method will return 0.
      *
      * @return age, if set. If no value is set this method returns 0.
@@ -699,7 +714,6 @@ public class Tune {
 
     /**
      * Gets the device altitude.
-     *
      * NOTE: this value must be set with {@link Tune#setAltitude(double)} otherwise this method will return 0.
      *
      * @return device altitude, if set. If no value is set returns 0.0
@@ -718,7 +732,7 @@ public class Tune {
     }
 
     /**
-     * Gets the ANDROID_ID of the device that was set with {@link Tune#setAndroidId(String)}
+     * Gets the ANDROID_ID of the device that was set with {@link Tune#setAndroidId(String)}.
      * @return ANDROID_ID
      */
     public String getAndroidId() {
@@ -735,7 +749,7 @@ public class Tune {
     }
 
     /**
-     * Gets the app name
+     * Gets the app name.
      * @return app name
      */
     public String getAppName() {
@@ -743,7 +757,7 @@ public class Tune {
     }
 
     /**
-     * Gets the app version
+     * Gets the app version.
      * @return app version
      */
     public int getAppVersion() {
@@ -761,7 +775,7 @@ public class Tune {
     }
 
     /**
-     * Gets the connection type (mobile or WIFI);.
+     * Gets the connection type (mobile or WIFI).
      * @return whether device is connected by WIFI or mobile data connection
      */
     public String getConnectionType() {
@@ -769,7 +783,7 @@ public class Tune {
     }
 
     /**
-     * Gets the ISO 639-1 country code
+     * Gets the ISO 639-1 country code.
      * @return ISO 639-1 country code
      */
     public String getCountryCode() {
@@ -785,7 +799,7 @@ public class Tune {
     }
 
     /**
-     * Gets the device brand/manufacturer (HTC, Apple, etc)
+     * Gets the device brand/manufacturer (HTC, Apple, etc).
      * @return device brand/manufacturer name
      */
     public String getDeviceBrand() {
@@ -793,7 +807,7 @@ public class Tune {
     }
 
     /**
-     * Gets the device build
+     * Gets the device build.
      * @return device build name
      */
     public String getDeviceBuild() {
@@ -801,7 +815,7 @@ public class Tune {
     }
 
     /**
-     * Gets the device carrier if any
+     * Gets the device carrier if any.
      * @return mobile device carrier/service provider name
      */
     public String getDeviceCarrier() {
@@ -809,7 +823,7 @@ public class Tune {
     }
 
     /**
-     * Gets the Device ID, also known as IMEI/MEID, if any
+     * Gets the Device ID, also known as IMEI/MEID, if any.
      * @return device IMEI/MEID
      */
     public String getDeviceId() {
@@ -817,7 +831,7 @@ public class Tune {
     }
 
     /**
-     * Gets the device model name
+     * Gets the device model name.
      * @return device model name
      */
     public String getDeviceModel() {
@@ -907,12 +921,12 @@ public class Tune {
     }
 
     /**
-     * Gets the date of app install
+     * Gets the date of app install.
      * @return date that app was installed, epoch seconds
      */
     public long getInstallDate() {
         String installDateString = params.getInstallDate();
-        long installDate = 0l;
+        long installDate = 0L;
         if (installDateString != null) {
             try {
                 installDate = Long.parseLong(installDateString);
@@ -924,7 +938,7 @@ public class Tune {
     }
 
     /**
-     * Gets the Google Play INSTALL_REFERRER
+     * Gets the Google Play INSTALL_REFERRER.
      * @return Play INSTALL_REFERRER
      */
     public String getInstallReferrer() {
@@ -932,7 +946,7 @@ public class Tune {
     }
 
     /**
-     * Gets whether the user is revenue-generating or not
+     * Gets whether the user is revenue-generating or not.
      * @return true if the user has produced revenue, false if not
      */
     public boolean getIsPayingUser() {
@@ -950,7 +964,7 @@ public class Tune {
     }
 
     /**
-     * Gets the language of the device
+     * Gets the language of the device.
      * @return device language
      */
     public String getLanguage() {
@@ -958,7 +972,7 @@ public class Tune {
     }
 
     /**
-     * Gets the last TUNE open log ID
+     * Gets the last TUNE open log ID.
      * @return most recent TUNE open log ID
      */
     public String getLastOpenLogId() {
@@ -967,7 +981,6 @@ public class Tune {
 
     /**
      * Gets the device latitude.
-     *
      * NOTE: Must be set by {@link Tune#setLatitude(double)}. This value is not automatically retrieved.
      * @return device latitude
      */
@@ -995,7 +1008,6 @@ public class Tune {
 
     /**
      * Gets the device longitude.
-     *
      * NOTE: This value must be set by {@link Tune#setLongitude(double)}. This value is not automatically retrieved.
      * @return device longitude
      */
@@ -1014,7 +1026,7 @@ public class Tune {
     }
 
     /**
-     * Gets the MAC address of device
+     * Gets the MAC address of device.
      * @return device MAC address
      */
     public String getMacAddress() {
@@ -1022,7 +1034,7 @@ public class Tune {
     }
 
     /**
-     * Gets the MAT ID generated on install
+     * Gets the MAT ID generated on install.
      * @return MAT ID
      */
     public String getMatId() {
@@ -1046,7 +1058,7 @@ public class Tune {
     }
 
     /**
-     * Gets the first TUNE open log ID
+     * Gets the first TUNE open log ID.
      * @return first TUNE open log ID
      */
     public String getOpenLogId() {
@@ -1054,7 +1066,7 @@ public class Tune {
     }
 
     /**
-     * Gets the Android OS version
+     * Gets the Android OS version.
      * @return Android OS version
      */
     public String getOsVersion() {
@@ -1063,7 +1075,7 @@ public class Tune {
 
 
     /**
-     * Gets the app package name
+     * Gets the app package name.
      * @return package name of app
      */
     public String getPackageName() {
@@ -1088,7 +1100,7 @@ public class Tune {
     }
 
     /**
-     * Get SDK plugin name used
+     * Get SDK plugin name used.
      * @return name of TUNE plugin
      */
     public String getPluginName() {
@@ -1096,7 +1108,7 @@ public class Tune {
     }
 
     /**
-     * Gets the package name of the app that started this Activity, if any
+     * Gets the package name of the app that started this Activity, if any.
      * @return source package name that caused open via StartActivityForResult
      */
     public String getReferralSource() {
@@ -1104,7 +1116,7 @@ public class Tune {
     }
 
     /**
-     * Gets the url scheme that started this Activity, if any
+     * Gets the url scheme that started this Activity, if any.
      * @return full url of app scheme that caused open
      */
     public String getReferralUrl() {
@@ -1112,7 +1124,7 @@ public class Tune {
     }
 
     /**
-     * Gets the screen density of the device
+     * Gets the screen density of the device.
      * @return 0.75/1.0/1.5/2.0/3.0/4.0 for ldpi/mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi
      */
     public String getScreenDensity() {
@@ -1120,7 +1132,7 @@ public class Tune {
     }
 
     /**
-     * Gets the screen height of the device in pixels
+     * Gets the screen height of the device in pixels.
      * @return height
      */
     public String getScreenHeight() {
@@ -1128,7 +1140,7 @@ public class Tune {
     }
 
     /**
-     * Gets the screen width of the device in pixels
+     * Gets the screen width of the device in pixels.
      * @return width
      */
     public String getScreenWidth() {
@@ -1136,7 +1148,7 @@ public class Tune {
     }
 
     /**
-     * Gets the TUNE Android SDK version
+     * Gets the TUNE Android SDK version.
      * @return TUNE Android SDK version
      */
     public static String getSDKVersion() {
@@ -1144,7 +1156,7 @@ public class Tune {
     }
 
     /**
-     * Gets the TRUSTe ID set
+     * Gets the TRUSTe ID set.
      * @return TRUSTe ID
      */
     public String getTRUSTeId() {
@@ -1160,7 +1172,7 @@ public class Tune {
     }
 
     /**
-     * Gets the device browser user agent
+     * Gets the device browser user agent.
      * @return device user agent
      */
     public String getUserAgent() {
@@ -1397,7 +1409,7 @@ public class Tune {
     }
 
     /**
-     * Overrides the Google Play INSTALL_REFERRER received
+     * Overrides the Google Play INSTALL_REFERRER received.
      * @param referrer Your custom referrer value
      */
     public void setInstallReferrer(final String referrer) {
@@ -1410,8 +1422,8 @@ public class Tune {
         firstRunLogic.receivedInstallReferrer();
     }
 
-    // Called exclusively by TuneEventQueue.  This method will wait for the FirstRun startup sequence
-    // to complete.
+    // This method will wait for the FirstRun startup sequence to complete.
+    // Called exclusively by TuneEventQueue.
     void waitForFirstRunData(int timeToWait) {
         firstRunLogic.waitForFirstRunData(mContext, timeToWait);
     }
@@ -1429,7 +1441,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device locale
+     * Sets the device locale.
      * @param locale the device locale
      */
     public void setLocale(final String locale) {
@@ -1437,7 +1449,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device location
+     * Sets the device location.
      * @param location the device location
      */
     public void setLocation(final Location location) {
@@ -1446,7 +1458,8 @@ public class Tune {
     }
 
     /**
-     * Sets the device location. Manually setting the location through this method disables geo-location auto-collection.
+     * Sets the device location.
+     * Manually setting the location through this method disables geo-location auto-collection.
      * @param location the device location as a TuneLocation
      */
     public void setLocation(final TuneLocation location) {
@@ -1460,7 +1473,8 @@ public class Tune {
     }
 
     /**
-     * Sets the device latitude. Manually setting the latitude through this method disables geo-location auto-collection.
+     * Sets the device latitude.
+     * Manually setting the latitude through this method disables geo-location auto-collection.
      * @param latitude the device latitude
      */
     public void setLatitude(final double latitude) {
@@ -1469,7 +1483,8 @@ public class Tune {
     }
 
     /**
-     * Sets the device longitude. Manually setting the longitude through this method disables geo-location auto-collection.
+     * Sets the device longitude.
+     * Manually setting the longitude through this method disables geo-location auto-collection.
      * @param longitude the device longitude
      */
     public void setLongitude(final double longitude) {
@@ -1478,7 +1493,7 @@ public class Tune {
     }
 
     /**
-     * Register a TuneListener interface to receive server response callback
+     * Register a TuneListener interface to receive server response callback.
      * @param listener a TuneListener object that will be called when server request is complete
      */
     public void setListener(TuneListener listener) {
@@ -1494,7 +1509,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device OS version
+     * Sets the device OS version.
      * @param osVersion device OS version
      */
     public void setOsVersion(final String osVersion) {
@@ -1502,7 +1517,7 @@ public class Tune {
     }
 
     /**
-     * Sets the app package name
+     * Sets the app package name.
      * @param packageName App package name
      */
     public void setPackageName(final String packageName) {
@@ -1516,7 +1531,7 @@ public class Tune {
     }
 
     /**
-     * Sets the device phone number
+     * Sets the device phone number.
      * @param phoneNumber Phone number
      */
     public void setPhoneNumber(final String phoneNumber) {
@@ -1556,7 +1571,7 @@ public class Tune {
     }
 
     /**
-     * Sets publisher information for device preloaded apps
+     * Sets publisher information for device preloaded apps.
      * @param preloadData Preload app attribution data
      */
     public void setPreloadedApp(TunePreloadData preloadData) {
@@ -1586,6 +1601,7 @@ public class Tune {
     }
 
     /**
+     * Set privacy as protected.
      * Set this device profile as privacy protected for the purposes of the protection of children
      * from ad targeting and personal data collection. In the US this is part of the COPPA law.
      * This method is related to {@link #setAge(int)}.
@@ -1608,7 +1624,8 @@ public class Tune {
     }
 
     /**
-     * Set the package that invoked the activity. Typically this value is from {@link Activity#getCallingPackage} and may be null.
+     * Set the package that invoked the activity.
+     * Typically this value is from {@link Activity#getCallingPackage} and may be null.
      *
      * @param referralCallingPackage The name of the callling package
      */
@@ -1617,7 +1634,8 @@ public class Tune {
     }
 
     /**
-     * Set referral url (deeplink). You usually do not need to call this directly. If called, this method should be called BEFORE {@link #measureSessionInternal()}
+     * Set referral url (deeplink).
+     * You usually do not need to call this directly. If called, this method should be called BEFORE {@link #measureSessionInternal()}
      * @param url deeplink with which app was invoked
      */
     public void setReferralUrl(final String url) {
@@ -1639,7 +1657,7 @@ public class Tune {
     }
 
     /**
-     * Sets the TRUSTe ID, should generate via their SDK
+     * Sets the TRUSTe ID, should generate via their SDK.
      * @param tpid TRUSTe ID
      */
     public void setTRUSTeId(final String tpid) {
@@ -1647,7 +1665,7 @@ public class Tune {
     }
 
     /**
-     * Sets the user ID to associate with Twitter
+     * Sets the user ID to associate with Twitter.
      * @param userId the Twitter user id
      */
     public void setTwitterUserId(final String userId) {
@@ -1685,7 +1703,7 @@ public class Tune {
     public void setPluginName(final String pluginName) {
         // Validate plugin name
         if (Arrays.asList(TuneConstants.PLUGIN_NAMES).contains(pluginName)) {
-                params.setPluginName(pluginName);
+            params.setPluginName(pluginName);
         } else {
             if (debugMode) {
                 throw new IllegalArgumentException("Plugin name not acceptable");
@@ -1695,11 +1713,10 @@ public class Tune {
 
     /**
      * Turns debug mode on or off, under tag "TUNE".
-     *
      * Additionally, setting this to 'true' will cause two exceptions to be thrown to aid in debugging the IAM configuration.
      * Normally IAM will log an error to the console when you misconfigure or misuse a method, but this way an exception is thrown to
      * quickly and explicitly find what is misconfigured.
-     *
+     * <br>
      *  - TuneIAMNotEnabledException: This will be thrown if you use a IAM method without IAM enabled.
      *  - TuneIAMConfigurationException: This will be thrown if the arguments passed to an IAM method are invalid. The exception message will have more details.
      *
@@ -1730,7 +1747,6 @@ public class Tune {
 
     /**
      * Checks the current status of debug mode.
-     *
      * @return Whether debug mode is on or off.
      */
     public boolean isInDebugMode() {
@@ -1738,7 +1754,7 @@ public class Tune {
     }
 
     /**
-     * Enables or disables primary Gmail address collection
+     * Enables or disables primary Gmail address collection.
      * Requires GET_ACCOUNTS permission
      * @param collectEmail whether to collect device email address
      */
@@ -1766,7 +1782,7 @@ public class Tune {
     }
 
     /**
-     * Whether to log TUNE events in the FB SDK as well
+     * Whether to log TUNE events in the FB SDK as well.
      * @param logging Whether to send TUNE events to FB as well
      * @param context Activity context
      * @param limitEventAndDataUsage Whether user opted out of ads targeting
@@ -1779,7 +1795,7 @@ public class Tune {
     }
 
     /**
-     * Whether to autocollect device location if location is enabled
+     * Whether to autocollect device location if location is enabled.
      * @param autoCollect Automatically collect device location, default is true
      */
     public void setShouldAutoCollectDeviceLocation(boolean autoCollect) {
@@ -1791,14 +1807,14 @@ public class Tune {
         }
     }
 
-    /********************
-     ** Power Hook API *
-     ******************/
+    //********************
+    //** Power Hook API *
+    //******************/
 
     /**
      * Registers a Power Hook for use with TUNE.
-     *
-     * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.  This declaration should occur in {@link android.app.Application#onCreate()}.
+     * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.
+     * This declaration should occur in {@link android.app.Application#onCreate()}.
      *
      * @param hookId The name of the configuration setting to register. Name must be unique for this app and cannot be empty.
      * @param friendlyName The name for this hook that will be displayed in TMC. This value cannot be empty.
@@ -1815,14 +1831,15 @@ public class Tune {
 
     /**
      * Registers a single-value (non-code-block) Power Hook for use with TUNE.
-     *
-     * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.  This declaration should occur in the {@link android.app.Application#onCreate()} method of your Application.
+     * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.
+     * This declaration should occur in the {@link android.app.Application#onCreate()} method of your Application.
      *
      * @param hookId The name of the configuration setting to register. Name must be unique for this app and cannot be empty.
      * @param friendlyName The name for this hook that will be displayed in TMC. This value cannot be empty.
      * @param defaultValue The default value for this hook.  This value will be used if no value is passed in from TMC for this app. This value cannot be nil.
      * @param description The description for this Power Hook. This will be shown on the web to help identify this Power Hook if many are registered.
-     * @param approvedValues The values that are allowed for this Power Hook. Any values entered on the web that don't fit within this array of values will not propagate to the app.
+     * @param approvedValues The values that are allowed for this Power Hook.
+     *                       Any values entered on the web that don't fit within this array of values will not propagate to the app.
      *
      */
     // NOTE: Private til we release this API.
@@ -1836,9 +1853,9 @@ public class Tune {
 
     /**
      * Gets the value of a Power Hook.
-     *
-     * Use this method to get the value of a Power Hook from TUNE.  This will return the value specified in IAM web console, or the default value if none has been specified.
-     *
+     * Use this method to get the value of a Power Hook from TUNE.
+     * This will return the value specified in IAM web console, or the default value if none has been specified.
+     * <br>
      * NOTE: If no hook was registered for the given ID, this method will return null.
      *
      * @param hookId The name of the Power Hook you wish to retrieve. Will return nil if the Power Hook has not been registered.
@@ -1854,9 +1871,8 @@ public class Tune {
 
     /**
      * Sets the value of a Power Hook.
-     *
      * Use this method to set the value of a Power Hook from TUNE.
-     *
+     * <br>
      * NOTE: ** This is for QA purposes only, you should not use this method in Production as it will override the value sent from the web platform. **
      *
      * @param hookId The name of the Power Hook you wish to set the value for.
@@ -1872,10 +1888,10 @@ public class Tune {
 
     /**
      * Register a callback when any Power Hooks have changed due to a new value from the Server.
-     *
      * NOTE: Only the latest callback registered will be executed.
-     * 
-     * NOTE: ** The thread calling the block of code is not guaranteed to be on the main thread.  If the code inside of the block requires executing on the main thread you will need to implement this logic. **
+     * <br>
+     * NOTE: ** The thread calling the block of code is not guaranteed to be on the main thread.
+     * If the code inside of the block requires executing on the main thread you will need to implement this logic. **
      *
      * @param callback The block of code to be executed.
      *
@@ -1894,12 +1910,12 @@ public class Tune {
 
     /**
      * Registers a code-block Deep Action for use with TUNE.
-     *
      * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.
      *
      * @param actionId The name of the deep action to register. Name must be unique for this app and cannot be null or empty.
      * @param friendlyName The friendly name for this action that will be displayed in TMC. This value cannot be null.
-     * @param defaultData The default values for this deep action.  These values will be used if no value is passed in from TMC for this app. This cannot be null.
+     * @param defaultData The default values for this deep action.
+     *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
      */
     public void registerDeepAction(String actionId, String friendlyName, Map<String, String> defaultData, TuneDeepActionCallback action) {
@@ -1911,29 +1927,14 @@ public class Tune {
     }
 
     /**
-     * Executes a previously registered Deep Action code-block. The data to be used by the current execution of the deep action code-block is derived by merging the Map provided here with the default Map provided during deep action registration. Also, the new values take preference over the default values when the keys match.
-     *
-     * @param activity Activity object to be made available to the deep action code-block. This object may be null depending on its usage in the code-block.
-     * @param actionId Non-empty non-null name of a previously registered deep action code-block.
-     * @param data Values to be used with the deep action. This Map may be null or empty or contain string keys and values.
-     */
-    public void executeDeepAction(Activity activity, String actionId, Map<String, String> data) {
-        if (TuneManager.getDeepActionManagerForUser("executeDeepAction") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getDeepActionManager().executeDeepAction(activity, actionId, data);
-    }
-
-    /**
      * Registers a code-block Deep Action for use with TUNE.
-     *
      * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.
      *
      * @param actionId The name of the deep action to register. Name must be unique for this app and cannot be null or empty.
      * @param friendlyName The friendly name for this action that will be displayed in TMC. This value cannot be null.
      * @param description An optional description ofr this Deep Action.
-     * @param defaultData The default values for this deep action.  These values will be used if no value is passed in from TMC for this app. This cannot be null.
+     * @param defaultData The default values for this deep action.
+     *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
      */
     // NOTE: Private til we release this API.
@@ -1947,23 +1948,41 @@ public class Tune {
 
     /**
      * Registers a code-block Deep Action for use with TUNE.
-     *
      * Use this method to declare the existence of a Power Hook you would like to pass in from TUNE.
      *
      * @param actionId The name of the deep action to register. Name must be unique for this app and cannot be null or empty.
      * @param friendlyName The friendly name for this action that will be displayed in TMC. This value cannot be null.
      * @param description An optional description ofr this Deep Action.
-     * @param defaultData The default values for this deep action.  These values will be used if no value is passed in from TMC for this app. This cannot be null.
+     * @param defaultData The default values for this deep action.
+     *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param approvedValues An optional Map of key to list of approved values.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
      */
     // NOTE: Private til we release this API.
-    private void registerDeepAction(String actionId, String friendlyName, String description, Map<String, String> defaultData, Map<String, List<String>> approvedValues, TuneDeepActionCallback action) {
+    private void registerDeepAction(String actionId, String friendlyName, String description,
+                                    Map<String, String> defaultData, Map<String, List<String>> approvedValues, TuneDeepActionCallback action) {
         if (TuneManager.getDeepActionManagerForUser("registerDeepAction") == null) {
             return;
         }
 
         TuneManager.getInstance().getDeepActionManager().registerDeepAction(actionId, friendlyName, description, defaultData, approvedValues, action);
+    }
+
+    /**
+     * Executes a previously registered Deep Action code-block.
+     * The data to be used by the current execution of the deep action code-block is derived by merging the Map provided here with the default Map provided
+     * during deep action registration. Also, the new values take preference over the default values when the keys match.
+     *
+     * @param activity Activity object to be made available to the deep action code-block. This object may be null depending on its usage in the code-block.
+     * @param actionId Non-empty non-null name of a previously registered deep action code-block.
+     * @param data Values to be used with the deep action. This Map may be null or empty or contain string keys and values.
+     */
+    public void executeDeepAction(Activity activity, String actionId, Map<String, String> data) {
+        if (TuneManager.getDeepActionManagerForUser("executeDeepAction") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getDeepActionManager().executeDeepAction(activity, actionId, data);
     }
 
     /****************************
@@ -1972,13 +1991,12 @@ public class Tune {
 
     /**
      * Get details for all currently running Power Hook Variable experiments.
-     *
      * Details include the hook id for the Power Hook, experiment and variation ids and start
      * and end date of the experiment.
      *
      * @return a `Map` of experiment details for all running Power Hook variable experiments,
-     * where the keys are the `String` Power Hook IDs of the Power Hooks, and the values
-     * are `TunePowerHookExperimentDetails` objects.
+     *     where the keys are the `String` Power Hook IDs of the Power Hooks, and the values
+     *     are `TunePowerHookExperimentDetails` objects.
      */
     public Map<String, TunePowerHookExperimentDetails> getPowerHookExperimentDetails() {
         if (TuneManager.getExperimentManagerForUser("getPowerHookExperimentDetails") == null) {
@@ -1991,12 +2009,11 @@ public class Tune {
 
     /**
      * Get details for all currently running In App Message experiments.
-     *
      * Details include the experiment and variation ids and start and end date of the experiment.
      *
      * @return a `HashMap` of experiment details for all running In App Message experiments,
-     * where the keys are the `String` campaign ids of the In App Messages, and the values are
-     * `TuneInAppMessageExperimentDetails` objects.
+     *     where the keys are the `String` campaign ids of the In App Messages, and the values are
+     *     `TuneInAppMessageExperimentDetails` objects.
      */
     public Map<String, TuneInAppMessageExperimentDetails> getInAppMessageExperimentDetails() {
         if (TuneManager.getExperimentManagerForUser("getInAppMessageExperimentDetails") == null) {
@@ -2012,23 +2029,26 @@ public class Tune {
 
     /**
      * Register callback when the first playlist is downloaded for App's lifetime.
-     *
-     * Use this method to register a callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
-     *
-     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
-     *
+     * Use this method to register a callback the first time a playlist is downloaded.
+     * This call is non-blocking so code execution will continue immediately to the next line of code.
+     * <br>
+     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread.
+     * You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+     * <br>
      * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
-     *
-     * Otherwise the callback will fire after {@link TuneConstants#DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is downloaded, whichever comes first.
-     *
+     * <br>
+     * Otherwise the callback will fire after {@link TuneConstants#DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT} milliseconds or when the first playlist is
+     * downloaded, whichever comes first.
+     * <br>
      * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
      * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
-     * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
-     *
+     * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in
+     * your app.
+     * <br>
      * NOTE: Only one callback can be registered at a time. Each time a callback is registered it will fire.
-     *
+     * <br>
      * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
-     *
+     * <br>
      * WARNING: If TMA is not enabled then this callback will never fire.
      *
      * @param callback A TuneCallback object that is to be executed.
@@ -2042,32 +2062,34 @@ public class Tune {
     }
 
 
-    /** Register callback when the first playlist is downloaded for the App's lifetime.
-     *
-     * Use this method to register a callback for the first time a playlist is downloaded.  This call is non-blocking so code execution will continue immediately to the next line of code.
-     *
-     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
-     *
+    /**
+     * Register callback when the first playlist is downloaded for the App's lifetime.
+     * Use this method to register a callback for the first time a playlist is downloaded.
+     * This call is non-blocking so code execution will continue immediately to the next line of code.
+     * <br>
+     * <b>IMPORTANT:</b> The thread executing the callback is not going to be on the main thread.
+     * You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+     * <br>
      * If the first playlist has already been downloaded when this call is made the callback is executed immediately on a background thread.
-     *
+     * <br>
      * Otherwise the callback will fire after the given timeout (in milliseconds) or when the first playlist is downloaded, whichever comes first.
-     *
+     * <br>
      * If the timeout is greater than zero, the callback will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
-     *
+     * <br>
      * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
      * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
-     * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
-     *
+     * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in
+     * your app.
+     * <br>
      * NOTE: Only one callback can be registered at a time. Each time a callback is registered it will fire.
-     *
+     * <br>
      * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
-     *
+     * <br>
      * WARNING: If TMA is not enabled then this callback will never fire.
      *
      * @param callback A TuneCallback object that is to be executed.
      * @param timeout The number of miliseconds to wait until executing the callback regardless
      *                of Playlist download.
-     *
      */
     public void onFirstPlaylistDownloaded(TuneCallback callback, long timeout) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
@@ -2077,9 +2099,9 @@ public class Tune {
         TuneManager.getInstance().getPlaylistManager().onFirstPlaylistDownloaded(callback, timeout);
     }
 
-    /***********************
-     ** In-App Message API *
-     ***********************/
+    //***********************
+    //** In-App Message API *
+    //***********************/
 
     /**
      * Get in-app messages for this device that are triggered by custom event.
@@ -2109,7 +2131,8 @@ public class Tune {
 
     /**
      * Get in-app messages for this device that are triggered by a Push Enabled/Disabled event.
-     * Push Enabled or Disabled events are sent when a user enables/disables push at a system level or app level {@link Tune#setOptedOutOfPush(boolean)}
+     * Push Enabled or Disabled events are sent when a user enables/disables push at a system level
+     * or app level {@link Tune#setOptedOutOfPush(boolean)}
      * or the user profile's age does not meet COPPA (automatically disabled)
      * @param pushEnabled Whether Push Enabled or Push Disabled is the event to use
      * @return List of messages that are triggered by Push Enabled/Disabled event
@@ -2124,8 +2147,11 @@ public class Tune {
 
     /**
      * Get in-app messages for this device that are triggered by a "Starts App" event.
-     * "Starts App" events are actually triggered on the first IAM playlist downloaded after the app launches and not immediately on application foreground.
-     * We do this so that all IAM messages, power hooks, deep actions, etc. are populated with the latest values by the time the message should be shown.
+     * "Starts App" events are actually triggered on the first IAM playlist downloaded after the app
+     * launches and not immediately on application foreground.
+     * <br>
+     * We do this so that all IAM messages, power hooks, deep actions, etc. are populated with the
+     * latest values by the time the message should be shown.
      * @return List of messages that are triggered by "Starts App" event
      */
     public List<TuneInAppMessage> getInAppMessagesForStartsApp() {
@@ -2151,11 +2177,10 @@ public class Tune {
 
     /**
      * Get all in-app messages that can be shown for this device, sorted by message variation id.
-     *
      * Messages can be modified before displaying, or manually triggered to display.
      *
      * @return `Map` of in-app messages for this device, where the keys are the `String` message
-     * variation ids of the In-App Message, and the values are {@link TuneInAppMessage} objects.
+     *     variation ids of the In-App Message, and the values are {@link TuneInAppMessage} objects.
      */
     public Map<String, TuneInAppMessage> getInAppMessagesByIds() {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByIds") == null) {
@@ -2167,11 +2192,10 @@ public class Tune {
 
     /**
      * Get all in-app messages that can be shown for this device, sorted by trigger event.
-     *
      * Messages can be modified for displaying, or manually triggered to display.
      *
      * @return `Map` of in-app messages for this device, where the keys are the `String` trigger
-     * event (event hash) of the In-App Message, and the values are a list of {@link TuneInAppMessage} objects with that trigger.
+     *     event (event hash) of the In-App Message, and the values are a list of {@link TuneInAppMessage} objects with that trigger.
      */
     public Map<String, List<TuneInAppMessage>> getInAppMessagesByTriggerEvents() {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByTriggerEvents") == null) {
@@ -2182,7 +2206,7 @@ public class Tune {
     }
 
     /**
-     * Preload all messages in a given Activity, so they're ready to be shown quickly
+     * Preload all messages in a given Activity, so they're ready to be shown quickly.
      * @param activity Activity where messages would be shown when triggered
      */
     public void preloadMessages(Activity activity) {
@@ -2194,7 +2218,7 @@ public class Tune {
     }
 
     /**
-     * Preload all messages that are triggered by given custom event
+     * Preload all messages that are triggered by given custom event.
      * @param activity Activity where messages would be shown when triggered
      * @param eventName Trigger event name for the messages
      */
@@ -2207,7 +2231,7 @@ public class Tune {
     }
 
     /**
-     * Preload a single message with given message ID
+     * Preload a single message with given message ID.
      * @param activity Activity where message would be shown when triggered
      * @param messageId Message ID
      */
@@ -2232,17 +2256,18 @@ public class Tune {
     }
 
 
-    /*************
-     ** Push API *
-     *************/
+    //*************
+    //** Push API *
+    //*************/
 
     /**
-     * Provide Tune with your Push Sender ID. This is your Google API Project Number. We will handle getting the GCM registration Id for each device.<br>
+     * Provide Tune with your Push Sender ID. This is your Google API Project Number.
+     * We will handle getting the GCM registration Id for each device.
      * <br>
      * You get your project number when you set up a project at https://console.developers.google.com/project
-     *
+     * <br>
      * By setting a push sender Id you are implicitly enabling Tune Push Messaging.
-     *
+     * <br>
      * IMPORTANT: If you use this method you should not use {@link Tune#setPushNotificationRegistrationId(String)}
      *
      * @param pushSenderId Your Push Sender Id.
@@ -2256,11 +2281,9 @@ public class Tune {
     }
 
     /**
-     * Provide Tune with your GCM registration id for this device.<br>
-     * <br>
-     *
+     * Provide Tune with your GCM registration id for this device.
      * By using this method you are implicitly enabling Tune Push Messaging.
-     *
+     * <br>
      * IMPORTANT: If you use this method you should not use {@link Tune#setPushNotificationSenderId(String)}
      *
      * @param registrationId The device token you want to use.
@@ -2274,12 +2297,17 @@ public class Tune {
     }
 
     /**
-     * Provide Tune with a notification builder to provide defaults for your app's notifications.<br>
-     * <br>
+     * Provide Tune with a notification builder to provide defaults for your app's notifications.
      * If you do not use {@link #setPushNotificationSenderId(String)} this doesn't do anything.
-     * Important: If you do not provide a small icon for your notifications via the builder we will default to using your app icon. This may look odd if your app is targeting API 21+ because the OS will take only the alpha of the icon and display that on a neutral background. If your app is set to target API 21+ we strongly recommend that you take advantage of the {@link TuneNotificationBuilder} API.
+     * <br>
+     * Important: If you do not provide a small icon for your notifications via the builder we will
+     * default to using your app icon. This may look odd if your app is targeting API 21+ because
+     * the OS will take only the alpha of the icon and display that on a neutral background.
+     * If your app is set to target API 21+ we strongly recommend that you take advantage of the
+     * {@link TuneNotificationBuilder} API.
      *
-     * @param builder by providing a {@link TuneNotificationBuilder} you can provide defaults for your app's notifications for Tune Push Messages, like the small icon
+     * @param builder by providing a {@link TuneNotificationBuilder} you can provide defaults for
+     *                your app's notifications for Tune Push Messages, like the small icon
      */
     public void setPushNotificationBuilder(TuneNotificationBuilder builder) {
         if (TuneManager.getPushManagerForUser("setPushNotificationBuilder") == null) {
@@ -2303,13 +2331,17 @@ public class Tune {
     }
 
     /**
-     * Specify whether the current user has opted out of push messaging.<br>
+     * Specify whether the current user has opted out of push messaging.
+     * This information is added to the personalization profile of the current user for segmentation,
+     * targeting, and reporting purposes.
      * <br>
-     * This information is added to the personalization profile of the current user for segmentation, targeting, and reporting purposes. <br>
+     * Also, if you are using Tune Push, then by default Tune will assume push messaging is enabled
+     * as long as the user has Google Play Services installed on their device and we can successfully
+     * get a device token for their device.
      * <br>
-     * Also, if you are using Tune Push, then by default Tune will assume push messaging is enabled as long as the user has Google Play Services installed on their device and we can successfully get a device token for their device. <br>
-     * <br>
-     * If you have a custom setting that gives your end users the ability to turn off notifications for your app, you can use this method to pass that setting on to Tune. Tune will not send notifications to devices where this setting is turned off. <br>
+     * If you have a custom setting that gives your end users the ability to turn off notifications
+     * for your app, you can use this method to pass that setting on to Tune.
+     * Tune will not send notifications to devices where this setting is turned off.
      * <br>
      * This can be called from anywhere in your app.
      *
@@ -2325,7 +2357,6 @@ public class Tune {
 
     /**
      * Returns the currently registered device token for push.
-     *
      * @return The currently registered device token for push, or null if we aren't registered.
      */
     public String getDeviceToken() {
@@ -2338,7 +2369,6 @@ public class Tune {
 
     /**
      * Returns if the user manually disabled push on the Application Setting page.
-     * <br>
      * If this returns true then nothing will be allowed to be posted to the tray, not just push notifications
      *
      * @return Whether the user manually disabled push from the Application Settings screen if API Level &gt;= 19, otherwise false.
@@ -2353,9 +2383,9 @@ public class Tune {
 
     /**
      * Returns if the current session is because the user opened a push notification.
-     * <br>
      * This status is reset to false when the application becomes backgrounded.
-     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
+     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then
+     * this should be called after `super.onStart();` in the activity.
      *
      * @return true if this session was started because the user opened a push message, otherwise false.
      */
@@ -2369,9 +2399,9 @@ public class Tune {
 
     /**
      * Returns a POJO containing information about the push message that started the current session.
-     * <br>
      * This is reset to null when the application becomes backgrounded.
-     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then this should be called after `super.onStart();` in the activity.
+     * *NOTE:* If you are implementing {@link com.tune.ma.application.TuneActivity} manually then
+     * this should be called after `super.onStart();` in the activity.
      *
      * @return Information about the last opened push if {@link Tune#didSessionStartFromTunePush()} is true, otherwise null.
      */
@@ -2383,9 +2413,9 @@ public class Tune {
         return TuneManager.getInstance().getPushManager().getLastOpenedPushInfo();
     }
 
-    /****************
-     ** Segment API *
-     ****************/
+    //****************
+    //** Segment API *
+    //****************/
 
     /**
      * Returns whether the user belongs to the given segment.
@@ -2413,9 +2443,9 @@ public class Tune {
         return TuneManager.getInstance().getPlaylistManager().isUserInAnySegmentIds(segmentIds);
     }
 
-    /*****************
-     ** Deeplink API *
-     *****************/
+    //*****************
+    //** Deeplink API *
+    //*****************/
 
     /**
      * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}.
@@ -2426,14 +2456,18 @@ public class Tune {
 
     /**
      * Set the deeplink listener that will be called when either a deferred deeplink is found for a fresh install or for handling an opened Tune Link.
+     * Registering a deeplink listener will trigger an asynchronous call to check for deferred deeplinks
+     * during the first session after installing of the app with the Tune SDK.
+     * <br>
+     * The {@code TuneDeeplinkListener#didFailWithError} callback will be called if there is no
+     * deferred deeplink from Tune for this user or in the event of an error from the server
+     * (possibly due to misconfiguration).
+     * <br>
+     * The {@code TuneDeeplinkListener#didReceiveDeeplink} callback will be called when there is a
+     * deep link from Tune that you should route the user to. The string should be a fully qualified deep link url string.
      *
-     * Registering a deeplink listener will trigger an asynchronous call to check for deferred deeplinks during the first session after installing of the app with the Tune SDK.
-     *
-     * The {@code TuneDeeplinkListener#didFailWithError} callback will be called if there is no deferred deeplink from Tune for this user or in the event of an error from the server (possibly due to misconfiguration).
-     *
-     * The {@code TuneDeeplinkListener#didReceiveDeeplink} callback will be called when there is a deep link from Tune that you should route the user to. The string should be a fully qualified deep link url string.
-     *
-     * @param listener will be called with deferred deeplinks after install or expanded Tune links. May be null. Passing null will clear the previously set listener, although you may use {@link #unregisterDeeplinkListener()} instead.
+     * @param listener will be called with deferred deeplinks after install or expanded Tune links. May be null.
+     *                 Passing null will clear the previously set listener, although you may use {@link #unregisterDeeplinkListener()} instead.
      */
     public void registerDeeplinkListener(@Nullable TuneDeeplinkListener listener) {
         dplinkr.setListener(listener);
@@ -2453,12 +2487,16 @@ public class Tune {
 
     /**
      * If you have set up a custom domain for use with Tune Links (cname to a *.tlnk.io domain), then register it with this method.
-     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to {@link TuneDeeplinkListener#didReceiveDeeplink(String)} registered via {@link #registerDeeplinkListener(TuneDeeplinkListener)}
-     * This method will test if any clicked links match the given suffix. Do not include a * for wildcard subdomains, instead pass the suffix that you would like to match against the url.
+     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK
+     * will handle expanding the url and returning the in-app destination url to
+     * {@link TuneDeeplinkListener#didReceiveDeeplink(String)} registered via
+     * {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * This method will test if any clicked links match the given suffix. Do not include a * for
+     * wildcard subdomains, instead pass the suffix that you would like to match against the url.
+     * <br>
      * So, ".customize.it" will match "1235.customize.it" and "56789.customize.it" but not "customize.it"
      * And, "customize.it" will match "1235.customize.it" and "56789.customize.it", "customize.it", and "1235.tocustomize.it"
      * You can register as many custom subdomains as you like.
-     *
      * @param domainSuffix domain which you are using for Tune Links. Must not be null.
      */
     public void registerCustomTuneLinkDomain(@NonNull String domainSuffix) {
@@ -2467,16 +2505,15 @@ public class Tune {
 
     /**
      * Test if your custom Tune Link domain is registered with Tune.
-     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK will handle expanding the url and returning the in-app destination url to {@link TuneDeeplinkListener#didReceiveDeeplink(String)} registered via {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * Tune Links are Tune-hosted App Links. Tune Links are often shared as short-urls, and the Tune SDK
+     * will handle expanding the url and returning the in-app destination url to {@link TuneDeeplinkListener#didReceiveDeeplink(String)}
+     * registered via {@link #registerDeeplinkListener(TuneDeeplinkListener)}
      * @param appLinkUrl url to test if it is a Tune Link. Must not be null.
      * @return true if this link is a Tune Link that will be measured by Tune and routed into the {@link TuneDeeplinkListener}.
      */
     public boolean isTuneLink(@NonNull String appLinkUrl) {
         return dplinkr.isTuneLink(appLinkUrl);
     }
-
-    // Class Getters/Setters
-    /////////////////////////
 
     /**
      * Set the Url Requester.
@@ -2487,23 +2524,23 @@ public class Tune {
     }
 
 
-    /**********************
-     * MA Profile Methods *
-     **********************/
+    //**********************
+    //* MA Profile Methods *
+    //**********************/
 
     // Register
 
     /**
-     * Register a custom profile variable for this user.<br>
-     * <br>
+     * Register a custom profile variable for this user.
      * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
      * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil. <br>
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      */
     public void registerCustomProfileString(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
@@ -2517,16 +2554,38 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil.
+     * <br>
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * <br>
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
+     * @param defaultValue Initial value for the variable.
+     */
+    public void registerCustomProfileString(String variableName, String defaultValue) {
+        if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
+    }
+
+    /**
+     * Register a custom profile variable for this user.
      * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
      * <br>
      * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileDate(String, Date)}. The default value is nil. <br>
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      */
     public void registerCustomProfileDate(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileDate") == null) {
@@ -2540,40 +2599,39 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileDate(String, Date)}. The default value is nil.
      * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
-     * You may use these setters interchangeably. The default value is nil.
-     * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
+     * @param defaultValue Initial value for the variable.
      */
-    public void registerCustomProfileNumber(String variableName) {
-        if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
+    public void registerCustomProfileDate(String variableName, Date defaultValue) {
+        if (TuneManager.getProfileForUser("registerCustomProfileDate") == null) {
             return;
         }
 
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(
-                TuneAnalyticsVariable.Builder(variableName)
-                        .withType(TuneVariableType.FLOAT)
-                        .build());
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil.
      * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil. <br>
-     * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      */
     public void registerCustomProfileGeolocation(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileGeolocation") == null) {
@@ -2587,20 +2645,21 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil.
      * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileStringValue(String, String)}. The default value is nil. <br>
-     * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
      */
-    public void registerCustomProfileString(String variableName, String defaultValue) {
-        if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
+    public void registerCustomProfileGeolocation(String variableName, TuneLocation defaultValue) {
+        if (TuneManager.getProfileForUser("registerCustomProfileGeolocation") == null) {
             return;
         }
 
@@ -2608,38 +2667,47 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileDate(String, Date)}. The default value is nil. <br>
-     * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
-     * @param defaultValue Initial value for the variable.
-     */
-    public void registerCustomProfileDate(String variableName, Date defaultValue) {
-        if (TuneManager.getProfileForUser("registerCustomProfileDate") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
-    }
-
-    /**
-     * Register a custom profile variable for this user.<br>
-     * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileNumber(String, double)},
+     *  {@link Tune#setCustomProfileNumber(String, float)}, or
+     *  {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
+     */
+    public void registerCustomProfileNumber(String variableName) {
+        if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(
+                TuneAnalyticsVariable.Builder(variableName)
+                        .withType(TuneVariableType.FLOAT)
+                        .build());
+    }
+
+    /**
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileNumber(String, double)},
+     *  {@link Tune#setCustomProfileNumber(String, float)}, or
+     *  {@link Tune#setCustomProfileNumber(String, int)}.
+     * You may use these setters interchangeably. The default value is nil.
+     * <br>
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
      */
     public void registerCustomProfileNumber(String variableName, int defaultValue) {
@@ -2651,17 +2719,20 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileNumber(String, double)},
+     *  {@link Tune#setCustomProfileNumber(String, float)}, or
+     *  {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
      * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
      */
     public void registerCustomProfileNumber(String variableName, double defaultValue) {
@@ -2673,17 +2744,20 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Register a custom profile variable for this user.
+     * This custom variable will be included in this user's personalization profile,
+     * and can be used for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileNumber(String, double)}, {@link Tune#setCustomProfileNumber(String, float)}, or {@link Tune#setCustomProfileNumber(String, int)}.
+     * Once registered, the value for this variable can be set using
+     *  {@link Tune#setCustomProfileNumber(String, double)},
+     *  {@link Tune#setCustomProfileNumber(String, float)}, or
+     *  {@link Tune#setCustomProfileNumber(String, int)}.
      * You may use these setters interchangeably. The default value is nil.
      * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
+     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.
+     * @param variableName Name of the variable to register for the current user.
+     *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
+     *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
      */
     public void registerCustomProfileNumber(String variableName, float defaultValue) {
@@ -2695,38 +2769,15 @@ public class Tune {
     }
 
     /**
-     * Register a custom profile variable for this user.<br>
+     * Set or update the value associated with a custom string profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
      * <br>
-     * This custom variable will be included in this user's personalization profile, and can be used for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * Once registered, the value for this variable can be set using {@link Tune#setCustomProfileGeolocation(String, TuneLocation)}. The default value is nil. <br>
-     * <br>
-     * This method should be called in your Application class {@link android.app.Application#onCreate()} method.<br>
-     * <br>
-     *
-     * @param variableName Name of the variable to register for the current user. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _. Any other characters will automatically be stripped out.
-     * @param defaultValue Initial value for the variable.
-     */
-    public void registerCustomProfileGeolocation(String variableName, TuneLocation defaultValue) {
-        if (TuneManager.getProfileForUser("registerCustomProfileGeolocation") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getProfileManager().registerCustomProfileVariable(new TuneAnalyticsVariable(variableName, defaultValue));
-    }
-
-    // Set
-
-    /**
-     * Set or update the value associated with a custom string profile variable.<br>
-     * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.  Passing null or an empty string value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
+     * @param variableName Variable to which this value should be assigned.
+     *                     Passing null or an empty string value will have the same effect as calling
+     *                     {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileStringValue(String variableName, String value) {
         if (TuneManager.getProfileForUser("setCustomProfileStringValue") == null) {
@@ -2741,15 +2792,15 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom date profile variable.<br>
+     * Set or update the value associated with a custom date profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
      * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.  Passing a null value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
+     * @param variableName Variable to which this value should be assigned.
+     *                     Passing a null value will have the same effect as calling
+     *                     {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileDate(String variableName, Date value) {
         if (TuneManager.getProfileForUser("setCustomProfileDate") == null) {
@@ -2764,72 +2815,15 @@ public class Tune {
     }
 
     /**
-     * Set or update the value associated with a custom number profile variable.<br>
+     * Set or update the value associated with a custom location profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
      * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
      * @param variableName Variable to which this value should be assigned.
-     */
-    public void setCustomProfileNumber(String variableName, int value) {
-        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
-    }
-
-    /**
-     * Set or update the value associated with a custom number profile variable.<br>
-     * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
-     * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.
-     */
-    public void setCustomProfileNumber(String variableName, double value) {
-        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
-    }
-
-    /**
-     * Set or update the value associated with a custom number profile variable.<br>
-     * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
-     * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.
-     */
-    public void setCustomProfileNumber(String variableName, float value) {
-        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
-            return;
-        }
-
-        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
-    }
-
-    /**
-     * Set or update the value associated with a custom location profile variable.<br>
-     * <br>
-     * This new value will be used as part of this user's personalization profile, and will be used from this point forward for segmentation, targeting, and reporting purposes.<br>
-     * <br>
-     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}. <br>
-     * <br>
-
-     * @param value Value to use for the given variable.
-     * @param variableName Variable to which this value should be assigned.  Passing a null value will have the same effect as calling {@link #clearCustomProfileVariable(String)}.
+     *                     Passing a null value will have the same effect as calling
+     *                     {@link #clearCustomProfileVariable(String)}.
      */
     public void setCustomProfileGeolocation(String variableName, TuneLocation value) {
         if (TuneManager.getProfileForUser("setCustomProfileGeolocation") == null) {
@@ -2843,15 +2837,66 @@ public class Tune {
         }
     }
 
+    /**
+     * Set or update the value associated with a custom number profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
+     * <br>
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
+     * @param value Value to use for the given variable.
+     * @param variableName Variable to which this value should be assigned.
+     */
+    public void setCustomProfileNumber(String variableName, int value) {
+        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+    }
+
+    /**
+     * Set or update the value associated with a custom number profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
+     * <br>
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
+     * @param value Value to use for the given variable.
+     * @param variableName Variable to which this value should be assigned.
+     */
+    public void setCustomProfileNumber(String variableName, double value) {
+        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+    }
+
+    /**
+     * Set or update the value associated with a custom number profile variable.
+     * This new value will be used as part of this user's personalization profile,
+     * and will be used from this point forward for segmentation, targeting, and reporting purposes.
+     * <br>
+     * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
+     * @param value Value to use for the given variable.
+     * @param variableName Variable to which this value should be assigned.
+     */
+    public void setCustomProfileNumber(String variableName, float value) {
+        if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
+            return;
+        }
+
+        TuneManager.getInstance().getProfileManager().setCustomProfileVariable(new TuneAnalyticsVariable(variableName, value));
+    }
+
     // Get
 
     /**
      * Get the value associated with a custom string profile variable.
+     * Return the value stored for the custom profile variable.
+     * Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
      * <br>
-     * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br>
-     * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
-     *
+     * This will return null if the variable was registered without a default and has never been set,
+     * or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
      */
@@ -2870,11 +2915,11 @@ public class Tune {
 
     /**
      * Get the value associated with a custom date profile variable.
+     * Return the value stored for the custom profile variable.
+     * Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
      * <br>
-     * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br>
-     * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
-     *
+     * This will return null if the variable was registered without a default and has never been set,
+     * or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
      */
@@ -2892,35 +2937,11 @@ public class Tune {
     }
 
     /**
-     * Get the value associated with a custom number profile variable.
-     * <br>
-     * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
-     * <br>
-     * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
-     *
-     * @param variableName Name of the custom profile variable.
-     * @return Value stored for the variable. It may be null.
-     */
-    public Number getCustomProfileNumber(String variableName) {
-        if (TuneManager.getProfileForUser("getCustomProfileNumber") == null) {
-            return null;
-        }
-
-        TuneAnalyticsVariable var = TuneManager.getInstance().getProfileManager().getCustomProfileVariable(variableName);
-        if (var == null || var.getValue() == null) {
-            return null;
-        } else {
-            return new BigDecimal(var.getValue());
-        }
-    }
-
-    /**
      * Get the value associated with a custom location profile variable.
-     * <br>
-     * Return the value stored for the custom profile variable. Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
+     * Return the value stored for the custom profile variable.
+     * Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
      * <br>
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
-     *
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
      */
@@ -2938,7 +2959,29 @@ public class Tune {
     }
 
     /**
-     * Returns In-App Marketing's generated app ID value
+     * Get the value associated with a custom number profile variable.
+     * Return the value stored for the custom profile variable.
+     * Must be called after the appropriate register call in {@link android.app.Application#onCreate()}.
+     * <br>
+     * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
+     * @param variableName Name of the custom profile variable.
+     * @return Value stored for the variable. It may be null.
+     */
+    public Number getCustomProfileNumber(String variableName) {
+        if (TuneManager.getProfileForUser("getCustomProfileNumber") == null) {
+            return null;
+        }
+
+        TuneAnalyticsVariable var = TuneManager.getInstance().getProfileManager().getCustomProfileVariable(variableName);
+        if (var == null || var.getValue() == null) {
+            return null;
+        } else {
+            return new BigDecimal(var.getValue());
+        }
+    }
+
+    /**
+     * Returns In-App Marketing's generated app ID value.
      * @return App ID in In-App Marketing, or null if IAM was not enabled
      * @deprecated use {@link #getIAMAppId()} instead
      */
@@ -2948,8 +2991,7 @@ public class Tune {
     }
 
     /**
-     * Returns In-App Marketing's generated application identifier
-     *
+     * Returns In-App Marketing's generated application identifier.
      * This value changes if the package name or advertiser id set in the Tune SDK initialization changes.
      *
      * @return App ID for In-App Marketing, or null if IAM was not enabled
@@ -2963,8 +3005,7 @@ public class Tune {
     }
 
     /**
-     * Returns the identifier for this device's profile for In-App Marketing
-     *
+     * Returns the identifier for this device's profile for In-App Marketing.
      * NOTE: the device's advertising identifiers, including the Google Advertising Identifier
      * are fetched asynchronously after the Tune SDK is initialized and may change this value.
      * We recommend fetching this value some time after the Tune SDK is initialized.
@@ -2982,8 +3023,7 @@ public class Tune {
     // Clear
 
     /**
-     * Unset the value for a user profile variable.<br>
-     * <br>
+     * Unset the value for a user profile variable.
      * Use this method to clear out the value for any custom user profile variable.
      * <br>
      * This must be called after the associated register call.
@@ -3007,8 +3047,7 @@ public class Tune {
     }
 
     /**
-     * Clear out all previously specified profile information.<br>
-     * <br>
+     * Clear out all previously specified profile information.
      * Use this method to clear out all custom profile variables.
      * <br>
      * This will only clear out all profile variables that have been registered before this call.
@@ -3024,15 +3063,16 @@ public class Tune {
     }
 
     /**
+     * Get the current state of the Tune Parameters.
      * @return the {@link TuneParameters} used to initialize Tune.
      */
     public final TuneParameters getTuneParams() {
         return params;
     }
 
-    /**********************
-     * Smartwhere Methods *
-     **********************/
+    //**********************
+    //* Smartwhere Methods *
+    //**********************
 
     /**
      * Opt-In Smartwhere Integration with the Tune Marketing Console.

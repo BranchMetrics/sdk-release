@@ -154,9 +154,7 @@ public class TuneModalDialogFragment extends DialogFragment {
 
                 redrawWebView(view);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-                    view.animate().alpha(1.0f);
-                }
+                view.animate().alpha(1.0f);
                 view.requestFocus();
 
                 parentModal.animateOpen(getActivity());

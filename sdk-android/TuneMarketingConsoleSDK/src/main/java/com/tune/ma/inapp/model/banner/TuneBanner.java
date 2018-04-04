@@ -204,12 +204,10 @@ public class TuneBanner extends TuneInAppMessage {
 
         webView.setBackgroundColor(Color.TRANSPARENT);
         // Turn off hardware acceleration when possible, it causes WebView loading issues
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            } else {
-                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         webView.setVisibility(View.GONE);
         // Not default before API level 11
@@ -261,9 +259,7 @@ public class TuneBanner extends TuneInAppMessage {
             public void onPageFinished(WebView view, String url) {
                 // Make WebView visible
                 webView.setVisibility(View.VISIBLE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-                    webView.animate().alpha(1.0f);
-                }
+                webView.animate().alpha(1.0f);
 
                 if (!isPreloaded()) {
                     processOpen(TuneActivity.getLastActivity());

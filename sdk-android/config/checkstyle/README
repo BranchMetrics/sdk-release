@@ -1,0 +1,7 @@
+Original Google Checkstyle template found here:  https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml
+
+Modifications for Tune:
+1. `max` Extended the max line length from 100 to 160 characters
+2. `basicOffset` Indentation (spaces) from 2 to 4
+3. `arrayInitIndent` Array Indentation from 2 to 4 (to match Basic Offset)
+4. `allowedAbbreviationLength` Allowed Abbreviation Length from 1 to 3 (which is really 2 to 4)

@@ -2,7 +2,6 @@ package com.tune.ma.application;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
@@ -34,22 +33,6 @@ import java.util.Set;
 public class TuneActivity extends FragmentActivity {
     private static WeakReference<Activity> weakLastActivity;
     private static Map<String, Set<Integer>> lastIntentCodesForDeeplinks = new HashMap<>();
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (Build.VERSION.SDK_INT < 14) {
-            onResume(this);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        if (Build.VERSION.SDK_INT < 14) {
-            onPause(this);
-        }
-        super.onPause();
-    }
 
     /**
      * Helper function to measure opens in Activity onResume.

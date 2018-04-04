@@ -221,12 +221,10 @@ public class TuneFullScreen extends TuneInAppMessage {
         webView.setVisibility(View.INVISIBLE);
         webView.setBackgroundColor(Color.TRANSPARENT);
         // Turn off hardware acceleration when possible, it causes WebView loading issues
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            } else {
-                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         // Not default before API level 11
         webView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
