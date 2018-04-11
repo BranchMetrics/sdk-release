@@ -66,7 +66,7 @@
 
 /*!
  * Process a triggered event that is mapped on the server.
- * @param TuneSkyhookPayload
+ * @param payload Event information.
  */
 - (void)processMappedEvent:(TuneSkyhookPayload*) payload;
 

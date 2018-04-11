@@ -64,7 +64,7 @@
     [self initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:name wearable:wearable configuration:nil];
 }
 
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary *)configOrNil {
++ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary<NSString *, id> *)configOrNil {
     [TuneDeeplinker setTuneAdvertiserId:aid tuneConversionKey:key];
     [TuneDeeplinker setTunePackageName:name ?: [TuneUtils bundleId]];
     
@@ -573,15 +573,15 @@
 
 #pragma mark - Deep Action API
 
-+ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary<NSString *, NSString *> *)data andAction:(void (^)(NSDictionary<NSString *, NSString *> *extra_data))deepAction {
     [self registerDeepActionWithId:deepActionId friendlyName:friendlyName description:nil data:data andAction:deepAction];
 }
 
-+ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction {
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary<NSString *, NSString *> *)data andAction:(void (^)(NSDictionary<NSString *, NSString *> *extra_data))deepAction {
     [self registerDeepActionWithId:deepActionId friendlyName:friendlyName description:description data:data approvedValues:nil andAction:deepAction];
 }
 
-+ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary *)data approvedValues:(NSDictionary *)approvedValues andAction:(void (^)(NSDictionary *extra_data))deepAction  {
++ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName description:(NSString *)description data:(NSDictionary<NSString *, NSString *> *)data approvedValues:(NSDictionary<NSString *, NSArray <NSString *> *> *)approvedValues andAction:(void (^)(NSDictionary<NSString *, NSString *> *extra_data))deepAction {
     [[TuneManager currentManager].deepActionManager registerDeepActionWithId:deepActionId
                                                                 friendlyName:friendlyName
                                                                  description:description
@@ -590,7 +590,7 @@
                                                                    andAction:deepAction];
 }
 
-+ (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data {
++ (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary<NSString *, NSString *> *)data {
     [[TuneManager currentManager].deepActionManager executeDeepActionWithId:deepActionId andData:data];
 }
 
@@ -651,11 +651,11 @@
 
 #pragma mark - Experiment API
 
-+ (NSDictionary *)getPowerHookVariableExperimentDetails {
++ (NSDictionary<NSString *, TunePowerHookExperimentDetails *> *)getPowerHookVariableExperimentDetails {
     return [[TuneManager currentManager].experimentManager getPowerHookVariableExperimentDetails];
 }
 
-+ (NSDictionary *)getInAppMessageExperimentDetails {
++ (NSDictionary<NSString *, TuneInAppMessageExperimentDetails *> *)getInAppMessageExperimentDetails {
     return [[TuneManager currentManager].experimentManager getInAppMessageExperimentDetails];
 }
 
@@ -844,10 +844,12 @@
 
 + (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
 #if TARGET_OS_IOS
-    if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
-        NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
-        return [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
-                 sourceApplication:@"spotlight"];
+    if (@available(iOS 9, *)) {
+        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
+            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
+            return [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
+                     sourceApplication:@"spotlight"];
+        }
     }
 #endif
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {

@@ -408,10 +408,12 @@ BOOL swizzleSuccess = NO;
 + (BOOL)application:(UIApplication *)application tune_continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler {
     InfoLog(@"application:continueUserActivity:restorationHandler: intercept successful -- %@", NSStringFromClass([self class]));
 #if TARGET_OS_IOS
-    if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
-        NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
-        [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
-          sourceApplication:@"spotlight"];
+    if (@available(iOS 9, *)) {
+        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
+            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
+            [Tune handleOpenURL:[NSURL URLWithString:searchIndexUniqueId]
+              sourceApplication:@"spotlight"];
+        }
     } else
 #endif
         if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {

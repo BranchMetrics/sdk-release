@@ -117,7 +117,7 @@
  
  @param dictionary The dictionary to convert
  
- @param namespace Wraps the keys with a namespace, for instance if set to "myname", all keys will be "myname[key]". This is really only used for recursion—most of the time you'll want to just set this to nil.
+ @param namespaceString Wraps the keys with a namespace, for instance if set to "myname", all keys will be "myname[key]". This is really only used for recursion—most of the time you'll want to just set this to nil.
  */
 + (nullable NSString *)dictionaryAsQueryString:(nullable NSDictionary *)dictionary withNamespace:(nullable NSString *)namespaceString;
 

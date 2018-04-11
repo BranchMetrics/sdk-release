@@ -23,7 +23,7 @@
 
 /**
  Creates a folder if one does not exist. Does not allow iCloud backup.
- @param filePath full path of the folder
+ @param folderPath full path of the folder.
  */
 + (BOOL)createDirectory:(NSString *)folderPath;
 + (BOOL)fileExists:(NSString *)filePath;

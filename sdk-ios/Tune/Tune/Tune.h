@@ -13,15 +13,15 @@
 #import "TuneConstants.h"
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
+#import "TuneInAppMessageExperimentDetails.h"
 #import "TuneLocation.h"
+#import "TunePowerHookExperimentDetails.h"
 #import "TunePreloadData.h"
 #import "TunePushInfo.h"
 
 #if TARGET_OS_IOS
 
 #import "TuneDebugUtilities.h"
-#import "TuneInAppMessageExperimentDetails.h"
-#import "TunePowerHookExperimentDetails.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 
 #endif
@@ -36,7 +36,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"5.0.3"
+#define TUNEVERSION @"5.1.0"
 
 
 @protocol TuneDelegate;
@@ -59,7 +59,7 @@
  @param aid the Tune Advertiser ID provided in Tune.
  @param key the Tune Conversion Key provided in Tune.
  */
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key;
++ (void)initializeWithTuneAdvertiserId:(nonnull NSString *)aid tuneConversionKey:(nonnull NSString *)key;
 
 /** @name Initializing Tune With Advertiser Information */
 /*!
@@ -69,7 +69,7 @@
  @param name the package name used when setting up the app in Mobile App Tracking.
  @param wearable should be set to YES when being initialized in a WatchKit extension, defaults to NO.
  */
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable;
++ (void)initializeWithTuneAdvertiserId:(nonnull NSString *)aid tuneConversionKey:(nonnull NSString *)key tunePackageName:(nullable NSString *)name wearable:(BOOL)wearable;
 
 #if TARGET_OS_IOS
 /** @name Initializing Tune With Advertiser Information and Additional Configuration */
@@ -81,7 +81,7 @@
  @param wearable should be set to YES when being initialized in a WatchKit extension, defaults to NO.
  @param configuration key-value pairs defining additional configuration to pass to TUNE
  */
-+ (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name wearable:(BOOL)wearable configuration:(NSDictionary *)configuration;
++ (void)initializeWithTuneAdvertiserId:(nonnull NSString *)aid tuneConversionKey:(nonnull NSString *)key tunePackageName:(nullable NSString *)name wearable:(BOOL)wearable configuration:(nullable NSDictionary<NSString *, id> *)configuration;
 #endif
 
 #pragma mark - Delegate
@@ -91,7 +91,7 @@
  [TuneDelegate](TuneDelegate) : A delegate used by Tune
  to post success and failure callbacks from the Tune servers.
  */
-+ (void)setDelegate:(id<TuneDelegate>)delegate;
++ (void)setDelegate:(nullable id<TuneDelegate>)delegate;
 
 #ifdef TUNE_USE_LOCATION
 /** @name Tune SDK Region Delegate */
@@ -117,7 +117,7 @@
  
  @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
  */
-+ (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use registerDeeplinkListener: instead.");
++ (void)checkForDeferredDeeplink:(nullable id<TuneDelegate>)delegate DEPRECATED_MSG_ATTRIBUTE("Please use registerDeeplinkListener: instead.");
 
 /*!
  Set the deeplink listener that will be called when either a deferred deeplink is found for a fresh install or for handling an opened Tune Link.
@@ -130,7 +130,7 @@
 
  @param delegate Delegate that will be called with deferred deeplinks after install or expanded Tune links. May be nil. Passing nil will clear the previously set listener, although you may use unregisterDeeplinkListener: instead.
  */
-+ (void)registerDeeplinkListener:(id<TuneDelegate>)delegate;
++ (void)registerDeeplinkListener:(nullable id<TuneDelegate>)delegate;
 
 /*!
  Remove the deeplink listener previously set with registerDeeplinkListener:
@@ -143,7 +143,7 @@
  @param linkUrl URL to test if it is a Tune Link. Must not be nil.
  @return True if this link is a Tune Link that will be measured by Tune and routed into the TuneDelegate.
  */
-+ (BOOL)isTuneLink:(NSString *)linkUrl;
++ (BOOL)isTuneLink:(nonnull NSString *)linkUrl;
 
 /*!
  If you have set up a custom domain for use with Tune Links (cname to a *.tlnk.io domain), then register it with this method.
@@ -155,7 +155,7 @@
  
  @param domain The domain which you are using for Tune Links. Must not be nil.
  */
-+ (void)registerCustomTuneLinkDomain:(NSString *)domain;
++ (void)registerCustomTuneLinkDomain:(nonnull NSString *)domain;
 
 /*!
  Record the URL and Source when an application is opened via a URL scheme.
@@ -166,7 +166,7 @@
  @param urlString the url string used to open your app.
  @param sourceApplication the source used to open your app. For example, mobile safari.
  */
-+ (void)applicationDidOpenURL:(NSString *)urlString sourceApplication:(NSString *)sourceApplication DEPRECATED_MSG_ATTRIBUTE("Please use handleOpenURL:options: or handleOpenURL:sourceApplication: instead.");
++ (void)applicationDidOpenURL:(nonnull NSString *)urlString sourceApplication:(nullable NSString *)sourceApplication DEPRECATED_MSG_ATTRIBUTE("Please use handleOpenURL:options: or handleOpenURL:sourceApplication: instead.");
 
 /*!
  Set the url and source when your application is opened via a deeplink.
@@ -179,7 +179,7 @@
  @param options A dictionary of URL handling options.
  @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
  */
-+ (BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary<NSString *,id> *)options;
++ (BOOL)handleOpenURL:(nonnull NSURL *)url options:(nonnull NSDictionary<NSString *,id> *)options;
 
 /*!
  Set the url and source when your application is opened via a deeplink.
@@ -192,7 +192,7 @@
  @param sourceApplication the source used to open your app. For example, mobile safari.
  @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
  */
-+ (BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication;
++ (BOOL)handleOpenURL:(nonnull NSURL *)url sourceApplication:(nullable NSString *)sourceApplication;
 
 /*!
  Set the url and source when your application is opened via a universal link.
@@ -205,7 +205,7 @@
  @param restorationHandler Block to execute if your app creates objects to perform the task.
  @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
  */
-+ (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler;
++ (BOOL)handleContinueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray * _Nonnull restorableObjects))restorationHandler;
 
 
 #pragma mark - Debug And Test
@@ -253,21 +253,21 @@
  Set the Apple Advertising Identifier available in iOS 6.
  @param appleAdvertisingIdentifier - Apple Advertising Identifier
  */
-+ (void)setAppleAdvertisingIdentifier:(NSUUID *)appleAdvertisingIdentifier
++ (void)setAppleAdvertisingIdentifier:(nullable NSUUID *)appleAdvertisingIdentifier
            advertisingTrackingEnabled:(BOOL)adTrackingEnabled;
 
 /*!
  Set the Apple Vendor Identifier available in iOS 6.
  @param appleVendorIdentifier - Apple Vendor Identifier
  */
-+ (void)setAppleVendorIdentifier:(NSUUID * )appleVendorIdentifier;
++ (void)setAppleVendorIdentifier:(nullable NSUUID * )appleVendorIdentifier;
 
 /*!
  Sets the currency code.
  Default: USD
  @param currencyCode The string name for the currency code.
  */
-+ (void)setCurrencyCode:(NSString *)currencyCode;
++ (void)setCurrencyCode:(nullable NSString *)currencyCode;
 
 /*!
  Sets the jailbroken device flag.
@@ -280,7 +280,7 @@
  Defaults to the Bundle Identifier of the app that is running the sdk.
  @param packageName The string name for the package.
  */
-+ (void)setPackageName:(NSString *)packageName;
++ (void)setPackageName:(nonnull NSString *)packageName;
 
 /*!
  Specifies if the sdk should pull the Apple Advertising Identifier and Advertising Tracking Enabled properties from the device.
@@ -316,49 +316,49 @@
  Set the TRUSTe Trusted Preference Identifier (TPID).
  @param tpid - Trusted Preference Identifier
  */
-+ (void)setTRUSTeId:(NSString *)tpid;
++ (void)setTRUSTeId:(nullable NSString *)tpid;
 
 /*!
  Sets the MD5, SHA-1 and SHA-256 hash representations of the user's email address.
  @param userEmail The user's email address.
  */
-+ (void)setUserEmail:(NSString *)userEmail;
++ (void)setUserEmail:(nullable NSString *)userEmail;
 
 /*!
  Sets the user ID.
  @param userId The string name for the user ID.
  */
-+ (void)setUserId:(NSString *)userId;
++ (void)setUserId:(nullable NSString *)userId;
 
 /*!
  Sets the MD5, SHA-1 and SHA-256 hash representations of the user's name.
  @param userName The user's name.
  */
-+ (void)setUserName:(NSString *)userName;
++ (void)setUserName:(nullable NSString *)userName;
 
 /*!
  Sets the MD5, SHA-1 and SHA-256 hash representations of the user's phone number.
  @param phoneNumber The user's phone number.
  */
-+ (void)setPhoneNumber:(NSString *)phoneNumber;
++ (void)setPhoneNumber:(nullable NSString *)phoneNumber;
 
 /*!
  Set user's Facebook ID.
  @param facebookUserId string containing the user's Facebook user ID.
  */
-+ (void)setFacebookUserId:(NSString *)facebookUserId;
++ (void)setFacebookUserId:(nullable NSString *)facebookUserId;
 
 /*!
  Set user's Twitter ID.
  @param twitterUserId string containing the user's Twitter user ID.
  */
-+ (void)setTwitterUserId:(NSString *)twitterUserId;
++ (void)setTwitterUserId:(nullable NSString *)twitterUserId;
 
 /*!
  Set user's Google ID.
  @param googleUserId string containing the user's Google user ID.
  */
-+ (void)setGoogleUserId:(NSString *)googleUserId;
++ (void)setGoogleUserId:(nullable NSString *)googleUserId;
 
 /*!
  Sets the user's age.
@@ -397,7 +397,7 @@
  Sets the user's location. Manually setting the location through this method disables geo-location auto-collection.
  @param location a TuneLocation instance
  */
-+ (void)setLocation:(TuneLocation *)location;
++ (void)setLocation:(nullable TuneLocation *)location;
 
 /*!
  Set app-level ad-measurement.
@@ -417,7 +417,7 @@
  Sets publisher information for attribution.
  @param preloadData Preload app attribution data
  */
-+ (void)setPreloadData:(TunePreloadData *)preloadData;
++ (void)setPreloadData:(nonnull TunePreloadData *)preloadData;
 
 #if TARGET_OS_IOS
 
@@ -431,7 +431,7 @@
  *
  * @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileString:(NSString *)variableName;
++ (void)registerCustomProfileString:(nonnull NSString *)variableName;
 
 /** Register a custom profile variable for this user.
  *
@@ -441,7 +441,7 @@
  *
  * @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileDateTime:(NSString *)variableName;
++ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName;
 
 /** Register a custom profile variable for this user.
  *
@@ -451,7 +451,7 @@
  *
  * @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileNumber:(NSString *)variableName;
++ (void)registerCustomProfileNumber:(nonnull NSString *)variableName;
 
 /** Register a custom profile variable for this user.
  *
@@ -461,7 +461,7 @@
  *
  * @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileGeolocation:(NSString *)variableName;
++ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName;
 
 /** Register a custom profile variable for this user.
  *
@@ -473,7 +473,7 @@
  *
  * @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value;
++ (void)registerCustomProfileString:(nonnull NSString *)variableName withDefault:(nullable NSString *)value;
 
 /** Register a custom profile variable for this user.
  *
@@ -485,7 +485,7 @@
  *
  * @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileDateTime:(NSString *)variableName withDefault:(NSDate *)value;
++ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName withDefault:(nullable NSDate *)value;
 
 /** Register a custom profile variable for this user.
  *
@@ -497,7 +497,7 @@
  *
  * @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileNumber:(NSString *)variableName withDefault:(NSNumber *)value;
++ (void)registerCustomProfileNumber:(nonnull NSString *)variableName withDefault:(nullable NSNumber *)value;
 
 /** Register a custom profile variable for this user.
  *
@@ -509,7 +509,7 @@
  *
  * @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value;
++ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName withDefault:(nullable TuneLocation *)value;
 
 /** Set or update the value associated with a custom string profile variable.
  *
@@ -519,7 +519,7 @@
  *
  * @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name;
++ (void)setCustomProfileStringValue:(nullable NSString *)value forVariable:(nonnull NSString *)name;
 
 /** Set or update the value associated with a custom date profile variable.
  *
@@ -529,7 +529,7 @@
  *
  * @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileDateTimeValue:(NSDate *)value forVariable:(NSString *)name;
++ (void)setCustomProfileDateTimeValue:(nullable NSDate *)value forVariable:(nonnull NSString *)name;
 
 /** Set or update the value associated with a custom number profile variable.
  *
@@ -539,7 +539,7 @@
  *
  * @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name;
++ (void)setCustomProfileNumberValue:(nullable NSNumber *)value forVariable:(nonnull NSString *)name;
 
 /** Set or update the value associated with a custom geolocation profile variable.
  *
@@ -549,9 +549,9 @@
  *
  * @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name;
++ (void)setCustomProfileGeolocationValue:(nullable TuneLocation *)value forVariable:(nonnull NSString *)name;
 
-/** Get the value assoctiated with a custom string profile variable.
+/** Get the value associated with a custom string profile variable.
  *
  * Return the value stored for the custom profile variable. Must be called AFTER the appropriate registration call.
  *
@@ -559,9 +559,9 @@
  *
  * @param name Name of the custom profile variable.
  */
-+ (NSString *)getCustomProfileString:(NSString *)name;
++ (nullable NSString *)getCustomProfileString:(nonnull NSString *)name;
 
-/** Get the value assoctiated with a custom datetime profile variable.
+/** Get the value associated with a custom datetime profile variable.
  *
  * Return the value stored for the custom profile variable. Must be called AFTER the appropriate registration call.
  *
@@ -569,9 +569,9 @@
  *
  * @param name Name of the custom profile variable.
  */
-+ (NSDate *)getCustomProfileDateTime:(NSString *)name;
++ (nullable NSDate *)getCustomProfileDateTime:(nonnull NSString *)name;
 
-/** Get the value assoctiated with a custom number profile variable.
+/** Get the value associated with a custom number profile variable.
  *
  * Return the value stored for the custom profile variable. Must be called AFTER the appropriate registration call.
  *
@@ -579,9 +579,9 @@
  *
  * @param name Name of the custom profile variable.
  */
-+ (NSNumber *)getCustomProfileNumber:(NSString *)name;
++ (nullable NSNumber *)getCustomProfileNumber:(nonnull NSString *)name;
 
-/** Get the value assoctiated with a custom location profile variable.
+/** Get the value associated with a custom location profile variable.
  *
  * Return the value stored for the custom profile variable. Must be called AFTER the appropriate registration call.
  *
@@ -589,7 +589,7 @@
  *
  * @param name Name of the custom profile variable.
  */
-+ (TuneLocation *)getCustomProfileGeolocation:(NSString *)name;
++ (nullable TuneLocation *)getCustomProfileGeolocation:(nonnull NSString *)name;
 
 /** Clear out a specific custom value set for the current user.
  *
@@ -597,7 +597,7 @@
  *
  * @param name The name of the variable to clear.
  */
-+ (void)clearCustomProfileVariable:(NSString *)name;
++ (void)clearCustomProfileVariable:(nonnull NSString *)name;
 
 /** Clear out all of the custom profile values set for the current user.
  *
@@ -615,19 +615,19 @@
  Get the Apple Advertising Identifier.
  @return Apple Advertising Identifier (IFA)
  */
-+ (NSString*)appleAdvertisingIdentifier;
++ (nullable NSString *)appleAdvertisingIdentifier;
 
 /*!
  Get the TUNE ID for this installation (mat_id).
  @return TUNE ID
  */
-+ (NSString*)tuneId;
++ (nullable NSString *)tuneId;
 
 /*!
  Get the Tune log ID for the first app open (open_log_id).
  @return open log ID
  */
-+ (NSString*)openLogId;
++ (nullable NSString *)openLogId;
 
 /*!
  Get whether the user is revenue-generating.
@@ -644,7 +644,7 @@
 
  @return device token, nil if there isn't one
  */
-+ (NSString *)getPushToken;
++ (nullable NSString *)getPushToken;
 
 /*!
  Gets the In-App Marketing (IAM) app identifier for this app.
@@ -691,7 +691,7 @@
  * @param friendlyName The name for this hook that will be displayed in TMC. This value cannot be empty.
  * @param defaultValue The default value for this hook.  This value will be used if no value is passed in from TMC for this app. This value cannot be nil.
  */
-+ (void)registerHookWithId:(NSString *)hookId friendlyName:(NSString *)friendlyName defaultValue:(NSString *)defaultValue;
++ (void)registerHookWithId:(nonnull NSString *)hookId friendlyName:(nonnull NSString *)friendlyName defaultValue:(nonnull NSString *)defaultValue;
 
 /**
  * Gets the value of a single-value (non-code-block) Power Hook.
@@ -702,7 +702,7 @@
  *
  * @param hookId The name of the Power Hook you wish to retrieve. Will return nil if the setting has not been registered.
  */
-+ (NSString *)getValueForHookById:(NSString *)hookId;
++ (nullable NSString *)getValueForHookById:(nonnull NSString *)hookId;
 
 /** Set the value of a single-value (non-code-block) Power Hook manually.
  *
@@ -715,7 +715,7 @@
  * @param hookId The name of the Power Hook whose value you want to set.
  * @param value The value you want to specify for this Power Hook.  If the Power Hook has not been registered, this will be ignored. This value cannot be nil.
  */
-+ (void)setValueForHookById:(NSString *)hookId value:(NSString *)value;
++ (void)setValueForHookById:(nonnull NSString *)hookId value:(nonnull NSString *)value;
 
 /** Register a block for callback when any Power Hook variables have changed.
  *
@@ -724,7 +724,7 @@
  * @param block The block of code to be executed.
  *
  */
-+ (void)onPowerHooksChanged:(void (^)(void)) block;
++ (void)onPowerHooksChanged:(nullable void (^)(void)) block;
 
 #pragma mark - Deep Action API
 
@@ -740,7 +740,7 @@
  * @param data The default data for this deep action. This should be string keys and values. This data will be used if no data is passed in from TUNE Marketing Automation for this deep action for this app. This may be an empty dictionary but it cannot be nil.
  * @param deepAction The reusable block of code that you are registering with TUNE. We will merge the values from TUNE Marketing Automation with this extra data. A block is required, this parameter cannot be nil.
  */
-+ (void)registerDeepActionWithId:(NSString *)deepActionId friendlyName:(NSString *)friendlyName data:(NSDictionary *)data andAction:(void (^)(NSDictionary *extra_data))deepAction;
++ (void)registerDeepActionWithId:(nonnull NSString *)deepActionId friendlyName:(nonnull NSString *)friendlyName data:(nonnull NSDictionary<NSString *, NSString *> *)data andAction:(nonnull void (^)(NSDictionary<NSString *, NSString *> * _Nullable extra_data))deepAction;
 
 /**
  * Executes a previously registered deep action block as a blocking call on the main thread. The data to be used by the current execution of the deep action block is derived by merging the dictionary provided here with the default dictionary provided during deep action registration. Also, the new values take preference over the default values when the keys match.
@@ -748,7 +748,7 @@
  * @param deepActionId Non-empty non-nil name of a previously registered deep action code-block.
  * @param data Data to be used for the deep action. This dictionary may be nil or empty or contain string keys and values.
  */
-+ (void)executeDeepActionWithId:(NSString *)deepActionId andData:(NSDictionary *)data;
++ (void)executeDeepActionWithId:(nonnull NSString *)deepActionId andData:(nullable NSDictionary<NSString *, NSString *> *)data;
 
 #pragma mark - Push Notifications API
 
@@ -766,7 +766,7 @@
  *
  * NOTE: This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
  */
-+ (TunePushInfo *)getTunePushInfoForSession;
++ (nullable TunePushInfo *)getTunePushInfoForSession;
 
 /**
  * Manage all Push Notification events used with TUNE.
@@ -779,25 +779,25 @@
  * WARNING: If you enable the swizzle, do not call these methods.
  */
 
-+ (void)application:(UIApplication *)application tuneDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
++ (void)application:(nonnull UIApplication *)application tuneDidRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken;
 
-+ (void)application:(UIApplication *)application tuneDidFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
++ (void)application:(nonnull UIApplication *)application tuneDidFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error;
 
-+ (void)application:(UIApplication *)application tuneDidReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneDidReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHandler;
 
-+ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo completionHandler:(nonnull void (^)(void))completionHandler;
 
-+ (void)application:(UIApplication *)application tuneHandleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)(void))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo withResponseInfo:(nonnull NSDictionary *)responseInfo completionHandler:(nonnull void(^)(void))completionHandler;
 
-+ (void)application:(UIApplication *)application tuneDidReceiveLocalNotification:(UILocalNotification *)notification;
++ (void)application:(nonnull UIApplication *)application tuneDidReceiveLocalNotification:(nonnull UILocalNotification *)notification;
 
 #if IDE_XCODE_8_OR_HIGHER
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center tuneDidReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler;
++ (void)userNotificationCenter:(nonnull UNUserNotificationCenter *)center tuneDidReceiveNotificationResponse:(nonnull UNNotificationResponse *)response withCompletionHandler:(nonnull void (^)(void))completionHandler;
 #endif
 
 #pragma mark - Spotlight API
 
-+ (BOOL)application:(UIApplication *)application tuneContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray *restorableObjects))restorationHandler DEPRECATED_MSG_ATTRIBUTE("Please use handleContinueUserActivity:restorationHandler: instead.");
++ (BOOL)application:(nonnull UIApplication *)application tuneContinueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void(^)(NSArray * _Nonnull restorableObjects))restorationHandler DEPRECATED_MSG_ATTRIBUTE("Please use handleContinueUserActivity:restorationHandler: instead.");
 
 #pragma mark - Experiment API
 
@@ -808,7 +808,7 @@
  *
  * Returns an `NSDictionary` of experiment details for all running Power Hook variable experiments, where the keys are the `NSString` hook ids of the Power Hook variables, and the values are `TunePowerHookExperimentDetails` objects.
  */
-+ (NSDictionary *)getPowerHookVariableExperimentDetails;
++ (nullable NSDictionary<NSString *, TunePowerHookExperimentDetails *> *)getPowerHookVariableExperimentDetails;
 
 /**
  * Get details for all currently running In App Message experiments.
@@ -817,7 +817,7 @@
  *
  * Returns an `NSDictionary` of experiment details for all running Power Hook variable experiments, where the keys are the `NSString` campaign ids of the Power Hook variables, and the values are `TuneInAppMessageExperimentDetails` objects.
  */
-+ (NSDictionary *)getInAppMessageExperimentDetails;
++ (nullable NSDictionary<NSString *, TuneInAppMessageExperimentDetails *> *)getInAppMessageExperimentDetails;
 
 #pragma mark - Playlist API
 
@@ -844,7 +844,7 @@
  * @param block The block of code to be executed.
  *
  */
-+ (void)onFirstPlaylistDownloaded:(void (^)(void))block;
++ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block;
 
 /** Register block for callback when the very first playlist is downloaded.
  *
@@ -870,7 +870,7 @@
  * @param timeout The amount of time in seconds to wait before executing the callback if the Playlist hasn't been downloaded yet. We recommend this is not over 5 seconds at a maximum and is over 1 second at a minimum.
  *
  */
-+ (void)onFirstPlaylistDownloaded:(void (^)(void))block withTimeout:(NSTimeInterval)timeout;
++ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block withTimeout:(NSTimeInterval)timeout;
 
 #pragma mark - User in Segment API
 
@@ -879,14 +879,14 @@
  * @param segmentId Segment ID to check for a match
  * @return whether the user belongs to the given segment
  */
-+ (BOOL)isUserInSegmentId:(NSString *)segmentId;
++ (BOOL)isUserInSegmentId:(nullable NSString *)segmentId;
 
 /*!
  * Returns whether the user belongs to any of the given segments
  * @param segmentIds Segment IDs to check for a match
  * @return whether the user belongs to any of the given segments
  */
-+ (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds;
++ (BOOL)isUserInAnySegmentIds:(nullable NSArray<NSString *> *)segmentIds;
 
 #endif
 
@@ -908,7 +908,7 @@
  Record an event for an Event Name.
  @param eventName The event name.
  */
-+ (void)measureEventName:(NSString *)eventName;
++ (void)measureEventName:(nonnull NSString *)eventName;
 
 /*!
  Record an event by providing the equivalent Event ID defined on the TUNE dashboard.
@@ -920,7 +920,7 @@
  Record an event with a TuneEvent.
  @param event The TuneEvent.
  */
-+ (void)measureEvent:(TuneEvent *)event;
++ (void)measureEvent:(nonnull TuneEvent *)event;
 
 
 #pragma mark - Cookie Measurement
@@ -944,7 +944,7 @@
  used in conjunction with the setAppToAppMeasurement:advertiserId:offerId:publisherId:redirect: method.
  @param redirectUrl The string name for the url.
  */
-+ (void)setRedirectUrl:(NSString *)redirectUrl;
++ (void)setRedirectUrl:(nullable NSString *)redirectUrl;
 
 /*!
  Start an app-to-app measurement session on the Tune server.
@@ -955,10 +955,10 @@
  @param shouldRedirect Should redirect to the download url if the measurement session was
    successfully created. See setRedirectUrl:.
  */
-+ (void)startAppToAppMeasurement:(NSString *)targetAppPackageName
-                    advertiserId:(NSString *)targetAppAdvertiserId
-                         offerId:(NSString *)targetAdvertiserOfferId
-                     publisherId:(NSString *)targetAdvertiserPublisherId
++ (void)startAppToAppMeasurement:(nonnull NSString *)targetAppPackageName
+                    advertiserId:(nonnull NSString *)targetAppAdvertiserId
+                         offerId:(nonnull NSString *)targetAdvertiserOfferId
+                     publisherId:(nonnull NSString *)targetAdvertiserPublisherId
                         redirect:(BOOL)shouldRedirect;
 
 #if TARGET_OS_IOS
@@ -1039,26 +1039,26 @@ typedef enum {
  Delegate method called when an action is enqueued.
  @param referenceId The reference ID of the enqueue action.
  */
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use tuneEnqueuedRequest:postData: instead.");
+- (void)tuneEnqueuedActionWithReferenceId:(nullable NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use tuneEnqueuedRequest:postData: instead.");
 
 /*!
  Delegate method called when Tune SDK enqueues a web request.
  @param url The request url string.
  @param post The request post data string.
  */
-- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post;
+- (void)tuneEnqueuedRequest:(nullable NSString *)url postData:(nullable NSString *)post;
 
 /*!
  Delegate method called when an action succeeds.
  @param data The success data returned by Tune.
  */
-- (void)tuneDidSucceedWithData:(NSData *)data;
+- (void)tuneDidSucceedWithData:(nullable NSData *)data;
 
 /*!
  Delegate method called when an action fails.
  @param error Error object returned by Tune.
  */
-- (void)tuneDidFailWithError:(NSError *)error;
+- (void)tuneDidFailWithError:(nullable NSError *)error;
 
 /*!
  Delegate method called when an action fails.  Provides request and response, if available.
@@ -1066,20 +1066,20 @@ typedef enum {
  @param request request url as string, if available
  @param response response as string, if available
  */
-- (void)tuneDidFailWithError:(NSError *)error request:(NSString *)request response:(NSString *)response;
+- (void)tuneDidFailWithError:(nullable NSError *)error request:(nullable NSString *)request response:(nullable NSString *)response;
 
 /*!
  Delegate method called when a deferred deeplink becomes available.
  The deeplink should be used to open the appropriate screen in your app.
  @param deeplink String representation of the deeplink url.
  */
-- (void)tuneDidReceiveDeeplink:(NSString *)deeplink;
+- (void)tuneDidReceiveDeeplink:(nullable NSString *)deeplink;
 
 /*!
  Delegate method called when a deferred deeplink request fails.
  @param error Error object indicating why the request failed.
  */
-- (void)tuneDidFailDeeplinkWithError:(NSError *)error;
+- (void)tuneDidFailDeeplinkWithError:(nullable NSError *)error;
 
 @end
 
