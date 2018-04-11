@@ -14,6 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by johng on 1/13/16.
@@ -141,5 +143,29 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         TunePushOpenedEvent pushOpenedEvent = new TunePushOpenedEvent(message);
 
         assertEquals("123|||NotificationOpened|PUSH_NOTIFICATION", pushOpenedEvent.getFiveline());
+    }
+
+    /**
+     * Test that timestamp is not formatted in scientific notation when converted to String
+     */
+    public void testTimestampFormattedCorrectly() throws JSONException {
+        TuneEvent eventToConvert = new TuneEvent("item1");
+        TuneCustomEvent event = new TuneCustomEvent(eventToConvert);
+        long eventTimestamp = event.getTimeStamp();
+
+        // Get string representation of event json
+        String eventString = event.toJson().toString();
+
+        // Get timestamp string value from event json string
+        Pattern regex = Pattern.compile("\"timestamp\":([0-9]+),");
+        Matcher matcher = regex.matcher(eventString);
+        // Check that timestamp is all numeric
+        if (matcher.find()) {
+            String timestampStringValue = matcher.group(1);
+            // Check that timestamp string is the same value
+            assertEquals(eventTimestamp, Long.parseLong(timestampStringValue));
+        } else {
+            fail("Did not find all-numeric timestamp in event json");
+        }
     }
 }
