@@ -107,11 +107,11 @@
     [[self tuneQueue] addOperationWithBlock:^{
         [TuneManager currentManager].configuration.debugMode = @(enable);
         
-        #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] setDebugMode:enable];
         }
-        #endif
+#endif
     }];
 }
 
@@ -196,11 +196,11 @@
     [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setPackageName:packageName];
         
-        #if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
         if ([TuneSmartWhereHelper isSmartWhereAvailable]) {
             [[TuneSmartWhereHelper getInstance] setPackageName:packageName];
         }
-        #endif
+#endif
     }];
 }
 
@@ -419,10 +419,22 @@
 
 + (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value {
     [[TuneManager currentManager].userProfile registerString:variableName withDefault:value];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:value forKey:variableName];
+    }
+#endif
 }
 
 + (void)registerCustomProfileString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldHash {
     [[TuneManager currentManager].userProfile registerString:variableName withDefault:value hashed:shouldHash];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:value forKey:variableName];
+    }
+#endif
 }
 
 + (void)registerCustomProfileBoolean:(NSString *)variableName withDefault:(NSNumber *)value {
@@ -435,6 +447,12 @@
 
 + (void)registerCustomProfileNumber:(NSString *)variableName withDefault:(NSNumber *)value {
     [[TuneManager currentManager].userProfile registerNumber:variableName withDefault:value];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+    if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        [tuneSmartWhereHelper setAttributeValue:[value stringValue] forKey:variableName];
+    }
+#endif
 }
 
 + (void)registerCustomProfileGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value {
@@ -448,6 +466,13 @@
 + (void)setCustomProfileStringValue:(NSString *)value forVariable:(NSString *)name {
     [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setStringValue:value forVariable:name];
+        
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        	TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        	[tuneSmartWhereHelper setAttributeValue:value forKey:name];
+    	}
+#endif
     }];
 }
 
@@ -466,6 +491,12 @@
 + (void)setCustomProfileNumberValue:(NSNumber *)value forVariable:(NSString *)name {
     [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile setNumberValue:value forVariable:name];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        	TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        	[tuneSmartWhereHelper setAttributeValue:[value stringValue] forKey:name];
+    	}
+#endif
     }];
 }
 
@@ -504,12 +535,24 @@
 + (void)clearCustomProfileVariable:(NSString *)name {
     [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile clearCustomVariables:[NSSet setWithObject:name]];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+        	TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        	[tuneSmartWhereHelper clearAttributeValue:name];
+    	}
+#endif
     }];
 }
 
 + (void)clearAllCustomProfileVariables {
     [[self tuneQueue] addOperationWithBlock:^{
         [[TuneManager currentManager].userProfile clearCustomProfile];
+#if TUNE_ENABLE_SMARTWHERE && TARGET_OS_IOS
+        if ([TuneSmartWhereHelper isSmartWhereAvailable]){
+       		TuneSmartWhereHelper *tuneSmartWhereHelper = [TuneSmartWhereHelper getInstance];
+        	[tuneSmartWhereHelper clearAllAttributeValues];
+    	}
+#endif
     }];
 }
 

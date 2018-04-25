@@ -17,12 +17,12 @@
 #endif
 #import <UIKit/UIKit.h>
 
-#import "TuneUserProfile.h"
-
 #import "TuneAnalyticsConstants.h"
 #import "TuneAnalyticsVariable.h"
 #import "TuneConfiguration.h"
+#import "TuneConstants.h"
 #import "TuneDeeplinker.h"
+#import "TuneDeviceUtils.h"
 #import "TuneIfa.h"
 #import "TuneInstallReceipt.h"
 #import "TuneJSONUtils.h"
@@ -30,15 +30,14 @@
 #import "TuneLocation+Internal.h"
 #import "TuneManager.h"
 #import "TunePreloadData.h"
+#import "TunePushUtils.h"
+#import "TuneReachability.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUserDefaultsUtils.h"
-#import "TuneDeviceUtils.h"
+#import "TuneUserProfile.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
-#import "TunePushUtils.h"
-
-#import "TuneConstants.h"
 
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
@@ -151,25 +150,18 @@
 #elif TARGET_OS_WATCH
         strOsType = @"watchOS";
 #endif
-        // We are on an IOS device
+
         [self setOsType:strOsType];
 
 #if !TARGET_OS_WATCH
-        // IDFA
         [self updateIFA];
 #endif
-        
-        // Set App Parameters
         [self setAppParams];
-        
-        // install receipt
         [self setReceiptData];
-        
-        // hardware specs
         [self setHardwareSpecs];
-        
-        //Other params
+        [self updateConnectionType];
         [self setCountryCode:[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]];
+        
 #if TARGET_OS_WATCH
         [self setOsVersion:[[WKInterfaceDevice currentDevice] systemVersion]];
 #else
@@ -183,7 +175,7 @@
         [self updateCoppaStatus];
         
 #if TARGET_OS_IOS
-        // FB cookie id
+
         [self loadFacebookCookieId];
 #endif
         
@@ -524,6 +516,15 @@
 #endif
     
     [self setInterfaceIdiom:[TuneDeviceUtils artisanInterfaceIdiomString]];
+}
+
+- (void)updateConnectionType {
+    TuneReachability *reachability = [TuneReachability reachabilityForInternetConnection];
+    [self storeProfileKey:TUNE_KEY_CONNECTION_TYPE value:[reachability translateReachabilityStatus:[reachability currentReachabilityStatus]]];
+}
+
+- (NSString *)connectionType {
+    return [self getProfileValue:TUNE_KEY_CONNECTION_TYPE];
 }
 
 #pragma mark - Methods for setting Custom Profile Variables

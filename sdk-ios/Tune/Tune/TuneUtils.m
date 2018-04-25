@@ -253,29 +253,36 @@ BOOL isAlertVisible;
 
 + (NSDate *)installDate {
     NSDate *date = nil;
-    NSDictionary *appAttrs = nil;
     
-    // Use NSDocumentDirectory / NSCachesDirectory folder creation date as the app install date because this value persists across updates
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // First check the NSDocumentDirectory / NSCachesDirectory folder creation date as the app install date because this value persists across updates
     NSSearchPathDirectory targetFolder = NSDocumentDirectory;
-#if TARGET_OS_TV // || TARGET_OS_WATCH
+#if TARGET_OS_TV
     targetFolder = NSCachesDirectory;
 #endif
     
-    @try {
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(targetFolder, NSUserDomainMask, YES);
-        NSString *path = nil;
-        if (paths.count > 0) {
-            path = [paths objectAtIndex:0];
-        } else {
-            DebugLog(@"NSDocumentDirectory / NSCachesDirectory not found, falling back to NSBundle creation date.");
-            path = [[TuneUtils currentBundle] bundlePath];
-        }
-        appAttrs = [fileManager attributesOfItemAtPath:path error:nil];
-        date = appAttrs[NSFileCreationDate];
-    } @catch (NSException *exception) {
-        ErrorLog(@"An exception occurred while trying to extract folder creation date. Exception: %@", exception);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(targetFolder, NSUserDomainMask, YES);
+    if (paths.count > 0) {
+        date = [self creationDateOfPath:[paths objectAtIndex:0]];
     }
+    
+    // Try the bundle creation date if NSDocumentDirectory / NSCachesDirectory is not available
+    if (!date) {
+        DebugLog(@"NSDocumentDirectory / NSCachesDirectory not found, falling back to NSBundle creation date.");
+        date = [self creationDateOfPath:[[TuneUtils currentBundle] bundlePath]];
+    }
+    
+    return date;
+}
+
++ (NSDate *)creationDateOfPath:(NSString *)path {
+    NSDate *date = nil;
+    
+    NSError *error;
+    NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+    if (error) {
+        DebugLog(@"Failed to get creation date: %@", error);
+    }
+    date = attributes[NSFileCreationDate];
     
     return date;
 }

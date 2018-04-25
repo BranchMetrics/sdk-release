@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TuneSkyhookPayload.h"
+#import "TuneAnalyticsVariable.h"
 
 @protocol SmartWhereDelegate
 @end
@@ -46,7 +47,7 @@
  * @param key TUNE Conversion Key
  * @param packageName TUNE Package Name
  */
-- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString*) packageName;
+- (void)startMonitoringWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key packageName:(NSString*)packageName;
 
 /*!
  * Stops SmartWhere proximity monitoring.
@@ -68,7 +69,44 @@
  * Process a triggered event that is mapped on the server.
  * @param payload Event information.
  */
-- (void)processMappedEvent:(TuneSkyhookPayload*) payload;
+- (void)processMappedEvent:(TuneSkyhookPayload*)payload;
+
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param value String value of the attribute value
+ * @param key Strting value of the attribute name
+ */
+- (void)setAttributeValue:(NSString*)value forKey:(NSString*)key;
+
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param tuneAnalyticsVariable TuneAnalyticsVariable
+ */
+- (void)setAttributeValueFromAnalyticsVariable:(TuneAnalyticsVariable *)tuneAnalyticsVariable;
+
+/*!
+ * Set custom user attributes for use in notification replacements and event conditions.
+ * @param payload TuneSkyhookPayload containing a TuneEvent with tags
+ */
+- (void)setAttributeValuesFromPayload:(TuneSkyhookPayload*)payload;
+
+/*!
+ * Clear a custom user attribute.
+ * @param variableName String value of the attribute name
+ */
+- (void)clearAttributeValue:(NSString*)variableName;
+
+/*!
+ * Clear all custom user attributes.
+ */
+- (void)clearAllAttributeValues;
+
+/*!
+ * Set custom user tracking attributes that will be sent as metadata in tracking calls.
+ * @param value String value of the attribute value
+ * @param key String value of the attribute name
+ */
+- (void)setTrackingAttributeValue:(NSString*)value forKey:(NSString*)key;
 
 @end
 
@@ -100,6 +138,7 @@ typedef enum TUNE_SW_EventActionType : NSInteger {
 typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
     TUNE_SW_swNfcTap = 0,
     TUNE_SW_swQRScan = 1,
+    TUNE_SW_swNfcTapCancel = 2,
     TUNE_SW_swBleEnter = 10,
     TUNE_SW_swBleHover = 11,
     TUNE_SW_swBleDwell = 12,
@@ -114,7 +153,7 @@ typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
 /**
  * Action info included in SmartWhere proximity notification.
  */
-@interface ProximityAction : NSObject<NSCoding>
+@interface ProximityAction:NSObject<NSCoding>
 @property (nonatomic, assign) TUNE_SW_EventActionType actionType;
 @property (nonatomic, copy) NSDictionary *values;
 @end
@@ -122,7 +161,7 @@ typedef enum TUNE_SW_ProximityTriggerType : NSInteger {
 /**
  * Proximity notification object included in the SmartWhere callbacks.
  */
-@interface ProximityNotification : NSObject
+@interface ProximityNotification:NSObject
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, strong) ProximityAction *action;

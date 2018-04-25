@@ -922,4 +922,10 @@
     }
 }
 
+- (void)testUpdateConnectionType {
+    // This test may fail; connectionType is probably wifi, but it is not explicitly mocked to be
+    TuneUserProfile *profile = [TuneManager currentManager].userProfile;
+    XCTAssertTrue([[profile connectionType] isEqualToString:@"wifi"]);
+}
+
 @end

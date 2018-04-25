@@ -280,6 +280,21 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
     return returnValue;
 }
 
+// Translates the enum into a string the server accepts
+- (NSString *)translateReachabilityStatus:(TuneNetworkStatus)status {
+    switch(status) {
+        case TuneReachableViaWiFi:
+            return @"wifi";
+            break;
+        case TuneReachableViaWWAN:
+            return @"mobile";
+            break;
+        default:
+            return nil;
+            break;
+    }
+}
+
 @end
 
 #endif

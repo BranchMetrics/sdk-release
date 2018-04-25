@@ -113,6 +113,7 @@ NSString *const TUNE_KEY_APP_BUNDLE_ID                  = @"bundle_id";
 NSString *const TUNE_KEY_APP_NAME                       = @"app_name";
 NSString *const TUNE_KEY_APP_VERSION                    = @"app_version";
 NSString *const TUNE_KEY_APP_VERSION_NAME               = @"app_version_name";
+NSString *const TUNE_KEY_CONNECTION_TYPE                = @"connection_type";
 NSString *const TUNE_KEY_ADVERTISER_ID                  = @"advertiser_id";
 NSString *const TUNE_KEY_KEY                            = @"key";
 NSString *const TUNE_KEY_PACKAGE_NAME                   = @"package_name";
@@ -283,6 +284,7 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
                                              TUNE_KEY_APP_NAME,
                                              TUNE_KEY_APP_VERSION,
                                              TUNE_KEY_APP_VERSION_NAME,
+                                             TUNE_KEY_CONNECTION_TYPE,
                                              TUNE_KEY_ADVERTISER_ID,
                                              TUNE_KEY_KEY,
                                              TUNE_KEY_PACKAGE_NAME,
@@ -440,6 +442,7 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
                                              TUNE_KEY_APP_NAME,
                                              TUNE_KEY_APP_VERSION,
                                              TUNE_KEY_APP_VERSION_NAME,
+//                                             TUNE_KEY_CONNECTION_TYPE,
                                              TUNE_KEY_ADVERTISER_ID,
                                              TUNE_KEY_KEY,
                                              TUNE_KEY_PACKAGE_NAME,

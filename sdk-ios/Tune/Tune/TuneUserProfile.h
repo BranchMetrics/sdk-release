@@ -149,6 +149,9 @@
 - (void)setAppVersionName:(NSString *)appVersionName;
 - (NSString *)appVersionName;
 
+- (void)updateConnectionType;
+- (NSString *)connectionType;
+
 - (void)setWearable:(NSNumber *)wearable;
 - (NSNumber *)wearable;
 

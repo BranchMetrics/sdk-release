@@ -7,18 +7,41 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ Experiment details dictionary key "name" for an experiment.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentNameKey;
+/**
+ Experiment details dictionary key "id" for an experiment.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentIdKey;
+/**
+ Experiment details dictionary key "type" for an experiment.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentTypeKey;
+/**
+ Experiment details dictionary key "current_variation" for an experiment's current variation.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationKey;
+/**
+ Experiment details dictionary key "id" for an experiment's current variation.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationIdKey;
+/**
+ Experiment details dictionary key "name" for an experiment's current variation.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationNameKey;
-
+/**
+ Experiment details dictionary key "power_hook" to denote Power Hook experiments.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryTypePowerHook;
+/**
+ Experiment details dictionary key "in_app" to denote In App experiments.
+ */
 FOUNDATION_EXPORT NSString *const DetailDictionaryTypeInApp;
 
 /**
- * An object containing useful information about an experiment
+ * An object containing useful information about an experiment.
  **/
 @interface TuneExperimentDetails : NSObject
 

@@ -949,6 +949,7 @@
 		17BAA17D2025344800F26DD3 /* TuneFullScreenMessageDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1792D3BE201929E300D2F7BA /* TuneFullScreenMessageDefaults.h */; };
 		17BAA17F2025344800F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
 		17BAA18C2028D4EA00F26DD3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BCB59AB1B65F864005216E2 /* InfoPlist.strings */; };
+		3663298920895D4A0066EEAC /* TuneReachabilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3663298820895D4A0066EEAC /* TuneReachabilityTests.m */; };
 		764F275F2049FF9C00A63F02 /* TuneNotInitializedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */; };
 /* End PBXBuildFile section */
 
@@ -1165,6 +1166,7 @@
 		32B9A42D1BBB3703006E3D4F /* TuneDeeplink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplink.m; sourceTree = "<group>"; };
 		32B9A42E1BBB3703006E3D4F /* TuneDeeplinkConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeeplinkConstants.h; sourceTree = "<group>"; };
 		32B9A42F1BBB3703006E3D4F /* TuneDeeplinkConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinkConstants.m; sourceTree = "<group>"; };
+		3663298820895D4A0066EEAC /* TuneReachabilityTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneReachabilityTests.m; sourceTree = "<group>"; };
 		3F06E4801BA75D3100CCB45A /* TuneStateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneStateTests.m; sourceTree = "<group>"; };
 		3F06E4831BA7795500CCB45A /* TuneEnableDisableTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEnableDisableTests.m; sourceTree = "<group>"; };
 		3F1BC5EB1BBB5FDD009FD499 /* TuneExperimentManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TuneExperimentManager.h; sourceTree = "<group>"; };
@@ -2031,6 +2033,7 @@
 				3F3290C71B9635F600C472F8 /* TunePIIUtilsTests.m */,
 				F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */,
 				F8A8872D1CC84E5B0073A4FE /* TuneInAppUtilsTests.m */,
+				3663298820895D4A0066EEAC /* TuneReachabilityTests.m */,
 			);
 			name = "Utility Tests";
 			sourceTree = "<group>";
@@ -2820,7 +2823,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = Tune;
 				TargetAttributes = {
 					17301C621FFEE5A5001ADCC2 = {
@@ -3167,6 +3170,7 @@
 				17301DC41FFEEC6C001ADCC2 /* TuneNotRedactedTests.m in Sources */,
 				17301DAE1FFEEC5E001ADCC2 /* TuneDateUtilsTests.m in Sources */,
 				17301D871FFEEC00001ADCC2 /* TuneExperimentDetailsTests.m in Sources */,
+				3663298920895D4A0066EEAC /* TuneReachabilityTests.m in Sources */,
 				17301DAC1FFEEC5E001ADCC2 /* TuneArrayUtilsTests.m in Sources */,
 				17301DC21FFEEC6C001ADCC2 /* NSURLSession+TuneDelegateMockServer.m in Sources */,
 				17301D911FFEEC0F001ADCC2 /* TuneSkyhookCenterTests.m in Sources */,
@@ -3530,12 +3534,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -3569,7 +3575,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fembed-bitcode",
 					"-Qunused-arguments",
@@ -3598,12 +3604,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -4205,12 +4213,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
