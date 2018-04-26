@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Tune Smartwhere Configuration for granting and revoking integration privileges.
  */
-public class TuneSmartwhereConfiguration {
+public class TuneSmartWhereConfiguration {
     /**
      * PERMISSION to allow Tune to send events directly to Smartwhere by default.
      */
@@ -20,15 +20,15 @@ public class TuneSmartwhereConfiguration {
     /**
      * Constructor.
      */
-    public TuneSmartwhereConfiguration() {
+    public TuneSmartWhereConfiguration() {
         mPermissions = new HashMap<>();
     }
 
     /**
      * Constructor.
-     * @param configJson with permissions.  Typically used in conjunction with {@link TuneSmartwhereConfiguration#toString()}
+     * @param configJson with permissions.  Typically used in conjunction with {@link TuneSmartWhereConfiguration#toString()}
      */
-    public TuneSmartwhereConfiguration(String configJson) {
+    public TuneSmartWhereConfiguration(String configJson) {
         mPermissions = new HashMap<>();
 
         try {
@@ -57,7 +57,7 @@ public class TuneSmartwhereConfiguration {
      * @param permission Permission to grant
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartwhereConfiguration grant(String permission) {
+    public TuneSmartWhereConfiguration grant(String permission) {
         if (isValidPermission(permission)) {
             mPermissions.put(permission, true);
         }
@@ -69,7 +69,7 @@ public class TuneSmartwhereConfiguration {
      * Grant all permissions for Smartwhere integration.
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartwhereConfiguration grantAll() {
+    public TuneSmartWhereConfiguration grantAll() {
         // **NOTE**  Any additional permissions added must be added here
         grant(GRANT_SMARTWHERE_TUNE_EVENTS);
 
@@ -81,7 +81,7 @@ public class TuneSmartwhereConfiguration {
      * @param permission Permission to revoke
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartwhereConfiguration revoke(String permission) {
+    public TuneSmartWhereConfiguration revoke(String permission) {
         if (isValidPermission(permission)) {
             mPermissions.remove(permission);
         }
@@ -93,7 +93,7 @@ public class TuneSmartwhereConfiguration {
      * Revoke all permissions for Smartwhere integration.
      * @return This instance, which can be used for chaining configuration requests.
      */
-    public TuneSmartwhereConfiguration revokeAll() {
+    public TuneSmartWhereConfiguration revokeAll() {
         mPermissions.clear();
         return this;
     }

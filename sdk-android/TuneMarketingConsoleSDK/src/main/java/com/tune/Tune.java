@@ -40,7 +40,7 @@ import com.tune.ma.push.settings.TuneNotificationBuilder;
 import com.tune.ma.push.settings.TunePushListener;
 import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
-import com.tune.smartwhere.TuneSmartwhereConfiguration;
+import com.tune.smartwhere.TuneSmartWhereConfiguration;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -526,7 +526,7 @@ public class Tune {
                     tuneListener.enqueuedActionWithRefId(eventData.getRefId());
                 }
 
-                if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartwhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
+                if (TuneSmartWhere.getInstance().getConfiguration().isPermissionGranted(TuneSmartWhereConfiguration.GRANT_SMARTWHERE_TUNE_EVENTS)) {
                     TuneSmartWhere.getInstance().processMappedEvent(mContext, eventData);
                 }
             }
@@ -3100,10 +3100,10 @@ public class Tune {
 
     /**
      * Configure Smartwhere using a configuration.
-     * @param config {@link TuneSmartwhereConfiguration} Configuration
+     * @param config {@link TuneSmartWhereConfiguration} Configuration
      * @throws TuneConfigurationException if Smartwhere is not available.
      */
-    public void configureSmartwhere(TuneSmartwhereConfiguration config) throws TuneConfigurationException {
+    public void configureSmartwhere(TuneSmartWhereConfiguration config) throws TuneConfigurationException {
         if (!TuneSmartWhere.isSmartWhereAvailable()) {
             throw new TuneConfigurationException("Smartwhere is not available. Please ensure that the Smartwhere library dependency is included.");
         }

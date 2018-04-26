@@ -42,7 +42,7 @@ public class TuneSmartWhere {
     private static final String TUNE_SMARTWHERE_METHOD_STOP_SERVICE = "stopService";
     private static final String TUNE_SMARTWHERE_METHOD_PROCESS_MAPPED_EVENT = "processMappedEvent";
 
-    private TuneSmartwhereConfiguration mConfiguration;
+    private TuneSmartWhereConfiguration mConfiguration;
 
     TuneSmartWhere() {
     }
@@ -72,7 +72,7 @@ public class TuneSmartWhere {
      */
     public void enable(Context context) {
         if (!isEnabled()) {
-            mConfiguration = new TuneSmartwhereConfiguration();
+            mConfiguration = new TuneSmartWhereConfiguration();
             startSmartWhereLocationMonitoring(context);
         }
     }
@@ -97,16 +97,16 @@ public class TuneSmartWhere {
     }
 
     /**
-     * Get the current {@link TuneSmartwhereConfiguration}.
-     * @return the current {@link TuneSmartwhereConfiguration}.
-     * To make changes to the Smartwhere options, use {@link TuneSmartWhere#configure(TuneSmartwhereConfiguration)}
+     * Get the current {@link TuneSmartWhereConfiguration}.
+     * @return the current {@link TuneSmartWhereConfiguration}.
+     * To make changes to the Smartwhere options, use {@link TuneSmartWhere#configure(TuneSmartWhereConfiguration)}
      */
-    public final TuneSmartwhereConfiguration getConfiguration() {
-        return (mConfiguration == null ? new TuneSmartwhereConfiguration() : mConfiguration);
+    public final TuneSmartWhereConfiguration getConfiguration() {
+        return (mConfiguration == null ? new TuneSmartWhereConfiguration() : mConfiguration);
     }
 
 
-    public void configure(TuneSmartwhereConfiguration configuration) {
+    public void configure(TuneSmartWhereConfiguration configuration) {
         if (configuration == null) {
             return;
         }
