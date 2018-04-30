@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '5.2.2'
+    PUBLISH_VERSION = '5.2.3'
 }
 
 android {
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
-        versionName '5.2.2'
+        versionName '5.2.3'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

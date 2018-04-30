@@ -152,11 +152,12 @@ class TuneFirstRunLogic {
     private InstallReferrerStateListener mReferrerStateListener = new InstallReferrerStateListener() {
         @Override
         public void onInstallReferrerSetupFinished(int responseCode) {
+            // Note that this callback blocks the Main UI thread until complete.
             TuneDebugLog.d("FirstRun::onInstallReferrerSetupFinished() CODE: " + responseCode);
+
             if (responseCode == InstallReferrerClient.InstallReferrerResponse.OK) {
                 // Best-case Success, Install Referrer is available via. this API.
                 onInstallReferrerResponseOK(mInstallReferrerClient);
-                mInstallReferrerClient.endConnection();
             } else {
                 // Best-case Failure, No Install Referrer info, but the API handled it
                 // gracefully.
@@ -196,6 +197,7 @@ class TuneFirstRunLogic {
                 TuneDebugLog.d("FirstRun::Install Referrer Timestamps: [" + referrerClickTimestamp + "," + installBeginTimestamp + "]");
             }
 
+            client.endConnection();
             googleInstallReferrerSequenceComplete(details != null);
 
         } catch (Exception e) {
