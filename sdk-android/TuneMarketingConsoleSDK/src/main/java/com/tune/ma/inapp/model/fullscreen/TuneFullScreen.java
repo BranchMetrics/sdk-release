@@ -30,11 +30,10 @@ import java.net.URLEncoder;
 
 /**
  * Created by johng on 2/21/17.
- */
-
-/**
  * TuneFullScreen is a TuneInAppMessage subclass that handles displaying full screen messages
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneFullScreen extends TuneInAppMessage {
     public static final String ORIENTATION = "ORIENTATION";
     public static final String MESSAGE_ID = "MESSAGE_ID";

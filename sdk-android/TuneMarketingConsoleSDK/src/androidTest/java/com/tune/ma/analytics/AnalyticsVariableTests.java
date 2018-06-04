@@ -1,17 +1,27 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.constants.TuneHashType;
 import com.tune.ma.analytics.model.constants.TuneVariableType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 1/11/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsVariableTests extends TuneAnalyticsTest {
 
     private void isValidVersionString(String version) {
@@ -27,6 +37,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
     /**
      * Test validateVersion accepts and rejects the correct versions
      */
+    @Test
     public void testValidVersion() {
         isValidVersionString("2.4.8");
         isValidVersionString("2.4.8-SNAPSHOT");
@@ -62,6 +73,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
     /**
      * Test that validateVersion accepts and rejects the correct Maven versions
      */
+    @Test
     public void testValidateVersionUsingApacheMavenExamples() {
         // these values are numerically comparable
         isValidVersionString("1");
@@ -101,6 +113,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
     /**
      * Test that cleanVariableName cleans names correctly
      */
+    @Test
     public void testCleanName() {
         assertTrue(TuneAnalyticsVariable.cleanVariableName(null) == null);
         assertTrue(TuneAnalyticsVariable.cleanVariableName("foobar").equals("foobar"));
@@ -112,6 +125,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
     /**
      * Test that validateName validates names correctly
      */
+    @Test
     public void testValidateName() {
         assertFalse(TuneAnalyticsVariable.validateName(null));
         assertFalse(TuneAnalyticsVariable.validateName(""));
@@ -125,6 +139,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
     /**
      * Test that toJsonForLocalStorage creates the JSONObject correctly
      */
+    @Test
     public void testToJson() {
         TuneAnalyticsVariable var = new TuneAnalyticsVariable("key", "value");
         JSONObject varJson = var.toJsonForLocalStorage();
@@ -149,6 +164,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
         }
     }
 
+    @Test
     public void testToJsonHashTypeStoredCorrectly() {
         TuneAnalyticsVariable var = new TuneAnalyticsVariable("key", "value", TuneVariableType.STRING, TuneHashType.NONE, false);
         JSONObject varJson = var.toJsonForLocalStorage();
@@ -199,6 +215,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
         }
     }
 
+    @Test
     public void testToJsonWithShouldAutoHash() {
         TuneAnalyticsVariable var = new TuneAnalyticsVariable("key", "value", TuneVariableType.STRING, TuneHashType.NONE, false);
         JSONObject varJson = var.toJsonForLocalStorage();
@@ -225,6 +242,7 @@ public class AnalyticsVariableTests extends TuneAnalyticsTest {
         }
     }
 
+    @Test
     public void testDeserializeVariables() {
         TuneAnalyticsVariable var = null;
         var = TuneAnalyticsVariable.fromJson("{\"name\":\"ourName\",\"value\":\"ourValue\",\"type\":\"STRING\",\"shouldAutoHash\":false}");

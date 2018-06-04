@@ -52,14 +52,18 @@ import static com.tune.ma.inapp.model.action.TuneInAppAction.DISMISS_ACTION;
 
 /**
  * TuneInAppMessage is an abstract class that holds in-app message information from the playlist JSON
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public abstract class TuneInAppMessage {
+    @Deprecated
     public enum Type {
         FULLSCREEN,
         MODAL,
         BANNER
     }
 
+    @Deprecated
     public enum Transition {
         TOP,
         BOTTOM,

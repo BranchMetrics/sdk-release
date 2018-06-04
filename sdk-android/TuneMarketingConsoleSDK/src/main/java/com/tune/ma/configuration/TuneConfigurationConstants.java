@@ -3,7 +3,9 @@ package com.tune.ma.configuration;
 
 /**
  * Created by kristine on 1/15/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneConfigurationConstants {
     static final String TUNE_KEY_ECHO_ANALYTICS                 = "echo_analytics";
     static final String TUNE_KEY_ECHO_PLAYLISTS                 = "echo_playlists";

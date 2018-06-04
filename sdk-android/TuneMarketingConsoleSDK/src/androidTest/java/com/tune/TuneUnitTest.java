@@ -1,6 +1,7 @@
 package com.tune;
 
-import android.test.AndroidTestCase;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.tune.ma.eventbus.TuneEventBus;
@@ -10,10 +11,17 @@ import com.tune.ma.push.TunePushManager;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 
+import java.util.Locale;
 import java.util.UUID;
 
-public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TuneUnitTest implements TuneTestRequest {
     private static final String logTag = "TUNE Tests";
 
     protected TuneTestWrapper tune;
@@ -24,10 +32,12 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         super();
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         Log.d(logTag, "***SETUP STARTED***");
+
+        // To perform the unit tests under a different locale, uncomment the following line
+        // setLocale("az", "AZ");
 
         // Clear the Tune User Profile settings.  Note that this should have called
         // <code> new TuneUserProfile(getContext()).deleteSharedPrefs(); </code> but the constructor
@@ -47,8 +57,8 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         Log.d(logTag, "***SETUP COMPLETE***");
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         Log.d(logTag, "***TEARDOWN STARTED***");
 
         if (tune != null) {
@@ -60,7 +70,6 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         tune = null;
 
         Log.d(logTag, "***TEARDOWN COMPLETE***");
-        super.tearDown();
     }
 
     public static void sleep(int millis) {
@@ -125,5 +134,22 @@ public class TuneUnitTest extends AndroidTestCase implements TuneTestRequest {
         }
 
         return rc;
+    }
+
+    /**
+     * Helper method to set the Locale based on a given Language and Country
+     * @param language lowercase 2 to 8 language code.
+     * @param country uppercase two-letter ISO-3166 code and numric-3 UN M.49 area code.
+     */
+    public void setLocale(String language, String country) {
+        Locale locale = new Locale(language, country);
+        // here we update locale for date formatters
+        Locale.setDefault(locale);
+
+        // here we update locale for app resources
+        Resources res = getContext().getResources();
+        Configuration config = res.getConfiguration();
+        config.locale = locale;
+        res.updateConfiguration(config, res.getDisplayMetrics());
     }
 }

@@ -1,36 +1,47 @@
 package com.tune.ma.deepactions;
 
 import android.app.Activity;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.deepactions.model.TuneDeepAction;
 import com.tune.ma.model.TuneDeepActionCallback;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by willb on 2/1/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneDeepActionManagerTests extends TuneUnitTest {
 
     private TuneDeepActionManager deepActionManager;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         deepActionManager = TuneManager.getInstance().getDeepActionManager();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
 
         deepActionManager.clearDeepActions();
     }
 
+    @Test
     public void testRegisterWithoutRequired() {
         tune.registerDeepAction(null, null, null, null);
         assertEquals(0, deepActionManager.getDeepActions().size());
@@ -52,6 +63,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(0, deepActionManager.getDeepActions().size());
     }
 
+    @Test
     public void testRegisterDeepAction() {
         tune.registerDeepAction("Watsky", "nice Watsky", getDefaultData(), getAction());
 
@@ -64,6 +76,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals("MAXVALUE", action.getDefaultData().get("swagger"));
     }
 
+    @Test
     public void testManagerReturnsList() {
         tune.registerDeepAction("thing1", "oldest thing", getDefaultData(), getAction());
         assertEquals(1, deepActionManager.getDeepActions().size());
@@ -73,6 +86,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(0, deepActionManager.getDeepActions().size());
     }
 
+    @Test
     public void testExecuteDeepActionInvalidActionName() {
         SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
         assertEquals(0, callback.executionCount);
@@ -83,6 +97,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(0, callback.executionCount);
     }
 
+    @Test
     public void testExecuteDeepActionNullData() {
         SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
         assertEquals(0, callback.executionCount);
@@ -93,6 +108,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(1, callback.executionCount);
     }
 
+    @Test
     public void testExecuteDeepActionEmptyData() {
         SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
         assertEquals(0, callback.executionCount);
@@ -103,6 +119,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals(1, callback.executionCount);
     }
 
+    @Test
     public void testExecuteDeepActionNormalStringData() {
         SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
         assertEquals(0, callback.executionCount);
@@ -117,6 +134,7 @@ public class TuneDeepActionManagerTests extends TuneUnitTest {
         assertEquals("abcdef", callback.value.toString());
     }
 
+    @Test
     public void testExecuteDeepActionDataOverride() {
         SomeDeepActionCallbackImplementation callback = new SomeDeepActionCallbackImplementation();
         assertEquals(0, callback.executionCount);

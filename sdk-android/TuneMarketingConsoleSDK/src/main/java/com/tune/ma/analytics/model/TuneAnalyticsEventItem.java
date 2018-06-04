@@ -14,7 +14,9 @@ import java.util.Set;
 
 /**
  * Created by johng on 1/7/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneAnalyticsEventItem {
     public String item;
     public String unitPrice;

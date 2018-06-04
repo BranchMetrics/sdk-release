@@ -4,8 +4,9 @@ import org.json.JSONObject;
 
 /**
  * Interface class that can be implemented to access extraPushPayload from a Tune Push Message and decide if a notification should be displayed.
- *
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public interface TunePushListener {
 
     /**

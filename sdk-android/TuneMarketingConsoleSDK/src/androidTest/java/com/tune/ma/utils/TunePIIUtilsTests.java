@@ -1,5 +1,7 @@
 package com.tune.ma.utils;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
@@ -9,18 +11,24 @@ import com.tune.ma.configuration.TuneConfiguration;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by kristine on 2/5/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePIIUtilsTests extends TuneUnitTest {
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         List<String> piiFilters = new ArrayList<String>();
         piiFilters.add("^[1-9][0-9]{5,50}$");
@@ -31,11 +39,7 @@ public class TunePIIUtilsTests extends TuneUnitTest {
         TuneManager.getInstance().getConfigurationManager().updateConfigurationFromTuneConfigurationObject(config);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testPIIFilterWithValueNumbersAsString() {
         TuneAnalyticsVariable variable = new TuneAnalyticsVariable("foobar", "123456789");
         List<JSONObject> converted = variable.toListOfJsonObjectsForDispatch();
@@ -69,6 +73,7 @@ public class TunePIIUtilsTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPIIFilterWithValueFloat() {
         TuneAnalyticsVariable variable = new TuneAnalyticsVariable("foobar", 123456789);
         List<JSONObject> converted = variable.toListOfJsonObjectsForDispatch();
@@ -102,6 +107,7 @@ public class TunePIIUtilsTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPIIFilterWithValueEmail() {
         TuneAnalyticsVariable variable = new TuneAnalyticsVariable("foobar", "jim@tune.com");
         List<JSONObject> converted = variable.toListOfJsonObjectsForDispatch();
@@ -135,6 +141,7 @@ public class TunePIIUtilsTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPIIFilterWithNoPII() {
         TuneAnalyticsVariable variable = new TuneAnalyticsVariable("foobar", "No PII Here");
         List<JSONObject> converted = variable.toListOfJsonObjectsForDispatch();
@@ -151,6 +158,7 @@ public class TunePIIUtilsTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPIIFilterOnNull() {
         String nullString = null;
         TuneAnalyticsVariable variable = new TuneAnalyticsVariable("foobar", nullString);

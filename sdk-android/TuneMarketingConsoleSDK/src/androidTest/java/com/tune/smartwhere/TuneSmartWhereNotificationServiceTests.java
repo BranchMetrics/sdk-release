@@ -3,23 +3,31 @@ package com.tune.smartwhere;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneUnitTest;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.io.Serializable;
 import java.util.HashMap;
+
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by gordon stewart on 8/18/16.
  *
  * @author gordon@smartwhere.com
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneSmartWhereNotificationServiceTests extends TuneUnitTest {
     TuneSmartWhereNotificationService testObj;
     Context context;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         context = getContext();
@@ -27,11 +35,7 @@ public class TuneSmartWhereNotificationServiceTests extends TuneUnitTest {
         testObj = new TuneSmartWhereNotificationService();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testOnHandleIntentChecksForProximityNotification() throws Exception {
         Class targetClass = TuneSmartWhereNotificationService.class;
         Object tuneProximityEvent = new FakeTuneSmartWhereEvent();

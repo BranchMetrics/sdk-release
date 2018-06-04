@@ -25,9 +25,11 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.ACTION_TYPE_VALUE_DEEP
 
 /**
  * Created by johng on 2/27/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneInAppAction {
+    @Deprecated
     public enum Type {
         DEEPLINK,
         DEEP_ACTION,

@@ -13,7 +13,9 @@ import com.tune.ma.inapp.TuneScreenUtils;
 /**
  * FrameLayout which contains the in-app message banner WebView.
  * Resizes to device width on rotation.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneBannerLayout extends FrameLayout {
     private Activity activity;
     private int lastOrientation;

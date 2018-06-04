@@ -11,8 +11,9 @@ import android.widget.ProgressBar;
 
 /**
  * Created by johng on 4/6/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneModalLayout extends FrameLayout {
     // Use 0.65 opacity, 0.65 * 255 in hex is A6 for first two values
     private static final int BACKGROUND_LIGHT = 0xA6FFFFFF;

@@ -14,7 +14,9 @@ import java.util.Iterator;
  *   { "ANA": {"URL":"<deep link URL>"} }
  * }
  * </pre>
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TunePushPayload {
     private static final String JSON_OPEN_ACTION = "ANA";
 

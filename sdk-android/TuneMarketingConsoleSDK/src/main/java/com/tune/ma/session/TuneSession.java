@@ -3,6 +3,10 @@ package com.tune.ma.session;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TuneSession implements Serializable {
     private static final long serialVersionUID = -5056561995671282268L;
     private String sessionId;

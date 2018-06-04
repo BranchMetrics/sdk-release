@@ -16,6 +16,10 @@ import com.tune.ma.utils.TuneStringUtils;
 
 import java.util.Set;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TunePushService extends GcmListenerService {
 
     @Override

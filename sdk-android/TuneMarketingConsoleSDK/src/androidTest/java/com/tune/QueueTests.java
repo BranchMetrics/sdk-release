@@ -1,26 +1,39 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(AndroidJUnit4.class)
 public class QueueTests extends TuneUnitTest implements TuneListener {
     private ArrayList<JSONObject> successResponses;
     private MockUrlRequester mockUrlRequester;
     private String receivedDeeplink;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         mockUrlRequester = new MockUrlRequester();
         tune.setUrlRequester(mockUrlRequester);
     }
 
+    @Test
     public void testOnlineCapability() {
         tune.measureEvent("registration");
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
@@ -33,6 +46,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should be online", Tune.getInstance().isOnline( getContext() ) );
     }
 
+    @Test
     public void testOfflineFailureQueued() {
         tune.setOnline(false);
         tune.measureEvent("registration");
@@ -41,13 +55,14 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue("should have enqueued one request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1);
     }
 
+    @Test
     public void testOfflineFailureQueuedRetried() {
         tune.setOnline( false );
         tune.measureEvent("registration");
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "should have enqueued one request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1 );
-        
+
         tune.setOnline( true );
         //Intent onlineIntent = new Intent( ConnectivityManager.CONNECTIVITY_ACTION );
         //getContext().getApplicationContext().sendBroadcast( onlineIntent );
@@ -57,6 +72,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should have dequeued request", queue.getQueueSize() == 0 );
     }
 
+    @Test
     public void testEmptyEventNotEnqueued() {
         tune.setOnline( false );
 
@@ -79,6 +95,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should have enqueued zero requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
     }
 
+    @Test
     public void testEnqueue2() {
         tune.setOnline( false );
         tune.measureEvent("registration");
@@ -88,6 +105,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should have enqueued two requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 2 );
     }
 
+    @Test
     public void testEnqueue2Retried() {
         tune.setOnline(false);
         tune.measureEvent("registration");
@@ -105,6 +123,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "should have dequeued requests", queue.getQueueSize() == 0 );
     }
 
+    @Test
     public void testEnqueue2RetriedOrder() {
         successResponses = new ArrayList<JSONObject>();
         tune.setListener( this );
@@ -118,7 +137,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "should have enqueued two requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 2 );
-        
+
         tune.setOnline( true );
         //Intent onlineIntent = new Intent( ConnectivityManager.CONNECTIVITY_ACTION );
         //getContext().getApplicationContext().sendBroadcast( onlineIntent );
@@ -126,10 +145,11 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         tune.dumpQueue();
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         assertTrue( "should have dequeued all requests, found " + queue.getQueueSize() + " remaining", queue.getQueueSize() == 0 );
-        
+
         assertTrue( "should have two success responses, found " + successResponses.size(), successResponses.size() == 2 );
     }
 
+    @Test
     public void testEnqueueCountClear() {
         // Run the test that enqueues two requests (and makes sure they are there)
         testEnqueue2();
@@ -138,11 +158,13 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         queue.clearQueue();
         assertTrue("should have enqueued two requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
     }
-    
+
+    @Test
     public void test400FailureDropped() {
         // This first test goes from offline -> online, triggering a dump. Sleep to let that complete
+        tune.setOnline(true);
         sleep( 1000 );
-        
+
         // hit our failure endpoint, assert that the queue is empty
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
@@ -156,9 +178,11 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         assertTrue( "queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
     }
-    
+
+    @Test
     public void test500FailureRequeued() {
         // hit our failure endpoint, assert that the request gets requeued
+        tune.setOnline(true);
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
 
@@ -172,7 +196,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         tune.dumpQueue();
         sleep( TuneTestConstants.SERVERTEST_SLEEP );
         assertTrue( "queue should still have one item, but found " + queue.getQueueSize(), queue.getQueueSize() == 1 );
-        
+
         try {
             JSONObject item = queue.getQueueItem( 1 );
             String link = item.getString("link");
@@ -185,6 +209,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         }
     }
 
+    @Test
     public void testInvokeIdLookupBypassesQueue() {
         final Object waitObject = new Object();
 
@@ -228,7 +253,8 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue("queue should be empty, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
         assertEquals("testing://allthethings?success=yes", receivedDeeplink);
     }
-    
+
+    @Test
     public void testFailureRequeuedOrderMaintained() {
         // TODO: add request to our failure endpoint, add a second request, assert that the failed request is still first in the queue and blocks the second request
     }

@@ -28,7 +28,9 @@ import com.tune.ma.utils.TuneStringUtils;
 
 /**
  * Created by johng on 1/20/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneManager {
     private TuneAnalyticsManager analyticsManager;
     private TuneUserProfile profileManager;

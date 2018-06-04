@@ -25,14 +25,17 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.WIDTH_KEY;
 
 /**
  * Created by johng on 4/5/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneModal extends TuneInAppMessage {
+    @Deprecated
     public enum EdgeStyle {
         SQUARE,
         ROUND
     }
 
+    @Deprecated
     public enum Background {
         LIGHT,
         DARK,

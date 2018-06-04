@@ -1,22 +1,33 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.mocks.MockUrlRequester;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by audrey on 10/26/16.
  */
 
+@RunWith(AndroidJUnit4.class)
 public class TuneDeeplinkerTests  extends TuneUnitTest {
 
     private MockUrlRequester mockUrlRequester;
     private final List<String> receivedDeeplink = new ArrayList<>();
     private final List<String> failedDeeplink = new ArrayList<>();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         resetReceivedDeeplinkChecks();
@@ -45,6 +56,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         failedDeeplink.clear();
     }
 
+    @Test
     public void testIsTuneLinkForTlnkio() throws Exception {
         assertTrue(tune.isTuneLink("http://tlnk.io"));
         assertTrue(tune.isTuneLink("http://12345.tlnk.io"));
@@ -62,6 +74,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertFalse(tune.isTuneLink("myapp://isthebest/yes/it/is"));
     }
 
+    @Test
     public void testIsTuneLinkForBadValues() {
         assertFalse(tune.isTuneLink("faketlnk.io"));
         assertFalse(tune.isTuneLink("      nope      "));
@@ -72,6 +85,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertFalse(tune.isTuneLink("      myapp://isthebest/yes/it/is"));
     }
 
+    @Test
     public void testIsTuneLink() throws Exception {
         tune.registerCustomTuneLinkDomain("foobar.com");
         assertTrue(tune.isTuneLink("http://foobar.com"));
@@ -100,6 +114,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertFalse(tune.isTuneLink("http://randomize.it/path/to/something?withargs=shorething&other=things"));
     }
 
+    @Test
     public void testRegisterManyTuneLinkDomains() {
         tune.registerCustomTuneLinkDomain("blah.org");
         tune.registerCustomTuneLinkDomain("taptap.it");
@@ -133,12 +148,14 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertFalse(tune.isTuneLink("http://randomize.it/path/to/something?withargs=shorething&other=things"));
     }
 
+    @Test
     public void testIsInvokeUrlInReferralUrl() {
         String expectedInvokeUrl = "testapp://path/to/a/thing?with=yes&params=ok";
         String invokeUrl = tune.invokeUrlFromReferralUrl("https://12sfci8ss.tlnk.io/something?withparams=yes&invoke_url=testapp%3A%2F%2Fpath%2Fto%2Fa%2Fthing%3Fwith%3Dyes%26params%3Dok&seomthingelse=2").get();
         assertEquals(expectedInvokeUrl, invokeUrl);
     }
 
+    @Test
     public void testIsInvokeUrlInReferralUrlWhenNotPresent() {
         assertFalse(tune.invokeUrlFromReferralUrl("https://12sfci8ss.tlnk.io/something?withparams=yes&seomthingelse=2").isPresent());
         assertFalse(tune.invokeUrlFromReferralUrl(null).isPresent());
@@ -146,6 +163,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertFalse(tune.invokeUrlFromReferralUrl("somestringnoturl").isPresent());
     }
 
+    @Test
     public void testSetReferralUrlShortcutsIfInvokeUrlPresent() throws Exception {
         String expectedInvokeUrl = "testapp://path/to/a/thing?with=yes&params=ok";
         mockUrlRequester.includeInFakeResponse(TuneConstants.KEY_INVOKE_URL, "some other response");
@@ -159,6 +177,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
         assertEquals(0, failedDeeplink.size());
     }
 
+    @Test
     public void testSetReferralUrlDoesNotShortcutsIfNoInvokeUrlParameter() throws Exception {
         String expectedInvokeUrl = "testapp://path/to/a/thing?with=yes&params=ok";
         mockUrlRequester.includeInFakeResponse(TuneConstants.KEY_INVOKE_URL, expectedInvokeUrl);

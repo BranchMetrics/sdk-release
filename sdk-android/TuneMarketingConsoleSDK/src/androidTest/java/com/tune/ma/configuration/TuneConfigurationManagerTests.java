@@ -1,5 +1,7 @@
 package com.tune.ma.configuration;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneConstants;
 import com.tune.TuneTestConstants;
 import com.tune.TuneUnitTest;
@@ -11,28 +13,41 @@ import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by kristine on 1/27/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneConfigurationManagerTests extends TuneUnitTest {
 
     TuneConfigurationManager config;
     FileManager fileManager;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         config = TuneManager.getInstance().getConfigurationManager();
         fileManager = TuneManager.getInstance().getFileManager();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         super.tearDown();
         TuneEventBus.unregister(this);
     }
 
+    @Test
     public void testDefaultConfigurationSet() {
         assertEquals(config.getAnalyticsDispatchPeriod(), TuneTestConstants.ANALYTICS_DISPATCH_PERIOD);
         assertFalse(config.echoAnalytics());
@@ -48,6 +63,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertEquals("https://s3.amazonaws.com/uploaded-assets-qa2", config.getStaticContentHostPort());
     }
 
+    @Test
     public void testIgnoresValuesForUnknownKeys() {
         JSONObject fakeRemoteJson = new JSONObject();
         try {
@@ -65,6 +81,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertTrue(config.echoConfigurations());
     }
 
+    @Test
     public void testRemoteConfigUpdateDoesntAffectValuesThatShouldOnlyBeSetLocally() {
         JSONObject fakeRemoteJson = new JSONObject();
         try {
@@ -97,6 +114,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertTrue(config.useConfigurationPlayer());
     }
 
+    @Test
     public void testSetupConfigurationWithSavedJson() {
         TuneConfiguration testConfig = new TuneConfiguration();
         testConfig.setShouldAutoCollectDeviceLocation(true);
@@ -122,6 +140,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         fileManager.deleteConfiguration();
     }
 
+    @Test
     public void testTMANotPermanentlyDisabledMeansTMAIsOn() {
         assertFalse(config.isTMAPermanentlyDisabled());
         assertFalse(config.isTMADisabled());
@@ -138,6 +157,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertFalse(config.isTMADisabled());
     }
 
+    @Test
     public void testTMAPermanentlyDisabledMeansTMAIsOff() {
         assertFalse(config.isTMAPermanentlyDisabled());
         assertFalse(config.isTMADisabled());
@@ -155,6 +175,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
 
     }
 
+    @Test
     public void testTMAPermanentlyDisabledIsPermanent() {
         assertFalse(config.isTMAPermanentlyDisabled());
         assertFalse(config.isTMADisabled());
@@ -181,6 +202,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertTrue(config.isTMADisabled());
     }
 
+    @Test
     public void testTMADisabledMeansTMAisDisabled() {
         assertFalse(config.isTMAPermanentlyDisabled());
         assertFalse(config.isTMADisabled());
@@ -207,6 +229,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
         assertFalse(config.isTMADisabled());
     }
 
+    @Test
     public void testConfigurationPlayerUpdatesValuesSequentially() {
         assertTrue(config.useConfigurationPlayer());
         assertEquals(2, config.getConfigurationPlayerFilenames().size());
@@ -235,6 +258,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
     // Tests that app ID is never "null|null|android"
     // This case happens when TMA is disabled in the config when the app was opened,
     // then the EventBus gets disabled and cannot get updated with newer advertiser id and package name values
+    @Test
     public void testForNullNullAndroidAppId() {
         // Let Tune pubQueue finish executing setPackageName
         sleep(50);
@@ -265,6 +289,7 @@ public class TuneConfigurationManagerTests extends TuneUnitTest {
     }
 
     // Tests that app ID is updated correctly if user calls setPackageName with a different value
+    @Test
     public void testAppIdUpdatedAfterSetPackageName() {
         // Let Tune pubQueue finish executing setPackageName
         sleep(50);

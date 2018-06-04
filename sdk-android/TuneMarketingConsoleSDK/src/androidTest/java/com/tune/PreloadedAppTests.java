@@ -1,23 +1,34 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by johng on 6/3/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class PreloadedAppTests extends TuneUnitTest {
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         tune.setOnline(false);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         tune.setOnline(true);
 
         super.tearDown();
     }
 
+    @Test
     public void testPreloadedAppAttribution() {
         String expectedPublisherId              = "test_publisher_id";
         String expectedOfferId                  = "test_offer_id";

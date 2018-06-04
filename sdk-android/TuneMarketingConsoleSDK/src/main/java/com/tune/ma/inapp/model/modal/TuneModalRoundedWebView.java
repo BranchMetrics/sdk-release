@@ -20,7 +20,9 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.DEFAULT_CORNER_RADIUS;
 /**
  * Class for displaying WebView with rounded corners
  * Reference: http://stackoverflow.com/questions/34299652/android-custom-webview-with-rounded-corners
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneModalRoundedWebView extends TuneModalWebView {
     private int width;
     private int height;

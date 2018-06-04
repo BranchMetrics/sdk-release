@@ -17,8 +17,9 @@ import org.json.JSONObject;
  * Use this class to provide Tune with notification settings to use when building a notification for an Tune Push Message.
  *
  * Behind the scenes we depend on NotificationCompat, which will handle backwards compatibility for older versions of the Android OS.
- *
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneNotificationBuilder {
     private int smallIconId;
     private int largeIconId;

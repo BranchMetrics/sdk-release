@@ -1,5 +1,7 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneEventItem;
 import com.tune.ma.analytics.model.TuneAnalyticsEventItem;
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
@@ -7,14 +9,21 @@ import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by johng on 1/11/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsEventItemTests extends TuneAnalyticsTest {
     /**
      * Test that TuneAnalyticsEventItem gets converted from TuneEventItem correctly
      */
+    @Test
     public void testConvertingToTuneAnalyticsEventItem() {
         TuneEventItem itemToConvert = new TuneEventItem("item1");
         itemToConvert.quantity = 2;
@@ -38,6 +47,7 @@ public class AnalyticsEventItemTests extends TuneAnalyticsTest {
     /**
      * Test that TuneAnalyticsEventItem toJsonWithHashType produces the expected JSON
      */
+    @Test
     public void testConvertingToTuneAnalyticsEventItemJson() {
         TuneEventItem itemToConvert = new TuneEventItem("item1");
         itemToConvert.quantity = 2;

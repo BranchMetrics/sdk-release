@@ -1,18 +1,28 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneEvent;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
 import com.tune.mocks.MockFileManager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by johng on 1/11/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsStorageTests extends TuneAnalyticsTest {
     MockFileManager mockFileManager;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 
@@ -24,6 +34,7 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
      * Test that measureSession causes a write to disk
      * @throws InterruptedException
      */
+    @Test
     public void testMeasureSessionStored() throws InterruptedException {
         // Don't dispatch while we're trying to read file
         TuneManager.getInstance().getAnalyticsManager().stopScheduledDispatch();
@@ -52,6 +63,7 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
      * Test that measureEvent causes a write to disk
      * @throws InterruptedException
      */
+    @Test
     public void testMeasureEventStored() throws InterruptedException {
         // Don't dispatch while we're trying to read file
         TuneManager.getInstance().getAnalyticsManager().stopScheduledDispatch();
@@ -75,6 +87,7 @@ public class AnalyticsStorageTests extends TuneAnalyticsTest {
         assertEquals(2, analyticsCount);
     }
 
+    @Test
     public void testAnalyticsStoredAfterCustomEventQueueTurnedOff() throws InterruptedException {
         // Don't dispatch while we're trying to read file
         TuneManager.getInstance().getAnalyticsManager().stopScheduledDispatch();

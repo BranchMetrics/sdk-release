@@ -1,5 +1,7 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneEvent;
 import com.tune.TuneUrlKeys;
 import com.tune.ma.TuneManager;
@@ -12,18 +14,26 @@ import com.tune.ma.push.model.TunePushMessage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Created by johng on 1/13/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsEventTests extends TuneAnalyticsTest {
     /**
      * Test that TuneAnalyticsEventBase gets converted from TuneEvent correctly
      */
+    @Test
     public void testConvertingToTuneAnalyticsEvent() {
         TuneEvent eventToConvert = new TuneEvent("item1");
         eventToConvert.withRevenue(1.99);
@@ -47,7 +57,7 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
                     key.equals(TuneUrlKeys.ATTRIBUTE4) ||
                     key.equals(TuneUrlKeys.ATTRIBUTE5));
             if (key.equals(TuneUrlKeys.REVENUE)) {
-                assertEquals(1.99, Double.parseDouble(var.getValue()));
+                assertEquals(1.99, Double.parseDouble(var.getValue()), 0);
             } else if (key.equals(TuneUrlKeys.ATTRIBUTE1)) {
                 assertEquals("attr1", var.getValue());
             } else if (key.equals(TuneUrlKeys.ATTRIBUTE2)) {
@@ -65,6 +75,7 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
     /**
      * Test that TuneEvent saves tags correctly when converted to TuneAnalyticsEventBase
      */
+    @Test
     public void testTags() {
         TuneEvent eventToConvert = new TuneEvent("item1");
         eventToConvert.withTagAsString("tagString", "foobar");
@@ -78,6 +89,7 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         assertTrue(event.getTags().containsAll(eventToConvert.getTags()));
     }
 
+    @Test
     public void testTagsWhenIAMNotEnabled() {
         // Enabled
         TuneEvent event = new TuneEvent("item1");
@@ -112,6 +124,7 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
         assertTrue("withTagAsString should have thrown an exception", false);
     }
 
+    @Test
     public void testFiveline() throws JSONException {
         // Test custom event fiveline
         TuneEvent tuneEvent = new TuneEvent("fivelinetest");
@@ -148,6 +161,7 @@ public class AnalyticsEventTests extends TuneAnalyticsTest {
     /**
      * Test that timestamp is not formatted in scientific notation when converted to String
      */
+    @Test
     public void testTimestampFormattedCorrectly() throws JSONException {
         TuneEvent eventToConvert = new TuneEvent("item1");
         TuneCustomEvent event = new TuneCustomEvent(eventToConvert);

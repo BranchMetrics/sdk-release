@@ -25,7 +25,9 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by kristine on 1/20/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneConfigurationManager {
     private static final String CONNECTED_MODE_ON = "1";
 

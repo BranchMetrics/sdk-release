@@ -34,7 +34,9 @@ import java.util.TimeZone;
 
 /**
  * Created by charlesgilliam on 1/14/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneUserProfile {
     public static final String PREFS_TMA_PROFILE = "com.tune.ma.profile";
     public static final String PREFS_CUSTOM_VARIABLES_KEY = "custom_variables";

@@ -14,7 +14,9 @@ import java.util.Date;
 
 /**
  * An object containing useful information about a Power Hook experiment.
- **/
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TunePowerHookExperimentDetails extends TuneExperimentDetails {
 
     private Date experimentStartDate;

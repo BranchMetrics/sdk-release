@@ -1,6 +1,7 @@
 package com.tune.ma.push;
 
 import android.content.Context;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneUnitTest;
 import com.tune.TuneUrlKeys;
@@ -14,28 +15,39 @@ import com.tune.ma.profile.TuneUserProfile;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import static android.support.test.InstrumentationRegistry.getContext;
 import static com.tune.ma.push.TunePushManager.PREFS_TMA_PUSH;
 import static com.tune.ma.push.TunePushManager.PROPERTY_DEVELOPER_PUSH_ENABLED;
 import static com.tune.ma.push.TunePushManager.PROPERTY_END_USER_PUSH_ENABLED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by charlesgilliam on 2/11/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePushEnabledTests extends TuneUnitTest {
     private TuneUserProfile userProfile;
     private TunePushManager pushManager;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         userProfile = TuneManager.getInstance().getProfileManager();
         pushManager = new TunePushManagerTesterBase(getContext());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         userProfile.deleteSharedPrefs();
         pushManager.sharedPrefs.clearSharedPreferences();
         super.tearDown();
@@ -60,6 +72,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPushShouldBeDisabledIfPreferredEvenIfServicesAreInstalled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -77,6 +90,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertTrue(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testPushShouldBeEnabled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -94,6 +108,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertTrue(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testPushShouldBeEnabledIfNoPreferenceSetAndPlayServicesIsAvailable() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -111,6 +126,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertFalse(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testPushEnabledWhenUserSetsItAsEnabled() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -148,6 +164,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertEquals(TuneAnalyticsVariable.IOS_BOOLEAN_FALSE, userProfile.getProfileVariableValue(TuneProfileKeys.IS_PUSH_ENABLED));
     }
 
+    @Test
     public void testPushEnabledWhenDeveloperOpsOut() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -188,6 +205,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertFalse(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testSettingEnabledBeforeSenderIdIsOkay() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -217,6 +235,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertFalse(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testStoredRegistrationIdIsValidForSameAppVersions() throws Exception {
         pushManager.setPushNotificationSenderId("FAKEID");
         pushManager.storePushPrefs("FAKEID"); // pretend we have previously stored a device token
@@ -225,6 +244,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertEquals("FAKEID", userProfile.getProfileVariableValue(TuneProfileKeys.DEVICE_TOKEN));
     }
 
+    @Test
     public void testStoredRegistrationIdIsNotValidForOldAppVersions() throws Exception {
         pushManager.storePushPrefs("FAKEID"); // pretend we have previously stored a device token
 
@@ -233,6 +253,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertNull(userProfile.getProfileVariableValue(TuneProfileKeys.DEVICE_TOKEN));
     }
 
+    @Test
     public void testStoredRegistrationIdIsNotValidForOldGCMSenderIds() throws Exception {
         pushManager.storePushPrefs("FAKEID"); // pretend we have previously stored a device token
 
@@ -242,6 +263,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertNull(userProfile.getProfileVariableValue(TuneProfileKeys.DEVICE_TOKEN));
     }
 
+    @Test
     public void testSetOptOutOfPushOnProfileManagerSetsPreference() throws Exception {
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -261,6 +283,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertTrue(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testTooYoungOverridesAllOther() throws Exception {
         pushManager.sharedPrefs.clearSharedPreferences();
         pushManager = new TunePushManagerTesterBase(getContext());
@@ -309,6 +332,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertTrue(enabledReceiver.isUpdated());
     }
 
+    @Test
     public void testSetRegistrationId() throws Exception {
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);
@@ -322,6 +346,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
     }
 
     // Test that push enabled starts out as "NO" until we get a device token asynchronously
+    @Test
     public void testSetSenderIdPushEnabledFalseBeforeDeviceTokenIsRetrieved() {
         pushManager.setPushNotificationSenderId("sender_id");
 
@@ -338,6 +363,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
     }
 
     // Test that push enabled is "YES" after we load an existing device token
+    @Test
     public void testSetSenderIdSetsPushEnabledAfterRetrievingExistingDeviceToken() {
         // Put some dummy values in SharedPreferences to represent an existing token
         TuneSharedPrefsDelegate sharedPrefs = new TuneSharedPrefsDelegate(getContext(), PREFS_TMA_PUSH);
@@ -354,7 +380,8 @@ public class TunePushEnabledTests extends TuneUnitTest {
     }
 
     // Test that setDeviceToken sets push enabled to "YES" by default
-    public void testSetDeviceTokenWithDefaultSettings() throws Exception {
+    @Test
+    public void testSetDeviceTokenWithDefaultSettings() {
         pushManager.setDeviceToken("token");
 
         assertEquals(TuneAnalyticsVariable.IOS_BOOLEAN_TRUE, userProfile.getProfileVariableValue(TuneProfileKeys.IS_PUSH_ENABLED));
@@ -363,6 +390,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
     }
 
     // Test that setDeviceToken sets push enabled to "NO" when user has opted out of push
+    @Test
     public void testSetDeviceTokenWithPushOptedOut() throws Exception {
         pushManager.updatePushEnabled(PROPERTY_END_USER_PUSH_ENABLED, false);
         pushManager.updatePushEnabled(PROPERTY_DEVELOPER_PUSH_ENABLED, false);
@@ -375,6 +403,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
     }
 
     // Test that setDeviceToken sets push enabled to "YES" if user has opted in
+    @Test
     public void testSetDeviceTokenWithPushOptedIn() throws Exception {
         pushManager.updatePushEnabled(PROPERTY_END_USER_PUSH_ENABLED, true);
         pushManager.updatePushEnabled(PROPERTY_DEVELOPER_PUSH_ENABLED, true);
@@ -386,6 +415,7 @@ public class TunePushEnabledTests extends TuneUnitTest {
         assertEquals("token", pushManager.getDeviceToken());
     }
 
+    @Test
     public void testPushEnabledOnlyGetsInitializedToFalseOnce() throws Exception {
         PushEnabledReceiver enabledReceiver = new PushEnabledReceiver();
         TuneEventBus.register(enabledReceiver);

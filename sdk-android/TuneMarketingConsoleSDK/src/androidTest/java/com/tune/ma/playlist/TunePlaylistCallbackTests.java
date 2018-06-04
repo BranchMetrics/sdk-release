@@ -1,8 +1,9 @@
 package com.tune.ma.playlist;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
-import com.tune.ma.application.TuneActivity;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 import com.tune.ma.eventbus.event.TuneAppForegrounded;
@@ -15,13 +16,21 @@ import com.tune.testutils.SimpleCallback;
 import com.tune.testutils.TuneTestUtils;
 
 import org.json.JSONObject;
-import org.mockito.Mock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.UUID;
+
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 4/18/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePlaylistCallbackTests extends TuneUnitTest {
     TunePlaylistManager playlistManager;
     TunePowerHookManager powerhookManager;
@@ -29,8 +38,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     MockFileManager mockFileManager;
     JSONObject playlistJson;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         //unregister experiment manager because simple_playlist.json is not a completely valid playlist
@@ -48,8 +57,8 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "simple_playlist.json");
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         playlistManager.onEvent(new TuneAppBackgrounded());
 
         sleep(500);
@@ -58,6 +67,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that callback is executed after 3s with no playlist download
+    @Test
     public void testCallbackExecutedAfterTimeout() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -73,6 +83,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that callback is canceled on app background
+    @Test
     public void testCallbackCanceledAfterBackground() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -91,6 +102,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that callback is canceled on app background and resumed on app foreground
+    @Test
     public void testCallbackCanceledAndResumedAfterBackgroundForeground() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -112,6 +124,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
 
     // Test that callback is executed when app is killed
     // and callback is registered at Activity level
+    @Test
     public void testCallbackExecutedAgainAfterTimeoutAfterBackgroundForeground() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -146,6 +159,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
 
     // Test that callback is executed when app is killed
     // and callback is registered at Application level
+    @Test
     public void testCallbackExecutedAgainAfterTimeoutAfterBackgroundForegroundWithNoRegister() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -181,6 +195,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that registering a second callback overrides first callback
+    @Test
     public void testSecondCallbackExecutedAfterTimeoutWhenRegisteredTwice() {
         final SimpleCallback callback = new SimpleCallback();
         playlistManager.onFirstPlaylistDownloaded(callback, 3000);
@@ -208,6 +223,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     // Actually tests for the case of backgrounding and foregrounding the app before 1s has passed,
     // thus not triggering an actual background + foreground event to be seen as a separate session,
     // but does trigger a second register call in this same "session"
+    @Test
     public void testBothCallbacksExecutedWhenRegisteredTwice() {
         // Simulate a playlist download
         TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
@@ -240,6 +256,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that registering a callback after a playlist has been downloaded executes it immediately
+    @Test
     public void testCallbackExecutedWhenRegisteredAfterPlaylistDownload() {
         // Simulate a playlist download
         TunePlaylist notFromDiskPlaylist = new TunePlaylist(playlistJson);
@@ -260,6 +277,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that downloading a playlist after a callback has been registered executes it immediately
+    @Test
     public void testCallbackExecutedWhenRegisteredBeforePlaylistDownload() {
         // Register the callback before the download
         final SimpleCallback callback = new SimpleCallback();
@@ -280,6 +298,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that playlist callback executes after the playlist is actually updated, for example powerhook values updated
+    @Test
     public void testOnPlaylistFirstDownloadIsCalledAfterPowerHookUpdate() {
         // Register a power hook so that it can be changed when the playlist downloads
         tune.registerPowerHook("itemsToDisplay", "items to display", "0");
@@ -304,6 +323,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
         });
     }
 
+    @Test
     public void testPlaylistCallbackIsCalledWhenPlaylistIsNotUpdated() {
         // Register the callback before the download
         final SimpleCallback callback = new SimpleCallback();
@@ -341,6 +361,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Tests backgrounding the app and downloading playlist before 1s has passed, and make sure callback is not executed
+    @Test
     public void testCallbackNotCalledWhenAppIsInBackgroundLessThan1Second() {
         // Register the callback before the download
         final SimpleCallback callback = new SimpleCallback();
@@ -364,6 +385,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test backgrounding the app and downloading playlist, that callback is not executed
+    @Test
     public void testCallbackNotCalledWhenAppIsInBackground() {
         // Register the callback before the download
         final SimpleCallback callback = new SimpleCallback();
@@ -387,6 +409,7 @@ public class TunePlaylistCallbackTests extends TuneUnitTest {
     }
 
     // Test that canceled callback gets executed when app is foregrounded again
+    @Test
     public void testCallbackNotCalledWhenAppIsInBackgroundAndCalledWhenResumed() {
         // Register the callback before the download
         final SimpleCallback callback = new SimpleCallback();

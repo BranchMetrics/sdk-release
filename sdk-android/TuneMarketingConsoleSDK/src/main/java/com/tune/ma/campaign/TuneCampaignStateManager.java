@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by charlesgilliam on 2/9/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneCampaignStateManager {
     private static final String TUNE_CAMPAIGN_PREFS = "com.tune.ma.campaign";
     

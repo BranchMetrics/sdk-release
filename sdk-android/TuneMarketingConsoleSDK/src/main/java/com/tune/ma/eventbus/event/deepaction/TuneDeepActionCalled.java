@@ -6,7 +6,9 @@ import java.util.Map;
 
 /**
  * Created by charlesgilliam on 2/5/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneDeepActionCalled {
     String deepActionId;
     Map<String, String> deepActionParams;

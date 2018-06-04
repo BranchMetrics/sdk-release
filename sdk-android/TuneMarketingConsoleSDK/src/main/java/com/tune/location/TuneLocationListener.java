@@ -13,6 +13,9 @@ import android.os.Looper;
 import com.tune.TuneDebugLog;
 import com.tune.TuneUtils;
 
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -31,17 +34,22 @@ public class TuneLocationListener implements LocationListener {
     // We're looking for accuracy of within 1000m
     private static final int DESIRED_ACCURACY = 1000;
 
-    private volatile Context context;
+    private volatile WeakReference<Context> contextReference;
     private volatile LocationManager locationManager;
     private volatile Location lastLocation;
     private volatile Timer timer;
     private volatile boolean listening;
 
+    // Used for Unit Tests -- when mock location providers are not installed
+    private volatile Map<String, Boolean> providerAvailableMap;
+
     public TuneLocationListener(final Context context) {
-        this.context = context;
+        this.contextReference = new WeakReference<>(context);
 
         // Acquire a reference to the system Location Manager
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        providerAvailableMap = new HashMap<>();
     }
 
     /**
@@ -49,6 +57,11 @@ public class TuneLocationListener implements LocationListener {
      * @return app has location permissions or not
      */
     public synchronized boolean isLocationEnabled() {
+        Context context = contextReference.get();
+        if (context == null) {
+            return false;
+        }
+
         return TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
                 TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
@@ -57,14 +70,21 @@ public class TuneLocationListener implements LocationListener {
         boolean gpsEnabled = false;
         boolean networkEnabled = false;
 
+        // Check for an <i>explicitly</i> disabled provider before checking with the LocationManager
         try {
-            gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if (!Boolean.FALSE == providerAvailableMap.get(LocationManager.GPS_PROVIDER)) {
+                gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            }
         } catch (Exception e) {
         }
         try {
-            networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if (!Boolean.FALSE == providerAvailableMap.get(LocationManager.NETWORK_PROVIDER)) {
+                networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            }
         } catch (Exception e) {
         }
+
+        TuneDebugLog.d("isProviderEnabled(" + (gpsEnabled || networkEnabled) + ")");
         return gpsEnabled || networkEnabled;
     }
 
@@ -218,7 +238,13 @@ public class TuneLocationListener implements LocationListener {
             try {
                 // Request updates from GPS and network
                 // GPS requires ACCESS_FINE_LOCATION
-                boolean hasFineLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+                boolean hasFineLocationPermission = false;
+
+                Context context = contextReference.get();
+                if (context != null) {
+                    hasFineLocationPermission = TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+                }
+
                 if (hasFineLocationPermission) {
                     if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         // Initialize to last known GPS location, in case we never get updates on location
@@ -287,13 +313,18 @@ public class TuneLocationListener implements LocationListener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
+        TuneDebugLog.d("onStatusChanged: " + provider + ". Status = " + status);
     }
 
     @Override
     public void onProviderEnabled(String provider) {
+        TuneDebugLog.d("onProviderEnabled: " + provider);
+        providerAvailableMap.put(provider, Boolean.TRUE);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
+        TuneDebugLog.d("onProviderDisabled: " + provider);
+        providerAvailableMap.put(provider, Boolean.FALSE);
     }
 }

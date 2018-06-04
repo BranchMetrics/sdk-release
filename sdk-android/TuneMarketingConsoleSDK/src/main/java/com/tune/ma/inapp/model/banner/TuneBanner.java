@@ -40,8 +40,9 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.MESSAGE_LOCATION_KEY;
 
 /**
  * Created by johng on 3/6/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneBanner extends TuneInAppMessage {
     public enum Location {
         TOP,
@@ -59,7 +60,9 @@ public class TuneBanner extends TuneInAppMessage {
     /**
      * Runnable to dismiss the banner after duration has passed
      * Gets cancelled if the banner is clicked or reloaded
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public class DismissRunnable implements Runnable {
         @Override
         public void run() {

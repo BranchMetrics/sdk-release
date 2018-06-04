@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TunePushOpenAction {
     private static final String JSON_AUTO_CANCEL = "D";
     private static final String JSON_CAMPAIGN_STEP_ID = "CS";

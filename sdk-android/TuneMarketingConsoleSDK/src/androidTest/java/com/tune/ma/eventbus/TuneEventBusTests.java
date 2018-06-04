@@ -1,6 +1,6 @@
 package com.tune.ma.eventbus;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneEvent;
 import com.tune.ma.eventbus.event.TuneEventOccurred;
@@ -8,25 +8,32 @@ import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
 import com.tune.ma.eventbus.event.TuneManagerInitialized;
 import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by johng on 2/18/16.
  */
-public class TuneEventBusTests extends AndroidTestCase {
-    @Override
+@RunWith(AndroidJUnit4.class)
+public class TuneEventBusTests {
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
         TuneEventBus.clearFlags();
         TuneEventBus.enable();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         TuneEventBus.disable();
-        super.tearDown();
     }
 
+    @Test
     public void testEventsQueuedBeforeManagerInitialized() {
         // Post an event before manager is initialized
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
@@ -41,6 +48,7 @@ public class TuneEventBusTests extends AndroidTestCase {
         assertEquals(1, TuneEventBus.getQueue().size());
     }
 
+    @Test
     public void testEventsQueuedBeforeGetGAIDCompleted() {
         // Post an event before GetGAID is completed
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));
@@ -64,6 +72,7 @@ public class TuneEventBusTests extends AndroidTestCase {
         assertEquals(3, TuneEventBus.getQueue().size());
     }
 
+    @Test
     public void testQueuedEventsSentAfterBothFlagsReceived() {
         // Post an event before GetGAID is completed
         TuneEventBus.post(new TuneEventOccurred(new TuneEvent("testEvent")));

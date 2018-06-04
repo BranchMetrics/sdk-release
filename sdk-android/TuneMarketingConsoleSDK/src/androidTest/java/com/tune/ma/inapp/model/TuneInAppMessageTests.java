@@ -1,6 +1,7 @@
 package com.tune.ma.inapp.model;
 
 import android.app.Activity;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneUnitTest;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -15,6 +16,9 @@ import com.tune.ma.utils.TuneJsonUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static android.support.test.InstrumentationRegistry.getContext;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.LIFETIME_MAXIMUM_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.LIMIT_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_KEY;
@@ -31,21 +36,26 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_DAYS;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_EVENTS;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_INSTALL;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_SESSION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 2/28/17.
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneInAppMessageTests extends TuneUnitTest {
     private TunePlaylist playlist;
     private TuneInAppMessage message;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         JSONObject playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_2.0_single_fullscreen_message.json");
         playlist = new TunePlaylist(playlistJson);
     }
 
+    @Test
     public void testConstructor() {
         JSONObject inAppMessagesJson = playlist.getInAppMessages();
 
@@ -128,6 +138,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     /* Tests for shouldDisplay */
 
     // Test default frequency case (no limits)
+    @Test
     public void testShouldDisplayDefaultFrequency() throws JSONException {
         // Build a dummy message with the frequency limit we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -146,6 +157,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // For limit "Only Once", test being under and over the limit
+    @Test
     public void testShouldDisplayWithOnlyOnceLimit() throws JSONException {
         // Build a dummy message with the frequency limit we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -168,6 +180,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // For limit "X per Session", test being under and over the limit
+    @Test
     public void testShouldDisplayWithPerSessionLimit() throws JSONException {
         // Build a dummy message with the frequency limit we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -191,6 +204,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // For limit "once every X days", test being under and over the limit
+    @Test
     public void testShouldDisplayWithOncePerXDaysLimit() throws JSONException {
         // Build a dummy message with the frequency limit we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -219,6 +233,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // For limit "every X times an event occurs", test being under and over the limit
+    @Test
     public void testShouldDisplayWithPerXEventsLimit() throws JSONException {
         // Build a dummy message with the frequency limit we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -242,6 +257,7 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // Test that when there are multiple frequencies, they get OR'd so message displays if at least one passes
+    @Test
     public void testShouldDisplayIfOneFrequencyPasses() throws JSONException {
         // Build a dummy message with the frequency limits we want to test
         JSONObject frequencyJson = new JSONObject();
@@ -268,7 +284,8 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // Test that we process actions that are just urls as unspecified actions
-    public void testUnspecifiedActionWithUrlGetsSent() throws JSONException {
+    @Test
+    public void testUnspecifiedActionWithUrlGetsSent() {
         TuneEventBusListener eventBusListener = new TuneEventBusListener();
         TuneEventBus.register(eventBusListener);
 
@@ -316,7 +333,8 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // Test that we process action names that aren't in the actions map as unspecified actions
-    public void testUnspecifiedActionWithNameGetsSent() throws JSONException {
+    @Test
+    public void testUnspecifiedActionWithNameGetsSent() {
         TuneEventBusListener eventBusListener = new TuneEventBusListener();
         TuneEventBus.register(eventBusListener);
 
@@ -365,7 +383,8 @@ public class TuneInAppMessageTests extends TuneUnitTest {
     }
 
     // Test that we process action names that are in the actions map as Tune actions
-    public void testTuneActionWithNameGetsSent() throws JSONException {
+    @Test
+    public void testTuneActionWithNameGetsSent() {
         TuneEventBusListener eventBusListener = new TuneEventBusListener();
         TuneEventBus.register(eventBusListener);
 

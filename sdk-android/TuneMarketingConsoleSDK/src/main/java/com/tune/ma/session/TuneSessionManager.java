@@ -18,7 +18,9 @@ import java.util.UUID;
 
 /**
  * Created by kristine on 1/4/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneSessionManager {
     // Max time to allow between Activities to transition before we consider it a new session
     public static final int SESSION_TIMEOUT = 1000;

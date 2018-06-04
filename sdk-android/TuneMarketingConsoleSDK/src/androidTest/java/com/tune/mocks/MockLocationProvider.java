@@ -4,24 +4,38 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.util.Log;
 
 /**
  * Created by johng on 2/11/16.
  */
 public class MockLocationProvider {
+    private static final String TAG = "Tune::MockLocationProvider";
     String providerName;
-    Context ctx;
     LocationManager lm;
+    private boolean mMockAvailable;
 
     public MockLocationProvider(String name, Context ctx) {
         this.providerName = name;
-        this.ctx = ctx;
 
-        lm = (LocationManager) ctx.getSystemService(
-                Context.LOCATION_SERVICE);
-        lm.addTestProvider(providerName, false, false, false, false, false,
-                true, true, 0, 5);
-        lm.setTestProviderEnabled(providerName, true);
+        lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            lm.addTestProvider(providerName, false, false, false, false, false,
+                    true, true, 0, 5);
+            mMockAvailable = true;
+        } catch (SecurityException e) {
+            Log.d(TAG, "MOCK Location Not Available");
+        }
+
+        try {
+            lm.setTestProviderEnabled(providerName, isMockLocationAvailable());
+        } catch (SecurityException e) {
+        }
+    }
+
+    public boolean isMockLocationAvailable() {
+        return mMockAvailable;
     }
 
     public void pushLocation(double lat, double lon) {
@@ -42,6 +56,7 @@ public class MockLocationProvider {
         try {
             lm.clearTestProviderLocation(providerName);
         } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
         }
     }
 
@@ -49,6 +64,7 @@ public class MockLocationProvider {
         try {
             lm.removeTestProvider(providerName);
         } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
         }
     }
 }

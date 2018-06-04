@@ -1,5 +1,7 @@
 package com.tune.ma.profile;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneConstants;
 import com.tune.TuneLocation;
 import com.tune.TuneParameters;
@@ -19,6 +21,10 @@ import com.tune.ma.eventbus.event.userprofile.TuneUpdateUserProfile;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -26,14 +32,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by charlesgilliam on 1/25/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneUserProfileTests extends TuneUnitTest {
     Integer clearCalledCount = 0;
     TuneUserProfile profile;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         profile = TuneManager.getInstance().getProfileManager();
@@ -43,7 +57,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         profile.deleteSharedPrefs();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         super.tearDown();
         TuneEventBus.unregister(this);
@@ -54,6 +68,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         clearCalledCount += 1;
     }
 
+    @Test
     public void testRegisterCustomProfileVariableShouldAddToUserProfile() {
         profile.registerCustomProfileVariable(new TuneAnalyticsVariable("test", "initial"));
 
@@ -65,6 +80,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testSetCustomVariableValueShouldUpdateValue() {
         profile.registerCustomProfileVariable(new TuneAnalyticsVariable("test", (String)null));
         profile.setCustomProfileVariable(new TuneAnalyticsVariable("test", "updated"));
@@ -86,7 +102,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
-
+    @Test
     public void testSetCustomVariableValueToNullIsOkay() {
         profile.registerCustomProfileVariable(new TuneAnalyticsVariable("test", "not null"));
         profile.setCustomProfileVariable(new TuneAnalyticsVariable("test", (String)null));
@@ -99,7 +115,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
-
+    @Test
     public void testCannotChangeCustomVariableTypeOnceRegistered() {
         profile.registerCustomProfileVariable(new TuneAnalyticsVariable("test", 2));
         profile.setCustomProfileVariable(new TuneAnalyticsVariable("test", "Not a number!"));
@@ -112,6 +128,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.FLOAT);
     }
 
+    @Test
     public void testDefaultValueShouldBeNull() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString");
 
@@ -170,6 +187,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.VERSION);
     }
 
+    @Test
     public void testRegisterWithDefault() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultString");
 
@@ -230,6 +248,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.VERSION);
     }
 
+    @Test
     public void testRegisterWithWeirdName() {
         TuneTestWrapper.getInstance().registerCustomProfileString("&&&foo***()bar", "bingbang");
 
@@ -241,6 +260,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testRegisterWithSpaces() {
         TuneTestWrapper.getInstance().registerCustomProfileString("I HAVE SPACES", "bingbang");
 
@@ -252,6 +272,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testRegisterStringWithNonUSNumbers() {
         TuneTestWrapper.getInstance().registerCustomProfileString("bingbang", "١٢٣٤٥٦-٧.٨.٩ ٠");
 
@@ -263,11 +284,12 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testRegisterLocationWithNonUSLocale() {
         // Spoof a locale, e.g. Arabic
         Locale locale = new Locale("ar");
         Locale.setDefault(locale);
-        mContext.getResources().getConfiguration().locale = locale;
+        getContext().getResources().getConfiguration().locale = locale;
 
         TuneLocation location = new TuneLocation(111.11, -222.22);
         TuneTestWrapper.getInstance().registerCustomProfileGeolocation("location", location);
@@ -281,9 +303,10 @@ public class TuneUserProfileTests extends TuneUnitTest {
         // Revert to US locale
         locale = new Locale("us");
         Locale.setDefault(locale);
-        mContext.getResources().getConfiguration().locale = locale;
+        getContext().getResources().getConfiguration().locale = locale;
     }
 
+    @Test
     public void testRegisterWithOnlyWeirdChars() {
         TuneTestWrapper.getInstance().registerCustomProfileString("$()*())#$()", "bingbang");
 
@@ -294,6 +317,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var2 == null);
     }
 
+    @Test
     public void testRegisterWithGreekChars() {
         String key = "Greek";
         String defaultValue = "Εμπρός";
@@ -304,6 +328,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals(defaultValue, test);
     }
 
+    @Test
     public void testSetWithWeirdName() {
         TuneTestWrapper.getInstance().registerCustomProfileString("foobar");
         TuneTestWrapper.getInstance().setCustomProfileStringValue(")*(#&(*foobar*)(*()", "bingbang");
@@ -316,6 +341,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testSetWithOnlyWeirdChars() {
         TuneTestWrapper.getInstance().registerCustomProfileString("foobar");
         TuneTestWrapper.getInstance().setCustomProfileStringValue(")*(#&(**)(*()", "bingbang");
@@ -331,6 +357,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var2 == null);
     }
 
+    @Test
     public void testRegisterSystemVariable() {
         TuneTestWrapper.getInstance().registerCustomProfileString("google_aid", "not null");
 
@@ -340,6 +367,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertFalse(var.getValue().equals("not null"));
     }
 
+    @Test
     public void testSetSystemVariable() {
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable("google_aid", "99111")));
         TuneTestWrapper.getInstance().setCustomProfileStringValue("google_aid", "not null");
@@ -352,7 +380,8 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
-    // Test to make sure checks of custom variables are case-insensitive when registring them
+    // Test to make sure checks of custom variables are case-insensitive when registering them
+    @Test
     public void testPreventsCollisionOfCustomVariableWithProfileVariable() {
         TuneTestWrapper.getInstance().registerCustomProfileString("Language", "Dravanian");
         TuneTestWrapper.getInstance().registerCustomProfileString("Device Token", "Knicknack");
@@ -370,6 +399,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("Monarch", var4.getValue());
     }
 
+    @Test
     public void testPreventAddingCustomProfileVariablesStartingWithTUNE() {
         TuneTestWrapper.getInstance().registerCustomProfileString("TUNE_whatever", "bingbang");
         TuneTestWrapper.getInstance().registerCustomProfileString("Tune_whatever", "bingbang");
@@ -384,6 +414,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var2.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testPublicGettersNoDefault() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString");
         assertNull(TuneTestWrapper.getInstance().getCustomProfileString("testString"));
@@ -398,6 +429,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNull(TuneTestWrapper.getInstance().getCustomProfileGeolocation("testLocation"));
     }
 
+    @Test
     public void testPublicGettersWithDefault() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "default");
         assertTrue("default".equalsIgnoreCase(TuneTestWrapper.getInstance().getCustomProfileString("testString")));
@@ -417,6 +449,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(l.getLongitude() == gotten.getLongitude());
     }
 
+    @Test
     public void testPublicGettersWithDefault_ThenSettersWithNoValue() {
         // Shortcut to register some variables
         testPublicGettersNoDefault();
@@ -434,6 +467,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals(null, TuneTestWrapper.getInstance().getCustomProfileGeolocation("testLocation"));
     }
 
+    @Test
     public void testPublicClearCustomProfileVariable_WithNoValue() {
         String nullString = null;
 
@@ -454,11 +488,12 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(caughtException);
     }
 
-
+    @Test
     public void testPublicGettersBeforeRegistration() {
         assertNull(TuneTestWrapper.getInstance().getCustomProfileString("testString"));
     }
 
+    @Test
     public void testPublicSetters() {
         TuneTestWrapper.getInstance().registerCustomProfileNumber("int", 1);
         TuneAnalyticsVariable varInt = profile.getCustomProfileVariable("int");
@@ -476,25 +511,25 @@ public class TuneUserProfileTests extends TuneUnitTest {
         TuneAnalyticsVariable varDouble = profile.getCustomProfileVariable("double");
         assertTrue("double".equalsIgnoreCase(varDouble.getName()));
         assertTrue(varDouble.getType() == TuneVariableType.FLOAT);
-        assertEquals(0.99, Double.parseDouble(varDouble.getValue()));
+        assertEquals(0.99, Double.parseDouble(varDouble.getValue()), 0);
 
         TuneTestWrapper.getInstance().setCustomProfileNumber("double", 1.99);
         varDouble = profile.getCustomProfileVariable("double");
         assertTrue("double".equalsIgnoreCase(varDouble.getName()));
         assertTrue(varDouble.getType() == TuneVariableType.FLOAT);
-        assertEquals(1.99, Double.parseDouble(varDouble.getValue()));
+        assertEquals(1.99, Double.parseDouble(varDouble.getValue()), 0);
 
         TuneTestWrapper.getInstance().registerCustomProfileNumber("float", 0.99f);
         TuneAnalyticsVariable varFloat = profile.getCustomProfileVariable("float");
         assertTrue("float".equalsIgnoreCase(varFloat.getName()));
         assertTrue(varFloat.getType() == TuneVariableType.FLOAT);
-        assertEquals(0.99f, Float.parseFloat(varFloat.getValue()));
+        assertEquals(0.99f, Float.parseFloat(varFloat.getValue()), 0);
 
         TuneTestWrapper.getInstance().setCustomProfileNumber("float", 1.99f);
         varFloat = profile.getCustomProfileVariable("float");
         assertTrue("float".equalsIgnoreCase(varFloat.getName()));
         assertTrue(varFloat.getType() == TuneVariableType.FLOAT);
-        assertEquals(1.99f, Float.parseFloat(varFloat.getValue()));
+        assertEquals(1.99f, Float.parseFloat(varFloat.getValue()), 0);
 
         Date expectedDate = new Date();
         TuneTestWrapper.getInstance().registerCustomProfileDate("date", expectedDate);
@@ -525,6 +560,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals(TuneAnalyticsVariable.geolocationToString(expectedLocation2), varLocation.getValue());
     }
 
+    @Test
     public void testClearVariableAndSet() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultString");
         TuneAnalyticsVariable var = profile.getCustomProfileVariable("testString");
@@ -548,6 +584,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testCantClearSystemVariables() {
         TuneEventBus.post(new TuneUpdateUserProfile(new TuneAnalyticsVariable("google_aid", "99111")));
         TuneTestWrapper.getInstance().clearCustomProfileVariable("google_aid");
@@ -560,6 +597,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(var.getType() == TuneVariableType.STRING);
     }
 
+    @Test
     public void testClearCustomVariables() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultString");
         TuneTestWrapper.getInstance().registerCustomProfileString("testString2", "defaultString2");
@@ -600,6 +638,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(clearCalledCount == 1);
     }
 
+    @Test
     public void testClearCustomVariableThenGet() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultString");
 
@@ -609,6 +648,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNull(s);
     }
 
+    @Test
     public void testClearCustomVariablesInvalidName() {
         TuneTestWrapper.getInstance().registerCustomProfileString("valid__valid", "foobar");
 
@@ -627,6 +667,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(clearCalledCount == 1);
     }
 
+    @Test
     public void testAllowCustomVariableValuesToBeSetRegardlessOfNameCase() {
         TuneTestWrapper.getInstance().registerCustomProfileString("Cat", "Tabby");
         TuneTestWrapper.getInstance().registerCustomProfileString("cat", "Siamese");
@@ -651,6 +692,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("Burmese", var4.getValue());
     }
 
+    @Test
     public void testClearCustomProfile() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultString");
         TuneTestWrapper.getInstance().registerCustomProfileString("testString2", "defaultString2");
@@ -700,6 +742,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         return false;
     }
 
+    @Test
     public void testToJson() throws JSONException {
         TuneTestWrapper.getInstance().registerCustomProfileString("in1", "foobar");
         TuneTestWrapper.getInstance().registerCustomProfileString("in2", null);
@@ -719,6 +762,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertTrue(checkJSON(output, "profileVar3", null));
     }
 
+    @Test
     public void testReRegisterCustomVariablesNotSet() {
         TuneTestWrapper.getInstance().registerCustomProfileString("my_name");
 
@@ -732,6 +776,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("has default now", TuneTestWrapper.getInstance().getCustomProfileString("my_name"));
     }
 
+    @Test
     public void testReRegisterCustomVariablesSet() {
         TuneTestWrapper.getInstance().registerCustomProfileString("my_name");
 
@@ -747,6 +792,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("new value", TuneTestWrapper.getInstance().getCustomProfileString("my_name"));
     }
 
+    @Test
     public void testUserEmailNotStored() {
         TuneTestWrapper.getInstance().setUserEmail("test_email");
 
@@ -757,6 +803,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_EMAIL_SHA256));
     }
 
+    @Test
     public void testUserNameNotStored() {
         TuneTestWrapper.getInstance().setUserName("test_username");
 
@@ -767,6 +814,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_NAME_SHA256));
     }
 
+    @Test
     public void testPhoneNumberNotStored() {
         TuneTestWrapper.getInstance().setPhoneNumber("test_phone_number");
 
@@ -777,6 +825,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertNotNull(profile.getProfileVariable(TuneUrlKeys.USER_PHONE_SHA256));
     }
 
+    @Test
     public void testCustomProfileVariablesPersistBetweenSessions() {
         TuneTestWrapper.getInstance().registerCustomProfileString("testString", "defaultStringValue");
 
@@ -799,6 +848,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertEquals("defaultStringValue", profile.getCustomProfileVariable("testString").getValue());
     }
 
+    @Test
     public void testBooleanValuesSetCorrectly() {
         // Test setExistingUser sends "1" when set to true
         TuneTestWrapper.getInstance().setExistingUser(true);
@@ -815,14 +865,16 @@ public class TuneUserProfileTests extends TuneUnitTest {
     }
 
     // Test a smattering of different cases directly against the system keys
+    @Test
     public void testIsSystemVariable() {
-        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SESSION_ID.toUpperCase()));
-        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SCREEN_HEIGHT.toUpperCase()));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SESSION_ID.toUpperCase(Locale.ENGLISH)));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneProfileKeys.SCREEN_HEIGHT.toUpperCase(Locale.ENGLISH)));
 
-        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.PUBLISHER_ID.toUpperCase()));
-        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.REFERRAL_URL.toUpperCase()));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.PUBLISHER_ID.toUpperCase(Locale.ENGLISH)));
+        assertTrue(TuneProfileKeys.isSystemVariable(TuneUrlKeys.REFERRAL_URL.toUpperCase(Locale.ENGLISH)));
     }
 
+    @Test
     public void testRedactedProfileKeys() {
         Set<String> setA = TuneProfileKeys.getAllProfileKeys();
         assertTrue(setA.contains(TuneProfileKeys.SESSION_ID));
@@ -834,6 +886,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
         assertFalse(setA.contains(TuneProfileKeys.SCREEN_HEIGHT));  // Should be redacted
     }
 
+    @Test
     public void testRedactedURLKeys() {
         Set<String> setA = TuneUrlKeys.getAllUrlKeys();
         assertTrue(setA.contains(TuneUrlKeys.PUBLISHER_ID));
@@ -849,6 +902,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
      * This test checks COPPA Redaction when using {@link com.tune.Tune#setAge(int)}
      * This test uses SCREEN_WIDTH as it is one that should be redacted.
      */
+    @Test
     public void testIsCOPPA_RedactedOnAge() {
         ProfileChangedReceiver receiver = new ProfileChangedReceiver(TuneUrlKeys.IS_COPPA);
         TuneEventBus.register(receiver);
@@ -891,6 +945,7 @@ public class TuneUserProfileTests extends TuneUnitTest {
      * This test checks COPPA Redaction when using {@link com.tune.Tune#setPrivacyProtectedDueToAge(boolean)}
      * This test uses SCREEN_WIDTH as it is one that should be redacted.
      */
+    @Test
     public void testIsCOPPA_RedactedOnPrivacyProtected() {
         ProfileChangedReceiver receiver = new ProfileChangedReceiver(TuneUrlKeys.IS_COPPA);
         TuneEventBus.register(receiver);

@@ -221,6 +221,7 @@ public class TuneUtils {
         return (TuneConstants.PREF_SET.equalsIgnoreCase(booleanString) || "yes".equalsIgnoreCase(booleanString) || "true".equalsIgnoreCase(booleanString));
     }
 
+    @Deprecated
     public static int dpToPx(Context context, int dp) {
         float density = TuneScreenUtils.getScreenDensity(context);
         return (int)(dp * density);

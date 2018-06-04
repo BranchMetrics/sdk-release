@@ -1,9 +1,19 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(AndroidJUnit4.class)
 public class EndpointTests extends TuneUnitTest {
 
+    @Test
     public void testEventName() {
         final String eventName = "testEvent";
 
@@ -16,6 +26,7 @@ public class EndpointTests extends TuneUnitTest {
         assertNoValueForKey( "site_event_id" );
     }
 
+    @Test
     public void testEventListPurchaseName() {
         final String eventName = "testEventName";
 
@@ -58,6 +69,7 @@ public class EndpointTests extends TuneUnitTest {
         assertKeyValue( "store_iap_signature", iapSignature );
     }
 
+    @Test
     public void testEventRevenueCurrencyName() {
         final String eventName = "testEvent";
         final double revenue = 2.18;
@@ -77,6 +89,7 @@ public class EndpointTests extends TuneUnitTest {
         assertKeyValue( "currency_code", currencyCode );
     }
 
+    @Test
     public void testEventRevenueCurrencyReferenceName() {
         final String eventName = "testEvent";
         final double revenue = 2.18;
@@ -99,6 +112,7 @@ public class EndpointTests extends TuneUnitTest {
         assertKeyValue( "advertiser_ref_id", referenceId );
     }
 
+    @Test
     public void testEventRevenueCurrencyPurchaseName() {
         final String eventName = "testEvent";
         final double revenue = 2.18;
@@ -126,6 +140,7 @@ public class EndpointTests extends TuneUnitTest {
         assertKeyValue( "store_iap_signature", iapSignature );
     }
 
+    @Test
     public void testEventInstall() {
         final String actionName = "install";
 
@@ -138,6 +153,7 @@ public class EndpointTests extends TuneUnitTest {
         assertNoValueForKey( "site_event_id" );
     }
 
+    @Test
     public void testEventUpdate() {
         final String actionName = "update";
 
@@ -150,6 +166,7 @@ public class EndpointTests extends TuneUnitTest {
         assertNoValueForKey( "site_event_id" );
     }
 
+    @Test
     public void testEventOpen() {
         final String actionName = "open";
 
@@ -162,6 +179,7 @@ public class EndpointTests extends TuneUnitTest {
         assertNoValueForKey( "site_event_id" );
     }
 
+    @Test
     public void testEventSession() {
         final String actionName = "session";
 
@@ -174,6 +192,7 @@ public class EndpointTests extends TuneUnitTest {
         assertNoValueForKey( "site_event_id" );
     }
 
+    @Test
     public void testEventClose() {
         final String actionName = "close";
 
@@ -183,6 +202,7 @@ public class EndpointTests extends TuneUnitTest {
         assertTrue( "params should be empty " + params, params.checkIsEmpty() );
     }
 
+    @Test
     public void testProdEventShouldNotUseDebugEndpointOrDebugFlag() {
         TuneParameters testParams = Tune.getInstance().getTuneParams();
         TuneEvent testEvent = new TuneEvent("testEvent");
@@ -194,6 +214,7 @@ public class EndpointTests extends TuneUnitTest {
         assertFalse(testLink.contains("&debug=1"));
     }
 
+    @Test
     public void testDebugEventShouldNotUseDebugEndpointAndShouldUseDebugFlag() {
         TuneParameters testParams = Tune.getInstance().getTuneParams();
         TuneEvent testEvent = new TuneEvent("testEvent");
@@ -205,6 +226,7 @@ public class EndpointTests extends TuneUnitTest {
         assertTrue(testLink.contains("&debug=1"));
     }
 
+    @Test
     public void testEventRedactGender() {
         tune.setGender(TuneGender.MALE);
         tune.measureEvent("session");

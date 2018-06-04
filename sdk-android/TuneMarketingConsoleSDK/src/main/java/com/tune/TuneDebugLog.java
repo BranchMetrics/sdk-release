@@ -264,6 +264,7 @@ public class TuneDebugLog {
         logLevel = level;
     }
 
+    @Deprecated
     public static void IAMConfigError(String message) {
         if (Tune.getInstance() != null && Tune.getInstance().isInDebugMode()) {
             throw new TuneIAMConfigurationException(message);

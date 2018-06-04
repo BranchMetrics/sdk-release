@@ -27,7 +27,9 @@ import java.net.URL;
 
 /**
  * Created by johng on 1/6/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneApi implements Api {
     private static final String BOUNDARY = "thisIsMyFileBoundary";
     private static final int TIMEOUT = 60 * 1000; // 60 seconds timeout

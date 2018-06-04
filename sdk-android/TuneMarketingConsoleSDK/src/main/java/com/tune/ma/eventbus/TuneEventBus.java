@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-
+@Deprecated
 public class TuneEventBus {
     private static final EventBus EVENT_BUS = EventBus.builder().throwSubscriberException(com.tune.BuildConfig.DEBUG_MODE).build();
 

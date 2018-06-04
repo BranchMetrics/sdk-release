@@ -1,5 +1,7 @@
 package com.tune.ma.experiments;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
@@ -13,12 +15,21 @@ import com.tune.mocks.MockFileManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Map;
+
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by kristine on 2/9/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneExperimentManagerTests extends TuneUnitTest {
 
     TunePlaylistManager playlistManager;
@@ -27,8 +38,8 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
     MockFileManager mockFileManager;
     JSONObject playlistJson;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         experimentManager = TuneManager.getInstance().getExperimentManager();
 
@@ -43,12 +54,13 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
         playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "tune_experiment_manager_test_playlist.json");
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
         playlistManager.onEvent(new TuneAppBackgrounded());
     }
 
+    @Test
     public void testPowerHookDetailsUpdateWithPlaylist() {
         mockFileManager.setPlaylistResult(playlistJson);
         playlistManager = new TunePlaylistManager();
@@ -74,6 +86,7 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
         assertTrue(details.isRunning());
     }
 
+    @Test
     public void testInAppMessageDetailsUpdateWithPlaylist() {
         mockFileManager.setPlaylistResult(playlistJson);
         playlistManager = new TunePlaylistManager();
@@ -90,6 +103,7 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
         assertEquals("Variation B", details.getCurrentVariantName());
     }
 
+    @Test
     public void testActiveVariationsOnlyGetAddedOnce() {
         mockFileManager.setPlaylistResult(playlistJson);
         playlistManager = new TunePlaylistManager();
@@ -102,6 +116,7 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
         assertEquals(2, TuneManager.getInstance().getProfileManager().getSessionVariables().size());
     }
 
+    @Test
     public void testPlaylistWithoutExperimentDetails() {
         try {
             playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_default.json");
@@ -118,6 +133,7 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
     }
 
     // Test that the public getter's experiment details match that of the experiment manager's
+    @Test
     public void testPublicGetPowerHookExperimentDetails() {
         mockFileManager.setPlaylistResult(playlistJson);
         playlistManager = new TunePlaylistManager();
@@ -128,6 +144,7 @@ public class TuneExperimentManagerTests extends TuneUnitTest {
     }
 
     // Test that the public getter's experiment details match that of the experiment manager's
+    @Test
     public void testPublicGetInAppExperimentDetails() {
         mockFileManager.setPlaylistResult(playlistJson);
         playlistManager = new TunePlaylistManager();

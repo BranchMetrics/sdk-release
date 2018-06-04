@@ -1,6 +1,7 @@
 package com.tune.ma.push.service;
 
 import android.os.Bundle;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
@@ -8,19 +9,28 @@ import com.tune.ma.push.model.TunePushMessage;
 import com.tune.ma.push.settings.TunePushListener;
 
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
  * Created by kristine on 1/30/17.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePushServiceTests extends TuneUnitTest {
 
     private TunePushService tunePushService;
     private Bundle pushMessageExtras;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         tunePushService = new TunePushService();

@@ -57,8 +57,9 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.MESSAGE_TYPE_MODAL;
 
 /**
  * Created by johng on 2/21/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneInAppMessageManager {
     public static final String PREFS_TMA_INAPP = "com.tune.ma.inapp";
     public static final String PREFS_DISPLAY_COUNT_KEY = "MESSAGE_DISPLAY_COUNT_MAP";

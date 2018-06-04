@@ -1,8 +1,18 @@
 package com.tune;
 
-import com.tune.ma.utils.TuneSharedPrefsDelegate;
+import android.Manifest.permission;
+import android.support.test.rule.GrantPermissionRule;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.ma.TuneManager;
+import com.tune.ma.utils.TuneSharedPrefsDelegate;
+
+import org.json.JSONArray;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -11,96 +21,117 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+
+@RunWith(AndroidJUnit4.class)
 public class ParametersTests extends TuneUnitTest {
-    @Override
-    protected void setUp() throws Exception {
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(permission.GET_ACCOUNTS);
+
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         tune.setOnline(false);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         tune.setOnline(true);
 
         super.tearDown();
     }
 
+    @Test
     public void testAgeValid() {
         final int age = 35;
-        String expectedAge = Integer.toString( age );
-        
-        tune.setAge( age );
+        String expectedAge = Integer.toString(age);
+
+        tune.setAge(age);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue("age", expectedAge);
+        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAgeYoung() {
         final int age = 6;
-        String expectedAge = Integer.toString( age );
-        
-        tune.setAge( age );
+        String expectedAge = Integer.toString(age);
+
+        tune.setAge(age);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         // NOTE that COPPA redacts many of the default values
-        assertKeyValue( "age", expectedAge );
+        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAgeOld() {
         final int age = 65536;
-        String expectedAge = Integer.toString( age );
-        
-        tune.setAge( age );
+        String expectedAge = Integer.toString(age);
+
+        tune.setAge(age);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "age", expectedAge );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAgeZero() {
         final int age = 0;
-        String expectedAge = Integer.toString( age );
-        
-        tune.setAge( age );
+        String expectedAge = Integer.toString(age);
+
+        tune.setAge(age);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "age", expectedAge );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAgeNegative() {
         final int age = -304;
-        String expectedAge = Integer.toString( age );
-        
-        tune.setAge( age );
+        String expectedAge = Integer.toString(age);
+
+        tune.setAge(age);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "age", expectedAge );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAgeNull() {
         // don't set an age, the param will be null
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("age");
+        assertTrue("params default values failed " + params, params.checkDefaultValues() );
+        assertNoValueForKey(TuneUrlKeys.AGE);
         assertEquals(0, tune.getAge());
     }
 
+    @Test
     public void testAgeSetGet() {
         final int age = 99;
         tune.setAge(age);
@@ -109,72 +140,78 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(age, tune.getAge());
     }
 
+    @Test
     public void testAltitudeValid() {
         final double altitude = 43;
         String expectedAltitude = Double.toString( altitude );
-        
+
         tune.setAltitude(altitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "altitude", expectedAltitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
         assertEquals(altitude, tune.getAltitude(), 0.0001);
     }
 
+    @Test
     public void testAltitudeZero() {
         final double altitude = 0;
         String expectedAltitude = Double.toString( altitude );
-        
-        tune.setAltitude( altitude );
+
+        tune.setAltitude(altitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "altitude", expectedAltitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
         assertEquals(altitude, tune.getAltitude(), 0.0001);
     }
 
+    @Test
     public void testAltitudeVeryLarge() {
         final double altitude = 65536;
         String expectedAltitude = Double.toString( altitude );
-        
-        tune.setAltitude( altitude );
+
+        tune.setAltitude(altitude);
         tune.measureEvent("registration");
-        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "altitude", expectedAltitude );
+        assertTrue(waitForTuneNotification( TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
         assertEquals(altitude, tune.getAltitude(), 0.0001);
     }
 
+    @Test
     public void testAltitudeVerySmall() {
         final double altitude = Double.MIN_VALUE;
-        String expectedAltitude = Double.toString( altitude );
-        
-        tune.setAltitude( altitude );
+        String expectedAltitude = Double.toString(altitude);
+
+        tune.setAltitude(altitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "altitude", expectedAltitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
         assertEquals(altitude, tune.getAltitude(), 0.0001);
     }
-    
+
+    @Test
     public void testAndroidId() {
         final String androidId = "59a3747895bdb03d";
 
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
 
         tune.setAndroidId(androidId);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "android_id", androidId );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ANDROID_ID, androidId);
         assertEquals(androidId, tune.getAndroidId());
     }
 
+    @Test
     public void testAndroidIdNull() {
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
@@ -182,53 +219,57 @@ public class ParametersTests extends TuneUnitTest {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("android_id");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.ANDROID_ID);
         assertNull(tune.getAndroidId());
     }
-    
+
+    @Test
     public void testAndroidIdMd5() {
         final String androidIdMd5 = TuneUtils.md5("59a3747895bdb03d");
 
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-        
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+
         tune.setAndroidIdMd5(androidIdMd5);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "android_id_md5", androidIdMd5 );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ANDROID_ID_MD5, androidIdMd5);
     }
-    
+
+    @Test
     public void testAndroidIdSha1() {
         final String androidIdSha1 = TuneUtils.sha1("59a3747895bdb03d");
 
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-        
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+
         tune.setAndroidIdSha1(androidIdSha1);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "android_id_sha1", androidIdSha1 );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ANDROID_ID_SHA1, androidIdSha1);
     }
-    
+
+    @Test
     public void testAndroidIdSha256() {
         final String androidIdSha256 = TuneUtils.sha256("59a3747895bdb03d");
 
-        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-        
+        sleep(TuneTestConstants.PARAMTEST_SLEEP);
+
         tune.setAndroidIdSha256(androidIdSha256);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "android_id_sha256", androidIdSha256 );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.ANDROID_ID_SHA256, androidIdSha256);
     }
 
     /**
      * Test default COPPA scenario with neither age nor COPPA set.
      */
+    @Test
     public void testCOPPA() {
         assertFalse(tune.isPrivacyProtectedDueToAge());
     }
@@ -236,6 +277,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Test age and COPPA interactions without specifically setting isCOPPA.
      */
+    @Test
     public void testCOPPA_ageOnly() {
         final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
         final int adult = 21;
@@ -250,6 +292,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Test age and COPPA interactions without specifically setting Age.
      */
+    @Test
     public void testCOPPA_Only() {
         assertTrue(tune.setPrivacyProtectedDueToAge(true));
         assertTrue(tune.isPrivacyProtectedDueToAge());
@@ -261,6 +304,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Test age and COPPA interaction using setAge and setCOPPA, age set first.
      */
+    @Test
     public void testCOPPA_ageBefore() {
         final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
 
@@ -278,6 +322,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Test age and COPPA interaction using setAge and setCOPPA, COPPA set first.
      */
+    @Test
     public void testCOPPA_ageAfter() {
         final int adult = 21;
 
@@ -295,6 +340,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Additional test around setting Age after setting COPPA(true).
      */
+    @Test
     public void testSetAge_afterCOPPA_true() {
         final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
         final int adult = 21;
@@ -312,6 +358,7 @@ public class ParametersTests extends TuneUnitTest {
     /**
      * Additional test around setting Age after setting COPPA(false).
      */
+    @Test
     public void testSetAge_afterCOPPA_false() {
         final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
         final int adult = 21;
@@ -326,6 +373,7 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.isPrivacyProtectedDueToAge());      // This should be false because neither COPPA nor Age are an issue
     }
 
+    @Test
     public void testSetAge_isPushEnabled() {
         final int youth = TuneConstants.COPPA_MINIMUM_AGE - 1;
         final int adult = 21;
@@ -339,6 +387,7 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // This should succeed
     }
 
+    @Test
     public void testSetCOPPA_isPushEnabled() {
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be enabled by default
 
@@ -352,6 +401,7 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(TuneManager.getInstance().getPushManager().isPushEnabled());     // Should be disabled again
     }
 
+    @Test
     public void testIsCOPPA_True() {
         final int age = TuneConstants.COPPA_MINIMUM_AGE - 1;
         tune.setAge(age);
@@ -362,6 +412,7 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue( TuneUrlKeys.IS_COPPA, TuneConstants.PREF_SET );
     }
 
+    @Test
     public void testIsCOPPA_False() {
         final int age = TuneConstants.COPPA_MINIMUM_AGE + 1;
         tune.setAge(age);
@@ -372,6 +423,7 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue( TuneUrlKeys.IS_COPPA, TuneConstants.PREF_UNSET );
     }
 
+    @Test
     public void testIsCOPPA_AdTracking() {
         // Default test -- tracking params should be SET
         String googleAdvertisingId = UUID.randomUUID().toString();
@@ -398,6 +450,7 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue( TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, TuneConstants.PREF_UNSET );
     }
 
+    @Test
     public void testSetCOPPADoesntRemoveAction() {
         tune.setPrivacyProtectedDueToAge(true);
 
@@ -424,55 +477,60 @@ public class ParametersTests extends TuneUnitTest {
     }
 
 
+    @Test
     public void testCurrencyCodeValid() {
         final String currencyCode = "CAD";
-        
+
         tune.setCurrencyCode(currencyCode);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "currency_code", currencyCode );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, currencyCode);
         assertEquals(currencyCode, tune.getCurrencyCode());
     }
 
+    @Test
     public void testCurrencyCodeVeryLong() {
         final String currencyCode = "supercalifragilisticexpialidocious";
-        
-        tune.setCurrencyCode( currencyCode );
+
+        tune.setCurrencyCode(currencyCode);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "currency_code", currencyCode );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, currencyCode);
         assertEquals(currencyCode, tune.getCurrencyCode());
     }
 
+    @Test
     public void testCurrencyCodeEmpty() {
         final String currencyCode = "";
         final String expectedCurrencyCode = "USD";
-        
-        tune.setCurrencyCode( currencyCode );
+
+        tune.setCurrencyCode(currencyCode);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "currency_code", expectedCurrencyCode );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, expectedCurrencyCode);
         assertEquals(expectedCurrencyCode, tune.getCurrencyCode());
     }
 
+    @Test
     public void testCurrencyCode() {
         final String expectedCurrencyCode = "USD";
-        
-        tune.setCurrencyCode( null );
+
+        tune.setCurrencyCode(null);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "currency_code", expectedCurrencyCode );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, expectedCurrencyCode);
         assertEquals(expectedCurrencyCode, tune.getCurrencyCode());
     }
 
+    @Test
     public void testDeviceBrand() {
         String expectedDeviceBrand = "HTC";
 
@@ -485,6 +543,7 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(expectedDeviceBrand, tune.getDeviceBrand());
     }
 
+    @Test
     public void testDeviceId() {
         String expectedDeviceId = "1234567890";
 
@@ -497,6 +556,7 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(expectedDeviceId, tune.getDeviceId());
     }
 
+    @Test
     public void testDeviceModel() {
         String expectedDeviceModel = "Nexus 6";
 
@@ -509,6 +569,7 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(expectedDeviceModel, tune.getDeviceModel());
     }
 
+    @Test
     public void testEventParameters() {
         final double revenue = 4.99;
         final String currency = "CAD";
@@ -527,7 +588,7 @@ public class ParametersTests extends TuneUnitTest {
         final String attr4 = "attribute4";
         final String attr5 = "attribute5";
 
-        String expectedCurrency = null, 
+        String expectedCurrency = null,
                expectedRefId = null,
                expectedContentType = null,
                expectedContentId = null,
@@ -571,26 +632,27 @@ public class ParametersTests extends TuneUnitTest {
             .withAttribute5(attr5);
         tune.measureEvent(eventData);
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "revenue", Double.toString( revenue ));
-        assertKeyValue( "currency_code", expectedCurrency );
-        assertKeyValue( "advertiser_ref_id", expectedRefId );
-        assertKeyValue( "content_type", expectedContentType );
-        assertKeyValue( "content_id", expectedContentId );
-        assertKeyValue( "level", Integer.toString( level ) );
-        assertKeyValue( "quantity", Integer.toString( quantity ) );
-        assertKeyValue( "search_string", expectedSearchString );
-        assertKeyValue( "rating", Double.toString( rating ) );
-        assertKeyValue( "date1", Long.toString( date1.getTime()/1000 ) );
-        assertKeyValue( "date2", Long.toString( date2.getTime()/1000 ) );
-        assertKeyValue( "attribute_sub1", expectedAttribute1 );
-        assertKeyValue( "attribute_sub2", expectedAttribute2 );
-        assertKeyValue( "attribute_sub3", expectedAttribute3 );
-        assertKeyValue( "attribute_sub4", expectedAttribute4 );
-        assertKeyValue( "attribute_sub5", expectedAttribute5 );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.REVENUE, Double.toString(revenue));
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, expectedCurrency);
+        assertKeyValue(TuneUrlKeys.REF_ID, expectedRefId);
+        assertKeyValue(TuneUrlKeys.CONTENT_TYPE, expectedContentType);
+        assertKeyValue(TuneUrlKeys.CONTENT_ID, expectedContentId);
+        assertKeyValue(TuneUrlKeys.LEVEL, Integer.toString(level));
+        assertKeyValue(TuneUrlKeys.QUANTITY, Integer.toString(quantity));
+        assertKeyValue(TuneUrlKeys.SEARCH_STRING, expectedSearchString );
+        assertKeyValue(TuneUrlKeys.RATING, Double.toString(rating));
+        assertKeyValue(TuneUrlKeys.DATE1, Long.toString(date1.getTime()/1000));
+        assertKeyValue(TuneUrlKeys.DATE2, Long.toString(date2.getTime()/1000));
+        assertKeyValue(TuneUrlKeys.ATTRIBUTE1, expectedAttribute1);
+        assertKeyValue(TuneUrlKeys.ATTRIBUTE2, expectedAttribute2);
+        assertKeyValue(TuneUrlKeys.ATTRIBUTE3, expectedAttribute3);
+        assertKeyValue(TuneUrlKeys.ATTRIBUTE4, expectedAttribute4);
+        assertKeyValue(TuneUrlKeys.ATTRIBUTE5, expectedAttribute5);
     }
 
+    @Test
     public void testEventParametersCleared() {
         final double revenue = 4.99;
         final String currency = "CAD";
@@ -608,7 +670,7 @@ public class ParametersTests extends TuneUnitTest {
         final String attr3 = "attribute3";
         final String attr4 = "attribute4";
         final String attr5 = "attribute5";
-        
+
         TuneEvent eventData = new TuneEvent("purchase")
                                  .withRevenue(revenue)
                                  .withCurrencyCode(currency)
@@ -628,53 +690,56 @@ public class ParametersTests extends TuneUnitTest {
                                  .withAttribute5(attr5);
         tune.measureEvent(eventData);
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+
         params = new TuneTestParams();
         tune.measureEvent("purchase");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "revenue", "0.0");
-        assertKeyValue( "currency_code", "USD" );
-        assertNoValueForKey("advertiser_ref_id");
-        assertNoValueForKey("content_type");
-        assertNoValueForKey("content_id");
-        assertNoValueForKey("level");
-        assertNoValueForKey("quantity");
-        assertNoValueForKey("search_string");
-        assertNoValueForKey("rating");
-        assertNoValueForKey("date1");
-        assertNoValueForKey("date2");
-        assertNoValueForKey("attribute_sub1");
-        assertNoValueForKey("attribute_sub2");
-        assertNoValueForKey("attribute_sub3");
-        assertNoValueForKey("attribute_sub4");
-        assertNoValueForKey("attribute_sub5");
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.REVENUE, "0.0");
+        assertKeyValue(TuneUrlKeys.CURRENCY_CODE, "USD");
+        assertNoValueForKey(TuneUrlKeys.REF_ID);
+        assertNoValueForKey(TuneUrlKeys.CONTENT_TYPE);
+        assertNoValueForKey(TuneUrlKeys.CONTENT_ID);
+        assertNoValueForKey(TuneUrlKeys.LEVEL);
+        assertNoValueForKey(TuneUrlKeys.QUANTITY);
+        assertNoValueForKey(TuneUrlKeys.SEARCH_STRING);
+        assertNoValueForKey(TuneUrlKeys.RATING);
+        assertNoValueForKey(TuneUrlKeys.DATE1);
+        assertNoValueForKey(TuneUrlKeys.DATE2);
+        assertNoValueForKey(TuneUrlKeys.ATTRIBUTE1);
+        assertNoValueForKey(TuneUrlKeys.ATTRIBUTE2);
+        assertNoValueForKey(TuneUrlKeys.ATTRIBUTE3);
+        assertNoValueForKey(TuneUrlKeys.ATTRIBUTE4);
+        assertNoValueForKey(TuneUrlKeys.ATTRIBUTE5);
     }
 
+    @Test
     public void testExistingUser() {
         tune.setExistingUser(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "existing_user", "1" );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.EXISTING_USER, "1");
         assertTrue(tune.getExistingUser());
     }
 
+    @Test
     public void testFacebookUserId() {
         final String userId = "fakeUserId";
-        
+
         tune.setFacebookUserId(userId);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "facebook_user_id", userId );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.FACEBOOK_USER_ID, userId);
         assertEquals(userId, tune.getFacebookUserId());
     }
 
+    @Test
     public void testFireAdvertisingId() {
         String fireAdvertisingId = UUID.randomUUID().toString();
 
@@ -695,6 +760,7 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testSetFireAdvertisingIdNull() {
         tune.setFireAdvertisingId(null, false);
         tune.measureEvent("registration");
@@ -713,55 +779,59 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testGenderMale() {
         final TuneGender gender = TuneGender.MALE;
         final String expectedGender = "0";
-        
+
         tune.setGender(gender);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "gender", expectedGender );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.GENDER, expectedGender);
         assertEquals(gender, tune.getGender());
     }
 
+    @Test
     public void testGenderFemale() {
         final TuneGender gender = TuneGender.FEMALE;
         final String expectedGender = "1";
-        
-        tune.setGender( gender );
+
+        tune.setGender(gender);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "gender", expectedGender );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.GENDER, expectedGender);
         assertEquals(gender, tune.getGender());
     }
 
+    @Test
     public void testGenderUnknown() {
         final TuneGender gender = TuneGender.UNKNOWN;
-        
-        tune.setGender( gender );
+
+        tune.setGender(gender);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("gender");
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.GENDER);
         assertEquals(gender, tune.getGender());
     }
 
+    @Test
     public void testGenderNotSetUnknown() {
         // do not call set gender
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("gender");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.GENDER);
         assertEquals(TuneGender.UNKNOWN, tune.getGender());
     }
 
-
+    @Test
     public void testGoogleAdvertisingId() {
         String googleAdvertisingId = UUID.randomUUID().toString();
 
@@ -782,6 +852,7 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testSetGoogleAdvertisingIdNull() {
         tune.setGoogleAdvertisingId(null, false);
         tune.measureEvent("registration");
@@ -800,169 +871,184 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testGoogleUserId() {
         // TODO: REVISIT.  Tune has not finished initializing by the time this test starts to run.
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
 
         final String userId = "fakeUserId";
-        
+
         tune.setGoogleUserId(userId);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue("google_user_id", userId);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.GOOGLE_USER_ID, userId);
         assertEquals(userId, tune.getGoogleUserId());
     }
 
+    @Test
     public void testIsPayingUser() {
         tune.setIsPayingUser(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "is_paying_user", "1" );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.IS_PAYING_USER, "1");
         assertTrue(tune.getIsPayingUser());
     }
 
+    @Test
     public void testIsPayingUserAutoCollect() {
         tune.setIsPayingUser(false);
         tune.measureEvent(new TuneEvent("registration").withRevenue(1.0).withCurrencyCode("USD"));
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "is_paying_user", "1" );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.IS_PAYING_USER, "1");
         assertTrue(tune.getIsPayingUser());
     }
 
+    @Test
     public void testIsPayingUserFalse() {
         tune.setIsPayingUser(false);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "is_paying_user", "0" );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.IS_PAYING_USER, "0");
         assertFalse(tune.getIsPayingUser());
     }
 
+    @Test
     public void testIsPayingUserNull() {
         // do not set is paying user
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("is_paying_user");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.IS_PAYING_USER);
         assertFalse(tune.getIsPayingUser());
     }
 
+    @Test
     public void testLatitudeValidGtZero() {
         final double latitude = 43;
-        String expectedLatitude = Double.toString( latitude );
-        
+        String expectedLatitude = Double.toString(latitude);
+
         tune.setLatitude(latitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "latitude", expectedLatitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
         assertEquals(latitude, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testLatitudeValidLtZero() {
         final double latitude = -122;
-        String expectedLatitude = Double.toString( latitude );
-        
-        tune.setLatitude( latitude );
+        String expectedLatitude = Double.toString(latitude);
+
+        tune.setLatitude(latitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "latitude", expectedLatitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
         assertEquals(latitude, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testLatitudeZero() {
         final double latitude = 0;
-        String expectedLatitude = Double.toString( latitude );
-        
-        tune.setLatitude( latitude );
+        String expectedLatitude = Double.toString(latitude);
+
+        tune.setLatitude(latitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "latitude", expectedLatitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
         assertEquals(latitude, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testLatitudeVeryLarge() {
         final double latitude = 43654;
-        String expectedLatitude = Double.toString( latitude );
-        
-        tune.setLatitude( latitude );
+        String expectedLatitude = Double.toString(latitude);
+
+        tune.setLatitude(latitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "latitude", expectedLatitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
         assertEquals(latitude, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testLatitudeVerySmall() {
         final double latitude = -64645;
-        String expectedLatitude = Double.toString( latitude );
-        
-        tune.setLatitude( latitude );
+        String expectedLatitude = Double.toString(latitude);
+
+        tune.setLatitude(latitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "latitude", expectedLatitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
         assertEquals(latitude, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testLatitudeNull() {
         // don't set latitude, will be null
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("latitude");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
         assertEquals(0, tune.getLatitude(), 0.0001);
     }
 
+    @Test
     public void testAppVersionNull() {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue("app_version", "0");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.APP_VERSION, "0");
         assertEquals(0, tune.getAppVersion());
     }
 
+    @Test
     public void testAppAdTrackingTrue() {
         final String expectedAppAdTracking = TuneConstants.PREF_SET;
-        
+
         tune.setAppAdTrackingEnabled(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "app_ad_tracking", expectedAppAdTracking );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.APP_AD_TRACKING, expectedAppAdTracking);
         assertTrue(tune.getAppAdTrackingEnabled());
     }
 
+    @Test
     public void testAppAppAdTrackingFalse() {
         final String expectedAppAdTracking = TuneConstants.PREF_UNSET;
-        
+
         tune.setAppAdTrackingEnabled(false);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "app_ad_tracking", expectedAppAdTracking );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.APP_AD_TRACKING, expectedAppAdTracking);
         assertFalse(tune.getAppAdTrackingEnabled());
     }
 
+    @Test
     public void testTuneSetLocationDisableAutoCollect() {
         final double latitude = 87;
         final double longitude = -122;
@@ -972,6 +1058,7 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.locationListener.isListening());
     }
 
+    @Test
     public void testTuneLocation() {
         final double latitude = 87;
         final double longitude = -122;
@@ -983,98 +1070,106 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue("latitude", expectedLatitude );
-        assertKeyValue( "longitude", expectedLongitude );
+        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
     }
 
+    @Test
     public void testLongitudeValidGtZero() {
         final double longitude = 43;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeValidLtZero() {
         final double longitude = -122;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeValidLarge() {
         final double longitude = 304;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeZero() {
         final double longitude = 0;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeVeryLarge() {
         final double longitude = 43654;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeVerySmall() {
         final double longitude = -64645;
-        String expectedLongitude = Double.toString( longitude );
-        
-        tune.setLongitude( longitude );
+        String expectedLongitude = Double.toString(longitude);
+
+        tune.setLongitude(longitude);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "longitude", expectedLongitude );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
         assertEquals(longitude, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testLongitudeNull() {
         // do not set longitude
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey("longitude");
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
         assertEquals(0.0, tune.getLongitude(), 0.0001);
     }
 
+    @Test
     public void testMacAddress() {
         String expectedMacAddress = "AA:BB:CC:DD:EE:FF";
 
@@ -1087,6 +1182,7 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(expectedMacAddress, tune.getMacAddress());
     }
 
+    @Test
     public void testOsVersion() {
         String osVersion = "5.1.1";
         tune.setOsVersion(osVersion);
@@ -1098,25 +1194,28 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(osVersion, tune.getOsVersion());
     }
 
+    @Test
     public void testPackageNameDefault() {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
+
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
     }
 
+    @Test
     public void testPackageNameAlternate() {
         final String packageName = "some.fake.package.name";
-        
+
         tune.setPackageName( packageName );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertFalse( "params default values should have failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "package_name", packageName );
+
+        assertFalse("params default values should have failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.PACKAGE_NAME, packageName );
         assertEquals(packageName, tune.getPackageName());
     }
-    
+
+    @Test
     public void testPhoneNumber() {
         final String phoneNumber = "(123) 456-7890";
         // Hash will correspond to digits of number
@@ -1124,61 +1223,63 @@ public class ParametersTests extends TuneUnitTest {
         tune.setPhoneNumber(phoneNumber);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_phone" );
-        assertKeyValue( "user_phone_md5", TuneUtils.md5(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha1", TuneUtils.sha1(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_phone");
+        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
     }
-    
+
+    @Test
     public void testPhoneNumberForeign() {
         String phoneNumber = "+१२३.४५६.७८९०";
         String phoneNumberDigits = "1234567890";
         tune.setPhoneNumber(phoneNumber);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_phone" );
-        assertKeyValue( "user_phone_md5", TuneUtils.md5(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha1", TuneUtils.sha1(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
-        
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_phone");
+        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
+
         phoneNumber = "(١٢٣)٤٥٦-٧.٨.٩ ٠";
         tune.setPhoneNumber(phoneNumber);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_phone" );
-        assertKeyValue( "user_phone_md5", TuneUtils.md5(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha1", TuneUtils.sha1(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
-        
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_phone");
+        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
+
         phoneNumber = "၁၂-၃၄-၅၆၇.၈၉ ၀";
         tune.setPhoneNumber(phoneNumber);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_phone" );
-        assertKeyValue( "user_phone_md5", TuneUtils.md5(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha1", TuneUtils.sha1(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
-        
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_phone");
+        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
+
         phoneNumber = "(１２３)４５６-７８９０";
         tune.setPhoneNumber(phoneNumber);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_phone" );
-        assertKeyValue( "user_phone_md5", TuneUtils.md5(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha1", TuneUtils.sha1(phoneNumberDigits) );
-        assertKeyValue( "user_phone_sha256", TuneUtils.sha256(phoneNumberDigits) );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_phone");
+        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
+        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
     }
 
+    @Test
     public void testPlatformAdvertisingId() {
         String platformAdvertisingId = UUID.randomUUID().toString();
 
@@ -1193,6 +1294,7 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testSetPlatformAdvertisingIdNull() {
         tune.setPlatformAdvertisingId(null, false);
         tune.measureEvent("registration");
@@ -1205,6 +1307,7 @@ public class ParametersTests extends TuneUnitTest {
         assertFalse(tune.getPlatformAdTrackingLimited());
     }
 
+    @Test
     public void testPluginName() {
         final String[] testPluginNames = {
                 "air",
@@ -1228,6 +1331,7 @@ public class ParametersTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPluginNameInvalid() {
         tune.setPluginName("fake_plugin");
         tune.measureEvent("registration");
@@ -1237,6 +1341,7 @@ public class ParametersTests extends TuneUnitTest {
         assertNoValueForKey(TuneUrlKeys.SDK_PLUGIN);
     }
 
+    @Test
     public void testReferralUrl() {
         String referralUrl = "tune://";
 
@@ -1249,116 +1354,202 @@ public class ParametersTests extends TuneUnitTest {
         assertEquals(referralUrl, tune.getReferralUrl());
     }
 
+    @Test
     public void testReferrer() {
         // Clear SharedPreferences referrer value
         new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE).putString(TuneConstants.KEY_REFERRER, "");
 
         final String referrer = "aTestReferrer";
-        
+
         tune.setInstallReferrer( referrer );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "install_referrer", referrer );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.INSTALL_REFERRER, referrer);
         assertEquals(referrer, tune.getInstallReferrer());
     }
 
+    @Test
     public void testReferrerNull() {
         // Clear SharedPreferences referrer
         new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE).remove(TuneConstants.KEY_REFERRER);
 
-        tune.setInstallReferrer( null );
+        tune.setInstallReferrer(null);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values should have failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "install_referrer" );
+
+        assertTrue("params default values should have failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.INSTALL_REFERRER);
         assertEquals(null, tune.getInstallReferrer());
     }
 
+    @Test
     public void testTrusteId() {
         final String id = "testId";
-        
+
         tune.setTRUSTeId( id );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "truste_tpid", id );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.TRUSTE_ID, id);
         assertEquals(id, tune.getTRUSTeId());
     }
 
+    @Test
     public void testTwitterUserId() {
         final String id = "testId";
-        
+
         tune.setTwitterUserId( id );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "twitter_user_id", id );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.TWITTER_USER_ID, id);
         assertEquals(id, tune.getTwitterUserId());
     }
 
+    @Test
     public void testUserEmail() {
         final String email = "testUserEmail@test.com";
         tune.setUserEmail( email );
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_email" );
-        assertKeyValue( "user_email_md5", TuneUtils.md5(email) );
-        assertKeyValue( "user_email_sha1", TuneUtils.sha1(email) );
-        assertKeyValue( "user_email_sha256", TuneUtils.sha256(email) );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertKeyValue(TuneUrlKeys.USER_EMAIL_MD5, TuneUtils.md5(email));
+        assertKeyValue(TuneUrlKeys.USER_EMAIL_SHA1, TuneUtils.sha1(email));
+        assertKeyValue(TuneUrlKeys.USER_EMAIL_SHA256, TuneUtils.sha256(email));
         assertEquals(email, tune.getUserEmail());
     }
-    
-    public void testUserEmailAutoCollect() {
+
+    //  TODO: Remove this test for 6.0
+    @Test
+    public void testUserEmailAutoCollectTrue() {
         tune.setEmailCollection(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        // TODO: this fails on emulator with no Gmail account
-//        assertNoValueForKey( "user_email" );
-//        assertHasValueForKey( "user_email_md5" );
-//        assertHasValueForKey( "user_email_sha1" );
-//        assertHasValueForKey( "user_email_sha256" );
+
+        verify(tune.getAccountManager(getContext()), times(1)).getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
+
     }
 
-    public void testUserId() {
-        final String id = "testId";
-        
-        tune.setUserId( id );
+    //  TODO: Remove this test for 6.0
+    @Test
+    public void testUserEmailAutoCollectFalse() {
+        tune.setEmailCollection(true);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertKeyValue( "user_id", id );
+
+        verify(tune.getAccountManager(getContext()), times(1)).getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
+
+        tune.setEmailCollection(false);
+        tune.measureEvent("registration");
+
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertNull(tune.params.getUserEmailMd5());
+        assertNull(tune.params.getUserEmailSha1());
+        assertNull(tune.params.getUserEmailSha256());
+        assertEquals(new JSONArray(), tune.params.getUserEmails());
+    }
+
+    @Test
+    public void testCollectEmails() {
+        tune.collectEmails();
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        verify(tune.getAccountManager(getContext()), times(1)).getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
+    }
+
+    @Test
+    public void testClearEmails() {
+        // NOTE ideally we'd test adding/clearing emails with additional tests factoring in enabled and revoked GET_ACCOUNT permissions, but that's not possible with the rule declared at the top of the test suite.
+        // TODO Look into options for turning GET_ACCOUNT permission on and then off for testing
+        tune.collectEmails();
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        verify(tune.getAccountManager(getContext()), times(1)).getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
+        assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
+
+        tune.clearEmails();
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_email");
+        assertNull(tune.params.getUserEmailMd5());
+        assertNull(tune.params.getUserEmailSha1());
+        assertNull(tune.params.getUserEmailSha256());
+        assertEquals(new JSONArray(), tune.params.getUserEmails());
+    }
+
+    @Test
+    public void testUserId() {
+        final String id = "testId";
+
+        tune.setUserId(id);
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertKeyValue(TuneUrlKeys.USER_ID, id);
         assertEquals(id, tune.getUserId());
     }
 
+    @Test
     public void testUserName() {
         final String id = "testUserName";
-        tune.setUserName( id );
+        tune.setUserName(id);
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        
-        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-        assertNoValueForKey( "user_name" );
-        assertKeyValue( "user_name_md5", TuneUtils.md5(id) );
-        assertKeyValue( "user_name_sha1", TuneUtils.sha1(id) );
-        assertKeyValue( "user_name_sha256", TuneUtils.sha256(id) );
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey("user_name");
+        assertKeyValue(TuneUrlKeys.USER_NAME_MD5, TuneUtils.md5(id));
+        assertKeyValue(TuneUrlKeys.USER_NAME_SHA1, TuneUtils.sha1(id));
+        assertKeyValue(TuneUrlKeys.USER_NAME_SHA256, TuneUtils.sha256(id));
         assertEquals(id, tune.getUserName());
     }
-    
+
+    @Test
     public void testUserIdsAutoPopulated() {
         final String testId = "aTestId";
         final String testEmail = "aTestEmail";
         final String testName = "aTestUserName";
-        
+
         tune.setUserId( testId );
         tune.setUserEmail( testEmail );
         tune.setUserName( testName );
@@ -1374,11 +1565,14 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue( "should have read user name", testName.equals( tune.getUserName() ) );
     }
 
+
     // Build and locale are required for AdWords attribution
+    @Test
     public void testDeviceBuildAutoPopulated() {
         assertNotNull(tune.getDeviceBuild());
     }
 
+    @Test
     public void testLocaleAutoPopulated() {
         assertNotNull(tune.getLocale());
 
@@ -1398,6 +1592,7 @@ public class ParametersTests extends TuneUnitTest {
      * so that we can check to see if the {@link TuneParameters#ACTION_CLICK} was appended, even if privacy rules apply.
      * Reference: SDK-542
      */
+    @Test
     public void testTuneLinkParameters() {
         final String clickedTuneLinkUrl = "https://tlnk.io/some.url";
         tune.setPrivacyProtectedDueToAge(true);
@@ -1406,6 +1601,21 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertKeyValue( TuneUrlKeys.ACTION, TuneParameters.ACTION_CLICK );
+    }
+
+    @Test
+    public void testSDKLocale() {
+        TuneParameters.SDKTYPE type = TuneParameters.SDKTYPE.ANDROID;
+
+        // Default
+        assertEquals("android", type.toString());
+
+        // Test Jira SDK-672 -- Error with az and tr locales
+        setLocale("az", "AZ");
+        assertEquals("android", type.toString());
+
+        setLocale("tr", "TR");
+        assertEquals("android", type.toString());
     }
 
 }

@@ -304,7 +304,9 @@ public class TuneEvent implements Serializable {
      * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated String tag
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneEvent withTagAsString(String name, String value) {
         if (TuneManager.getProfileForUser("withTagAsString") == null) {
             return this;
@@ -317,7 +319,9 @@ public class TuneEvent implements Serializable {
      * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated int tag
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneEvent withTagAsNumber(String name, int value) {
         if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
             return this;
@@ -330,7 +334,9 @@ public class TuneEvent implements Serializable {
      * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated double tag
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneEvent withTagAsNumber(String name, double value) {
         if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
             return this;
@@ -343,7 +349,9 @@ public class TuneEvent implements Serializable {
      * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated float tag
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneEvent withTagAsNumber(String name, float value) {
         if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
             return this;
@@ -356,7 +364,9 @@ public class TuneEvent implements Serializable {
      * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
      * @param value Tag value
      * @return TuneEvent with updated Date tag
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneEvent withTagAsDate(String name, Date value) {
         if (TuneManager.getProfileForUser("withTagAsDate") == null) {
             return this;
@@ -481,6 +491,7 @@ public class TuneEvent implements Serializable {
         return deviceForm;
     }
 
+    @Deprecated
     public Set<TuneAnalyticsVariable> getTags() {
         return tags;
     }

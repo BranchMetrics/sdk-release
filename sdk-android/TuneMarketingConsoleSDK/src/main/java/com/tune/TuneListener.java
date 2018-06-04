@@ -9,6 +9,7 @@ public interface TuneListener {
     /**
      * Callback for when an event is enqueued, and returns the advertiser ref ID if the request, if any.
      * @param refId Advertiser ref ID of the request
+     * @deprecated This method will be removed in Tune Android SDK v6.0.0. Use {@link TuneListener#enqueuedRequest(String url, JSONObject postData)}
      */
     public abstract void enqueuedActionWithRefId(String refId);
 

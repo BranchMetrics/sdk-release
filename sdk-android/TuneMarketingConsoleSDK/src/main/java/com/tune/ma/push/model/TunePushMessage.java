@@ -14,6 +14,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TunePushMessage {
     // This is the key that the push message will be stored under in the intent
     public static final String TUNE_EXTRA_MESSAGE = "com.tune.ma.EXTRA_MESSAGE";

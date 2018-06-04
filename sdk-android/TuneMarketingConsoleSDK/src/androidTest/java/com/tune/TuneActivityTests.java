@@ -3,6 +3,7 @@ package com.tune;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.ma.application.TuneActivity;
 import com.tune.ma.eventbus.TuneEventBus;
@@ -10,17 +11,21 @@ import com.tune.ma.eventbus.event.TuneDeeplinkOpened;
 import com.tune.mocks.MockUrlRequester;
 
 import org.greenrobot.eventbus.Subscribe;
-import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by audrey on 10/31/16.
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneActivityTests extends TuneUnitTest {
 
     private MockUrlRequester mockUrlRequester;
@@ -28,8 +33,8 @@ public class TuneActivityTests extends TuneUnitTest {
 
     private Activity activity;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         activity = Mockito.mock(Activity.class);
@@ -45,6 +50,7 @@ public class TuneActivityTests extends TuneUnitTest {
         tune.setOnline(false); // let the measure requests queue up
     }
 
+    @Test
     public void testOnResumeFromMainLaunch() throws Exception {
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -56,6 +62,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued one measure session request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1);
     }
 
+    @Test
     public void testOnResumeFromMainLaunchIsMeasuredEveryTime() throws Exception {
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -69,6 +76,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued three measure session requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 3);
     }
 
+    @Test
     public void testOnResumeFromDeeplinkOpen() {
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("myapp://isthe/best?with=links"));
@@ -80,6 +88,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued one measure session request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1);
     }
 
+    @Test
     public void testOnResumeFromDeeplinkOpenEveryTime() {
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("myapp://isthe/best?with=links"));
@@ -92,6 +101,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued two measure session requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 2);
     }
 
+    @Test
     public void testOnResumeAfterNineHoursSinceLastMeasureSession() {
         tune.setTimeLastMeasuredSession(System.currentTimeMillis() - (9 * 60 * 60 * 1000));
         TuneActivity.onResume(activity);
@@ -101,6 +111,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued one measure session request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1);
     }
 
+    @Test
     public void testOnResumeAfterMoreThanADaySinceLastMeasureSession() {
         tune.setTimeLastMeasuredSession(System.currentTimeMillis() - 86400002);
         TuneActivity.onResume(activity);
@@ -110,6 +121,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued one measure session request, but found " + queue.getQueueSize(), queue.getQueueSize() == 1);
     }
 
+    @Test
     public void testOnResumeAfterLessThanEightHoursSinceLastMeasureSession() {
         // pretend that we just tracked a measureSession five hours ago
         tune.setTimeLastMeasuredSession(System.currentTimeMillis() - (5 * 60 * 60 * 1000));
@@ -121,6 +133,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should NOT have enqueued a request, but found " + queue.getQueueSize(), queue.getQueueSize() == 0);
     }
 
+    @Test
     public void testOnResumeForDifferentKindsOfIntents() {
         Activity linkActivity = Mockito.mock(Activity.class);
         Intent linkIntent = new Intent();
@@ -149,6 +162,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertTrue("should have enqueued two measure session requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 2);
     }
 
+    @Test
     public void testPassNullToActivityMethods() {
         boolean exceptionOccurred = false;
         try {
@@ -162,6 +176,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertFalse("Passing null to public API methods on TuneActivity should not cause an exception", exceptionOccurred);
     }
 
+    @Test
     public void testDeeplinkOpenSendsDeeplinkOpenedEvent() {
         TestEventBusListener listener = new TestEventBusListener();
         TuneEventBus.register(listener);
@@ -186,6 +201,7 @@ public class TuneActivityTests extends TuneUnitTest {
         assertEquals(1, listener.deeplinkOpenedCount);
     }
 
+    @Test
     public void testSameIntentDoesntSendDeeplinkOpened() {
         TestEventBusListener listener = new TestEventBusListener();
         TuneEventBus.register(listener);
@@ -220,6 +236,7 @@ public class TuneActivityTests extends TuneUnitTest {
 
     // This tests the case where a deeplink is opened, then a different deeplink is opened, then the original deeplinked Activity is reopened
     // It should not count as a new deeplink open
+    @Test
     public void testSameIntentDoesntSendDeeplinkOpenedWithDifferentIntentInBetween() {
         TestEventBusListener listener = new TestEventBusListener();
         TuneEventBus.register(listener);
@@ -262,7 +279,7 @@ public class TuneActivityTests extends TuneUnitTest {
         public TestEventBusListener() {
             deeplinkOpenedCount = 0;
         }
-        
+
         @Subscribe
         public void onEvent(TuneDeeplinkOpened event) {
             deeplinkOpenedCount++;

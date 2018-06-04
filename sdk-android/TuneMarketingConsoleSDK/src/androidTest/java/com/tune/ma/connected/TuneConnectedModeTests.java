@@ -1,25 +1,34 @@
 package com.tune.ma.connected;
 
-import android.util.Log;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneTestConstants;
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
-import com.tune.ma.eventbus.event.TuneAppForegrounded;
 import com.tune.ma.eventbus.event.TuneConnectedModeTurnedOn;
 import com.tune.mocks.MockApi;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 2/4/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneConnectedModeTests extends TuneUnitTest {
     private TuneConnectedModeManager connectedModeManager;
     private MockApi mockApi;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         connectedModeManager = TuneManager.getInstance().getConnectedModeManager();
@@ -28,8 +37,8 @@ public class TuneConnectedModeTests extends TuneUnitTest {
         TuneManager.getInstance().setApi(mockApi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         // App background always ends connected mode
         TuneEventBus.post(new TuneAppBackgrounded());
 
@@ -37,6 +46,7 @@ public class TuneConnectedModeTests extends TuneUnitTest {
         super.tearDown();
     }
 
+    @Test
     public void testConnectedCallsConnect() {
         // Spoof connected mode being turned on
         TuneEventBus.post(new TuneConnectedModeTurnedOn());
@@ -74,6 +84,7 @@ public class TuneConnectedModeTests extends TuneUnitTest {
 //        assertEquals("connectedEvent", mockApi.getPostedConnectedEvent().optJSONObject("event").optString("action"));
 //    }
 
+    @Test
     public void testDisconnect() {
         // Spoof connected mode being turned on
         TuneEventBus.post(new TuneConnectedModeTurnedOn());

@@ -22,11 +22,10 @@ import java.net.URLEncoder;
 
 /**
  * Created by johng on 2/21/17.
- */
-
-/**
  * TuneFullScreenActivity loads and displays a WebView with HTML in-app message content
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneFullScreenActivity extends FragmentActivity {
     private TuneFullScreen message;
 

@@ -1,20 +1,29 @@
 package com.tune.ma.utils;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 /**
  * Created by johng on 2/23/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TuneJsonUtilsTests extends TuneUnitTest {
+    @Test
     public void testPutMap() {
         try {
             JSONObject empty = new JSONObject();
@@ -40,6 +49,7 @@ public class TuneJsonUtilsTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testPutList() {
         try {
             JSONObject empty = new JSONObject();

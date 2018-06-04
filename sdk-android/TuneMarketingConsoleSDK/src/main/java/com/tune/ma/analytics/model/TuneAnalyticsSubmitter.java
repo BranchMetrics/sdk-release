@@ -5,7 +5,9 @@ import com.tune.ma.profile.TuneUserProfile;
 
 /**
  * Created by johng on 1/6/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneAnalyticsSubmitter {
     public static final String SESSION_ID = "sessionId";
     public static final String DEVICE_ID = "deviceId";

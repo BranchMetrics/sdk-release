@@ -26,6 +26,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class TuneAnalyticsVariable {
     public static final String IOS_BOOLEAN_TRUE = "YES";
     public static final String IOS_BOOLEAN_FALSE = "NO";
@@ -316,7 +317,9 @@ public class TuneAnalyticsVariable {
 
     /**
      * Created by charlesgilliam on 1/26/16.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public static class TuneAnalyticsVariableBuilder {
         private String name;
         private String value;
@@ -336,6 +339,11 @@ public class TuneAnalyticsVariable {
             this.hashType = TuneHashType.NONE;
             this.shouldAutoHash = false;
             this.didHaveValueManuallySet = false;
+        }
+
+        public TuneAnalyticsVariableBuilder withNullValue() {
+            this.value = null;
+            return this;
         }
 
         public TuneAnalyticsVariableBuilder withValue(String value) {

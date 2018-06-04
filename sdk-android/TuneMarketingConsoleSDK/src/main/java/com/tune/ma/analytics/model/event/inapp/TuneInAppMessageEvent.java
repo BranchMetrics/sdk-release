@@ -7,8 +7,9 @@ import com.tune.ma.inapp.model.TuneInAppMessage;
 
 /**
  * Created by johng on 5/17/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public abstract class TuneInAppMessageEvent extends TuneAnalyticsEventBase {
     public static final String ANALYTICS_CAMPAIGN_STEP_ID_KEY = "TUNE_CAMPAIGN_STEP_ID";
     public static final String ANALYTICS_SECONDS_DISPLAYED_KEY = "TUNE_IN_APP_MESSAGE_SECONDS_DISPLAYED";

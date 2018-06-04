@@ -11,8 +11,9 @@ import java.util.Date;
 
 /**
  * Created by johng on 4/24/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneMessageDisplayCount {
     // Keys for JSON serialization
     public static final String CAMPAIGN_ID_KEY = "campaignId";

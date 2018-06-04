@@ -2,7 +2,9 @@ package com.tune.ma.eventbus.event;
 
 /**
  * Created by kristine on 2/8/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneSessionVariableToSet {
 
     public enum SaveTo { PROFILE, TAGS, BOTH }

@@ -20,6 +20,10 @@ import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TuneNotificationManagerDelegate {
     public static final int DEFAULT_ICON = android.R.drawable.presence_online;
     public static final String DEFAULT_CHANNEL_ID = "TUNE_CHANNEL";

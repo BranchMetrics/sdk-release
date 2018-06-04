@@ -1,8 +1,17 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertFalse;
+
+@RunWith(AndroidJUnit4.class)
 public class TuneStartupTests extends TuneUnitTest {
     private static final int RETRY_TOTAL = 10;
 
+    @Test
     public void testStartupShutdown() {
         int attempt = 0;
 

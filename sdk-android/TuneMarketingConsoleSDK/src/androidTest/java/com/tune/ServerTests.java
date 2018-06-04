@@ -1,46 +1,70 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONObject;
-//import org.json.JSONException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
-public class ServerTests extends TuneUnitTest implements TuneListener {
-    private boolean callSuccess;
-    private boolean callFailed;
-    private boolean enqueuedSession;
-    private boolean enqueuedEvent;
-    private JSONObject serverResponse;
-    private MockUrlRequester mockUrlRequester;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-    @Override
-    protected void setUp() throws Exception  {
+@RunWith(AndroidJUnit4.class)
+public class ServerTests extends TuneUnitTest implements TuneListener {
+    private class WaitObject {
+        private boolean enqueuedSession;
+        private boolean enqueuedEvent;
+        private boolean callSuccess;
+        private boolean callFailed;
+
+        public void reset() {
+            enqueuedSession = false;
+            enqueuedEvent = false;
+            callSuccess = false;
+            callFailed = false;
+        }
+    }
+
+    private final WaitObject mWaitObject = new WaitObject();
+
+    private void waitForRequest(long timeout) {
+        synchronized (mWaitObject) {
+            try {
+                mWaitObject.wait(timeout);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
+    @Before
+    public void setUp() throws Exception  {
         super.setUp();
 
-        callSuccess = false;
-        callFailed = false;
-        enqueuedSession = false;
-        enqueuedEvent = false;
-
-        tune.setDebugMode( true );
+        tune.setDebugMode(true);
         tune.setListener(this);
+        tune.setOnline(true);
 
-        mockUrlRequester = new MockUrlRequester();
+        MockUrlRequester mockUrlRequester = new MockUrlRequester();
         tune.setUrlRequester(mockUrlRequester);
     }
 
+    @Test
     public void testSession() {
         tune.measureSessionInternal();
-        
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
 
-        assertTrue(enqueuedSession);
-        assertFalse(enqueuedEvent);
-        
-        assertTrue( "session should have succeeded", callSuccess );
-        assertFalse( "session should not have failed", callFailed );
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+
+        assertTrue(mWaitObject.enqueuedSession);
+        assertFalse(mWaitObject.enqueuedEvent);
+
+        assertTrue("session should have succeeded", mWaitObject.callSuccess);
+        assertFalse("session should not have failed", mWaitObject.callFailed);
     }
 
     /* JAB 2/4/14: duplicates not being rejected for some reason... same in iOS tests
@@ -50,7 +74,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
         assertTrue( "trackInstall should have returned success", success == 1 );
         assertTrue( "install should have succeeded", callSuccess );
         assertFalse( "install should not have failed", callFailed );
-        
+
         callSuccess = false;
 
         success = tune.trackSession();
@@ -61,43 +85,49 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     }
     */
 
+    @Test
     public void testUpdate() {
-        tune.setExistingUser( true );
+        Log("testUpdate");
+        tune.setExistingUser(true);
         tune.measureSessionInternal();
 
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
-        
-        assertTrue( "update should have succeeded", callSuccess );
-        assertFalse( "update should not have failed", callFailed );
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+
+        assertTrue("update should have succeeded", mWaitObject.callSuccess);
+        assertFalse("update should not have failed", mWaitObject.callFailed);
     }
 
+    @Test
     public void testEventName() {
         tune.measureEvent( "testEventName" );
 
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
 
-        assertTrue(enqueuedEvent);
-        assertFalse(enqueuedSession);
-        
-        assertTrue( "action should have succeeded", callSuccess );
-        assertFalse( "action should not have failed", callFailed );
+        assertTrue(mWaitObject.enqueuedEvent);
+        assertFalse(mWaitObject.enqueuedSession);
+
+        assertTrue("action should have succeeded", mWaitObject.callSuccess);
+        assertFalse("action should not have failed", mWaitObject.callFailed);
     }
 
+    @Test
     public void testEventNameDuplicate() {
         final String eventName = "testEventName";
+        tune.measureEvent(eventName);
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+
+        assertTrue("action should have succeeded", mWaitObject.callSuccess);
+        assertFalse("action should not have failed", mWaitObject.callFailed);
+
+        mWaitObject.reset();
         tune.measureEvent( eventName );
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
-        
-        assertTrue( "action should have succeeded", callSuccess );
-        assertFalse( "action should not have failed", callFailed );
-        
-        callSuccess = false;
-        tune.measureEvent( eventName );
-        sleep( 5000 );
-        assertTrue( "action should have succeeded", callSuccess );
-        assertFalse( "action should not have failed", callFailed );
+
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+        assertTrue("action should have succeeded", mWaitObject.callSuccess);
+        assertFalse("action should not have failed", mWaitObject.callFailed);
     }
 
+    @Test
     public void testEventNameItems() {
         final String eventName = "testEventName";
         final TuneEventItem item1 = new TuneEventItem("testItemName")
@@ -118,40 +148,37 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
                                        .withAttribute3("hat3")
                                        .withAttribute4("hat4")
                                        .withAttribute5("hat5");
-        ArrayList<TuneEventItem> testItems = new ArrayList<TuneEventItem>();
+        ArrayList<TuneEventItem> testItems = new ArrayList<>();
         testItems.add( item1 );
         testItems.add( item2 );
-        
+
         TuneEvent eventData = new TuneEvent(eventName).withEventItems(testItems);
         tune.measureEvent(eventData);
-        sleep( TuneTestConstants.SERVERTEST_SLEEP );
-        
-        assertTrue( "action should have succeeded", callSuccess );
-        assertFalse( "action should not have failed", callFailed );
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+
+        assertTrue("action should have succeeded", mWaitObject.callSuccess);
+        assertFalse("action should not have failed", mWaitObject.callFailed);
     }
 
-    // TODO: Android emulator does not have Google AID
-//    public void testGoogleAdvertisingIdAutoCollect() {
-//        tune.measureSessionInternal();
-//        sleep( TuneTestConstants.PARAMTEST_SLEEP );
-//
-//        assertTrue( "params default values failed " + params, params.checkDefaultValues() );
-//        assertNoValueForKey( "google_aid" );
-//
-//        sleep( TuneTestConstants.SERVERTEST_SLEEP );
-//
-//        assertTrue( "action should have succeeded", callSuccess );
-//        assertTrue( "JSON response must have \"get\" field", serverResponse.has( "get" ) );
-//        try {
-//            JSONObject get = serverResponse.getJSONObject( "get" );
-//            assertTrue( "JSON \"get\" must have \"google_aid\" field", get.has( "google_aid" ) );
-//            Object gaidObj = get.get( "google_aid" );
-//            assertTrue( "google_aid must be a string", gaidObj instanceof String );
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//            assertTrue( false );
-//        }
-//    }
+    @Test
+    public void testPlatformAdvertisingIdAutoCollect() {
+        tune.measureSessionInternal();
+        waitForRequest(TuneTestConstants.SERVERTEST_SLEEP);
+
+        assertTrue(mWaitObject.enqueuedSession);
+        assertFalse(mWaitObject.enqueuedEvent);
+
+        assertTrue("session should have succeeded", mWaitObject.callSuccess);
+        assertFalse("session should not have failed", mWaitObject.callFailed);
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+
+        assertHasValueForKey(TuneUrlKeys.PLATFORM_AID);
+        assertNotNull(tune.getPlatformAdvertisingId());
+
+        assertHasValueForKey(TuneUrlKeys.GOOGLE_AID);
+        assertNotNull(tune.getGoogleAdvertisingId());
+    }
 
     @Override
     public void enqueuedActionWithRefId(String refId) {
@@ -160,23 +187,32 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     @Override
     public void enqueuedRequest(String url, JSONObject postData) {
         if (url.contains("action=session")) {
-            enqueuedSession = true;
+            synchronized (mWaitObject) {
+                mWaitObject.enqueuedSession = true;
+            }
         }
         if (url.contains("action=conversion")) {
-            enqueuedEvent = true;
+            synchronized (mWaitObject) {
+                mWaitObject.enqueuedEvent = true;
+            }
         }
     }
 
     @Override
     // Method is mocked for testing purposes; no need for data argument
     public void didSucceedWithData(JSONObject data) {
-        Log("test succeeded");
-        callSuccess = true;
+        synchronized (mWaitObject) {
+            mWaitObject.callSuccess = true;
+            mWaitObject.notify();
+        }
     }
 
     @Override
     public void didFailWithError(JSONObject error) {
         Log("test failed with " + error);
-        callFailed = true;
+        synchronized (mWaitObject) {
+            mWaitObject.callFailed = true;
+            mWaitObject.notify();
+        }
     }
 }

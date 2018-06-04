@@ -10,7 +10,9 @@ import com.tune.ma.analytics.model.constants.TuneEventType;
 /**
  * Created by johng on 1/26/16.
  * Base class for all custom analytics events.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneCustomEvent extends TuneAnalyticsEventBase {
     public TuneCustomEvent(TuneEvent event) {
         super();

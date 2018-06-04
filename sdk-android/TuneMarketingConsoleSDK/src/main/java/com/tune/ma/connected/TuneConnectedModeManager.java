@@ -29,7 +29,9 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by johng on 1/28/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneConnectedModeManager {
     private static final String POWER_HOOKS_KEY = "power_hooks";
     private static final String DEEP_ACTIONS_KEY = "deep_actions";

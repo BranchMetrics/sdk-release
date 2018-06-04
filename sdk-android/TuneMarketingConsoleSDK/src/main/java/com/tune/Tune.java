@@ -42,6 +42,10 @@ import com.tune.ma.utils.TuneOptional;
 import com.tune.smartwhere.TuneSmartWhere;
 import com.tune.smartwhere.TuneSmartWhereConfiguration;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -52,10 +56,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * @author tony@hasoffers.com
@@ -1744,7 +1744,6 @@ public class Tune {
         }
     }
 
-
     /**
      * Checks the current status of debug mode.
      * @return Whether debug mode is on or off.
@@ -1757,19 +1756,37 @@ public class Tune {
      * Enables or disables primary Gmail address collection.
      * Requires GET_ACCOUNTS permission
      * @param collectEmail whether to collect device email address
+     * @deprecated This method will be removed in Tune Android SDK v6.0.0. Use {@link Tune#collectEmails()} and {@link Tune#clearEmails()}
      */
     public void setEmailCollection(final boolean collectEmail) {
+        if (!collectEmail) {
+            clearEmails();
+            return;
+        }
+
         boolean accountPermission = TuneUtils.hasPermission(mContext, Manifest.permission.GET_ACCOUNTS);
-        if (collectEmail && accountPermission) {
+        if (accountPermission) {
+            collectEmails();
+        }
+    }
+
+    /**
+     * Enables primary Gmail address collection (and other emails linked to account.)
+     * Requires GET_ACCOUNTS permission
+     */
+    public void collectEmails() {
+        boolean accountPermission = TuneUtils.hasPermission(mContext, Manifest.permission.GET_ACCOUNTS);
+        if (accountPermission) {
+            AccountManager accountManager = getAccountManager(mContext);
             // Set primary Gmail address as user email
-            Account[] accounts = AccountManager.get(mContext).getAccountsByType("com.google");
+            Account[] accounts = accountManager.getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
             if (accounts.length > 0) {
                 params.setUserEmail(accounts[0].name);
             }
 
             // Store the rest of email addresses
             HashMap<String, String> emailMap = new HashMap<String, String>();
-            accounts = AccountManager.get(mContext).getAccounts();
+            accounts = accountManager.getAccounts();
             for (Account account : accounts) {
                 if (Patterns.EMAIL_ADDRESS.matcher(account.name).matches()) {
                     emailMap.put(account.name, account.type);
@@ -1779,6 +1796,23 @@ public class Tune {
                 params.setUserEmails(emailArr);
             }
         }
+    }
+
+    /**
+     * Helper method to obtain the Account Manager for the provided context
+     * @return an Account Manager
+     */
+    protected AccountManager getAccountManager(Context context) {
+        return AccountManager.get(context);
+    }
+
+    /**
+     * Disables primary Gmail address collection (and other emails linked to account.)
+     * Requires GET_ACCOUNTS permission
+     */
+    public void clearEmails() {
+        params.clearUserEmail();
+        params.clearUserEmails();
     }
 
     /**
@@ -1819,8 +1853,9 @@ public class Tune {
      * @param hookId The name of the configuration setting to register. Name must be unique for this app and cannot be empty.
      * @param friendlyName The name for this hook that will be displayed in TMC. This value cannot be empty.
      * @param defaultValue The default value for this hook.  This value will be used if no value is passed in from TMC for this app. This value cannot be nil.
-     *
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerPowerHook(String hookId, String friendlyName, String defaultValue) {
         if (TuneManager.getPowerHookManagerForUser("registerPowerHook") == null) {
             return;
@@ -1840,9 +1875,10 @@ public class Tune {
      * @param description The description for this Power Hook. This will be shown on the web to help identify this Power Hook if many are registered.
      * @param approvedValues The values that are allowed for this Power Hook.
      *                       Any values entered on the web that don't fit within this array of values will not propagate to the app.
-     *
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
     // NOTE: Private til we release this API.
+    @Deprecated
     private void registerPowerHook(String hookId, String friendlyName, String defaultValue, String description, List<String> approvedValues) {
         if (TuneManager.getPowerHookManagerForUser("registerPowerHook") == null) {
             return;
@@ -1860,7 +1896,9 @@ public class Tune {
      *
      * @param hookId The name of the Power Hook you wish to retrieve. Will return nil if the Power Hook has not been registered.
      * @return the value of the Power Hook
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public String getValueForHookById(String hookId) {
         if (TuneManager.getPowerHookManagerForUser("getValueForHookById") == null) {
             return null;
@@ -1877,7 +1915,9 @@ public class Tune {
      *
      * @param hookId The name of the Power Hook you wish to set the value for.
      * @param value The new value you would like to test.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setValueForHookById(String hookId, String value) {
         if (TuneManager.getPowerHookManagerForUser("setValueForHookById") == null) {
             return;
@@ -1894,8 +1934,9 @@ public class Tune {
      * If the code inside of the block requires executing on the main thread you will need to implement this logic. **
      *
      * @param callback The block of code to be executed.
-     *
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void onPowerHooksChanged(TuneCallback callback) {
         if (TuneManager.getPowerHookManagerForUser("onPowerHooksChanged") == null) {
             return;
@@ -1917,7 +1958,9 @@ public class Tune {
      * @param defaultData The default values for this deep action.
      *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerDeepAction(String actionId, String friendlyName, Map<String, String> defaultData, TuneDeepActionCallback action) {
         if (TuneManager.getDeepActionManagerForUser("registerDeepAction") == null) {
             return;
@@ -1936,8 +1979,9 @@ public class Tune {
      * @param defaultData The default values for this deep action.
      *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
-    // NOTE: Private til we release this API.
+    @Deprecated
     private void registerDeepAction(String actionId, String friendlyName, String description, Map<String, String> defaultData, TuneDeepActionCallback action) {
         if (TuneManager.getDeepActionManagerForUser("registerDeepAction") == null) {
             return;
@@ -1957,8 +2001,9 @@ public class Tune {
      *                    These values will be used if no value is passed in from TMC for this app. This cannot be null.
      * @param approvedValues An optional Map of key to list of approved values.
      * @param action The code block that implements Runnable to execute when this Deep Action fires. This cannot be null
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
-    // NOTE: Private til we release this API.
+    @Deprecated
     private void registerDeepAction(String actionId, String friendlyName, String description,
                                     Map<String, String> defaultData, Map<String, List<String>> approvedValues, TuneDeepActionCallback action) {
         if (TuneManager.getDeepActionManagerForUser("registerDeepAction") == null) {
@@ -1976,7 +2021,9 @@ public class Tune {
      * @param activity Activity object to be made available to the deep action code-block. This object may be null depending on its usage in the code-block.
      * @param actionId Non-empty non-null name of a previously registered deep action code-block.
      * @param data Values to be used with the deep action. This Map may be null or empty or contain string keys and values.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void executeDeepAction(Activity activity, String actionId, Map<String, String> data) {
         if (TuneManager.getDeepActionManagerForUser("executeDeepAction") == null) {
             return;
@@ -1997,7 +2044,9 @@ public class Tune {
      * @return a `Map` of experiment details for all running Power Hook variable experiments,
      *     where the keys are the `String` Power Hook IDs of the Power Hooks, and the values
      *     are `TunePowerHookExperimentDetails` objects.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Map<String, TunePowerHookExperimentDetails> getPowerHookExperimentDetails() {
         if (TuneManager.getExperimentManagerForUser("getPowerHookExperimentDetails") == null) {
             return null;
@@ -2014,7 +2063,9 @@ public class Tune {
      * @return a `HashMap` of experiment details for all running In App Message experiments,
      *     where the keys are the `String` campaign ids of the In App Messages, and the values are
      *     `TuneInAppMessageExperimentDetails` objects.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Map<String, TuneInAppMessageExperimentDetails> getInAppMessageExperimentDetails() {
         if (TuneManager.getExperimentManagerForUser("getInAppMessageExperimentDetails") == null) {
             return null;
@@ -2052,7 +2103,9 @@ public class Tune {
      * WARNING: If TMA is not enabled then this callback will never fire.
      *
      * @param callback A TuneCallback object that is to be executed.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void onFirstPlaylistDownloaded(final TuneCallback callback) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
             return;
@@ -2090,7 +2143,9 @@ public class Tune {
      * @param callback A TuneCallback object that is to be executed.
      * @param timeout The number of miliseconds to wait until executing the callback regardless
      *                of Playlist download.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void onFirstPlaylistDownloaded(TuneCallback callback, long timeout) {
         if (TuneManager.getPlaylistManagerForUser("onFirstPlaylistDownloaded") == null) {
             return;
@@ -2107,7 +2162,9 @@ public class Tune {
      * Get in-app messages for this device that are triggered by custom event.
      * @param eventName Event name of custom {@link TuneEvent} that would trigger these messages
      * @return List of messages that are triggered from the given event
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public List<TuneInAppMessage> getInAppMessagesForCustomEvent(String eventName) {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForCustomEvent") == null) {
             return null;
@@ -2120,7 +2177,9 @@ public class Tune {
      * Get in-app messages for this device that are triggered by a push opened event for a specific TUNE push message.
      * @param pushId Push id (message variation id) of the push notification.
      * @return List of messages that are triggered by Push Opened event
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public List<TuneInAppMessage> getInAppMessagesForPushOpened(String pushId) {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForPushOpened") == null) {
             return null;
@@ -2136,7 +2195,9 @@ public class Tune {
      * or the user profile's age does not meet COPPA (automatically disabled)
      * @param pushEnabled Whether Push Enabled or Push Disabled is the event to use
      * @return List of messages that are triggered by Push Enabled/Disabled event
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public List<TuneInAppMessage> getInAppMessagesForPushEnabled(boolean pushEnabled) {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForPushEnabled") == null) {
             return null;
@@ -2153,7 +2214,9 @@ public class Tune {
      * We do this so that all IAM messages, power hooks, deep actions, etc. are populated with the
      * latest values by the time the message should be shown.
      * @return List of messages that are triggered by "Starts App" event
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public List<TuneInAppMessage> getInAppMessagesForStartsApp() {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForStartsApp") == null) {
             return null;
@@ -2166,7 +2229,9 @@ public class Tune {
      * Get in-app messages for this device that are triggered by a Screen Viewed event.
      * @param activityName Activity name for the Viewed Screen event
      * @return List of messages that are triggered by Viewed Screen event
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public List<TuneInAppMessage> getInAppMessagesForScreenViewed(String activityName) {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesForScreenViewed") == null) {
             return null;
@@ -2181,7 +2246,9 @@ public class Tune {
      *
      * @return `Map` of in-app messages for this device, where the keys are the `String` message
      *     variation ids of the In-App Message, and the values are {@link TuneInAppMessage} objects.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Map<String, TuneInAppMessage> getInAppMessagesByIds() {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByIds") == null) {
             return null;
@@ -2196,7 +2263,9 @@ public class Tune {
      *
      * @return `Map` of in-app messages for this device, where the keys are the `String` trigger
      *     event (event hash) of the In-App Message, and the values are a list of {@link TuneInAppMessage} objects with that trigger.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Map<String, List<TuneInAppMessage>> getInAppMessagesByTriggerEvents() {
         if (TuneManager.getInAppMessageManagerForUser("getInAppMessagesByTriggerEvents") == null) {
             return null;
@@ -2208,7 +2277,9 @@ public class Tune {
     /**
      * Preload all messages in a given Activity, so they're ready to be shown quickly.
      * @param activity Activity where messages would be shown when triggered
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void preloadMessages(Activity activity) {
         if (TuneManager.getInAppMessageManagerForUser("preloadMessages") == null) {
             return;
@@ -2221,7 +2292,9 @@ public class Tune {
      * Preload all messages that are triggered by given custom event.
      * @param activity Activity where messages would be shown when triggered
      * @param eventName Trigger event name for the messages
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void preloadMessagesForCustomEvent(Activity activity, String eventName) {
         if (TuneManager.getInAppMessageManagerForUser("preloadMessagesForCustomEvent") == null) {
             return;
@@ -2234,7 +2307,9 @@ public class Tune {
      * Preload a single message with given message ID.
      * @param activity Activity where message would be shown when triggered
      * @param messageId Message ID
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void preloadMessageWithId(Activity activity, String messageId) {
         if (TuneManager.getInAppMessageManagerForUser("preloadMessageWithId") == null) {
             return;
@@ -2246,7 +2321,9 @@ public class Tune {
     /**
      * Sets a layout to use as the loading screen before a full screen in-app message is shown, in place of the system default ProgressDialog.
      * @param layoutId layout id of the custom load screen to use
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setFullScreenLoadingScreen(int layoutId) {
         if (TuneManager.getInAppMessageManagerForUser("setFullScreenLoadingScreen") == null) {
             return;
@@ -2271,7 +2348,9 @@ public class Tune {
      * IMPORTANT: If you use this method you should not use {@link Tune#setPushNotificationRegistrationId(String)}
      *
      * @param pushSenderId Your Push Sender Id.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setPushNotificationSenderId(String pushSenderId) {
         if (TuneManager.getPushManagerForUser("setPushNotificationSenderId") == null) {
             return;
@@ -2287,7 +2366,9 @@ public class Tune {
      * IMPORTANT: If you use this method you should not use {@link Tune#setPushNotificationSenderId(String)}
      *
      * @param registrationId The device token you want to use.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setPushNotificationRegistrationId(String registrationId) {
         if (TuneManager.getPushManagerForUser("setPushNotificationRegistrationId") == null) {
             return;
@@ -2308,7 +2389,9 @@ public class Tune {
      *
      * @param builder by providing a {@link TuneNotificationBuilder} you can provide defaults for
      *                your app's notifications for Tune Push Messages, like the small icon
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setPushNotificationBuilder(TuneNotificationBuilder builder) {
         if (TuneManager.getPushManagerForUser("setPushNotificationBuilder") == null) {
             return;
@@ -2321,7 +2404,9 @@ public class Tune {
      * Provide Tune with a push listener to access extraPushPayload and decide if a notification should be displayed.
      *
      * @param listener by providing a {@link TunePushListener} you can access the extraPushPayload and decide if the notification should be displayed
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setPushListener(TunePushListener listener) {
         if (TuneManager.getPushManagerForUser("setPushListener") == null) {
             return;
@@ -2346,7 +2431,9 @@ public class Tune {
      * This can be called from anywhere in your app.
      *
      * @param optedOutOfPush Whether the user opted out of push messaging.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setOptedOutOfPush(boolean optedOutOfPush) {
         if (TuneManager.getPushManagerForUser("setOptedOutOfPush") == null) {
             return;
@@ -2358,7 +2445,9 @@ public class Tune {
     /**
      * Returns the currently registered device token for push.
      * @return The currently registered device token for push, or null if we aren't registered.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public String getDeviceToken() {
         if (TuneManager.getPushManagerForUser("getDeviceToken") == null) {
             return null;
@@ -2372,7 +2461,9 @@ public class Tune {
      * If this returns true then nothing will be allowed to be posted to the tray, not just push notifications
      *
      * @return Whether the user manually disabled push from the Application Settings screen if API Level &gt;= 19, otherwise false.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public boolean didUserManuallyDisablePush() {
         if (TuneManager.getPushManagerForUser("didUserManuallyDisablePush") == null) {
             return false;
@@ -2388,7 +2479,9 @@ public class Tune {
      * this should be called after `super.onStart();` in the activity.
      *
      * @return true if this session was started because the user opened a push message, otherwise false.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public boolean didSessionStartFromTunePush() {
         if (TuneManager.getPushManagerForUser("didSessionStartFromTunePush") == null) {
             return false;
@@ -2404,7 +2497,9 @@ public class Tune {
      * this should be called after `super.onStart();` in the activity.
      *
      * @return Information about the last opened push if {@link Tune#didSessionStartFromTunePush()} is true, otherwise null.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TunePushInfo getTunePushInfoForSession() {
         if (TuneManager.getPushManagerForUser("getTunePushInfoForSession") == null) {
             return null;
@@ -2421,7 +2516,9 @@ public class Tune {
      * Returns whether the user belongs to the given segment.
      * @param segmentId Segment ID to check for a match
      * @return whether the user belongs to the given segment
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public boolean isUserInSegmentId(String segmentId) {
         if (TuneManager.getPlaylistManagerForUser("isUserInSegmentId") == null) {
             return false;
@@ -2434,7 +2531,9 @@ public class Tune {
      * Returns whether the user belongs to any of the given segments.
      * @param segmentIds Segment IDs to check for a match
      * @return whether the user belongs to any of the given segments
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public boolean isUserInAnySegmentIds(List<String> segmentIds) {
         if (TuneManager.getPlaylistManagerForUser("isUserInAnySegmentIds") == null) {
             return false;
@@ -2478,7 +2577,7 @@ public class Tune {
      * Request a deferred deep link if this is the first install of the app with the Tune SDK.
      */
     private void requestDeferredDeeplink() {
-        final boolean shouldRequestDeferredDeeplink = isFirstInstall && dplinkr != null && params != null;
+        final boolean shouldRequestDeferredDeeplink = isFirstInstall && dplinkr != null && params != null && (params.getPlatformAdvertisingId() != null || params.getAndroidId() != null);
 
         if (shouldRequestDeferredDeeplink) {
             dplinkr.requestDeferredDeeplink(params.getUserAgent(), urlRequester);
@@ -2541,7 +2640,9 @@ public class Tune {
      * @param variableName Name of the variable to register for the current user.
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileString(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
             return;
@@ -2567,7 +2668,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileString(String variableName, String defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileString") == null) {
             return;
@@ -2586,7 +2689,9 @@ public class Tune {
      * @param variableName Name of the variable to register for the current user.
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileDate(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileDate") == null) {
             return;
@@ -2611,7 +2716,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileDate(String variableName, Date defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileDate") == null) {
             return;
@@ -2632,7 +2739,9 @@ public class Tune {
      * @param variableName Name of the variable to register for the current user.
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileGeolocation(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileGeolocation") == null) {
             return;
@@ -2657,7 +2766,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileGeolocation(String variableName, TuneLocation defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileGeolocation") == null) {
             return;
@@ -2681,7 +2792,9 @@ public class Tune {
      * @param variableName Name of the variable to register for the current user.
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileNumber(String variableName) {
         if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
             return;
@@ -2709,7 +2822,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileNumber(String variableName, int defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
             return;
@@ -2734,7 +2849,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileNumber(String variableName, double defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
             return;
@@ -2759,7 +2876,9 @@ public class Tune {
      *                     Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.
      *                     Any other characters will automatically be stripped out.
      * @param defaultValue Initial value for the variable.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void registerCustomProfileNumber(String variableName, float defaultValue) {
         if (TuneManager.getProfileForUser("registerCustomProfileNumber") == null) {
             return;
@@ -2778,7 +2897,9 @@ public class Tune {
      * @param variableName Variable to which this value should be assigned.
      *                     Passing null or an empty string value will have the same effect as calling
      *                     {@link #clearCustomProfileVariable(String)}.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileStringValue(String variableName, String value) {
         if (TuneManager.getProfileForUser("setCustomProfileStringValue") == null) {
             return;
@@ -2801,7 +2922,9 @@ public class Tune {
      * @param variableName Variable to which this value should be assigned.
      *                     Passing a null value will have the same effect as calling
      *                     {@link #clearCustomProfileVariable(String)}.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileDate(String variableName, Date value) {
         if (TuneManager.getProfileForUser("setCustomProfileDate") == null) {
             return;
@@ -2824,7 +2947,9 @@ public class Tune {
      * @param variableName Variable to which this value should be assigned.
      *                     Passing a null value will have the same effect as calling
      *                     {@link #clearCustomProfileVariable(String)}.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileGeolocation(String variableName, TuneLocation value) {
         if (TuneManager.getProfileForUser("setCustomProfileGeolocation") == null) {
             return;
@@ -2845,7 +2970,9 @@ public class Tune {
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
      * @param variableName Variable to which this value should be assigned.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileNumber(String variableName, int value) {
         if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
             return;
@@ -2862,7 +2989,9 @@ public class Tune {
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
      * @param variableName Variable to which this value should be assigned.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileNumber(String variableName, double value) {
         if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
             return;
@@ -2879,7 +3008,9 @@ public class Tune {
      * This can be called from anywhere in your app after the appropriate register call in {@link android.app.Application#onCreate()}.
      * @param value Value to use for the given variable.
      * @param variableName Variable to which this value should be assigned.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void setCustomProfileNumber(String variableName, float value) {
         if (TuneManager.getProfileForUser("setCustomProfileNumber") == null) {
             return;
@@ -2899,7 +3030,9 @@ public class Tune {
      * or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public String getCustomProfileString(String variableName) {
         if (TuneManager.getProfileForUser("getCustomProfileString") == null) {
             return null;
@@ -2922,7 +3055,9 @@ public class Tune {
      * or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Date getCustomProfileDate(String variableName) {
         if (TuneManager.getProfileForUser("getCustomProfileDate") == null) {
             return null;
@@ -2944,7 +3079,9 @@ public class Tune {
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public TuneLocation getCustomProfileGeolocation(String variableName) {
         if (TuneManager.getProfileForUser("getCustomProfileGeolocation") == null) {
             return null;
@@ -2966,7 +3103,9 @@ public class Tune {
      * This will return null if the variable was registered without a default and has never been set, or if has been explicitly set as null.
      * @param variableName Name of the custom profile variable.
      * @return Value stored for the variable. It may be null.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public Number getCustomProfileNumber(String variableName) {
         if (TuneManager.getProfileForUser("getCustomProfileNumber") == null) {
             return null;
@@ -2983,7 +3122,7 @@ public class Tune {
     /**
      * Returns In-App Marketing's generated app ID value.
      * @return App ID in In-App Marketing, or null if IAM was not enabled
-     * @deprecated use {@link #getIAMAppId()} instead
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
     @Deprecated
     public String getAppId() {
@@ -2995,7 +3134,9 @@ public class Tune {
      * This value changes if the package name or advertiser id set in the Tune SDK initialization changes.
      *
      * @return App ID for In-App Marketing, or null if IAM was not enabled
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public String getIAMAppId() {
         if (TuneManager.getProfileForUser("getIAMAppId") == null) {
             return null;
@@ -3011,7 +3152,9 @@ public class Tune {
      * We recommend fetching this value some time after the Tune SDK is initialized.
      *
      * @return Device profile identifier for In-App Marketing, or null if IAM was not enabled
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public String getIAMDeviceId() {
         if (TuneManager.getProfileForUser("getIAMDeviceId") == null) {
             return null;
@@ -3030,7 +3173,9 @@ public class Tune {
      * <br>
      * NOTE: This will not stop the variable from being registered again on the next {@link android.app.Application#onCreate()}.
      * @param variableName Name of the custom profile variable to clear.  The profile variable cannot be null or an empty string.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void clearCustomProfileVariable(String variableName) {
         if (TuneManager.getProfileForUser("clearCustomProfileVariable") == null) {
             return;
@@ -3053,7 +3198,9 @@ public class Tune {
      * This will only clear out all profile variables that have been registered before this call.
      * <br>
      * NOTE: This will not stop the variables from being registered again on the next {@link android.app.Application#onCreate()}.
+     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
      */
+    @Deprecated
     public void clearAllCustomProfileVariables() {
         if (TuneManager.getProfileForUser("clearAllCustomProfileVariables") == null) {
             return;

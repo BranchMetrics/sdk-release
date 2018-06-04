@@ -9,7 +9,9 @@ import java.util.TimerTask;
 
 /**
  * Created by gowie on 1/28/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneCallbackHolder {
 
     private TuneCallback callback;

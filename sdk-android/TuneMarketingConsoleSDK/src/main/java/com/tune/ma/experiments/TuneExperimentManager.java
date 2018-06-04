@@ -21,7 +21,9 @@ import java.util.Set;
 
 /**
  * Created by gowie on 1/26/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneExperimentManager {
 
     public static final String TUNE_ACTIVE_VARIATION_ID = "TUNE_ACTIVE_VARIATION_ID";

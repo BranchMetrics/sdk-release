@@ -17,7 +17,9 @@ import java.util.Map;
 
 /**
  * Created by willb on 1/28/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneDeepActionManager {
 
     private Map<String, TuneDeepAction> actionMap;

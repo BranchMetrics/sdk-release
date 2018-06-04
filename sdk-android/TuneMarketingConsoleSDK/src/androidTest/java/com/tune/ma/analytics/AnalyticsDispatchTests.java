@@ -1,5 +1,7 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneEvent;
 import com.tune.TuneTestConstants;
 import com.tune.ma.TuneManager;
@@ -23,6 +25,10 @@ import com.tune.mocks.MockApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static com.tune.ma.analytics.model.event.inapp.TuneInAppMessageEvent.ANALYTICS_ACTION_SHOWN;
 import static com.tune.ma.analytics.model.event.inapp.TuneInAppMessageEvent.ANALYTICS_CAMPAIGN_STEP_ID_KEY;
@@ -33,16 +39,19 @@ import static com.tune.ma.inapp.TuneInAppMessageConstants.LIFETIME_MAXIMUM_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.LIMIT_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_INSTALL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 1/11/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
     private static final int WAIT_TIME = TuneTestConstants.PARAMTEST_SLEEP;
     private MockApi mockApi;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         // Unregister configuration manager so it doesn't get config from server and overwrite dispatch period
@@ -55,7 +64,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         sharedPrefs.clearSharedPreferences();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         TuneManager.getInstance().setApi(null);
         mockApi = null;
@@ -67,7 +76,8 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     /**
      * Test that events get dispatched after DEFAULT_DISPATCH_PERIOD
      */
-    public void testBasicDispatch() throws InterruptedException {
+    @Test
+    public void testBasicDispatch() {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
         // Wait for first tracer to be dispatched
@@ -91,7 +101,8 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     /**
      * Test that events get continually dispatched after two cycles of DEFAULT_DISPATCH_PERIOD
      */
-    public void testRepeatedDispatch() throws InterruptedException {
+    @Test
+    public void testRepeatedDispatch() {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
         // Wait for first tracer to be dispatched
@@ -124,6 +135,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     /**
      * Test that a tracer gets sent with each dispatch
      */
+    @Test
     public void testTracerDispatch() {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -137,6 +149,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(mockApi.getPostedEvents().toString().contains("\"type\":\"TRACER\""));
     }
 
+    @Test
     public void testAppForegroundDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -159,6 +172,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
 
     }
 
+    @Test
     public void testAppBackgroundDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -203,6 +217,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(foundPushEnabled);
     }
 
+    @Test
     public void testScreenViewDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -254,7 +269,8 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     /**
      * Test that all push opened events are sent when a TunePushOpened event is received
      */
-    public void testPushEventsDispatch() throws InterruptedException, JSONException {
+    @Test
+    public void testPushEventsDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
         // Wait for foreground to be dispatched
@@ -323,6 +339,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
     }
 
     // Test that a DeeplinkOpened event with the deeplink url is sent when a deeplink open is detected
+    @Test
     public void testDeeplinkOpenedDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -356,6 +373,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
     }
 
+    @Test
     public void testInAppMessageShownDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -398,6 +416,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
     }
 
+    @Test
     public void testInAppMessageDismissedDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -440,6 +459,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
     }
 
+    @Test
     public void testInAppMessageDismissedAutomaticallyDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 
@@ -482,6 +502,7 @@ public class AnalyticsDispatchTests extends TuneAnalyticsTest {
         assertTrue(eventString.contains("\"type\":\"TRACER\""));
     }
 
+    @Test
     public void testInAppMessageTuneActionDispatch() throws JSONException {
         TuneEventBus.post(new TuneAppForegrounded("foo", 1111L));
 

@@ -1353,7 +1353,7 @@ public class TuneParameters {
 
         @Override
         public String toString() {
-            return super.toString().toLowerCase();
+            return super.toString().toLowerCase(Locale.ENGLISH);
         }
     };
 
@@ -1474,6 +1474,7 @@ public class TuneParameters {
         }
         return mUserEmail;
     }
+
     public synchronized void setUserEmail(final String userEmail) {
         mUserEmail = userEmail;
         setUserEmailMd5(TuneUtils.md5(userEmail));
@@ -1483,6 +1484,19 @@ public class TuneParameters {
         mExecutor.execute(new Runnable() {
             public void run() {
                 mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAIL, userEmail);
+            }
+        });
+    }
+
+    public synchronized void clearUserEmail() {
+        mUserEmail = null;
+        clearUserEmailMd5();
+        clearUserEmailSha1();
+        clearUserEmailSha256();
+
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.remove(TuneConstants.KEY_USER_EMAIL);
             }
         });
     }
@@ -1499,6 +1513,19 @@ public class TuneParameters {
                         TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_MD5)
                                 .withValue(userEmailMd5)
                                 .withHash(TuneHashType.MD5)
+                                .build()));
+            }
+        });
+    }
+
+    public synchronized void clearUserEmailMd5() {
+        mUserEmailMd5 = null;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_MD5)
+                                .withNullValue()
+                                .withHash(TuneHashType.NONE)
                                 .build()));
             }
         });
@@ -1520,11 +1547,25 @@ public class TuneParameters {
             }
         });
     }
+
+    public synchronized void clearUserEmailSha1() {
+        mUserEmailSha1 = null;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA1)
+                                .withNullValue()
+                                .withHash(TuneHashType.NONE)
+                                .build()));
+            }
+        });
+    }
     
     private String mUserEmailSha256;
     public synchronized String getUserEmailSha256() {
         return mUserEmailSha256;
     }
+
     public synchronized void setUserEmailSha256(final String userEmailSha256) {
         mUserEmailSha256 = userEmailSha256;
         mExecutor.execute(new Runnable() {
@@ -1537,11 +1578,25 @@ public class TuneParameters {
             }
         });
     }
+
+    public synchronized void clearUserEmailSha256() {
+        mUserEmailSha256 = null;
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAIL_SHA256)
+                                .withNullValue()
+                                .withHash(TuneHashType.NONE)
+                                .build()));
+            }
+        });
+    }
     
     private JSONArray mUserEmails = null;
     public synchronized JSONArray getUserEmails() {
         return mUserEmails;
     }
+
     public synchronized void setUserEmails(String[] emails) {
         mUserEmails = new JSONArray();
         for (int i = 0; i < emails.length; i++) {
@@ -1560,6 +1615,18 @@ public class TuneParameters {
             }
         });
 
+    }
+
+    public synchronized void clearUserEmails() {
+        mUserEmails = new JSONArray();
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                TuneEventBus.post(new TuneUpdateUserProfile(
+                        TuneAnalyticsVariable.Builder(TuneUrlKeys.USER_EMAILS)
+                                .withNullValue()
+                                .build()));
+            }
+        });
     }
 
     private String mUserId = null;

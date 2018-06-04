@@ -34,6 +34,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TunePushManager {
     public static final String PREFS_TMA_PUSH = "com.tune.ma.push";
 

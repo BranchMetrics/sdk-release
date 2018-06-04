@@ -1,5 +1,7 @@
 package com.tune.ma.playlist;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneDebugUtilities;
 import com.tune.TuneTestConstants;
 import com.tune.TuneTestWrapper;
@@ -18,14 +20,25 @@ import com.tune.testutils.TuneTestUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
  * Created by gowie on 2/1/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePlaylistManagerTests extends TuneUnitTest {
 
     TunePlaylistManager playlistManager;
@@ -33,8 +46,8 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
     MockFileManager mockFileManager;
     JSONObject playlistJson;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         //unregister experiment manager because simple_playlist.json is not a completely valid playlist
         TuneEventBus.unregister(TuneManager.getInstance().getExperimentManager());
@@ -50,13 +63,14 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "simple_playlist.json");
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         playlistManager.onEvent(new TuneAppBackgrounded());
 
         super.tearDown();
     }
 
+    @Test
     public void testPlaylistRequestIsMadeOnForegroundAndLoadsPlaylist() {
         mockApi.setPlaylistResponse(playlistJson);
         playlistManager.onEvent(new TuneAppForegrounded("", 1l));
@@ -70,6 +84,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         });
     }
 
+    @Test
     public void testPlaylistIsLoadedFromDiskOnAppStart() {
         mockFileManager.setPlaylistResult(playlistJson);
 
@@ -81,6 +96,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertEquals("10", TuneJsonUtils.getString(TuneJsonUtils.getJSONObject(playlist.getPowerHooks(), "itemsToDisplay"), "value"));
     }
 
+    @Test
     public void testPlaylistIsSavedToDiskOnAppBackground() {
         // Set current playlist to test value, will trigger a save since new playlist differs from disk
         playlistManager.setCurrentPlaylist(new TunePlaylist(playlistJson));
@@ -89,6 +105,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertEquals(mockFileManager.readPlaylist().toString(), playlistManager.getCurrentPlaylist().toJson().toString());
     }
 
+    @Test
     public void testPlaylistIsLoadedFromDiskBeforePowerHookValuesAreRead() {
         // Register a power hook
         TuneManager.getInstance().getPowerHookManager().registerPowerHook("showMainScreen", "Show Main Screen", "NO", null, null);
@@ -106,6 +123,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertEquals("YES", TuneManager.getInstance().getPowerHookManager().getValueForHookById("showMainScreen"));
     }
 
+    @Test
     public void testPlaylistChangedIsOnlySentWhenPlaylistChanges() {
         TunePlaylist playlist1 = new TunePlaylist(playlistJson);
         TunePlaylist playlist2 = new TunePlaylist(playlistJson);
@@ -124,6 +142,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertFalse(changedReceiver.getEventReceived());
     }
 
+    @Test
     public void testIsUserInSegment() {
         TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
         playlistManager.setCurrentPlaylist(playlistWithSegments);
@@ -132,6 +151,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertFalse(playlistManager.isUserInSegmentId("xyz"));
     }
 
+    @Test
     public void testIsUserInAnySegments() {
         TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
         playlistManager.setCurrentPlaylist(playlistWithSegments);
@@ -152,6 +172,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
     }
 
     // If segments in playlist is empty, should not crash
+    @Test
     public void testIsUserInEmptySegment() throws Exception {
         TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_default.json"));
         playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
@@ -162,6 +183,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
     }
 
     // If user passes null or empty params, should not crash
+    @Test
     public void testIsUserInSegmentWithNullOrEmpty() throws Exception {
         TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_default.json"));
         playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
@@ -178,6 +200,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
     }
 
     // If playlist doesn't contain "segments" key, should not crash
+    @Test
     public void testIsUserInSegmentWithPlaylistMissingSegments() throws Exception {
         TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_without_segments.json"));
         playlistManager.setCurrentPlaylist(playlistWithEmptySegments);
@@ -201,6 +224,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
         assertFalse(playlistManager.isUserInAnySegmentIds(null));
     }
 
+    @Test
     public void testForceSetUserInSegment() {
         TunePlaylist playlistWithSegments = new TunePlaylist(playlistJson);
         playlistManager.setCurrentPlaylist(playlistWithSegments);
@@ -217,6 +241,7 @@ public class TunePlaylistManagerTests extends TuneUnitTest {
     }
 
     // If playlist doesn't contain "segments" key, we should still be able to force set values
+    @Test
     public void testForceSetUserInSegmentWithPlaylistMissingSegments() throws Exception {
         TunePlaylist playlistWithEmptySegments = new TunePlaylist(TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_without_segments.json"));
         playlistManager.setCurrentPlaylist(playlistWithEmptySegments);

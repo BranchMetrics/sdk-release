@@ -1,19 +1,29 @@
 package com.tune.ma.analytics;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.ma.analytics.model.TuneAnalyticsVariable;
 import com.tune.ma.analytics.model.event.TuneAnalyticsEventBase;
 import com.tune.ma.analytics.model.event.tracer.TuneTracerEvent;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneSessionVariableToSet;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by kristine on 2/10/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class AnalyticsManagerTests extends TuneAnalyticsTest {
 
+    @Test
     public void testSessionVariableToSetEventProfileSaveType() {
         assertEquals(0, analyticsManager.getSessionVariables().size());
 
@@ -22,6 +32,7 @@ public class AnalyticsManagerTests extends TuneAnalyticsTest {
         assertEquals(0, analyticsManager.getSessionVariables().size());
     }
 
+    @Test
     public void testSessionVariableToSetEventTagSaveType() {
         assertEquals(0, analyticsManager.getSessionVariables().size());
 
@@ -46,6 +57,7 @@ public class AnalyticsManagerTests extends TuneAnalyticsTest {
         assertTrue(hasVar2);
     }
 
+    @Test
     public void testAddSessionVariablesToEvent() {
         Set<TuneAnalyticsVariable> tags = new HashSet<TuneAnalyticsVariable>();
         tags.add(new TuneAnalyticsVariable("tagName1", "tagValue1"));

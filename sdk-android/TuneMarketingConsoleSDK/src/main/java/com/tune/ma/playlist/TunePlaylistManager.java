@@ -30,7 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by gowie on 1/27/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TunePlaylistManager {
 
     private TuneCallbackHolder onFirstPlaylistDownloadCallbackHolder;

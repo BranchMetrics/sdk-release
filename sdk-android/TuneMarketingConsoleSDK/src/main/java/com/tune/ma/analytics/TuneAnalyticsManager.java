@@ -55,7 +55,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by johng on 12/28/15.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneAnalyticsManager {
     private static final String ANALYTICS_EVENTS_KEY = "events";
     private static final String CONNECTED_EVENTS_KEY = "event";

@@ -1,5 +1,7 @@
 package com.tune;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.tune.location.TuneLocationListener;
@@ -9,12 +11,11 @@ import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class TuneTestWrapper extends Tune {
     // copied from TuneConstants
@@ -24,6 +25,8 @@ public class TuneTestWrapper extends Tune {
     private static boolean online = false; //true;
     
     private static TuneTestWrapper tune = null;
+
+    private static AccountManager mockAccountManager;
     
     public TuneTestWrapper() {
         super();
@@ -44,6 +47,12 @@ public class TuneTestWrapper extends Tune {
         tune = new TuneTestWrapper();
         Tune.initAll(tune, context, advertiserId, key, true, initialConfig);
 
+        Account email = new Account("testing@tune.com", TuneConstants.GOOGLE_ACCOUNT_TYPE);
+        Account[] emails = new Account[]{ email };
+        mockAccountManager = Mockito.mock(AccountManager.class);
+        Mockito.when(mockAccountManager.getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE)).thenReturn(emails);
+        Mockito.when(mockAccountManager.getAccounts()).thenReturn(emails);
+
         tune.locationListener = new TuneLocationListener(context);
         tune.eventQueue = new TuneTestQueue(context, tune);
 
@@ -59,6 +68,11 @@ public class TuneTestWrapper extends Tune {
         new TuneSharedPrefsDelegate(context, PREFS_LOG_ID_OPEN).putString(PREFS_TUNE, logId);
 
         return tune;
+    }
+
+    @Override
+    public AccountManager getAccountManager(Context context) {
+        return mockAccountManager;
     }
 
     public void shutDown() {

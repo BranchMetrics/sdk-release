@@ -1,20 +1,28 @@
 package com.tune.ma.powerhooks.model;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by gowie on 1/26/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePowerHookValueTests extends TuneUnitTest {
 
+    @Test
     public void testRunningExperimentPowerHookReturnsExperimentValue() {
         TunePowerHookValue phook = new TunePowerHookValue("hookId", "friendlyName", "defaultValue", "experimentValue", "value", "2015-01-25T19:12:45Z", "2200-01-25T19:12:45Z",
                                                           "variationId", "experimentId", "description", null);
@@ -22,17 +30,20 @@ public class TunePowerHookValueTests extends TuneUnitTest {
         assertEquals("experimentValue", phook.getValue());
     }
 
+    @Test
     public void testNonRunningExperimentReturnsValue() {
         TunePowerHookValue phook = new TunePowerHookValue("hookId", "friendlyName", "defaultValue", "experimentValue", "value",
                                                           "2100-01-25T19:12:45Z", "2200-01-25T19:12:45Z", "variationId", "experimentId", "description", null);
         assertEquals("value", phook.getValue());
     }
 
+    @Test
     public void testPlainPowerHookReturnsDefaultAsValue() {
         TunePowerHookValue phook = new TunePowerHookValue("hookId", "friendlyName", "defaultValue", "description", null);
         assertEquals("defaultValue", phook.getValue());
     }
 
+    @Test
     public void testMergeWithPlaylistJsonAssignsFields() throws JSONException {
         JSONObject phookJson = new JSONObject();
         phookJson.put(TunePowerHookValue.VALUE, "val");
@@ -52,6 +63,7 @@ public class TunePowerHookValueTests extends TuneUnitTest {
         assertEquals(Date.class, phook.getEndDate().getClass());
     }
 
+    @Test
     public void testJsonSerialization() {
         List<String> approvedValues = new ArrayList<String>();
         approvedValues.add("approvedValue1");
@@ -74,6 +86,7 @@ public class TunePowerHookValueTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testJsonNullSerialization() {
         TunePowerHookValue phook = new TunePowerHookValue(null, null, null, null, null);
         JSONObject phookJson = phook.toJson();
@@ -88,6 +101,7 @@ public class TunePowerHookValueTests extends TuneUnitTest {
         }
     }
 
+    @Test
     public void testJsonEmptyListSerialization() {
         TunePowerHookValue phook = new TunePowerHookValue(null, null, null, null, new ArrayList<String>());
         JSONObject phookJson = phook.toJson();

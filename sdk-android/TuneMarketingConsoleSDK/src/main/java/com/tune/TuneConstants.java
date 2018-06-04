@@ -86,4 +86,6 @@ public class TuneConstants {
 
     static final String FIRE_ADVERTISING_ID_KEY = "advertising_id";
     static final String FIRE_LIMIT_AD_TRACKING_KEY = "limit_ad_tracking";
+
+    static final String GOOGLE_ACCOUNT_TYPE = "com.google";
 }

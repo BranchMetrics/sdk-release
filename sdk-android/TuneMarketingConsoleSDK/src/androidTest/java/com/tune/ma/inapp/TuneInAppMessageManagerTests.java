@@ -1,5 +1,7 @@
 package com.tune.ma.inapp;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneEvent;
 import com.tune.TuneTestConstants;
 import com.tune.TuneUnitTest;
@@ -23,6 +25,10 @@ import com.tune.ma.utils.TuneFileUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,30 +39,36 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static android.support.test.InstrumentationRegistry.getContext;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.LIFETIME_MAXIMUM_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.LIMIT_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_KEY;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_EVENTS;
 import static com.tune.ma.inapp.TuneInAppMessageConstants.SCOPE_VALUE_INSTALL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by johng on 2/28/17.
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneInAppMessageManagerTests extends TuneUnitTest {
     private static final int DISPLAY_WAIT = 5000;
 
     private TuneInAppMessageManager messageManager;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         messageManager = TuneManager.getInstance().getInAppMessageManager();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         messageManager.clearCountMap();
         sleep(500);
         messageManager = null;
@@ -64,6 +76,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         super.tearDown();
     }
 
+    @Test
     public void testSingleMessageIsLoadedFromPlaylistCorrectly() throws Exception {
         JSONObject playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_2.0_single_fullscreen_message.json");
         TunePlaylist playlist = new TunePlaylist(playlistJson);
@@ -78,6 +91,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals("57e3ff4200312d812800001f", message.getId());
     }
 
+    @Test
     public void testMultipleMessagesAreLoadedFromPlaylistCorrectly() throws Exception {
         JSONObject playlistJson = TuneFileUtils.readFileFromAssetsIntoJsonObject(getContext(), "playlist_2.0_multiple_messages.json");
         TunePlaylist playlist = new TunePlaylist(playlistJson);
@@ -96,6 +110,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals("57e3ff4200312d812800001a", message2.getId());
     }
 
+    @Test
     public void testMessageGetsTriggeredByCustomEvent() throws InterruptedException {
         // Create a custom TuneInAppMessage with a custom event as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -119,6 +134,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetsTriggeredByDeeplinkOpenedEvent() throws InterruptedException {
         // Create a custom TuneInAppMessage with a deeplink opened event as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -141,6 +157,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetsTriggeredByFirstPlaylistDownloadedEvent() throws InterruptedException {
         // Create a custom TuneInAppMessage with a first playlist download (Starts App) as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -163,6 +180,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetsTriggeredByStartsAppEvent() throws InterruptedException {
         // Create a custom TuneInAppMessage with a first playlist download (Starts App) as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -185,6 +203,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageThatWasTriggeredByStartsAppEventDoesntShowAgainOnFirstPlaylistDownload() throws InterruptedException {
         // Create a custom TuneInAppMessage with a first playlist download (Starts App) as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -216,6 +235,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetsTriggeredByPushOpenedEvent() throws InterruptedException, JSONException {
         // Create a custom TuneInAppMessage with a push opened as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -248,6 +268,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetsTriggeredByPushEnabledEvent() throws InterruptedException {
         // Create a custom TuneInAppMessage with a push enabled as trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -269,6 +290,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageDoesntShowBeforeStartDate() throws InterruptedException {
         // Create a custom TuneInAppMessage with a trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -295,6 +317,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageShowsAfterStartDate() throws InterruptedException {
         // Create a custom TuneInAppMessage with a trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -321,6 +344,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageDoesntShowAfterEndDate() throws InterruptedException {
         // Create a custom TuneInAppMessage with a trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -347,6 +371,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageShowsBeforeEndDate() throws InterruptedException {
         // Create a custom TuneInAppMessage with a trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -373,6 +398,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageShowsBetweenStartAndEndDate() throws InterruptedException {
         // Create a custom TuneInAppMessage with a trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -404,6 +430,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(1, testMessage.getDisplayCount());
     }
 
+    @Test
     public void testMessageGetterByTriggerEvents() throws Exception {
         Map<String, List<TuneInAppMessage>> messages = messageManager.getMessagesByTriggerEvents();
         assertEquals(0, messages.size());
@@ -419,6 +446,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertTrue(messages.containsKey("ccec952ff93be984a7698a7a6ea0b88f"));
     }
 
+    @Test
     public void testMessageGetterForCustomEvents() throws Exception {
         List<TuneInAppMessage> messages = messageManager.getMessagesForCustomEvent(null);
         assertEquals(0, messages.size());
@@ -447,6 +475,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals("57e3ff4200312d812800001a", message.getId());
     }
 
+    @Test
     public void testMessageGetterForStartsApp() throws Exception {
         List<TuneInAppMessage> messages = messageManager.getMessagesForStartsApp();
         assertEquals(0, messages.size());
@@ -462,6 +491,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals("57e3ff4200312d812800001a", message.getId());
     }
 
+    @Test
     public void testMessageGetterForPushOpened() throws Exception {
         List<TuneInAppMessage> messages = messageManager.getMessagesForPushOpened(null);
         assertEquals(0, messages.size());
@@ -487,6 +517,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, messages.size());
     }
 
+    @Test
     public void testMessageGetterForPushEnabled() throws Exception {
         List<TuneInAppMessage> messages = messageManager.getMessagesForPushEnabled(true);
         assertEquals(0, messages.size());
@@ -506,6 +537,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, messages.size());
     }
 
+    @Test
     public void testMessageGetterForViewedScreen() throws Exception {
         List<TuneInAppMessage> messages = messageManager.getMessagesForScreenViewed(null);
         assertEquals(0, messages.size());
@@ -528,6 +560,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
     }
 
     // Test that message display counts map is updated correctly after message is shown
+    @Test
     public void testMessageDisplayCountUpdatesWhenMessageIsShown() throws InterruptedException, JSONException {
         String triggerEventMd5 = "ccec952ff93be984a7698a7a6ea0b88f";
         String fakeCampaignId = "asdf";
@@ -601,6 +634,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
     }
 
     // Test that message display counts map resets session counts on app foreground
+    @Test
     public void testMessageDisplayCountSessionCountGetsClearedBetweenSessions() throws InterruptedException, JSONException {
         String triggerEventMd5 = "ccec952ff93be984a7698a7a6ea0b88f";
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -658,6 +692,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
     }
 
     // Test that message counts increment events seen if message is only supposed to display every X events
+    @Test
     public void testMessageDisplayCountEventCountGetsIncrementedWhenNotDisplayed() throws InterruptedException, JSONException {
         String triggerEventMd5 = "ccec952ff93be984a7698a7a6ea0b88f";
         String fakeCampaignId = "abc";
@@ -723,6 +758,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
     }
 
     // Test that the message display count map only retains the counts of messages that were found in the playlist
+    @Test
     public void testMessageDisplayCountMapGetsFilteredByCampaignIdsInPlaylist() throws JSONException {
         String triggerEventMd5 = "ccec952ff93be984a7698a7a6ea0b88f";
         String fakeCampaignId = "123";
@@ -755,6 +791,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals("57e3ff4200312d812800001c", remainingMessageDisplayCount.getCampaignId());
     }
 
+    @Test
     public void testFullscreensCanBeTriggeredForSameDeeplinkBetweenSessions() throws InterruptedException {
         // Create a custom TuneInAppMessage with a deeplink opened trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -797,6 +834,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         testMessage.dismiss();
     }
 
+    @Test
     public void testFullscreensCanBeTriggeredFromDifferentTriggerEvents() throws InterruptedException, JSONException {
         // Create a custom TuneInAppMessage with a deeplink opened trigger and a custom event trigger and set it for the message manager
         CountDownLatch displayLatch = new CountDownLatch(1);
@@ -862,6 +900,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         testMessage.dismiss();
     }
 
+    @Test
     public void testFrequencyCountsAreClearedWhenMessageFrequencyChanges() throws Exception {
         String mockCampaignId = "57e3ff4200312d812800001c";
         String mockMessageId = "57e3ff4200312d812800001f";
@@ -905,6 +944,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, updatedCount.getEventsSeenSinceShown());
     }
 
+    @Test
     public void testFrequencyCountsAreClearedWhenMessageTriggerChanges() throws Exception {
         String mockCampaignId = "57e3ff4200312d812800001c";
         String mockMessageId = "57e3ff4200312d812800001f";
@@ -951,6 +991,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(0, updatedCount.getEventsSeenSinceShown());
     }
 
+    @Test
     public void testFrequencyCountsAreNotClearedWhenMessageTriggerDoesntChange() throws Exception {
         String mockCampaignId = "57e3ff4200312d812800001c";
         String mockMessageId = "57e3ff4200312d812800001f";
@@ -994,6 +1035,7 @@ public class TuneInAppMessageManagerTests extends TuneUnitTest {
         assertEquals(15, updatedCount.getEventsSeenSinceShown());
     }
 
+    @Test
     public void testOldMessageIsNotDismissedWhenNewMessageShouldBeShown() throws InterruptedException {
         String triggerEvent1 = "ccec952ff93be984a7698a7a6ea0b88f";
         String triggerEvent2 = "bd283b48a9290740ff92abb432571b80";

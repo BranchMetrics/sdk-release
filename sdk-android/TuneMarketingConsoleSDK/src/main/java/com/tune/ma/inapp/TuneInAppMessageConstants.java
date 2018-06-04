@@ -2,8 +2,9 @@ package com.tune.ma.inapp;
 
 /**
  * Created by johng on 3/1/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneInAppMessageConstants {
     // Message types
     public static final String MESSAGE_TYPE_BANNER = "TuneMessageTypeSlideIn";

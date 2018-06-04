@@ -1,22 +1,32 @@
 package com.tune;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.mocks.MockUrlRequester;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by audrey on 10/26/16.
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneMakeRequestTests extends TuneUnitTest {
 
     private MockUrlRequester mockUrlRequester;
     private final String[] receivedDeeplink = new String[1];
     private final String[] failedDeeplink = new String[1];
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         resetReceivedDeeplinkChecks();
@@ -45,6 +55,7 @@ public class TuneMakeRequestTests extends TuneUnitTest {
         failedDeeplink[0] = null;
     }
 
+    @Test
     public void testMakeRequestForTuneLinkMeasurementCallsListenerIfInvokeUrlReceived() throws Exception {
         final String expectedInvokeUrl = "myapp://fakefake?isFake=yes";
         mockUrlRequester.includeInFakeResponse(TuneConstants.KEY_INVOKE_URL, expectedInvokeUrl);
@@ -56,6 +67,7 @@ public class TuneMakeRequestTests extends TuneUnitTest {
         assertNull(failedDeeplink[0]);
     }
 
+    @Test
     public void testMakeRequestForTuneLinkMeasurementCallsListenerIfNoInvokeUrlReturned() throws Exception {
         mockUrlRequester.clearFakeResponse();
 
@@ -66,6 +78,7 @@ public class TuneMakeRequestTests extends TuneUnitTest {
         assertEquals("There is no invoke url for this Tune Link", failedDeeplink[0]);
     }
 
+    @Test
     public void testMakeRequestWithNullLink() {
         mockUrlRequester.clearFakeResponse();
 
@@ -80,6 +93,7 @@ public class TuneMakeRequestTests extends TuneUnitTest {
         assertFalse(gotException);
     }
 
+    @Test
     public void testMakeRequestInvokesRequestUrlCallback() {
         mockUrlRequester.clearFakeResponse();
 

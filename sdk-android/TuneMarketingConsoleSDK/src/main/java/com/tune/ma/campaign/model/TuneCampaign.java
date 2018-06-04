@@ -11,7 +11,9 @@ import java.util.Set;
 
 /**
  * Created by charlesgilliam on 2/9/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneCampaign {
     public static final String TUNE_CAMPAIGN_IDENTIFIER = "TUNE_CAMPAIGN_ID";
     public static final String TUNE_CAMPAIGN_VARIATION_IDENTIFIER = "TUNE_CAMPAIGN_VARIATION_ID";

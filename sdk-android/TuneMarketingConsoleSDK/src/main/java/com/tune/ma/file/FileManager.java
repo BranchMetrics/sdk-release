@@ -7,7 +7,9 @@ import org.json.JSONObject;
 
 /**
  * Created by gowie on 2/2/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public interface FileManager {
 
     void writeConfiguration(JSONObject configuration);

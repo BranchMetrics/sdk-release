@@ -17,8 +17,9 @@ import android.widget.ImageButton;
 
 /**
  * Created by johng on 2/21/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneCloseButton extends FrameLayout {
     private static final String CLOSE_BUTTON =
             "iVBORw0KGgoAAAANSUhEUgAAAG4AAABvCAYAAAANB/VeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHR" +

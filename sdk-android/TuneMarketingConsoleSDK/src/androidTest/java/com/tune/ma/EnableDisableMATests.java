@@ -1,5 +1,7 @@
 package com.tune.ma;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneConstants;
 import com.tune.TuneTestWrapper;
 import com.tune.TuneUnitTest;
@@ -11,27 +13,34 @@ import com.tune.ma.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by charlesgilliam on 2/18/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class EnableDisableMATests extends TuneUnitTest {
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
+    @After
     public void tearDown() throws Exception {
         super.tearDown();
 
         new TuneSharedPrefsDelegate(getContext(), TuneConstants.PREFS_TUNE).clearSharedPreferences();
     }
 
+    @Test
     public void testCorrectModulesAreInstantiated() throws Exception {
         initWith(Arrays.asList("configuration_disabled.json"));
 
@@ -128,6 +137,7 @@ public class EnableDisableMATests extends TuneUnitTest {
         assertTrue(TuneEventBus.isEnabled());
     }
 
+    @Test
     public void testGetHookValueById() throws Exception {
         initWith(Arrays.asList("configuration_disabled.json"));
 

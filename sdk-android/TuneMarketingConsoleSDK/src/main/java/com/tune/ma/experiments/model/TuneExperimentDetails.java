@@ -10,7 +10,9 @@ import org.json.JSONObject;
 
 /**
  * An object containing useful information about an experiment
- **/
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
+ */
+@Deprecated
 public class TuneExperimentDetails {
 
     public static final String  DETAIL_EXPERIMENT_NAME_KEY = "name";

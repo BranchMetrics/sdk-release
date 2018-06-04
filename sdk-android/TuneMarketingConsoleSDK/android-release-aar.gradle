@@ -1,0 +1,107 @@
+// Forked from https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle
+// ./gradlew clean build generateRelease
+apply plugin: 'maven'
+
+def groupId = project.PUBLISH_GROUP_ID
+def artifactId = project.PUBLISH_ARTIFACT_ID
+def version = project.PUBLISH_VERSION
+
+def localReleaseDest = "${buildDir}/release/${version}"
+
+task androidJavadocs(type: Javadoc) {
+    failOnError = false
+    source = android.sourceSets.main.java.srcDirs
+    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    classpath += files(ext.androidJar)
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+        pom.groupId = groupId
+        pom.artifactId = artifactId
+        pom.version = version
+        // Add other pom properties here if you want (developer details / licenses)
+        pom.project {
+            name "${groupId}:${artifactId}"
+            description "The TUNE Marketing Console™ (TMC) SDK for the native Android™ platform provides application session and event logging functionality."
+            url "https://developers.tune.com/sdk/android-quick-start/"
+
+            licenses {
+                license {
+                    name 'GNU General Public License (GPL)'
+                    url 'http://www.gnu.org/licenses/gpl.txt'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    name 'John Gu'
+                    email 'johng@tune.com'
+                    organization 'TUNE'
+                    organizationUrl 'https://www.tune.com/'
+                }
+                developer {
+                    name 'Andy Peterson'
+                    email 'andyp@tune.com'
+                    organization 'TUNE'
+                    organizationUrl 'https://www.tune.com/'
+                }
+                developer {
+                    name 'Jennifer Owens'
+                    email 'jennifero@tune.com'
+                    organization 'TUNE'
+                    organizationUrl 'https://www.tune.com/'
+                }
+            }
+
+            scm {
+                connection 'scm:git:git://github.com/TuneOSS/sdk-release.git'
+                developerConnection 'scm:git:ssh://github.com/TuneOSS/sdk-release.git'
+                url 'https://github.com/TuneOSS/sdk-release/tree/master'
+            }
+        }
+        repository(url: "file://${localReleaseDest}")
+    }
+}
+
+task zipRelease(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    archiveName "release-${version}.zip"
+}
+
+task generateRelease {
+    doLast {
+        println "Release ${version} can be found at ${localReleaseDest}/"
+        println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+    }
+}
+
+generateRelease.dependsOn(uploadArchives)
+generateRelease.dependsOn(zipRelease)
+
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}
+
+if (project.hasProperty("signing.keyId")) {
+    apply plugin: 'signing'
+    signing {
+        sign configurations.archives
+    }
+}

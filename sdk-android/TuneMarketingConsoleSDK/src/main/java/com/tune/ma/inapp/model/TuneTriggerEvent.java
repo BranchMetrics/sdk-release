@@ -18,9 +18,11 @@ import static com.tune.ma.inapp.model.TuneTriggerEvent.Scope.SESSION;
 
 /**
  * Created by johng on 4/24/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneTriggerEvent {
+    @Deprecated
     public enum Scope {
         INSTALL,
         SESSION,

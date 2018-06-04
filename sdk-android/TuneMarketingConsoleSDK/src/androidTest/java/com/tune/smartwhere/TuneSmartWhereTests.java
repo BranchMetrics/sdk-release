@@ -2,14 +2,24 @@ package com.tune.smartwhere;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.TuneEvent;
 import com.tune.TuneUnitTest;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 
+import static android.support.test.InstrumentationRegistry.getContext;
 import static com.tune.TuneEvent.ADD_TO_CART;
 import static com.tune.TuneEvent.NAME_SESSION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -17,13 +27,13 @@ import static com.tune.TuneEvent.NAME_SESSION;
  *
  * @author gordon@smartwhere.com
  */
-
+@RunWith(AndroidJUnit4.class)
 public class TuneSmartWhereTests extends TuneUnitTest {
 
     private TuneSmartWhere testObj;
     private Context context;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         FakeProximityControl.reset();
@@ -32,12 +42,13 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         testObj = TuneSmartWhereForTest.getInstance();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         super.tearDown();
         TuneSmartWhereForTest.setInstance(null);
     }
 
+    @Test
     public void testIsProximityInstalledReturnsFalseWhenProximityControlClassNotFound() throws Exception {
         TuneSmartWhereForTest.clazz = null;
 
@@ -45,6 +56,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
     }
 
+    @Test
     public void testIsProximityInstalledReturnsTrueWhenProximityControlClassIsFound() throws Exception {
         TuneSmartWhereForTest.clazz = this.getClass();
 
@@ -52,6 +64,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals("Incorrect class name specified", "com.proximity.library.ProximityControl", TuneSmartWhereForTest.capturedClassNameString);
     }
 
+    @Test
     public void testStartMonitoringConfiguresWithAdIdAndConversionKey() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -68,6 +81,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("APPLICATION_ID"), addId);
     }
 
+    @Test
     public void testStartMonitoringSetsDebugLoggingWhenTuneLoggingIsEnabled() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -80,6 +94,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("DEBUG_LOG"), "true");
     }
 
+    @Test
     public void testStartMonitoringSetsProximityNotificationServiceName() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -92,6 +107,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("NOTIFICATION_HANDLER_SERVICE"), "com.tune.smartwhere.TuneSmartWhereNotificationService");
     }
 
+    @Test
     public void testStartMonitoringSetsPermissionPromptingOff() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -104,6 +120,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("PROMPT_FOR_LOCATION_PERMISSION"), "false");
     }
 
+    @Test
     public void testStartMonitoringSetsServiceAutoStartOn() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -116,6 +133,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("SERVICE_AUTO_START"), "true");
     }
 
+    @Test
     public void testStartMonitoringSetsGeofenceRangingOn() throws Exception {
         String appId = "addId";
         String conversionKey = "conversionKey";
@@ -128,6 +146,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("ENABLE_GEOFENCE_RANGING"), "true");
     }
 
+    @Test
     public void testStartMonitoringStartsService() throws Exception {
         String addId = "addId";
         String conversionKey = "conversionKey";
@@ -137,6 +156,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertTrue(FakeProximityControl.hasStartServiceBeenCalled);
     }
 
+    @Test
     public void testSetPackageNameCallsConfigureServiceWithPackageName() throws Exception {
         String packageName = "com.set.package.name";
         testObj.setPackageName(context, packageName);
@@ -146,6 +166,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("PACKAGE_NAME"), packageName);
     }
 
+    @Test
     public void testStopMonitoringSetsServiceAutoStartOff() throws Exception {
         testObj.stopMonitoring(context);
 
@@ -155,12 +176,14 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("SERVICE_AUTO_START"), "false");
     }
 
+    @Test
     public void testStopMonitoringStopsService() throws Exception {
         testObj.stopMonitoring(context);
 
         assertTrue(FakeProximityControl.hasStopServiceBeenCalled);
     }
 
+    @Test
     public void testSetDebugModeSetsDebugLoggingWhenTrue() throws Exception {
         testObj.setDebugMode(context, true);
 
@@ -170,6 +193,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("DEBUG_LOG"), "true");
     }
 
+    @Test
     public void testSetDebugModeSetsDebugLoggingWhenFalse() throws Exception {
         testObj.setDebugMode(context, false);
 
@@ -179,6 +203,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertEquals(actualConfig.get("DEBUG_LOG"), "false");
     }
 
+    @Test
     public void testProcessMappedEventCallsOnSmartWhereWhenAvailable() throws Exception {
         TuneEvent event = new TuneEvent(ADD_TO_CART);
 
@@ -190,6 +215,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
 
     }
 
+    @Test
     public void testProcessMappedEventDoesntCallOnSmartWhereForSessionEvents() throws Exception {
         TuneEvent event = new TuneEvent(NAME_SESSION);
 
@@ -198,6 +224,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
     }
 
+    @Test
     public void testProcessMappedEventDoesntCallOnSmartWhereWhenNotAvailable() throws Exception {
         TuneSmartWhereForTest.clazz = null;
 
@@ -208,6 +235,7 @@ public class TuneSmartWhereTests extends TuneUnitTest {
         assertFalse(FakeProximityControl.hasProcessMappedEventBeenCalled);
     }
 
+    @Test
     public void testProcessMappedEventDoesntCallOnSmartWhereWhenMethodNotFound() throws Exception {
         TuneSmartWhereForTest.clazz = Object.class;
 

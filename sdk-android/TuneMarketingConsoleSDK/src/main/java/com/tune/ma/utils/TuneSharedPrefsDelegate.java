@@ -119,8 +119,12 @@ public class TuneSharedPrefsDelegate {
         prefs.edit().clear().apply();
     }
 
-    public synchronized void remove(String key) {
-        prefs.edit().remove(key).apply();
+    /**
+     * Removes a SharedPreference by SharedPreference key
+     * @param prefsKey SharedPreferences key to look up
+     */
+    public synchronized void remove(String prefsKey) {
+        prefs.edit().remove(prefsKey).apply();
     }
 
     public synchronized Map<String, ?> getAll() {

@@ -1,5 +1,7 @@
 package com.tune.ma.powerhooks;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.tune.TuneUnitTest;
 import com.tune.ma.playlist.model.TunePlaylist;
 import com.tune.ma.powerhooks.model.TunePowerHookValue;
@@ -8,40 +10,51 @@ import com.tune.testutils.TestCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by gowie on 1/26/16.
  */
+@RunWith(AndroidJUnit4.class)
 public class TunePowerHookManagerTests extends TuneUnitTest {
 
     private TunePowerHookManager phookManager;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         phookManager = new TunePowerHookManager();
         phookManager.setExecutorService(new MockExecutorService());
     }
     
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
         phookManager.clearPowerHooks();
     }
 
+    @Test
     public void testRegisteringAndRetrievingValues() {
         tune.registerPowerHook("name", "friendly", "default");
         assertEquals("default", tune.getValueForHookById("name"));
     }
 
+    @Test
     public void testSettingPowerHookValues() {
         tune.registerPowerHook("name", "friendly", "default");
         tune.setValueForHookById("name", "newValue");
         assertEquals("newValue", tune.getValueForHookById("name"));
     }
 
+    @Test
     public void testRegisteringWithBadCharacters() {
         tune.registerPowerHook("BADCHARACTERS.$   ", "Bad characters approaching, target acquired", "default");
 
@@ -49,6 +62,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals("default", tune.getValueForHookById("BADCHARACTERS__"));
     }
 
+    @Test
     public void testRegisteringWithNullsRegistersNothing() {
         tune.registerPowerHook(null, "friendly", "default");
         tune.registerPowerHook("hookId", null, "default");
@@ -56,6 +70,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals(0, phookManager.getPowerHooks().size());
     }
 
+    @Test
     public void testRegisteringDuplicatePowerHook() throws JSONException {
         tune.registerPowerHook("name", "friendly", "default");
         assertEquals("default", tune.getValueForHookById("name"));
@@ -68,6 +83,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
     // Playlist Changes
     ////////////////////
 
+    @Test
     public void testChangingPowerHookValueFromPlaylist() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 
@@ -79,6 +95,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals("NEWVALUE", phookManager.getValueForHookById("name"));
     }
 
+    @Test
     public void testExperimentsComingDownInPlaylist() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 
@@ -102,6 +119,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertNotNull(updatedPhook.getEndDate());
     }
 
+    @Test
     public void testPlaylistBeingProcessedBeforeRegister() throws JSONException {
         Map<String, TunePowerHookValue> phooks = phookManager.getPowerHooks();
         assertEquals(0, phooks.size());
@@ -118,6 +136,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
     // Power Hook Changed Callbacks
     ////////////////////////////////
 
+    @Test
     public void testPowerHookChangeKicksOffChangedCallbacks() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 
@@ -132,6 +151,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals(1, testCallback.getCallbackCount());
     }
 
+    @Test
     public void testPowerHookChangeKicksOffLastChangedCallbacks() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 
@@ -149,6 +169,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals(1, testCallback2.getCallbackCount());
     }
 
+    @Test
     public void testNonChangedPlaylistDoesntKickOffCallback() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 
@@ -163,6 +184,7 @@ public class TunePowerHookManagerTests extends TuneUnitTest {
         assertEquals(0, testCallback.getCallbackCount());
     }
 
+    @Test
     public void testPowerHookChangeKicksOffChangedCallbacksAfterEachChange() throws JSONException {
         phookManager.registerPowerHook("name", "friendly", "default", null, null);
 

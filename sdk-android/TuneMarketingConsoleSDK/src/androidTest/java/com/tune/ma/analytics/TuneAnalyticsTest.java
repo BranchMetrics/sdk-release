@@ -4,11 +4,10 @@ import android.content.Context;
 
 import com.tune.TuneUnitTest;
 import com.tune.ma.TuneManager;
-import com.tune.ma.application.TuneActivity;
 import com.tune.ma.eventbus.TuneEventBus;
 import com.tune.ma.eventbus.event.TuneAppBackgrounded;
 
-import org.mockito.Mock;
+import static android.support.test.InstrumentationRegistry.getContext;
 
 /**
  * Created by johng on 1/11/16.
@@ -18,7 +17,7 @@ public class TuneAnalyticsTest extends TuneUnitTest {
     protected TuneAnalyticsManager analyticsManager;
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         context = getContext();
         analyticsManager = TuneManager.getInstance().getAnalyticsManager();
@@ -28,7 +27,7 @@ public class TuneAnalyticsTest extends TuneUnitTest {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         TuneEventBus.post(new TuneAppBackgrounded());
 
         // Delete analytics files

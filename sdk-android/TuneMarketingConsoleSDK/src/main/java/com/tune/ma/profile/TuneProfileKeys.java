@@ -9,7 +9,9 @@ import java.util.Set;
 
 /**
  * Created by charlesgilliam on 1/15/16.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public class TuneProfileKeys {
     public static final String SCREEN_HEIGHT = "screen_height";
     public static final String SCREEN_WIDTH = "screen_width";

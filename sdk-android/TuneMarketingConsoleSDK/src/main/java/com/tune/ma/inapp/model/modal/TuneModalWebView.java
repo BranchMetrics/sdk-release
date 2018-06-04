@@ -11,8 +11,9 @@ import android.webkit.WebView;
 
 /**
  * Created by johng on 4/10/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneModalWebView extends WebView {
     protected Context context;
     protected TuneModal modal;

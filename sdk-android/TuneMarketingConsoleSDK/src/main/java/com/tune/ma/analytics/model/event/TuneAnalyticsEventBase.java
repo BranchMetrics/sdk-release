@@ -20,7 +20,9 @@ import java.util.Set;
 
 /**
  * Base class for all analytics events.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
+@Deprecated
 public abstract class TuneAnalyticsEventBase {
     protected static final String APPLICATION_CATEGORY = "Application";
     static final String CUSTOM_CATEGORY = "Custom";

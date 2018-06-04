@@ -27,8 +27,9 @@ import static com.tune.ma.inapp.TuneScreenUtils.redrawWebView;
 
 /**
  * Created by johng on 6/14/17.
+ * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
  */
-
+@Deprecated
 public class TuneModalDialogFragment extends DialogFragment {
 
     private static TuneModal parentModal;
