@@ -31,6 +31,6 @@
  @param isInSegment Status to modify of whether user is in the segment
  @param segmentId Segment to modify status for
  */
-+ (void)forceSetUserInSegment:(BOOL)isInSegment forSegmentId:(NSString *)segmentId;
++ (void)forceSetUserInSegment:(BOOL)isInSegment forSegmentId:(NSString *)segmentId DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 @end

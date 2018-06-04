@@ -27,21 +27,21 @@
 }
 
 - (void)testNetworkUnreachableEnumTranslation {
-    TuneReachability *reachability = [TuneReachability reachabilityForInternetConnection];
+    TuneReachability *reachability = [TuneReachability sharedInstance];
     
     NSString *test = [reachability translateReachabilityStatus:TuneNotReachable];
     XCTAssertNil(test);
 }
 
 - (void)testWifiEnumTranslation {
-    TuneReachability *reachability = [TuneReachability reachabilityForInternetConnection];
+    TuneReachability *reachability = [TuneReachability sharedInstance];
     
     NSString *test = [reachability translateReachabilityStatus:TuneReachableViaWiFi];
     XCTAssertTrue([test isEqualToString:@"wifi"]);
 }
 
 - (void)testMobileEnumTranslation {
-    TuneReachability *reachability = [TuneReachability reachabilityForInternetConnection];
+    TuneReachability *reachability = [TuneReachability sharedInstance];
 
     NSString *testOfWifi = [reachability translateReachabilityStatus:TuneReachableViaWWAN];
     XCTAssertTrue([testOfWifi isEqualToString:@"mobile"]);

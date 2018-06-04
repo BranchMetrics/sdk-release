@@ -519,7 +519,7 @@
 }
 
 - (void)updateConnectionType {
-    TuneReachability *reachability = [TuneReachability reachabilityForInternetConnection];
+    TuneReachability *reachability = [TuneReachability sharedInstance];
     [self storeProfileKey:TUNE_KEY_CONNECTION_TYPE value:[reachability translateReachabilityStatus:[reachability currentReachabilityStatus]]];
 }
 

@@ -11,6 +11,7 @@
 /**
  Contains information received in a push notification.
  */
+DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This class will be removed in Tune iOS SDK v6.0.0")
 @interface TunePushInfo : NSObject
 
 

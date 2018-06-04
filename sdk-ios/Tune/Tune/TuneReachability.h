@@ -67,6 +67,8 @@ FOUNDATION_EXPORT NSString *kTuneReachabilityChangedNotification;
 
 #if !TARGET_OS_WATCH
 
++ (instancetype)sharedInstance;
+
 /*!
  * Use to check the reachability of a given host name.
  */

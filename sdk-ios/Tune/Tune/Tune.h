@@ -36,7 +36,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"5.1.1"
+#define TUNEVERSION @"5.2.0"
 
 
 @protocol TuneDelegate;
@@ -465,7 +465,7 @@
 
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileString:(nonnull NSString *)variableName;
++ (void)registerCustomProfileString:(nonnull NSString *)variableName DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -476,7 +476,7 @@
 
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName;
++ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -487,7 +487,7 @@
 
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileNumber:(nonnull NSString *)variableName;
++ (void)registerCustomProfileNumber:(nonnull NSString *)variableName DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -498,7 +498,7 @@
 
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  */
-+ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName;
++ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -510,7 +510,7 @@
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileString:(nonnull NSString *)variableName withDefault:(nullable NSString *)value;
++ (void)registerCustomProfileString:(nonnull NSString *)variableName withDefault:(nullable NSString *)value DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -522,7 +522,7 @@
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName withDefault:(nullable NSDate *)value;
++ (void)registerCustomProfileDateTime:(nonnull NSString *)variableName withDefault:(nullable NSDate *)value DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -534,7 +534,7 @@
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileNumber:(nonnull NSString *)variableName withDefault:(nullable NSNumber *)value;
++ (void)registerCustomProfileNumber:(nonnull NSString *)variableName withDefault:(nullable NSNumber *)value DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a custom profile variable for this user.
@@ -546,7 +546,7 @@
  @param variableName Name of the variable to register for the current user.  Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
  @param value Initial value for the variable.
  */
-+ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName withDefault:(nullable TuneLocation *)value;
++ (void)registerCustomProfileGeolocation:(nonnull NSString *)variableName withDefault:(nullable TuneLocation *)value DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Set Custom Profile Variables
@@ -559,7 +559,7 @@
  @param value Value to use for the given variable.
  @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileStringValue:(nullable NSString *)value forVariable:(nonnull NSString *)name;
++ (void)setCustomProfileStringValue:(nullable NSString *)value forVariable:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Set or update the value associated with a custom date profile variable.
@@ -569,7 +569,7 @@
  @param value Value to use for the given variable.
  @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileDateTimeValue:(nullable NSDate *)value forVariable:(nonnull NSString *)name;
++ (void)setCustomProfileDateTimeValue:(nullable NSDate *)value forVariable:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Set or update the value associated with a custom number profile variable.
@@ -579,7 +579,7 @@
  @param value Value to use for the given variable.
  @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileNumberValue:(nullable NSNumber *)value forVariable:(nonnull NSString *)name;
++ (void)setCustomProfileNumberValue:(nullable NSNumber *)value forVariable:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Set or update the value associated with a custom geolocation profile variable.
@@ -589,7 +589,7 @@
  @param value Value to use for the given variable.
  @param name Variable to which this value should be assigned.
  */
-+ (void)setCustomProfileGeolocationValue:(nullable TuneLocation *)value forVariable:(nonnull NSString *)name;
++ (void)setCustomProfileGeolocationValue:(nullable TuneLocation *)value forVariable:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Get Custom Profile Variables
@@ -603,7 +603,7 @@
 
  @param name Name of the custom profile variable.
  */
-+ (nullable NSString *)getCustomProfileString:(nonnull NSString *)name;
++ (nullable NSString *)getCustomProfileString:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Get the value assoctiated with a custom datetime profile variable.
@@ -614,7 +614,7 @@
 
  @param name Name of the custom profile variable.
  */
-+ (nullable NSDate *)getCustomProfileDateTime:(nonnull NSString *)name;
++ (nullable NSDate *)getCustomProfileDateTime:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Get the value assoctiated with a custom number profile variable.
@@ -625,7 +625,7 @@
 
  @param name Name of the custom profile variable.
  */
-+ (nullable NSNumber *)getCustomProfileNumber:(nonnull NSString *)name;
++ (nullable NSNumber *)getCustomProfileNumber:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Get the value assoctiated with a custom location profile variable.
@@ -636,7 +636,7 @@
 
  @param name Name of the custom profile variable.
  */
-+ (nullable TuneLocation *)getCustomProfileGeolocation:(nonnull NSString *)name;
++ (nullable TuneLocation *)getCustomProfileGeolocation:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Clear Custom Profile Variables
@@ -648,14 +648,14 @@
 
  @param name The name of the variable to clear.
  */
-+ (void)clearCustomProfileVariable:(nonnull NSString *)name;
++ (void)clearCustomProfileVariable:(nonnull NSString *)name DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Clear out all of the custom profile values set for the current user.
 
  All custom profile values will be cleared from this user's personalization profile.
  */
-+ (void)clearAllCustomProfileVariables;
++ (void)clearAllCustomProfileVariables DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 #endif
 
@@ -699,7 +699,7 @@
 
  @return device token, nil if there isn't one
  */
-+ (nullable NSString *)getPushToken;
++ (nullable NSString *)getPushToken DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Gets the In-App Marketing (IAM) app identifier for this app.
@@ -710,7 +710,7 @@
 
  @return In-App Marketing (IAM) App Id
  */
-+ (nonnull NSString *)getIAMAppId;
++ (nonnull NSString *)getIAMAppId DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Gets the In-App Marketing (IAM) device identifier for this device/user.
@@ -721,7 +721,7 @@
 
  @return the In-App Marketing (IAM) device identifier
  */
-+ (nonnull NSString *)getIAMDeviceIdentifier;
++ (nonnull NSString *)getIAMDeviceIdentifier DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Power Hook API
@@ -747,7 +747,7 @@
  @param friendlyName The name for this hook that will be displayed in TMC. This value cannot be empty.
  @param defaultValue The default value for this hook.  This value will be used if no value is passed in from TMC for this app. This value cannot be nil.
  */
-+ (void)registerHookWithId:(nonnull NSString *)hookId friendlyName:(nonnull NSString *)friendlyName defaultValue:(nonnull NSString *)defaultValue;
++ (void)registerHookWithId:(nonnull NSString *)hookId friendlyName:(nonnull NSString *)friendlyName defaultValue:(nonnull NSString *)defaultValue DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Gets the value of a single-value (non-code-block) Power Hook.
@@ -758,7 +758,7 @@
 
  @param hookId The name of the Power Hook you wish to retrieve. Will return nil if the setting has not been registered.
  */
-+ (nullable NSString *)getValueForHookById:(nonnull NSString *)hookId;
++ (nullable NSString *)getValueForHookById:(nonnull NSString *)hookId DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Set the value of a single-value (non-code-block) Power Hook manually.
@@ -772,7 +772,7 @@
  @param hookId The name of the Power Hook whose value you want to set.
  @param value The value you want to specify for this Power Hook.  If the Power Hook has not been registered, this will be ignored. This value cannot be nil.
  */
-+ (void)setValueForHookById:(nonnull NSString *)hookId value:(nonnull NSString *)value;
++ (void)setValueForHookById:(nonnull NSString *)hookId value:(nonnull NSString *)value DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register a block for callback when any Power Hook variables have changed.
@@ -781,7 +781,7 @@
 
  @param block The block of code to be executed.
  */
-+ (void)onPowerHooksChanged:(nullable void (^)(void)) block;
++ (void)onPowerHooksChanged:(nullable void (^)(void)) block DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Deep Action API
@@ -798,7 +798,7 @@
  @param data The default data for this deep action. This should be string keys and values. This data will be used if no data is passed in from TUNE Marketing Automation for this deep action for this app. This may be an empty dictionary but it cannot be nil.
  @param deepAction The reusable block of code that you are registering with TUNE. We will merge the values from TUNE Marketing Automation with this extra data. A block is required, this parameter cannot be nil.
  */
-+ (void)registerDeepActionWithId:(nonnull NSString *)deepActionId friendlyName:(nonnull NSString *)friendlyName data:(nonnull NSDictionary<NSString *, NSString *> *)data andAction:(nonnull void (^)(NSDictionary<NSString *, NSString *> * _Nullable extra_data))deepAction;
++ (void)registerDeepActionWithId:(nonnull NSString *)deepActionId friendlyName:(nonnull NSString *)friendlyName data:(nonnull NSDictionary<NSString *, NSString *> *)data andAction:(nonnull void (^)(NSDictionary<NSString *, NSString *> * _Nullable extra_data))deepAction DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Executes a previously registered deep action block as a blocking call on the main thread. The data to be used by the current execution of the deep action block is derived by merging the dictionary provided here with the default dictionary provided during deep action registration. Also, the new values take preference over the default values when the keys match.
@@ -806,7 +806,7 @@
  @param deepActionId Non-empty non-nil name of a previously registered deep action code-block.
  @param data Data to be used for the deep action. This dictionary may be nil or empty or contain string keys and values.
  */
-+ (void)executeDeepActionWithId:(nonnull NSString *)deepActionId andData:(nullable NSDictionary<NSString *, NSString *> *)data;
++ (void)executeDeepActionWithId:(nonnull NSString *)deepActionId andData:(nullable NSDictionary<NSString *, NSString *> *)data DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Push Notifications API
@@ -817,7 +817,7 @@
 
  @note This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
  */
-+ (BOOL)didSessionStartFromTunePush;
++ (BOOL)didSessionStartFromTunePush DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Returns information about the received Tune push if this session was started through opening a Tune push. Otherwise returns nil.
@@ -825,7 +825,7 @@
 
  @note This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
  */
-+ (nullable TunePushInfo *)getTunePushInfoForSession;
++ (nullable TunePushInfo *)getTunePushInfoForSession DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -837,7 +837,7 @@
 
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneDidRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken;
++ (void)application:(nonnull UIApplication *)application tuneDidRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -849,7 +849,7 @@
  
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneDidFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error;
++ (void)application:(nonnull UIApplication *)application tuneDidFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -861,7 +861,7 @@
  
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneDidReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneDidReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHandler DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -873,7 +873,7 @@
  
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo completionHandler:(nonnull void (^)(void))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo completionHandler:(nonnull void (^)(void))completionHandler DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -885,7 +885,7 @@
  
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo withResponseInfo:(nonnull NSDictionary *)responseInfo completionHandler:(nonnull void(^)(void))completionHandler;
++ (void)application:(nonnull UIApplication *)application tuneHandleActionWithIdentifier:(nonnull NSString *)identifier forRemoteNotification:(nonnull NSDictionary *)userInfo withResponseInfo:(nonnull NSDictionary *)responseInfo completionHandler:(nonnull void(^)(void))completionHandler DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Manage all Push Notification events used with TUNE.
@@ -897,10 +897,10 @@
  
  @warning If you enable the swizzle, do not call this method.
  */
-+ (void)application:(nonnull UIApplication *)application tuneDidReceiveLocalNotification:(nonnull UILocalNotification *)notification;
++ (void)application:(nonnull UIApplication *)application tuneDidReceiveLocalNotification:(nonnull UILocalNotification *)notification DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 #if IDE_XCODE_8_OR_HIGHER
-+ (void)userNotificationCenter:(nonnull UNUserNotificationCenter *)center tuneDidReceiveNotificationResponse:(nonnull UNNotificationResponse *)response withCompletionHandler:(nonnull void (^)(void))completionHandler;
++ (void)userNotificationCenter:(nonnull UNUserNotificationCenter *)center tuneDidReceiveNotificationResponse:(nonnull UNNotificationResponse *)response withCompletionHandler:(nonnull void (^)(void))completionHandler DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 #endif
 
 
@@ -926,7 +926,7 @@
 
  @return an `NSDictionary` of experiment details for all running Power Hook variable experiments, where the keys are the `NSString` hook ids of the Power Hook variables, and the values are `TunePowerHookExperimentDetails` objects.
  */
-+ (nullable NSDictionary<NSString *, TunePowerHookExperimentDetails *> *)getPowerHookVariableExperimentDetails;
++ (nullable NSDictionary<NSString *, TunePowerHookExperimentDetails *> *)getPowerHookVariableExperimentDetails DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Get details for all currently running In App Message experiments.
@@ -935,7 +935,7 @@
 
  @return an `NSDictionary` of experiment details for all running Power Hook variable experiments, where the keys are the `NSString` campaign ids of the Power Hook variables, and the values are `TuneInAppMessageExperimentDetails` objects.
  */
-+ (nullable NSDictionary<NSString *, TuneInAppMessageExperimentDetails *> *)getInAppMessageExperimentDetails;
++ (nullable NSDictionary<NSString *, TuneInAppMessageExperimentDetails *> *)getInAppMessageExperimentDetails DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - Playlist API
@@ -963,7 +963,7 @@
 
  @param block The block of code to be executed.
  */
-+ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block;
++ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Register block for callback when the very first playlist is downloaded.
@@ -986,7 +986,7 @@
 
  @param block The block of code to be executed. @param timeout The amount of time in seconds to wait before executing the callback if the Playlist hasn't been downloaded yet. We recommend this is not over 5 seconds at a maximum and is over 1 second at a minimum.
  */
-+ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block withTimeout:(NSTimeInterval)timeout;
++ (void)onFirstPlaylistDownloaded:(nullable void (^)(void))block withTimeout:(NSTimeInterval)timeout DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 
 #pragma mark - User in Segment API
@@ -998,7 +998,7 @@
 
  @return whether the user belongs to the given segment.
  */
-+ (BOOL)isUserInSegmentId:(nullable NSString *)segmentId;
++ (BOOL)isUserInSegmentId:(nullable NSString *)segmentId DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 /**
  Returns whether the user belongs to any of the given segments.
@@ -1007,7 +1007,7 @@
 
  @return whether the user belongs to any of the given segments.
  */
-+ (BOOL)isUserInAnySegmentIds:(nullable NSArray<NSString *> *)segmentIds;
++ (BOOL)isUserInAnySegmentIds:(nullable NSArray<NSString *> *)segmentIds DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This method will be removed in Tune iOS SDK v6.0.0");
 
 #endif
 
@@ -1064,7 +1064,7 @@
 
  @param redirectUrl The string name for the url.
  */
-+ (void)setRedirectUrl:(nullable NSString *)redirectUrl;
++ (void)setRedirectUrl:(nullable NSString *)redirectUrl DEPRECATED_MSG_ATTRIBUTE("This method will be removed in version 6.0.0.");
 
 /**
  Start an app-to-app measurement session on the Tune server.
@@ -1080,7 +1080,7 @@
                     advertiserId:(nonnull NSString *)targetAppAdvertiserId
                          offerId:(nonnull NSString *)targetAdvertiserOfferId
                      publisherId:(nonnull NSString *)targetAdvertiserPublisherId
-                        redirect:(BOOL)shouldRedirect;
+                        redirect:(BOOL)shouldRedirect DEPRECATED_MSG_ATTRIBUTE("This method will be removed in version 6.0.0.");
 
 
 #if TARGET_OS_IOS

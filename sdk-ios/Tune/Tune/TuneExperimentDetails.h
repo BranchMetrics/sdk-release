@@ -10,39 +10,40 @@
 /**
  Experiment details dictionary key "name" for an experiment.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentNameKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentNameKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "id" for an experiment.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentIdKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentIdKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "type" for an experiment.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentTypeKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryExperimentTypeKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "current_variation" for an experiment's current variation.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "id" for an experiment's current variation.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationIdKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationIdKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "name" for an experiment's current variation.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationNameKey;
+FOUNDATION_EXPORT NSString *const DetailDictionaryCurrentVariationNameKey DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "power_hook" to denote Power Hook experiments.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryTypePowerHook;
+FOUNDATION_EXPORT NSString *const DetailDictionaryTypePowerHook DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 /**
  Experiment details dictionary key "in_app" to denote In App experiments.
  */
-FOUNDATION_EXPORT NSString *const DetailDictionaryTypeInApp;
+FOUNDATION_EXPORT NSString *const DetailDictionaryTypeInApp DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");
 
 /**
  * An object containing useful information about an experiment.
  **/
+DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This class will be removed in Tune iOS SDK v6.0.0")
 @interface TuneExperimentDetails : NSObject
 
 /**

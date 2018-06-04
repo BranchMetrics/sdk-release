@@ -14,6 +14,7 @@
 
  If the experiment is not running then some fields will be nil, including currentVariantId, currentVariantName, experimentId, experimentName, experimentType. You can check whether the experiment is currently running with **isRunning**.
  */
+DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This class will be removed in Tune iOS SDK v6.0.0")
 @interface TunePowerHookExperimentDetails : TuneExperimentDetails
 
 /**

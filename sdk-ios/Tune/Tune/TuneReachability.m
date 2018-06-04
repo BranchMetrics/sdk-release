@@ -113,6 +113,21 @@ static void TuneReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkR
     SCNetworkReachabilityRef _reachabilityRef;
 }
 
+// Singleton of [TuneReachability reachabilityForInternetConnection]
++ (instancetype)sharedInstance {
+    static TuneReachability *reachability = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+#if TARGET_OS_IOS
+        reachability = [TuneReachability reachabilityForInternetConnection];
+        [reachability startNotifier];
+#endif
+    });
+    
+    return reachability;
+}
+
 + (instancetype)reachabilityWithHostName:(NSString *)hostName
 {
     TuneReachability* returnValue = NULL;

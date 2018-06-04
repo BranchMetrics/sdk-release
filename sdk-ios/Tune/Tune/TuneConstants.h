@@ -69,4 +69,4 @@ typedef NS_ENUM(NSInteger, TuneGender)
 /**
  Default amount of time before the first downloading of an event playlist times out
  */
-FOUNDATION_EXPORT NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout;
+FOUNDATION_EXPORT NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout DEPRECATED_MSG_ATTRIBUTE("IAM functionality. This will be removed in Tune iOS SDK v6.0.0");

@@ -8,20 +8,12 @@
 
 #import "TuneNetworkUtils.h"
 
-TuneReachability *reachability;
 
 @implementation TuneNetworkUtils
 
-+(void)initialize {
-    #if TARGET_OS_IOS
-    reachability = [TuneReachability reachabilityForInternetConnection];
-    [reachability startNotifier];
-    #endif
-}
-
 #if TARGET_OS_IOS
 + (TuneNetworkStatus)networkReachabilityStatus {
-    return [reachability currentReachabilityStatus];
+    return [[TuneReachability sharedInstance] currentReachabilityStatus];
 }
 #endif
 
