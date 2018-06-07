@@ -13,15 +13,17 @@
 #import "TuneConstants.h"
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
-#import "TuneInAppMessageExperimentDetails.h"
+
 #import "TuneLocation.h"
-#import "TunePowerHookExperimentDetails.h"
+
 #import "TunePreloadData.h"
 #import "TunePushInfo.h"
 
 #if TARGET_OS_IOS
 
 #import "TuneDebugUtilities.h"
+#import "TuneInAppMessageExperimentDetails.h"
+#import "TunePowerHookExperimentDetails.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 
 #endif
@@ -36,7 +38,7 @@
 #import <UserNotifications/UserNotifications.h>
 #endif
 
-#define TUNEVERSION @"5.2.0"
+#define TUNEVERSION @"5.2.1"
 
 
 @protocol TuneDelegate;

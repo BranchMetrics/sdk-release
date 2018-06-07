@@ -693,7 +693,7 @@
 }
 
 #pragma mark - Experiment API
-
+#if TARGET_OS_IOS
 + (NSDictionary<NSString *, TunePowerHookExperimentDetails *> *)getPowerHookVariableExperimentDetails {
     return [[TuneManager currentManager].experimentManager getPowerHookVariableExperimentDetails];
 }
@@ -701,6 +701,7 @@
 + (NSDictionary<NSString *, TuneInAppMessageExperimentDetails *> *)getInAppMessageExperimentDetails {
     return [[TuneManager currentManager].experimentManager getInAppMessageExperimentDetails];
 }
+#endif
 
 #pragma mark - Playlist API
 
