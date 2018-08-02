@@ -4,18 +4,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.eventbus.event.TuneGetAdvertisingIdCompleted;
-import com.tune.ma.profile.TuneUserProfile;
-import com.tune.ma.push.TunePushManager;
-import com.tune.ma.utils.TuneSharedPrefsDelegate;
-
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 
 import java.util.Locale;
-import java.util.UUID;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertFalse;
@@ -39,21 +32,14 @@ public class TuneUnitTest implements TuneTestRequest {
         // To perform the unit tests under a different locale, uncomment the following line
         // setLocale("az", "AZ");
 
-        // Clear the Tune User Profile settings.  Note that this should have called
-        // <code> new TuneUserProfile(getContext()).deleteSharedPrefs(); </code> but the constructor
-        // for TuneUserProfile is very expensive.
-        new TuneSharedPrefsDelegate(getContext(), TuneUserProfile.PREFS_TMA_PROFILE).clearSharedPreferences();
-        new TuneSharedPrefsDelegate(getContext(), TunePushManager.PREFS_TMA_PUSH).clearSharedPreferences();
-
-        tune = TuneTestWrapper.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey);
+        tune = TuneTestWrapper.init(getContext(), TuneTestConstants.advertiserId, TuneTestConstants.conversionKey, TuneTestConstants.appId);
         tune.setGoogleAdvertisingId("4e45e24e-8f30-4651-98ec-a80c0fb08eb5", true);
-        tune.setTuneTestRequest(this);
-        TuneEventBus.post(new TuneGetAdvertisingIdCompleted(TuneGetAdvertisingIdCompleted.Type.GOOGLE_AID, UUID.randomUUID().toString(), false));
+        tune.setTestRequest(this);
 
         queue = tune.getEventQueue();
         params = new TuneTestParams();
 
-        tune.waitForInit(TuneTestConstants.SERVERTEST_SLEEP);
+        assertTrue(tune.waitForInit(TuneTestConstants.SERVERTEST_SLEEP));
         Log.d(logTag, "***SETUP COMPLETE***");
     }
 
@@ -141,7 +127,7 @@ public class TuneUnitTest implements TuneTestRequest {
      * @param language lowercase 2 to 8 language code.
      * @param country uppercase two-letter ISO-3166 code and numric-3 UN M.49 area code.
      */
-    public void setLocale(String language, String country) {
+    void setLocale(String language, String country) {
         Locale locale = new Locale(language, country);
         // here we update locale for date formatters
         Locale.setDefault(locale);

@@ -77,7 +77,6 @@ public class TuneUrlKeys {
     public static final String LATITUDE = "latitude";
     public static final String LOCALE = "locale";
     public static final String LONGITUDE = "longitude";
-    public static final String MAC_ADDRESS = "mac_address";
     public static final String MAT_ID = "mat_id";
     public static final String MOBILE_COUNTRY_CODE = "mobile_country_code";
     public static final String MOBILE_NETWORK_CODE = "mobile_network_code";
@@ -89,7 +88,6 @@ public class TuneUrlKeys {
     public static final String SCREEN_LAYOUT_SIZE = "screen_layout_size";
     public static final String SDK_PLUGIN = "sdk_plugin";
     public static final String SDK_VERSION = "sdk_version";
-    public static final String TRUSTE_ID = "truste_tpid";
     public static final String USER_AGENT = "conversion_user_agent";
 
     // AID and AD Tracking
@@ -254,7 +252,6 @@ public class TuneUrlKeys {
         TuneUrlKeys.LATITUDE,
         TuneUrlKeys.LOCALE,
         TuneUrlKeys.LONGITUDE,
-        TuneUrlKeys.MAC_ADDRESS,
         TuneUrlKeys.MOBILE_COUNTRY_CODE,
         TuneUrlKeys.MOBILE_NETWORK_CODE,
         TuneUrlKeys.OPEN_LOG_ID,
@@ -262,7 +259,6 @@ public class TuneUrlKeys {
         TuneUrlKeys.REFERRAL_URL,
         TuneUrlKeys.SCREEN_DENSITY,
         TuneUrlKeys.SCREEN_LAYOUT_SIZE,
-        TuneUrlKeys.TRUSTE_ID,
         TuneUrlKeys.TWITTER_USER_ID,
         TuneUrlKeys.USER_AGENT,
         TuneUrlKeys.USER_EMAILS,

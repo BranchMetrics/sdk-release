@@ -2,17 +2,14 @@ package com.tune;
 
 import android.text.TextUtils;
 
-import com.tune.ma.TuneManager;
-import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-
 import java.io.Serializable;
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+/**
+ * Event data that can be passed for measurement.
+ */
 public class TuneEvent implements Serializable {
     private static final long serialVersionUID = -7616393848331704848L;
 
@@ -66,32 +63,6 @@ public class TuneEvent implements Serializable {
     private String attribute5;
     
     private String deviceForm;
-
-    private Set<TuneAnalyticsVariable> tags = new HashSet<TuneAnalyticsVariable>();
-    private Set<String> addedTags = new HashSet<String>();
-
-    private static final List<String> invalidTags = Arrays.asList(
-            TuneUrlKeys.EVENT_ID,
-            TuneUrlKeys.REVENUE,
-            TuneUrlKeys.CURRENCY_CODE,
-            TuneUrlKeys.REF_ID,
-            TuneUrlKeys.EVENT_ITEMS,
-            TuneUrlKeys.RECEIPT_DATA,
-            TuneUrlKeys.RECEIPT_SIGNATURE,
-            TuneUrlKeys.CONTENT_TYPE,
-            TuneUrlKeys.CONTENT_ID,
-            TuneUrlKeys.LEVEL,
-            TuneUrlKeys.QUANTITY,
-            TuneUrlKeys.SEARCH_STRING,
-            TuneUrlKeys.RATING,
-            TuneUrlKeys.DATE1,
-            TuneUrlKeys.DATE2,
-            TuneUrlKeys.ATTRIBUTE1,
-            TuneUrlKeys.ATTRIBUTE2,
-            TuneUrlKeys.ATTRIBUTE3,
-            TuneUrlKeys.ATTRIBUTE4,
-            TuneUrlKeys.ATTRIBUTE5
-    );
     
     /**
      * Initialize TuneEvent with an event name.
@@ -297,116 +268,6 @@ public class TuneEvent implements Serializable {
         return this;
     }
 
-    // Methods for tagging key-value pairs to events
-
-    /**
-     * Add a String tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated String tag
-     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
-     */
-    @Deprecated
-    public TuneEvent withTagAsString(String name, String value) {
-        if (TuneManager.getProfileForUser("withTagAsString") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add an int tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated int tag
-     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
-     */
-    @Deprecated
-    public TuneEvent withTagAsNumber(String name, int value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a double tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated double tag
-     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
-     */
-    @Deprecated
-    public TuneEvent withTagAsNumber(String name, double value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a float tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated float tag
-     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
-     */
-    @Deprecated
-    public TuneEvent withTagAsNumber(String name, float value) {
-        if (TuneManager.getProfileForUser("withTagAsNumber") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    /**
-     * Add a date tag
-     * @param name Tag name. Valid characters for this name include [0-9],[a-z],[A-Z], -, and _.  Any other characters will automatically be stripped out.
-     * @param value Tag value
-     * @return TuneEvent with updated Date tag
-     * @deprecated IAM functionality. This method will be removed in Tune Android SDK v6.0.0
-     */
-    @Deprecated
-    public TuneEvent withTagAsDate(String name, Date value) {
-        if (TuneManager.getProfileForUser("withTagAsDate") == null) {
-            return this;
-        }
-        return addTag(new TuneAnalyticsVariable(name, value));
-    }
-
-    private TuneEvent addTag(TuneAnalyticsVariable tag) {
-        // Do validation on tag name
-        if (TuneAnalyticsVariable.validateName(tag.getName())) {
-            String prettyName = TuneAnalyticsVariable.cleanVariableName(tag.getName());
-            // Don't allow tags that would duplicate event data keys
-            if (invalidTags.contains(prettyName)) {
-                TuneDebugLog.IAMConfigError(prettyName + " is a property, please use the appropriate setter instead.");
-                return this;
-            }
-
-            if (prettyName.startsWith("TUNE_")) {
-                TuneDebugLog.IAMConfigError("Tags starting with 'TUNE_' are reserved, not registering " + prettyName);
-                return this;
-            }
-
-            if (addedTags.contains(prettyName)) {
-                TuneDebugLog.IAMConfigError("The tag " + prettyName + " has already been added to this event, not adding duplicate tag");
-                return this;
-            }
-
-            // Add tag
-            this.addedTags.add(prettyName);
-            this.tags.add(
-                    TuneAnalyticsVariable.Builder(prettyName)
-                            .withValue(tag.getValue())
-                            .withType(tag.getType())
-                            .withHash(tag.getHashType())
-                            .withShouldAutoHash(tag.getShouldAutoHash())
-                            .build());
-        }
-        return this;
-    }
-    
     public String getEventName() {
         return eventName;
     }
@@ -489,10 +350,5 @@ public class TuneEvent implements Serializable {
     
     public String getDeviceForm() {
         return deviceForm;
-    }
-
-    @Deprecated
-    public Set<TuneAnalyticsVariable> getTags() {
-        return tags;
     }
 }

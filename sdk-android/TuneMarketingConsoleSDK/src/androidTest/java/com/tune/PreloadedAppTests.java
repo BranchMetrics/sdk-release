@@ -74,7 +74,7 @@ public class PreloadedAppTests extends TuneUnitTest {
         preloadData.withAdvertiserSubPublisher(expectedAdvertiserSubPublisher);
         preloadData.withAdvertiserSubSite(expectedAdvertiserSubSite);
 
-        tune.setPreloadedApp(preloadData);
+        tune.setPreloadedAppData(preloadData);
         tune.measureEvent("registration");
         sleep(TuneTestConstants.PARAMTEST_SLEEP);
 

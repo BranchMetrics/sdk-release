@@ -1,7 +1,6 @@
 package com.tune.http;
 
 import com.tune.TuneDeeplinkListener;
-import com.tune.TuneDeeplinker;
 
 import org.json.JSONObject;
 

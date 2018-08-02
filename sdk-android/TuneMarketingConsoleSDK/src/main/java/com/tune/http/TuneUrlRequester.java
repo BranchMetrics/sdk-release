@@ -3,7 +3,7 @@ package com.tune.http;
 import com.tune.TuneConstants;
 import com.tune.TuneDebugLog;
 import com.tune.TuneDeeplinkListener;
-import com.tune.TuneUtils;
+import com.tune.utils.TuneUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +25,7 @@ public class TuneUrlRequester implements UrlRequester {
 
         BufferedInputStream is = null;
         boolean foundError = false;
-        String response = null;
+        String response;
 
         try {
             URL myurl = new URL(deeplinkURL);
@@ -45,7 +45,7 @@ public class TuneUrlRequester implements UrlRequester {
                 foundError = true;
                 is = new BufferedInputStream(conn.getErrorStream());
             }
-            
+
             response = TuneUtils.readStream(is);
         } catch (Exception e) {
             foundError = true;

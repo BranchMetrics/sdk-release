@@ -1,119 +1,147 @@
 package com.tune;
 
-import com.tune.ma.analytics.model.TuneAnalyticsVariable;
-
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
+/**
+ * Event items that can be attached to an event.
+ */
 public class TuneEventItem implements Serializable {
     private static final long serialVersionUID = 509248377324509251L;
 
-    public static final String ITEM = "item";
-    public static final String QUANTITY = "quantity";
-    public static final String UNIT_PRICE = "unit_price";
-    public static final String UNIT_PRICE_CAMEL = "unitPrice";
-    public static final String REVENUE = "revenue";
-    public static final String ATTRIBUTE1 = "attribute_sub1";
-    public static final String ATTRIBUTE2 = "attribute_sub2";
-    public static final String ATTRIBUTE3 = "attribute_sub3";
-    public static final String ATTRIBUTE4 = "attribute_sub4";
-    public static final String ATTRIBUTE5 = "attribute_sub5";
+    static final String ITEM = "item";
+    static final String QUANTITY = "quantity";
+    static final String UNIT_PRICE = "unit_price";
+    static final String REVENUE = "revenue";
+    static final String ATTRIBUTE1 = "attribute_sub1";
+    static final String ATTRIBUTE2 = "attribute_sub2";
+    static final String ATTRIBUTE3 = "attribute_sub3";
+    static final String ATTRIBUTE4 = "attribute_sub4";
+    static final String ATTRIBUTE5 = "attribute_sub5";
 
-    public String itemname;
-    public int quantity;
-    public double unitPrice;
-    public double revenue;
-    public String attribute1;
-    public String attribute2;
-    public String attribute3;
-    public String attribute4;
-    public String attribute5;
+    private final String itemName;
+    private int quantity;
+    private double unitPrice;
+    private double revenue;
+    private String attribute1;
+    private String attribute2;
+    private String attribute3;
+    private String attribute4;
+    private String attribute5;
 
-    public Set<TuneAnalyticsVariable> tags = new HashSet<TuneAnalyticsVariable>();
-
-    private Set<String> addedTags = new HashSet<String>();
-
-    private static final List<String> invalidTags = Arrays.asList(
-            ITEM,
-            QUANTITY,
-            UNIT_PRICE,
-            REVENUE,
-            ATTRIBUTE1,
-            ATTRIBUTE2,
-            ATTRIBUTE3,
-            ATTRIBUTE4,
-            ATTRIBUTE5
-    );
-    
-    public TuneEventItem(String itemname) {
-        this.itemname = itemname;
+    /**
+     * Constructor.
+     * @param itemName Item Name
+     */
+    public TuneEventItem(String itemName) {
+        this.itemName = itemName;
     }
-    
+
+    /**
+     * Add a quantity to the event item.
+     * @param quantity Quantity
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withQuantity(int quantity) {
         this.quantity = quantity;
         return this;
     }
-    
+
+    /**
+     * Add a unit price to the event item.
+     * @param unitPrice Unit Price
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
         return this;
     }
-    
+
+    /**
+     * Add revenue to the event item.
+     * @param revenue Revenue
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withRevenue(double revenue) {
         this.revenue = revenue;
         return this;
     }
-    
+
+    /**
+     * Add a custom attribute (1) to the event item.
+     * @param attribute Attribute
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withAttribute1(String attribute) {
         this.attribute1 = attribute;
         return this;
     }
-    
+
+    /**
+     * Add a custom attribute (2) to the event item.
+     * @param attribute Attribute
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withAttribute2(String attribute) {
         this.attribute2 = attribute;
         return this;
     }
-    
+
+    /**
+     * Add a custom attribute (3) to the event item.
+     * @param attribute Attribute
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withAttribute3(String attribute) {
         this.attribute3 = attribute;
         return this;
     }
-    
+
+    /**
+     * Add a custom attribute (4) to the event item.
+     * @param attribute Attribute
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withAttribute4(String attribute) {
         this.attribute4 = attribute;
         return this;
     }
-    
+
+    /**
+     * Add a custom attribute (5) to the event item.
+     * @param attribute Attribute
+     * @return this {@link TuneEventItem}
+     */
     public TuneEventItem withAttribute5(String attribute) {
         this.attribute5 = attribute;
         return this;
     }
     
-    public String getAttrStringByName(String name) {
-        if (name.equals("itemname")) return itemname;
-        if (name.equals("quantity")) return Integer.toString(quantity);
-        if (name.equals("unitPrice")) return Double.toString(unitPrice);
-        if (name.equals("revenue")) return Double.toString(revenue);
-        if (name.equals("attribute1")) return attribute1;
-        if (name.equals("attribute2")) return attribute2;
-        if (name.equals("attribute3")) return attribute3;
-        if (name.equals("attribute4")) return attribute4;
-        if (name.equals("attribute5")) return attribute5;
-        
+    String getAttrStringByName(String name) {
+        switch(name) {
+            case "itemname":   return itemName;
+            case "quantity":   return Integer.toString(quantity);
+            case "unitPrice":  return Double.toString(unitPrice);
+            case "revenue":    return Double.toString(revenue);
+            case "attribute1": return attribute1;
+            case "attribute2": return attribute2;
+            case "attribute3": return attribute3;
+            case "attribute4": return attribute4;
+            case "attribute5": return attribute5;
+            default:
+                break;
+        }
+
         return null;
     }
 
-    public JSONObject toJson() {
-        HashMap<String, String> mapValues = new HashMap<String, String>();
+    JSONObject toJson() {
+        HashMap<String, String> mapValues = new HashMap<>();
 
-        if (this.itemname != null) {
-            mapValues.put(ITEM, this.itemname);
+        if (this.itemName != null) {
+            mapValues.put(ITEM, this.itemName);
         }
         if (this.quantity != 0) {
             mapValues.put(QUANTITY, Integer.toString(this.quantity));
@@ -138,12 +166,6 @@ public class TuneEventItem implements Serializable {
         }
         if (this.attribute5 != null) {
             mapValues.put(ATTRIBUTE5, this.attribute5);
-        }
-        // TuneAnalyticsVariables conversion to JSON
-        if (!this.tags.isEmpty()) {
-            for (TuneAnalyticsVariable tag : tags) {
-                mapValues.put(tag.getName(), tag.getValue());
-            }
         }
 
         return new JSONObject(mapValues);

@@ -2,7 +2,7 @@ package com.tune;
 
 import android.content.Context;
 
-import com.tune.ma.utils.TuneSharedPrefsDelegate;
+import com.tune.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,12 +17,12 @@ public class TuneEventQueue {
     private Semaphore queueAvailable;
     
     // Instance of tune to make getLink call on (can't use getInstance during testing)
-    private Tune tune;
+    private TuneInternal tune;
     
     // current retry timeout, in seconds
     private static long retryTimeout = 0;
     
-    public TuneEventQueue(Context context, Tune tune) {
+    public TuneEventQueue(Context context, TuneInternal tune) {
         eventQueue = new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_QUEUE);
         queueAvailable = new Semaphore(1, true);
         this.tune = tune;

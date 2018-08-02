@@ -20,12 +20,11 @@ public class DeeplinkTests extends TuneUnitTest {
 
     private MockUrlRequester mockUrlRequester;
 
-    private class WaitObject {
+    private final class WaitObject {
         private boolean receivedDeeplink;
         private boolean failedDeeplink;
         private boolean didCallback;
     }
-    private final WaitObject mWaitObject = new WaitObject();
 
     @Before
     public void setUp() throws Exception {
@@ -37,14 +36,6 @@ public class DeeplinkTests extends TuneUnitTest {
         mockUrlRequester = new MockUrlRequester();
         mockUrlRequester.setRequestUrlShouldSucceed(true);
         tune.setUrlRequester(mockUrlRequester);
-
-        resetReceivedDeeplinkChecks();
-    }
-
-    private void resetReceivedDeeplinkChecks() {
-        mWaitObject.receivedDeeplink = false;
-        mWaitObject.failedDeeplink = false;
-        mWaitObject.didCallback = false;
     }
 
     private void prepareFreshInstallPreferences() {
@@ -57,99 +48,112 @@ public class DeeplinkTests extends TuneUnitTest {
 
     @Test
     public void testDeferredDeeplinkSuccess() {
+        final WaitObject waitObject = new WaitObject();
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
 
-        tune.registerDeeplinkListener(makeDeeplinkListener());
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
+        tune.registerDeeplinkListener(makeDeeplinkListener(waitObject));
+        waitForDeeplink(waitObject, TuneTestConstants.ENDPOINTTEST_SLEEP);
 
-        assertFalse(mWaitObject.failedDeeplink);
-        assertTrue(mWaitObject.receivedDeeplink);
-        resetReceivedDeeplinkChecks();
+        assertFalse(waitObject.failedDeeplink);
+        assertTrue(waitObject.receivedDeeplink);
 
-        tune.registerDeeplinkListener(makeDeeplinkListener());
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
+        // Reset the WaitObject
+        resetReceivedDeeplinkChecks(waitObject);
+
+        tune.registerDeeplinkListener(makeDeeplinkListener(waitObject));
+        waitForDeeplink(waitObject, TuneTestConstants.ENDPOINTTEST_SLEEP);
 
         // Should NOT get a failed deeplink response after registering again.
-        assertFalse(mWaitObject.didCallback);
+        assertFalse(waitObject.didCallback);
     }
 
     @Test
     public void testDeferredDeeplinkAlreadyInstalled() {
+        final WaitObject waitObject = new WaitObject();
         prepareAlreadyInstalledPreferences();
 
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
-        tune.registerDeeplinkListener(makeDeeplinkListener());
 
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
+        tune.registerDeeplinkListener(makeDeeplinkListener(waitObject));
+        waitForDeeplink(waitObject, TuneTestConstants.ENDPOINTTEST_SLEEP);
 
         // Should NOT call deferred deeplink listener.
-        assertFalse(mWaitObject.didCallback);
+        assertFalse(waitObject.didCallback);
     }
 
     @Test
     public void testDeferredDeeplinkErrorFromServer() {
+        final WaitObject waitObject = new WaitObject();
         mockUrlRequester.setRequestUrlShouldSucceed(false);
 
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
-        tune.registerDeeplinkListener(makeDeeplinkListener());
 
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
+        tune.registerDeeplinkListener(makeDeeplinkListener(waitObject));
+        waitForDeeplink(waitObject, TuneTestConstants.ENDPOINTTEST_SLEEP);
 
-        assertFalse(mWaitObject.receivedDeeplink);
-        assertTrue(mWaitObject.failedDeeplink);
+        assertFalse(waitObject.receivedDeeplink);
+        assertTrue(waitObject.failedDeeplink);
     }
 
     @Test
     public void testDeferredDeeplinkDoesntGetRequestedWithoutDeviceIdentifier() {
+        final WaitObject waitObject = new WaitObject();
+
         // Initial Sleep to make sure that the sdk is in a stable state
         sleep(TuneTestConstants.ENDPOINTTEST_SLEEP);
 
         // Mock that the SDK has not received a GAID or ANDROID_ID yet
         tune.setGoogleAdvertisingId(null, false);
-        tune.registerDeeplinkListener(makeDeeplinkListener());
+        tune.registerDeeplinkListener(makeDeeplinkListener(waitObject));
 
         // Neither success nor failure should be called, no request went out since criteria was not fulfilled,
         // no valid device identifier was received yet
-        assertFalse(mWaitObject.receivedDeeplink);
-        assertFalse(mWaitObject.failedDeeplink);
+        assertFalse(waitObject.receivedDeeplink);
+        assertFalse(waitObject.failedDeeplink);
 
         // Mock that the SDK finished receiving a GAID - this should kick off the deferred deeplink request
         tune.setGoogleAdvertisingId("12345678-1234-1234-1234-123412341234", false);
 
-        waitForDeeplink(TuneTestConstants.ENDPOINTTEST_SLEEP);
+        waitForDeeplink(waitObject, TuneTestConstants.ENDPOINTTEST_SLEEP);
 
         // Check that deferred deeplink request succeeded
-        assertTrue(mWaitObject.receivedDeeplink);
-        assertFalse(mWaitObject.failedDeeplink);
+        assertTrue(waitObject.receivedDeeplink);
+        assertFalse(waitObject.failedDeeplink);
     }
 
-    private void waitForDeeplink(long timeout) {
-        synchronized (mWaitObject) {
+    private void resetReceivedDeeplinkChecks(final WaitObject waitObject) {
+        waitObject.receivedDeeplink = false;
+        waitObject.failedDeeplink = false;
+        waitObject.didCallback = false;
+    }
+
+    private void waitForDeeplink(final WaitObject waitObject, long timeout) {
+        synchronized (waitObject) {
             try {
-                mWaitObject.wait(timeout);
+                waitObject.wait(timeout);
             } catch (InterruptedException e) {
             }
         }
     }
 
     @NonNull
-    private TuneDeeplinkListener makeDeeplinkListener() {
+    private TuneDeeplinkListener makeDeeplinkListener(final WaitObject waitObject) {
         return new TuneDeeplinkListener() {
             @Override
             public void didReceiveDeeplink(String deeplink) {
-                synchronized (mWaitObject) {
-                    mWaitObject.receivedDeeplink = true;
-                    mWaitObject.didCallback = true;
-                    mWaitObject.notify();
+                synchronized (waitObject) {
+                    waitObject.receivedDeeplink = true;
+                    waitObject.didCallback = true;
+                    waitObject.notify();
                 }
             }
 
             @Override
             public void didFailDeeplink(String error) {
-                synchronized (mWaitObject) {
-                    mWaitObject.failedDeeplink = true;
-                    mWaitObject.didCallback = true;
-                    mWaitObject.notify();
+                synchronized (waitObject) {
+                    waitObject.failedDeeplink = true;
+                    waitObject.didCallback = true;
+                    waitObject.notify();
                 }
             }
         };

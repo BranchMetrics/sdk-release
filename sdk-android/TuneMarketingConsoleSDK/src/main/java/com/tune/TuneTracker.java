@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.tune.ma.utils.TuneSharedPrefsDelegate;
+import com.tune.utils.TuneSharedPrefsDelegate;
 
 import java.net.URLDecoder;
 
@@ -21,7 +21,7 @@ public class TuneTracker extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
-            if ((null != intent) && (intent.getAction().equals("com.android.vending.INSTALL_REFERRER"))) {
+            if ((null != intent) && (null != intent.getAction()) && (intent.getAction().equals("com.android.vending.INSTALL_REFERRER"))) {
                 String rawReferrer = intent.getStringExtra("referrer");
                 if (rawReferrer != null) {
                     String referrer = URLDecoder.decode(rawReferrer, "UTF-8");
@@ -30,8 +30,8 @@ public class TuneTracker extends BroadcastReceiver {
                     // Save the referrer value in SharedPreferences
                     new TuneSharedPrefsDelegate(context, TuneConstants.PREFS_TUNE).putString(TuneConstants.KEY_REFERRER, referrer);
 
-                    // Notify threadpool waiting for referrer and advertising ID
-                    Tune tune = Tune.getInstance();
+                    // Notify thread pool waiting for referrer and advertising ID
+                    TuneInternal tune = TuneInternal.getInstance();
                     if (tune != null) {
                         tune.setInstallReferrer(referrer);
                     }

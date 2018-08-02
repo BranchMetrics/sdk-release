@@ -1,7 +1,10 @@
 package com.tune;
 
+/**
+ * Tune Deeplink Listener interface.
+ */
 public interface TuneDeeplinkListener {
-    public abstract void didReceiveDeeplink(String deeplink);
+    void didReceiveDeeplink(String deeplink);
     
-    public abstract void didFailDeeplink(String error);
+    void didFailDeeplink(String error);
 }

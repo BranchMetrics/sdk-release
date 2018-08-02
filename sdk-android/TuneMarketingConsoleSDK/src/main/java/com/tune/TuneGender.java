@@ -1,7 +1,5 @@
 package com.tune;
 
-import java.util.Locale;
-
 /**
  * Gender enum for user
  */
@@ -10,8 +8,6 @@ public enum TuneGender {
     FEMALE,
     UNKNOWN;
 
-    public static TuneGender forValue(final String value) {
-        final String enumName = value.toUpperCase(Locale.ENGLISH);
-        return TuneGender.valueOf(enumName);
-    }
+    static final String MALE_STRING_VAL = "0";
+    static final String FEMALE_STRING_VAL = "1";
 }

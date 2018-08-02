@@ -5,19 +5,14 @@ import android.accounts.AccountManager;
 import android.content.Context;
 
 import com.tune.location.TuneLocationListener;
-import com.tune.ma.TuneManager;
-import com.tune.ma.configuration.TuneConfiguration;
-import com.tune.ma.eventbus.TuneEventBus;
-import com.tune.ma.utils.TuneSharedPrefsDelegate;
+import com.tune.utils.TuneSharedPrefsDelegate;
 
 import org.json.JSONObject;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-public class TuneTestWrapper extends Tune {
+public class TuneTestWrapper extends TuneInternal {
     // copied from TuneConstants
     private static final String PREFS_LOG_ID_OPEN = "mat_log_id_open";
     private static final String PREFS_TUNE = "com.mobileapptracking";
@@ -28,24 +23,15 @@ public class TuneTestWrapper extends Tune {
 
     private static AccountManager mockAccountManager;
     
-    public TuneTestWrapper() {
-        super();
+    private TuneTestWrapper(Context context) {
+        super(context);
     }
-    
-    public static TuneTestWrapper init(final Context context, final String advertiserId, final String key) {
-        TuneEventBus.disable();
-        TuneEventBus.enable();
-        TuneConfiguration initialConfig = new TuneConfiguration();
-        // initialize TuneManager with useConfiguration set to true so that it initializes configuration player
-        ArrayList<String> configurationPlayerFilenames = new ArrayList<>();
-        configurationPlayerFilenames.add("configuration1.json");
-        configurationPlayerFilenames.add("configuration2.json");
-        initialConfig.setUseConfigurationPlayer(true);
-        initialConfig.setConfigurationPlayerFilenames(configurationPlayerFilenames);
-        initialConfig.setShouldSendScreenViews(true);
 
-        tune = new TuneTestWrapper();
-        Tune.initAll(tune, context, advertiserId, key, true, initialConfig);
+    private boolean retainSharedPrefs;
+
+    public static TuneTestWrapper init(final Context context, final String advertiserId, final String key, String packageName) {
+        tune = new TuneTestWrapper(context);
+        TuneInternal.initAll(tune, advertiserId, key, packageName);
 
         Account email = new Account("testing@tune.com", TuneConstants.GOOGLE_ACCOUNT_TYPE);
         Account[] emails = new Account[]{ email };
@@ -56,13 +42,8 @@ public class TuneTestWrapper extends Tune {
         tune.locationListener = new TuneLocationListener(context);
         tune.eventQueue = new TuneTestQueue(context, tune);
 
-        tune.setShouldAutoCollectDeviceLocation(false);
-        tune.setPackageName(TuneTestConstants.appId);
-        tune.setAdvertiserId(TuneTestConstants.advertiserId);
+        tune.disableLocationAutoCollection();
 
-        // update it after initialization because remote config takes priority, so it would overwrite analyticsDispatchPeriod
-        TuneManager.getInstance().getConfigurationManager().updateConfigurationFromTuneConfigurationObject(getTestingConfig(configurationPlayerFilenames));
-        
         // make fake open id
         String logId = "1234567812345678-201401-" + TuneTestConstants.advertiserId;
         new TuneSharedPrefsDelegate(context, PREFS_LOG_ID_OPEN).putString(PREFS_TUNE, logId);
@@ -82,32 +63,8 @@ public class TuneTestWrapper extends Tune {
         tune = null;
     }
 
-    public static TuneConfiguration getTestingConfig(List<String> configurationPlayerFilenames) {
-        TuneConfiguration config = new TuneConfiguration();
-        config.setAnalyticsHostPort("https://analytics-qa.ma.tune.com/analytics");
-        config.setPlaylistHostPort("https://qa.ma.tune.com");
-        config.setConfigurationHostPort("https://qa.ma.tune.com");
-        config.setConnectedModeHostPort("https://qa.ma.tune.com");
-        config.setStaticContentHostPort("https://s3.amazonaws.com/uploaded-assets-qa2");
-        config.setAnalyticsDispatchPeriod(TuneTestConstants.ANALYTICS_DISPATCH_PERIOD);
-        config.setPlaylistRequestPeriod(TuneTestConstants.PLAYLIST_REQUEST_PERIOD);
-        config.setUseConfigurationPlayer(true);
-        config.setConfigurationPlayerFilenames(configurationPlayerFilenames);
-        config.setShouldSendScreenViews(true);
-
-        return config;
-    }
-    
-    public static synchronized TuneTestWrapper getInstance() {
-        return tune;
-    }
-    
     public ExecutorService getPubQueue() {
         return super.getPubQueue();
-    }
-
-    public void setTuneTestRequest(TuneTestRequest request) {
-        tuneRequest = request;
     }
 
     public synchronized void setOnline( boolean toBeOnline ) {
@@ -115,7 +72,7 @@ public class TuneTestWrapper extends Tune {
     }
 
     @Override
-    public synchronized boolean isOnline(Context context) {
+    protected synchronized boolean isOnline() {
         return online;
     }
 
@@ -135,12 +92,14 @@ public class TuneTestWrapper extends Tune {
         }
     }
 
-    public void clearSharedPrefs() {
-        new TuneSharedPrefsDelegate(mContext, PREFS_TUNE).clearSharedPreferences();
+    private void clearSharedPrefs() {
+        if (!retainSharedPrefs) {
+            new TuneSharedPrefsDelegate(mApplicationReference.get(), PREFS_TUNE).clearSharedPreferences();
+        }
     }
     
     public String readUserIdKey(String key) {
-        return new TuneSharedPrefsDelegate(mContext, PREFS_TUNE).getString(key);
+        return new TuneSharedPrefsDelegate(mApplicationReference.get(), PREFS_TUNE).getString(key);
     }
 
     public void setTimeLastMeasuredSession(long time) {
@@ -149,5 +108,9 @@ public class TuneTestWrapper extends Tune {
 
     public void setIsFirstInstall(boolean isFirstInstall) {
         tune.isFirstInstall = isFirstInstall;
+    }
+
+    public void retainSharedPrefs(boolean retain) {
+        this.retainSharedPrefs = retain;
     }
 }

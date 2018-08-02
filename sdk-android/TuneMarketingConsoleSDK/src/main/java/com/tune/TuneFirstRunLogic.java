@@ -123,7 +123,7 @@ class TuneFirstRunLogic {
     }
 
     private static final int InstallReferrerResponse_GeneralException = -100;
-    private static final int InstallReferrerClientConnectionTimout = 5000;
+    private static final int InstallReferrerClientConnectionTimeout = 5000;
 
     private void startInstallReferrerClientConnection(Context context) {
         mInstallReferrerClient = InstallReferrerClient.newBuilder(context).build();
@@ -145,7 +145,7 @@ class TuneFirstRunLogic {
                     googleInstallReferrerSequenceComplete(false);
                 }
             }
-        }, InstallReferrerClientConnectionTimout);
+        }, InstallReferrerClientConnectionTimeout);
 
     }
 
@@ -186,12 +186,12 @@ class TuneFirstRunLogic {
 
                 long installBeginTimestamp = details.getInstallBeginTimestampSeconds();
                 if (installBeginTimestamp != 0) {
-                    Tune.getInstance().getTuneParams().setInstallBeginTimestampSeconds(details.getInstallBeginTimestampSeconds());
+                    TuneInternal.getInstance().getTuneParams().setInstallBeginTimestampSeconds(details.getInstallBeginTimestampSeconds());
                 }
 
                 long referrerClickTimestamp = details.getReferrerClickTimestampSeconds();
                 if (referrerClickTimestamp != 0) {
-                    Tune.getInstance().getTuneParams().setReferrerClickTimestampSeconds(referrerClickTimestamp);
+                    TuneInternal.getInstance().getTuneParams().setReferrerClickTimestampSeconds(referrerClickTimestamp);
                 }
 
                 TuneDebugLog.d("FirstRun::Install Referrer Timestamps: [" + referrerClickTimestamp + "," + installBeginTimestamp + "]");

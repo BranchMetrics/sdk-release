@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class QueueTests extends TuneUnitTest implements TuneListener {
+public class QueueTests extends TuneUnitTest implements ITuneListener {
     private ArrayList<JSONObject> successResponses;
     private MockUrlRequester mockUrlRequester;
     private String receivedDeeplink;
@@ -41,9 +41,9 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         assertTrue( "params default values failed " + params, params.checkDefaultValues() );
 
         tune.setOnline( false );
-        assertFalse( "should be offline", Tune.getInstance().isOnline( getContext() ) );
+        assertFalse( "should be offline", TuneInternal.getInstance().isOnline() );
         tune.setOnline( true );
-        assertTrue( "should be online", Tune.getInstance().isOnline( getContext() ) );
+        assertTrue( "should be online", TuneInternal.getInstance().isOnline() );
     }
 
     @Test
@@ -74,6 +74,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
 
     @Test
     public void testEmptyEventNotEnqueued() {
+        Tune.setDebugMode(false);
         tune.setOnline( false );
 
         // This should not throw an exception, because debug mode is off
@@ -81,7 +82,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         tune.measureEvent(nullString);
 
         // Turning on debug mode will cause it to throw
-        tune.setDebugMode(true);
+        Tune.setDebugMode(true);
         try {
             tune.measureEvent("");
             assertFalse(true);
@@ -93,6 +94,7 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
         sleep( TuneTestConstants.PARAMTEST_SLEEP );
         assertNotNull( "queue hasn't been initialized yet", queue );
         assertTrue( "should have enqueued zero requests, but found " + queue.getQueueSize(), queue.getQueueSize() == 0 );
+        Tune.setDebugMode(false);
     }
 
     @Test
@@ -125,9 +127,9 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
 
     @Test
     public void testEnqueue2RetriedOrder() {
-        successResponses = new ArrayList<JSONObject>();
+        successResponses = new ArrayList<>();
         tune.setListener( this );
-        tune.setDebugMode( true );
+        Tune.setDebugMode( true );
 
         tune.setOnline( false );
         tune.measureEvent( "event1" );
@@ -260,23 +262,18 @@ public class QueueTests extends TuneUnitTest implements TuneListener {
     }
 
     @Override
-    public void enqueuedActionWithRefId(String refId) {
-        Log("enqueued with ref id " + refId);
-    }
-
-    @Override
     public void enqueuedRequest(String url, JSONObject postData) {
         Log("enqueued with url " + url + ", postData " + postData.toString());
     }
 
     @Override
-    public void didSucceedWithData (JSONObject data) {
+    public void didSucceedWithData (String url, JSONObject data) {
         successResponses.add( data );
         Log("succeed with data " + data);
     }
 
     @Override
-    public void didFailWithError(JSONObject error) {
+    public void didFailWithError(String url, JSONObject error) {
         Log("fail with error " + error);
     }
 }

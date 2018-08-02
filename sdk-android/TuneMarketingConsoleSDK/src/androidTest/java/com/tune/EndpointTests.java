@@ -204,7 +204,7 @@ public class EndpointTests extends TuneUnitTest {
 
     @Test
     public void testProdEventShouldNotUseDebugEndpointOrDebugFlag() {
-        TuneParameters testParams = Tune.getInstance().getTuneParams();
+        TuneParameters testParams = tune.getTuneParams();
         TuneEvent testEvent = new TuneEvent("testEvent");
         TunePreloadData testPreloadData = new TunePreloadData("test");
 
@@ -216,7 +216,7 @@ public class EndpointTests extends TuneUnitTest {
 
     @Test
     public void testDebugEventShouldNotUseDebugEndpointAndShouldUseDebugFlag() {
-        TuneParameters testParams = Tune.getInstance().getTuneParams();
+        TuneParameters testParams = tune.getTuneParams();
         TuneEvent testEvent = new TuneEvent("testEvent");
         TunePreloadData testPreloadData = new TunePreloadData("test");
 

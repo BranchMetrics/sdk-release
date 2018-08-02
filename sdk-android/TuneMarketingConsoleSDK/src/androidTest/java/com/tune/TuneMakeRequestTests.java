@@ -97,12 +97,7 @@ public class TuneMakeRequestTests extends TuneUnitTest {
     public void testMakeRequestInvokesRequestUrlCallback() {
         mockUrlRequester.clearFakeResponse();
 
-        tune.setListener(new TuneListener() {
-            @Override
-            public void enqueuedActionWithRefId(String refId) {
-
-            }
-
+        tune.setListener(new ITuneListener() {
             @Override
             public void enqueuedRequest(String url, JSONObject postData) {
                 assertTrue(url.startsWith("https://some.url"));
@@ -113,12 +108,12 @@ public class TuneMakeRequestTests extends TuneUnitTest {
             }
 
             @Override
-            public void didSucceedWithData(JSONObject data) {
+            public void didSucceedWithData(String url, JSONObject data) {
 
             }
 
             @Override
-            public void didFailWithError(JSONObject error) {
+            public void didFailWithError(String url, JSONObject error) {
 
             }
         });

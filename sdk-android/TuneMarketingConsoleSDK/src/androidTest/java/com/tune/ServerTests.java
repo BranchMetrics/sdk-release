@@ -16,18 +16,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class ServerTests extends TuneUnitTest implements TuneListener {
+public class ServerTests extends TuneUnitTest implements ITuneListener {
     private class WaitObject {
         private boolean enqueuedSession;
         private boolean enqueuedEvent;
         private boolean callSuccess;
         private boolean callFailed;
+        private String url;
 
-        public void reset() {
+        void reset() {
             enqueuedSession = false;
             enqueuedEvent = false;
             callSuccess = false;
             callFailed = false;
+            url = null;
         }
     }
 
@@ -38,6 +40,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
             try {
                 mWaitObject.wait(timeout);
             } catch (InterruptedException e) {
+                Log("Interrupted: " + e);
             }
         }
     }
@@ -46,7 +49,7 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
     public void setUp() throws Exception  {
         super.setUp();
 
-        tune.setDebugMode(true);
+        Tune.setDebugMode(true);
         tune.setListener(this);
         tune.setOnline(true);
 
@@ -177,22 +180,18 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
         assertNotNull(tune.getPlatformAdvertisingId());
 
         assertHasValueForKey(TuneUrlKeys.GOOGLE_AID);
-        assertNotNull(tune.getGoogleAdvertisingId());
-    }
-
-    @Override
-    public void enqueuedActionWithRefId(String refId) {
+        assertNotNull(tune.getTuneParams().getGoogleAdvertisingId());
     }
 
     @Override
     public void enqueuedRequest(String url, JSONObject postData) {
-        if (url.contains("action=session")) {
-            synchronized (mWaitObject) {
+        synchronized (mWaitObject) {
+            mWaitObject.url = url;
+
+            if (url.contains("action=session")) {
                 mWaitObject.enqueuedSession = true;
             }
-        }
-        if (url.contains("action=conversion")) {
-            synchronized (mWaitObject) {
+            if (url.contains("action=conversion")) {
                 mWaitObject.enqueuedEvent = true;
             }
         }
@@ -200,17 +199,19 @@ public class ServerTests extends TuneUnitTest implements TuneListener {
 
     @Override
     // Method is mocked for testing purposes; no need for data argument
-    public void didSucceedWithData(JSONObject data) {
+    public void didSucceedWithData(String url, JSONObject data) {
         synchronized (mWaitObject) {
+            mWaitObject.url = url;
             mWaitObject.callSuccess = true;
             mWaitObject.notify();
         }
     }
 
     @Override
-    public void didFailWithError(JSONObject error) {
+    public void didFailWithError(String url, JSONObject error) {
         Log("test failed with " + error);
         synchronized (mWaitObject) {
+            mWaitObject.url = url;
             mWaitObject.callFailed = true;
             mWaitObject.notify();
         }

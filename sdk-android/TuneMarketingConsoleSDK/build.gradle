@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '5.3.0'
+    PUBLISH_VERSION = '6.0.0'
 }
 
 android {
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
-        versionName '5.3.0'
+        versionName PUBLISH_VERSION
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -45,9 +45,6 @@ configurations {
 }
 
 dependencies {
-    api 'org.greenrobot:eventbus:3.0.0'
-    javadocDeps 'org.greenrobot:eventbus:3.0.0'
-
     api 'com.android.support:support-v4:27.1.1'
     javadocDeps 'com.android.support:support-v4:27.1.1'
 
@@ -65,10 +62,6 @@ dependencies {
     androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:1.2'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
     testImplementation 'junit:junit:4.12'
-
-    // Needed for GCM Listener Service
-    compileOnly 'com.google.android.gms:play-services-gcm:15.0.1'
-    androidTestImplementation 'com.google.android.gms:play-services-gcm:15.0.1'
 }
 
 tasks.whenTaskAdded { task ->
@@ -164,6 +157,14 @@ task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     classpath += configurations.javadocDeps
+    include "com/tune/package-info.java"
+    include "com/tune/ITune.java"
+    include "com/tune/Tune.java"
+    include "com/tune/TuneDeeplinkListener.java"
+    include "com/tune/TuneEvent.java"
+    include "com/tune/TuneEventItem.java"
+    include "com/tune/TuneGender.java"
+    include "com/tune/TunePreloadData.java"
     exclude "com/tune/R.java"
     options {
         links "http://docs.oracle.com/javase/8/docs/api/"

@@ -11,11 +11,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.tune.TuneDebugLog;
-import com.tune.TuneUtils;
+import com.tune.utils.TuneUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,23 +38,18 @@ public class TuneLocationListener implements LocationListener {
     private volatile Timer timer;
     private volatile boolean listening;
 
-    // Used for Unit Tests -- when mock location providers are not installed
-    private volatile Map<String, Boolean> providerAvailableMap;
-
     public TuneLocationListener(final Context context) {
         this.contextReference = new WeakReference<>(context);
 
         // Acquire a reference to the system Location Manager
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
-        providerAvailableMap = new HashMap<>();
     }
 
     /**
      * Whether app has location permissions or not
      * @return app has location permissions or not
      */
-    public synchronized boolean isLocationEnabled() {
+    private synchronized boolean isLocationEnabled() {
         Context context = contextReference.get();
         if (context == null) {
             return false;
@@ -64,28 +57,6 @@ public class TuneLocationListener implements LocationListener {
 
         return TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
                 TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
-    }
-
-    public synchronized boolean isProviderEnabled() {
-        boolean gpsEnabled = false;
-        boolean networkEnabled = false;
-
-        // Check for an <i>explicitly</i> disabled provider before checking with the LocationManager
-        try {
-            if (!Boolean.FALSE == providerAvailableMap.get(LocationManager.GPS_PROVIDER)) {
-                gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            }
-        } catch (Exception e) {
-        }
-        try {
-            if (!Boolean.FALSE == providerAvailableMap.get(LocationManager.NETWORK_PROVIDER)) {
-                networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            }
-        } catch (Exception e) {
-        }
-
-        TuneDebugLog.d("isProviderEnabled(" + (gpsEnabled || networkEnabled) + ")");
-        return gpsEnabled || networkEnabled;
     }
 
     /**
@@ -111,12 +82,6 @@ public class TuneLocationListener implements LocationListener {
     public synchronized void startListening() {
         // If we don't have any location permissions, exit
         if (!isLocationEnabled()) {
-            return;
-        }
-
-        // If device doesn't have any providers enabled, exit
-        if (!isProviderEnabled()) {
-            TuneDebugLog.d("No location providers, device needs to turn on location");
             return;
         }
 
@@ -168,7 +133,7 @@ public class TuneLocationListener implements LocationListener {
      * @param currentBestLocation The current Location fix, to which you want to compare the new one
      * @return Whether new location is better than current best location
      */
-    protected boolean isBetterLocation(Location location, Location currentBestLocation) {
+    private boolean isBetterLocation(Location location, Location currentBestLocation) {
         if (currentBestLocation == null) {
             // A new location is always better than no location
             return true;
@@ -204,10 +169,9 @@ public class TuneLocationListener implements LocationListener {
             return true;
         } else if (isNewer && !isLessAccurate) {
             return true;
-        } else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
-            return true;
+        } else {
+            return isNewer && !isSignificantlyLessAccurate && isFromSameProvider;
         }
-        return false;
     }
 
     /**
@@ -225,9 +189,9 @@ public class TuneLocationListener implements LocationListener {
     }
 
     private class GetLocationUpdates implements Runnable {
-        private LocationListener listener;
+        private final LocationListener listener;
 
-        public GetLocationUpdates(LocationListener listener) {
+        GetLocationUpdates(LocationListener listener) {
             this.listener = listener;
         }
 
@@ -319,12 +283,10 @@ public class TuneLocationListener implements LocationListener {
     @Override
     public void onProviderEnabled(String provider) {
         TuneDebugLog.d("onProviderEnabled: " + provider);
-        providerAvailableMap.put(provider, Boolean.TRUE);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         TuneDebugLog.d("onProviderDisabled: " + provider);
-        providerAvailableMap.put(provider, Boolean.FALSE);
     }
 }

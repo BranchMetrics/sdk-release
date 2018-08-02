@@ -2,8 +2,6 @@ package com.tune;
 
 import android.util.Log;
 
-import com.tune.ma.TuneIAMConfigurationException;
-
 public class TuneDebugLog {
     private static final String TUNE_NAMESPACE = "TUNE::";
     private static final String NO_TAG = "NO_TAG";
@@ -16,13 +14,13 @@ public class TuneDebugLog {
         ERROR(Log.ERROR),
         ASSERT(Log.ASSERT);
 
-        private Integer level;
+        final Integer level;
 
         Level(Integer level) {
             this.level = level;
         }
 
-        public Boolean greaterThan(Level other) {
+        Boolean greaterThan(Level other) {
             return this.level > other.level;
         }
     }
@@ -30,7 +28,7 @@ public class TuneDebugLog {
     /**
      * Enable or Disable Logging
      */
-    private static boolean enableLog = true;
+    private static boolean loggingEnabled;
 
     /**
      * All logs &gt;= logLevel will be printed
@@ -38,113 +36,103 @@ public class TuneDebugLog {
     private static Level logLevel = Level.WARN;
 
     public static void i(String msg) {
-        i(getTag(), msg);
+        i(getTag(Log.INFO), msg);
     }
 
     public static void i(String msg, Throwable tr) {
-        i(getTag(), msg, tr);
+        i(getTag(Log.INFO), msg, tr);
     }
 
     public static void i(String tag, String msg) {
-        if (!isEnabled() || logLevel.greaterThan(Level.INFO))
-            return;
-
-        Log.i(TUNE_NAMESPACE + tag, msg);
+        if (canLog(Level.INFO)) {
+            Log.i(tag, msg);
+        }
     }
 
     public static void i(String tag, String msg, Throwable tr) {
-        if (!isEnabled() || logLevel.greaterThan(Level.INFO))
-            return;
-
-        Log.i(TUNE_NAMESPACE + tag, msg, tr);
+        if (canLog(Level.INFO)) {
+            Log.i(tag, msg, tr);
+        }
     }
 
     public static void v(String msg) {
-        v(getTag(), msg);
+        v(getTag(Log.VERBOSE), msg);
     }
 
     public static void v(String msg, Throwable tr) {
-        v(getTag(), msg, tr);
+        v(getTag(Log.VERBOSE), msg, tr);
     }
 
     public static void v(String tag, String msg) {
-        if (!isEnabled() || logLevel.greaterThan(Level.VERBOSE))
-            return;
-
-        Log.d(TUNE_NAMESPACE + tag, msg);
+        if (canLog(Level.VERBOSE)) {
+            Log.v(tag, msg);
+        }
     }
 
     public static void v(String tag, String msg, Throwable tr) {
-        if (!isEnabled() || logLevel.greaterThan(Level.VERBOSE))
-            return;
-
-        Log.d(TUNE_NAMESPACE + tag, msg, tr);
+        if (canLog(Level.VERBOSE)) {
+            Log.v(tag, msg, tr);
+        }
     }
 
     public static void d(String msg) {
-        d(getTag(), msg);
+        d(getTag(Log.DEBUG), msg);
     }
 
     public static void d(String msg, Throwable tr) {
-        d(getTag(), msg, tr);
+        d(getTag(Log.DEBUG), msg, tr);
     }
 
     public static void d(String tag, String msg) {
-        if (!isEnabled() || logLevel.greaterThan(Level.DEBUG))
-            return;
-
-        Log.d(TUNE_NAMESPACE + tag, msg);
+        if (canLog(Level.DEBUG)) {
+            Log.d(tag, msg);
+        }
     }
 
     public static void d(String tag, String msg, Throwable tr) {
-        if (!isEnabled() || logLevel.greaterThan(Level.DEBUG))
-            return;
-
-        Log.d(TUNE_NAMESPACE + tag, msg, tr);
+        if (canLog(Level.DEBUG)) {
+            Log.d(tag, msg, tr);
+        }
     }
 
     public static void w(String msg) {
-        w(getTag(), msg);
+        w(getTag(Log.WARN), msg);
     }
 
     public static void w(String msg, Throwable tr) {
-        w(getTag(), msg, tr);
+        w(getTag(Log.WARN), msg, tr);
     }
 
     public static void w(String tag, String msg) {
-        if (!isEnabled() || logLevel.greaterThan(Level.WARN))
-            return;
-
-        Log.w(TUNE_NAMESPACE + tag, msg);
+        if (canLog(Level.WARN)) {
+            Log.w(tag, msg);
+        }
     }
 
     public static void w(String tag, String msg, Throwable tr) {
-        if (!isEnabled() || logLevel.greaterThan(Level.WARN))
-            return;
-
-        Log.w(TUNE_NAMESPACE + tag, msg, tr);
+        if (canLog(Level.WARN)) {
+            Log.w(tag, msg, tr);
+        }
     }
 
     public static void e(String msg) {
-        e(getTag(), msg);
+        e(getTag(Log.ERROR), msg);
     }
 
     public static void e(String msg, Throwable tr) {
-        e(getTag(), msg, tr);
+        e(getTag(Log.ERROR), msg, tr);
     }
 
     public static void e(String tag, String msg) {
-        if (!isEnabled() || logLevel.greaterThan(Level.ERROR))
-            return;
-
-        Log.e(TUNE_NAMESPACE + tag, msg);
+        if (canLog(Level.ERROR)) {
+            Log.e(tag, msg);
+        }
     }
 
     public static void e(String tag, String msg, Throwable tr) {
-        if (!isEnabled() || logLevel.greaterThan(Level.ERROR))
-            return;
-
-        Log.e(TUNE_NAMESPACE + tag, msg, tr);
+        if (canLog(Level.ERROR)) {
+            Log.e(tag, msg, tr);
+        }
     }
 
     private static final int ENTRY_MAX_LEN = 4000;
@@ -155,7 +143,10 @@ public class TuneDebugLog {
             int lastNewLine = msg.lastIndexOf('\n', ENTRY_MAX_LEN);
             int nextEnd = lastNewLine != -1 ? lastNewLine : Math.min(ENTRY_MAX_LEN, msg.length());
             String next = msg.substring(0, nextEnd /*exclusive*/);
-            Log.i(TUNE_NAMESPACE + getTag(), next);
+
+            // Always Log bypasses any level checks
+            Log.i(TUNE_NAMESPACE + getTag(Log.INFO), next);
+
             if (lastNewLine != -1) {
                 // Don't print out the \n twice.
                 msg = msg.substring(nextEnd+1);
@@ -198,18 +189,6 @@ public class TuneDebugLog {
     }
 
     /**
-     * Helper for this class' log methods that don't have the tag passed in. The levels it goes up are:
-     * 0) com.tune.ma.utils.TuneDebugLog.getTag() [This method]
-     * 1) com.tune.ma.utils.TuneDebugLog.v/d/i/w/e with no tag
-     * 2) The method calling TuneDebugLog.v/d/i/w/e with no tag
-     *
-     * @return The formatted tag for (5)
-     */
-    private static String getTag() {
-        return getTag(2);
-    }
-
-    /**
      * E.g. Let's say that foo() called this method, then level to tag will be:
      * 0) foo()
      * 1) callerOfFoo()
@@ -224,9 +203,9 @@ public class TuneDebugLog {
             // Add 3 to the level to skip over to
             // 0) dalvik.system.VMStack.getThreadStackTrace(Native Method)
             // 1) java.lang.Thread.getStackTrace()
-            // 2) com.tune.ma.utils.TuneDebugLog.getTag(int) [current method]
+            // 2) com.tune.utils.TuneDebugLog.getTag(int) [current method]
             // 3) callerOfGetTag()
-            level += 3;
+            level += Log.DEBUG;
             StackTraceElement[] trace = Thread.currentThread().getStackTrace();
 
             if (level >= trace.length) {
@@ -247,30 +226,21 @@ public class TuneDebugLog {
         }
     }
 
-    public static boolean isEnabled() {
+    private static boolean isEnabled() {
         // TODO: checkConfig();
-        return TuneDebugLog.enableLog;
+        return TuneDebugLog.loggingEnabled;
     }
 
     public static void enableLog() {
-        enableLog = true;
+        loggingEnabled = true;
     }
 
     public static void disableLog() {
-        enableLog = false;
+        loggingEnabled = false;
     }
 
     public static void setLogLevel(Level level) {
         logLevel = level;
-    }
-
-    @Deprecated
-    public static void IAMConfigError(String message) {
-        if (Tune.getInstance() != null && Tune.getInstance().isInDebugMode()) {
-            throw new TuneIAMConfigurationException(message);
-        } else {
-            e(getTag(2), message);
-        }
     }
 
     /**
@@ -284,5 +254,9 @@ public class TuneDebugLog {
             e("Received invalid level: " + level);
             return logLevel;
         }
+    }
+
+    private static boolean canLog(Level priority) {
+        return (isEnabled() && !logLevel.greaterThan(priority));
     }
 }

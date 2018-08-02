@@ -1,6 +1,9 @@
 package com.tune;
 
+import android.location.Location;
 import android.net.Uri;
+
+import com.tune.utils.TuneUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,7 +20,7 @@ class TuneUrlBuilder {
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    static String appendTuneLinkParameters(TuneParameters params, String clickedTuneLinkUrl) {
+    static String appendTuneLinkParameters(final TuneParameters params, String clickedTuneLinkUrl) {
         final Uri uri = Uri.parse(clickedTuneLinkUrl);
         final Uri.Builder builder = uri.buildUpon();
 
@@ -35,7 +38,7 @@ class TuneUrlBuilder {
      * Builds a new link string based on parameter values.
      * @return encrypted URL string based on class settings.
      */
-    static String buildLink(TuneParameters params, TuneEvent eventData, TunePreloadData preloaded, boolean debugMode) {
+    static String buildLink(final TuneParameters params, TuneEvent eventData, TunePreloadData preloaded, boolean debugMode) {
         Set<String> redactKeys = TuneParameters.getRedactedKeys();
 
         StringBuilder link = new StringBuilder("https://").append(params.getAdvertiserId()).append(".");
@@ -60,27 +63,27 @@ class TuneUrlBuilder {
         // Append preloaded params, must have attr_set=1 in order to attribute
         if (preloaded != null) {
             link.append("&attr_set=1");
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_ID, preloaded.publisherId);
-            safeAppend(link, redactKeys, TuneUrlKeys.OFFER_ID, preloaded.offerId);
-            safeAppend(link, redactKeys, TuneUrlKeys.AGENCY_ID, preloaded.agencyId);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_REF_ID, preloaded.publisherReferenceId);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_PUBLISHER, preloaded.publisherSubPublisher);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_SITE, preloaded.publisherSubSite);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_CAMPAIGN, preloaded.publisherSubCampaign);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_ADGROUP, preloaded.publisherSubAdgroup);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_AD, preloaded.publisherSubAd);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_KEYWORD, preloaded.publisherSubKeyword);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB1, preloaded.publisherSub1);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB2, preloaded.publisherSub2);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB3, preloaded.publisherSub3);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB4, preloaded.publisherSub4);
-            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB5, preloaded.publisherSub5);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_PUBLISHER, preloaded.advertiserSubPublisher);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_SITE, preloaded.advertiserSubSite);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_CAMPAIGN, preloaded.advertiserSubCampaign);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_ADGROUP, preloaded.advertiserSubAdgroup);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_AD, preloaded.advertiserSubAd);
-            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_KEYWORD, preloaded.advertiserSubKeyword);
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_ID, preloaded.getPublisherId());
+            safeAppend(link, redactKeys, TuneUrlKeys.OFFER_ID, preloaded.getOfferId());
+            safeAppend(link, redactKeys, TuneUrlKeys.AGENCY_ID, preloaded.getAgencyId());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_REF_ID, preloaded.getPublisherReferenceId());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_PUBLISHER, preloaded.getPublisherSubPublisher());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_SITE, preloaded.getPublisherSubSite());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_CAMPAIGN, preloaded.getPublisherSubCampaign());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_ADGROUP, preloaded.getPublisherSubAdgroup());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_AD, preloaded.getPublisherSubAd());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB_KEYWORD, preloaded.getPublisherSubKeyword());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB1, preloaded.getPublisherSub1());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB2, preloaded.getPublisherSub2());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB3, preloaded.getPublisherSub3());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB4, preloaded.getPublisherSub4());
+            safeAppend(link, redactKeys, TuneUrlKeys.PUBLISHER_SUB5, preloaded.getPublisherSub5());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_PUBLISHER, preloaded.getAdvertiserSubPublisher());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_SITE, preloaded.getAdvertiserSubSite());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_CAMPAIGN, preloaded.getAdvertiserSubCampaign());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_ADGROUP, preloaded.getAdvertiserSubAdgroup());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_AD, preloaded.getAdvertiserSubAd());
+            safeAppend(link, redactKeys, TuneUrlKeys.ADVERTISER_SUB_KEYWORD, preloaded.getAdvertiserSubKeyword());
         }
 
         // If logging on, use debug mode
@@ -95,11 +98,11 @@ class TuneUrlBuilder {
      * Builds data in conversion link based on class member values, to be encrypted.
      * @return URL-encoded string based on class settings.
      */
-    static synchronized String buildDataUnencrypted(TuneParameters params, TuneEvent eventData) {
+    static synchronized String buildDataUnencrypted(final TuneParameters params, final TuneEvent eventData) {
         Set<String> redactKeys = TuneParameters.getRedactedKeys();
         StringBuilder link = new StringBuilder();
 
-        link.append(TuneUrlKeys.CONNECTION_TYPE + "=" + params.getConnectionType());
+        link.append(TuneUrlKeys.CONNECTION_TYPE + "=").append(params.getConnectionType());
         safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID, params.getAndroidId());
         safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID_MD5, params.getAndroidIdMd5());
         safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID_SHA1, params.getAndroidIdSha1());
@@ -129,13 +132,8 @@ class TuneUrlBuilder {
             safeAppend(link, redactKeys, TuneUrlKeys.ALTITUDE, Double.toString(params.getLocation().getAltitude()));
             safeAppend(link, redactKeys, TuneUrlKeys.LATITUDE, Double.toString(params.getLocation().getLatitude()));
             safeAppend(link, redactKeys, TuneUrlKeys.LONGITUDE, Double.toString(params.getLocation().getLongitude()));
-        } else {
-            safeAppend(link, redactKeys, TuneUrlKeys.ALTITUDE, params.getAltitude());
-            safeAppend(link, redactKeys, TuneUrlKeys.LATITUDE, params.getLatitude());
-            safeAppend(link, redactKeys, TuneUrlKeys.LONGITUDE, params.getLongitude());
         }
         safeAppend(link, redactKeys, TuneUrlKeys.LOCALE, params.getLocale());
-        safeAppend(link, redactKeys, TuneUrlKeys.MAC_ADDRESS, params.getMacAddress());
         safeAppend(link, redactKeys, TuneUrlKeys.MAT_ID, params.getMatId());
         safeAppend(link, redactKeys, TuneUrlKeys.MOBILE_COUNTRY_CODE, params.getMCC());
         safeAppend(link, redactKeys, TuneUrlKeys.MOBILE_NETWORK_CODE, params.getMNC());
@@ -148,7 +146,6 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.SCREEN_DENSITY, params.getScreenDensity());
         safeAppend(link, redactKeys, TuneUrlKeys.SCREEN_LAYOUT_SIZE, params.getScreenWidth() + "x" + params.getScreenHeight());
         safeAppend(link, redactKeys, TuneUrlKeys.SDK_VERSION, Tune.getSDKVersion());
-        safeAppend(link, redactKeys, TuneUrlKeys.TRUSTE_ID, params.getTRUSTeId());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_AGENT, params.getUserAgent());
 
         // Append event-level params
@@ -159,12 +156,8 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.ATTRIBUTE5, eventData.getAttribute5());
         safeAppend(link, redactKeys, TuneUrlKeys.CONTENT_ID, eventData.getContentId());
         safeAppend(link, redactKeys, TuneUrlKeys.CONTENT_TYPE, eventData.getContentType());
-        // Event-level currency overrides TUNE class-level
-        if (eventData.getCurrencyCode() != null) {
-            safeAppend(link, redactKeys, TuneUrlKeys.CURRENCY_CODE, eventData.getCurrencyCode());
-        } else {
-            safeAppend(link, redactKeys, TuneUrlKeys.CURRENCY_CODE, params.getCurrencyCode());
-        }
+        safeAppend(link, redactKeys, TuneUrlKeys.CURRENCY_CODE, eventData.getCurrencyCode());
+
         if (eventData.getDate1() != null) {
             safeAppend(link, redactKeys, TuneUrlKeys.DATE1, Long.toString(eventData.getDate1().getTime() / 1000));
         }
@@ -193,7 +186,7 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.FACEBOOK_USER_ID, params.getFacebookUserId());
         safeAppend(link, redactKeys, TuneUrlKeys.GENDER, params.getGender());
         safeAppend(link, redactKeys, TuneUrlKeys.GOOGLE_USER_ID, params.getGoogleUserId());
-        safeAppend(link, redactKeys, TuneUrlKeys.IS_PAYING_USER, params.getIsPayingUser());
+        safeAppend(link, redactKeys, TuneUrlKeys.IS_PAYING_USER, params.isPayingUser());
         safeAppend(link, redactKeys, TuneUrlKeys.TWITTER_USER_ID, params.getTwitterUserId());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_EMAIL_MD5, params.getUserEmailMd5());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_EMAIL_SHA1, params.getUserEmailSha1());
@@ -222,7 +215,7 @@ class TuneUrlBuilder {
      * Update the advertising ID and install referrer, if present, and encrypts the data string.
      * @return encrypted string
      */
-    static synchronized String updateAndEncryptData(TuneParameters params, String data, TuneEncryption encryption) {
+    static synchronized String updateAndEncryptData(final TuneParameters params, String data, final TuneEncryption encryption) {
         if (data == null) {
             data = "";
         }
@@ -284,7 +277,7 @@ class TuneUrlBuilder {
             if (fbUserId != null && !data.contains("&" + TuneUrlKeys.FACEBOOK_USER_ID + "=")) {
                 safeAppend(updatedData, redactKeys, TuneUrlKeys.FACEBOOK_USER_ID, fbUserId);
             }
-            TuneLocation location = params.getLocation();
+            Location location = params.getLocation();
             if (location != null) {
                 if (!data.contains("&" + TuneUrlKeys.ALTITUDE + "=")) {
                     safeAppend(updatedData, redactKeys, TuneUrlKeys.ALTITUDE, Double.toString(location.getAltitude()));
@@ -352,7 +345,7 @@ class TuneUrlBuilder {
                 // TuneDebugLog.d("REDACTED: " + key);
             } else {
                 try {
-                    link.append("&" + key + "=" + URLEncoder.encode(value, "UTF-8"));
+                    link.append("&").append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     TuneDebugLog.w("failed encoding value " + value + " for key " + key, e);
                 }

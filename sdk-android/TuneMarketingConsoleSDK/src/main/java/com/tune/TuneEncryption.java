@@ -1,5 +1,7 @@
 package com.tune;
 
+import com.tune.utils.TuneUtils;
+
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
@@ -8,8 +10,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class TuneEncryption {
-    private IvParameterSpec ivspec;
-    private SecretKeySpec keyspec;
+    private final IvParameterSpec ivspec;
+    private final SecretKeySpec keyspec;
     private Cipher cipher;
 
     /**
@@ -40,7 +42,7 @@ public class TuneEncryption {
     byte[] encrypt(String plainText) throws Exception {
         if (plainText == null || plainText.length() == 0) throw new Exception("Empty string");
 
-        byte[] encrypted = null;
+        byte[] encrypted;
 
         try {
             cipher.init(Cipher.ENCRYPT_MODE, keyspec, ivspec);
@@ -62,7 +64,7 @@ public class TuneEncryption {
     byte[] decrypt(String encryptedText) throws Exception {
         if (encryptedText == null || encryptedText.length() == 0) throw new Exception("Empty string");
 
-        byte[] decrypted = null;
+        byte[] decrypted;
 
         try {
             cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
@@ -84,9 +86,11 @@ public class TuneEncryption {
         int x = source.length() % size;
         int padLength = size - x;
 
+        StringBuilder sourceBuilder = new StringBuilder(source);
         for (int i = 0; i < padLength; i++) {
-            source += paddingChar;
+            sourceBuilder.append(paddingChar);
         }
+        source = sourceBuilder.toString();
 
         return source;
     }

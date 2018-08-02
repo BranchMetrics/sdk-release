@@ -28,10 +28,6 @@ public class TuneConstants {
     static final String KEY_USER_ID = "mat_user_id";
     // Key for user name
     static final String KEY_USER_NAME = "mat_user_name";
-    // Key for user session count
-    public static final String KEY_USER_SESSION_COUNT = "ma_user_session_count";
-    // Key for last session date
-    public static final String KEY_LAST_SESSION_DATE = "ma_last_session_date";
     // InstallBeginTimestamp
     static final String KEY_INSTALL_BEGIN_TIMESTAMP = "install_begin_timestamp";
     // ReferrerClickTimestamp
@@ -44,12 +40,10 @@ public class TuneConstants {
     // Deeplink endpoint
     public static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
 
-    // TUNE IAM API VERSION
-    public static final String IAM_API_VERSION = "v3";
-    public static final String IAM_PLAYLIST_API_VERSION = "v4";
-
     public static final String STRING_TRUE = "true";
     public static final String STRING_FALSE = "false";
+
+    public static final String SERVER_RESPONSE_SUCCESS = "success";
 
     public static final String PREF_UNSET = "0";
     public static final String PREF_SET = "1";
@@ -64,9 +58,6 @@ public class TuneConstants {
     // Request delay time of 60s
     static final int DELAY = 60000;
 
-    // Default currency code is USD
-    static final String DEFAULT_CURRENCY_CODE = "USD";
-
     static final String[] PLUGIN_NAMES = {
         "air",
         "cocos2dx",
@@ -79,8 +70,6 @@ public class TuneConstants {
         "unity",
         "xamarin"
     };
-
-    static final Long DEFAULT_FIRST_PLAYLIST_DOWNLOADED_TIMEOUT = 3000l;
 
     static final String UUID_EMPTY = "00000000-0000-0000-0000-000000000000";
 

@@ -1,5 +1,6 @@
 package com.tune.mocks;
 
+import com.tune.TuneConstants;
 import com.tune.TuneDeeplinkListener;
 import com.tune.http.UrlRequester;
 
@@ -37,7 +38,7 @@ public class MockUrlRequester implements UrlRequester {
 
         try {
             if (requestUrlShouldSucceed) {
-                response.put("success", "true");
+                response.put(TuneConstants.SERVER_RESPONSE_SUCCESS, TuneConstants.STRING_TRUE);
             } else {
                 response.put("error", "error");
             }

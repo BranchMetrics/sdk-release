@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class TuneTestQueue extends TuneEventQueue {
 
-    public TuneTestQueue(Context context, Tune mat) {
+    public TuneTestQueue(Context context, TuneInternal mat) {
         super(context, mat);
     }
     
