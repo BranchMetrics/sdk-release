@@ -7,20 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TuneCampaign.h"
-#import "TuneMessageAction.h"
 
-@interface TuneDeeplink : NSObject {
-    NSMutableDictionary *_parameterDictionary;
-    BOOL _foundCampaign;
-    BOOL _foundAction;
-}
+@interface TuneDeeplink : NSObject
 
-@property (strong, nonatomic) TuneMessageAction *action;
-@property (strong, nonatomic) TuneCampaign *campaign;
-// Event Parameters will contain category
-@property (nonatomic, strong) NSMutableDictionary *eventParameters;
-@property (nonatomic, copy) NSString *eventType;
 @property (strong, nonatomic) NSURL *url;
 
 - (id)initWithNSURL:(NSURL *)url;

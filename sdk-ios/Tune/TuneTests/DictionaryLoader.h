@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 @interface DictionaryLoader : NSObject
 
 + (NSDictionary*)dictionaryFromPListFileNamed:(NSString*)fileName;

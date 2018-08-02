@@ -13,6 +13,7 @@
 #import "TuneEventKeys.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
+#import "TuneLog.h"
 
 NSString *const TUNE_EVENT_ACHIEVEMENT_UNLOCKED = @"achievement_unlocked";
 NSString *const TUNE_EVENT_ADD_TO_CART          = @"add_to_cart";
@@ -193,7 +194,8 @@ static const int TUNE_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
 
 - (void)addTag:(NSString *)name withVersionValue:(NSString *)value {
     if (![TuneAnalyticsVariable validateVersion:value]) {
-        ErrorLog(@"The given version format is not valid. Got: %@", value);
+        NSString *errorMessage = [NSString stringWithFormat:@"The given version format is not valid. Got: %@", value];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
@@ -205,17 +207,20 @@ static const int TUNE_IGNORE_IOS_PURCHASE_STATUS     = -192837465;
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:name];
         
         if ([_notAllowedAttributes containsObject:prettyName]) {
-            ErrorLog(@"'%@' is a property, please use the appropriate setter instead.", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"'%@' is a property, please use the appropriate setter instead.", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         }
         
         if ([prettyName hasPrefix:@"TUNE_"]) {
-            ErrorLog(@"Tags starting with 'TUNE_' are reserved. Not registering: %@", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"Tags starting with 'TUNE_' are reserved. Not registering: %@", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         }
         
         if ([_addedTags containsObject:prettyName]) {
-            ErrorLog(@"The tag '%@' has already been added to this event. Can not add duplicate tags.", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"The tag '%@' has already been added to this event. Can not add duplicate tags.", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         } else {
             [_addedTags addObject:prettyName];

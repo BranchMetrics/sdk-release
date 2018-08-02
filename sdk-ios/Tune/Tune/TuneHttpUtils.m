@@ -11,7 +11,6 @@
 #import "TuneManager.h"
 #import "TuneUserProfile.h"
 #import "TuneConfiguration.h"
-#import "TuneDeviceDetails.h"
 #import "TuneHttpRequest.h"
 
 @implementation TuneHttpUtils
@@ -54,9 +53,7 @@
             }
         }
     }
-    
-    DebugLog(@"urlString: %@", urlString);
-    
+        
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:method];

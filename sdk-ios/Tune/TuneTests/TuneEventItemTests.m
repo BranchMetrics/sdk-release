@@ -9,8 +9,6 @@
 #import <XCTest/XCTest.h>
 
 #import "Tune+Testing.h"
-#import "TuneAnalyticsItem.h"
-#import "TuneAnalyticsVariable.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
 #import "TuneEventKeys.h"
@@ -34,7 +32,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     
@@ -255,69 +253,6 @@
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_PURCHASE_STATUS, expectedTransactionState );
     XCTAssertTrue( [params checkReceiptEquals:receiptData], @"receipt data not equal" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
-}
-
-- (void)testConversionToTuneAnalyticsItem {
-    TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
-    tuneEventItem.attribute1 = @"bingbang";
-    
-    TuneAnalyticsItem *item = [TuneAnalyticsItem analyticsItemFromTuneEventItem:tuneEventItem];
-    
-    XCTAssertTrue([item.item isEqualToString:@"foobar"], @"Value check failed: %@", item.item);
-    XCTAssertTrue([item.revenue isEqualToString:@"25"], @"Value check failed: %@", item.revenue);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:TUNE_KEY_EVENT_ATTRIBUTE_SUB1 value:@"bingbang"]]);
-}
-
-- (void)testAddTag {
-    TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
-    [tuneEventItem addTag:@"stringValue" withStringValue:@"value"];
-    [tuneEventItem addTag:@"booleanValue" withBooleanValue:@(1)];
-    [tuneEventItem addTag:@"datetimeValue" withDateTimeValue:[NSDate dateWithTimeIntervalSince1970:0]];
-    [tuneEventItem addTag:@"numberValue" withNumberValue:@(10)];
-    TuneLocation *loc = [TuneLocation alloc];
-    loc.longitude = @(50.2);
-    loc.latitude = @(60.9);
-    [tuneEventItem addTag:@"geolocationValue" withGeolocationValue:loc];
-    [tuneEventItem addTag:@"versionValue" withVersionValue:@"6.6.7"];
-    
-    TuneAnalyticsItem *item = [TuneAnalyticsItem analyticsItemFromTuneEventItem:tuneEventItem];
-    
-    XCTAssertTrue([item.item isEqualToString:@"foobar"], @"Value check failed: %@", item.item);
-    XCTAssertTrue([item.revenue isEqualToString:@"25"], @"Value check failed: %@", item.revenue);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"stringValue" value:@"value"]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"booleanValue" value:@(1) type:TuneAnalyticsVariableBooleanType]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"datetimeValue" value:[NSDate dateWithTimeIntervalSince1970:0] type:TuneAnalyticsVariableDateTimeType]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"numberValue" value:@(10) type:TuneAnalyticsVariableNumberType]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"geolocationValue" value:loc type:TuneAnalyticsVariableCoordinateType]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"versionValue" value:@"6.6.7" type:TuneAnalyticsVariableVersionType]]);
-}
-
-- (void)testPreventAddingTagsThatMatchAttributes {
-    TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
-    [tuneEventItem addTag:@"attribute_sub1" withStringValue:@"value"];
-    [tuneEventItem addTag:@"attribute_sub2" withStringValue:@"value"];
-    [tuneEventItem addTag:@"attribute_sub3" withStringValue:@"value"];
-    [tuneEventItem addTag:@"attribute_sub4" withStringValue:@"value"];
-    [tuneEventItem addTag:@"attribute_sub5" withStringValue:@"value"];
-    
-    TuneAnalyticsItem *item = [TuneAnalyticsItem analyticsItemFromTuneEventItem:tuneEventItem];
-
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"attribute_sub1" value:@"value"]]);
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"attribute_sub2" value:@"value"]]);
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"attribute_sub3" value:@"value"]]);
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"attribute_sub4" value:@"value"]]);
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"attribute_sub5" value:@"value"]]);
-}
-
-- (void)testPreventAddingCustomTagsStartingWithTune {
-    TuneEventItem *tuneEventItem = [TuneEventItem eventItemWithName:@"foobar" unitPrice:2.5 quantity:10];
-    [tuneEventItem addTag:@"TUNE_whatever" withStringValue:@"value"];
-    [tuneEventItem addTag:@"Tune_whatever" withStringValue:@"value"];
-    
-    TuneAnalyticsItem *item = [TuneAnalyticsItem analyticsItemFromTuneEventItem:tuneEventItem];
-    
-    XCTAssertFalse([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"TUNE_whatever" value:@"value"]]);
-    XCTAssertTrue([item.attributes containsObject:[TuneAnalyticsVariable analyticsVariableWithName:@"Tune_whatever" value:@"value"]]);
 }
 
 #pragma mark - Tune delegate

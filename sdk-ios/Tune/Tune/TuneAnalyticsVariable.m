@@ -8,12 +8,11 @@
 
 #import "TuneAnalyticsVariable.h"
 
-#import "TuneConfiguration.h"
 #import "TuneManager.h"
 #import "TuneAnalyticsConstants.h"
 #import "TuneDateUtils.h"
 #import "TuneLocation.h"
-#import "TunePIIUtils.h"
+#import "TuneLog.h"
 #import "TuneUtils.h"
 
 
@@ -122,17 +121,18 @@
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:variableName];
         
         if (![variableName isEqualToString:prettyName]) {
-            WarnLog(@"The variable name '%@' had special characters in it and was automatically changed to '%@'.", variableName, prettyName);
+            NSString *logMessage = [NSString stringWithFormat:@"WARN - The variable name '%@' had special characters in it and was automatically changed to '%@'.", variableName, prettyName];
+            [TuneLog.shared logVerbose:logMessage];
         }
         
         if ([prettyName isEqualToString:@""]) {
-            ErrorLog(@"Can not register/set a variable with name made of characters exclusively not in [a-zA-Z0-9_-].");
+            [TuneLog.shared logVerbose:@"Can not register/set a variable with name made of characters exclusively not in [a-zA-Z0-9_-]."];
             return NO;
         }
         
         return YES;
     } else {
-        ErrorLog(@"Attempted to use a variable with name of nil or empty string.");
+        [TuneLog.shared logVerbose:@"WARN - Attempted to use a variable with name of nil or empty string."];
         return NO;
     }
 }
@@ -205,13 +205,7 @@
 }
 
 - (NSArray *)toArrayOfDicts {
-    BOOL hasPII = [TunePIIUtils check:[self convertValueToString] hasPIIWithPIIRegexFiltersArray:[[TuneManager currentManager].configuration PIIFiltersAsNSRegularExpressions]];
-    if (shouldAutoHash || hasPII) {
-        if (hasPII) {
-            // TODO: If we have PII here do we really want to alert the sure as to what is being hashed exactly?
-            WarnLog(@"Found PII for variable '%@', hashing: %@", self.name, [self convertValueToString]);
-        }
-        
+    if (shouldAutoHash) {
         return @[ [self toDictionaryWithHash:TuneAnalyticsVariableHashMD5Type],
                   [self toDictionaryWithHash:TuneAnalyticsVariableHashSHA1Type],
                   [self toDictionaryWithHash:TuneAnalyticsVariableHashSHA256Type]

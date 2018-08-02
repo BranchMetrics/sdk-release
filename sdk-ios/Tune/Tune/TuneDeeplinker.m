@@ -9,6 +9,7 @@
 #import "TuneDeeplinker.h"
 
 #import "Tune+Internal.h"
+#import "TuneLog.h"
 #import "TuneHttpUtils.h"
 #import "TuneIfa.h"
 #import "TuneKeyStrings.h"
@@ -128,8 +129,6 @@ static TuneDeeplinker *dplinkr;
     [TuneUtils addUrlQueryParamValue:@(dplinkr.appleAdTrackingEnabled)  forKey:TUNE_KEY_IOS_AD_TRACKING          queryParams:urlString];
     [TuneUtils addUrlQueryParamValue:[TuneUserAgentCollector userAgent] forKey:TUNE_KEY_CONVERSION_USER_AGENT    queryParams:urlString];
     
-    DebugLog( @"deeplink request: %@", urlString );
-    
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]
                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                        timeoutInterval:TUNE_NSURLCONNECTION_DEFAULT_TIMEOUT];
@@ -140,7 +139,6 @@ static TuneDeeplinker *dplinkr;
         
         if( !connectionError ) {
             NSString *link = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            DebugLog( @"deeplink response: [%d] %@", (int)[(NSHTTPURLResponse*)response statusCode], link );
             
             if(200 == (int)[(NSHTTPURLResponse*)response statusCode]) {
                 __block NSURL *deeplink = [NSURL URLWithString:link];
@@ -151,15 +149,11 @@ static TuneDeeplinker *dplinkr;
                         [deepDelegate tuneDidReceiveDeeplink:deeplink.absoluteString];
                     }
                 } else {
-                    DebugLog( @"response was not a valid URL: %@", link );
-                    
                     error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                                 code:TuneDeepLinkErrorMalformedDeepLinkUrl
                                             userInfo:@{NSLocalizedDescriptionKey:@"Malformed deferred deep link", TUNE_KEY_REQUEST_URL:response.URL.absoluteString}];
                 }
             } else {
-                DebugLog( @"invalid http status code %d, response: %@", (int)[(NSHTTPURLResponse*)response statusCode], link );
-            
                 error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN
                                             code:[(NSHTTPURLResponse*)response statusCode]
                                         userInfo:@{NSLocalizedDescriptionKey:@"Deferred deep link not found", TUNE_KEY_REQUEST_URL:response.URL.absoluteString}];
@@ -170,8 +164,8 @@ static TuneDeeplinker *dplinkr;
                                     userInfo:@{NSLocalizedDescriptionKey:@"Network error when retrieving deferred deep link", NSUnderlyingErrorKey:connectionError}];
         }
         
-        if(error) {
-            DebugLog( @"error: %@", error );
+        if (error) {
+            [TuneLog.shared logError:[NSString stringWithFormat:@"ERROR: %@", error]];
 
             // check and call error delegate callback
             if ([deepDelegate respondsToSelector:@selector(tuneDidFailDeeplinkWithError:)]) {
@@ -241,7 +235,7 @@ static TuneDeeplinker *dplinkr;
     if ([self isTuneLinkMeasurementRequest:link] && ![self isInvokeUrlParameterInReferralUrl]) {
         // If invoke_url not found in Tune Link response, log error
         if ([response rangeOfString:[NSString stringWithFormat:@"\"%@\":\"", TUNE_KEY_INVOKE_URL]].location == NSNotFound) {
-            DebugLog(@"Error parsing response %@ to check for invoke url", response);
+            [TuneLog.shared logError:[NSString stringWithFormat:@"Error parsing response %@ to check for invoke url", response]];
         } else {
             // Regex to find the value of invoke_url json key
             NSString *pattern = [NSString stringWithFormat:@"(?<=\"%@\":\")([-a-zA-Z0-9@:%%_\\\\+.~#?&\\/\\/=]*)\"", TUNE_KEY_INVOKE_URL];

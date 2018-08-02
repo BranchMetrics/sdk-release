@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 
+
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 #import <iAd/iAd.h>
 #endif
@@ -20,7 +21,6 @@
 #import "TuneManager.h"
 #endif
 
-#import "TuneAppToAppTracker.h"
 #import "TuneTestParams.h"
 #import "TuneTracker.h"
 #import "TuneUserDefaultsUtils.h"
@@ -30,32 +30,10 @@
 
 #import "TuneXCTestCase.h"
 
-
-
-@interface TuneAppToAppTracker()
-
-- (NSString *)buildLinkForTargetBundleId:(NSString*)targetBundleId
-                            advertiserId:(NSString*)advertiserId
-                              campaignId:(NSString*)campaignId
-                             publisherId:(NSString*)publisherId
-                              domainName:(NSString*)domainName;
-@end
-
-
-
 @interface TuneTrackerInitializationTests : TuneXCTestCase <TuneDelegate, TuneTrackerDelegate>
 {
     TuneTestParams *params;
 }
-
-@property (nonatomic, strong, readwrite) TuneAppToAppTracker *testAppToAppTracker;
-@property (nonatomic, strong, readwrite) NSString *testTuneAppToAppTrackerLink;
-@property (nonatomic, strong, readwrite) NSString *testTargetBundleId;
-@property (nonatomic, strong, readwrite) NSString *testAdvertiserId;
-@property (nonatomic, strong, readwrite) NSString *testCampaignId;
-@property (nonatomic, strong, readwrite) NSString *testPublisherId;
-@property (nonatomic, strong, readwrite) NSString *testDomainName;
-@property (nonatomic, strong, readwrite) TuneTracker *testTuneTracker;
 
 @end
 
@@ -64,7 +42,7 @@
 - (void)setUp {
     [super setUp];
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     // Wait for everything to be set
     waitForQueuesToFinish();
@@ -74,16 +52,7 @@
 
 - (void)tearDown {
     emptyRequestQueue();
-    
-    self.testAppToAppTracker = nil;
-    self.testTuneAppToAppTrackerLink = nil;
-    self.testTargetBundleId = nil;
-    self.testAdvertiserId = nil;
-    self.testCampaignId = nil;
-    self.testPublisherId = nil;
-    self.testDomainName = nil;
-    self.testTuneTracker = nil;
-    
+
     [super tearDown];
 }
 
@@ -96,35 +65,24 @@
     ASSERT_KEY_VALUE( TUNE_KEY_OS_JAILBROKE, @"0" );
 }
 
-- (void)testNotAutodetectJailbroken {
-    [Tune setShouldAutoDetectJailbroken:NO];
+- (void)testOverrideJailbroken {
+    [Tune setJailbroken:YES];
 
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [Tune measureEvent:event];
 
     waitForQueuesToFinish();
     XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_OS_JAILBROKE );
+    ASSERT_KEY_VALUE(TUNE_KEY_OS_JAILBROKE, @"1");
 }
 
-- (void)testAutogenerateIFV {
+- (void)testCollectIFV {
     TuneEvent *event = [TuneEvent eventWithName:@"registration"];
     [Tune measureEvent:event];
 
     waitForQueuesToFinish();
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_IFV, [[[UIDevice currentDevice] identifierForVendor] UUIDString] );
-}
-
-- (void)testNotAutogenerateIFV {
-    [Tune setShouldAutoGenerateAppleVendorIdentifier:NO];
-
-    TuneEvent *event = [TuneEvent eventWithName:@"registration"];
-    [Tune measureEvent:event];
-
-    waitForQueuesToFinish();
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_IOS_IFV );
 }
 
 - (void)testSendInstallReceipt {
@@ -173,7 +131,7 @@
     // NOTE: We need to instantiate everything again here since the only time things are loaded from
     //       NSUserDefaults for the UserProfile is on instantiation
     [[TuneManager currentManager] instantiateModules];
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     waitForQueuesToFinish();
 
@@ -198,19 +156,6 @@
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
 }
 
-#if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
-- (void)testWearableDevice {
-    [[TuneManager currentManager].userProfile setWearable:@(YES)];
-
-    TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
-    [Tune measureEvent:event];
-
-    waitForQueuesToFinish();
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( @"device_form", @"wearable" );
-}
-#endif
-
 // Locale and build collection are required for AdWords attribution
 - (void)testLocaleAndBuild {
     NSString *build = [[TuneManager currentManager].userProfile deviceBuild];
@@ -219,46 +164,6 @@
     XCTAssertNotNil(build);
     XCTAssertNotNil(locale);
     XCTAssertTrue([@"en_US" isEqualToString:locale]);
-}
-
-- (void) testProdEventShouldNotUseDebugEndpoint {
-    [Tune setDebugMode:NO];
-    self.testAppToAppTracker = [TuneAppToAppTracker new];
-    self.testTuneTracker = [TuneTracker new];
-    
-    TuneEvent *testEvent = [TuneEvent eventWithName:@"fakeEventName"];
-    NSString *testTrackingLink;
-    NSString *testEncryptParams;
-    
-    self.testTuneAppToAppTrackerLink = [self.testAppToAppTracker buildLinkForTargetBundleId:self.testTargetBundleId advertiserId:self.testAdvertiserId campaignId:self.testCampaignId publisherId:self.testPublisherId domainName:self.testDomainName];
-    
-    [self.testTuneTracker urlStringForEvent:testEvent
-                          trackingLink:&testTrackingLink
-                         encryptParams:&testEncryptParams];
-    
-    XCTAssertFalse( [self.testTuneAppToAppTrackerLink containsString:@"debug.engine.mobileapptracking.com"] );
-    XCTAssertFalse( [testTrackingLink containsString:@"debug.engine.mobileapptracking.com"] );
-    XCTAssertFalse( [testTrackingLink containsString:@"debug=1"] );
-}
-
-- (void) testDebugEventShouldNotUseDebugEndpointAndUseDebugFlagAsApplicable {
-    [Tune setDebugMode:YES];
-    self.testAppToAppTracker = [TuneAppToAppTracker new];
-    self.testTuneTracker = [TuneTracker new];
-    
-    TuneEvent *testEvent = [TuneEvent eventWithName:@"fakeEventName"];
-    NSString *testTrackingLink;
-    NSString *testEncryptParams;
-    
-    self.testTuneAppToAppTrackerLink = [self.testAppToAppTracker buildLinkForTargetBundleId:self.testTargetBundleId advertiserId:self.testAdvertiserId campaignId:self.testCampaignId publisherId:self.testPublisherId domainName:self.testDomainName];
-    
-    [self.testTuneTracker urlStringForEvent:testEvent
-                          trackingLink:&testTrackingLink
-                         encryptParams:&testEncryptParams];
-    
-    XCTAssertFalse( [self.testTuneAppToAppTrackerLink containsString:@"debug.engine.mobileapptracking.com"] );
-    XCTAssertFalse( [testTrackingLink containsString:@"debug.engine.mobileapptracking.com"] );
-    XCTAssertTrue( [testTrackingLink containsString:@"debug=1"] );
 }
 
 #pragma mark - Tune delegate

@@ -7,5 +7,3 @@
 //
 
 #import "TuneConstants.h"
-
-NSTimeInterval const DefaultFirstPlaylistDownloadedTimeout = 3;

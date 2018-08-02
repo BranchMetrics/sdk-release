@@ -13,6 +13,7 @@
 #import "TuneDateUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation.h"
+#import "TuneLog.h"
 
 @implementation TuneEventItem
 
@@ -146,7 +147,7 @@
 
 - (void)addTag:(NSString *)name withGeolocationValue:(TuneLocation *)value {
     if (![TuneAnalyticsVariable validateTuneLocation:value]) {
-        ErrorLog(@"Both the longitude and latitude properties must be set for TuneLocation objects.");
+        [TuneLog.shared logError:@"Both the longitude and latitude properties must be set for TuneLocation objects."];
         return;
     }
     
@@ -155,7 +156,8 @@
 
 - (void)addTag:(NSString *)name withVersionValue:(NSString *)value {
     if (![TuneAnalyticsVariable validateVersion:value]) {
-        ErrorLog(@"The given version format is not valid. Got: %@", value);
+        NSString *errorMessage = [NSString stringWithFormat:@"The given version format is not valid. Got: %@", value];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
@@ -167,17 +169,20 @@
         NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:name];
         
         if ([_notAllowedAttributes containsObject:prettyName]) {
-            ErrorLog(@"'%@' is a property, please use the appropriate setter instead.", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"'%@' is a property, please use the appropriate setter instead.", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         }
         
         if ([prettyName hasPrefix:@"TUNE_"]) {
-            ErrorLog(@"Tags starting with 'TUNE_' are reserved. Not registering: %@", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"Tags starting with 'TUNE_' are reserved. Not registering: %@", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         }
         
         if ([_addedTags containsObject:prettyName]) {
-            ErrorLog(@"The tag '%@' has already been added to this event item. Can not add duplicate tags.", prettyName);
+            NSString *errorMessage = [NSString stringWithFormat:@"The tag '%@' has already been added to this event item. Can not add duplicate tags.", prettyName];
+            [TuneLog.shared logError:errorMessage];
             return;
         } else {
             [_addedTags addObject:prettyName];

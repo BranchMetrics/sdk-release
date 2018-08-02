@@ -9,9 +9,7 @@
 #import "TuneTracker.h"
 
 #import "Tune+Internal.h"
-#import "TuneAppToAppTracker.h"
 #import "TuneConfiguration.h"
-#import "TuneConfigurationKeys.h"
 #import "TuneCWorks.h"
 #import "TuneDeeplinker.h"
 #import "TuneEvent+Internal.h"
@@ -24,8 +22,8 @@
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneLocationHelper.h"
+#import "TuneLog.h"
 #import "TuneManager.h"
-#import "TuneRegionMonitor.h"
 #import "TuneSkyhookCenter.h"
 
 #if !TARGET_OS_WATCH
@@ -38,10 +36,7 @@
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 
-#import <CoreFoundation/CoreFoundation.h>
-#import <UIKit/UIKit.h>
-
-#if USE_IAD
+#if TARGET_OS_IOS
 #import <iAd/iAd.h>
 #endif
 
@@ -80,9 +75,6 @@ static const NSTimeInterval TIME_STEP_FOR_INIT_WAIT = 0.1;
 
 
 @interface TuneTracker() <TuneEventQueueDelegate>
-
-@property (nonatomic, strong, readwrite) TuneAppToAppTracker *appToAppTracker;
-@property (nonatomic, strong, readwrite) TuneRegionMonitor *regionMonitor;
 
 @property (nonatomic, assign, getter=isTrackerStarted) BOOL trackerStarted;
 
@@ -152,12 +144,9 @@ static dispatch_once_t sharedInstanceOnceToken;
         
         [[TuneEventQueue sharedQueue] setDelegate:self];
         
-        // !!! very important to init some parms here
-        self.shouldUseCookieTracking = NO; // by default do not use cookie tracking
-        
         #if !TARGET_OS_WATCH
         // collect IFA if accessible
-        [[TuneManager currentManager].userProfile updateIFA];
+        //[[TuneManager currentManager].userProfile updateIFA];
         #endif
     }
     
@@ -165,15 +154,6 @@ static dispatch_once_t sharedInstanceOnceToken;
 }
 
 #pragma mark - Public Methods
-
-// override default property getter, we want to lazy load the location module since not all clients use location
-- (TuneRegionMonitor *)regionMonitor {
-    if (!_regionMonitor) {
-        _regionMonitor = [TuneRegionMonitor new];
-    }
-    return _regionMonitor;
-}
-
 - (void)startTracker {
     self.trackerStarted = NO;
     
@@ -235,7 +215,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     }
 }
 
-#if USE_IAD
+#if TARGET_OS_IOS
 
 #pragma mark - iAd methods
 
@@ -468,37 +448,30 @@ static dispatch_once_t sharedInstanceOnceToken;
         event.cworksImpression = dictCworksImpression;
         
 #if !TARGET_OS_WATCH
-        if([TuneManager currentManager].configuration.shouldAutoCollectAdvertisingIdentifier) {
-            // collect IFA if accessible
-            [[TuneManager currentManager].userProfile updateIFA];
-        }
+        // collect IFA if accessible
+        //[[TuneManager currentManager].userProfile updateIFA];
 #endif
         
-        // if the device location has not been explicitly set, try to auto-collect
-        if ([TuneManager currentManager].configuration.shouldAutoCollectDeviceLocation) {
-            // check if location info is accessible
-            BOOL locationEnabled = [TuneLocationHelper isLocationEnabled];
+        // check if location info is accessible
+        BOOL locationEnabled = [TuneLocationHelper isLocationEnabled] && TuneConfiguration.sharedConfiguration.collectDeviceLocation;
+        
+        if(locationEnabled) {
+            // try accessing location
+            NSMutableArray *arr = [NSMutableArray arrayWithCapacity:1];
+            [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
             
-            // DebugLog(@"called getOrRequestDeviceLocation: location enabled = %d, location = %@", locationEnabled, location);
-            
-            if(locationEnabled) {
-                // try accessing location
-                NSMutableArray *arr = [NSMutableArray arrayWithCapacity:1];
+            // if the location is not readily available
+            if( 0 == arr.count ) {
+                // wait for location update to finish
+                [NSThread sleepForTimeInterval:TUNE_LOCATION_UPDATE_DELAY];
+                
+                // retry accessing location
                 [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
-                
-                // if the location is not readily available
-                if( 0 == arr.count ) {
-                    // wait for location update to finish
-                    [NSThread sleepForTimeInterval:TUNE_LOCATION_UPDATE_DELAY];
-                    
-                    // retry accessing location
-                    [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
-                }
-                
-                if( 1 == arr.count ) {
-                    event.location = arr[0];
-                    [[TuneManager currentManager].userProfile setLocation:arr[0]];
-                }
+            }
+            
+            if( 1 == arr.count ) {
+                event.location = arr[0];
+                [[TuneManager currentManager].userProfile setLocation:arr[0]];
             }
         }
         
@@ -525,7 +498,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     // fire the tracking request
     [self sendRequestWithEvent:event];
     
-#if USE_IAD
+#if TARGET_OS_IOS
     if( [event.actionName isEqualToString:TUNE_EVENT_SESSION] ) {
         // use existing stored iAd attribution info when available
         if(self.iAdAttributionInfo) {
@@ -544,60 +517,19 @@ static dispatch_once_t sharedInstanceOnceToken;
 
 #pragma mark - Tune Delegate Callback Helper Methods
 
-- (void)notifyDelegateSuccessMessage:(NSString *)message {
-    if( [self.delegate respondsToSelector:@selector(tuneDidSucceedWithData:)] ) {
-        [self.delegate tuneDidSucceedWithData:[message dataUsingEncoding:NSUTF8StringEncoding]];
-    }
-}
-
 - (void)notifyDelegateRequestEnqueuedWithRefId:(NSString *)refId url:(NSString *)url postData:(NSDictionary *)postDict {
-    if([self.delegate respondsToSelector:@selector(tuneEnqueuedRequest:postData:)]) {
-        NSString *strPost = nil;
-        
-        if(postDict.count > 0) {
-            DebugLog(@"post data before serialization = %@", postDict);
-            strPost = [TuneUtils jsonSerialize:postDict];
-            DebugLog(@"post data after  serialization = %@", strPost);
-        }
-        
-        [self.delegate tuneEnqueuedRequest:url postData:strPost];
+    NSString *post = @"";
+    if (postDict.count > 0) {
+        post = [TuneUtils jsonSerialize:postDict];
     }
     
-    if([self.delegate respondsToSelector:@selector(tuneEnqueuedActionWithReferenceId:)]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [self.delegate tuneEnqueuedActionWithReferenceId:refId];
-#pragma clang diagnostic pop
-    }
+    NSString *message = [NSString stringWithFormat:@"EVENT QUEUE\nURL: %@\nPOST: %@", url, post];
+    [TuneLog.shared logVerbose:message];
 }
 
 - (void)notifyDelegateFailureWithErrorCode:(TuneErrorCode)errorCode key:(NSString*)errorKey message:(NSString*)errorMessage {
-    if( [self.delegate respondsToSelector:@selector(tuneDidFailWithError:)] ) {
-        NSDictionary *errorDetails = @{NSLocalizedFailureReasonErrorKey: errorKey ?: @"",
-                                       NSLocalizedDescriptionKey: errorMessage ?: @""};
-        NSError *error = [NSError errorWithDomain:TUNE_KEY_ERROR_DOMAIN code:errorCode userInfo:errorDetails];
-        
-        [self.delegate tuneDidFailWithError:error];
-    }
-}
-
-#pragma mark - Start app-to-app tracking session
-
-- (void)setMeasurement:(NSString*)targetAppPackageName
-          advertiserId:(NSString*)targetAppAdvertiserId
-               offerId:(NSString*)offerId
-           publisherId:(NSString*)publisherId
-              redirect:(BOOL)shouldRedirect {
-    self.appToAppTracker = [TuneAppToAppTracker new];
-    self.appToAppTracker.delegate = self;
-    
-    [self.appToAppTracker startMeasurementSessionForTargetBundleId:targetAppPackageName
-                                            publisherBundleId:[TuneUtils bundleId]
-                                                 advertiserId:targetAppAdvertiserId
-                                                   campaignId:offerId
-                                                  publisherId:publisherId
-                                                     redirect:shouldRedirect
-                                                   domainName:[[TuneManager currentManager].configuration domainName]];
+    NSString *message = [NSString stringWithFormat:@"ERROR: %@ %@", errorKey, errorMessage];
+    [TuneLog.shared logError:message];
 }
 
 #pragma mark - Private Methods
@@ -608,7 +540,6 @@ static dispatch_once_t sharedInstanceOnceToken;
     NSNumber *cworksClickValue = nil;
     
     [self fetchCWorksClickKey:&cworksClickKey andValue:&cworksClickValue];
-    DebugLog(@"cworks=%@:%@", cworksClickKey, cworksClickValue);
     if( nil != cworksClickKey && nil != cworksClickValue ) {
         *cworksClick = @{cworksClickKey: cworksClickValue};
     }
@@ -618,7 +549,6 @@ static dispatch_once_t sharedInstanceOnceToken;
     NSNumber *cworksImpressionValue = nil;
     
     [self fetchCWorksImpressionKey:&cworksImpressionKey andValue:&cworksImpressionValue];
-    DebugLog(@"cworks imp=%@:%@", cworksImpressionKey, cworksImpressionValue);
     if( nil != cworksImpressionKey && nil != cworksImpressionValue ) {
         *cworksImpression = @{cworksImpressionKey: cworksImpressionValue};
     }
@@ -644,9 +574,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     [self urlStringForEvent:event
                trackingLink:&trackingLink
               encryptParams:&encryptParams];
-    
-    DRLog(@"Tune sendRequestWithEvent: %@", trackingLink);
-    
+        
     NSMutableDictionary *postDict = [NSMutableDictionary dictionary];
     
     // if present then serialize the eventItems
@@ -660,7 +588,6 @@ static dispatch_once_t sharedInstanceOnceToken;
             // Convert the array of TuneEventItem objects to an array of equivalent dictionary representations.
             NSArray *arrDictEventItems = [TuneEventItem dictionaryArrayForEventItems:event.eventItems];
             
-            DebugLog(@"Tune sendRequestWithEvent: %@", arrDictEventItems);
             [postDict setValue:arrDictEventItems forKey:TUNE_KEY_DATA];
         }
     }
@@ -768,7 +695,8 @@ static dispatch_once_t sharedInstanceOnceToken;
         }
     }
     
-    [self notifyDelegateSuccessMessage:strData];
+    NSString *message = [NSString stringWithFormat:@"EVENT SUCCESS\nURL: %@\nRESPONSE:%@", requestUrl, strData];
+    [TuneLog.shared logVerbose:message];
 }
 
 - (void)queueRequestDidFailWithError:(NSError *)error {
@@ -776,15 +704,9 @@ static dispatch_once_t sharedInstanceOnceToken;
 }
 
 - (void)queueRequestDidFailWithError:(NSError *)error request:(NSString *)request response:(NSString *)response {
-    // legacy error callback without optional network information
-    if ([self.delegate respondsToSelector:@selector(tuneDidFailWithError:)]) {
-        [self.delegate tuneDidFailWithError:error];
-    }
-    
-    if ([self.delegate respondsToSelector:@selector(tuneDidFailWithError:request:response:)]) {
-        [self.delegate tuneDidFailWithError:error request:request response:response];
-    }
-}
+    NSString *message = [NSString stringWithFormat:@"ERROR: %@\nREQUEST: %@\nRESPONSE:%@", error, request, response];
+    [TuneLog.shared logError:message];
+};
 
 /*!
  Waits for Tune initialization for max duration of MAX_WAIT_TIME_FOR_INIT second(s)
@@ -797,7 +719,7 @@ static dispatch_once_t sharedInstanceOnceToken;
         if( maxWait == nil ) {
             maxWait = [NSDate dateWithTimeIntervalSinceNow:MAX_WAIT_TIME_FOR_INIT];
         } else if ([maxWait timeIntervalSinceNow] < 0) { // is this right? time is hard
-            WarnLog( @"Tune timeout waiting for initialization" );
+            [TuneLog.shared logVerbose:@"WARN - Tune timeout waiting for initialization"];
             return;
         }
         
@@ -847,18 +769,12 @@ static dispatch_once_t sharedInstanceOnceToken;
     
     // part of the url that needs encryption
     NSMutableString* encryptedParams = [NSMutableString stringWithCapacity:512];
-    
-    if ([TuneManager currentManager].configuration.staging) {
-        [nonEncryptedParams appendFormat:@"%@=1", TUNE_KEY_STAGING];
-    }
         
     if (event.postConversion) {
         [nonEncryptedParams appendFormat:@"&%@=1", TUNE_KEY_POST_CONVERSION];
     }
     
     NSString *keySiteEvent = event.eventName ? TUNE_KEY_SITE_EVENT_NAME : TUNE_KEY_SITE_EVENT_ID;
-    
-    NSString *currencyCode = event.currencyCode ?: [[TuneManager currentManager].userProfile currencyCode];
     
     TuneLocation *location = event.location ?: [[TuneManager currentManager].userProfile location];
     [self addValue:location.altitude             forKey:TUNE_KEY_ALTITUDE                     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -887,7 +803,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     [self addValue:[[TuneManager currentManager].userProfile mobileNetworkCode]             forKey:TUNE_KEY_CARRIER_NETWORK_CODE     encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #endif
     [self addValue:[[TuneManager currentManager].userProfile countryCode]                   forKey:TUNE_KEY_COUNTRY_CODE             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:currencyCode                                                             forKey:TUNE_KEY_CURRENCY_CODE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:event.currencyCode                                                       forKey:TUNE_KEY_CURRENCY_CODE            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile deviceBrand]                   forKey:TUNE_KEY_DEVICE_BRAND             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile deviceBuild]                   forKey:TUNE_KEY_DEVICE_BUILD             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #if TARGET_OS_IOS
@@ -896,12 +812,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     [self addValue:[[TuneManager currentManager].userProfile deviceCpuSubtype]              forKey:TUNE_KEY_DEVICE_CPUSUBTYPE        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile deviceCpuType]                 forKey:TUNE_KEY_DEVICE_CPUTYPE           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
-#if TARGET_OS_IOS
-    // watchOS1
-    if([[[TuneManager currentManager].userProfile wearable] boolValue]) {
-        [self addValue:TUNE_KEY_DEVICE_FORM_WEARABLE                                        forKey:TUNE_KEY_DEVICE_FORM             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    }
-#elif TARGET_OS_TV
+#if TARGET_OS_TV
     [self addValue:TUNE_KEY_DEVICE_FORM_TV                                                  forKey:TUNE_KEY_DEVICE_FORM             encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
 #elif TARGET_OS_WATCH
     // watchOS2
@@ -979,13 +890,12 @@ static dispatch_once_t sharedInstanceOnceToken;
     sdkPlatform = TUNE_KEY_WATCHOS;
 #endif
     [self addValue:sdkPlatform                                                              forKey:TUNE_KEY_SDK                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[TuneManager currentManager].configuration.pluginName                    forKey:TUNE_KEY_SDK_PLUGIN               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:TuneConfiguration.sharedConfiguration.pluginName                         forKey:TUNE_KEY_SDK_PLUGIN               encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile sessionDate]                   forKey:TUNE_KEY_SESSION_DATETIME         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:eventNameOrId                                                            forKey:keySiteEvent                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile systemDate]                    forKey:TUNE_KEY_SYSTEM_DATE              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile trackingId]                    forKey:TUNE_KEY_TRACKING_ID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[NSUUID UUID] UUIDString]                                               forKey:TUNE_KEY_TRANSACTION_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile trusteTPID]                    forKey:TUNE_KEY_TRUSTE_TPID              encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile twitterUserId]                 forKey:TUNE_KEY_TWITTER_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile updateLogId]                   forKey:TUNE_KEY_UPDATE_LOG_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile userEmailMd5]                  forKey:TUNE_KEY_USER_EMAIL_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
@@ -1028,8 +938,8 @@ static dispatch_once_t sharedInstanceOnceToken;
     
     [self addValue:[TuneUserAgentCollector userAgent]           forKey:TUNE_KEY_CONVERSION_USER_AGENT      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
-    if( [[TuneManager currentManager].configuration.debugMode boolValue] )
-        [self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    // Rethink debugging
+    //[self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     // Note: it's possible for a cworks key to duplicate a built-in key (say, "sdk").
     // If that happened, the constructed URL would have two of the same parameter (e.g.,
@@ -1038,10 +948,6 @@ static dispatch_once_t sharedInstanceOnceToken;
         [self addValue:event.cworksClick[key]        			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     for( NSString *key in [event.cworksImpression allKeys] )
         [self addValue:event.cworksImpression[key]   			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    
-#if DEBUG
-    [self addValue:@(TRUE)                                      forKey:TUNE_KEY_BYPASS_THROTTLING          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-#endif
     
 #if TESTING
     if(self.allowDuplicateRequests)
@@ -1053,24 +959,12 @@ static dispatch_once_t sharedInstanceOnceToken;
     if( [_trackerDelegate respondsToSelector:@selector(_tuneURLTestingCallbackWithParamsToBeEncrypted:withPlaintextParams:)] )
         [_trackerDelegate _tuneURLTestingCallbackWithParamsToBeEncrypted:encryptedParams withPlaintextParams:nonEncryptedParams];
     
-#if DEBUG_STAGING
-    *trackingLink = [NSString stringWithFormat:@"%@://%@/%@?%@",
-                     TUNE_KEY_HTTPS,
-                     [[TuneManager currentManager].configuration domainName],
-                     TUNE_SERVER_PATH_TRACKING_ENGINE,
-                     nonEncryptedParams];
-#else
     *trackingLink = [NSString stringWithFormat:@"%@://%@.%@/%@?%@",
                      TUNE_KEY_HTTPS,
                      [[TuneManager currentManager].userProfile advertiserId],
-                     [[TuneManager currentManager].configuration domainName],
+                     TUNE_SERVER_DOMAIN_REGULAR_TRACKING_PROD,
                      TUNE_SERVER_PATH_TRACKING_ENGINE,
                      nonEncryptedParams];
-#endif
-    
-    DLLog(@"Tune urlStringForServerUrl: data to be encrypted: %@", encryptedParams);
-    DLLog(@"Tune urlStringForServerUrl: tracking url: %@", *trackingLink);
-    
     *encryptParams = encryptedParams;
 }
 
@@ -1079,11 +973,14 @@ static dispatch_once_t sharedInstanceOnceToken;
     if (value == nil || [[TuneManager currentManager].userProfile shouldRedactKey:key]) {
         return;
     }
+
+    // rethink the debug here
+//    if ([key isEqualToString:TUNE_KEY_PACKAGE_NAME] || [key isEqualToString:TUNE_KEY_DEBUG]) {
+//        [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:plaintextParams];
+//        [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:encryptedParams];
+//    } else
     
-    if ([key isEqualToString:TUNE_KEY_PACKAGE_NAME] || [key isEqualToString:TUNE_KEY_DEBUG]) {
-        [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:plaintextParams];
-        [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:encryptedParams];
-    } else if ([[TuneTracker doNotEncryptSet] containsObject:key]) {
+    if ([[TuneTracker doNotEncryptSet] containsObject:key]) {
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:plaintextParams];
     } else {
         [TuneUtils addUrlQueryParamValue:value forKey:key queryParams:encryptedParams];

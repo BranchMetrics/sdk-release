@@ -20,9 +20,6 @@
 @interface TuneFileManagerTests : TuneXCTestCase
 {
     NSString *directoryPath;
-    NSString *remoteConfigPath;
-    NSString *localConfigPath;
-    NSString *playlistPath;
     NSString *analyticsPath;
     
     TuneFileManager *fileManager;
@@ -34,16 +31,9 @@
 
 - (void)setUp {
     [super setUp];
-
-    configuration = [[TuneConfiguration alloc] initWithTuneManager:[TuneManager currentManager]];
-    [TuneManager currentManager].configuration = configuration;
-    pointMAUrlsToNothing();
     
     directoryPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tune"];
-    remoteConfigPath = [directoryPath stringByAppendingPathComponent:@"tune_remote_config.plist"];
-    localConfigPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TuneConfiguration" ofType:@"plist"];
     analyticsPath = [directoryPath stringByAppendingPathComponent:@"tune_analytics.plist"];
-    playlistPath = [directoryPath stringByAppendingPathComponent:@"tune_playlist.plist"];
 }
 
 - (void)tearDown {
@@ -133,7 +123,7 @@
 }
 
 - (void)testSaveAnalyticsEventToDiskWhenFull {
-    [[TuneManager currentManager].configuration setAnalyticsMessageStorageLimit:[NSNumber numberWithInt:12]];
+    TuneConfiguration.sharedConfiguration.analyticsMessageStorageLimit = [NSNumber numberWithInt:12];
     
     NSDictionary *startingDictionary = @{ @"1439486620-a" : @"{ json: \"string1\", json2: intvalue }",
                                       @"1439486759-b" : @"{ json: \"string2\", json2: intvalue2 }",
@@ -192,142 +182,6 @@
     NSDictionary *retrievedDictionary = [TuneFileManager loadAnalyticsFromDisk];
     
     XCTAssertTrue([[retrievedDictionary description] isEqualToString:[expectedOutput description]], @"Actually: %@", [retrievedDictionary description]);
-}
-
-
-- (void)testDeleteAnalyticsFromDisk {
-    NSDictionary *testDictionary = @{ @"a1" : @"{ json: \"string\", json2: intvalue }",
-                                      @"a2" : @"{ json: \"string\", json2: intvalue }"
-                                      };
-    
-    [TuneFileManager saveRemoteConfigurationToDisk:testDictionary];
-    [TuneFileManager deleteAnalyticsFromDisk];
-    
-    XCTAssertFalse([TuneFileUtils fileExists:analyticsPath]);
-}
-
-# pragma mark - Remote Config File Mgmt
-
-- (void)testLoadConfigurationFromDiskWhenNoneExists {
-    [TuneFileUtils deleteFileOrDirectory: remoteConfigPath];
-    NSDictionary *config = [TuneFileManager loadRemoteConfigurationFromDisk];
-    
-    XCTAssertNil(config);
-}
-
-- (void)testLoadConfigurationFromDiskWhenItExists {
-    NSDictionary *testDictionary = @{ @"test1" : @"value1",
-                                      @"test2" : @"value2"
-                                      };
-    
-    [TuneFileManager saveRemoteConfigurationToDisk:testDictionary];
-    NSDictionary *saveDictionary = [TuneFileManager loadRemoteConfigurationFromDisk];
-    
-    XCTAssertEqualObjects([saveDictionary description], [testDictionary description]);
-}
-
-- (void)testSaveConfigurationToDiskNoDirectory {
-    NSDictionary *testDictionary = @{ @"test1" : @"value1",
-                                      @"test2" : @"value2"
-                                      };
-    
-    [TuneFileUtils deleteFileOrDirectory: directoryPath];
-    [TuneFileManager saveRemoteConfigurationToDisk:testDictionary];
-    
-    XCTAssertTrue([TuneFileUtils fileExists:remoteConfigPath]);
-}
-
-- (void)testSaveConfigurationToDiskWithDirectory {
-    NSDictionary *testDictionary = @{ @"test1" : @"value1",
-                                      @"test2" : @"value2"
-                                      };
-    
-    [TuneFileUtils deleteFileOrDirectory: remoteConfigPath];
-    [TuneFileManager saveRemoteConfigurationToDisk:testDictionary];
-    
-    XCTAssertTrue([TuneFileUtils fileExists:remoteConfigPath]);
-}
-
-- (void)testDeleteConfigurationFromDisk {
-    NSDictionary *testDictionary = @{ @"test1" : @"value1",
-                                      @"test2" : @"value2"
-                                      };
-    
-    [TuneFileManager saveRemoteConfigurationToDisk:testDictionary];
-    [TuneFileManager deleteRemoteConfigurationFromDisk];
-    
-    XCTAssertFalse([TuneFileUtils fileExists:remoteConfigPath]);
-}
-
-#pragma mark - Local Config File Tests
-
-- (void)testLoadLocalConfigurationFromDiskWhenNoneExists {
-    [TuneFileUtils deleteFileOrDirectory: localConfigPath];
-    NSDictionary *config = [TuneFileManager loadLocalConfigurationFromDisk];
-    
-    XCTAssertNil(config);
-}
-
-- (void)testLoadLocalConfigurationFromDiskWhenItExists {
-    // NOTE: These contents are stored in TuneConfiguration.plist in the Resources folder
-    NSDictionary *knownDictionary = @{ @"AppDelegateClassName": @"TuneBlankAppDelegate",
-                                       @"UserNotificationDelegateClassName": @"TuneBlankAppDelegate",
-                                       @"DisabledClasses": @[ @"DisabledInPlist" ] };
-    
-    NSDictionary *loadedDictionary = [TuneFileManager loadLocalConfigurationFromDisk];
-    
-    XCTAssertEqualObjects([loadedDictionary description], [knownDictionary description]);
-}
-
-#pragma mark - Playlist File Tests
-
-
-- (void)testLoadPlaylistFromDiskWhenNoneExists {
-    [TuneFileUtils deleteFileOrDirectory: playlistPath];
-    
-    NSDictionary *playlist = [TuneFileManager loadPlaylistFromDisk];
-    
-    XCTAssertNil(playlist);
-}
-
-- (void)testLoadPlaylistFromDiskWhenItExists {
-    NSDictionary *playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePowerHookValueTests"];
-    TunePlaylist *testPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
-    
-    [TuneFileManager savePlaylistToDisk:testPlaylist];
-    NSDictionary *savedDictionary = [TuneFileManager loadPlaylistFromDisk];
-    
-    XCTAssertEqualObjects([savedDictionary description], [playlistDictionary description]);
-}
-
-- (void)testSavePlaylistToDiskNoDirectory {
-    NSDictionary *playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePowerHookValueTests"];
-    TunePlaylist *testPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
-    
-    [TuneFileUtils deleteFileOrDirectory: directoryPath];
-    [TuneFileManager savePlaylistToDisk:testPlaylist];
-    
-    XCTAssertTrue([TuneFileUtils fileExists:playlistPath]);
-}
-
-- (void)testSavePlaylistToDiskWithDirectory {
-    NSDictionary *playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePowerHookValueTests"];
-    TunePlaylist *testPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
-    
-    [TuneFileUtils deleteFileOrDirectory:playlistPath];
-    [TuneFileManager savePlaylistToDisk:testPlaylist];
-    
-    XCTAssertTrue([TuneFileUtils fileExists:playlistPath]);
-}
-
-- (void)testDeletePlaylistFromDisk {
-    NSDictionary *playlistDictionary = [DictionaryLoader dictionaryFromJSONFileNamed:@"TunePowerHookValueTests"];
-    TunePlaylist *testPlaylist = [TunePlaylist playlistWithDictionary:playlistDictionary];
-    
-    [TuneFileManager savePlaylistToDisk:testPlaylist];
-    [TuneFileManager deletePlaylistFromDisk];
-    
-    XCTAssertFalse([TuneFileUtils fileExists:playlistPath]);
 }
 
 @end

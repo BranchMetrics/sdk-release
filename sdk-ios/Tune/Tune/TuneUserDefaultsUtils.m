@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
+#import "TuneLog.h"
 #import "TuneUserDefaultsUtils.h"
 
 @implementation TuneUserDefaultsUtils
@@ -122,7 +123,8 @@ static id customDefaults;
     id curValue = [self userDefaultValueforKey:key];
     
     if (curValue && ![curValue isKindOfClass:[NSNumber class]]) {
-        ErrorLog(@"TUNE: Trying to increment non-numeric value for NSUserDefaults key: %@, current value = %@", key, curValue);
+        NSString *errorMessage = [NSString stringWithFormat:@"TUNE: Trying to increment non-numeric value for NSUserDefaults key: %@, current value = %@", key, curValue];
+        [TuneLog.shared logError:errorMessage];
     } else {
         NSInteger curCount = 0;
         

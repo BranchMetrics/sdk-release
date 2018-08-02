@@ -1,6 +1,6 @@
 //
 //  NSURLSession+Logging.m
-//  TuneSwiftSample
+//  Tune
 //
 //  Created by Ernest Cho on 12/8/17.
 //  Copyright © 2017 tune. All rights reserved.
@@ -13,17 +13,16 @@
 //  This should NOT be included in any target by default.
 @implementation NSURLSession (Logging)
 
+// load is called when a class or category is loaded into the ObjC runtime
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        SEL originalSelector = @selector(dataTaskWithRequest:completionHandler:);
-        SEL swizzledSelector = @selector(xxx_dataTaskWithRequest:completionHandler:);
-
-        [self swizzleSelector:originalSelector withSelector:swizzledSelector];
+        [self swizzleSelector:@selector(dataTaskWithRequest:completionHandler:) withSelector:@selector(xxx_dataTaskWithRequest:completionHandler:)];
+        [self swizzleSelector:@selector(downloadTaskWithRequest:completionHandler:) withSelector:@selector(xxx_downloadTaskWithRequest:completionHandler:)];
     });
 }
 
-// Swaps originalSelector with swizzledSelector
+// swaps originalSelector with swizzledSelector
 + (void)swizzleSelector:(SEL)originalSelector withSelector:(SEL)swizzledSelector {
     Class class = [self class];
     
@@ -33,18 +32,41 @@
     method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
+// replacement method for dataTaskWithRequest
 - (NSURLSessionDataTask *)xxx_dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-    NSLog(@"Swizzled xxx_dataTaskWithRequest:completionHandler:");
     
-    // block that removes the data from the response, this is to test data error
+    // create a new block that just calls the original block after logging the request
     void (^completionHandlerWithLogging)(NSData *, NSURLResponse *, NSError *) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-        NSLog(@"%@\n%@\n%@\n", data, response, error);
         if (completionHandler) {
+            NSLog(@"NSURLSessionDataTask Request: %@", request);
+            NSLog(@"NSURLSessionDataTask Response: %@", response);
+            if (data.bytes) {
+                NSLog(@"NSURLSessionDataTask Data: %@", [NSString stringWithUTF8String:data.bytes]);
+            }
+            
             completionHandler(data, response, error);
         }
     };
     
+    // Since swizzleSelector swaps the names of the two methods, this is the xxx_dataTaskWithRequest version.
     return [self xxx_dataTaskWithRequest:request completionHandler:completionHandlerWithLogging];
+}
+
+// replacement method for downloadTaskWithRequest
+- (NSURLSessionDownloadTask *)xxx_downloadTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURL *location, NSURLResponse *response, NSError *error))completionHandler {
+    
+    // create a new block that just calls the original block after logging the request
+    void (^completionHandlerWithLogging)(NSURL *location, NSURLResponse *response, NSError *error) = ^(NSURL *location, NSURLResponse *response, NSError *error) {
+        if (completionHandler) {
+            NSLog(@"NSURLSessionDownloadTask Request: %@", request);
+            NSLog(@"NSURLSessionDownloadTask Response: %@", response);
+            
+            completionHandler(location, response, error);
+        }
+    };
+    
+    // Since swizzleSelector swaps the names of the two methods, this is the xxx_downloadTaskWithRequest version.
+    return [self xxx_downloadTaskWithRequest:request completionHandler:completionHandlerWithLogging];
 }
 
 @end

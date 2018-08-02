@@ -14,7 +14,6 @@
 #import "TuneFileManager.h"
 #import "TuneFileUtils.h"
 #import "TuneManager.h"
-#import "TunePlaylistManager+Testing.h"
 #import "TuneSessionManager+Testing.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneXCTestCase.h"

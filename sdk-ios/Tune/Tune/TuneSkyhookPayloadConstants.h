@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 @interface TuneSkyhookPayloadConstants : NSObject
 
 #pragma mark - Session Variable
@@ -35,15 +37,6 @@ FOUNDATION_EXPORT NSString *const TunePayloadNotification;
 #pragma mark - Campaign
 FOUNDATION_EXPORT NSString *const TunePayloadCampaign;
 FOUNDATION_EXPORT NSString *const TunePayloadCampaignStep;
-
-#pragma mark - In App Message
-FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageID;
-FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageSecondsDisplayed;
-FOUNDATION_EXPORT NSString *const TunePayloadInAppMessageDismissedAction;
-
-#pragma mark - Deep Actions
-FOUNDATION_EXPORT NSString *const TunePayloadDeepActionId;
-FOUNDATION_EXPORT NSString *const TunePayloadDeepActionData;
 
 #pragma mark - Deeplinks
 FOUNDATION_EXPORT NSString *const TunePayloadDeeplink;

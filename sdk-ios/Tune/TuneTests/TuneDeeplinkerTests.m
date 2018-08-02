@@ -55,38 +55,12 @@ typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
 
 - (void)setUp {
     [super setUp];
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
 }
 
 - (void)tearDown {
     [super tearDown];
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testLegacyCheckForDeferredDeepLinkSuccess {
-    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Network call completed"];
-    
-    TuneDeeplinkerTestsDelegate *delegate = [[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
-        XCTAssertTrue(success);
-        [expectation fulfill];
-        [Tune checkForDeferredDeeplink:nil];
-    }];
-    
-    NSString *dummyIFA = @"12345678-1234-1234-1234-123456789012";
-    NSString *measurementUrl = [NSString stringWithFormat:@"https://169564.measurementapi.com/serve?action=click&publisher_id=169564&site_id=47548&invoke_id=279839&ad_id=%@", dummyIFA];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:measurementUrl]];
-    
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:dummyIFA] advertisingTrackingEnabled:YES];
-        [Tune checkForDeferredDeeplink:delegate];
-    }] resume];
-    
-    [self waitForExpectationsWithTimeout:5.0f handler:^(NSError * _Nullable error) {
-        
-    }];
-}
-#pragma clang diagnostic pop
 
 - (void)testCheckForDeferredDeepLinkSuccess {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Network call completed"];
@@ -102,7 +76,7 @@ typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:measurementUrl]];
 
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:dummyIFA] advertisingTrackingEnabled:YES];
+        //[Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:dummyIFA] advertisingTrackingEnabled:YES];
         [Tune registerDeeplinkListener:delegate];
     }] resume];
     
@@ -122,7 +96,6 @@ typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
     // collect and check real IFA
     __block NSString *realIFA = [[ASIdentifierManager sharedManager] advertisingIdentifier].UUIDString;
 
-    [Tune setShouldAutoCollectAppleAdvertisingIdentifier:YES];
     __block XCTestExpectation *expectation1 = [self expectationWithDescription:@"Real IFA found"];
     [Tune registerDeeplinkListener:[[TuneDeeplinkerTestsDelegate alloc] initWithBlock:^(BOOL success, NSString *deepLinkUrl) {
         XCTAssertTrue(success);
@@ -207,7 +180,7 @@ typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
     XCTAssertFalse([Tune isTuneLink:@"faketlnk.io"]);
     XCTAssertFalse([Tune isTuneLink:@"      nope      "]);
     XCTAssertFalse([Tune isTuneLink:@"http://"]);
-    XCTAssertFalse([Tune isTuneLink:nil]);
+    //XCTAssertFalse([Tune isTuneLink:nil]);
     XCTAssertFalse([Tune isTuneLink:@"http://randomize.it   "]);
     XCTAssertFalse([Tune isTuneLink:@"      myapp://isthebest/yes/it/is"]);
 }

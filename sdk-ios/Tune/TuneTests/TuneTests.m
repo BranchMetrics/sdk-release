@@ -9,12 +9,11 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 #import "Tune+Testing.h"
-#import "TuneAnalyticsManager+Testing.h"
 #import "TuneBlankAppDelegate.h"
 #import "TuneDeviceDetails.h"
 #import "TuneEvent+Internal.h"
-#import "TuneJSONUtils.h"
 #import "TuneKeyStrings.h"
+#import "TuneLog.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneTestParams.h"
 #import "TuneTestsHelper.h"
@@ -32,17 +31,8 @@
 
 @interface TuneTests : TuneXCTestCase <TuneDelegate> {
     TuneTestParams *params;
-    
-    BOOL finished;
-    BOOL failed;
-    TuneErrorCode tuneErrorCode;
     TuneBlankAppDelegate *appDelegate;
     id mockApplication;
-    
-    BOOL enqueuedSession;
-    BOOL enqueuedEvent;
-    
-    NSString *enqueuedRequestPostData;
     
     NSString *webRequestPostData;
 }
@@ -54,8 +44,7 @@
 
 - (void)setUp {
     [super setUp];
-
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     // Wait for everything to be set
@@ -63,58 +52,26 @@
     
     mockApplication = OCMClassMock([UIApplication class]);
     OCMStub(ClassMethod([mockApplication sharedApplication])).andReturn(mockApplication);
-    
-    finished = NO;
-    failed = NO;
-    
-    tuneErrorCode = -1;
-    
     appDelegate = [[TuneBlankAppDelegate alloc] init];
     
     params = [TuneTestParams new];
-    
-    enqueuedSession = NO;
-    enqueuedEvent = NO;
-    enqueuedRequestPostData = nil;
     
     webRequestPostData = nil;
 }
 
 - (void)tearDown {
+    TuneLog.shared.logBlock = nil;
+    TuneLog.shared.verbose = NO;
+    
     emptyRequestQueue();
     
     [mockApplication stopMocking];
-    
-    finished = NO;
-    
     [super tearDown];
 }
 
 - (void)testInitialization {
     XCTAssertTrue( TRUE );
 }
-
-
-#pragma mark - TuneDelegate Methods
-
--(void)tuneDidSucceedWithData:(NSData *)data {
-    finished = YES;
-    failed = NO;
-}
-
-- (void)tuneDidFailWithError:(NSError *)error {
-    finished = YES;
-    failed = YES;
-    
-    tuneErrorCode = error.code;
-}
-
-- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
-    enqueuedSession = [url containsString:@"&action=session"];
-    enqueuedEvent = [url containsString:@"&action=conversion"];
-    enqueuedRequestPostData = post;
-}
-
 
 #pragma mark - Install/update
 
@@ -137,45 +94,47 @@
 }
 
 - (void)testDuplicateOpenIgnored {
+    __block int errorCalls = 0;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"ERROR"]) {
+            XCTAssert([message containsString:@"ERROR: tune_error_duplicate_session Ignoring duplicate \"session\" event measurement call in the same session"]);
+            errorCalls++;
+        }
+    };
+    
     [Tune measureSession];
     waitForQueuesToFinish();
     
-    XCTAssertTrue(finished);
-    
+    XCTAssert(errorCalls == 0);
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
     
-    finished = NO;
-    
     [Tune measureSession];
     waitForQueuesToFinish();
     
-    XCTAssertTrue(finished);
-    XCTAssertTrue(failed);
-    XCTAssertEqual(tuneErrorCode, TuneInvalidDuplicateSession, @"Duplicate session request should have been ignored.");
+    XCTAssert(errorCalls == 1);
 }
 
 - (void)testAllowOpenAfterAppBackgroundForeground {
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"First session request fired after the app was re-opened should not have been ignored."]) {
+            XCTFail(@"Should not have been called");
+        }
+    };
+    
     [Tune measureSession];
     waitForQueuesToFinish();
     
-    XCTAssertTrue(finished);
-    
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-    
+
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationDidEnterBackgroundNotification object:nil];
     waitFor( 0.2 );
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationWillEnterForegroundNotification object:nil];
     [[TuneSkyhookCenter defaultCenter] postSkyhook:UIApplicationDidBecomeActiveNotification object:nil];
-    
-    finished = NO;
-    
+
     [Tune measureSession];
     waitForQueuesToFinish();
-    
-    XCTAssertTrue(finished);
-    XCTAssertNotEqual(tuneErrorCode, TuneInvalidDuplicateSession, @"First session request fired after the app was re-opened should not have been ignored.");
 }
 
 - (void)testInstallPostConversion {
@@ -193,8 +152,8 @@
 }
 
 - (void)testUrlOpen {
-    static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
-    static NSString* const sourceApplication = @"Mail";
+    NSString *openUrl = @"myapp://something/something?some=stuff&something=else";
+    NSString *sourceApplication = @"Mail";
     [Tune handleOpenURL:[NSURL URLWithString:openUrl] sourceApplication:sourceApplication];
     
     [Tune measureSession];
@@ -206,28 +165,12 @@
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testLegacyUrlOpen {
-    static NSString* const openUrl = @"myapp://something/something?some=stuff&something=else";
-    static NSString* const sourceApplication = @"Mail";
-    [Tune applicationDidOpenURL:openUrl sourceApplication:sourceApplication];
-    
-    [Tune measureSession];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
-    ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
-}
-#pragma clang diagnostic pop
 
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 - (void)testContinueUserActivityWeb {
     if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
-        static NSString *openUrl = @"http://www.mycompany.com/mypage1";
-        static NSString *sourceApplication = @"web";
+        NSString *openUrl = @"http://www.mycompany.com/mypage1";
+        NSString *sourceApplication = @"web";
         
         NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
         userActivity.webpageURL = [NSURL URLWithString:openUrl];
@@ -266,80 +209,24 @@
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testLegacyContinueUserActivityWeb {
-    if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
-        static NSString *openUrl = @"http://www.mycompany.com/mypage1";
-        static NSString *sourceApplication = @"web";
-        
-        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
-        userActivity.webpageURL = [NSURL URLWithString:openUrl];
-        userActivity.userInfo = @{};
-        
-        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
-            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
-            [Tune applicationDidOpenURL:searchIndexUniqueId
-                      sourceApplication:@"spotlight"];
-        } else if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
-            [Tune applicationDidOpenURL:userActivity.webpageURL.absoluteString
-                      sourceApplication:@"web"];
-        }
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
-        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
-    }
-}
-
-- (void)testLegacyContinueUserActivitySpotlight {
-    if([TuneDeviceDetails appIsRunningIniOS9OrAfter]) {
-        NSString *openUrl = @"myapp://mypage2";
-        NSString *sourceApplication = @"spotlight";
-        NSDictionary *userInfo = @{CSSearchableItemActivityIdentifier:openUrl};
-        
-        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:CSSearchableItemActionType];
-        userActivity.userInfo = userInfo;
-        
-        if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
-            NSString *searchIndexUniqueId = userActivity.userInfo[CSSearchableItemActivityIdentifier];
-            [Tune applicationDidOpenURL:searchIndexUniqueId
-                      sourceApplication:@"spotlight"];
-        } else if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
-            [Tune applicationDidOpenURL:userActivity.webpageURL.absoluteString
-                      sourceApplication:@"web"];
-        }
-        
-        [Tune measureSession];
-        waitForQueuesToFinish();
-        
-        XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-        ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
-        ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_SOURCE, sourceApplication );
-    }
-}
-#pragma clang diagnostic pop
 #endif
 
 - (void)testDeferredDeepLink {
     [Tune measureSession];
-    
+
     // wait 0.5 sec to simulate deferred deep link fetch delay
     waitFor(0.5);
+
+    NSString *openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
     
-    static NSString* const openUrl = @"adblite://ng?integration=facebook&sub_site=Instagram&sub_campaign=Atomic%20Dodge%20Ball%20Lite%201&sub_adgroup=US%2018%2B&sub_ad=Challenge%20Friends%20Blue";
-    static NSString* const sourceApplication = nil;
+    NSString *sourceApplication = nil;
     [Tune handleOpenURL:[NSURL URLWithString:openUrl] sourceApplication:sourceApplication];
-    
+
     waitFor(0.5);
+    BOOL finished = NO;
     
     waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-    
+
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
     ASSERT_KEY_VALUE( TUNE_KEY_REFERRAL_URL, openUrl );
@@ -350,7 +237,7 @@
 #pragma mark - Arbitrary actions
 
 - (void)testActionNameEvent {
-    static NSString* const eventName = @"testEventName";
+    NSString *eventName = @"testEventName";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
     
@@ -360,25 +247,8 @@
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
 }
 
-- (void)testActionEventId {
-    NSInteger eventId = 931661820;
-    NSString *strEventId = [@(eventId) stringValue];
-    
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [Tune measureEventId:eventId];
-#pragma clang diagnostic pop
-    
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_CONVERSION );
-    ASSERT_KEY_VALUE( TUNE_KEY_SITE_EVENT_ID, strEventId );
-    ASSERT_NO_VALUE_FOR_KEY( @"site_event_name" );
-}
-
 - (void)testActionEventNameAllDigits {
-    static NSString* const eventName = @"103";
+    NSString *eventName = @"103";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
     
@@ -392,7 +262,7 @@
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
-    static NSString* const referenceId = @"abcdefg";
+    NSString *referenceId = @"abcdefg";
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     TuneEvent *evt = [TuneEvent eventWithId:eventId];
@@ -410,10 +280,10 @@
 }
 
 - (void)testActionEventNameRevenueCurrency {
-    static NSString* const eventName = @"103";
-    static CGFloat revenue = 3.14159;
+    NSString *eventName = @"103";
+    CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
-    static NSString* const currencyCode = @"XXX";
+    NSString *currencyCode = @"XXX";
     
     TuneEvent *evt = [TuneEvent eventWithName:eventName];
     evt.revenue = revenue;
@@ -435,10 +305,10 @@
     NSInteger eventId = 931661820;
     NSString *strEventId = [@(eventId) stringValue];
     
-    static NSString* const referenceId = @"abcdefg";
-    static CGFloat revenue = 3.14159;
+    NSString *referenceId = @"abcdefg";
+    CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
-    static NSString* const currencyCode = @"XXX";
+    NSString *currencyCode = @"XXX";
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -462,7 +332,7 @@
 }
 
 - (void)testEventNameSpaces {
-    static NSString* const eventName = @"test event name";
+    NSString *eventName = @"test event name";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
     
@@ -473,7 +343,7 @@
 }
 
 - (void)testEventNameApostrophe {
-    static NSString* const eventName = @"I'm an event name";
+    NSString *eventName = @"I'm an event name";
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
     
@@ -559,7 +429,7 @@
 
 // "registration" events are treated the same as arbitrary event names
 - (void)testRegistrationActionEvent {
-    static NSString* const eventName = @"registration";
+    NSString *eventName = @"registration";
     
     [Tune measureEventName:eventName];
     waitForQueuesToFinish();
@@ -572,10 +442,10 @@
 
 // "purchase" events are treated the same as arbitrary event names
 - (void)testPurchaseActionEvent {
-    static NSString* const eventName = @"purchase";
-    static CGFloat revenue = 3.14159;
+    NSString *eventName = @"purchase";
+    CGFloat revenue = 3.14159;
     NSString *expectedRevenue = [@(revenue) stringValue];
-    static NSString* const currencyCode = @"XXX";
+    NSString *currencyCode = @"XXX";
     
     TuneEvent *evt = [TuneEvent eventWithName:eventName];
     evt.revenue = revenue;
@@ -593,7 +463,7 @@
 }
 
 - (void)testTwoEvents {
-    static NSString* const eventName1 = @"testEventName1";
+    NSString *eventName1 = @"testEventName1";
     [Tune measureEventName:eventName1];
     waitForQueuesToFinish();
     
@@ -603,7 +473,7 @@
     
     params = [TuneTestParams new];
     
-    static NSString* const eventName2 = @"testEventName2";
+    NSString *eventName2 = @"testEventName2";
     [Tune measureEventName:eventName2];
     waitForQueuesToFinish();
     
@@ -614,20 +484,27 @@
 }
 
 - (void)testRequestEnqueuedCallback {
-    enqueuedSession = NO;
-    enqueuedEvent = YES;
+    __block BOOL isSessionQueued = NO;
+    __block BOOL isEventNamedQueued = NO;
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"action=session"]) {
+            isSessionQueued = YES;
+        } else if ([message containsString:@"site_event_name=testEventName1"]) {
+            isEventNamedQueued = YES;
+        }
+    };
+    
     [Tune measureSession];
     waitForQueuesToFinish();
-    XCTAssertTrue( enqueuedSession );
-    XCTAssertFalse( enqueuedEvent );
     
-    enqueuedSession = YES;
-    enqueuedEvent = NO;
-    static NSString* const eventName1 = @"testEventName1";
+    XCTAssertTrue(isSessionQueued);
+    
+    NSString *eventName1 = @"testEventName1";
     [Tune measureEventName:eventName1];
     waitForQueuesToFinish();
-    XCTAssertFalse( enqueuedSession );
-    XCTAssertTrue( enqueuedEvent );
+
+    XCTAssertTrue(isEventNamedQueued);
 }
 
 
@@ -642,25 +519,4 @@
     }
 }
 
-#pragma mark - Tune public API getters
-
-- (void)testGetIAMAppId {
-    [Tune initializeWithTuneAdvertiserId:@"091234567" tuneConversionKey:@"doesnotmatter" tunePackageName:@"com.testing.tune.sdk" wearable:NO];
-    XCTAssertEqualObjects(@"52a0acdf89cca5f776ef45eb5b22ec09", [Tune getIAMAppId]);
-}
-
-- (void)testGetIAMDeviceIdentifierIfNoAdvertisingIdSet {
-    [Tune setAppleAdvertisingIdentifier:nil advertisingTrackingEnabled:NO];
-    waitForQueuesToFinish();
-    XCTAssertNotNil([Tune getIAMDeviceIdentifier]);
-    XCTAssertEqualObjects([Tune tuneId], [Tune getIAMDeviceIdentifier]);
-}
-
-- (void)testGetIAMDeviceIdentifierIfAdvertisingIdSet {
-    NSUUID *newIdfa = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
-    [Tune setAppleAdvertisingIdentifier:newIdfa advertisingTrackingEnabled:YES];
-    waitForQueuesToFinish();
-    XCTAssertNotNil([Tune getIAMDeviceIdentifier]);
-    XCTAssertEqualObjects(@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F", [Tune getIAMDeviceIdentifier]);
-}
 @end

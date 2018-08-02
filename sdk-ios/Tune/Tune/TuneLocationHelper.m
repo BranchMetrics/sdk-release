@@ -157,9 +157,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
             [invocation setSelector:selVerticalAccu];
             [invocation invoke];
             [invocation getReturnValue:&vAccuracy];
-            
-            DebugLog(@"TuneLocationHelper: found new location = %f, %f, %f, %f, %f, %@", coordinate.latitude, coordinate.longitude, altitude, hAccuracy, vAccuracy, timestamp);
-            
+                        
             location = [TuneLocation new];
             location.latitude = @(coordinate.latitude);
             location.longitude = @(coordinate.longitude);
@@ -200,9 +198,7 @@ static TuneLocationHelper *tuneSharedLocationHelper;
             locationEnabled = ((BOOL (*)(id, SEL))impLocationEnabled)(classLocationManager, selLocationEnabled);
         }
     }
-    
-    DebugLog(@"TuneLocationHelper: isLocationEnabled = %d", locationEnabled);
-    
+        
     return locationEnabled;
 }
 
@@ -252,11 +248,10 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 #pragma mark - CLLocationManagerDelegate
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
-    DebugLog(@"location: didFailWithError: error = %@", error);
+
 }
 
 - (void)locationManager:(id)manager didUpdateToLocation:(id)newLocation fromLocation:(id)oldLocation {
-    DebugLog(@"location: didUpdateToLocation: newLocation = %@", newLocation);
     
     if(newLocation)
     {
@@ -271,8 +266,6 @@ static TuneLocationHelper *tuneSharedLocationHelper;
 
 -(void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations
 {
-    DebugLog(@"location: didUpdateLocations: newLocation = %@", locations);
-    
     id newLocation = locations && [NSNull null] != (id)locations ? locations[0] : nil;
     
     if(newLocation)

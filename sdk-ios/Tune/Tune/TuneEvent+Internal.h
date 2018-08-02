@@ -34,9 +34,4 @@
 @property(nonatomic, strong) NSMutableSet *addedTags;
 @property(nonatomic, copy) NSSet *notAllowedAttributes;
 
-// These aren't currently enabled, but will be in a later release
-- (void)addTag:(NSString *)name withBooleanValue:(NSNumber *)value;
-- (void)addTag:(NSString *)name withStringValue:(NSString *)value hashed:(BOOL)shouldHash;
-- (void)addTag:(NSString *)name withVersionValue:(NSString *)value;
-
 @end

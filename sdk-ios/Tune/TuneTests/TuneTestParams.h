@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "TuneTestsHelper.h"
 
 #define ASSERT_KEY_VALUE( key, value ) XCTAssertTrue( [params checkKey:key isEqualToValue:value], \
                                                       @"key '%@' must equal '%@'; found '%@' instead", key, value, [params valueForKey:key] );

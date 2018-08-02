@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "TuneSkyhookPayload.h"
 #import "TuneSkyhookObserver.h"
 #import "TuneSkyhookConstants.h"

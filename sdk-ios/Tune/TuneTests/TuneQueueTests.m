@@ -12,9 +12,9 @@
 #import "TuneEvent+Internal.h"
 #import "TuneEventQueue+Testing.h"
 #import "TuneKeyStrings.h"
+#import "TuneLog.h"
 #import "TuneNetworkUtils.h"
 #import "TuneReachability.h"
-#import "TuneRequestsQueue.h"
 #import "TuneTestParams.h"
 #import "TuneTestsHelper.h"
 #import "TuneTracker.h"
@@ -32,18 +32,10 @@
 static BOOL forcedNetworkStatus;
 
 @interface TuneQueueTests : TuneXCTestCase <TuneDelegate> {
-    NSNumber *callSuccess;
-    NSNumber *callFailed;
-    
-    NSMutableArray *successMessages;
-    
     TuneEventQueue *eventQueue;
     
     TuneTestParams *params;
     TuneTestParams *params2;
-    
-    BOOL finished;
-    
     id classMockTuneNetworkUtils;
 }
 @end
@@ -53,23 +45,11 @@ static BOOL forcedNetworkStatus;
 - (void)setUp {
     [super setUp];
     
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
-    finished = NO;
-    
-    callFailed = nil;
-    callSuccess = nil;
-    
     eventQueue = [TuneEventQueue sharedQueue];
-    
     emptyRequestQueue();
-    
-    successMessages = [NSMutableArray array];
-    
     params = [TuneTestParams new];
     
     forcedNetworkStatus = YES;
@@ -80,12 +60,10 @@ static BOOL forcedNetworkStatus;
 }
 
 - (void)tearDown {
+    TuneLog.shared.verbose = NO;
+    TuneLog.shared.logBlock = nil;
+    
     [classMockTuneNetworkUtils stopMocking];
-    
-    finished = NO;
-    
-    callFailed = nil;
-    callSuccess = nil;
     
     // drain the event queue
     emptyRequestQueue();
@@ -131,66 +109,79 @@ static BOOL forcedNetworkStatus;
 #pragma mark - Automatic queueing
 
 - (void)testOfflineFailureQueued {
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        // the only message we should get is the Event being queued.  It should not go to network.
+        XCTAssert([message containsString:@"EVENT QUEUE"]);
+    };
+
     forcedNetworkStatus = NO;
-    XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
+    XCTAssertFalse([TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable");
     [Tune measureSession];
-    
+
+    BOOL finished;
     waitFor1([TuneTracker sessionQueuingDelay] + 0.1, &finished);
-    XCTAssertFalse( [TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable" );
-    
-    XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
-    XCTAssertNil( callSuccess, @"offline call should not have received a success notification" );
+    XCTAssertFalse([TuneNetworkUtils isNetworkReachable], @"connection status should be not reachable");
     [self checkAndClearExpectedQueueSize:1];
 }
 
 - (void)testOfflineFailureQueuedRetried {
+    __block int successCalls = 0;
+    __block int queuedCalls = 0;
+    
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"SUCCESS"]) {
+            successCalls++;
+        } else if ([message containsString:@"QUEUE"]) {
+            queuedCalls++;
+        }
+    };
+    
     [Tune setAllowDuplicateRequests:YES];
     forcedNetworkStatus = NO;
     [Tune measureEventName:@"registration"];
-    
+
+    BOOL finished = NO;
     waitFor1([TuneTracker sessionQueuingDelay] + 0.1, &finished);
-    XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
-    
+
     finished = NO;
     forcedNetworkStatus = YES;
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished ); // wait for server response
 
-    XCTAssertFalse( [callFailed boolValue], @"dequeuing call should have succeeded" );
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_RETRY_COUNT, [@0 stringValue] );
     [self checkAndClearExpectedQueueSize:0];
-    
-    XCTAssertEqual( [successMessages count], 1, @"call should have succeeded, actual value = %d", (unsigned int)[successMessages count] );
+
+    XCTAssertEqual(successCalls, 1);
+    XCTAssertEqual(queuedCalls, 1);
 }
 
 - (void)testEnqueue2 {
     forcedNetworkStatus = NO;
     [Tune measureSession];
-    waitFor1([TuneTracker sessionQueuingDelay] + 1, &finished);
-    XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
     
+    BOOL finished = NO;
+    waitFor1([TuneTracker sessionQueuingDelay] + 1, &finished);
     [Tune measureEventName:@"yourMomEvent"];
-    waitFor( 1 );
-    XCTAssertNil( callFailed, @"second offline call should not have received a failure notification" );
+    waitFor(1);
     [self checkAndClearExpectedQueueSize:2];
 }
 
 - (void)testEnqueue2Retried {
     [Tune setAllowDuplicateRequests:YES];
-    [Tune setDebugMode:NO];
-    
+
     forcedNetworkStatus = NO;
     [Tune measureSession];
+    
+    BOOL finished = NO;
     waitFor1([TuneTracker sessionQueuingDelay] + 1, &finished);
-
-    XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
 
     finished = NO;
     [Tune measureEventName:@"yourMomEvent"];
     waitFor( 1 );
-    XCTAssertNil( callFailed, @"offline call should not have received a failure notification" );
-
+    
     NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
     XCTAssertEqual(size, 2, @"expected 2 queued requests" );
     forcedNetworkStatus = YES;
@@ -202,267 +193,49 @@ static BOOL forcedNetworkStatus;
 //    [self checkAndClearExpectedQueueSize:0];
 
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
-    
+
     // wait for session event
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    XCTAssertFalse( [callFailed boolValue], @"dequeuing call should not have failed" );
-    XCTAssertTrue( [callSuccess boolValue], @"dequeuing call should have succeeded" );
-    
     finished = NO;
     // wait for conversion event
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    XCTAssertFalse( [callFailed boolValue], @"dequeuing call should not have failed" );
-    XCTAssertTrue( [callSuccess boolValue], @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
     [Tune setAllowDuplicateRequests:NO];
 }
 
 - (void)testEnqueue2RetriedOrder {
+    __block int successCalls = 0;
+    
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"SUCCESS"]) {
+            successCalls++;
+        }
+    };
+    
     [Tune setAllowDuplicateRequests:YES];
 #if !TARGET_OS_TV // NOTE: temporarily disabled; since tvOS debugMode is not supported as of now, the server response does not contain "site_event_name" param
-    [Tune setDebugMode:YES];
-
     forcedNetworkStatus = NO;
     [Tune measureEventName:@"event1"];
     [Tune measureEventName:@"event2"];
     waitFor( 1. );
-    
+
     NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
     XCTAssertEqual(size, 2, @"expected 2 queued requests" );
-    
+
     forcedNetworkStatus = YES;
     [[TuneSkyhookCenter defaultCenter] postSkyhook:kTuneReachabilityChangedNotification object:nil];
     // wait for event1
+    BOOL finished = NO;
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
+
     // wait for event2
     finished = NO;
     waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    XCTAssertTrue( [callSuccess boolValue], @"dequeuing call should have succeeded" );
     [self checkAndClearExpectedQueueSize:0];
-    XCTAssertEqual( [successMessages count], 2, @"both calls should have succeeded, but %lu did", (unsigned long)[successMessages count] );
+    XCTAssertEqual(successCalls, 2, @"both calls should have succeeded");
 #endif
 }
-
-- (void)testSessionQueue {
-    [Tune setAllowDuplicateRequests:YES];
-    forcedNetworkStatus = YES;
-    
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
-    
-    [Tune measureSession];
-    waitFor([TuneTracker sessionQueuingDelay]);
-    XCTAssertFalse( [callFailed boolValue], @"session call should not have been attempted after 1 sec" );
-    XCTAssertFalse( [callSuccess boolValue], @"session call should not have been attempted after 1 sec" );
-    
-    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
-    XCTAssertEqual(size, 1, @"expected 1 queued request, but found %lu", (unsigned long)size);
-    
-    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-    XCTAssertFalse( [callFailed boolValue], @"session call should not have failed" );
-    XCTAssertTrue( [callSuccess boolValue], @"session call should have succeeded" );
-    XCTAssertEqual( [successMessages count], 1, @"call should have succeeded" );
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_ACTION, TUNE_EVENT_SESSION );
-    [self checkAndClearExpectedQueueSize:0];
-    [Tune setAllowDuplicateRequests:NO];
-}
-
-- (void)testSessionQueueOrder {
-    [Tune setAllowDuplicateRequests:YES];
-    forcedNetworkStatus = YES;
-    
-    params2 = [TuneTestParams new];
-
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
-    
-    [Tune measureSession];
-    [Tune measureEventName:@"event name"];
-    waitFor([TuneTracker sessionQueuingDelay]);
-
-    XCTAssertFalse( [callFailed boolValue], @"no calls should have been attempted after 1 sec" );
-    XCTAssertFalse( [callSuccess boolValue], @"no calls should have been attempted after 1 sec" );
-    
-    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
-    XCTAssertEqual(size, 2, @"expected 2 queued requests, but found %lu", (unsigned long)size);
-    
-    NSDate *startTime = [NSDate date];
-    
-    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-
-    NSLog(@"time spent = %f", [[NSDate date] timeIntervalSinceDate:startTime]);
-    
-    finished = NO;
-    waitFor1( TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
-    XCTAssertFalse( [callFailed boolValue], @"session call should not have failed" );
-    XCTAssertTrue( [callSuccess boolValue], @"session call should have succeeded" );
-    [self checkAndClearExpectedQueueSize:0];
-
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertTrue( [params2 checkDefaultValues], @"default value check failed: %@", params2 );
-    XCTAssertTrue( [params checkKey:TUNE_KEY_ACTION isEqualToValue:TUNE_EVENT_SESSION], @"first call should be \"session\"" );
-    XCTAssertTrue( [params2 checkKey:TUNE_KEY_ACTION isEqualToValue:TUNE_EVENT_CONVERSION], @"second call should be \"conversion\"" );
-}
-
-- (void)testNoDuplicateParamsInRetriedRequest {
-    forcedNetworkStatus = YES;
-    
-    [[TuneEventQueue sharedQueue] setForceNetworkError:YES code:500];
-    
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
-    
-    [Tune measureSession];
-    
-    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-
-    NSMutableArray *requests = [[TuneEventQueue sharedQueue] events];
-    NSString *strUrl = requests[0][@"url"];
-    NSString *searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
-    NSUInteger count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
-    XCTAssertEqual(count, 1, @"duplicate 'response_format' param should not exist in original request url" );
-    
-    ////////////
-    
-    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-    
-    requests = [[TuneEventQueue sharedQueue] events];
-    strUrl = requests[0][@"url"];
-    searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
-    count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
-    XCTAssertEqual(count, 1, @"duplicate params should not exist in retried request url" );
-    
-    ////////////
-    
-    NSInteger retry = 1;
-    NSTimeInterval retryDelay = [[TuneEventQueue sharedQueue] retryDelayForAttempt:retry];
-    
-    waitFor( retryDelay + 0.5);
-    
-    requests = [[TuneEventQueue sharedQueue] events];
-    strUrl = requests[0][@"url"];
-    searchString = [NSString stringWithFormat:@"&%@=%@", TUNE_KEY_RESPONSE_FORMAT, TUNE_KEY_JSON];
-    count = [self countOccurrencesOfSubstring:searchString inString:strUrl];
-    XCTAssertEqual(count, 1, @"duplicate 'response_format' param should not exist in retried request url" );
-}
-
-- (void)testRetryCount {
-    forcedNetworkStatus = YES;
-    
-    [[TuneEventQueue sharedQueue] setForceNetworkError:YES code:500];
-    
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
-    
-    [Tune measureSession];
-    
-    waitFor( 0.1 );
-    XCTAssertFalse( [callFailed boolValue], @"session call should not have been attempted after 1 sec" );
-    XCTAssertFalse( [callSuccess boolValue], @"session call should not have been attempted after 1 sec" );
-    
-    NSUInteger size = [[TuneEventQueue sharedQueue] queueSize];
-    XCTAssertEqual(size, 1, @"expected 1 queued request, but found %lu", (unsigned long)size);
-    
-    NSMutableArray *requests = [[TuneEventQueue sharedQueue] events];
-    NSString *strUrl = requests[0][@"url"];
-    NSString *searchString = [NSString stringWithFormat:@"&%@=0", TUNE_KEY_RETRY_COUNT];
-    
-    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should not have incremented retry count" );
-    
-    ////////////
-    
-    waitFor1([TuneTracker sessionQueuingDelay] + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished);
-    XCTAssertTrue( [callFailed boolValue], @"session call should have failed" );
-    XCTAssertFalse( [callSuccess boolValue], @"session call should not have succeeded" );
-    
-    size = [[TuneEventQueue sharedQueue] queueSize];
-    XCTAssertEqual(size, 1, @"expected %d queued requests, found %d", 1, (unsigned int)size);
-    
-    requests = [[TuneEventQueue sharedQueue] events];
-    
-    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
-    
-    strUrl = requests[0][@"url"];
-    searchString = [NSString stringWithFormat:@"&%@=1", TUNE_KEY_RETRY_COUNT];
-    
-    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
-    
-    ////////////
-    
-    finished = NO;
-    NSInteger retry = 1;
-    NSTimeInterval retryDelay = [[TuneEventQueue sharedQueue] retryDelayForAttempt:retry];
-    
-    waitFor1( retryDelay + TUNE_TEST_NETWORK_REQUEST_DURATION, &finished );
-    
-    requests = [[TuneEventQueue sharedQueue] events];
-    
-    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
-    
-    strUrl = requests[0][@"url"];
-    searchString = [NSString stringWithFormat:@"&%@=2", TUNE_KEY_RETRY_COUNT];
-    
-    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
-}
-
-#pragma mark - Requests queue behaviors
-
-- (void)testRequestsQueueSerialize {
-    static NSString* const testUrl = @"fakeUrl";
-    static NSString* const testPostData = @"someTestJson";
-    NSDate *testDate = [NSDate date];
-    NSDictionary *item = @{TUNE_KEY_URL: testUrl, TUNE_KEY_JSON: testPostData, TUNE_KEY_RUN_DATE: testDate};
-    
-    TuneRequestsQueue *queue = [TuneRequestsQueue new];
-    [queue push:item];
-    [queue save];
-
-    NSDictionary *readItem = [queue pop];
-    XCTAssertEqual( [readItem count], [item count], @"saved %lud keys, recovered %lud", (unsigned long)[item count], (unsigned long)[readItem count] );
-    for( NSInteger i = 0; i < MIN( [item count], [readItem count] ); i++ ) {
-        NSString *readKey = [readItem allKeys][i];
-        NSString *key = [item allKeys][i];
-        XCTAssertTrue( [key isEqualToString:readKey], @"saved key %@, recovered %@", key, readKey );
-
-        if( [key isEqualToString:readKey] ) {
-            id readValue = readItem[readKey];
-            id value = item[key];
-            XCTAssertEqual( [readValue class], [value class], @"for key %@, saved item of class %@, recovered class %@", key, [value class], [readValue class] );
-
-            if( [value class] == [readValue class] ) {
-                XCTAssertTrue( [value isEqual:readValue], "for key %@, saved %@, recovered %@", key, value, readValue );
-            }
-        }
-    }
-}
-
-
-#pragma mark - Tune delegate
-
-- (void)tuneDidSucceedWithData:(NSData *)data {
-    [successMessages addObject:data];
-    //NSLog( @"TuneQueueTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
-    callSuccess = @(YES);
-    callFailed = @(NO);
-    
-    finished = YES;
-}
-
-- (void)tuneDidFailWithError:(NSError *)error {
-    //NSLog( @"TuneQueueTests: test received failure with %@\n", error );
-    callFailed = @(YES);
-    callSuccess = @(NO);
-    
-    finished = YES;
-}
-
 
 #pragma mark - Tune delegate
 

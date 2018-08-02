@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
-#import "TuneJSONUtils.h"
 #import "DictionaryLoader.h"
 
 @implementation DictionaryLoader
@@ -27,13 +26,15 @@
 +(NSDictionary *) dictionaryFromJSONFileNamed:(NSString *)fileName {
     NSString *path = [[NSBundle bundleForClass:[self class]] pathForResource:fileName ofType:@"json"];
     
-    NSString *playlistData = [NSString stringWithContentsOfFile:path
+    NSString *jsonString = [NSString stringWithContentsOfFile:path
                                                        encoding:NSUTF8StringEncoding
                                                           error:NULL];
     
-    NSDictionary *dict = [TuneJSONUtils createDictionaryFromJSONString:playlistData];
-    
-    return dict;
+    id dict = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    if ([dict isKindOfClass:NSDictionary.class]) {
+        return dict;
+    }
+    return nil;
 }
 
 @end

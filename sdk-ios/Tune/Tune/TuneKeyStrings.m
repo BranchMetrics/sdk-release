@@ -41,6 +41,7 @@ NSString * const TUNE_KEY_RETRY_COUNT                    = @"sdk_retry_attempt";
 NSString * const TUNE_KEY_REVENUE                        = @"revenue";
 NSString * const TUNE_KEY_RUN_DATE                       = @"run_date";
 NSString * const TUNE_KEY_SDK                            = @"sdk";
+NSString * const TUNE_KEY_SDK_PLUGIN                     = @"sdk_plugin";
 NSString * const TUNE_KEY_SERVER_RESPONSE                = @"server_response";
 NSString * const TUNE_KEY_SITE_EVENT_TYPE                = @"site_event_type";
 NSString * const TUNE_KEY_STORE_RECEIPT                  = @"store_receipt";

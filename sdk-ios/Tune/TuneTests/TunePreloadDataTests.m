@@ -12,6 +12,7 @@
 
 #import "Tune+Testing.h"
 #import "TuneKeyStrings.h"
+#import "TuneLog.h"
 #import "TuneNetworkUtils.h"
 #import "TunePreloadData.h"
 #import "TuneTestParams.h"
@@ -22,11 +23,7 @@
 #import <OCMock/OCMock.h>
 
 @interface TunePreloadDataTests : TuneXCTestCase <TuneDelegate> {
-    BOOL callSuccess;
-    BOOL callFailed;
-    
     TuneTestParams *params;
-    
     id classMockTuneNetworkUtils;
 }
 
@@ -38,11 +35,9 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
-    
     params = [TuneTestParams new];
-    
     emptyRequestQueue();
     
     __block BOOL forcedNetworkStatus = YES;
@@ -53,8 +48,9 @@
 }
 
 - (void)tearDown {
-    [Tune setCurrencyCode:nil];
-    [Tune setPackageName:kTestBundleId];
+    TuneLog.shared.verbose = NO;
+    TuneLog.shared.logBlock = nil;
+    
     [Tune setPluginName:nil];
     
     [classMockTuneNetworkUtils stopMocking];
@@ -66,32 +62,49 @@
 
 #pragma mark - Event parameters
 
-//- (void)testInvalidPublisherId
-//{
-//    TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"incorrect_publisher_id"];
-//    [Tune setPreloadData:pd];
-//    [Tune measureEventName:@"event1"];
-//    waitForQueuesToFinish();
-//    
-//    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-//    ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
-//    XCTAssertTrue( callFailed, @"preload data request with invalid publisher id should have failed" );
-//    XCTAssertFalse( callSuccess, @"preload data request with invalid publisher id should have failed" );
-//}
+- (void)testInvalidPublisherId {
+    __block BOOL logCalled = NO;
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        logCalled = YES;
+    };
+
+    TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"incorrect_publisher_id"];
+    [Tune setPreloadedAppData:pd];
+    [Tune measureEventName:@"event1"];
+    waitForQueuesToFinish();
+
+    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
+    ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
+
+    XCTAssert(logCalled);
+}
 
 - (void)testValidPublisherId {
+    __block BOOL logCalled = NO;
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        logCalled = YES;
+    };
+    
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"112233"];
-    [Tune setPreloadData:pd];
+    [Tune setPreloadedAppData:pd];
     [Tune measureEventName:@"event2"];
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
-    XCTAssertFalse( callFailed, @"preload data request with valid publisher id should have succeeded" );
-    XCTAssertTrue( callSuccess, @"preload data request with valid publisher id should have succeeded" );
+
+    XCTAssert(logCalled);
 }
 
 - (void)testPreloadDataParams {
+    __block BOOL logCalled = NO;
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        logCalled = YES;
+    };
+    
     TunePreloadData *pd = [TunePreloadData preloadDataWithPublisherId:@"112233"];
     pd.offerId = @"offer_id";
     pd.agencyId = @"agency_id";
@@ -114,15 +127,13 @@
     pd.advertiserSubPublisher = @"ad_sub_publisher";
     pd.advertiserSubSite = @"ad_sub_site";
     
-    [Tune setPreloadData:pd];
+    [Tune setPreloadedAppData:pd];
     [Tune measureEventName:@"event1"];
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
     ASSERT_KEY_VALUE( TUNE_KEY_PRELOAD_DATA, [@(YES) stringValue]);
-    XCTAssertFalse( callFailed, @"preload data request with valid publisher id should have succeeded" );
-    XCTAssertTrue( callSuccess, @"preload data request with valid publisher id should have succeeded" );
-    
+
     ASSERT_KEY_VALUE( TUNE_KEY_PUBLISHER_ID, @"112233" );
     ASSERT_KEY_VALUE( TUNE_KEY_OFFER_ID, @"offer_id" );
     ASSERT_KEY_VALUE( TUNE_KEY_AGENCY_ID, @"agency_id" );
@@ -144,23 +155,9 @@
     ASSERT_KEY_VALUE( TUNE_KEY_ADVERTISER_SUB_KEYWORD, @"ad_sub_keyword" );
     ASSERT_KEY_VALUE( TUNE_KEY_ADVERTISER_SUB_PUBLISHER, @"ad_sub_publisher" );
     ASSERT_KEY_VALUE( TUNE_KEY_ADVERTISER_SUB_SITE, @"ad_sub_site" );
+    
+    XCTAssert(logCalled);
 }
-
-
-#pragma mark - Tune delegate
-
-- (void)tuneDidSucceedWithData:(NSData *)data {
-    //NSLog( @"TunePreloadDataTests: test received success with %@\n", [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] );
-    callSuccess = YES;
-    callFailed = NO;
-}
-
-- (void)tuneDidFailWithError:(NSError *)error {
-    //NSLog( @"TunePreloadDataTests: test received failure with %@\n", error );
-    callFailed = YES;
-    callSuccess = NO;
-}
-
 
 #pragma mark - Tune delegate
 

@@ -14,11 +14,9 @@ FOUNDATION_EXPORT NSString* const kTestBundleId;
 FOUNDATION_EXPORT const NSTimeInterval TUNE_TEST_NETWORK_REQUEST_DURATION;
 
 void RESET_EVERYTHING(void);
-void RESET_EVERYTHING_OPTIONAL_MOCKING(BOOL shouldMockPlaylistManager, BOOL shouldMockAnalyticsManager);
+void RESET_EVERYTHING_OPTIONAL_MOCKING(void);
 
 void REMOVE_MOCKS(void);
-
-void pointMAUrlsToNothing(void);
 
 void clearUserDefaults(void);
 

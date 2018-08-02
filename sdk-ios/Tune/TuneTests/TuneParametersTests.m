@@ -9,10 +9,8 @@
 #import <XCTest/XCTest.h>
 
 #import "Tune+Testing.h"
-#import "TuneConfigurationKeys.h"
 #import "TuneEvent+Internal.h"
 #import "TuneKeyStrings.h"
-#import "TuneLocation.h"
 #import "TuneManager.h"
 #import "TuneNetworkUtils.h"
 #import "TuneTestParams.h"
@@ -37,7 +35,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     
     waitForQueuesToFinish();
@@ -55,16 +53,14 @@
     NSHTTPURLResponse *dummyResp = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://www.tune.com"] statusCode:200 HTTPVersion:@"1.1" headerFields:nil];
     NSError *dummyError = nil;
     OCMStub(ClassMethod([httpUtilsMock addIdentifyingHeaders:OCMOCK_ANY])).andDo(^(NSInvocation *invocation) {
-        DebugLog(@"mock TuneHttpUtils: ignoring addIdentifyingHeaders: call");
+        NSLog(@"mock TuneHttpUtils: ignoring addIdentifyingHeaders: call");
     });
     OCMStub(ClassMethod([httpUtilsMock sendSynchronousRequest:OCMOCK_ANY response:[OCMArg setTo:dummyResp] error:[OCMArg setTo:dummyError]])).andDo(^(NSInvocation *invocation) {
-        DebugLog(@"mock TuneHttpUtils: ignoring sendSynchronousRequest:response:error: call");
+        NSLog(@"mock TuneHttpUtils: ignoring sendSynchronousRequest:response:error: call");
     });
 }
 
 - (void)tearDown {
-    [Tune setCurrencyCode:nil];
-    [Tune setPackageName:kTestBundleId];
     [Tune setPluginName:nil];
 
     [classMockTuneNetworkUtils stopMocking];
@@ -214,10 +210,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -233,10 +226,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -252,10 +242,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -271,10 +258,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -290,10 +274,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -309,10 +290,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -328,10 +306,7 @@
     NSString *expectedLat = [@(lat) stringValue];
     NSString *expectedLon = [@(lon) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:nil];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -349,11 +324,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    location.altitude = @(alt);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:@(alt)];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -372,11 +343,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    location.altitude = @(alt);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:@(alt)];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -395,12 +362,8 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    location.altitude = @(alt);
-    [Tune setLocation:location];
-    
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:@(alt)];
+
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
     
@@ -418,11 +381,7 @@
     NSString *expectedLon = [@(lon) stringValue];
     NSString *expectedAlt = [@(alt) stringValue];
     
-    TuneLocation *location = [TuneLocation new];
-    location.latitude = @(lat);
-    location.longitude = @(lon);
-    location.altitude = @(alt);
-    [Tune setLocation:location];
+    [Tune setLocationWithLatitude:@(lat) longitude:@(lon) altitude:@(alt)];
     
     [Tune measureEventName:@"registration"];
     waitForQueuesToFinish();
@@ -432,128 +391,6 @@
     ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
     ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
 }
-
-
-#pragma mark - Currency code
-
-- (void)testCurrencyCode {
-    NSString *currency = @"CAD";
-    
-    [Tune setCurrencyCode:currency];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
-}
-
-- (void)testCurrencyCodeDefault {
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    // fails because we have no real way to reset sharedManager
-    //ASSERT_KEY_VALUE( KEY_CURRENCY_CODE, @"USD" );
-}
-
-- (void)testCurrencyCodeEmpty {
-    NSString *currency = TUNE_STRING_EMPTY;
-    
-    [Tune setCurrencyCode:currency];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
-}
-
-- (void)testCurrencyCodeNil {
-    [Tune setCurrencyCode:nil];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"currency_code"], @"should not have set currency code" );
-}
-
-- (void)testCurrencyCodeLong {
-    NSString *currency = @"0000000000000000000000000000000000000000000";
-    
-    [Tune setCurrencyCode:currency];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_CURRENCY_CODE, currency );
-}
-
-
-#pragma mark - Package name
-
-- (void)testPackageName {
-    NSString *package = @"yourMom";
-    
-    [Tune setPackageName:package];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
-}
-
-- (void)testPackageNameEmpty {
-    NSString *package = TUNE_STRING_EMPTY;
-    
-    [Tune setPackageName:package];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
-}
-
-- (void)testPackageNil {
-    [Tune setPackageName:nil];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    XCTAssertFalse( [params checkKeyHasValue:@"package_name"], @"should not have set package name" );
-}
-
-- (void)testPackageName256 {
-    NSString *package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    
-    [Tune setPackageName:package];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
-}
-
-- (void)testPackageName257 {
-    NSString *package = @"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    
-    [Tune setPackageName:package];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
-}
-
-- (void)testPackageName1000 {
-    NSString *package = @"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-
-    [Tune setPackageName:package];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertFalse( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_PACKAGE_NAME, package );
-}
-
 
 #pragma mark - Plugin name
 
@@ -678,17 +515,6 @@
 
 
 #pragma mark - User identifiers
-
-- (void)testTrusteTPID {
-    NSString *ID = @"testId";
-    
-    [Tune setTRUSTeId:ID];
-    [Tune measureEventName:@"registration"];
-    waitForQueuesToFinish();
-    
-    XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_TRUSTE_TPID, ID );
-}
 
 - (void)testExistingUser {
     [Tune setExistingUser:YES];

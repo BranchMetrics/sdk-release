@@ -14,7 +14,6 @@
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneUserProfile.h"
-#import "TuneState.h"
 
 @interface TuneSessionManager ()
 
@@ -112,17 +111,6 @@
         NSDate *sessionStartTime = [NSDate date];
         NSString *sessionId = [NSString stringWithFormat:@"t%0.f-%@", [sessionStartTime timeIntervalSince1970], [TuneUtils getUUID]];
         
-        // Don't update is_first_session if we are disabled because it won't get received by us.
-        if (![TuneState isTMADisabled]) {
-            // If this value wasn't stored in NSUserDefaults then we know that this is their first session ever
-            // Otherwise, they have already had their first session, since it got stored here.
-            if ([[TuneManager currentManager].userProfile isFirstSession] == nil) {
-                [[TuneManager currentManager].userProfile setIsFirstSession:@(1)];
-            } else {
-                [[TuneManager currentManager].userProfile setIsFirstSession:@(0)];
-            }
-        }
-        
         _sessionId = sessionId;
         _sessionStartTime = sessionStartTime;
         
@@ -133,9 +121,7 @@
 - (void)endSession {
     @synchronized(self) {
         if (!self.sessionStarted) return;
-        
-        self.lastOpenedPushNotification = nil;
-        
+                
         NSString *currentId = self.sessionId;
         NSTimeInterval sessionLength = [self timeSinceSessionStart];
         NSDate *startTime = self.sessionStartTime;

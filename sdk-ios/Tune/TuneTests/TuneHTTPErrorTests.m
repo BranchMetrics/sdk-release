@@ -53,54 +53,12 @@
     XCTAssertTrue(size == count, @"expected %d queued requests, found %d", (unsigned int)count, (unsigned int)size );
 }
 
-/*
- receive HTTP 400, don't retry (queue is empty)
- receive HTTP 500, failed request should be at the top of the queue (try with another request in the queue behind it)
- */
-
-//- (void)test400DontRetry {
-//    networkOnline();
-//    
-//#if !TARGET_OS_TV
-//    [Tune setDebugMode:YES];
-//#endif
-//    
-//    [TuneEventQueue enqueueUrlRequest:@"http://www.tune.com"
-//                          eventAction:nil
-//                        encryptParams:nil
-//                             postData:nil
-//                              runDate:[NSDate date]];
-//    waitForQueuesToFinish();
-//    
-//    [self checkAndClearExpectedQueueSize:0];
-//}
-
-/* engine automatically returns headers now, I think
-- (void)test400NoHeaderRetry {
- #if !TARGET_OS_TV
- [Tune setDebugMode:YES];
- #endif
- 
-    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=400&statusCode%5Bmessage%5D=HTTP/1.1%20400%20Bad%20Request"
-                       encryptParams:nil
-                            postData:nil
-                             runDate:[NSDate date]];
-    waitFor( 10. );
-    
-    [self checkAndClearExpectedQueueSize:1];
-}
- */
-
 - (void)test500Retry {
     __block BOOL forcedNetworkStatus = YES;
     id classMockTuneNetworkUtils = OCMClassMock([TuneNetworkUtils class]);
     OCMStub(ClassMethod([classMockTuneNetworkUtils isNetworkReachable])).andDo(^(NSInvocation *invocation) {
         [invocation setReturnValue:&forcedNetworkStatus];
     });
-    
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
     
     [[TuneEventQueue sharedQueue] enqueueUrlRequest:@"https://www.tune.com"
                           eventAction:nil
@@ -115,37 +73,7 @@
     [classMockTuneNetworkUtils stopMocking];
 }
 
-//- (void)test500RetryCount {
-//    networkOnline();
-//    
-//#if !TARGET_OS_TV
-//    [Tune setDebugMode:YES];
-//#endif
-//    
-//    [TuneEventQueue enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error"
-//                          eventAction:nil
-//                        encryptParams:nil
-//                             postData:nil
-//                              runDate:[NSDate date]];
-//    waitFor( .1 );
-//
-//    XCTAssertEqual( [TuneEventQueue queueSize], 1, @"expected %d queued requests, found %d",
-//                   1, (unsigned int)[TuneEventQueue queueSize] );
-//    
-//    NSMutableArray *requests = [TuneEventQueue events];
-//
-//    XCTAssertEqual( [requests count], 1, @"expected to pop %d queue items, found %d", 1, (int)[requests count] );
-//    
-//    NSString *strUrl = requests[0][@"url"];
-//    NSString *searchString = [NSString stringWithFormat:@"&%@=1", TUNE_KEY_RETRY_COUNT];
-//    
-//    XCTAssertTrue( [strUrl rangeOfString:searchString].location != NSNotFound, @"should have incremented retry count" );
-//}
-
 - (void)test500RetryOrder {
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
         
     [[TuneEventQueue sharedQueue] enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Server%20Error"
                           eventAction:nil
@@ -172,9 +100,6 @@
 }
 
 - (void)test500RetryTwice {
-#if !TARGET_OS_TV
-    [Tune setDebugMode:YES];
-#endif
     
     [[TuneEventQueue sharedQueue] enqueueUrlRequest:@"http://engine.stage.mobileapptracking.com/v1/Integrations/sdk/headers?statusCode%5Bcode%5D=500&statusCode%5Bmessage%5D=HTTP/1.1%20500%20Bad%"
                           eventAction:nil

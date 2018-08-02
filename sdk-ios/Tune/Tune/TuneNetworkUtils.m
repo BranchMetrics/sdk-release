@@ -18,13 +18,11 @@
 #endif
 
 + (BOOL)isNetworkReachable {
-    BOOL reachable =
-    #if !TARGET_OS_IOS
-    YES;
-    #else
-    TuneNotReachable != [self networkReachabilityStatus];
+    BOOL reachable = YES;
+    
+    #if TARGET_OS_IOS
+    reachable = TuneNotReachable != [self networkReachabilityStatus];
     #endif
-    DebugLog(@"TuneNetworkUtils: isNetworkReachable: status = %d", reachable);
     
     return reachable;
 }

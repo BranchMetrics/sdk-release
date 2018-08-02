@@ -10,7 +10,6 @@
 #import <XCTest/XCTest.h>
 #import "Tune+Testing.h"
 #import "TuneManager.h"
-#import "TuneAnalyticsEvent.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneSkyhookConstants.h"
 #import "TuneSkyhookPayload.h"
@@ -30,7 +29,7 @@
 - (void)setUp {
     [super setUp];
 
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     skyhookCenter = [TuneSkyhookCenter defaultCenter];
 }
 

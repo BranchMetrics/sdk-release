@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TuneFileUtils.h"
+#import "TuneLog.h"
 #import "TuneUtils.h"
 
 NSString *const TuneFileUtilsConfigDirectory = @"Library/Caches/";
@@ -28,7 +29,8 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
     NSError *error;
     id plist = [NSPropertyListSerialization propertyListWithData:plistData options:NSPropertyListImmutable format:nil error:&error];
     if (error) {
-        ErrorLog(@"Error loading plist from disk at path: %@", filePathName);
+        NSString *errorMessage = [NSString stringWithFormat:@"Error loading plist from disk at path: %@", filePathName];
+        [TuneLog.shared logError:errorMessage];
         return nil;
     }
     return plist;
@@ -38,31 +40,18 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
     NSError *error;
     NSData *plistData = [NSPropertyListSerialization dataWithPropertyList:object format:plistFormat options:NSPropertyListWriteInvalidError error:&error];
     if (error != nil) {
-        ErrorLog(@"Error saving object to disk as plist to path: %@", filePathName);
+        NSString *errorMessage = [NSString stringWithFormat:@"Error saving object to disk as plist to path: %@", filePathName];
+        [TuneLog.shared logError:errorMessage];
         return NO;
     }
     
     NSError *writeToFileError = nil;
     BOOL success = [plistData writeToFile:filePathName options:NSDataWritingAtomic error:&writeToFileError];
     if (!success) {
-        ErrorLog(@"Failed to write %@ to file.", filePathName);
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to write %@ to file.", filePathName];
+        [TuneLog.shared logError:errorMessage];
     }
     
-    return success;
-}
-
-#pragma mark - Data
-
-+ (UIImage *)loadImageAtPath:(NSString *)path {
-    return [UIImage imageWithContentsOfFile:path];
-}
-
-+ (BOOL)saveImageData:(NSData *)data toPath:(NSString *)path {
-    NSError *error = nil;
-    BOOL success = [data writeToFile:path options:NSDataWritingAtomic error:&error];
-    if (!success) {
-        ErrorLog(@"Failed to write image %@ to file. Error: %@", path, [error description]);
-    }
     return success;
 }
 
@@ -76,7 +65,6 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
     BOOL success = YES;
     
     if (nil == folderPath) {
-        DebugLog(@"Attempting to create directory with nil string.");
         success = NO;
     } else if (![self fileExists:folderPath]) {
         NSError *error;
@@ -85,8 +73,6 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
             if(!shouldBackup) {
                 [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:folderPath]];
             }
-        } else {
-            DebugLog(@"Error creating directory at %@", folderPath);
         }
     }
     
@@ -100,22 +86,12 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
 + (BOOL)deleteFileOrDirectory:(NSString *)fileOrDirectory {
     NSError *error;
     BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:fileOrDirectory error:&error];
-    
-    if (!deleted) {
-        DebugLog(@"Failed to delete file '%@', %@", fileOrDirectory, error);
-    }
-    
     return deleted;
 }
 
 + (BOOL)moveFileOrDirectory:(NSString *)fileOrDirectory toFileOrDirectory:(NSString *)toFileOrDirectory {
     NSError *error;
     BOOL moved = [[NSFileManager defaultManager] moveItemAtPath:fileOrDirectory toPath:toFileOrDirectory error:&error];
-    
-    if (!moved) {
-        DebugLog(@"failed to move file from '%@' to '%@', %@", fileOrDirectory, toFileOrDirectory, error);
-    }
-    
     return moved;
 }
 
@@ -124,9 +100,7 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
 //
 // For iOS versions 5.0.1 and above set a flag to denote that the queue storage files should not be backed up on iCloud.
 // No-op for iOS versions 5.0 and below.
-+ (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL {
-    DebugLog(@"TuneUtils addSkipBackupAttributeToItemAtURL: %@", URL);
-    
++ (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL {    
     BOOL success = NO;
     
     if([[NSFileManager defaultManager] fileExistsAtPath:[URL path]]) {
@@ -136,18 +110,13 @@ NSString *const TuneFileUtilsConfigFileName = @"tune.plist";
                                   error:&error];
 #if DEBUG_LOG
         if(!success) {
-            NSLog(@"TuneUtils addSkipBackupAttributeToItemAtURL: Error excluding %@ from backup %@", [URL lastPathComponent], error);
+            NSString *errorMessage = [NSString stringWithFormat:@"TuneUtils addSkipBackupAttributeToItemAtURL: Error excluding %@ from backup %@", [URL lastPathComponent], error];
+            [TuneLog.shared logError:errorMessage];
         }
 #endif
     }
     
     return success;
-}
-
-+ (NSString *)pathToConfiguration {
-    NSString *configFullDirectory = [NSHomeDirectory() stringByAppendingPathComponent:TuneFileUtilsConfigDirectory];
-    NSString *configFileName = [configFullDirectory stringByAppendingPathComponent:TuneFileUtilsConfigFileName];
-    return configFileName;
 }
 
 @end

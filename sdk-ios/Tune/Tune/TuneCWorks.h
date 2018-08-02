@@ -26,14 +26,13 @@
  SOFTWARE.
  */
 
+#import <UIKit/UIKit.h>
 #import <CommonCrypto/CommonDigest.h>
-#import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS
 #import <UIKit/UIPasteboard.h>
 #endif
 
-#import <UIKit/UIKit.h>
 
 @interface TuneCWorks : NSObject
 {

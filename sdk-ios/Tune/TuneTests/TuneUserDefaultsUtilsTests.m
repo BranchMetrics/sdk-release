@@ -26,7 +26,7 @@
 @implementation TuneUserDefaultsUtilsTests
 
 static NSString* const testKey = @"fakeTuneKey";
-#define expectedKey [NSString stringWithFormat:@"_TUNE_%@", testKey]
+static NSString* const expectedKey = @"_TUNE_fakeTuneKey";
 
 
 - (void)testNewKeyStored {

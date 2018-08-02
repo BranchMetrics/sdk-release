@@ -10,8 +10,6 @@
 #import "TuneHttpResponse.h"
 #import "TuneHttpUtils.h"
 #import "TuneConfiguration.h"
-#import "TuneDeviceDetails.h"
-#import "TuneJSONUtils.h"
 #import "TuneStringUtils.h"
 #import "TuneUtils.h"
 
@@ -50,7 +48,7 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
 - (id)init {
     self = [super init];
     if (self) {
-        _domain = [TuneManager currentManager].configuration.playlistHostPort;
+        _domain = @"https://playlist.ma.tune.com";
         _endpoint = @"";
         _endpointArguments = @{};
         _parameters = @{};
@@ -131,8 +129,10 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
     } else if ([TuneHttpRequestHeaderJSON isEqualToString:[self valueForHTTPHeaderField:TuneHttpRequestHeaderAccept]] ||
                [TuneHttpRequestHeaderContentTypeApplicationUrlEncoded isEqualToString:[self valueForHTTPHeaderField:TuneHttpRequestHeaderContentType]]) {
 
-        NSString *responseString = [[NSString alloc] initWithBytes: [resultData bytes] length:[resultData length] encoding:NSUTF8StringEncoding];
-        return [TuneJSONUtils createDictionaryFromJSONString:responseString];
+        id tmp = [NSJSONSerialization JSONObjectWithData:resultData options:0 error:nil];
+        if ([tmp isKindOfClass:NSDictionary.class]) {
+            return tmp;
+        }
     }
     return nil;
 }
@@ -146,13 +146,13 @@ NSString *const TuneHttpRequestHeaderOsType = @"X-TUNE-OSTYPE";
     NSData *result = [TuneHttpUtils sendSynchronousRequest:self response:&response error:&error];
     
     if (error) {
-        ErrorLog(@"HTTP request error: %@", error);
+        NSLog(@"HTTP request error: %@", error);
     }
     
     NSDictionary *responseDictionary = [self responseDictionaryForResult:result withError:error];
     
     if (error) {
-        ErrorLog(@"Error parsing HTTP response: %@", error);
+        NSLog(@"Error parsing HTTP response: %@", error);
     }
     
     TuneHttpResponse *tuneResponse = [[TuneHttpResponse alloc] initWithURLResponse:response andError:error];

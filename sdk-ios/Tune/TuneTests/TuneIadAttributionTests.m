@@ -9,11 +9,9 @@
 #import <XCTest/XCTest.h>
 #import "TuneXCTestCase.h"
 #import "Tune+Testing.h"
-#import "TuneAnalyticsManager+Testing.h"
-#import "TuneDeviceDetails.h"
 #import "TuneEvent+Internal.h"
 #import "TuneIadUtils.h"
-#import "TuneJSONUtils.h"
+#import "TuneLog.h"
 #import "TuneKeyStrings.h"
 #import "TuneSkyhookCenter+Testing.h"
 #import "TuneTestParams.h"
@@ -26,7 +24,7 @@
 
 #import <OCMock/OCMock.h>
 
-#if !TARGET_OS_TV && !TARGET_OS_WATCH
+#if TARGET_OS_IOS
 #import <iAd/iAd.h>
 #endif
 
@@ -116,7 +114,14 @@
 }
 
 - (void)setupCommon {
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    TuneLog.shared.verbose = YES;
+    TuneLog.shared.logBlock = ^(NSString *message) {
+        if ([message containsString:@"EVENT QUEUE"]) {
+            enqueuedRequestPostData = message;
+        }
+    };
+    
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [Tune setDelegate:self];
     [Tune setExistingUser:NO];
     // Wait for everything to be set
@@ -150,22 +155,11 @@
     [classMockTuneUserDefaultUtils stopMocking];
     [mockTuneTracker stopMocking];
     
+    TuneLog.shared.verbose = NO;
+    TuneLog.shared.logBlock = nil;
+    
     [super tearDown];
 }
-
-#pragma mark - TuneDelegate Methods
-
--(void)tuneDidSucceedWithData:(NSData *)data {
-}
-
-- (void)tuneDidFailWithError:(NSError *)error {
-}
-
-- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post {
-    enqueuedRequestPostData = post;
-}
-
-#pragma mark -
 
 #if !TARGET_OS_TV && !TARGET_OS_WATCH
 
@@ -185,27 +179,9 @@
         ASSERT_NO_VALUE_FOR_KEY( @"iad_attribution" );
         
         XCTAssertNotNil(enqueuedRequestPostData);
-        NSDictionary *dict = nil;
-        if(enqueuedRequestPostData) {
-            NSError *jsonError;
-            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-        }
-        
-        XCTAssertNotNil(dict);
-        XCTAssertNotNil(dict[@"iad"]);
-        XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
-        XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
-        
+        XCTAssert([enqueuedRequestPostData containsString:@"Version3.1"]);
+        XCTAssert([enqueuedRequestPostData containsString:@"TUNE, Inc."]);
+
         [mockTuneTracker verify];
     }
 }
@@ -285,29 +261,8 @@
             ASSERT_KEY_VALUE(@"action", @"install");
             
             XCTAssertNotNil(enqueuedRequestPostData);
-            __block NSDictionary *dict = nil;
-            if(enqueuedRequestPostData) {
-                NSError *jsonError;
-                dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-            }
-            
-            XCTAssertNotNil(dict);
-            XCTAssertNotNil(dict[@"iad"]);
-            XCTAssertNotNil(dict[@"iad"][@"iad_request_attempt"]);
-            XCTAssertEqual(1, [dict[@"iad"][@"iad_request_attempt"] intValue]);
-            XCTAssertNotNil(dict[@"iad"][@"iad_request_timestamp"]);
-            XCTAssertNotNil(dict[@"iad"][@"Version3.1"]);
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-attribution"], @"true");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-id"], @"15222869");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-campaign-name"], @"atomic new 13");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-id"], @"226713");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-creative-name"], @"ad new");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-id"], @"15325601");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-lineitem-name"], @"2000 banner");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-org-name"], @"TUNE, Inc.");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-keyword"], @"dodgeball");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-click-date"], @"2016-03-23T07:55:00Z");
-            XCTAssertEqualObjects(dict[@"iad"][@"Version3.1"][@"iad-conversion-date"], @"2016-03-23T07:55:50Z");
+            XCTAssert([enqueuedRequestPostData containsString:@"Version3.1"]);
+            XCTAssert([enqueuedRequestPostData containsString:@"TUNE, Inc."]);
         }];
         
         [mockTuneTracker verify];
@@ -440,26 +395,15 @@
         ASSERT_KEY_VALUE( @"site_event_name", @"event1" );
         ASSERT_NO_VALUE_FOR_KEY( @"iad_attribution" );
         XCTAssertNotNil(enqueuedRequestPostData);
-        NSDictionary *dict = nil;
-        if(enqueuedRequestPostData) {
-            NSError *jsonError;
-            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-        }
         
-        XCTAssertNil(dict[@"iad"]);
+        XCTAssert(![enqueuedRequestPostData containsString:@"iad\":{\"Version"]);
         
         enqueuedRequestPostData = nil;
         [Tune measureSession];
         waitForQueuesToFinish();
         
         XCTAssertNotNil(enqueuedRequestPostData);
-        dict = nil;
-        if(enqueuedRequestPostData) {
-            NSError *jsonError;
-            dict = [NSJSONSerialization JSONObjectWithData:[enqueuedRequestPostData dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&jsonError];
-        }
-        
-        XCTAssertNotNil(dict[@"iad"]);
+        XCTAssert([enqueuedRequestPostData containsString:@"iad\":{\"Version"]);
     }
 }
 

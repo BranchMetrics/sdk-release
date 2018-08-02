@@ -10,6 +10,6 @@
 
 @interface TuneInstallReceipt : NSObject
 
-+ (NSData*)installReceipt;
++ (NSData *)installReceipt;
 
 @end

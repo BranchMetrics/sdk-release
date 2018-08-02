@@ -12,7 +12,7 @@
 #import "TuneUserProfile.h"
 #import "TuneUserDefaultsUtils.h"
 
-#if USE_IAD
+#if TARGET_OS_IOS
 
 @implementation TuneIadUtils
 

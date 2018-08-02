@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Scopic Software. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -50,8 +50,6 @@
 + (nullable id)jsonDeserializeData:(nullable NSData *)jsonData;
 + (nullable id)jsonDeserializeString:(nullable NSString *)jsonString;
 
-+ (nullable NSString *)parseXmlString:(nullable NSString *)strXml forTag:(nullable NSString *)tag;
-
 + (nullable NSString *)hashMd5:(nullable NSString *)input;
 + (nullable NSString *)hashSha1:(nullable NSString *)input;
 + (nullable NSString *)hashSha256:(nullable NSString *)input;
@@ -82,15 +80,7 @@
 #pragma mark -
 
 + (nullable id)objectOrNull:(nullable id)object;
-+ (nullable id)objectStringOrNull:(nullable id)object;
-+ (nonnull id)object:(nullable id)object orDefault:(nonnull id)def;
 + (CGSize)screenSize;
-+ (CGRect)screenBoundsForStatusBarOrientation;
-
-#pragma amrk -
-
-+ (void)showAlertWithTitle:(nonnull NSString *)title message:(nonnull NSString *)message;
-+ (void)showAlertWithTitle:(nonnull NSString *)title message:(nonnull NSString *)message completionBlock:(nullable void (^)(void))completionHandler;
 
 #pragma mark -
 

@@ -12,7 +12,6 @@
 #import "TuneModule.h"
 #import "TuneCWorks.h"
 #import "TuneManager.h"
-#import "TuneInAppUtils.h"
 #import "TuneXCTestCase.h"
 
 @interface TuneUtilsTests : TuneXCTestCase

@@ -259,18 +259,7 @@ static NSString* const kAppleReceiptItemKey = @"testAppleReceipt";
     [self checkKey:@"screen_density" isEqualToValue:[@([[UIScreen mainScreen] scale]) stringValue]];
     
     if( !retval )
-        NSLog( @"device values failed: %d %d %d %d %d %d %d %d %d %d %d", [self checkKeyHasValue:@"conversion_user_agent"], [self checkKeyHasValue:@"country_code"], [self checkKeyHasValue:@"language"], [self checkKeyHasValue:@"system_date"], [self checkKeyHasValue:@"device_brand"], [self checkKeyHasValue:@"device_cpu_type"], [self checkKeyHasValue:@"device_cpu_subtype"], [self checkKeyHasValue:@"device_model"], [self checkKeyHasValue:@"os_version"], [self checkKeyHasValue:@"insdate"], [self checkKey:@"os_jailbroke" isEqualToValue:@"0"] );
-    
-    NSString *sysDateString = [self valueForKey:@"system_date"];
-    if( sysDateString ) {
-        NSTimeInterval sysDate = [sysDateString longLongValue];
-        NSTimeInterval now = round( [[NSDate date] timeIntervalSince1970] );
-        NSTimeInterval elapsed = now - sysDate;
-        if( elapsed < 0. || elapsed > 60. ) {
-            NSLog( @"%lf elapsed since call's system date %lf (now %lf)", elapsed, sysDate, now );
-            retval = NO;
-        }
-    }
+        NSLog( @"device values failed: %d %d %d %d %d %d %d %d %d", [self checkKeyHasValue:@"country_code"], [self checkKeyHasValue:@"language"], [self checkKeyHasValue:@"system_date"], [self checkKeyHasValue:@"device_brand"], [self checkKeyHasValue:@"device_cpu_type"], [self checkKeyHasValue:@"device_cpu_subtype"], [self checkKeyHasValue:@"device_model"], [self checkKeyHasValue:@"os_version"], [self checkKeyHasValue:@"insdate"] );
 
     return retval;
 }

@@ -13,6 +13,7 @@
 #import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneKeyStrings.h"
+#import "TuneLog.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <MobileCoreServices/UTType.h>
 #if TARGET_OS_IOS
@@ -21,8 +22,6 @@
 #include <sys/sysctl.h>
 #include <net/if.h>
 #include <net/if_dl.h>
-
-#import <UIKit/UIKit.h>
 
 #if TARGET_OS_IOS
 NSString * const PASTEBOARD_NAME_FACEBOOK_APP = @"fb_app_attribution";
@@ -95,26 +94,6 @@ BOOL isAlertVisible;
     NSString *classStringName = [NSString stringWithFormat:@"_TtC%lu%@%lu%@", (unsigned long)appName.length, appName, (unsigned long)className.length, className];
     return NSClassFromString(classStringName);
 }
-
-+ (NSString *)parseXmlString:(NSString *)strXml forTag:(NSString *)tag {
-    NSString *value = nil;
-    
-    NSString *strStartTag = [NSString stringWithFormat:@"<%@>", tag];
-    NSString *strEndTag = [NSString stringWithFormat:@"</%@>", tag];
-    
-    NSRange rangeStart = [strXml rangeOfString:strStartTag];
-    NSRange rangeEnd = [strXml rangeOfString:strEndTag];
-    
-    if(NSNotFound != rangeStart.location && NSNotFound != rangeEnd.location) {
-        NSInteger start = rangeStart.location + rangeStart.length;
-        NSInteger end = rangeEnd.location;
-        
-        value = [strXml substringWithRange:NSMakeRange(start, end - start)];
-    }
-    
-    return value;
-}
-
 
 + (NSString*)getStringForKey:(NSString*)key fromPasteBoard:(NSString *)pasteBoardName {
     NSString *storedValue = nil;
@@ -209,7 +188,8 @@ BOOL isAlertVisible;
         jailBroken ? NSLog(@"Jailbreak detected!") : NSLog(@"No Jailbreak detected");
 #endif
     } @catch (NSException *exception) {
-        NSLog(@"TUNE: checkJailBreak: exception: %@", exception);
+        NSString *errorMessage = [NSString stringWithFormat:@"TUNE: checkJailBreak: exception: %@", exception];
+        [TuneLog.shared logError:errorMessage];
     }
     
     return jailBroken;
@@ -267,7 +247,6 @@ BOOL isAlertVisible;
     
     // Try the bundle creation date if NSDocumentDirectory / NSCachesDirectory is not available
     if (!date) {
-        DebugLog(@"NSDocumentDirectory / NSCachesDirectory not found, falling back to NSBundle creation date.");
         date = [self creationDateOfPath:[[TuneUtils currentBundle] bundlePath]];
     }
     
@@ -280,7 +259,9 @@ BOOL isAlertVisible;
     NSError *error;
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
     if (error) {
-        DebugLog(@"Failed to get creation date: %@", error);
+        // Is this a severe error or just informational?
+        //NSString *errorMessage = [NSString stringWithFormat:@"Failed to get creation date: %@", error];
+        //[TuneLog.shared logError:errorMessage];
     }
     date = attributes[NSFileCreationDate];
     
@@ -326,7 +307,8 @@ BOOL isAlertVisible;
                                                  options:0
                                                    error:&error];
         if (error) {
-            DebugLog(@"JSON serializer: error = %@, input = %@", error, object);
+            NSString *errorMessage = [NSString stringWithFormat:@"JSON serializer: error = %@, input = %@", error, object];
+            [TuneLog.shared logError:errorMessage];
         }
     }
     
@@ -345,7 +327,8 @@ BOOL isAlertVisible;
         if (jsonData) {
             output = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
         } else {
-            DebugLog(@"JSON serializer: error = %@, input = %@", error, object);
+            NSString *errorMessage = [NSString stringWithFormat:@"JSON serializer: error = %@, input = %@", error, object];
+            [TuneLog.shared logError:errorMessage];
         }
     }
     
@@ -362,7 +345,8 @@ BOOL isAlertVisible;
                                                    error:&error];
         
         if (error) {
-            DebugLog(@"JSON de-serializer: error = %@, input = %@", error, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
+            NSString *errorMessage = [NSString stringWithFormat:@"JSON de-serializer: error = %@, input = %@", error, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+            [TuneLog.shared logError:errorMessage];
         }
     }
     
@@ -510,14 +494,6 @@ BOOL isAlertVisible;
     return object ?: [NSNull null];
 }
 
-+ (id)objectStringOrNull:(id)object {
-    return [object description] ?: [NSNull null];
-}
-
-+ (id)object:(id)object orDefault:(id)def {
-    return object ?: def;
-}
-
 + (CGSize)screenSize {
     CGSize screenSize = CGSizeZero;
 #if !TARGET_OS_WATCH
@@ -535,33 +511,6 @@ BOOL isAlertVisible;
 #endif
     return screenSize;
 }
-
-/*!
- Determine width, height of the main screen depending on the current status bar orientation.
- Ref: http://stackoverflow.com/a/14809642
- */
-+ (CGRect)screenBoundsForStatusBarOrientation {
-#if TARGET_OS_WATCH
-    return CGRectZero; // TODO: fix of watchOS
-#else
-    // portrait screen size
-    CGSize screenSize = [self screenSize];
-    
-    // if current status bar orientation is landscape, then swap the screen width-height values
-    BOOL isLandscape = FALSE;
-    if( [[UIApplication sharedApplication] respondsToSelector:@selector(statusBarOrientation)] ) {
-        //isLandscape = UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
-        NSInteger orientation = (NSInteger)[[UIApplication sharedApplication] performSelector:@selector(statusBarOrientation)];
-        isLandscape = (orientation == 3 || orientation == 4);
-    }
-    
-    CGFloat curWidth = isLandscape ? screenSize.height : screenSize.width;
-    CGFloat curHeight = isLandscape ? screenSize.width : screenSize.height;
-    
-    return CGRectMake(0, 0, curWidth, curHeight);
-#endif
-}
-
 
 #pragma mark - String Helper Methods
 
@@ -603,189 +552,11 @@ BOOL isAlertVisible;
     return [queryStringPairs componentsJoinedByString:@"&"];
 }
 
-#pragma mark - Alert View Helper
-
-+ (void)showAlertWithTitle:(NSString *)title message:(NSString *)message {
-    [self showAlertWithTitle:title message:message completionBlock:nil];
-}
-
-+ (void)showAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self innerShowAlertWithTitle:title message:message completionBlock:completionHandler];
-    });
-}
-
-#if TARGET_OS_WATCH
-
-+ (void)innerWatchShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    __block id block = completionHandler ? [completionHandler copy] : nil;
-    
-    if(isAlertVisible) {
-        [alertTitles addObject:title];
-        [alertMessages addObject:message];
-        [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
-    } else {
-        isAlertVisible = YES;
-        
-        WKAlertAction *alertAction = [WKAlertAction actionWithTitle:@"OK" style:WKAlertActionStyleCancel handler:^{
-            isAlertVisible = NO;
-            NSString *nextTitle = [alertTitles firstObject];
-            NSString *nextMessage = [alertMessages firstObject];
-            void (^nextBlock)(void) = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
-            
-            if(nextTitle && nextMessage) {
-                [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
-                [alertTitles removeObjectAtIndex:0];
-                [alertMessages removeObjectAtIndex:0];
-                [alertCompletionBlocks removeObjectAtIndex:0];
-            }
-            
-            if(block && (id)[NSNull null] != (id)block) {
-                void (^curBlock)(void) = (void (^)(void))block;
-                curBlock();
-            }
-        }];
-        
-        [[[WKExtension sharedExtension] rootInterfaceController] presentAlertControllerWithTitle:title
-                                                                                         message:message
-                                                                                  preferredStyle:WKAlertControllerStyleAlert
-                                                                                         actions:@[alertAction]];
-    }
-}
-
-#elif TARGET_OS_TV
-
-+ (void)innerTvosShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    if(isAlertVisible) {
-        [alertTitles addObject:title];
-        [alertMessages addObject:message];
-        [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
-    } else {
-        isAlertVisible = YES;
-        
-        __block id block = completionHandler ? [completionHandler copy] : nil;
-        
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
-                                                                       message:message
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                                  style:UIAlertActionStyleDefault
-                                                handler:^(UIAlertAction * _Nonnull action) {
-                                                    isAlertVisible = NO;
-                                                    NSString *nextTitle = [alertTitles firstObject];
-                                                    NSString *nextMessage = [alertMessages firstObject];
-                                                    id blk = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
-                                                    void (^nextBlock)(void) = [NSNull null] == blk ? nil : blk;
-                                                    
-                                                    if(nextTitle && nextMessage) {
-                                                        [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
-                                                        [alertTitles removeObjectAtIndex:0];
-                                                        [alertMessages removeObjectAtIndex:0];
-                                                        [alertCompletionBlocks removeObjectAtIndex:0];
-                                                    }
-                                                    
-                                                    if(block && (id)[NSNull null] != (id)block) {
-                                                        void (^curBlock)(void) = (void (^)(void))block;
-                                                        curBlock();
-                                                    }
-                                                }]];
-        
-        // do not animate the alert view display, so as to reduce the time required and avoid clash with client app UI operations
-        [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:alert animated:NO completion:nil];
-    }
-}
-
-#elif TARGET_OS_IOS
-
-+ (void)innerIosShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-    if(NSClassFromString(@"UIAlertController")) {
-        if(isAlertVisible) {
-            [alertTitles addObject:title];
-            [alertMessages addObject:message];
-            [alertCompletionBlocks addObject:(id)completionHandler ?: (id)[NSNull null]];
-        } else {
-            isAlertVisible = YES;
-            
-            __block id block = completionHandler ? [completionHandler copy] : nil;
-            
-            static dispatch_once_t tuneAlertWindowOnceToken;
-            dispatch_once(&tuneAlertWindowOnceToken, ^{
-                tuneAlertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-                tuneAlertWindow.windowLevel = UIWindowLevelAlert;
-                tuneAlertWindow.rootViewController = [UIViewController new];
-            });
-            
-            tuneAlertWindow.hidden = NO;
-            
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
-                                                                           message:message
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            
-            [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction * _Nonnull action) {
-                                                        isAlertVisible = NO;
-                                                        NSString *nextTitle = [alertTitles firstObject];
-                                                        NSString *nextMessage = [alertMessages firstObject];
-                                                        id blk = alertCompletionBlocks.count > 0 ? [alertCompletionBlocks firstObject] : nil;
-                                                        void (^nextBlock)(void) = [NSNull null] == blk ? nil : blk;
-                                                        
-                                                        if(nextTitle && nextMessage) {
-                                                            [TuneUtils showAlertWithTitle:nextTitle message:nextMessage completionBlock:nextBlock];
-                                                            [alertTitles removeObjectAtIndex:0];
-                                                            [alertMessages removeObjectAtIndex:0];
-                                                            [alertCompletionBlocks removeObjectAtIndex:0];
-                                                        } else {
-                                                            tuneAlertWindow.hidden = YES;
-                                                        }
-                                                        
-                                                        if(block && (id)[NSNull null] != (id)block) {
-                                                            void (^curBlock)(void) = (void (^)(void))block;
-                                                            curBlock();
-                                                        }
-                                                    }]];
-            
-            // do not animate the alert view display, so as to reduce the time required and avoid clash with client app UI operations
-            [tuneAlertWindow.rootViewController presentViewController:alert animated:NO completion:nil];
-        }
-    } else {
-        Class classUIAlertView = NSClassFromString(@"UIAlertView");
-        id alert = [[classUIAlertView alloc] initWithTitle:title
-                                                   message:message
-                                                  delegate:nil
-                                         cancelButtonTitle:@"OK"
-                                         otherButtonTitles:nil];
-        [alert show];
-    }
-}
-
-#endif
-
-+ (void)innerShowAlertWithTitle:(NSString *)title message:(NSString *)message completionBlock:(void (^)(void))completionHandler {
-#if TESTING
-    completionHandler();
-    return;
-#else
-    
-#if TARGET_OS_WATCH
-    [self innerWatchShowAlertWithTitle:title message:message completionBlock:completionHandler];
-#elif TARGET_OS_TV
-    [self innerTvosShowAlertWithTitle:title message:message completionBlock:completionHandler];
-#else
-    [self innerIosShowAlertWithTitle:title message:message completionBlock:completionHandler];
-#endif
-    
-#endif
-}
-
-
 #pragma mark - NSObject Helpers
 
 + (BOOL)object:(id)receiver respondsToSelector:(SEL)aSelector {
     return [receiver respondsToSelector:aSelector];
 }
-
 
 #pragma mark -
 

@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
 #import "TuneModule.h"
-#import "TunePlaylist.h"
 
 @interface TuneFileManager : NSObject
 
@@ -17,18 +17,5 @@
 + (BOOL)saveAnalyticsToDisk:(NSDictionary *)analytics;
 + (BOOL)deleteAnalyticsEventsFromDisk:(NSArray *)eventsToDelete;
 + (BOOL)deleteAnalyticsFromDisk;
-
-+ (NSDictionary *)loadRemoteConfigurationFromDisk;
-+ (BOOL)saveRemoteConfigurationToDisk:(NSDictionary*)config;
-+ (BOOL)deleteRemoteConfigurationFromDisk;
-
-+ (NSDictionary *)loadPlaylistFromDisk;
-+ (BOOL)savePlaylistToDisk:(TunePlaylist *)playlist;
-+ (BOOL)deletePlaylistFromDisk;
-
-+ (UIImage *)loadImageFromDiskNamed:(NSString *)name;
-+ (BOOL)saveImageData:(NSData *)data toDiskWithName:(NSString *)name;
-
-+ (NSDictionary *)loadLocalConfigurationFromDisk;
 
 @end

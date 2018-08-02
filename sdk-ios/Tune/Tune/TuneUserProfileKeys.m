@@ -83,8 +83,6 @@ NSString *const TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY   = @"location_horizontal_
 NSString *const TUNE_KEY_LOCATION_TIMESTAMP             = @"location_timestamp";
 NSString *const TUNE_KEY_LOCATION_VERTICAL_ACCURACY     = @"location_vertical_accuracy";
 
-NSString *const TUNE_KEY_TRUSTE_TPID                    = @"truste_tpid";
-
 NSString *const TUNE_KEY_OS_TYPE                        = @"os_type";
 NSString *const TUNE_KEY_DEVICE_MODEL                   = @"device_model";
 NSString *const TUNE_KEY_DEVICE_CPUTYPE                 = @"device_cpu_type";
@@ -256,9 +254,7 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
                                              TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
                                              TUNE_KEY_LOCATION_TIMESTAMP,
                                              TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
-                                             
-                                             TUNE_KEY_TRUSTE_TPID,
-                                             
+                                            
                                              TUNE_KEY_OS_TYPE,
                                              TUNE_KEY_DEVICE_MODEL,
                                              TUNE_KEY_DEVICE_CPUTYPE,
@@ -414,9 +410,7 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
 //                                             TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
 //                                             TUNE_KEY_LOCATION_TIMESTAMP,
 //                                             TUNE_KEY_LOCATION_VERTICAL_ACCURACY,
-                                             
-//                                             TUNE_KEY_TRUSTE_TPID,
-                                             
+                                                                                          
                                              TUNE_KEY_OS_TYPE,
 //                                             TUNE_KEY_DEVICE_MODEL,
 //                                             TUNE_KEY_DEVICE_CPUTYPE,

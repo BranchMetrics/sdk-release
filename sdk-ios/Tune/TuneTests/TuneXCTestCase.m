@@ -7,8 +7,6 @@
 //
 
 #import "TuneXCTestCase.h"
-#import "TuneAnalyticsManager+Testing.h"
-#import "TunePlaylistManager+Testing.h"
 
 @implementation TuneXCTestCase
 
@@ -20,11 +18,7 @@
 
 - (void)setUpWithMocks:(NSArray *)classesToMock {
     [super setUp];
-    
-    BOOL shouldMockPM = [classesToMock containsObject:[TunePlaylistManager class]];
-    BOOL shouldMockAM = [classesToMock containsObject:[TuneAnalyticsManager class]];
-    
-    RESET_EVERYTHING_OPTIONAL_MOCKING(shouldMockPM, shouldMockAM);
+    RESET_EVERYTHING_OPTIONAL_MOCKING();
 }
 
 - (void)tearDown {

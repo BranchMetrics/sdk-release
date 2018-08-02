@@ -153,22 +153,9 @@ typedef void(^RequestCompletionBlock)(SKProduct *);
                                     // fire a Tune purchase event
                                     [self measurePurchaseEvent:transaction product:pr receipt:receipt];
                                     
-                                    // if current iOS version is less than 8.0, then use an async call to
-                                    // avoid possible app crash due to premature prodReq object release
-                                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-                                        // asynchronously execute code to remove the used productRequest object from storage
-                                        // so that the current method exits before productRequest is removed
-                                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                                            @synchronized(self.productRequests) {
-                                                // remove the stored reference to the product request
-                                                [self.productRequests removeObjectForKey:transaction.transactionIdentifier];
-                                            }
-                                        });
-                                    } else {
-                                        @synchronized(self.productRequests) {
-                                            // remove the stored reference to the product request
-                                            [self.productRequests removeObjectForKey:transaction.transactionIdentifier];
-                                        }
+                                    @synchronized(self.productRequests) {
+                                        // remove the stored reference to the product request
+                                        [self.productRequests removeObjectForKey:transaction.transactionIdentifier];
                                     }
                                 }];
                             }

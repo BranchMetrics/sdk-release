@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 FOUNDATION_EXPORT NSString * const TUNE_KEY_EVENT_ID;
 FOUNDATION_EXPORT NSString * const TUNE_KEY_EVENT_REVENUE;
 FOUNDATION_EXPORT NSString * const TUNE_KEY_EVENT_CURRENCY_CODE;

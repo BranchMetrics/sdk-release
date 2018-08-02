@@ -26,7 +26,7 @@
     [super setUp];
     
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId wearable:NO];
+    [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
     [[TuneManager currentManager].userProfile setAppAdTracking:@(YES)];
     [[TuneManager currentManager].userProfile setAppleAdvertisingTrackingEnabled:@(YES)];
     
@@ -93,24 +93,6 @@
 - (void)testAppleAdvertisingTrackingEnabledValueUnchanged {
     NSNumber *adTracking = [[TuneManager currentManager].userProfile appleAdvertisingTrackingEnabled];
     XCTAssertTrue(adTracking.boolValue);
-}
-
-- (void)testIsCoppaNotInIAM {
-    NSArray *array = [[TuneManager currentManager].userProfile toArrayOfDictionaries];
-    
-    XCTAssertNotNil(array);
-    
-    BOOL foundIsCoppa = NO;
-    for (NSDictionary *dictionary in array) {
-        if ([[dictionary objectForKey:@"name"] isEqualToString:@"is_coppa"]) {
-            foundIsCoppa = YES;
-            
-            NSNumber *value = (NSNumber *)[dictionary objectForKey:@"value"];
-            XCTAssertFalse(value.boolValue);
-        }
-    }
-    
-    XCTAssertTrue(foundIsCoppa);
 }
 
 @end

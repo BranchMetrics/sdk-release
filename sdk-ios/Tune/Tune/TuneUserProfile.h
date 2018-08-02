@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "TuneAnalyticsVariable.h"
 #import "TuneModule.h"
@@ -38,38 +38,6 @@
 /////////////////////////////////////////////////
 #pragma mark - Profile Variable Management
 /////////////////////////////////////////////////
-
-- (void) registerString:(NSString *)variableName;
-- (void) registerString:(NSString *)variableName hashed:(BOOL)shouldAutoHash;
-- (void) registerBoolean:(NSString *)variableName;
-- (void) registerDateTime:(NSString *)variableName;
-- (void) registerNumber:(NSString *)variableName;
-- (void) registerGeolocation:(NSString *)variableName;
-- (void) registerVersion:(NSString *)variableName;
-
-- (void) registerString:(NSString *)variableName withDefault:(NSString *)value;
-- (void) registerString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldAutoHash;
-- (void) registerBoolean:(NSString *)variableName withDefault:(NSNumber *)value;
-- (void) registerDateTime:(NSString *)variableName withDefault:(NSDate *)value;
-- (void) registerNumber:(NSString *)variableName withDefault:(NSNumber *)value;
-- (void) registerGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value;
-- (void) registerVersion:(NSString *)variableName withDefault:(NSString *)value;
-
-- (void) setStringValue:(NSString *)value forVariable:(NSString *)name;
-- (void) setBooleanValue:(NSNumber *)value forVariable:(NSString *)name;
-- (void) setDateTimeValue:(NSDate *)value forVariable:(NSString *)name;
-- (void) setNumberValue:(NSNumber *)value forVariable:(NSString *)name;
-- (void) setGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name;
-- (void) setVersionValue:(NSString *)value forVariable:(NSString *)name;
-
-- (NSString *)getCustomProfileString:(NSString *)name;
-- (NSNumber *)getCustomProfileNumber:(NSString *)name;
-- (NSDate *)getCustomProfileDateTime:(NSString *)name;
-- (TuneLocation *)getCustomProfileGeolocation:(NSString *)name;
-
-- (void) clearVariable:(NSString *)key;
-- (void) clearCustomVariables:(NSSet *)variables;
-- (void) clearCustomProfile;
 
 - (id) getProfileValue:(NSString *)key;
 - (TuneAnalyticsVariable *) getProfileVariable:(NSString*)key;
@@ -167,17 +135,11 @@
 - (void)setAppleVendorIdentifier:(NSString *)appleVendorIdentifier;
 - (NSString *)appleVendorIdentifier;
 
-- (void)setCurrencyCode:(NSString *)currencyCode;
-- (NSString *)currencyCode;
-
 - (void)setJailbroken:(NSNumber *)jailbroken;
 - (NSNumber *)jailbroken;
 
 - (void)setPackageName:(NSString *)packageName;
 - (NSString *)packageName;
-
-- (void)setTRUSTeId:(NSString *)tpid;
-- (NSString *)trusteTPID;
 
 - (void)setUserId:(NSString *)userId;
 - (NSString *)userId;
@@ -277,9 +239,6 @@
 
 - (void)setReferralSource:(NSString *)source;
 - (NSString *)referralSource;
-
-- (void)setRedirectUrl:(NSString *)redirectUrl;
-- (NSString *)redirectUrl;
 
 - (void)setIadAttribution:(NSNumber *)iadAttribution;
 - (NSNumber *)iadAttribution;
@@ -420,12 +379,5 @@
 /////////////////////////////////////////////////
 
 - (void) loadSavedProfile;
-
-/////////////////////////////////////////////////
-#pragma mark - Marshaling methods
-/////////////////////////////////////////////////
-
-- (NSArray *)toArrayOfDictionaries;
-- (NSDictionary *)toQueryDictionary;
 
 @end

@@ -6,11 +6,9 @@
 //  Copyright (c) 2014 Tune. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
 @class TuneEvent;
-@class TuneRegionMonitor;
 
 @protocol TuneDelegate;
 @protocol TuneTrackerDelegate;
@@ -20,11 +18,8 @@
 @property (nonatomic, assign) id <TuneDelegate> delegate;
 @property (nonatomic, assign) id <TuneTrackerDelegate> trackerDelegate;
 
-@property (nonatomic, assign) BOOL shouldUseCookieTracking;
 @property (nonatomic, assign) BOOL fbLogging;
 @property (nonatomic, assign) BOOL fbLimitUsage;
-
-@property (nonatomic, readonly) TuneRegionMonitor *regionMonitor;
 
 #if TESTING
 @property (nonatomic, assign) BOOL allowDuplicateRequests;
@@ -43,12 +38,6 @@
 - (void)measureEvent:(TuneEvent *)event;
 
 - (void)measureTuneLinkClick:(NSString *)clickedTuneLinkUrl;
-
-- (void)setMeasurement:(NSString*)targetAppPackageName
-          advertiserId:(NSString*)targetAppAdvertiserId
-               offerId:(NSString*)offerId
-           publisherId:(NSString*)publisherId
-              redirect:(BOOL)shouldRedirect;
 
 - (BOOL)isiAdAttribution;
 

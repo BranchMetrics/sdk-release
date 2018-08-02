@@ -16,17 +16,15 @@
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneLocationHelper.h"
+#import "TuneLog.h"
 #import "TuneManager.h"
 #import "TuneNetworkUtils.h"
 #import "TuneReachability.h"
-#import "TuneRequestsQueue.h"
-#import "TuneStringUtils.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUserDefaultsUtils.h"
 #import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 #import "TuneSkyhookCenter.h"
-#import "TuneDeviceDetails.h"
 #import "TuneUserProfile.h"
 
 
@@ -96,7 +94,6 @@ static dispatch_once_t sharedQueueOnceToken;
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             [self moveOldQueueStorageDirectoryToTemp];
-            [self prependItemsFromLegacyQueue];
         });
         
         [self dumpQueue];
@@ -170,38 +167,6 @@ static dispatch_once_t sharedQueueOnceToken;
     [fm removeItemAtPath:oldDirectory error:&error];
 }
 
-/*!
- Reads disk file that may contain legacy request queue and prepends the items to the main event queue.
- */
-- (void)prependItemsFromLegacyQueue {
-    @synchronized(self) {
-        // if a legacy queue exists
-        if([TuneRequestsQueue exists]) {
-            // load legacy queue items
-            TuneRequestsQueue *legacyQueue = [TuneRequestsQueue new];
-            [legacyQueue load];
-            
-            NSDictionary *item = [legacyQueue pop];
-            NSMutableArray *legacyItems = [NSMutableArray array];
-            
-            while( item != nil ) {
-                [legacyItems addObject:item];
-                item = [legacyQueue pop];
-            }
-            
-            // prepend legacy items
-            if( [legacyItems count] > 0 ) {
-                for( item in [legacyItems reverseObjectEnumerator] )
-                    [self.events insertObject:[NSMutableDictionary dictionaryWithDictionary:item] atIndex:0];
-                [self saveQueue];
-            }
-            
-            // permanently delete legacy queue file
-            [legacyQueue closedown];
-        }
-    }
-}
-
 #pragma mark - Notification Handlers
 
 - (void)networkChangeHandler:(TuneSkyhookPayload *)payload {
@@ -261,7 +226,6 @@ static dispatch_once_t sharedQueueOnceToken;
     }
 }
 
-// why is this so complex to increment the stupid retry count?
 - (void)appendOrIncrementRetryCount:(NSString**)trackingLink sendDate:(NSDate**)sendDate {
     NSInteger retryCount = 0;
     NSString *searchString = [NSString stringWithFormat:@"&%@=", TUNE_KEY_RETRY_COUNT];
@@ -456,9 +420,7 @@ static dispatch_once_t sharedQueueOnceToken;
         // is enabled and location access is permitted, then try to auto-collect
         searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_LATITUDE];
         
-        if( [encryptParams rangeOfString:searchString].location == NSNotFound
-           && [TuneManager currentManager].configuration.shouldAutoCollectDeviceLocation
-           && [TuneLocationHelper isLocationEnabled] ) {
+        if( [encryptParams rangeOfString:searchString].location == NSNotFound && [TuneLocationHelper isLocationEnabled]  && TuneConfiguration.sharedConfiguration.collectDeviceLocation) {
             // try accessing location
             NSMutableArray *arr = [NSMutableArray arrayWithCapacity:1];
             [[TuneLocationHelper class] performSelectorOnMainThread:@selector(getOrRequestDeviceLocation:) withObject:arr waitUntilDone:YES];
@@ -493,11 +455,6 @@ static dispatch_once_t sharedQueueOnceToken;
         
         // encrypt params and append
         NSString *encryptedData = [TuneEncrypter encryptString:encryptParams withKey:[self.delegate encryptionKey]];
-        encryptedData = 0 == [encryptedData length] ? @"encryption_failed_no_data_included" : encryptedData;
-        if (0 == [encryptedData length]) {
-            NSLog(@"Tune: encryption failed: key = %@, data = %@", [self.delegate encryptionKey], encryptParams);
-        }
-        
         trackingLink = [trackingLink stringByAppendingFormat:@"&%@=%@", TUNE_KEY_DATA, encryptedData];
     }
     
@@ -575,20 +532,13 @@ static dispatch_once_t sharedQueueOnceToken;
         [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)postData.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
         [urlReq setHTTPBody:postData];
         
-#if IDE_XCODE_7_OR_HIGHER
         void (^handlerBlock)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) =
         ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-#else
-        void (^handlerBlock)(NSData *, NSURLResponse *, NSError *) =
-        ^(NSData * data, NSURLResponse * response, NSError * error) {
-#endif
             NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)response;
             NSString *trackingUrl = request[TUNE_KEY_URL];
                 
             NSInteger code = 0;
             if (error != nil) {
-                DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
-                
                 if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
@@ -677,8 +627,6 @@ static dispatch_once_t sharedQueueOnceToken;
         NSData *data = [TuneHttpUtils sendSynchronousRequest:urlReq response:&urlResp error:&error];
         
         if (error != nil) {
-            DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
-            
             if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                 [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
@@ -769,20 +717,13 @@ static dispatch_once_t sharedQueueOnceToken;
         [urlReq setValue:[NSString stringWithFormat:@"%lu", (unsigned long)postData.length] forHTTPHeaderField:TUNE_HTTP_CONTENT_LENGTH];
         [urlReq setHTTPBody:postData];
         
-#if IDE_XCODE_7_OR_HIGHER
         void (^handlerBlock)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) =
         ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-#else
-        void (^handlerBlock)(NSData *, NSURLResponse *, NSError *) =
-        ^(NSData * data, NSURLResponse * response, NSError * error) {
-#endif
             NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)response;
             NSString *trackingUrl = request[TUNE_KEY_URL];
             
             NSInteger code = 0;
             if (error != nil) {
-                DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
-                
                 if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                     [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:response.debugDescription];
                 }
@@ -870,9 +811,7 @@ static dispatch_once_t sharedQueueOnceToken;
         NSError *error = nil;
         NSData *data = [TuneHttpUtils sendSynchronousRequest:urlReq response:&urlResp error:&error];
         
-        if (error != nil) {
-            DLLog(@"TuneEventQueue: dumpQueue: error code = %d", (int)error.code);
-            
+        if (error != nil) {            
             if ([self.delegate respondsToSelector:@selector(queueRequestDidFailWithError:request:response:)]) {
                 [self.delegate queueRequestDidFailWithError:error request:fullRequestString response:urlResp.debugDescription];
             }
@@ -901,24 +840,28 @@ static dispatch_once_t sharedQueueOnceToken;
     NSError *error = nil;
     NSData *serializedQueue = [NSData dataWithContentsOfFile:path options:0 error:&error];
     if( error != nil ) {
-        ErrorLog( @"Error reading event queue from file: %@", error );
+        NSString *errorMessage = [NSString stringWithFormat:@"Error reading event queue from file: %@", error];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
     id queue = [NSJSONSerialization JSONObjectWithData:serializedQueue options:0 error:&error];
     if( error != nil ) {
-        ErrorLog( @"Error deserializing event queue from storage: %@", error );
+        NSString *errorMessage = [NSString stringWithFormat:@"Error deserializing event queue from storage: %@", error];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
     if( ![queue isKindOfClass:[NSArray class]] ) {
-        ErrorLog( @"Unexpected data type %@ read from storage", [queue class] );
+        NSString *errorMessage = [NSString stringWithFormat:@"Unexpected data type %@ read from storage", [queue class]];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
     for( id item in (NSArray*)queue ) {
         if( ![item isKindOfClass:[NSDictionary class]] ) {
-            ErrorLog( @"Unexpected data type %@ in array read from storage", [item class] );
+            NSString *errorMessage = [NSString stringWithFormat:@"Unexpected data type %@ in array read from storage", [item class]];
+            [TuneLog.shared logError:errorMessage];
             return;
         }
     }
@@ -940,13 +883,15 @@ static dispatch_once_t sharedQueueOnceToken;
     NSError *error = nil;
     NSData *serializedQueue = [NSJSONSerialization dataWithJSONObject:self.events options:0 error:&error];
     if( error != nil ) {
-        ErrorLog( @"Error serializing event queue for storage: %@", error );
+        NSString *errorMessage = [NSString stringWithFormat:@"Error serializing event queue for storage: %@", error];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
     
     NSString *path = [self.storageDir stringByAppendingPathComponent:TUNE_REQUEST_QUEUE_FILENAME];
     if( ![serializedQueue writeToFile:path atomically:YES] ) {
-        ErrorLog( @"Error writing event queue to file: %@", error );
+        NSString *errorMessage = [NSString stringWithFormat:@"Error writing event queue to file: %@", error];
+        [TuneLog.shared logError:errorMessage];
         return;
     }
 }

@@ -27,7 +27,6 @@
     self.didReceiveLocalCount += 1;
 }
 
-#if IDE_XCODE_8_OR_HIGHER
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler {
     self.didReceiveCount += 1;
     completionHandler();
@@ -37,7 +36,6 @@
     self.willPresentCount += 1;
     completionHandler(UNNotificationPresentationOptionNone);
 }
-#endif
 #endif
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray * restorableObjects))restorationHandler {
@@ -72,15 +70,6 @@
     // Initialize Tune so that didOpenURL can be called
     [Tune initializeWithTuneAdvertiserId:@"877"
                        tuneConversionKey:@"8c14d6bbe466b65211e781d62e301eec"];
-    
-#if TARGET_OS_IOS
-    // Register a deep action
-    [Tune registerDeepActionWithId:@"myBlankAppDelegatesDeepAction" friendlyName:@"My very first deep action!" data:@{@"message": @"Default string"} andAction:^(NSDictionary *data) {
-        // I would like to test that deep action is called, but UIApplication sharedApplication is nil in tests
-        self.deepActionCount += 1;
-        self.deepActionValue = data[@"message"];
-    }];
-#endif
 }
 
 @end

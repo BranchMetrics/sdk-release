@@ -81,8 +81,6 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     
     Class FBAppEvents = [TuneUtils getClassFromString:@"FBAppEvents"] ?: [TuneUtils getClassFromString:@"FBSDKAppEvents"];
     if( ![FBAppEvents class] ) {
-        DebugLog( @"TuneFBBridge no FBAppEvents/FBSDKAppEvents class" );
-        
         return;
     }
     
@@ -93,7 +91,7 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
     SEL selMethod = nil;
     
     NSString *fbEventName = event.eventName;
-    NSString *currency = event.currencyCode ?: [[TuneManager currentManager].userProfile currencyCode];
+    NSString *currency = event.currencyCode;
     double valueToSum = [@(event.revenue) doubleValue];
     
     NSString *eventNameLower = [event.eventName lowercaseString];
@@ -182,12 +180,9 @@ NSString *const TUNE_SOURCE_SDK                             = @"tune_source_sdk"
         selMethod = @selector(logEvent:valueToSum:parameters:);
 #pragma clang diagnostic pop
         if( ![FBAppEvents respondsToSelector:selMethod] ) {
-            DebugLog(@"TuneFBBridge no %@ method in fbsdk", NSStringFromSelector(selMethod));
             return;
         }
-        
-        DebugLog(@"TuneFBBridge logging event %@", fbEventName);
-        
+                
         NSMethodSignature* signature = [FBAppEvents methodSignatureForSelector:selMethod];
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
         [invocation setTarget:FBAppEvents];

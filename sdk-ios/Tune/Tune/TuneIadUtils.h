@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if USE_IAD
+#if TARGET_OS_IOS
 #import <iAd/iAd.h>
 
 

@@ -72,31 +72,4 @@
     }
 }
 
-- (void)testQueuedSkyhooksFireAfterProfileUpdates {
-    __block BOOL updatedProfile = NO;
-    __block BOOL firedQueuedSkyhooks = NO;
-    
-    id mockProfile = OCMPartialMock([TuneManager currentManager].userProfile);
-    OCMStub([mockProfile initiateSession:[OCMArg isKindOfClass:[TuneSkyhookPayload class]]]).andDo(^(NSInvocation *invocation) {
-        XCTAssertFalse(firedQueuedSkyhooks, @"Fired queued skyhooks before updating the UserProfile.");
-        updatedProfile = YES;
-    });
-    
-    OCMStub([mockProfile toArrayOfDictionaries]).andReturn(@[]);
-    
-    id mockSkyhookCenter = OCMPartialMock([TuneSkyhookCenter defaultCenter]);
-    OCMStub([mockSkyhookCenter handleSessionStart]).andDo(^(NSInvocation *invocation) {
-        XCTAssertTrue(updatedProfile, @"UserProfile should have been updated before queued skyhooks were fired.");
-        firedQueuedSkyhooks = YES;
-    });
-    
-    [[TuneSkyhookCenter defaultCenter] postSkyhook:TuneSessionManagerSessionDidStart object:self userInfo:@{@"sessionId": @"foobar", @"sessionStartTime": @100}];
-    
-    XCTAssertTrue(updatedProfile);
-    XCTAssertTrue(firedQueuedSkyhooks);
-    
-    [mockProfile stopMocking];
-    [mockSkyhookCenter stopMocking];
-}
-
 @end

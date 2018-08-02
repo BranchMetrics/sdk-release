@@ -38,15 +38,6 @@ NSString *const TunePayloadNotification = @"TunePayloadNotification";
 NSString *const TunePayloadCampaign = @"TunePayloadCampaign";
 NSString *const TunePayloadCampaignStep = @"TunePayloadCampaignStep";
 
-#pragma mark - In App Message
-NSString *const TunePayloadInAppMessageID = @"TunePayloadInAppMessageID";
-NSString *const TunePayloadInAppMessageSecondsDisplayed = @"TunePayloadInAppMessageSecondsDisplayed";
-NSString *const TunePayloadInAppMessageDismissedAction = @"TunePayloadInAppMessageDismissedAction";
-
-#pragma mark - Deep Actions
-NSString *const TunePayloadDeepActionId = @"TunePayloadDeepActionId";
-NSString *const TunePayloadDeepActionData = @"TunePayloadDeepActionData";
-
 #pragma mark - Deeplinks
 NSString *const TunePayloadDeeplink = @"TunePayloadDeeplink";
 

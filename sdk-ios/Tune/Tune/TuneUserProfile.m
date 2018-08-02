@@ -5,17 +5,16 @@
 //  Created by Daniel Koch on 8/3/15.
 //  Copyright (c) 2015 Tune. All rights reserved.
 //
+#import "TuneUserProfile.h"
+#import "TuneUserProfileKeys.h"
 
-#import <Foundation/Foundation.h>
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 #import <mach/machine.h>
-#import <Foundation/Foundation.h>
 #if TARGET_OS_IOS
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
-#import <UIKit/UIKit.h>
 
 #import "TuneAnalyticsConstants.h"
 #import "TuneAnalyticsVariable.h"
@@ -25,18 +24,14 @@
 #import "TuneDeviceUtils.h"
 #import "TuneIfa.h"
 #import "TuneInstallReceipt.h"
-#import "TuneJSONUtils.h"
 #import "TuneKeyStrings.h"
 #import "TuneLocation+Internal.h"
 #import "TuneManager.h"
 #import "TunePreloadData.h"
-#import "TunePushUtils.h"
 #import "TuneReachability.h"
 #import "TuneSkyhookCenter.h"
 #import "TuneUserAgentCollector.h"
 #import "TuneUserDefaultsUtils.h"
-#import "TuneUserProfile.h"
-#import "TuneUserProfileKeys.h"
 #import "TuneUtils.h"
 
 #if TARGET_OS_WATCH
@@ -50,7 +45,6 @@
 #endif
 
 @property (nonatomic, strong, readwrite) NSMutableDictionary *userVariables;
-@property (nonatomic, strong, readwrite) NSMutableSet *userCustomVariables;
 @property (nonatomic, strong, readwrite) NSMutableSet *currentVariations;
 
 @end
@@ -126,8 +120,6 @@
 #endif
         
         self.userVariables = [NSMutableDictionary new];
-        self.userCustomVariables = [NSMutableSet new];
-        self.currentVariations = [NSMutableSet new];
         
         [self loadSavedProfile];
         
@@ -140,9 +132,6 @@
         }
         
         [self setIsTestFlightBuild:@([TuneDeviceUtils currentDeviceIsTestFlight])];
-        if ([[self isTestFlightBuild] boolValue]) {
-            NSLog(@"Detected TestFlight build, using \"%@\" as deviceId", [self deviceId]);
-        }
 
         NSString *strOsType = @"iOS";
 #if TARGET_OS_TV
@@ -155,7 +144,10 @@
 
 #if !TARGET_OS_WATCH
         [self updateIFA];
+        [self updateIFV];
 #endif
+        [self setJailbroken:@([TuneUtils checkJailBreak])];
+        
         [self setAppParams];
         [self setReceiptData];
         [self setHardwareSpecs];
@@ -178,9 +170,6 @@
 
         [self loadFacebookCookieId];
 #endif
-        
-        // default to USD for currency code
-        [self setCurrencyCode:TUNE_KEY_CURRENCY_USD];
     }
     
     return self;
@@ -199,23 +188,11 @@
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(initiateSession:)
                                               name:TuneSessionManagerSessionDidStart
-                                            object:nil
-                                          priority:TuneSkyhookPrioritySecond];
+                                            object:nil];
     
     [[TuneSkyhookCenter defaultCenter] addObserver:self
                                           selector:@selector(endSession:)
                                               name:TuneSessionManagerSessionDidEnd
-                                            object:nil];
-    
-    [[TuneSkyhookCenter defaultCenter] addObserver:self
-                                          selector:@selector(handleAddSessionProfileVariable:)
-                                              name:TuneSessionVariableToSet
-                                            object:nil];
-    
-    // Listen for registration of device with APN
-    [[TuneSkyhookCenter defaultCenter] addObserver:self
-                                          selector:@selector(handleRegisteredForRemoteNotificationsWithDeviceToken:)
-                                              name:TuneRegisteredForRemoteNotificationsWithDeviceToken
                                             object:nil];
 }
 
@@ -245,33 +222,11 @@
                 [self storeProfileKey:TUNE_KEY_SESSION_CURRENT_DATE value:sessionStartTime type:TuneAnalyticsVariableDateTimeType];
             }
         }
-        
-        @synchronized(self) {
-            // Restore saved custom profile variable names
-            NSString *customVariablesJson = (NSString *)[TuneUserDefaultsUtils userDefaultValueforKey:TUNE_KEY_CUSTOM_VARIABLES];
-            [self.userCustomVariables addObjectsFromArray:[TuneJSONUtils createArrayFromJSONString:customVariablesJson]];
-            
-            // Restore variable values for each name in custom variables
-            for (NSString *variableName in self.userCustomVariables) {
-                TuneAnalyticsVariable *storedVariable = [TuneUserDefaultsUtils userDefaultCustomVariableforKey:variableName];
-                // If stored variable exists, restore it to userVariables
-                if (storedVariable) {
-                    [self storeProfileVar:storedVariable];
-                }
-            }
-        }
     }
-    
-    // Update this at the beginning of each of the sessions since this can change without our notification.
-    [self checkIfPushIsEnabled];
 }
 
 - (void)endSession:(TuneSkyhookPayload *)payload {
-    // Save custom profile variable names
-    @synchronized(self) {
-        NSString *customVariablesJson = [TuneJSONUtils createJSONStringFromArray:[self.userCustomVariables allObjects]];
-        [TuneUserDefaultsUtils setUserDefaultValue:customVariablesJson forKey:TUNE_KEY_CUSTOM_VARIABLES];
-    }
+
 }
 
 #pragma mark - Current Variation Helpers
@@ -312,13 +267,11 @@
 
 #if !TARGET_OS_WATCH
 - (void)updateIFA {
-    if (self.tuneManager.configuration.shouldAutoCollectAdvertisingIdentifier) {
-        TuneIfa *ifaInfo = [TuneIfa ifaInfo];
+    TuneIfa *ifaInfo = [TuneIfa ifaInfo];
         
-        if(ifaInfo) {
-            [self setAppleAdvertisingIdentifier:ifaInfo.ifa];
-            [self setAppleAdvertisingTrackingEnabled:@(ifaInfo.trackingEnabled)];
-        }
+    if (ifaInfo) {
+        [self setAppleAdvertisingIdentifier:ifaInfo.ifa];
+        [self setAppleAdvertisingTrackingEnabled:@(ifaInfo.trackingEnabled)];
     }
 }
 
@@ -326,11 +279,23 @@
     [self setAppleAdvertisingIdentifier:nil];
     [self setAppleAdvertisingTrackingEnabled:@(NO)];
 }
+
+- (void)updateIFV {
+    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+        NSString *uuidStr = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+        if (uuidStr && ![uuidStr isEqualToString:TUNE_KEY_GUID_EMPTY]) {
+            [self setAppleVendorIdentifier:uuidStr];
+        }
+    }
+}
+
+- (void)clearIFV {
+    [self setAppleVendorIdentifier:nil];
+}
 #endif
 
 - (void)setDeviceToken:(NSString *)deviceToken {
     [self storeProfileKey:TUNE_KEY_DEVICE_TOKEN value:deviceToken];
-    [self checkIfPushIsEnabled];
 }
 
 - (NSString *)deviceToken {
@@ -359,30 +324,6 @@
     }
     return NO;
 }
-
-#if TARGET_OS_IOS
-
-- (void)checkIfPushIsEnabled {
-    if (![self tooYoungForTargetedAds]) {
-        
-        [TunePushUtils checkNotificationSettingsWithCompletion:^(BOOL pushEnabled) {
-            [self setPushEnabled:[@(pushEnabled) stringValue]];
-        }];
-
-    } else {
-        [self setPushEnabled:[@(NO) stringValue]];
-    }
-}
-
-#else
-
-- (void)checkIfPushIsEnabled {
-    [self setPushEnabled:[@(NO) stringValue]];
-}
-
-#endif
-
-
 - (void)setPushEnabled:(NSString *)pushEnabled {
     [self storeProfileKey:TUNE_KEY_PUSH_ENABLED value:pushEnabled];
 }
@@ -527,243 +468,11 @@
     return [self getProfileValue:TUNE_KEY_CONNECTION_TYPE];
 }
 
-#pragma mark - Methods for setting Custom Profile Variables
-
-
-- (void)registerString:(NSString *)variableName {
-    [self registerString:variableName withDefault:nil];
-}
-
-- (void)registerString:(NSString *)variableName hashed:(BOOL)shouldAutoHash {
-    [self registerString:variableName withDefault:nil hashed:(BOOL)shouldAutoHash];
-}
-
-- (void)registerBoolean:(NSString *)variableName {
-    [self registerBoolean:variableName withDefault:nil];
-}
-
-- (void)registerDateTime:(NSString *)variableName {
-    [self registerDateTime:variableName withDefault:nil];
-}
-
-- (void)registerNumber:(NSString *)variableName {
-    [self registerNumber:variableName withDefault:nil];
-}
-
-- (void)registerGeolocation:(NSString *)variableName {
-    [self registerGeolocation:variableName withDefault:nil];
-}
-
-- (void)registerVersion:(NSString *)variableName {
-    [self registerVersion:variableName withDefault:nil];
-}
-
-- (void)registerString:(NSString *)variableName withDefault:(NSString *)value {
-    [self registerString:variableName withDefault:value hashed:NO];
-}
-
-- (void)registerString:(NSString *)variableName withDefault:(NSString *)value hashed:(BOOL)shouldAutoHash {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableStringType hashed:shouldAutoHash];
-}
-
-- (void)registerBoolean:(NSString *)variableName withDefault:(NSNumber *)value {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableBooleanType hashed:NO];
-}
-
-- (void)registerDateTime:(NSString *)variableName withDefault:(NSDate *)value {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableDateTimeType hashed:NO];
-}
-
-- (void)registerNumber:(NSString *)variableName withDefault:(NSNumber *)value {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableNumberType hashed:NO];
-}
-
-- (void)registerGeolocation:(NSString *)variableName withDefault:(TuneLocation *)value {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableCoordinateType hashed:NO];
-}
-
-- (void)registerVersion:(NSString *)variableName withDefault:(NSString *)value {
-    [self registerVariable:variableName value:value type:TuneAnalyticsVariableVersionType hashed:NO];
-}
-
-- (void)registerVariable:(NSString *)variableName value:(id)value type:(TuneAnalyticsVariableDataType)type hashed:(BOOL)shouldAutoHash {
-    if ([TuneAnalyticsVariable validateName:variableName]){
-        NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:variableName];
-        NSSet *systemVariables = [TuneUserProfileKeys systemVariables];
-        
-        for (NSString *systemVariable in systemVariables) {
-            if ([prettyName caseInsensitiveCompare:systemVariable] == NSOrderedSame) {
-                ErrorLog(@"The variable '%@' is a system variable, and cannot be registered in this manner. Please use another name.", prettyName);
-                return;
-            }
-        }
-        
-        if ([prettyName hasPrefix:@"TUNE_"]) {
-            ErrorLog(@"Profile variables starting with 'TUNE_' are reserved. Not registering: %@", prettyName);
-            return;
-        }
-        
-        [self addCustomProfileVariable:prettyName];
-        
-        TuneAnalyticsVariable *storedVar = [TuneUserDefaultsUtils userDefaultCustomVariableforKey:prettyName];
-        if (storedVar && storedVar.type == type) {
-            // If we have a stored custom variable and it is of the matching type use the stored value
-            TuneAnalyticsVariable *var = [TuneAnalyticsVariable analyticsVariableWithName:prettyName
-                                                                                    value:value
-                                                                                     type:storedVar.type
-                                                                           shouldAutoHash:storedVar.shouldAutoHash];
-            if (storedVar.didHaveValueManuallySet) {
-                var.value = storedVar.value;
-                var.didHaveValueManuallySet = YES;
-            } else {
-                var.didHaveValueManuallySet = NO;
-            }
-            
-            [self storeProfileVar:var];
-        } else {
-            // NOTE: Set a blank variable to be changed later
-            [self storeProfileKey:prettyName value:value type:type hashType:TuneAnalyticsVariableHashNone shouldAutoHash:shouldAutoHash];
-            // Otherwise just use the default value. IE nil if the user didn't specify one
-            return;
-        }
-    }
-    
-    return;
-}
-
-- (void)setStringValue:(NSString *)value forVariable:(NSString *)name {
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableStringType];
-}
-
-- (void)setBooleanValue:(NSNumber *)value forVariable:(NSString *)name {
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableBooleanType];
-}
-
-- (void)setDateTimeValue:(NSDate *)value forVariable:(NSString *)name {
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableDateTimeType];
-}
-
-- (void)setNumberValue:(NSNumber *)value forVariable:(NSString *)name {
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableNumberType];
-}
-
-- (void)setGeolocationValue:(TuneLocation *)value forVariable:(NSString *)name {
-    if (![TuneAnalyticsVariable validateTuneLocation:value]) {
-        ErrorLog(@"Both the longitude and latitude properties must be set for TuneLocation objects.");
-        return;
-    }
-    
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableCoordinateType];
-}
-
-- (void)setVersionValue:(NSString *)value forVariable:(NSString *)name {
-    if (![TuneAnalyticsVariable validateVersion:value]) {
-        ErrorLog(@"The given version format is not valid. Got: %@", value);
-        return;
-    }
-    
-    [self setCustomVariable:name value:value type:TuneAnalyticsVariableVersionType];
-}
-
-- (void)setCustomVariable:(NSString *)name value:(id)value type:(TuneAnalyticsVariableDataType)type {
-    if ([TuneAnalyticsVariable validateName:name]){
-        NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:name];
-        
-        if([[self getCustomProfileVariables] containsObject:prettyName]){
-            TuneAnalyticsVariable *var = [self getProfileVariable:prettyName];
-            
-            // If var is nil, then there wasn't a value stored in the userVariables dictionary. This occurs when the variable is initially set and doesn't
-            // have a value stored in NSUserDefaults, or when the value is cleared.
-            if (var == nil || var.type == type) {
-                TuneAnalyticsVariable *toStore = [TuneAnalyticsVariable analyticsVariableWithName:prettyName value:value type:type];
-                toStore.didHaveValueManuallySet = YES;
-                [self storeProfileVar:toStore];
-            } else {
-                ErrorLog(@"Attempting to set the variable '%@', registered as a %@, with the %@ setter. Please use the appropriate setter.", prettyName, [TuneAnalyticsVariable dataTypeToString:var.type], [TuneAnalyticsVariable dataTypeToString:type]);
-            }
-        } else {
-            ErrorLog(@"In order to set a value for '%@' it must be registered first.", prettyName);
-        }
-    }
-}
-
-- (NSString *)getCustomProfileString:(NSString *)name {
-    return (NSString *)[self getCustomProfileVariable:name];
-}
-
-- (NSNumber *)getCustomProfileNumber:(NSString *)name {
-    return (NSNumber *)[self getCustomProfileVariable:name];
-}
-
-- (NSDate *)getCustomProfileDateTime:(NSString *)name {
-    return (NSDate *)[self getCustomProfileVariable:name];
-}
-
-- (TuneLocation *)getCustomProfileGeolocation:(NSString *)name {
-    return (TuneLocation *)[self getCustomProfileVariable:name];
-}
-
-- (id)getCustomProfileVariable:(NSString *)name {
-    if ([TuneAnalyticsVariable validateName:name]) {
-        NSString *prettyName = [TuneAnalyticsVariable cleanVariableName:name];
-        
-        if([[self getCustomProfileVariables] containsObject:prettyName]){
-            return [self getProfileValue:name];
-        } else {
-            ErrorLog(@"In order to get a value for '%@' it must be registered first.", prettyName);
-        }
-    }
-    
-    return nil;
-}
-
 - (void) clearVariable:(NSString *)key {
     [TuneUserDefaultsUtils clearCustomVariable:key];
     
     @synchronized(self) {
         [self.userVariables removeObjectForKey:key];
-    }
-}
-
-- (void) clearCustomVariables:(NSSet *)variables {
-    NSMutableSet *clearedVariables = [[NSMutableSet alloc] init];
-    
-    for (NSString *key in variables) {
-        if ([TuneAnalyticsVariable validateName:key]) {
-            NSString *cleanVariableName = [TuneAnalyticsVariable cleanVariableName:key];
-            
-            if ([[self getCustomProfileVariables] containsObject:cleanVariableName]) {
-                [self clearVariable:cleanVariableName];
-                [clearedVariables addObject: cleanVariableName];
-            }
-        }
-    }
-    
-    // Only send the Power Hook if we cleared at least one variable.
-    if (clearedVariables.count > 0) {
-        [[TuneSkyhookCenter defaultCenter] postQueuedSkyhook:TuneUserProfileVariablesCleared
-                                                      object:nil
-                                                    userInfo:@{ TunePayloadProfileVariablesToClear: clearedVariables }];
-    }
-}
-
-- (void)clearCustomProfile {
-    [self clearCustomVariables:[self getCustomProfileVariables]];
-}
-
-#pragma mark - Profile Variable Manager Methods
-
-- (void)addCustomProfileVariable:(NSString *)value {
-    @synchronized(self) {
-        [self.userCustomVariables addObject:value];
-    }
-}
-
-- (NSSet *)getCustomProfileVariables {
-    @synchronized(self) {
-        // One layer deep copy, requires all contents conform to NSCopying
-        // NSString does conform to NSCopying
-        return [[NSSet alloc] initWithSet:self.userCustomVariables copyItems:YES];
     }
 }
 
@@ -831,8 +540,6 @@
         
         if ([[TuneUserProfile profileVariablesToSave] objectForKey:key] != nil) {
             [TuneUserDefaultsUtils setUserDefaultValue:var.value forKey:key];
-        } else if ([[self getCustomProfileVariables] containsObject:key]) {
-            [TuneUserDefaultsUtils setUserDefaultCustomVariable:[var copy] forKey:key];
         }
     }
 }
@@ -1022,14 +729,6 @@
     return [self getProfileValue:TUNE_KEY_IOS_IFV];
 }
 
-- (void)setCurrencyCode:(NSString *)currencyCode {
-    [self storeProfileKey:TUNE_KEY_CURRENCY_CODE value:currencyCode];
-}
-
-- (NSString *)currencyCode {
-    return [self getProfileValue:TUNE_KEY_CURRENCY_CODE];
-}
-
 - (void)setJailbroken:(NSNumber *)jailbroken {
     [self storeProfileKey:TUNE_KEY_OS_JAILBROKE value:jailbroken type:TuneAnalyticsVariableBooleanType];
 }
@@ -1044,14 +743,6 @@
 
 - (NSString *)packageName {
     return [self getProfileValue:TUNE_KEY_PACKAGE_NAME];
-}
-
-- (void)setTRUSTeId:(NSString *)tpid {
-    [self storeProfileKey:TUNE_KEY_TRUSTE_TPID value:tpid];
-}
-
-- (NSString *)trusteTPID {
-    return [self getProfileValue:TUNE_KEY_TRUSTE_TPID];
 }
 
 - (void)setUserId:(NSString *)userId {
@@ -1310,9 +1001,6 @@
     return [self getProfileValue:TUNE_KEY_REFERRAL_SOURCE];
 }
 
-- (void)setRedirectUrl:(NSString *)redirectUrl {
-    [self storeProfileKey:TUNE_KEY_REDIRECT_URL value:redirectUrl];
-}
 - (NSString *)redirectUrl {
     return [self getProfileValue:TUNE_KEY_REDIRECT_URL];
 }
@@ -1765,52 +1453,6 @@
     }
     
     return NO;
-}
-
-- (NSArray *)toArrayOfDictionaries {
-    NSMutableArray *result = [[NSMutableArray alloc] init];
-    NSDictionary *variables = [self getProfileVariables];
-    
-    @synchronized(self) {
-        for (NSString *key in variables) {
-            TuneAnalyticsVariable *var = [variables objectForKey:key];
-            if (![[TuneUserProfile profileVariablesToNotSendToMA] containsObject:key] && ([var value] != nil || [[self getCustomProfileVariables] containsObject:key])) {
-                
-                // If this is a variable we should only send once and this is not the first session, skip it
-                if ([[TuneUserProfile profileVariablesToOnlySendOnFirstSession] containsObject:key] && ![[self isFirstSession] boolValue]) {
-                    continue;
-                }
-            
-                if (![self shouldRedactKey:key]) {
-                    [result addObjectsFromArray:[var toArrayOfDicts]];
-                }
-            }
-        }
-
-        [result addObjectsFromArray:self.currentVariations.allObjects];
-    }
-    
-    return result;
-}
-
-/*
- *  Returns the current set of profile variables as a flat set of key-value pairs for REST requests.
- */
-- (NSDictionary *)toQueryDictionary {
-    // TODO: Should we hash the variables here as well?
-    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-    NSDictionary *variables = [self getProfileVariables];
-    
-    for (NSString *key in variables) {
-        TuneAnalyticsVariable *var = [variables objectForKey:key];
-        
-        //Calling toDictionary forces all the values to be converted into strings
-        NSDictionary *stringedVar = [var toDictionary];
-        
-        [result setObject:(NSString *)[stringedVar objectForKey:@"value"] forKey:(NSString *)[stringedVar objectForKey:@"name"]];
-    }
-    
-    return result;
 }
 
 @end

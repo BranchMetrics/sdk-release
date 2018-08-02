@@ -5,7 +5,7 @@
 //  Created by Matt Gowie on 7/22/15.
 //  Copyright (c) 2015 TUNE. All rights reserved.
 //
-
+  
 #import "TuneSkyhookCenter.h"
 
 @interface TuneSkyhookCenter()
@@ -177,7 +177,7 @@ static dispatch_once_t defaultCenterOnceToken;
 }
 
 - (void)addObserver:(id)hookObserver selector:(SEL)hookSelector name:(NSString *)hookName object:(id)hookSender {
-    [self addObserver:hookObserver selector:hookSelector name:hookName object:hookSender priority:TuneSkyhookPriorityIrrelevant];
+    [self addObserver:hookObserver selector:hookSelector name:hookName object:hookSender priority:0];
 }
 
 - (void)removeObserver:(id)hookObserver name:(NSString *)hookName object:(id)hookSender {
