@@ -477,7 +477,7 @@ static dispatch_once_t sharedInstanceOnceToken;
         
         [self sendRequestAndCheckIadAttributionForEvent:event];
     } else {
-        // send measurement failure callback to TuneDelegate due to duplicate measureSession call
+        // send measurement failure callback due to duplicate measureSession call
         [self notifyDelegateFailureWithErrorCode:TuneInvalidDuplicateSession
                                              key:TUNE_KEY_ERROR_TUNE_DUPLICATE_SESSION
                                          message:@"Ignoring duplicate \"session\" event measurement call in the same session."];

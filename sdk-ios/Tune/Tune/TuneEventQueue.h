@@ -17,6 +17,10 @@ FOUNDATION_EXPORT const NSTimeInterval TUNE_NETWORK_REQUEST_TIMEOUT_INTERVAL;
  */
 @interface TuneEventQueue : NSObject
 
+// Unit test callbacks, tests should not need this IMO.  Need to refactor
+typedef void (^TuneTestBlock)(NSString *trackingUrl, NSString *postData);
+@property (nonatomic, nullable, copy) TuneTestBlock unitTestCallback;
+
 + (TuneEventQueue *)sharedQueue;
 
 /*!

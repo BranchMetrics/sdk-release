@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Tune+Testing.h"
+#import "TuneEventQueue.h"
 #import "TuneEvent+Internal.h"
 #import "TuneKeyStrings.h"
 #import "TuneManager.h"
@@ -36,7 +37,12 @@
     [super setUp];
 
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:^(NSString *trackingUrl, NSString *postData) {
+        XCTAssertTrue([params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl);
+        if (postData) {
+            XCTAssertTrue([params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData);
+        }
+    }];
     
     waitForQueuesToFinish();
     
@@ -67,6 +73,7 @@
     [httpUtilsMock stopMocking];
     
     emptyRequestQueue();
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:nil];
     
     [super tearDown];
 }
@@ -953,15 +960,5 @@
 }
 
 #endif
-
-
-#pragma mark - Tune delegate
-
-// secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
-    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
-    if( postData )
-        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
-}
 
 @end

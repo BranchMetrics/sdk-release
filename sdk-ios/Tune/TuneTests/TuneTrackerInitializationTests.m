@@ -14,8 +14,10 @@
 #endif
 
 #import "Tune+Testing.h"
+#import "TuneEventQueue.h"
 #import "TuneEvent+Internal.h"
 #import "TuneKeyStrings.h"
+#import "TuneEventQueue.h"
 
 #if (TARGET_OS_IOS || TARGET_OS_IPHONE) && !TARGET_OS_TV
 #import "TuneManager.h"
@@ -30,7 +32,7 @@
 
 #import "TuneXCTestCase.h"
 
-@interface TuneTrackerInitializationTests : TuneXCTestCase <TuneDelegate, TuneTrackerDelegate>
+@interface TuneTrackerInitializationTests : TuneXCTestCase <TuneTrackerDelegate>
 {
     TuneTestParams *params;
 }
@@ -43,7 +45,13 @@
     [super setUp];
     
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:^(NSString *trackingUrl, NSString *postData) {
+        XCTAssertTrue([params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl);
+        if (postData) {
+            XCTAssertTrue([params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData);
+        }
+    }];
+
     // Wait for everything to be set
     waitForQueuesToFinish();
 
@@ -52,7 +60,7 @@
 
 - (void)tearDown {
     emptyRequestQueue();
-
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:nil];
     [super tearDown];
 }
 
@@ -132,7 +140,6 @@
     //       NSUserDefaults for the UserProfile is on instantiation
     [[TuneManager currentManager] instantiateModules];
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
     waitForQueuesToFinish();
 
     TuneEvent *event = [TuneEvent eventWithName:@"fakeEventName"];
@@ -164,15 +171,6 @@
     XCTAssertNotNil(build);
     XCTAssertNotNil(locale);
     XCTAssertTrue([@"en_US" isEqualToString:locale]);
-}
-
-#pragma mark - Tune delegate
-
-// secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
-    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
-    if( postData )
-        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
 }
 
 @end

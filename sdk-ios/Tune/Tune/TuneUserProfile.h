@@ -18,8 +18,6 @@
 
 @interface TuneUserProfile : TuneModule
 
-@property (nonatomic, assign) id <TuneUserProfileDelegate> delegate;
-
 /////////////////////////////////////////////////
 #pragma mark - App ID Generators
 /////////////////////////////////////////////////

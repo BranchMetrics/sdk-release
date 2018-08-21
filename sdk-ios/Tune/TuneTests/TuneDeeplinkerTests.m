@@ -15,7 +15,7 @@
 #import "TuneUserProfile.h"
 #import "TuneXCTestCase.h"
 
-@import AdSupport;
+#import <AdSupport/AdSupport.h>
 
 typedef void(^TuneDeeplinkerTestsDelegateCallbackBlock)(BOOL, NSString *);
 

@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Tune+Testing.h"
+#import "TuneEventQueue.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventQueue+Testing.h"
 #import "TuneKeyStrings.h"
@@ -46,7 +47,18 @@ static BOOL forcedNetworkStatus;
     [super setUp];
     
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:^(NSString *trackingUrl, NSString *postData) {
+        TuneTestParams *p = params;
+        if (params2 && ![p isEmpty]) {
+            p = params2;
+        }
+        
+        XCTAssertTrue([p extractParamsFromQueryString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl);
+        if (postData) {
+            XCTAssertTrue([params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData);
+            XCTAssertTrue([p extractParamsFromJson:postData], @"couldn't extract POST JSON %@", postData);
+        }
+    }];
     
     eventQueue = [TuneEventQueue sharedQueue];
     emptyRequestQueue();
@@ -68,7 +80,7 @@ static BOOL forcedNetworkStatus;
     // drain the event queue
     emptyRequestQueue();
     waitForQueuesToFinish();
-    
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:nil];
     [[TuneEventQueue sharedQueue] setForceNetworkError:NO code:0];
     
     [super tearDown];
@@ -235,20 +247,6 @@ static BOOL forcedNetworkStatus;
     [self checkAndClearExpectedQueueSize:0];
     XCTAssertEqual(successCalls, 2, @"both calls should have succeeded");
 #endif
-}
-
-#pragma mark - Tune delegate
-
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
-    TuneTestParams *p = params;
-    if( params2 && ![p isEmpty] )
-        p = params2;
-    
-    XCTAssertTrue( [p extractParamsFromQueryString:trackingUrl], @"couldn't extract from tracking URL %@", trackingUrl );
-    if( postData ) {
-        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
-        XCTAssertTrue( [p extractParamsFromJson:postData], @"couldn't extract POST JSON %@", postData );
-    }
 }
 
 @end

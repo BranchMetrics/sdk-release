@@ -77,17 +77,6 @@
     TuneLog.shared.verbose = enable;
 }
 
-+ (void)setDelegate:(id<TuneDelegate>)delegate {
-    [[self tuneQueue] addOperationWithBlock:^{
-        [TuneDeeplinker setDelegate:delegate];
-
-        [TuneTracker sharedInstance].delegate = delegate;
-        #if DEBUG
-        [TuneManager currentManager].userProfile.delegate = (id <TuneUserProfileDelegate>)delegate;
-        #endif
-    }];
-}
-
 #pragma mark - Behavior Flags
 
 + (void)registerDeeplinkListener:(id<TuneDelegate>)delegate {

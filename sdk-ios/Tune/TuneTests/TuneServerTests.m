@@ -28,8 +28,6 @@
     [super setUp];
   
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
-
     [Tune setAllowDuplicateRequests:YES];
     
     emptyRequestQueue();
@@ -168,15 +166,6 @@
 
     waitForQueuesToFinish();
     XCTAssertTrue(numberOfPurchaseCalls == 2);
-}
-
-// secret functions to test server URLs
-- (void)_tuneURLTestingCallbackWithParamsToBeEncrypted:(NSString*)paramsEncrypted withPlaintextParams:(NSString*)paramsPlaintext {
-    //NSLog( @"plaintext params %@, encrypted params %@\n", paramsPlaintext, paramsEncrypted );
-}
-
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
-    //NSLog( @"requesting with url %@ and post data %@\n", trackingUrl, postData );
 }
 
 @end

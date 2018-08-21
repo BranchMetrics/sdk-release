@@ -6,22 +6,22 @@
 //  Copyright (c) 2013 Tune. All rights reserved.
 //
 
-#import <AvailabilityMacros.h>
-@import UIKit;
+//#import <AvailabilityMacros.h>
+#import <UIKit/UIKit.h>
 
 #if TARGET_OS_IOS
-@import CoreSpotlight;
+#import <CoreSpotlight/CoreSpotlight.h>
 #endif
 
-@import UserNotifications;
-@import CoreLocation;
+#import <UserNotifications/UserNotifications.h>
+#import <CoreLocation/CoreLocation.h>
 
 #import "TuneConstants.h"
 #import "TuneEvent.h"
 #import "TuneEventItem.h"
 #import "TunePreloadData.h"
 
-#define TUNEVERSION @"6.0.0"
+#define TUNEVERSION @"6.0.1"
 
 
 @protocol TuneDelegate;
@@ -51,14 +51,6 @@
  @param name the package name used when setting up the app in Mobile App Tracking.
  */
 + (void)initializeWithTuneAdvertiserId:(nonnull NSString *)aid tuneConversionKey:(nonnull NSString *)key tunePackageName:(nullable NSString *)name;
-
-#pragma mark - Tune SDK Callback Delegate
-
-/**
- [TuneDelegate](TuneDelegate) : A delegate used by Tune
- to post success and failure callbacks from the Tune servers.
- */
-+ (void)setDelegate:(nullable id<TuneDelegate>)delegate;
 
 #pragma mark - Deeplinking
 

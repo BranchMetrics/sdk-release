@@ -36,16 +36,6 @@ static NSString* const TUNE_LEGACY_REQUEST_QUEUE_FOLDER     = @"queue";
 
 static const NSInteger TUNE_REQUEST_400_ERROR_CODE          = 1302;
 
-#if TESTING
-//NOTE: We know, for the unit tests, a TuneDelegate may have this method
-@protocol TuneDelegate
-@optional
-
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData;
-
-@end
-#endif
-
 #pragma mark - Private variables
 
 @interface TuneEventQueue()
@@ -494,11 +484,9 @@ static dispatch_once_t sharedQueueOnceToken;
             postData = [TuneUtils jsonSerializedDataForObject:postJsonStringOrDict];
         }
         
-#if DEBUG
+#if TESTING
         // for testing, attempt informing the delegate's delegate of the trackingLink
-        if( [self.delegate respondsToSelector:@selector(delegate)] ) {
-            id ddelegate = [self.delegate performSelector:@selector(delegate)];
-            
+        if (self.unitTestCallback) {
             NSString *postStr = nil;
             
             if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
@@ -506,11 +494,8 @@ static dispatch_once_t sharedQueueOnceToken;
             } else if (postData) {
                 postStr = [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding];
             }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-            if( [ddelegate respondsToSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
-                [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postStr];
-#pragma clang diagnostic pop
+            
+            self.unitTestCallback(fullRequestString, postStr);
         }
 #endif
         NSURL *reqUrl = [NSURL URLWithString:fullRequestString];
@@ -679,11 +664,9 @@ static dispatch_once_t sharedQueueOnceToken;
             postData = [TuneUtils jsonSerializedDataForObject:postJsonStringOrDict];
         }
         
-#if DEBUG
+#if TESTING
         // for testing, attempt informing the delegate's delegate of the trackingLink
-        if( [self.delegate respondsToSelector:@selector(delegate)] ) {
-            id ddelegate = [self.delegate performSelector:@selector(delegate)];
-            
+        if (self.unitTestCallback) {
             NSString *postStr = nil;
             
             if ([postJsonStringOrDict isKindOfClass:[NSString class]]) {
@@ -691,11 +674,8 @@ static dispatch_once_t sharedQueueOnceToken;
             } else if (postData) {
                 postStr = [[NSString alloc] initWithData:postData encoding:NSUTF8StringEncoding];
             }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-            if( [ddelegate respondsToSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:)] )
-                [ddelegate performSelector:@selector(_tuneSuperSecretURLTestingCallbackWithURLString:andPostDataString:) withObject:fullRequestString withObject:postStr];
-#pragma clang diagnostic pop
+            
+            self.unitTestCallback(fullRequestString, postStr);
         }
 #endif
         NSURL *reqUrl = [NSURL URLWithString:fullRequestString];

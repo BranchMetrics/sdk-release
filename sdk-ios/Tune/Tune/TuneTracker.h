@@ -15,7 +15,6 @@
 
 @interface TuneTracker : NSObject
 
-@property (nonatomic, assign) id <TuneDelegate> delegate;
 @property (nonatomic, assign) id <TuneTrackerDelegate> trackerDelegate;
 
 @property (nonatomic, assign) BOOL fbLogging;

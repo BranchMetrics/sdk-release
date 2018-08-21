@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Tune+Testing.h"
+#import "TuneEventQueue.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
 #import "TuneEventKeys.h"
@@ -33,7 +34,13 @@
     [super setUp];
 
     [Tune initializeWithTuneAdvertiserId:kTestAdvertiserId tuneConversionKey:kTestConversionKey tunePackageName:kTestBundleId];
-    [Tune setDelegate:self];
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:^(NSString *trackingUrl, NSString *postData) {
+        XCTAssertTrue([params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl);
+        if (postData) {
+            XCTAssertTrue([params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData);
+        }
+    }];
+
     [Tune setExistingUser:NO];
     
     params = [TuneTestParams new];
@@ -43,6 +50,7 @@
 
 - (void)tearDown {
     emptyRequestQueue();
+    [[TuneEventQueue sharedQueue] setUnitTestCallback:nil];
     [super tearDown];
 }
 
@@ -253,15 +261,6 @@
     ASSERT_KEY_VALUE( TUNE_KEY_IOS_PURCHASE_STATUS, expectedTransactionState );
     XCTAssertTrue( [params checkReceiptEquals:receiptData], @"receipt data not equal" );
     ASSERT_NO_VALUE_FOR_KEY( @"site_event_id" );
-}
-
-#pragma mark - Tune delegate
-
-// secret functions to test server URLs
-- (void)_tuneSuperSecretURLTestingCallbackWithURLString:(NSString*)trackingUrl andPostDataString:(NSString*)postData {
-    XCTAssertTrue( [params extractParamsFromQueryString:trackingUrl], @"couldn't extract params from URL: %@", trackingUrl );
-    if( postData )
-        XCTAssertTrue( [params extractParamsFromJson:postData], @"couldn't extract POST JSON: %@", postData );
 }
 
 @end
