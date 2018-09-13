@@ -26,7 +26,7 @@ import java.util.zip.GZIPOutputStream;
 public class TuneUtils {
 
     /**
-     * Reads an InputStream and converts it to a String
+     * Reads an InputStream and converts it to a String.
      * @param stream InputStream to read
      * @return String of stream contents
      * @throws IOException Reader was closed when trying to be read
@@ -46,6 +46,7 @@ public class TuneUtils {
     }
     
     /**
+     * Convert a byte array to a Hex String.
      * @param data Byte array to convert to hex
      * @return Hex string
      */
@@ -67,6 +68,7 @@ public class TuneUtils {
     }
 
     /**
+     * Convert a Hex String to a byte array.
      * @param str Hex string to convert to bytes
      * @return Byte array
      */
@@ -86,6 +88,7 @@ public class TuneUtils {
     }
 
     /**
+     * Create an MD5 Hash from a String.
      * @param s String to MD5 hash
      * @return MD5 hashed string
      */
@@ -106,6 +109,7 @@ public class TuneUtils {
     }
     
     /**
+     * Create a SHA1 hash from a String.
      * @param s String to SHA-1 hash
      * @return SHA-1 hashed string
      */
@@ -126,6 +130,7 @@ public class TuneUtils {
     }
     
     /**
+     * Create a SHA-256 hash from a String.
      * @param s String to SHA-256 hash
      * @return SHA-256 hashed string
      */
@@ -196,6 +201,12 @@ public class TuneUtils {
         return result;
     }
 
+    /**
+     * Check to see if a permission has already been granted.
+     * @param context Context
+     * @param permission Permission
+     * @return true if the permission has already been granted
+     */
     public static boolean hasPermission(Context context, String permission) {
         // For API 23+, permissions should be checked at runtime, not manifest level
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

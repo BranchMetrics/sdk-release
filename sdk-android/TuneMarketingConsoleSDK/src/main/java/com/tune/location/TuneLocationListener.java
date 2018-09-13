@@ -38,6 +38,10 @@ public class TuneLocationListener implements LocationListener {
     private volatile Timer timer;
     private volatile boolean listening;
 
+    /**
+     * Constructor.
+     * @param context Context
+     */
     public TuneLocationListener(final Context context) {
         this.contextReference = new WeakReference<>(context);
 
@@ -46,7 +50,7 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
-     * Whether app has location permissions or not
+     * Whether app has location permissions or not.
      * @return app has location permissions or not
      */
     private synchronized boolean isLocationEnabled() {
@@ -55,12 +59,12 @@ public class TuneLocationListener implements LocationListener {
             return false;
         }
 
-        return TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
-                TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
+        return TuneUtils.hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                || TuneUtils.hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     /**
-     * Gets the last location
+     * Gets the last location.
      * Asks for location updates if last location seen is not valid anymore
      * @return last location or null if location wasn't seen yet
      */
@@ -77,7 +81,7 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
-     * Starts listening for location updates
+     * Starts listening for location updates.
      */
     public synchronized void startListening() {
         // If we don't have any location permissions, exit
@@ -99,7 +103,7 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
-     * Stops listening for location updates
+     * Stops listening for location updates.
      */
     public synchronized void stopListening() {
         TuneDebugLog.d("Stopping listening of location updates");
@@ -127,8 +131,8 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
+     * Determines whether one Location reading is better than the current Location fix.
      * Code from http://developer.android.com/guide/topics/location/strategies.html#BestEstimate
-     * Determines whether one Location reading is better than the current Location fix
      * @param location The new Location that you want to evaluate
      * @param currentBestLocation The current Location fix, to which you want to compare the new one
      * @return Whether new location is better than current best location
@@ -175,8 +179,8 @@ public class TuneLocationListener implements LocationListener {
     }
 
     /**
+     * Checks whether two providers are the same.
      * Code from http://developer.android.com/guide/topics/location/strategies.html#BestEstimate
-     * Checks whether two providers are the same
      * @param provider1 First provider to compare
      * @param provider2 Second provider to compare
      * @return Whether they're the same
@@ -258,19 +262,28 @@ public class TuneLocationListener implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            // New location is found by the location provider
-            TuneDebugLog.d("Received new location " + location.toString());
+            try {
+                // New location is found by the location provider
+                // Note that this will throw an exception if the Location object is not valid
+                // (see Exception Note below).
+                TuneDebugLog.v("Received new location " + location.toString());
 
-            // Update the lastLocation if the new one is better
-            if (isBetterLocation(location, lastLocation)) {
-                TuneDebugLog.d("New location is better, saving");
-                lastLocation = location;
-            }
+                // Update the lastLocation if the new one is better
+                if (isBetterLocation(location, lastLocation)) {
+                    TuneDebugLog.v("New location is better, saving");
+                    lastLocation = location;
+                }
 
-            // If we got a location of less than 1km accuracy, stop listening
-            // Otherwise keep listening for new location updates
-            if (location.getAccuracy() <= DESIRED_ACCURACY) {
-                stopListening();
+                // If we got a location of less than 1km accuracy, stop listening
+                // Otherwise keep listening for new location updates
+                if (location.getAccuracy() <= DESIRED_ACCURACY) {
+                    stopListening();
+                }
+            } catch (Exception e) {
+                // Note -- Some devices have triggered Location Change events that cause us to
+                // throw exceptions (ExceptionInInitializerError) when trying to access the object,
+                // which indicates that the given Location object is not valid.
+                TuneDebugLog.e("Location exception", e);
             }
         }
     }

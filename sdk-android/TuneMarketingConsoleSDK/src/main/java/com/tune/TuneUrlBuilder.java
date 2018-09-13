@@ -199,9 +199,13 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.USER_PHONE_SHA1, params.getPhoneNumberSha1());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_PHONE_SHA256, params.getPhoneNumberSha256());
 
-        // These are handled differently with regards to COPPA.
+        // Age is handled differently with regards to COPPA.
         safeAppend(link, redactKeys, TuneUrlKeys.IS_COPPA, (params.isPrivacyProtectedDueToAge() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
-        safeAppend(link, redactKeys, TuneUrlKeys.APP_AD_TRACKING, (params.getAppAdTrackingEnabled() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+
+        // AppAdTracking is handled differently with regards to COPPA, but is defaulted "true" if it is not set on the server
+        if (params.isAppAdTrackingSet()) {
+            safeAppend(link, redactKeys, TuneUrlKeys.APP_AD_TRACKING, (params.getAppAdTrackingEnabled() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));
+        }
 
         safeAppend(link, redactKeys, TuneUrlKeys.GOOGLE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET)); // DEPRECATED
         safeAppend(link, redactKeys, TuneUrlKeys.FIRE_AD_TRACKING_DISABLED, (params.getPlatformAdTrackingLimited() ? TuneConstants.PREF_SET : TuneConstants.PREF_UNSET));   // DEPRECATED

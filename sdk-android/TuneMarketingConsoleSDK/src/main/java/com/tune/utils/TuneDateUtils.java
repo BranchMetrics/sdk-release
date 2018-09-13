@@ -22,7 +22,7 @@ public class TuneDateUtils {
     }
 
     /**
-     * Reverses the {@link Date#toString()} method
+     * Reverses the {@link Date#toString()} method.
      * @param dateString String created from {@link Date#toString()}
      * @return Date for the given String
      */
@@ -57,6 +57,11 @@ public class TuneDateUtils {
         return now.equals(date) || now.after(date);
     }
 
+    /**
+     * Return the number of days since a past date.
+     * @param pastDate Past date
+     * @return the number of days since the past date
+     */
     public static int daysSinceDate(Date pastDate) {
         // Remove the time component of the dates
         Date nowWithoutTime = removeTime(getNowUTC());
@@ -66,6 +71,12 @@ public class TuneDateUtils {
         return (int)(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * Return the number of seconds between two dates.
+     * @param firstDate First date
+     * @param secondDate Second date
+     * @return the number of seconds between two dates
+     */
     public static int secondsBetweenDates(Date firstDate, Date secondDate) {
         if (firstDate == null || secondDate == null) {
             return 0;
@@ -87,7 +98,7 @@ public class TuneDateUtils {
     /**
      * Transform ISO 8601 string to Date.
      * @param iso8601String ISO 860 formatted string.
-     * @return A <code>Date</code> parsed from the string.
+     * @return A <code>Date</code> parsed from the string
      */
     public static Date parseIso8601(final String iso8601String) {
         if (iso8601String == null) {

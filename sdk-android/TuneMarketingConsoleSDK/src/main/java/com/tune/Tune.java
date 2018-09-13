@@ -4,9 +4,8 @@ import android.content.Context;
 
 /**
  * Public Factory to the Tune SDK.
- *
  * To create an instance of the Tune singleton, use the appropriate init methods.
- *
+ * <br>
  * At any time after initialization, the {@link ITune} interface can be retrieved
  * by calling the static method {@link Tune#getInstance()}
  */
@@ -39,7 +38,7 @@ public class Tune {
     }
 
     /**
-     * Get existing TUNE singleton interface object
+     * Get existing TUNE singleton interface object.
      * @return Tune instance
      */
     public static synchronized ITune getInstance() {
@@ -47,7 +46,7 @@ public class Tune {
     }
 
     /**
-     * Gets the TUNE Android SDK version
+     * Gets the TUNE Android SDK version.
      * @return TUNE Android SDK version
      */
     public static String getSDKVersion() {

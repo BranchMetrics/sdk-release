@@ -24,6 +24,7 @@ import com.tune.utils.TuneStringUtils;
 import com.tune.utils.TuneUtils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -135,7 +136,7 @@ public class TuneParameters {
 
             // Set the MAT ID, from existing or generate a new UUID
             String matId = getMatId();
-            if (matId == null || matId.length() == 0) {
+            if (TuneStringUtils.isNullOrEmpty(matId)) {
                 matId = UUID.randomUUID().toString();
                 setMatId(matId);
             }
@@ -209,8 +210,6 @@ public class TuneParameters {
                     } catch (IndexOutOfBoundsException e) {
                     }
                 }
-            } else {
-                setCountryCode(Locale.getDefault().getCountry());
             }
 
             // User Params
@@ -434,24 +433,26 @@ public class TuneParameters {
     }
     
     private String mAppAdTracking = null;
+
+    // Need to know if AppAdTracking was ever set, because the server default is "true" if undefined.
+    public boolean isAppAdTrackingSet() {
+        return (!TuneStringUtils.isNullOrEmpty(mAppAdTracking));
+    }
+
     // COPPA rules apply
     public synchronized boolean getAppAdTrackingEnabled() {
-        String appAdTrackingEnabledString = getAppAdTrackingEnabledParameter();
-        if (TuneStringUtils.isNullOrEmpty(appAdTrackingEnabledString)) {
+        if (!isAppAdTrackingSet()) {
             return false;
         }
 
         int adTrackingEnabled = 0;
         try {
-            adTrackingEnabled = Integer.parseInt(appAdTrackingEnabledString);
+            adTrackingEnabled = Integer.parseInt(mAppAdTracking);
         } catch (NumberFormatException e) {
-            TuneDebugLog.e("Error parsing adTrackingEnabled value " + appAdTrackingEnabledString, e);
+            TuneDebugLog.e("Error parsing adTrackingEnabled value " + mAppAdTracking, e);
         }
 
         return (!isPrivacyProtectedDueToAge() && adTrackingEnabled != 0);
-    }
-    private synchronized String getAppAdTrackingEnabledParameter() {
-        return mAppAdTracking;
     }
     public synchronized void setAppAdTrackingEnabled(String adTrackingEnabled) {
         mAppAdTracking = adTrackingEnabled;
@@ -1115,7 +1116,6 @@ public class TuneParameters {
         }
         return mUserEmail;
     }
-
     public synchronized void setUserEmail(final String userEmail) {
         mUserEmail = userEmail;
 
@@ -1130,7 +1130,6 @@ public class TuneParameters {
             }
         });
     }
-
     public synchronized void clearUserEmail() {
         mUserEmail = null;
         clearUserEmailMd5();
@@ -1182,19 +1181,58 @@ public class TuneParameters {
     }
     
     private JSONArray mUserEmails = null;
+
     public synchronized JSONArray getUserEmails() {
+        String userEmailsString = "";
+        if (mUserEmails == null) {
+            userEmailsString = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+        }
+
+        if (TuneStringUtils.isNullOrEmpty(userEmailsString)) {
+            return mUserEmails;
+        }
+
+        try {
+            mUserEmails = new JSONArray(userEmailsString);
+        } catch (JSONException e) {
+//            Don't need to do anything with e
+        }
         return mUserEmails;
     }
 
     public synchronized void setUserEmails(String[] emails) {
+        if (emails == null || emails.length == 0) {
+            clearUserEmails();
+            return;
+        }
+
         mUserEmails = new JSONArray();
         for (String email : emails) {
-            mUserEmails.put(email);
+            if (!TuneStringUtils.isNullOrEmpty(email)) {
+                mUserEmails.put(email);
+            }
         }
+
+        if (mUserEmails.length() == 0) {
+            clearUserEmails();
+            return;
+        }
+
+        mExecutor.execute(new Runnable() {
+                public void run() {
+                    mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, mUserEmails.toString());
+                }
+            });
     }
 
     public synchronized void clearUserEmails() {
-        mUserEmails = new JSONArray();
+        mUserEmails = null;
+
+        mExecutor.execute(new Runnable() {
+            public void run() {
+                mPrefs.remove(TuneConstants.KEY_USER_EMAILS);
+            }
+        });
     }
 
     private String mUserId = null;

@@ -6,7 +6,7 @@ import org.json.JSONObject;
  * Interface class that can be implemented to look at TUNE request statuses.
  * This class is used exclusively for testing purposes.
  */
-interface ITuneListener {
+public interface ITuneListener {
     /**
      * Callback for when an event has been enqueued and is about to be sent out.
      * @param url Full URL of the request to be made.

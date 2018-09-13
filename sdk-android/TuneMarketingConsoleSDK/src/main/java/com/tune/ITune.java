@@ -6,9 +6,8 @@ import android.support.annotation.Nullable;
 
 /**
  * Public Interface to the Tune SDK.
- *
  * To create an instance of the Tune singleton, use the appropriate init methods from {@link Tune}.
- *
+ * <br>
  * At any time after initialization, the {@link ITune} interface can be retrieved
  * by calling the static method {@link Tune#getInstance()}
  */
@@ -17,7 +16,7 @@ public interface ITune {
      * Event measurement function that measures an event for the given eventName.
      * @param eventName event name in TUNE system.  The eventName parameter cannot be null or empty
      */
-    void measureEvent(String eventName);
+    void measureEvent(@NonNull String eventName);
 
     /**
      * Event measurement function that measures an event based on TuneEvent values.
@@ -446,7 +445,7 @@ public interface ITune {
     /* ========================================================================================== */
 
     /**
-     * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}
+     * Remove the deeplink listener previously set with {@link #registerDeeplinkListener(TuneDeeplinkListener)}.
      */
     void unregisterDeeplinkListener();
 

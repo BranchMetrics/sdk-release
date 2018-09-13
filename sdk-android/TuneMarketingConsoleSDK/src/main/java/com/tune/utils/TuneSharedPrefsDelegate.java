@@ -16,7 +16,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves a String to SharedPreferences
+     * Saves a String to SharedPreferences.
      * @param prefsKey SharedPreferences key to save under
      * @param prefsValue SharedPreferences value to save
      */
@@ -25,7 +25,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves a Boolean to SharedPreferences
+     * Saves a Boolean to SharedPreferences.
      * @param prefsKey SharedPreferences key to save under
      * @param prefsValue SharedPreferences value to save
      */
@@ -34,7 +34,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves an Integer to SharedPreferences
+     * Saves an Integer to SharedPreferences.
      * @param prefsKey SharedPreferences key to save under
      * @param prefsValue SharedPreferences value to save
      */
@@ -43,7 +43,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves a String from SharedPreferences
+     * Retrieves a String from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @return SharedPreferences value for the given key or an empty string if it doesn't exist
      */
@@ -52,7 +52,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves a String from SharedPreferences
+     * Retrieves a String from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @param defaultValue Value to return if the key does not exist
      * @return SharedPreferences value for the given key or the default value if it doesn't exist
@@ -66,7 +66,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves a boolean from SharedPreferences
+     * Retrieves a boolean from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @return SharedPreferences value for the given key or false if it doesn't exist
      */
@@ -75,7 +75,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves a boolean from SharedPreferences
+     * Retrieves a boolean from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @param defaultValue Value to return if the key does not exist
      * @return SharedPreferences value for the given key or default value if it doesn't exist
@@ -85,7 +85,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves an Integer from SharedPreferences
+     * Retrieves an Integer from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @return SharedPreferences value for the given key or zero if it doesn't exist
      */
@@ -94,7 +94,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Retrieves an Integer from SharedPreferences
+     * Retrieves an Integer from SharedPreferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @param defaultValue Value to return if the key does not exist
      * @return SharedPreferences value for the given key or default value if it doesn't exist
@@ -104,7 +104,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Checks if a given key exists in the shared preferences
+     * Checks if a given key exists in the shared preferences.
      * @param prefsKey SharedPreferences key of the value requested
      * @return true if the key exists otherwise false
      */
@@ -113,14 +113,14 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Removes all keys from shared preferences
+     * Removes all keys from shared preferences.
      */
     public synchronized void clearSharedPreferences() {
         prefs.edit().clear().apply();
     }
 
     /**
-     * Removes a SharedPreference by SharedPreference key
+     * Removes a SharedPreference by SharedPreference key.
      * @param prefsKey SharedPreferences key to look up
      */
     public synchronized void remove(String prefsKey) {
@@ -153,7 +153,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves a Integer to SharedPreferences
+     * Saves a Integer to SharedPreferences.
      * @param key SharedPreferences key to save under
      * @param value SharedPreferences value to save
      */
@@ -181,7 +181,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves a Boolean to SharedPreferences
+     * Saves a Boolean to SharedPreferences.
      * @param key SharedPreferences key to save under
      * @param value SharedPreferences value to save
      */
@@ -209,7 +209,7 @@ public class TuneSharedPrefsDelegate {
     }
 
     /**
-     * Saves a String to SharedPreferences
+     * Saves a String to SharedPreferences.
      * @param key SharedPreferences key to save under
      * @param value SharedPreferences value to save
      */

@@ -1,7 +1,7 @@
 package com.tune;
 
 /**
- * Gender enum for user
+ * Gender enum for user.
  */
 public enum TuneGender {
     MALE,

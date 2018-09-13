@@ -368,8 +368,11 @@ public class TuneInternal implements ITune {
         return timeLastMeasuredSession;
     }
 
-    // Package Private
-    void setListener(ITuneListener listener) {
+    /**
+     * Allow (internal) access to setting the Tune Listener
+     * @param listener
+     */
+    public void setListener(ITuneListener listener) {
         tuneListener = listener;
     }
 
@@ -382,7 +385,7 @@ public class TuneInternal implements ITune {
      * @param eventName event name in TUNE system.  The eventName parameter cannot be null or empty
      */
     @Override
-    public void measureEvent(String eventName) {
+    public void measureEvent(@NonNull String eventName) {
         try {
             measureEvent(new TuneEvent(eventName));
         } catch (IllegalArgumentException e) {
@@ -870,6 +873,10 @@ public class TuneInternal implements ITune {
         return params.getUserEmail();
     }
 
+    public JSONArray getUserEmails() {
+        return params.getUserEmails();
+    }
+
     @Override
     public String getUserId() {
         return params.getUserId();
@@ -1072,6 +1079,10 @@ public class TuneInternal implements ITune {
     @Override
     public void setUserEmail(String userEmail) {
         params.setUserEmail(userEmail);
+    }
+
+    public void setUserEmails(String[] userEmails) {
+        params.setUserEmails(userEmails);
     }
 
     @Override

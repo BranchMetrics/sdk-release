@@ -10,10 +10,9 @@ import android.webkit.WebView;
 /**
  * Created by johng on 6/20/17.
  */
-
 public class TuneScreenUtils {
     /**
-     * Gets screen density
+     * Gets screen density.
      * @param context Context
      * @return screen density
      */
@@ -26,7 +25,7 @@ public class TuneScreenUtils {
     }
 
     /**
-     * Gets screen width in pixels
+     * Gets screen width in pixels.
      * @param context Context
      * @return screen width in pixels
      */
@@ -50,7 +49,7 @@ public class TuneScreenUtils {
     }
 
     /**
-     * Gets screen height in pixels
+     * Gets screen height in pixels.
      * @param context Context
      * @return screen height in pixels
      */
@@ -79,8 +78,8 @@ public class TuneScreenUtils {
     }
 
     /**
+     * Invalidate the view so it gets redrawn correctly.
      * On KITKAT, there's an issue with using vmin
-     * Invalidate the view so it gets redrawn correctly
      * @param view WebView to redraw
      */
     public static void redrawWebView(final WebView view) {

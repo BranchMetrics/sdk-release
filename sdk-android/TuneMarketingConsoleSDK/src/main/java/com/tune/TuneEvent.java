@@ -77,7 +77,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set a revenue amount to associate with event
+     * Set a revenue amount to associate with event.
      * @param revenue Revenue associated with the event
      * @return TuneEvent with updated revenue amount
      */
@@ -87,7 +87,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set a currency code to associate with event
+     * Set a currency code to associate with event.
      * @param currencyCode Currency code
      * @return TuneEvent with updated currency code
      */
@@ -97,7 +97,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set an advertiser ref ID to associate with event
+     * Set an advertiser ref ID to associate with event.
      * @param refId Advertiser ref ID
      * @return TuneEvent with updated ref ID
      */
@@ -107,7 +107,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set event items to associate with event
+     * Set event items to associate with event.
      * @param items List of event items
      * @return TuneEvent with updated event items
      */
@@ -117,7 +117,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set Google Play receipt to associate with event for purchase validation
+     * Set Google Play receipt to associate with event for purchase validation.
      * @param receiptData Google Play receipt data
      * @param receiptSignature Google Play receipt signature
      * @return TuneEvent with updated receipt
@@ -129,7 +129,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set content type to associate with event
+     * Set content type to associate with event.
      * @param contentType Content type
      * @return TuneEvent with updated content type
      */
@@ -139,7 +139,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set content id to associate with event
+     * Set content id to associate with event.
      * @param contentId Content id 
      * @return TuneEvent with updated content id
      */
@@ -149,7 +149,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set level to associate with event
+     * Set level to associate with event.
      * @param level Level (progress in game)
      * @return TuneEvent with updated level
      */
@@ -159,7 +159,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set quantity to associate with event
+     * Set quantity to associate with event.
      * @param quantity Quantity
      * @return TuneEvent with updated quantity
      */
@@ -169,7 +169,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set search string to associate with event
+     * Set search string to associate with event.
      * @param searchString Search string used
      * @return TuneEvent with updated search string
      */
@@ -179,7 +179,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set rating to associate with event
+     * Set rating to associate with event.
      * @param rating Rating given
      * @return TuneEvent with updated rating
      */
@@ -189,7 +189,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set first date/start date to associate with event
+     * Set first date/start date to associate with event.
      * @param date1 First date or start date
      * @return TuneEvent with updated date1
      */
@@ -199,7 +199,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set second date/end date to associate with event
+     * Set second date/end date to associate with event.
      * @param date2 Second date or end date
      * @return TuneEvent with updated date2
      */
@@ -209,7 +209,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set custom attribute to associate with event
+     * Set custom attribute to associate with event.
      * @param attribute1 Custom attribute
      * @return TuneEvent with updated attribute1
      */
@@ -219,7 +219,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set custom attribute to associate with event
+     * Set custom attribute to associate with event.
      * @param attribute2 Custom attribute
      * @return TuneEvent with updated attribute2
      */
@@ -229,7 +229,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set custom attribute to associate with event
+     * Set custom attribute to associate with event.
      * @param attribute3 Custom attribute
      * @return TuneEvent with updated attribute3
      */
@@ -239,7 +239,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set custom attribute to associate with event
+     * Set custom attribute to associate with event.
      * @param attribute4 Custom attribute
      * @return TuneEvent with updated attribute4
      */
@@ -249,7 +249,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set custom attribute to associate with event
+     * Set custom attribute to associate with event.
      * @param attribute5 Custom attribute
      * @return TuneEvent with updated attribute5
      */
@@ -259,7 +259,7 @@ public class TuneEvent implements Serializable {
     }
     
     /**
-     * Set device form (phone/tablet/wearable)
+     * Set device form (phone/tablet/wearable).
      * @param deviceForm Type of device
      * @return TuneEvent with updated device form
      */

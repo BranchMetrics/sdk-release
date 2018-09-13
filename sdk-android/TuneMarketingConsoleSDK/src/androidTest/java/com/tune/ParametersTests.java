@@ -5,6 +5,7 @@ import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.tune.utils.TuneSharedPrefsDelegate;
+import com.tune.utils.TuneStringUtils;
 import com.tune.utils.TuneUtils;
 
 import org.json.JSONArray;
@@ -16,6 +17,7 @@ import org.junit.runner.RunWith;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -931,7 +933,7 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     @Test
-    public void testAppAppAdTrackingFalse() {
+    public void testAppAdTrackingFalse() {
         final String expectedAppAdTracking = TuneConstants.PREF_UNSET;
 
         tune.setAppAdTrackingEnabled(false);
@@ -941,6 +943,16 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertKeyValue(TuneUrlKeys.APP_AD_TRACKING, expectedAppAdTracking);
         assertFalse(tune.getAppAdTrackingEnabled());
+    }
+
+    @Test
+    public void testAppAdTrackingDefault() {
+        // Reference: SDK-845
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+        assertNoValueForKey(TuneUrlKeys.APP_AD_TRACKING);
     }
 
     @Test
@@ -1323,7 +1335,118 @@ public class ParametersTests extends TuneUnitTest {
     }
 
     @Test
+    public void testUserEmailsNotSaved() {
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
+
+        // No emails are stored in the test suite's Shared Preferences by default
+        assertEquals("", testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAIL));
+        assertEquals("", testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS));
+    }
+
+    @Test
+    public void testSetUserEmails() {
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
+        testSharedPreferences.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, null);
+
+        final String[] emailsArray = {"test@tune.com", "test@testing.com", "test@jennifertunetest.com"};
+
+        tune.setUserEmails(emailsArray);
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+
+        final JSONArray emailsFromSharedPrefs = new JSONArray(Arrays.asList(emailsArray));
+
+        String sharedPrefernceEmailsString = testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+
+        // Test that the emails aside from the primary Gmail are stored in Shared Preferences
+        assertTrue(sharedPrefernceEmailsString.contains("test@tune.com"));
+        assertTrue(sharedPrefernceEmailsString.contains("test@testing.com"));
+        assertTrue(sharedPrefernceEmailsString.contains("test@jennifertunetest.com"));
+
+
+        // Test emails' retrieval and conversation back into JSON via their getter method (i.e. number of expected emails and that all of them are present)
+        assertTrue(emailsFromSharedPrefs.length() == 3);
+        assertTrue(emailsFromSharedPrefs.toString().contains("test@tune.com"));
+        assertTrue(emailsFromSharedPrefs.toString().contains("test@testing.com"));
+        assertTrue(emailsFromSharedPrefs.toString().contains("test@jennifertunetest.com"));
+    }
+
+    @Test
+    public void testSetUserEmailsNullArray() throws Exception {
+        tune.setUserEmails(null);
+
+        assertNull(tune.getUserEmails());
+    }
+
+    @Test
+    public void testSetUserEmailsEmptyArray() throws Exception {
+        String[] emails = new String[] {""};
+        tune.setUserEmails(emails);
+
+        assertNull(tune.getUserEmails());
+    }
+
+    @Test
+    public void testUserEmailsSetWithNullAndEmptyArrayValues() {
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
+        testSharedPreferences.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, null);
+
+        final String[] emailsArray = {"test@tune.com", "", null, "test@jennifertunetest.com"};
+
+        tune.setUserEmails(emailsArray);
+        tune.measureEvent("registration");
+        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
+
+        assertTrue("params default values failed " + params, params.checkDefaultValues());
+
+        String emailsFromSharedPrefs = testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+
+        // Test that the emails aside from the primary Gmail are stored in Shared Preferences; no invalid values stored
+        assertTrue(emailsFromSharedPrefs.contains("test@tune.com"));
+        assertTrue(emailsFromSharedPrefs.contains(""));
+//        assertFalse(emailsFromSharedPrefs.contains(null));
+        assertTrue(emailsFromSharedPrefs.contains("test@jennifertunetest.com"));
+
+        JSONArray sharedPrefsEmailsRetrieved = tune.getUserEmails();
+
+        // Test emails' retrieval and conversation back into JSON via their getter method (i.e. number of expected emails and that all of them are present)
+        assertTrue(sharedPrefsEmailsRetrieved.length() == 2);
+        assertTrue(sharedPrefsEmailsRetrieved.toString().contains("test@tune.com"));
+        assertTrue(sharedPrefsEmailsRetrieved.toString().contains("test@jennifertunetest.com"));
+    }
+
+    @Test
+    public void testCanRecoverUserEmailsFromSharedPrefs() {
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
+        testSharedPreferences.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, null);
+
+        final String[] emailsArray = {"test@tune.com", "test@testing.com", "test@jennifertunetest.com"};
+        final JSONArray emailsAsJSON = new JSONArray(Arrays.asList(emailsArray));
+        final String emailsAsString = emailsAsJSON.toString();
+
+        testSharedPreferences.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, emailsAsString);
+
+        String emailsFromSharedPrefs = testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+
+        // Test that user emails are saved as Shared Preferences without calling setUserEmails() or collectEmails()
+        assertTrue(emailsFromSharedPrefs.contains("test@tune.com"));
+        assertTrue(emailsFromSharedPrefs.contains("test@testing.com"));
+        assertTrue(emailsFromSharedPrefs.contains("test@jennifertunetest.com"));
+
+        JSONArray sharedPrefsEmailsRetrieved = tune.getUserEmails();
+
+        // Test emails' retrieval and conversation back into JSON via their getter method without calling setUserEmails() or collectEmails()
+        assertTrue(sharedPrefsEmailsRetrieved.length() == 3);
+        assertTrue(sharedPrefsEmailsRetrieved.toString().contains("test@tune.com"));
+        assertTrue(sharedPrefsEmailsRetrieved.toString().contains("test@testing.com"));
+        assertTrue(sharedPrefsEmailsRetrieved.toString().contains("test@jennifertunetest.com"));
+    }
+
+    @Test
     public void testCollectEmails() {
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
         tune.collectEmails();
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
@@ -1336,12 +1459,16 @@ public class ParametersTests extends TuneUnitTest {
         assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
         assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
         assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
+
+        String setUserEmailsPref = testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+        assertEquals("[\"testing@tune.com\"]", setUserEmailsPref);
     }
 
     @Test
     public void testClearEmails() {
         // NOTE ideally we'd test adding/clearing emails with additional tests factoring in enabled and revoked GET_ACCOUNT permissions, but that's not possible with the rule declared at the top of the test suite.
         // TODO Look into options for turning GET_ACCOUNT permission on and then off for testing
+        TuneSharedPrefsDelegate testSharedPreferences = new TuneSharedPrefsDelegate(getContext().getApplicationContext(), TuneConstants.PREFS_TUNE);
         tune.collectEmails();
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
@@ -1363,7 +1490,10 @@ public class ParametersTests extends TuneUnitTest {
         assertNull(tune.params.getUserEmailMd5());
         assertNull(tune.params.getUserEmailSha1());
         assertNull(tune.params.getUserEmailSha256());
-        assertEquals(new JSONArray(), tune.params.getUserEmails());
+        assertEquals(null, tune.params.getUserEmails());
+
+        String clearedUserEmailsPref = testSharedPreferences.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
+        assertEquals("", clearedUserEmailsPref);
     }
 
     @Test

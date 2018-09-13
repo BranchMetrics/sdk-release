@@ -144,7 +144,7 @@ public class TuneUrlKeys {
     public static final String USER_EMAILS = "user_emails";
 
     /**
-     * WARNING: It is very important that all new profile variables get added to this array OR to the REDACT array
+     * WARNING: It is very important that all new profile variables get added to this array OR to the REDACT array.
      */
     private static final String[] URL_KEYS = new String[] {
         TuneUrlKeys.ACTION,
@@ -274,7 +274,7 @@ public class TuneUrlKeys {
     };
 
     /**
-     * Return a Set of All Url Keys, both redacted and non-redacted
+     * Return a Set of All Url Keys, both redacted and non-redacted.
      * @return the full Set of Url Keys
      */
     public static final Set<String> getAllUrlKeys() {
@@ -285,6 +285,7 @@ public class TuneUrlKeys {
     }
 
     /**
+     * Return a Set of all Redacted Url Keys.
      * @return the set of redacted Url Keys
      */
     public static final Set<String> getRedactedUrlKeys() {

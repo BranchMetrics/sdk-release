@@ -17,7 +17,7 @@ public final class TuneOptional<T> {
     private static final TuneOptional<?> EMPTY = new TuneOptional<>();
 
     /**
-     * If non-null, the value; if null, indicates no value is present
+     * If non-null, the value; if null, indicates no value is present.
      */
     private final T value;
 

@@ -1,9 +1,9 @@
 package com.tune;
 
-import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.HashMap;
+
+import org.json.JSONObject;
 
 /**
  * Event items that can be attached to an event.
@@ -118,18 +118,27 @@ public class TuneEventItem implements Serializable {
         this.attribute5 = attribute;
         return this;
     }
-    
+
     String getAttrStringByName(String name) {
-        switch(name) {
-            case "itemname":   return itemName;
-            case "quantity":   return Integer.toString(quantity);
-            case "unitPrice":  return Double.toString(unitPrice);
-            case "revenue":    return Double.toString(revenue);
-            case "attribute1": return attribute1;
-            case "attribute2": return attribute2;
-            case "attribute3": return attribute3;
-            case "attribute4": return attribute4;
-            case "attribute5": return attribute5;
+        switch (name) {
+            case "itemname":
+                return itemName;
+            case "quantity":
+                return Integer.toString(quantity);
+            case "unitPrice":
+                return Double.toString(unitPrice);
+            case "revenue":
+                return Double.toString(revenue);
+            case "attribute1":
+                return attribute1;
+            case "attribute2":
+                return attribute2;
+            case "attribute3":
+                return attribute3;
+            case "attribute4":
+                return attribute4;
+            case "attribute5":
+                return attribute5;
             default:
                 break;
         }

@@ -1,5 +1,6 @@
 package com.tune;
 
+import com.tune.utils.TuneStringUtils;
 import com.tune.utils.TuneUtils;
 
 import java.security.NoSuchAlgorithmException;
@@ -16,13 +17,13 @@ public class TuneEncryption {
 
     /**
      * Constructor.
-     * @param SecretKey Secret Key.
+     * @param secretKey Secret Key.
      * @param iv Initialization Vector.
      */
-    public TuneEncryption(String SecretKey, String iv) {
+    public TuneEncryption(String secretKey, String iv) {
         ivspec = new IvParameterSpec(iv.getBytes());
 
-        keyspec = new SecretKeySpec(SecretKey.getBytes(), "AES");
+        keyspec = new SecretKeySpec(secretKey.getBytes(), "AES");
 
         try {
             cipher = Cipher.getInstance("AES/CBC/NoPadding");
@@ -40,7 +41,9 @@ public class TuneEncryption {
      * @throws Exception if the given key is inappropriate for initializing this cipher.
      */
     byte[] encrypt(String plainText) throws Exception {
-        if (plainText == null || plainText.length() == 0) throw new Exception("Empty string");
+        if (TuneStringUtils.isNullOrEmpty(plainText)) {
+            throw new Exception("Empty string");
+        }
 
         byte[] encrypted;
 
@@ -62,7 +65,9 @@ public class TuneEncryption {
      * @throws Exception if the encrypted string cannot be decrypted.
      */
     byte[] decrypt(String encryptedText) throws Exception {
-        if (encryptedText == null || encryptedText.length() == 0) throw new Exception("Empty string");
+        if (TuneStringUtils.isNullOrEmpty(encryptedText)) {
+            throw new Exception("Empty string");
+        }
 
         byte[] decrypted;
 
@@ -77,6 +82,7 @@ public class TuneEncryption {
     }
     
     /**
+     * Pad an encrypted string to the correct block size.
      * @param source String that requires padding
      * @return Padded string for AES/CBC encryption
      */

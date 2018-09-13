@@ -1,9 +1,5 @@
 package com.tune.utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by kristine on 1/27/16.
  */
@@ -19,7 +19,7 @@ public class TuneJsonUtils {
 
     public static ArrayList<String> JSONArrayToStringArrayList(JSONArray jsonArray) {
         ArrayList<String> convertedList = new ArrayList<String>();
-        for(int i = 0; i< jsonArray.length(); i++) {
+        for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 convertedList.add(jsonArray.getString(i));
             } catch (JSONException e) {
@@ -142,7 +142,7 @@ public class TuneJsonUtils {
     
     public static JSONArray listToJson(List list) {
         JSONArray jsonArray = new JSONArray();
-        for (int i = 0 ; i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             try {
                 jsonArray.put(i, list.get(i));
             } catch (JSONException e) {
@@ -241,7 +241,7 @@ public class TuneJsonUtils {
 
     public static String ppAnalyticsEvent(final JSONObject o, int level) throws JSONException {
         StringBuilder result = new StringBuilder();
-        String r = prettyPrintJson(o, level+1);
+        String r = prettyPrintJson(o, level + 1);
         result.append(TuneStringUtils.format("%s{%s", getTabs(level), level >= cutOffDepth || r.length() == 0 ? "" : "\n"));
         result.append(r);
         result.append(TuneStringUtils.format("%s}", level >= cutOffDepth || r.length() == 0  ? "" : getTabs(level)));
@@ -251,7 +251,7 @@ public class TuneJsonUtils {
 
     private static String ppJSONArray(final JSONArray o, int level) throws JSONException {
         StringBuilder result = new StringBuilder();
-        String r = prettyPrintJson(o, level+1);
+        String r = prettyPrintJson(o, level + 1);
         result.append(TuneStringUtils.format("[%s", level >= cutOffDepth || r.length() == 0  ? "" : "\n"));
         result.append(r);
         result.append(TuneStringUtils.format("%s]", level >= cutOffDepth || r.length() == 0  ? "" : getTabs(level)));

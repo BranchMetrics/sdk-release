@@ -1,15 +1,12 @@
 package com.tune.application;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
-import android.os.Build;
 import android.os.Bundle;
 
 /**
  * Created by johng on 12/22/15.
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class TuneActivityLifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
     @Override

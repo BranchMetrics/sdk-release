@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.anyOf;
@@ -39,7 +40,7 @@ public class TuneDateUtilsTests extends TuneUnitTest {
         assertEquals(19, parsedCal.get(Calendar.HOUR_OF_DAY));
         assertEquals(12, parsedCal.get(Calendar.MINUTE));
         assertEquals(45, parsedCal.get(Calendar.SECOND));
-        assertThat(parsedCal.getTimeZone().getDisplayName(), anyOf(is("UTC"), is("GMT+00:00")));
+        assertThat(parsedCal.getTimeZone().getDisplayName(Locale.US), anyOf(is("UTC"), is("GMT+00:00"), is("Coordinated Universal Time")));
     }
 
     @Test
