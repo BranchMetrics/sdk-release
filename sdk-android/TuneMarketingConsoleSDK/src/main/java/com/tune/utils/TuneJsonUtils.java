@@ -1,5 +1,7 @@
 package com.tune.utils;
 
+import com.tune.TuneDebugLog;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class TuneJsonUtils {
             try {
                 convertedList.add(jsonArray.getString(i));
             } catch (JSONException e) {
-                e.printStackTrace();
+                TuneDebugLog.d("JSONArrayToStringArrayList() JSON exception", e);
             }
         }
 
@@ -39,7 +41,7 @@ public class TuneJsonUtils {
                 String value = jsonObject.getString(key);
                 convertedMap.put(key, value);
             } catch (JSONException e) {
-                // Something went wrong!
+                TuneDebugLog.d("JSONArrayToStringMap() JSON exception", e);
             }
         }
         return convertedMap;
@@ -127,7 +129,7 @@ public class TuneJsonUtils {
 
             json.put(key, value);
         } catch (JSONException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("put() JSON exception", e);
         }
     }
 
@@ -135,7 +137,7 @@ public class TuneJsonUtils {
         try {
             return jsonObject.toString(2);
         } catch (JSONException e) {
-            //e.printStackTrace();
+            TuneDebugLog.d("getPrettyJson() JSON exception", e);
             return "Error building pretty json!";
         }
     }
@@ -146,7 +148,7 @@ public class TuneJsonUtils {
             try {
                 jsonArray.put(i, list.get(i));
             } catch (JSONException e) {
-                e.printStackTrace();
+                TuneDebugLog.d("listToJson() JSON exception", e);
             }
         }
         return jsonArray;

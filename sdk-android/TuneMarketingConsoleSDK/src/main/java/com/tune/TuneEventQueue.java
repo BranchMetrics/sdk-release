@@ -111,8 +111,6 @@ public class TuneEventQueue {
 
         public void run() {
             try {
-                TuneDebugLog.d("Add() started");
-
                 // Acquire semaphore before modifying queue
                 acquireLock();
                 
@@ -124,8 +122,7 @@ public class TuneEventQueue {
                     jsonEvent.put("post_body", postBody);
                     jsonEvent.put("first_session", firstSession);
                 } catch (JSONException e) {
-                    TuneDebugLog.w("Failed creating event for queueing");
-                    e.printStackTrace();
+                    TuneDebugLog.w("Failed creating event for queueing", e);
                     return;
                 }
                 int count = getQueueSize() + 1;
@@ -133,27 +130,21 @@ public class TuneEventQueue {
                 String eventIndex = Integer.toString(count);
                 setQueueItemForKey(jsonEvent, eventIndex);
             } catch (InterruptedException e) {
-                TuneDebugLog.w("Interrupted adding event to queue");
-                e.printStackTrace();
+                TuneDebugLog.w("Interrupted adding event to queue", e);
             } finally {
                 releaseLock();
             }
-
-            TuneDebugLog.d("Add() complete");
         }
     }
     
     protected class Dump implements Runnable {
         public Dump() {
-            TuneDebugLog.d("Dump() created");
         }
 
         public void run() {
             int size = getQueueSize();
             if (size > 0) {
                 try {
-                    TuneDebugLog.d("Dump() started");
-
                     acquireLock();
 
                     int index = 1;
@@ -179,7 +170,8 @@ public class TuneEventQueue {
                                 postBody = event.getJSONObject("post_body");
                                 firstSession = event.getBoolean("first_session");
                             } catch (JSONException e) {
-                                e.printStackTrace();
+                                TuneDebugLog.d("Dump run exception", e);
+
                                 // Can't rebuild saved request, remove from queue and return
                                 removeKeyFromQueue(key);
                                 return;
@@ -233,7 +225,7 @@ public class TuneEventQueue {
                                             setQueueItemForKey(event, key);
                                         } catch (JSONException e) {
                                             // error saving modified retry parameter, ignore
-                                            e.printStackTrace();
+                                            TuneDebugLog.d("Dump run exception saving retry parameter");
                                         }
                                     }
                                     // choose new retry timeout, in seconds
@@ -270,12 +262,11 @@ public class TuneEventQueue {
                         }
                     } // for each item in queue
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    TuneDebugLog.d("Dump run Interrupted exception", e);
                 } finally {
                     releaseLock();
                 }
             }
-            TuneDebugLog.d("Dump() complete");
         }
         
     }

@@ -6,6 +6,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.tune.TuneDebugLog;
 import com.tune.TuneEvent;
 import com.tune.TuneParameters;
 
@@ -127,13 +128,13 @@ public class TuneFBBridge {
             return (String)sdkVersionMethod.invoke(null);
         } catch (Exception e) {
             // Reflection failed for 4.x, try 3.x
-            e.printStackTrace();
+            TuneDebugLog.d("getFbSdkVersion() failed for 4.x", e);
             try {
                 // < 4.0, com.facebook.Settings -> getSdkVersion()
                 Method sdkVersionMethod = Class.forName("com.facebook.Settings").getMethod("getSdkVersion");
                 return (String)sdkVersionMethod.invoke(null);
             } catch (Exception e1) {
-                e1.printStackTrace();
+                TuneDebugLog.d("getFbSdkVersion() failed", e1);
             }
         }
         return "";
@@ -181,7 +182,7 @@ public class TuneFBBridge {
                 Method loggerMethod = Class.forName(appEventsLoggerClassName).getMethod("newLogger", activateMethodParams);
                 logger = loggerMethod.invoke(null, activateArgs);
             } catch (Exception e) {
-                e.printStackTrace();
+                TuneDebugLog.d("startLoggerForVersion() exception", e);
             }
         }
     }
@@ -267,7 +268,7 @@ public class TuneFBBridge {
                 
                 justActivated = false;
             } catch (Exception e) {
-                e.printStackTrace();
+                TuneDebugLog.d("logEvent() exception", e);
             }
         }
     }

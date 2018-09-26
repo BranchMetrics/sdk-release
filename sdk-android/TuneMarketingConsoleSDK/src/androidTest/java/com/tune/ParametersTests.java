@@ -222,9 +222,7 @@ public class ParametersTests extends TuneUnitTest {
         assertKeyValue(TuneUrlKeys.ANDROID_ID, androidId);
         assertEquals(androidId, tune.getAndroidId());
 
-        // A side effect of setAndroidId() is to set the hash values as well
-        assertEquals(tune.getTuneParams().getAndroidIdMd5(), TuneUtils.md5(androidId));
-        assertEquals(tune.getTuneParams().getAndroidIdSha1(), TuneUtils.sha1(androidId));
+        // A side effect of setAndroidId() is to set the hash value as well
         assertEquals(tune.getTuneParams().getAndroidIdSha256(), TuneUtils.sha256(androidId));
     }
 
@@ -239,34 +237,6 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey(TuneUrlKeys.ANDROID_ID);
         assertNull(tune.getAndroidId());
-    }
-
-    @Test
-    public void testAndroidIdMd5() {
-        final String androidIdMd5 = TuneUtils.md5("59a3747895bdb03d");
-
-        sleep(TuneTestConstants.PARAMTEST_SLEEP);
-
-        tune.getTuneParams().setAndroidIdMd5(androidIdMd5);
-        tune.measureEvent("registration");
-        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-
-        assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ANDROID_ID_MD5, androidIdMd5);
-    }
-
-    @Test
-    public void testAndroidIdSha1() {
-        final String androidIdSha1 = TuneUtils.sha1("59a3747895bdb03d");
-
-        sleep(TuneTestConstants.PARAMTEST_SLEEP);
-
-        tune.getTuneParams().setAndroidIdSha1(androidIdSha1);
-        tune.measureEvent("registration");
-        assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-
-        assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ANDROID_ID_SHA1, androidIdSha1);
     }
 
     @Test
@@ -1148,8 +1118,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_phone");
-        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
-        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
         assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
     }
 
@@ -1163,8 +1131,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_phone");
-        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
-        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
         assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
 
         phoneNumber = "(١٢٣)٤٥٦-٧.٨.٩ ٠";
@@ -1174,8 +1140,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_phone");
-        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
-        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
         assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
 
         phoneNumber = "၁၂-၃၄-၅၆၇.၈၉ ၀";
@@ -1185,8 +1149,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_phone");
-        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
-        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
         assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
 
         phoneNumber = "(１２３)４５６-７８９０";
@@ -1196,8 +1158,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_phone");
-        assertKeyValue(TuneUrlKeys.USER_PHONE_MD5, TuneUtils.md5(phoneNumberDigits));
-        assertKeyValue(TuneUrlKeys.USER_PHONE_SHA1, TuneUtils.sha1(phoneNumberDigits));
         assertKeyValue(TuneUrlKeys.USER_PHONE_SHA256, TuneUtils.sha256(phoneNumberDigits));
     }
 
@@ -1328,8 +1288,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_email");
-        assertKeyValue(TuneUrlKeys.USER_EMAIL_MD5, TuneUtils.md5(email));
-        assertKeyValue(TuneUrlKeys.USER_EMAIL_SHA1, TuneUtils.sha1(email));
         assertKeyValue(TuneUrlKeys.USER_EMAIL_SHA256, TuneUtils.sha256(email));
         assertEquals(email, tune.getUserEmail());
     }
@@ -1455,8 +1413,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_email");
-        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
-        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
         assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
         assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
 
@@ -1477,8 +1433,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_email");
-        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_MD5);
-        assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA1);
         assertHasValueForKey(TuneUrlKeys.USER_EMAIL_SHA256);
         assertHasValueForKey(TuneUrlKeys.USER_EMAILS);
 
@@ -1487,8 +1441,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_email");
-        assertNull(tune.params.getUserEmailMd5());
-        assertNull(tune.params.getUserEmailSha1());
         assertNull(tune.params.getUserEmailSha256());
         assertEquals(null, tune.params.getUserEmails());
 
@@ -1518,8 +1470,6 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
         assertNoValueForKey("user_name");
-        assertKeyValue(TuneUrlKeys.USER_NAME_MD5, TuneUtils.md5(id));
-        assertKeyValue(TuneUrlKeys.USER_NAME_SHA1, TuneUtils.sha1(id));
         assertKeyValue(TuneUrlKeys.USER_NAME_SHA256, TuneUtils.sha256(id));
         assertEquals(id, tune.getUserName());
     }
@@ -1627,16 +1577,12 @@ public class ParametersTests extends TuneUnitTest {
         tune.setUserEmail(email);
 
         assertEquals(email, tune.getTuneParams().getUserEmail());
-        assertEquals(TuneUtils.md5(email), tune.getTuneParams().getUserEmailMd5());
-        assertEquals(TuneUtils.sha1(email), tune.getTuneParams().getUserEmailSha1());
         assertEquals(TuneUtils.sha256(email), tune.getTuneParams().getUserEmailSha256());
 
         // Restart Tune
         restartTune();
 
         assertEquals(email, tune.getTuneParams().getUserEmail());
-        assertEquals(TuneUtils.md5(email), tune.getTuneParams().getUserEmailMd5());
-        assertEquals(TuneUtils.sha1(email), tune.getTuneParams().getUserEmailSha1());
         assertEquals(TuneUtils.sha256(email), tune.getTuneParams().getUserEmailSha256());
     }
 
@@ -1646,16 +1592,12 @@ public class ParametersTests extends TuneUnitTest {
         tune.setUserName(name);
 
         assertEquals(name, tune.getTuneParams().getUserName());
-        assertEquals(TuneUtils.md5(name), tune.getTuneParams().getUserNameMd5());
-        assertEquals(TuneUtils.sha1(name), tune.getTuneParams().getUserNameSha1());
         assertEquals(TuneUtils.sha256(name), tune.getTuneParams().getUserNameSha256());
 
         // Restart Tune
         restartTune();
 
         assertEquals(name, tune.getTuneParams().getUserName());
-        assertEquals(TuneUtils.md5(name), tune.getTuneParams().getUserNameMd5());
-        assertEquals(TuneUtils.sha1(name), tune.getTuneParams().getUserNameSha1());
         assertEquals(TuneUtils.sha256(name), tune.getTuneParams().getUserNameSha256());
     }
 
@@ -1665,16 +1607,12 @@ public class ParametersTests extends TuneUnitTest {
         tune.setPhoneNumber(number);
 
         assertEquals(number, tune.getTuneParams().getPhoneNumber());
-        assertEquals(TuneUtils.md5(number), tune.getTuneParams().getPhoneNumberMd5());
-        assertEquals(TuneUtils.sha1(number), tune.getTuneParams().getPhoneNumberSha1());
         assertEquals(TuneUtils.sha256(number), tune.getTuneParams().getPhoneNumberSha256());
 
         // Restart Tune
         restartTune();
 
         assertEquals(number, tune.getTuneParams().getPhoneNumber());
-        assertEquals(TuneUtils.md5(number), tune.getTuneParams().getPhoneNumberMd5());
-        assertEquals(TuneUtils.sha1(number), tune.getTuneParams().getPhoneNumberSha1());
         assertEquals(TuneUtils.sha256(number), tune.getTuneParams().getPhoneNumberSha256());
     }
 }

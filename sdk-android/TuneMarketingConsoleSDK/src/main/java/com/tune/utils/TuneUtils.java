@@ -34,12 +34,20 @@ public class TuneUtils {
      */
     public static String readStream(InputStream stream) throws IOException {
         if (stream != null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            InputStreamReader streamReader = new InputStreamReader(stream, "UTF-8");
+            BufferedReader reader = new BufferedReader(streamReader);
             StringBuilder builder = new StringBuilder();
+            int lineCount = 0;
             for (String line; (line = reader.readLine()) != null;) {
-                builder.append(line).append("\n");
+                // Append CR for additional lines
+                if (lineCount++ > 0) {
+                    builder.append("\n");
+                }
+
+                builder.append(line);
             }
             reader.close();
+            streamReader.close();
             return builder.toString();
         }
         return "";
@@ -88,48 +96,6 @@ public class TuneUtils {
     }
 
     /**
-     * Create an MD5 Hash from a String.
-     * @param s String to MD5 hash
-     * @return MD5 hashed string
-     */
-    public static String md5(String s) {
-        if (TextUtils.isEmpty(s)) {
-            return "";
-        }
-        try {
-            // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(s.getBytes());
-            byte[] messageDigest = digest.digest();
-            return bytesToHex(messageDigest);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-    
-    /**
-     * Create a SHA1 hash from a String.
-     * @param s String to SHA-1 hash
-     * @return SHA-1 hashed string
-     */
-    public static String sha1(String s) {
-        if (TextUtils.isEmpty(s)) {
-            return "";
-        }
-        try {
-            // Create SHA-1 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
-            digest.update(s.getBytes());
-            byte[] messageDigest = digest.digest();
-            return bytesToHex(messageDigest);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-    
-    /**
      * Create a SHA-256 hash from a String.
      * @param s String to SHA-256 hash
      * @return SHA-256 hashed string
@@ -145,7 +111,8 @@ public class TuneUtils {
             byte[] messageDigest = digest.digest();
             return bytesToHex(messageDigest);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("sha256() No Algorithm exception", e);
+
         }
         return "";
     }
@@ -215,7 +182,7 @@ public class TuneUtils {
                 final PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
                 targetSdkVersion = info.applicationInfo.targetSdkVersion;
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                TuneDebugLog.d("hasPermission() Name not found exception for " + permission, e);
             }
             if (targetSdkVersion >= Build.VERSION_CODES.M) {
                 // targetSdkVersion >= Android M, we can use ContextCompat#checkSelfPermission

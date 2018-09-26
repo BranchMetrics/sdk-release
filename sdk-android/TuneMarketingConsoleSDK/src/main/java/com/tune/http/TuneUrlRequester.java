@@ -12,8 +12,9 @@ import org.json.JSONTokener;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class TuneUrlRequester implements UrlRequester {
 
@@ -29,7 +30,7 @@ public class TuneUrlRequester implements UrlRequester {
 
         try {
             URL myurl = new URL(deeplinkURL);
-            HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) myurl.openConnection();
             // Set TUNE conversion key in request header
             conn.setRequestProperty("X-MAT-Key", conversionKey);
             conn.setRequestMethod("GET");
@@ -39,7 +40,7 @@ public class TuneUrlRequester implements UrlRequester {
             conn.connect();
 
             int responseCode = conn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
                 is = new BufferedInputStream(conn.getInputStream());
             } else {
                 foundError = true;
@@ -50,15 +51,14 @@ public class TuneUrlRequester implements UrlRequester {
         } catch (Exception e) {
             foundError = true;
             response = e.getMessage();
-
-            e.printStackTrace();
+            TuneDebugLog.d("requestDeeplink() exception", e);
         } finally {
             try {
                 if (is != null) {
                     is.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                TuneDebugLog.d("requestDeeplink() exception", e);
             }
         }
 
@@ -73,7 +73,7 @@ public class TuneUrlRequester implements UrlRequester {
                 listener.didReceiveDeeplink(response);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            TuneDebugLog.d("requestDeeplink() callback exception", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class TuneUrlRequester implements UrlRequester {
         
         try {
             URL myurl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection) myurl.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) myurl.openConnection();
             conn.setReadTimeout(TuneConstants.TIMEOUT);
             conn.setConnectTimeout(TuneConstants.TIMEOUT);
             conn.setDoInput(true);
@@ -111,23 +111,21 @@ public class TuneUrlRequester implements UrlRequester {
             
             conn.connect();
             int responseCode = conn.getResponseCode();
-            if (debugMode) {
-                TuneDebugLog.d("Request completed with status " + responseCode);
-            }
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            TuneDebugLog.d("Request completed with status " + responseCode);
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
                 is = new BufferedInputStream(conn.getInputStream());
             } else {
                 is = new BufferedInputStream(conn.getErrorStream());
             }
             
             String responseAsString = TuneUtils.readStream(is);
-            if (debugMode) {
-                // Output server response
-                TuneDebugLog.d("Server response: " + responseAsString);
-            }
+
+            // Log server response if debugMode is on
+            TuneDebugLog.d("Server response: " + responseAsString);
 
             String matResponderHeader = conn.getHeaderField("X-MAT-Responder");
-            if (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE) {
+            if (responseCode >= HttpsURLConnection.HTTP_OK && responseCode < HttpsURLConnection.HTTP_MULT_CHOICE) {
                 // Try to parse response and print
                 JSONTokener tokener = new JSONTokener(responseAsString);
                 JSONObject responseJson = new JSONObject(tokener);
@@ -138,24 +136,19 @@ public class TuneUrlRequester implements UrlRequester {
                 return responseJson;
             }
             // for HTTP 400, if it's from our server, drop the request and don't retry
-            else if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST && matResponderHeader != null) {
-                if (debugMode) {
-                    TuneDebugLog.d("Request received 400 error from TUNE server, won't be retried");
-                }
+            else if (responseCode == HttpsURLConnection.HTTP_BAD_REQUEST && matResponderHeader != null) {
+                TuneDebugLog.d("Request received 400 error from TUNE server, won't be retried");
                 return null; // don't retry
             }
             // for all other codes, assume the server/connection is broken and will be fixed later
         } catch (Exception e) {
-            if (debugMode) {
-                TuneDebugLog.d("Request error with URL " + url);
-            }
-            e.printStackTrace();
+            TuneDebugLog.d("requestUrl() error with URL " + url, e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    TuneDebugLog.d("requestUrl() exception", e);
                 }
             }
         }
@@ -200,8 +193,7 @@ public class TuneUrlRequester implements UrlRequester {
                     }
                 }
             } catch (JSONException e) {
-                TuneDebugLog.d("Server response status could not be parsed");
-                e.printStackTrace();
+                TuneDebugLog.d("Server response status could not be parsed", e);
             }
         }
     }

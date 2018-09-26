@@ -28,14 +28,13 @@ public class TuneFileUtils {
                 outputStream = new FileOutputStream(file, false);
                 outputStream.write(content.getBytes());
             } catch (Exception e) {
-                e.printStackTrace();
-                TuneDebugLog.e(TAG, "Error writing file with fileName: " + fileName);
+                TuneDebugLog.d(TAG, "error writing file with fileName: " + fileName, e);
             } finally {
                 if (outputStream != null) {
                     try {
                         outputStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        TuneDebugLog.d(TAG, "writeFile() IO exception", e);
                     }
                 }
             }
@@ -50,7 +49,7 @@ public class TuneFileUtils {
             try {
                 result = new JSONObject(fileContent);
             } catch (JSONException e) {
-                e.printStackTrace();
+                TuneDebugLog.d(TAG, "readJsonFile() JSON exception", e);
             }
         }
 
@@ -70,8 +69,8 @@ public class TuneFileUtils {
                      fis.read(buffer);
                      fis.close();
                      result = new String(buffer, "UTF-8");
-                 } catch (IOException ex) {
-                     ex.printStackTrace();
+                 } catch (IOException e) {
+                     TuneDebugLog.d(TAG, "readFile() IO exception", e);
                  }
              }
              return result;
@@ -87,8 +86,8 @@ public class TuneFileUtils {
             is.read(buffer);
             is.close();
             json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            TuneDebugLog.d(TAG, "readFileFromAssetsIntoJsonObject() IO exception", e);
             return null;
         }
         return new JSONObject(json);

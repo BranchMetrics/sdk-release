@@ -254,7 +254,7 @@ public class TuneLocationListener implements LocationListener {
                     }
                 }, LISTENER_TIMEOUT);
             } catch (Exception e) {
-                e.printStackTrace();
+                TuneDebugLog.d("GetLocationUpdates() exception", e);
             }
         }
     }

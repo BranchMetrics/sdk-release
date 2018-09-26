@@ -32,7 +32,7 @@ public class TuneDateUtils {
         try {
             parsedDate = dateStringJsonFormat.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("getDateFromString() Parse exception", e);
         }
         return parsedDate;
     }

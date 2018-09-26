@@ -51,8 +51,6 @@ public class TuneUrlKeys {
     // Encrypted data keys
     public static final String ALTITUDE = "altitude";
     public static final String ANDROID_ID = "android_id";
-    public static final String ANDROID_ID_MD5 = "android_id_md5";
-    public static final String ANDROID_ID_SHA1 = "android_id_sha1";
     public static final String ANDROID_ID_SHA256 = "android_id_sha256";
     public static final String APP_AD_TRACKING = "app_ad_tracking";
     public static final String APP_NAME = "app_name";
@@ -126,15 +124,9 @@ public class TuneUrlKeys {
     public static final String IS_COPPA = "is_coppa";
     public static final String IS_PAYING_USER = "is_paying_user";
     public static final String TWITTER_USER_ID = "twitter_user_id";
-    public static final String USER_EMAIL_MD5 = "user_email_md5";
-    public static final String USER_EMAIL_SHA1 = "user_email_sha1";
     public static final String USER_EMAIL_SHA256 = "user_email_sha256";
     public static final String USER_ID = "user_id";
-    public static final String USER_NAME_MD5 = "user_name_md5";
-    public static final String USER_NAME_SHA1 = "user_name_sha1";
     public static final String USER_NAME_SHA256 = "user_name_sha256";
-    public static final String USER_PHONE_MD5 = "user_phone_md5";
-    public static final String USER_PHONE_SHA1 = "user_phone_sha1";
     public static final String USER_PHONE_SHA256 = "user_phone_sha256";
 
     // Post data keys
@@ -157,8 +149,6 @@ public class TuneUrlKeys {
         TuneUrlKeys.ADVERTISER_SUB_SITE,
         TuneUrlKeys.AGE,
         TuneUrlKeys.AGENCY_ID,
-        TuneUrlKeys.ANDROID_ID_MD5,
-        TuneUrlKeys.ANDROID_ID_SHA1,
         TuneUrlKeys.ANDROID_ID_SHA256,
         TuneUrlKeys.APP_AD_TRACKING,                       // (change value to "1")
         TuneUrlKeys.APP_NAME,
@@ -262,14 +252,8 @@ public class TuneUrlKeys {
         TuneUrlKeys.TWITTER_USER_ID,
         TuneUrlKeys.USER_AGENT,
         TuneUrlKeys.USER_EMAILS,
-        TuneUrlKeys.USER_EMAIL_MD5,
-        TuneUrlKeys.USER_EMAIL_SHA1,
         TuneUrlKeys.USER_EMAIL_SHA256,
-        TuneUrlKeys.USER_NAME_MD5,
-        TuneUrlKeys.USER_NAME_SHA1,
         TuneUrlKeys.USER_NAME_SHA256,
-        TuneUrlKeys.USER_PHONE_MD5,
-        TuneUrlKeys.USER_PHONE_SHA1,
         TuneUrlKeys.USER_PHONE_SHA256,
     };
 

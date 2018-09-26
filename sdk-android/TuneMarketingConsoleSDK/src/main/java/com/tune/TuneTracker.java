@@ -38,7 +38,7 @@ public class TuneTracker extends BroadcastReceiver {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            TuneDebugLog.d("TuneTracker onReceive() exception", e);
         }
     }
 }

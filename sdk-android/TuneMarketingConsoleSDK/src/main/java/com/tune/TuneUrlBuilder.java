@@ -104,8 +104,6 @@ class TuneUrlBuilder {
 
         link.append(TuneUrlKeys.CONNECTION_TYPE + "=").append(params.getConnectionType());
         safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID, params.getAndroidId());
-        safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID_MD5, params.getAndroidIdMd5());
-        safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID_SHA1, params.getAndroidIdSha1());
         safeAppend(link, redactKeys, TuneUrlKeys.ANDROID_ID_SHA256, params.getAndroidIdSha256());
 
         safeAppend(link, redactKeys, TuneUrlKeys.APP_NAME, params.getAppName());
@@ -188,15 +186,9 @@ class TuneUrlBuilder {
         safeAppend(link, redactKeys, TuneUrlKeys.GOOGLE_USER_ID, params.getGoogleUserId());
         safeAppend(link, redactKeys, TuneUrlKeys.IS_PAYING_USER, params.isPayingUser());
         safeAppend(link, redactKeys, TuneUrlKeys.TWITTER_USER_ID, params.getTwitterUserId());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_EMAIL_MD5, params.getUserEmailMd5());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_EMAIL_SHA1, params.getUserEmailSha1());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_EMAIL_SHA256, params.getUserEmailSha256());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_ID, params.getUserId());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_NAME_MD5, params.getUserNameMd5());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_NAME_SHA1, params.getUserNameSha1());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_NAME_SHA256, params.getUserNameSha256());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_PHONE_MD5, params.getPhoneNumberMd5());
-        safeAppend(link, redactKeys, TuneUrlKeys.USER_PHONE_SHA1, params.getPhoneNumberSha1());
         safeAppend(link, redactKeys, TuneUrlKeys.USER_PHONE_SHA256, params.getPhoneNumberSha256());
 
         // Age is handled differently with regards to COPPA.
@@ -305,7 +297,7 @@ class TuneUrlBuilder {
         try {
             updatedDataStr = TuneUtils.bytesToHex(encryption.encrypt(updatedDataStr));
         } catch (Exception e) {
-            e.printStackTrace();
+            TuneDebugLog.d("updateAndEncryptData() exception", e);
         }
 
         return updatedDataStr;
@@ -332,8 +324,7 @@ class TuneUrlBuilder {
                 postData.put(TuneUrlKeys.USER_EMAILS, emails);
             }
         } catch (JSONException e) {
-            TuneDebugLog.d("Could not build JSON body of request");
-            e.printStackTrace();
+            TuneDebugLog.d("Could not build JSON body of request", e);
         }
 
         return postData;

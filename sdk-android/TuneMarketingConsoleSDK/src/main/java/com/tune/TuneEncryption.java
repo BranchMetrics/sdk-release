@@ -28,9 +28,9 @@ public class TuneEncryption {
         try {
             cipher = Cipher.getInstance("AES/CBC/NoPadding");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("TuneEncryption() No Algorithm exception", e);
         } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("TuneEncryption() No Padding exception", e);
         }
     }
 

@@ -96,7 +96,7 @@ public class TuneParameters {
         try {
             initializationComplete.await(milliseconds, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            TuneDebugLog.d("waitForInit() Interrupted exception", e);
         }
 
         boolean isComplete = (initializationComplete.getCount() == 0);
@@ -215,8 +215,7 @@ public class TuneParameters {
             // User Params
             loadPrivacyProtectedSetting();
         } catch (Exception e) {
-            TuneDebugLog.d("MobileAppTracking params initialization failed");
-            e.printStackTrace();
+            TuneDebugLog.d("Tune initialization failed", e);
         }
     }
     
@@ -404,24 +403,8 @@ public class TuneParameters {
     public synchronized void setAndroidId(String androidId) {
         mAndroidId = androidId;
 
-        // Also set the hash variations
-        setAndroidIdMd5(TuneUtils.md5(androidId));
-        setAndroidIdSha1(TuneUtils.sha1(androidId));
+        // Also set the hash
         setAndroidIdSha256(TuneUtils.sha256(androidId));
-    }
-    
-    private String mAndroidIdMd5 = null;
-    public synchronized String getAndroidIdMd5() { return mAndroidIdMd5; }
-    public synchronized void setAndroidIdMd5(String androidIdMd5) {
-        mAndroidIdMd5 = androidIdMd5;
-    }
-    
-    private String mAndroidIdSha1 = null;
-    public synchronized String getAndroidIdSha1() {
-        return mAndroidIdSha1;
-    }
-    public synchronized void setAndroidIdSha1(String androidIdSha1) {
-        mAndroidIdSha1 = androidIdSha1;
     }
     
     private String mAndroidIdSha256 = null;
@@ -867,9 +850,7 @@ public class TuneParameters {
     public synchronized void setPhoneNumber(final String phoneNumber) {
         mPhoneNumber = normalizePhoneNumber(phoneNumber);
 
-        // Also set the hash variations
-        setPhoneNumberMd5(TuneUtils.md5(mPhoneNumber));
-        setPhoneNumberSha1(TuneUtils.sha1(mPhoneNumber));
+        // Also set the hash
         setPhoneNumberSha256(TuneUtils.sha256(mPhoneNumber));
 
         mExecutor.execute(new Runnable() {
@@ -894,22 +875,6 @@ public class TuneParameters {
         }
 
         return phoneNumber;
-    }
-    
-    private String mPhoneNumberMd5;
-    public synchronized String getPhoneNumberMd5() {
-        return mPhoneNumberMd5;
-    }
-    public synchronized void setPhoneNumberMd5(String phoneNumberMd5) {
-        mPhoneNumberMd5 = phoneNumberMd5;
-    }
-    
-    private String mPhoneNumberSha1;
-    public synchronized String getPhoneNumberSha1() {
-        return mPhoneNumberSha1;
-    }
-    public synchronized void setPhoneNumberSha1(String phoneNumberSha1) {
-        mPhoneNumberSha1 = phoneNumberSha1;
     }
     
     private String mPhoneNumberSha256;
@@ -1119,9 +1084,7 @@ public class TuneParameters {
     public synchronized void setUserEmail(final String userEmail) {
         mUserEmail = userEmail;
 
-        // Also set the hash variations
-        setUserEmailMd5(TuneUtils.md5(userEmail));
-        setUserEmailSha1(TuneUtils.sha1(userEmail));
+        // Also set the hash
         setUserEmailSha256(TuneUtils.sha256(userEmail));
 
         mExecutor.execute(new Runnable() {
@@ -1132,8 +1095,6 @@ public class TuneParameters {
     }
     public synchronized void clearUserEmail() {
         mUserEmail = null;
-        clearUserEmailMd5();
-        clearUserEmailSha1();
         clearUserEmailSha256();
 
         mExecutor.execute(new Runnable() {
@@ -1141,30 +1102,6 @@ public class TuneParameters {
                 mPrefs.remove(TuneConstants.KEY_USER_EMAIL);
             }
         });
-    }
-    
-    private String mUserEmailMd5;
-    public synchronized String getUserEmailMd5() {
-        return mUserEmailMd5;
-    }
-    public synchronized void setUserEmailMd5(String userEmailMd5) {
-        mUserEmailMd5 = userEmailMd5;
-    }
-
-    public synchronized void clearUserEmailMd5() {
-        mUserEmailMd5 = null;
-    }
-    
-    private String mUserEmailSha1;
-    public synchronized String getUserEmailSha1() {
-        return mUserEmailSha1;
-    }
-    public synchronized void setUserEmailSha1(String userEmailSha1) {
-        mUserEmailSha1 = userEmailSha1;
-    }
-
-    public synchronized void clearUserEmailSha1() {
-        mUserEmailSha1 = null;
     }
     
     private String mUserEmailSha256;
@@ -1261,9 +1198,7 @@ public class TuneParameters {
     public synchronized void setUserName(final String userName) {
         mUserName = userName;
 
-        // Also set the hash variations
-        setUserNameMd5(TuneUtils.md5(userName));
-        setUserNameSha1(TuneUtils.sha1(userName));
+        // Also set the hash
         setUserNameSha256(TuneUtils.sha256(userName));
 
         mExecutor.execute(new Runnable() {
@@ -1273,22 +1208,6 @@ public class TuneParameters {
         });
     }
     
-    private String mUserNameMd5;
-    public synchronized String getUserNameMd5() {
-        return mUserNameMd5;
-    }
-    public synchronized void setUserNameMd5(String userNameMd5) {
-        mUserNameMd5 = userNameMd5;
-    }
-    
-    private String mUserNameSha1;
-    public synchronized String getUserNameSha1() {
-        return mUserNameSha1;
-    }
-    public synchronized void setUserNameSha1(String userNameSha1) {
-        mUserNameSha1 = userNameSha1;
-    }
-    
     private String mUserNameSha256;
     public synchronized String getUserNameSha256() {
         return mUserNameSha256;
@@ -1296,7 +1215,6 @@ public class TuneParameters {
     public synchronized void setUserNameSha256(String userNameSha256) {
         mUserNameSha256 = userNameSha256;
     }
-
 
     public static Set<String> getRedactedKeys() {
         Set<String> redactKeys = new HashSet<>();
