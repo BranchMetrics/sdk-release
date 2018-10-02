@@ -112,16 +112,11 @@
 + (void)addIdentifyingHeaders:(NSMutableURLRequest *)request {
     TuneUserProfile *profile = [TuneManager currentManager].userProfile;
     
-    NSString *appId = [profile hashedAppId];
     NSString *deviceId = [profile deviceId];
     NSString *sdkVersion = [profile sdkVersion];
     NSString *appVersion = [profile appVersion];
     NSString *osVersion = [profile osVersion];
     NSString *osType = [profile osType];
-    
-    if (appId) {
-        [request setValue:appId forHTTPHeaderField:TuneHttpRequestHeaderAppID];
-    }
     
     if (deviceId) {
         [request setValue:deviceId forHTTPHeaderField:TuneHttpRequestHeaderDeviceID];

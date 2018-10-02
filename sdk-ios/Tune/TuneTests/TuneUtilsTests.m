@@ -10,7 +10,6 @@
 #import "TuneUtils.h"
 #import "TuneUserProfile.h"
 #import "TuneModule.h"
-#import "TuneCWorks.h"
 #import "TuneManager.h"
 #import "TuneXCTestCase.h"
 
@@ -31,24 +30,6 @@ static NSString* const testKey = @"fakeTuneKey";
 
 - (void)tearDown {
     [super tearDown];
-}
-
-- (void)testHashMd5 {
-    static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
-    static NSString* const expected = @"a346e5dc2a8d22f2733af9740c5a8756";
-    
-    NSString *actual = [TuneUtils hashMd5:input];
-    
-    XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
-}
-
-- (void)testHashSha1 {
-    static NSString* const input = @"some \"test\" string; 1234, with numbers & symbols!";
-    static NSString* const expected = @"310fd0f3e8716db8bb44f474b5fe4bc2336ad967";
-    
-    NSString *actual = [TuneUtils hashSha1:input];
-    
-    XCTAssertTrue( [actual isEqualToString:expected], @"expected %@, actual %@", expected, actual );
 }
 
 - (void)testHashSha256 {

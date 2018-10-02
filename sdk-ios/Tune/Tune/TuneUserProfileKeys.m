@@ -55,17 +55,11 @@ NSString *const TUNE_KEY_IS_PAYING_USER                 = @"is_paying_user";
 
 NSString *const TUNE_KEY_EXISTING_USER                  = @"existing_user";
 NSString *const TUNE_KEY_USER_EMAIL                     = @"user_email";
-NSString *const TUNE_KEY_USER_EMAIL_MD5                 = @"user_email_md5";
-NSString *const TUNE_KEY_USER_EMAIL_SHA1                = @"user_email_sha1";
 NSString *const TUNE_KEY_USER_EMAIL_SHA256              = @"user_email_sha256";
 NSString *const TUNE_KEY_USER_ID                        = @"user_id";
 NSString *const TUNE_KEY_USER_NAME                      = @"user_name";
-NSString *const TUNE_KEY_USER_NAME_MD5                  = @"user_name_md5";
-NSString *const TUNE_KEY_USER_NAME_SHA1                 = @"user_name_sha1";
 NSString *const TUNE_KEY_USER_NAME_SHA256               = @"user_name_sha256";
 NSString *const TUNE_KEY_USER_PHONE                     = @"user_phone";
-NSString *const TUNE_KEY_USER_PHONE_MD5                 = @"user_phone_md5";
-NSString *const TUNE_KEY_USER_PHONE_SHA1                = @"user_phone_sha1";
 NSString *const TUNE_KEY_USER_PHONE_SHA256              = @"user_phone_sha256";
 NSString *const TUNE_KEY_FACEBOOK_USER_ID               = @"facebook_user_id";
 NSString *const TUNE_KEY_TWITTER_USER_ID                = @"twitter_user_id";
@@ -224,17 +218,11 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
                                              
                                              TUNE_KEY_EXISTING_USER,
                                              TUNE_KEY_USER_EMAIL,
-                                             TUNE_KEY_USER_EMAIL_MD5,
-                                             TUNE_KEY_USER_EMAIL_SHA1,
                                              TUNE_KEY_USER_EMAIL_SHA256,
                                              TUNE_KEY_USER_ID,
                                              TUNE_KEY_USER_NAME,
-                                             TUNE_KEY_USER_NAME_MD5,
-                                             TUNE_KEY_USER_NAME_SHA1,
                                              TUNE_KEY_USER_NAME_SHA256,
                                              TUNE_KEY_USER_PHONE,
-                                             TUNE_KEY_USER_PHONE_MD5,
-                                             TUNE_KEY_USER_PHONE_SHA1,
                                              TUNE_KEY_USER_PHONE_SHA256,
                                              TUNE_KEY_FACEBOOK_USER_ID,
                                              TUNE_KEY_TWITTER_USER_ID,
@@ -383,17 +371,11 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
                                              
                                              TUNE_KEY_EXISTING_USER,
 //                                             TUNE_KEY_USER_EMAIL,
-//                                             TUNE_KEY_USER_EMAIL_MD5,
-//                                             TUNE_KEY_USER_EMAIL_SHA1,
 //                                             TUNE_KEY_USER_EMAIL_SHA256,
 //                                             TUNE_KEY_USER_ID,
 //                                             TUNE_KEY_USER_NAME,
-//                                             TUNE_KEY_USER_NAME_MD5,
-//                                             TUNE_KEY_USER_NAME_SHA1,
 //                                             TUNE_KEY_USER_NAME_SHA256,
 //                                             TUNE_KEY_USER_PHONE,
-//                                             TUNE_KEY_USER_PHONE_MD5,
-//                                             TUNE_KEY_USER_PHONE_SHA1,
 //                                             TUNE_KEY_USER_PHONE_SHA256,
 //                                             TUNE_KEY_FACEBOOK_USER_ID,
 //                                             TUNE_KEY_TWITTER_USER_ID,

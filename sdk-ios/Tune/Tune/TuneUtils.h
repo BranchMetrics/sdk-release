@@ -50,8 +50,6 @@
 + (nullable id)jsonDeserializeData:(nullable NSData *)jsonData;
 + (nullable id)jsonDeserializeString:(nullable NSString *)jsonString;
 
-+ (nullable NSString *)hashMd5:(nullable NSString *)input;
-+ (nullable NSString *)hashSha1:(nullable NSString *)input;
 + (nullable NSString *)hashSha256:(nullable NSString *)input;
 
 /*!

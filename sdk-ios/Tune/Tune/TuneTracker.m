@@ -10,7 +10,6 @@
 
 #import "Tune+Internal.h"
 #import "TuneConfiguration.h"
-#import "TuneCWorks.h"
 #import "TuneDeeplinker.h"
 #import "TuneEvent+Internal.h"
 #import "TuneEventItem+Internal.h"
@@ -440,18 +439,6 @@ static dispatch_once_t sharedInstanceOnceToken;
         
         [[TuneManager currentManager].userProfile setSystemDate:[NSDate date]];
         
-        // include CWorks params
-        NSDictionary *dictCworksClick;
-        NSDictionary *dictCworksImpression;
-        [self generateCworksClick:&dictCworksClick impression:&dictCworksImpression];
-        event.cworksClick = dictCworksClick;
-        event.cworksImpression = dictCworksImpression;
-        
-#if !TARGET_OS_WATCH
-        // collect IFA if accessible
-        //[[TuneManager currentManager].userProfile updateIFA];
-#endif
-        
         // check if location info is accessible
         BOOL locationEnabled = [TuneLocationHelper isLocationEnabled] && TuneConfiguration.sharedConfiguration.collectDeviceLocation;
         
@@ -534,26 +521,6 @@ static dispatch_once_t sharedInstanceOnceToken;
 
 #pragma mark - Private Methods
 
-- (void)generateCworksClick:(NSDictionary **)cworksClick impression:(NSDictionary **)cworksImpression {
-    // Note: set CWorks click param
-    NSString *cworksClickKey = nil;
-    NSNumber *cworksClickValue = nil;
-    
-    [self fetchCWorksClickKey:&cworksClickKey andValue:&cworksClickValue];
-    if( nil != cworksClickKey && nil != cworksClickValue ) {
-        *cworksClick = @{cworksClickKey: cworksClickValue};
-    }
-    
-    // Note: set CWorks impression param
-    NSString *cworksImpressionKey = nil;
-    NSNumber *cworksImpressionValue = nil;
-    
-    [self fetchCWorksImpressionKey:&cworksImpressionKey andValue:&cworksImpressionValue];
-    if( nil != cworksImpressionKey && nil != cworksImpressionValue ) {
-        *cworksImpression = @{cworksImpressionKey: cworksImpressionValue};
-    }
-}
-
 // Includes the eventItems and referenceId and fires the tracking request
 - (void)sendRequestWithEvent:(TuneEvent *)event {
 #if TARGET_OS_IOS
@@ -627,29 +594,6 @@ static dispatch_once_t sharedInstanceOnceToken;
     NSString *reqUrl = [NSString stringWithFormat:@"%@%@", trackingLink, encryptParams];
     [self notifyDelegateRequestEnqueuedWithRefId:event.refId url:reqUrl postData:postDict];
 }
-
-#pragma mark - CWorks Method Calls
-
-- (void)fetchCWorksClickKey:(NSString **)key andValue:(NSNumber **)value {
-    // Note: TUNE_getClicks() method also deletes the stored click key/value
-    NSDictionary *dict = [TuneCWorks TUNE_getClicks:[TuneUtils bundleId]];
-    
-    if([dict count] > 0) {
-        *key = [NSString stringWithFormat:@"%@[%@]", TUNE_KEY_CWORKS_CLICK, [[dict allKeys] objectAtIndex:0]];
-        *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
-    }
-}
-
-- (void)fetchCWorksImpressionKey:(NSString **)key andValue:(NSNumber **)value {
-    // Note: TUNE_getImpressions() method also deletes the stored impression key/value
-    NSDictionary *dict = [TuneCWorks TUNE_getImpressions:[TuneUtils bundleId]];
-    
-    if([dict count] > 0) {
-        *key = [NSString stringWithFormat:@"%@[%@]", TUNE_KEY_CWORKS_IMPRESSION, [[dict allKeys] objectAtIndex:0]];
-        *value = [dict objectForKey:[[dict allKeys] objectAtIndex:0]];
-    }
-}
-
 
 #pragma mark - TuneEventQueueDelegate protocol methods
 
@@ -898,15 +842,9 @@ static dispatch_once_t sharedInstanceOnceToken;
     [self addValue:[[NSUUID UUID] UUIDString]                                               forKey:TUNE_KEY_TRANSACTION_ID           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile twitterUserId]                 forKey:TUNE_KEY_TWITTER_USER_ID          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile updateLogId]                   forKey:TUNE_KEY_UPDATE_LOG_ID            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile userEmailMd5]                  forKey:TUNE_KEY_USER_EMAIL_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile userEmailSha1]                 forKey:TUNE_KEY_USER_EMAIL_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile userEmailSha256]               forKey:TUNE_KEY_USER_EMAIL_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile userId]                        forKey:TUNE_KEY_USER_ID                  encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile userNameMd5]                   forKey:TUNE_KEY_USER_NAME_MD5            encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile userNameSha1]                  forKey:TUNE_KEY_USER_NAME_SHA1           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile userNameSha256]                forKey:TUNE_KEY_USER_NAME_SHA256         encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile phoneNumberMd5]                forKey:TUNE_KEY_USER_PHONE_MD5           encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    [self addValue:[[TuneManager currentManager].userProfile phoneNumberSha1]               forKey:TUNE_KEY_USER_PHONE_SHA1          encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     [self addValue:[[TuneManager currentManager].userProfile phoneNumberSha256]             forKey:TUNE_KEY_USER_PHONE_SHA256        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     if([[TuneManager currentManager].userProfile publisherId]) {
@@ -940,14 +878,6 @@ static dispatch_once_t sharedInstanceOnceToken;
     
     // Rethink debugging
     //[self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    
-    // Note: it's possible for a cworks key to duplicate a built-in key (say, "sdk").
-    // If that happened, the constructed URL would have two of the same parameter (e.g.,
-    // "...sdk=ios&sdk=cworksvalue..."), though one might be encrypted and one not.
-    for( NSString *key in [event.cworksClick allKeys] )
-        [self addValue:event.cworksClick[key]        			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
-    for( NSString *key in [event.cworksImpression allKeys] )
-        [self addValue:event.cworksImpression[key]   			forKey:key                                 encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
 #if TESTING
     if(self.allowDuplicateRequests)

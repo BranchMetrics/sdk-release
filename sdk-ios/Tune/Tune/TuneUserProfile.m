@@ -64,15 +64,9 @@
                         TUNE_KEY_OPEN_LOG_ID          : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
                         TUNE_KEY_LAST_OPEN_LOG_ID     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
                         TUNE_KEY_IAD_ATTRIBUTION      : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
-                        TUNE_KEY_USER_EMAIL_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                        TUNE_KEY_USER_EMAIL_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
                         TUNE_KEY_USER_EMAIL_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
                         TUNE_KEY_USER_ID              : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_NONE],
-                        TUNE_KEY_USER_NAME_MD5        : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                        TUNE_KEY_USER_NAME_SHA1       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
                         TUNE_KEY_USER_NAME_SHA256     : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
-                        TUNE_KEY_USER_PHONE_MD5       : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_MD5],
-                        TUNE_KEY_USER_PHONE_SHA1      : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA1],
                         TUNE_KEY_USER_PHONE_SHA256    : @[TUNE_DATA_TYPE_STRING, TUNE_HASH_TYPE_SHA256],
                         TUNE_KEY_IS_PAYING_USER       : @[TUNE_DATA_TYPE_BOOLEAN, TUNE_HASH_TYPE_NONE],
                         TUNE_KEY_SESSION_COUNT        : @[TUNE_DATA_TYPE_FLOAT, TUNE_HASH_TYPE_NONE],
@@ -334,10 +328,6 @@
     }
     
     return [self getProfileValue:TUNE_KEY_PUSH_ENABLED];
-}
-
-- (NSString *)hashedAppId {
-    return [TuneUtils hashMd5: [NSString stringWithFormat:@"%@|%@|%@", self.advertiserId, self.packageName, TUNE_KEY_IOS]];
 }
 
 - (NSString *)deviceId {
@@ -1266,42 +1256,22 @@
 
 - (void)setUserEmail:(NSString *)email {
     NSString* userEmail = [email copy];
-    NSString* userEmailMd5 = [TuneUtils hashMd5:userEmail];
-    NSString* userEmailSha1 = [TuneUtils hashSha1:userEmail];
     NSString* userEmailSha256 = [TuneUtils hashSha256:userEmail];
     
-    [self storeProfileKey:TUNE_KEY_USER_EMAIL_MD5 value:userEmailMd5 hashType:TuneAnalyticsVariableHashMD5Type];
-    [self storeProfileKey:TUNE_KEY_USER_EMAIL_SHA1 value:userEmailSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_EMAIL_SHA256 value:userEmailSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)userEmailMd5 {
-    return [self getProfileValue:TUNE_KEY_USER_EMAIL_MD5];
-}
-- (NSString *)userEmailSha1 {
-    return [self getProfileValue:TUNE_KEY_USER_EMAIL_SHA1];
-}
 - (NSString *)userEmailSha256 {
     return [self getProfileValue:TUNE_KEY_USER_EMAIL_SHA256];
 }
  
 - (void)setUserName:(NSString *)name {
     NSString* userName = [name copy];
-    NSString* userNameMd5 = [TuneUtils hashMd5:userName];
-    NSString* userNameSha1 = [TuneUtils hashSha1:userName];
     NSString* userNameSha256 = [TuneUtils hashSha256:userName];
     
-    [self storeProfileKey:TUNE_KEY_USER_NAME_MD5 value:userNameMd5 hashType:TuneAnalyticsVariableHashMD5Type];
-    [self storeProfileKey:TUNE_KEY_USER_NAME_SHA1 value:userNameSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_NAME_SHA256 value:userNameSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)userNameMd5 {
-    return [self getProfileValue:TUNE_KEY_USER_NAME_MD5];
-}
-- (NSString *)userNameSha1 {
-    return [self getProfileValue:TUNE_KEY_USER_NAME_SHA1];
-}
 - (NSString *)userNameSha256 {
     return [self getProfileValue:TUNE_KEY_USER_NAME_SHA256];
 }
@@ -1344,21 +1314,11 @@
         }
     }
     
-    NSString *cleanPhoneMd5 = [TuneUtils hashMd5:cleanPhone];
-    NSString *cleanPhoneSha1 = [TuneUtils hashSha1:cleanPhone];
     NSString *cleanPhoneSha256 = [TuneUtils hashSha256:cleanPhone];
     
-    [self storeProfileKey:TUNE_KEY_USER_PHONE_MD5 value:cleanPhoneMd5 hashType:TuneAnalyticsVariableHashMD5Type];
-    [self storeProfileKey:TUNE_KEY_USER_PHONE_SHA1 value:cleanPhoneSha1 hashType:TuneAnalyticsVariableHashSHA1Type];
     [self storeProfileKey:TUNE_KEY_USER_PHONE_SHA256 value:cleanPhoneSha256 hashType:TuneAnalyticsVariableHashSHA256Type];
 }
 
-- (NSString *)phoneNumberMd5 {
-    return [self getProfileValue:TUNE_KEY_USER_PHONE_MD5];
-}
-- (NSString *)phoneNumberSha1 {
-    return [self getProfileValue:TUNE_KEY_USER_PHONE_SHA1];
-}
 - (NSString *)phoneNumberSha256 {
     return [self getProfileValue:TUNE_KEY_USER_PHONE_SHA256];
 }

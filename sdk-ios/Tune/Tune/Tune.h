@@ -21,7 +21,7 @@
 #import "TuneEventItem.h"
 #import "TunePreloadData.h"
 
-#define TUNEVERSION @"6.0.1"
+#define TUNEVERSION @"6.0.2"
 
 
 @protocol TuneDelegate;
@@ -134,7 +134,7 @@
 
  @return Whether url is a Tune Link. If NO, the Tune deeplink callbacks will not be invoked and you should handle the routing yourself.
  */
-+ (BOOL)handleContinueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray * _Nonnull restorableObjects))restorationHandler;
++ (BOOL)handleContinueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nonnull restorableObjects))restorationHandler;
 
 
 #pragma mark - Debug And Test
@@ -203,7 +203,7 @@
 + (void)disableLocationAutoCollection;
 
 /**
- Sets the MD5, SHA-1 and SHA-256 hash representations of the user's email address.
+ Sets the SHA-256 hash representations of the user's email address.
 
  @param userEmail The user's email address.
  */
@@ -217,14 +217,14 @@
 + (void)setUserId:(nullable NSString *)userId;
 
 /**
- Sets the MD5, SHA-1 and SHA-256 hash representations of the user's name.
+ Sets the SHA-256 hash representations of the user's name.
 
  @param userName The user's name.
  */
 + (void)setUserName:(nullable NSString *)userName;
 
 /**
- Sets the MD5, SHA-1 and SHA-256 hash representations of the user's phone number.
+ Sets the SHA-256 hash representations of the user's phone number.
 
  @param phoneNumber The user's phone number.
  */

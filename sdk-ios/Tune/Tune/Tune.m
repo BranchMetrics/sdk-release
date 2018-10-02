@@ -365,7 +365,7 @@
     return handled;
 }
 
-+ (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
++ (BOOL)handleContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *restorableObjects))restorationHandler {
 #if TARGET_OS_IOS
     if (@available(iOS 9, *)) {
         if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {

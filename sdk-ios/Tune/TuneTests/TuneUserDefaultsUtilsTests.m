@@ -10,7 +10,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "TuneCWorks.h"
 #import "TuneManager.h"
 #import "TuneModule.h"
 #import "TuneUserDefaultsUtils.h"

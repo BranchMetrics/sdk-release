@@ -534,8 +534,6 @@
 
 - (void)testUserEmail {
     NSString *EMAIL_ID = @"tempUserEmail@tempUserCompany.com";
-    NSString *EMAIL_ID_MD5 = @"d76acab60fbd9bf136f79dafb6e79a3b";
-    NSString *EMAIL_ID_SHA1 = @"e6c76b523cee03fd0dfea0d769a40d1a798dd522";
     NSString *EMAIL_ID_SHA256 = @"f2bcbd4dd2b172c1dad72b0ff850e2295b01392ceab45491e97fc9e093b42d30";
     
     [Tune setUserEmail:EMAIL_ID];
@@ -543,20 +541,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_MD5, EMAIL_ID_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA1, EMAIL_ID_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA256, EMAIL_ID_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -564,8 +554,6 @@
 
 - (void)testUserEmailEmpty {
     NSString *USER_EMAIL = TUNE_STRING_EMPTY; // empty
-    NSString *USER_EMAIL_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
-    NSString *USER_EMAIL_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
     NSString *USER_EMAIL_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [Tune setUserEmail:USER_EMAIL];
@@ -573,20 +561,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_MD5, USER_EMAIL_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA1, USER_EMAIL_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA256, USER_EMAIL_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -600,8 +580,6 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_MD5 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_SHA1 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
 }
@@ -619,8 +597,6 @@
 
 - (void)testUserName {
     NSString *USER_NAME = @"testName";
-    NSString *USER_NAME_MD5 = @"f0f7b7b21cfd4f60934753232a0049f6";
-    NSString *USER_NAME_SHA1 = @"0025dd9f850ce7889cf3e79e64328d0c4957751a";
     NSString *USER_NAME_SHA256 = @"4278d90b65ee634b960c9e026e4295f8f4fd8d3f29785548552afdc71ef4b495";
     
     [Tune setUserName:USER_NAME];
@@ -628,20 +604,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_MD5, USER_NAME_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA1, USER_NAME_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -649,8 +617,6 @@
 
 - (void)testUserNameEmpty {
     NSString *USER_NAME = TUNE_STRING_EMPTY; // empty
-    NSString *USER_NAME_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
-    NSString *USER_NAME_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
     NSString *USER_NAME_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [Tune setUserName:USER_NAME];
@@ -658,20 +624,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_MD5, USER_NAME_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA1, USER_NAME_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -685,16 +643,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME_MD5 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME_SHA1 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
 }
 
 - (void)testPhoneNumber {
     NSString *USER_PHONE = @"1234567890";
-    NSString *USER_PHONE_MD5 = @"e807f1fcf82d132f9bb018ca6738a19f";
-    NSString *USER_PHONE_SHA1 = @"01b307acba4f54f55aafc33bb06bbbf6ca803e9a";
     NSString *USER_PHONE_SHA256 = @"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646";
     
     [Tune setPhoneNumber:USER_PHONE];
@@ -702,20 +656,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA1, USER_PHONE_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -723,8 +669,6 @@
 
 - (void)testPhoneNumberEmpty {
     NSString *USER_PHONE = TUNE_STRING_EMPTY; // empty
-    NSString *USER_PHONE_MD5 = @"d41d8cd98f00b204e9800998ecf8427e";
-    NSString *USER_PHONE_SHA1 = @"da39a3ee5e6b4b0d3255bfef95601890afd80709";
     NSString *USER_PHONE_SHA256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     
     [Tune setPhoneNumber:USER_PHONE];
@@ -732,20 +676,12 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_MD5, USER_PHONE_MD5 );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA1, USER_PHONE_SHA1 );
     ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
     XCTAssertNil(var);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_MD5];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashMD5Type);
-    var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_SHA1];
-    XCTAssertFalse(var.shouldAutoHash);
-    XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA1Type);
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE_SHA256];
     XCTAssertFalse(var.shouldAutoHash);
     XCTAssertTrue(var.hashType == TuneAnalyticsVariableHashSHA256Type);
@@ -759,95 +695,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE_MD5 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE_SHA1 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
-}
-
-- (void)testPhoneNumberNonEnglishCharacters {
-    TuneUserProfile *userProfile = [TuneManager currentManager].userProfile;
-
-    NSString *expected = nil;
-    NSString *input = nil;
-    NSString *actual = nil;
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"1234567890"; // normal English
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"+123-456.7890"; // English with symbols
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"637c0f48d8b173fff8cad875f8f9fc53"; // MD5 hash of "0033111223355"
-    input = @"00 33 1 11 22 33 55"; // English numbers with spaces
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"637c0f48d8b173fff8cad875f8f9fc53"; // MD5 hash of "0033111223355"
-    input = @"00-33-1-11-22-33-55"; // English numbers with hyphens
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"१२३४५६७८९०"; // Devanagari
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"+१२३.४५६.७८९०"; // Devanagari with symbols
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"١٢٣٤٥٦٧٨٩٠"; // Arabic
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"(١٢٣)٤٥٦-٧.٨.٩ ٠"; // Arabic with symbols
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"၁၂-၃၄-၅၆၇.၈၉ ၀"; // Burmese with symbols
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"１２３４５６７８９０"; // Full-width characters
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
-    
-    expected = @"e807f1fcf82d132f9bb018ca6738a19f"; // MD5 hash of "1234567890"
-    input = @"(１２３)４５６-７８９０"; // Full-width characters with symbols
-    [Tune setPhoneNumber:input];
-    waitFor(0.1);
-    actual = userProfile.phoneNumberMd5;
-    XCTAssertEqualObjects(expected, actual, @"Phone number MD5 hash values should have matched");
 }
 
 - (void)testFacebookUserId {

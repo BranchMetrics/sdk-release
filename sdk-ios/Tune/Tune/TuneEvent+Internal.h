@@ -15,8 +15,6 @@
 @property(nonatomic, copy) NSString *eventName;
 
 @property(nonatomic, copy, readonly) NSString *actionName;
-@property(nonatomic, strong) NSDictionary *cworksClick;            // key, value pair
-@property(nonatomic, strong) NSDictionary *cworksImpression;       // key, value pair
 @property(nonatomic, copy) NSString *iBeaconRegionId;              // KEY_GEOFENCE_NAME
 @property(nonatomic, strong) TuneLocation *location;
 @property(nonatomic, assign) BOOL postConversion;                  // KEY_POST_CONVERSION

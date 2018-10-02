@@ -55,9 +55,6 @@ NSString * const TUNE_KEY_XML                            = @"xml";
 NSString * const TUNE_KEY_TVOS                           = @"tvos";
 NSString * const TUNE_KEY_WATCHOS                        = @"watchos";
 
-NSString * const TUNE_KEY_CWORKS_CLICK                   = @"cworks_click";
-NSString * const TUNE_KEY_CWORKS_IMPRESSION              = @"cworks_impression";
-
 NSString * const TUNE_KEY_ITEM                           = @"item";
 NSString * const TUNE_KEY_QUANTITY                       = @"quantity";
 NSString * const TUNE_KEY_UNIT_PRICE                     = @"unit_price";

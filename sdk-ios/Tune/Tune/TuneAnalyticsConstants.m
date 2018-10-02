@@ -20,8 +20,6 @@ NSString *const TUNE_DATA_TYPE_VERSION = @"version";
 
 #pragma mark - Hash Types
 NSString *const TUNE_HASH_TYPE_NONE = @"none";
-NSString *const TUNE_HASH_TYPE_MD5 = @"md5";
-NSString *const TUNE_HASH_TYPE_SHA1 = @"sha1";
 NSString *const TUNE_HASH_TYPE_SHA256 = @"sha256";
 
 @end

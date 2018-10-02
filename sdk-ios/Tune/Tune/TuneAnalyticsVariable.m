@@ -185,12 +185,6 @@
     } else {
         NSString *stringValue = [self convertValueToString];
         switch (hashWith) {
-            case TuneAnalyticsVariableHashMD5Type:
-                stringValue = [TuneUtils hashMd5:stringValue];
-                break;
-            case TuneAnalyticsVariableHashSHA1Type:
-                stringValue = [TuneUtils hashSha1:stringValue];
-                break;
             case TuneAnalyticsVariableHashSHA256Type:
                 stringValue = [TuneUtils hashSha256:stringValue];
                 break;
@@ -206,10 +200,7 @@
 
 - (NSArray *)toArrayOfDicts {
     if (shouldAutoHash) {
-        return @[ [self toDictionaryWithHash:TuneAnalyticsVariableHashMD5Type],
-                  [self toDictionaryWithHash:TuneAnalyticsVariableHashSHA1Type],
-                  [self toDictionaryWithHash:TuneAnalyticsVariableHashSHA256Type]
-                ];
+        return @[ [self toDictionaryWithHash:TuneAnalyticsVariableHashSHA256Type] ];
     } else {
         return @[ [self toDictionary] ];
     }
@@ -269,12 +260,6 @@
         case TuneAnalyticsVariableHashNone:
             result = TUNE_HASH_TYPE_NONE;
             break;
-        case TuneAnalyticsVariableHashMD5Type:
-            result = TUNE_HASH_TYPE_MD5;
-            break;
-        case TuneAnalyticsVariableHashSHA1Type:
-            result = TUNE_HASH_TYPE_SHA1;
-            break;
         case TuneAnalyticsVariableHashSHA256Type:
             result = TUNE_HASH_TYPE_SHA256;
             break;
@@ -288,10 +273,6 @@
     
     if ([type isEqualToString:TUNE_HASH_TYPE_NONE]) {
         result = TuneAnalyticsVariableHashNone;
-    } else if ([type isEqualToString:TUNE_HASH_TYPE_MD5]) {
-        result = TuneAnalyticsVariableHashMD5Type;
-    } else if ([type isEqualToString:TUNE_HASH_TYPE_SHA1]) {
-        result = TuneAnalyticsVariableHashSHA1Type;
     } else if ([type isEqualToString:TUNE_HASH_TYPE_SHA256]) {
         result = TuneAnalyticsVariableHashSHA256Type;
     }

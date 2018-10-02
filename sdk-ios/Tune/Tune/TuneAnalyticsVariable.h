@@ -18,8 +18,6 @@ typedef enum { TuneAnalyticsVariableStringType,
                TuneAnalyticsVariableVersionType } TuneAnalyticsVariableDataType;
 
 typedef enum { TuneAnalyticsVariableHashNone,
-               TuneAnalyticsVariableHashMD5Type,
-               TuneAnalyticsVariableHashSHA1Type,
                TuneAnalyticsVariableHashSHA256Type } TuneAnalyticsVariableHashType;
 
 @interface TuneAnalyticsVariable : NSObject <NSCopying, NSCoding>

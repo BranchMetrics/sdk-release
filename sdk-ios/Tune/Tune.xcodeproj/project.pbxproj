@@ -46,8 +46,6 @@
 		17301C6C1FFEE5A6001ADCC2 /* Tune.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17301C631FFEE5A5001ADCC2 /* Tune.framework */; };
 		17301C7C1FFEE627001ADCC2 /* NSData+TuneGZIP.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE9A1B7DA91B00501733 /* NSData+TuneGZIP.h */; };
 		17301C7D1FFEE62A001ADCC2 /* NSData+TuneGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE9B1B7DA93400501733 /* NSData+TuneGZIP.m */; };
-		17301C881FFEE644001ADCC2 /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */; };
-		17301C891FFEE644001ADCC2 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
 		17301C8A1FFEE644001ADCC2 /* TuneDeeplinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */; };
 		17301C8B1FFEE644001ADCC2 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		17301C8C1FFEE644001ADCC2 /* TuneEventKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F5A40081B83A801005DE80A /* TuneEventKeys.h */; };
@@ -184,8 +182,6 @@
 		174C3266201BE38100772F28 /* Tune_tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 174C3258201BE37F00772F28 /* Tune_tvOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		174C326F201BEAFE00772F28 /* NSData+TuneGZIP.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE9A1B7DA91B00501733 /* NSData+TuneGZIP.h */; };
 		174C3270201BEAFE00772F28 /* NSData+TuneGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFE9B1B7DA93400501733 /* NSData+TuneGZIP.m */; };
-		174C327B201BEB0A00772F28 /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */; };
-		174C327C201BEB0A00772F28 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
 		174C327D201BEB0A00772F28 /* TuneDeeplinker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */; };
 		174C327E201BEB0A00772F28 /* TuneDeeplinker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */; };
 		174C327F201BEB0A00772F28 /* TuneEventKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F5A40081B83A801005DE80A /* TuneEventKeys.h */; };
@@ -339,7 +335,6 @@
 		17BAA0CF2025344800F26DD3 /* TuneReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A3A1B65F9B8005216E2 /* TuneReachability.m */; };
 		17BAA0D12025344800F26DD3 /* TuneEventKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5A400A1B83A813005DE80A /* TuneEventKeys.m */; };
 		17BAA0D22025344800F26DD3 /* TuneDateUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24D6EA1B67E494000C7462 /* TuneDateUtils.m */; };
-		17BAA0D32025344800F26DD3 /* TuneCWorks.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */; };
 		17BAA0D42025344800F26DD3 /* TuneTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A421B65F9B8005216E2 /* TuneTracker.m */; };
 		17BAA0D72025344800F26DD3 /* TuneUserAgentCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCB5A441B65F9B8005216E2 /* TuneUserAgentCollector.m */; };
 		17BAA0D92025344800F26DD3 /* TuneSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BECFEDD1B82804000501733 /* TuneSessionManager.m */; };
@@ -400,7 +395,6 @@
 		17BAA1662025344800F26DD3 /* TuneLocation+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BECFE7B1B79CC1D00501733 /* TuneLocation+Internal.h */; };
 		17BAA16E2025344800F26DD3 /* TuneModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB59AF1B65F922005216E2 /* TuneModule.h */; };
 		17BAA1702025344800F26DD3 /* TuneUserAgentCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A431B65F9B8005216E2 /* TuneUserAgentCollector.h */; };
-		17BAA1712025344800F26DD3 /* TuneCWorks.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */; };
 		17BAA1742025344800F26DD3 /* TuneDeviceDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = F87CE8631B7D164300A98BF9 /* TuneDeviceDetails.h */; };
 		17BAA1792025344800F26DD3 /* TuneHttpUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = F83B851C1B7C114A00994318 /* TuneHttpUtils.h */; };
 		17BAA17A2025344800F26DD3 /* TuneLocationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCB5A371B65F9B8005216E2 /* TuneLocationHelper.h */; };
@@ -488,8 +482,6 @@
 		0BCB59ED1B65F949005216E2 /* TuneSkyhookConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneSkyhookConstants.m; sourceTree = "<group>"; };
 		0BCB5A251B65F9B8005216E2 /* Tune+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Tune+Internal.h"; sourceTree = "<group>"; };
 		0BCB5A261B65F9B8005216E2 /* TuneEvent+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TuneEvent+Internal.h"; sourceTree = "<group>"; };
-		0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneCWorks.h; sourceTree = "<group>"; };
-		0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneCWorks.m; sourceTree = "<group>"; };
 		0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeeplinker.h; sourceTree = "<group>"; };
 		0BCB5A2C1B65F9B8005216E2 /* TuneDeeplinker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinker.m; sourceTree = "<group>"; };
 		0BCB5A2D1B65F9B8005216E2 /* TuneEncrypter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneEncrypter.h; sourceTree = "<group>"; };
@@ -733,8 +725,6 @@
 				0B42D6201B6F1B61008101CE /* TuneAnalyticsConstants.m */,
 				0B42D6401B6F1E32008101CE /* TuneConfiguration.h */,
 				0B42D6411B6F1FAC008101CE /* TuneConfiguration.m */,
-				0BCB5A291B65F9B8005216E2 /* TuneCWorks.h */,
-				0BCB5A2A1B65F9B8005216E2 /* TuneCWorks.m */,
 				32B9A42C1BBB3703006E3D4F /* TuneDeeplink.h */,
 				32B9A42D1BBB3703006E3D4F /* TuneDeeplink.m */,
 				0BCB5A2B1B65F9B8005216E2 /* TuneDeeplinker.h */,
@@ -1042,7 +1032,6 @@
 				17301CE71FFEE6C2001ADCC2 /* TuneLocation+Internal.h in Headers */,
 				17301D401FFEE980001ADCC2 /* TuneModule.h in Headers */,
 				17301CA21FFEE644001ADCC2 /* TuneUserAgentCollector.h in Headers */,
-				17301C881FFEE644001ADCC2 /* TuneCWorks.h in Headers */,
 				17301D5B1FFEE9A8001ADCC2 /* TuneDeviceDetails.h in Headers */,
 				17301D2E1FFEE979001ADCC2 /* TuneHttpUtils.h in Headers */,
 				17301C981FFEE644001ADCC2 /* TuneLocationHelper.h in Headers */,
@@ -1102,7 +1091,6 @@
 				174C335D201BED2200772F28 /* TuneUtils.h in Headers */,
 				174C331C201BECFE00772F28 /* TuneEvent.h in Headers */,
 				174C32C7201BEB3900772F28 /* Tune+Internal.h in Headers */,
-				174C327B201BEB0A00772F28 /* TuneCWorks.h in Headers */,
 				174C332A201BECFE00772F28 /* TunePreloadData.h in Headers */,
 				174C328B201BEB0A00772F28 /* TuneLocationHelper.h in Headers */,
 				174C3355201BED2200772F28 /* TuneNetworkUtils.h in Headers */,
@@ -1161,7 +1149,6 @@
 				17C46B79210140B800027C10 /* TuneLocation.h in Headers */,
 				17BAA16E2025344800F26DD3 /* TuneModule.h in Headers */,
 				17BAA1702025344800F26DD3 /* TuneUserAgentCollector.h in Headers */,
-				17BAA1712025344800F26DD3 /* TuneCWorks.h in Headers */,
 				17BAA1742025344800F26DD3 /* TuneDeviceDetails.h in Headers */,
 				17BAA1792025344800F26DD3 /* TuneHttpUtils.h in Headers */,
 				17BAA17A2025344800F26DD3 /* TuneLocationHelper.h in Headers */,
@@ -1326,9 +1313,9 @@
 				17301C6A1FFEE5A6001ADCC2 /* TuneTests */,
 				174C3255201BE37E00772F28 /* Tune_tvOS */,
 				174C325D201BE38000772F28 /* Tune_tvOSTests */,
+				17BAA0762025344800F26DD3 /* Tune_static */,
 				178F059520053DF20088C0ED /* TuneUniversal */,
 				1761D4A72020FB0E007FA9CA /* TuneUniversal_tvOS */,
-				17BAA0762025344800F26DD3 /* Tune_static */,
 				17BAA1862025376200F26DD3 /* TuneUniversal_static */,
 			);
 		};
@@ -1391,7 +1378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\n# tvOS framework has _tvOS appended\nFRAMEWORK_NAME=\"${PROJECT_NAME}_tvOS\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvsimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-appletvos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvsimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvsimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-appletvuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
+			shellScript = "######################\n# Options\n######################\n\n# tvOS framework has _tvOS appended\nFRAMEWORK_NAME=\"${PROJECT_NAME}_tvOS\"\n\nSIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvsimulator\"\nUNSIGNED_SIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvsimulator-unsigned\"\nDEVICE_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvos\"\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-appletvuniversal\"\n\nSIMULATOR_FRAMEWORK=\"${SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nUNSIGNED_SIMULATOR_FRAMEWORK=\"${UNSIGNED_SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nDEVICE_FRAMEWORK=\"${DEVICE_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvsimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvsimulator -UseModernBuildSystem=NO\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk appletvos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-appletvos -UseModernBuildSystem=NO\n\n######################\n# Remove signature from simulator\n# xcodebuild signs iphonesimulator as adhoc, remove it\n######################\n\nrm -rf \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_FRAMEWORK}\"\ncp -r \"${SIMULATOR_FRAMEWORK}/.\" \"${UNSIGNED_SIMULATOR_FRAMEWORK}/\"\n\ncodesign --remove-signature ${UNSIGNED_SIMULATOR_FRAMEWORK}\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${FRAMEWORK}\"\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_DIR}/.\" \"${FRAMEWORK}\"\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${UNSIGNED_SIMULATOR_FRAMEWORK}/${FRAMEWORK_NAME}\" \"${DEVICE_FRAMEWORK}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n";
 		};
 		178F059A20053FA80088C0ED /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1404,7 +1391,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-iphoneuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
+			shellScript = "######################\n# Options\n######################\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator\"\nUNSIGNED_SIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator-unsigned\"\nDEVICE_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos\"\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\"\n\nSIMULATOR_FRAMEWORK=\"${SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nUNSIGNED_SIMULATOR_FRAMEWORK=\"${UNSIGNED_SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nDEVICE_FRAMEWORK=\"${DEVICE_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator -UseModernBuildSystem=NO\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${FRAMEWORK_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos -UseModernBuildSystem=NO\n\n######################\n# Remove signature from simulator\n# xcodebuild signs iphonesimulator as adhoc, remove it\n######################\n\nrm -rf \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_FRAMEWORK}\"\ncp -r \"${SIMULATOR_FRAMEWORK}/.\" \"${UNSIGNED_SIMULATOR_FRAMEWORK}/\"\n\ncodesign --remove-signature ${UNSIGNED_SIMULATOR_FRAMEWORK}\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${FRAMEWORK}\"\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_FRAMEWORK}/.\" \"${FRAMEWORK}\"\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${UNSIGNED_SIMULATOR_FRAMEWORK}/${FRAMEWORK_NAME}\" \"${DEVICE_FRAMEWORK}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n";
 		};
 		17BAA18B202537AF00F26DD3 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1417,7 +1404,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\n# static framework has the same name as the dynamic framework!  Target name is different.\nTARGET_NAME=\"${PROJECT_NAME}_static\"\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal-static\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\n#if [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n#\n#if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n#\tcp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n#fi\n\n######################\n# On Release, copy the result to release directory\n######################\n#OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-iphoneuniversal/\"\n\n#rm -rf \"$OUTPUT_DIR\"\n#mkdir -p \"$OUTPUT_DIR\"\n\n#cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n\n#if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n#open \"${OUTPUT_DIR}/\"\n#fi";
+			shellScript = "######################\n# Options\n######################\n\n# static framework has the same name as the dynamic framework!  Target name is different.\nTARGET_NAME=\"${PROJECT_NAME}_static\"\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator-static\"\nUNSIGNED_SIMULATOR_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator-unsigned-static\"\nDEVICE_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos-static\"\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal-static\"\n\nSIMULATOR_FRAMEWORK=\"${SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nUNSIGNED_SIMULATOR_FRAMEWORK=\"${UNSIGNED_SIMULATOR_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nDEVICE_FRAMEWORK=\"${DEVICE_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator-static -UseModernBuildSystem=NO\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj BITCODE_GENERATION_MODE=bitcode OTHER_CFLAGS=\"-fembed-bitcode\" -target ${TARGET_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos-static -UseModernBuildSystem=NO\n\n######################\n# Remove signature from simulator\n# xcodebuild signs iphonesimulator as adhoc, remove it\n######################\n\nrm -rf \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_LIBRARY_DIR}\"\nmkdir \"${UNSIGNED_SIMULATOR_FRAMEWORK}\"\ncp -r \"${SIMULATOR_FRAMEWORK}/.\" \"${UNSIGNED_SIMULATOR_FRAMEWORK}/\"\n\ncodesign --remove-signature ${UNSIGNED_SIMULATOR_FRAMEWORK}\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\nmkdir \"${FRAMEWORK}\"\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_FRAMEWORK}/.\" \"${FRAMEWORK}\"\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${UNSIGNED_SIMULATOR_FRAMEWORK}/${FRAMEWORK_NAME}\" \"${DEVICE_FRAMEWORK}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1459,7 +1446,6 @@
 				17301C9B1FFEE644001ADCC2 /* TuneReachability.m in Sources */,
 				17301C8D1FFEE644001ADCC2 /* TuneEventKeys.m in Sources */,
 				17301D5A1FFEE9A8001ADCC2 /* TuneDateUtils.m in Sources */,
-				17301C891FFEE644001ADCC2 /* TuneCWorks.m in Sources */,
 				17301CA11FFEE644001ADCC2 /* TuneTracker.m in Sources */,
 				17301CA31FFEE644001ADCC2 /* TuneUserAgentCollector.m in Sources */,
 				17301D191FFEE961001ADCC2 /* TuneSessionManager.m in Sources */,
@@ -1562,7 +1548,6 @@
 				174C3314201BECF700772F28 /* TuneHttpUtils.m in Sources */,
 				3629A22020E411A600724397 /* TuneLog.m in Sources */,
 				174C3280201BEB0A00772F28 /* TuneEventKeys.m in Sources */,
-				174C327C201BEB0A00772F28 /* TuneCWorks.m in Sources */,
 				174C3294201BEB0A00772F28 /* TuneTracker.m in Sources */,
 				174C334A201BED2200772F28 /* TuneIadUtils.m in Sources */,
 				174C3296201BEB0A00772F28 /* TuneUserAgentCollector.m in Sources */,
@@ -1642,7 +1627,6 @@
 				17BAA0CF2025344800F26DD3 /* TuneReachability.m in Sources */,
 				17BAA0D12025344800F26DD3 /* TuneEventKeys.m in Sources */,
 				17BAA0D22025344800F26DD3 /* TuneDateUtils.m in Sources */,
-				17BAA0D32025344800F26DD3 /* TuneCWorks.m in Sources */,
 				17BAA0D42025344800F26DD3 /* TuneTracker.m in Sources */,
 				17BAA0D72025344800F26DD3 /* TuneUserAgentCollector.m in Sources */,
 				17BAA0D92025344800F26DD3 /* TuneSessionManager.m in Sources */,
@@ -1731,10 +1715,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-fembed-bitcode",
-					"-Qunused-arguments",
-				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lz",
@@ -1792,10 +1772,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-fembed-bitcode",
-					"-Qunused-arguments",
-				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lz",
@@ -1906,6 +1882,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -1937,6 +1914,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -1968,6 +1946,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -2089,6 +2068,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -2118,6 +2098,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -2146,6 +2127,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MN489GLUZK;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TuneTests",
@@ -2394,10 +2376,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-fembed-bitcode",
-					"-Qunused-arguments",
-				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lz",

@@ -31,8 +31,6 @@
 - (void)clearIFA;
 #endif
 
-- (NSString *)hashedAppId;
-
 /////////////////////////////////////////////////
 #pragma mark - Profile Variable Management
 /////////////////////////////////////////////////
@@ -350,18 +348,12 @@
 - (NSString *)sdkVersion;
 
 - (void)setUserEmail:(NSString *)email;
-- (NSString *)userEmailMd5;
-- (NSString *)userEmailSha1;
 - (NSString *)userEmailSha256;
 
 - (void)setUserName:(NSString *)name;
-- (NSString *)userNameMd5;
-- (NSString *)userNameSha1;
 - (NSString *)userNameSha256;
 
 - (void)setPhoneNumber:(NSString *)number;
-- (NSString *)phoneNumberMd5;
-- (NSString *)phoneNumberSha1;
 - (NSString *)phoneNumberSha256;
 
 - (void)setLocation:(TuneLocation *)location;
