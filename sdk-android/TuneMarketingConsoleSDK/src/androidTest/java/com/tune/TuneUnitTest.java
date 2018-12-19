@@ -40,6 +40,7 @@ public class TuneUnitTest implements TuneTestRequest {
         params = new TuneTestParams();
 
         assertTrue(tune.waitForInit(TuneTestConstants.SERVERTEST_SLEEP));
+        assertTrue(tune.getTuneParams().didParametersInitializationComplete());
         Log.d(logTag, "***SETUP COMPLETE***");
     }
 

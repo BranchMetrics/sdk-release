@@ -57,7 +57,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
     }
 
     @Test
-    public void testIsTuneLinkForTlnkio() throws Exception {
+    public void testIsTuneLinkForTlnkio() {
         assertTrue(tune.isTuneLink("http://tlnk.io"));
         assertTrue(tune.isTuneLink("http://12345.tlnk.io"));
         assertTrue(tune.isTuneLink("http://tlnk.io/path/to/something?withargs=shorething&other=things"));
@@ -75,6 +75,20 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
     }
 
     @Test
+    public void testIsTuneLinkForBranch() {
+        assertTrue(tune.isTuneLink("http://app.link"));
+        assertTrue(tune.isTuneLink("http://12345.app.link"));
+        assertTrue(tune.isTuneLink("http://app.link/path/to/something?withargs=shorething&other=things"));
+        assertTrue(tune.isTuneLink("http://12345.app.link/path/to/something?withargs=shorething&other=things"));
+        assertTrue(tune.isTuneLink("https://app.link"));
+        assertTrue(tune.isTuneLink("https://12345.app.link"));
+        assertTrue(tune.isTuneLink("https://app.link/path/to/something?withargs=shorething&other=things"));
+        assertTrue(tune.isTuneLink("https://12345.app.link/path/to/something?withargs=shorething&other=things"));
+
+        assertFalse(tune.isTuneLink("fake://app.link"));
+    }
+
+    @Test
     public void testIsTuneLinkForBadValues() {
         assertFalse(tune.isTuneLink("faketlnk.io"));
         assertFalse(tune.isTuneLink("      nope      "));
@@ -86,7 +100,7 @@ public class TuneDeeplinkerTests  extends TuneUnitTest {
     }
 
     @Test
-    public void testIsTuneLink() throws Exception {
+    public void testIsTuneLink() {
         tune.registerCustomTuneLinkDomain("foobar.com");
         assertTrue(tune.isTuneLink("http://foobar.com"));
         assertTrue(tune.isTuneLink("http://wow.foobar.com"));

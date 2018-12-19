@@ -64,7 +64,10 @@ public class TuneStartupTests extends TuneUnitTest {
         TuneInternal tuneInternal = TuneInternal.getInstance();
         assertTrue(tuneInternal.waitForInit(TuneTestConstants.SERVERTEST_SLEEP));
 
-        assertEquals(tuneInternal.getPackageName(), testPackage);
+        assertEquals(testPackage, tuneInternal.getPackageName());
+
+        // SDK-77: Ensure that initialization completes with an alternate package name.
+        assertTrue(tuneInternal.getTuneParams().didParametersInitializationComplete());
 
         tuneInternal.shutDown();
     }

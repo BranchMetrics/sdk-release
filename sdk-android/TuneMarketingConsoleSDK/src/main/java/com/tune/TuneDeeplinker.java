@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class TuneDeeplinker {
     private static final String TLNK_IO = "tlnk.io";
+    private static final String APP_LINK = "app.link";
 
     private final Set<String> registeredTuneLinkDomains;
 
@@ -29,6 +30,7 @@ public class TuneDeeplinker {
         this.packageName = packageName;
         registeredTuneLinkDomains = new HashSet<>();
         registeredTuneLinkDomains.add(TLNK_IO);
+        registeredTuneLinkDomains.add(APP_LINK);
     }
 
     void setPackageName(String packageName) {

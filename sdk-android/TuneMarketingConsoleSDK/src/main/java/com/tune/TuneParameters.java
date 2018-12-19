@@ -159,7 +159,11 @@ public class TuneParameters {
                 setAppVersion("0");
             }
             // Get installer package
-            setInstaller(pm.getInstallerPackageName(packageName));
+            try {
+                setInstaller(pm.getInstallerPackageName(packageName));
+            } catch (IllegalArgumentException e) {
+                // SDK-77 -- an alternate package name that doesn't match can throw an exception.
+            }
 
             // Get generic device information
             setDeviceModel(Build.MODEL);
@@ -214,6 +218,8 @@ public class TuneParameters {
 
             // User Params
             loadPrivacyProtectedSetting();
+
+            mParametersIntializationComplete = true;
         } catch (Exception e) {
             TuneDebugLog.d("Tune initialization failed", e);
         }
@@ -1225,4 +1231,8 @@ public class TuneParameters {
         return redactKeys;
     }
 
+    private boolean mParametersIntializationComplete;
+    public boolean didParametersInitializationComplete() {
+        return mParametersIntializationComplete;
+    }
 }
