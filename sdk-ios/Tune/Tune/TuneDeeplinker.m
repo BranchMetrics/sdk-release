@@ -39,6 +39,7 @@
 static const NSTimeInterval TUNE_NSURLCONNECTION_DEFAULT_TIMEOUT = 60.;
 
 static const NSString *TLNK_IO = @"tlnk.io";
+static const NSString *APP_LINK = @"app.link";
 
 static TuneDeeplinker *dplinkr;
 
@@ -61,7 +62,7 @@ static TuneDeeplinker *dplinkr;
     }
     
     // Initialize registered domains with "tlnk.io"
-    dplinkr.registeredTuneLinkDomains = [NSSet setWithObject:TLNK_IO];
+    dplinkr.registeredTuneLinkDomains = [NSSet setWithObjects:TLNK_IO, APP_LINK, nil];
 }
 
 + (void)setDelegate:(id<TuneDelegate>)tuneDelegate {

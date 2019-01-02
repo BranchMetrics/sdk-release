@@ -158,7 +158,7 @@
 		17301DAA1FFEEC59001ADCC2 /* TuneTestParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F671B66343400C51B87 /* TuneTestParams.m */; };
 		17301DAB1FFEEC59001ADCC2 /* TuneXCTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = F83419CA1CE3F4CC00142934 /* TuneXCTestCase.m */; };
 		17301DAE1FFEEC5E001ADCC2 /* TuneDateUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */; };
-		17301DB11FFEEC68001ADCC2 /* TuneDeeplinkerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */; };
+		17301DB11FFEEC68001ADCC2 /* TuneDeeplinkerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F847F4481C87BF8A009E0531 /* TuneDeeplinkerIntegrationTests.m */; };
 		17301DB31FFEEC68001ADCC2 /* TuneEncrypterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F4B1B66325E00C51B87 /* TuneEncrypterTests.m */; };
 		17301DB41FFEEC68001ADCC2 /* TuneEventItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F4A1B66325E00C51B87 /* TuneEventItemTests.m */; };
 		17301DB51FFEEC68001ADCC2 /* TuneEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B770F521B66325E00C51B87 /* TuneEventTests.m */; };
@@ -409,6 +409,7 @@
 		3629A22120E411A600724397 /* TuneLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3629A21D20E4119F00724397 /* TuneLog.m */; };
 		3629A22520E418E600724397 /* TuneLogTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3629A22420E418E600724397 /* TuneLogTests.m */; };
 		3663298920895D4A0066EEAC /* TuneReachabilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3663298820895D4A0066EEAC /* TuneReachabilityTests.m */; };
+		5F4F8D7C21CC57720058C4E1 /* TuneDeepLinkerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F4F8D7B21CC57720058C4E1 /* TuneDeepLinkerTests.m */; };
 		764F275F2049FF9C00A63F02 /* TuneNotInitializedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */; };
 /* End PBXBuildFile section */
 
@@ -568,6 +569,7 @@
 		3F5A40081B83A801005DE80A /* TuneEventKeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneEventKeys.h; sourceTree = "<group>"; };
 		3F5A400A1B83A813005DE80A /* TuneEventKeys.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneEventKeys.m; sourceTree = "<group>"; };
 		3FD219931B98D63100626DC6 /* TuneEventItem+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TuneEventItem+Internal.h"; sourceTree = "<group>"; };
+		5F4F8D7B21CC57720058C4E1 /* TuneDeepLinkerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneDeepLinkerTests.m; sourceTree = "<group>"; };
 		764F275E2049FF9C00A63F02 /* TuneNotInitializedTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TuneNotInitializedTests.m; sourceTree = "<group>"; };
 		AE8947091CC55D5A00525862 /* TuneConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneConstants.m; sourceTree = "<group>"; };
 		DB0FF56E1B9107660071B996 /* TuneBlankViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneBlankViewController.h; sourceTree = "<group>"; };
@@ -604,7 +606,7 @@
 		F83B850F1B7C0EC200994318 /* TuneHttpResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneHttpResponse.m; sourceTree = "<group>"; };
 		F83B851C1B7C114A00994318 /* TuneHttpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneHttpUtils.h; sourceTree = "<group>"; };
 		F83B851D1B7C114A00994318 /* TuneHttpUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneHttpUtils.m; sourceTree = "<group>"; };
-		F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinkerTests.m; sourceTree = "<group>"; };
+		F847F4481C87BF8A009E0531 /* TuneDeeplinkerIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeeplinkerIntegrationTests.m; sourceTree = "<group>"; };
 		F87CE8631B7D164300A98BF9 /* TuneDeviceDetails.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneDeviceDetails.h; sourceTree = "<group>"; };
 		F87CE8641B7D164300A98BF9 /* TuneDeviceDetails.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TuneDeviceDetails.m; sourceTree = "<group>"; };
 		F87CE8D11B7D466500A98BF9 /* TuneHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TuneHttpRequest.h; sourceTree = "<group>"; };
@@ -784,7 +786,8 @@
 				1768F8E51FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.h */,
 				1768F8E61FBFAC68005D2958 /* NSURLSession+TuneDelegateMockServer.m */,
 				F83109941C8F6C90000669EF /* TuneDateUtilsTests.m */,
-				F847F4481C87BF8A009E0531 /* TuneDeeplinkerTests.m */,
+				F847F4481C87BF8A009E0531 /* TuneDeeplinkerIntegrationTests.m */,
+				5F4F8D7B21CC57720058C4E1 /* TuneDeepLinkerTests.m */,
 				0B770F4B1B66325E00C51B87 /* TuneEncrypterTests.m */,
 				0B770F521B66325E00C51B87 /* TuneEventTests.m */,
 				0B770F4A1B66325E00C51B87 /* TuneEventItemTests.m */,
@@ -1468,7 +1471,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				17301DB11FFEEC68001ADCC2 /* TuneDeeplinkerTests.m in Sources */,
+				17301DB11FFEEC68001ADCC2 /* TuneDeeplinkerIntegrationTests.m in Sources */,
 				17301DBE1FFEEC68001ADCC2 /* TuneTrackerInitializationTests.m in Sources */,
 				17301DAA1FFEEC59001ADCC2 /* TuneTestParams.m in Sources */,
 				17301DA71FFEEC59001ADCC2 /* TuneBlankAppDelegate.m in Sources */,
@@ -1483,6 +1486,7 @@
 				17301D8F1FFEEC0F001ADCC2 /* TuneFileManagerTests.m in Sources */,
 				17301DAB1FFEEC59001ADCC2 /* TuneXCTestCase.m in Sources */,
 				17301DA51FFEEC59001ADCC2 /* NSURLRequest+TuneUtils.m in Sources */,
+				5F4F8D7C21CC57720058C4E1 /* TuneDeepLinkerTests.m in Sources */,
 				17301DA61FFEEC59001ADCC2 /* SimpleObserver.m in Sources */,
 				17301DB91FFEEC68001ADCC2 /* TuneParametersTests.m in Sources */,
 				17301DB31FFEEC68001ADCC2 /* TuneEncrypterTests.m in Sources */,

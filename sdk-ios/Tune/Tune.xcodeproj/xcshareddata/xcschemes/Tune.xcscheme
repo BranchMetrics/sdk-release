@@ -54,6 +54,9 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "TuneDeeplinkerIntegrationTests">
+               </Test>
+               <Test
                   Identifier = "TuneDeeplinkerTests">
                </Test>
                <Test

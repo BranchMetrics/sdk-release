@@ -21,7 +21,7 @@
 #import "TuneEventItem.h"
 #import "TunePreloadData.h"
 
-#define TUNEVERSION @"6.0.3"
+#define TUNEVERSION @"6.0.4"
 
 
 @protocol TuneDelegate;
