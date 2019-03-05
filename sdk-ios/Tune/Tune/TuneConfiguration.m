@@ -33,7 +33,7 @@
 }
 
 - (void)setDefaultConfiguration {
-    self.collectDeviceLocation = YES;
+    self.collectDeviceLocation = NO;
     
     self.analyticsMessageStorageLimit = @(250);
     self.pluginName = nil;

@@ -160,4 +160,6 @@ FOUNDATION_EXPORT NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD;
 + (NSSet *)systemVariables;
 + (NSSet *)privacyProtectionWhiteList;
 
++ (NSSet *)branchBlacklist;
+
 @end

@@ -472,4 +472,33 @@ NSString *const TUNE_KEY_IS_TESTFLIGHT_BUILD            = @"is_testflight_build"
     return set;
 }
 
+// Branch prefers to drop PII.
++ (NSSet *)branchBlacklist {
+    static NSSet *set;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [[NSSet alloc] initWithArray:@[
+                                             TUNE_KEY_USER_EMAIL,
+                                             TUNE_KEY_USER_EMAIL_SHA256,
+                                             TUNE_KEY_USER_NAME,
+                                             TUNE_KEY_USER_NAME_SHA256,
+                                             TUNE_KEY_USER_PHONE,
+                                             TUNE_KEY_USER_PHONE_SHA256,
+                                             TUNE_KEY_FACEBOOK_USER_ID,
+                                             TUNE_KEY_TWITTER_USER_ID,
+                                             TUNE_KEY_GOOGLE_USER_ID,
+                                             TUNE_KEY_AGE,
+                                             TUNE_KEY_GENDER,
+                                             TUNE_KEY_LATITUDE,
+                                             TUNE_KEY_LONGITUDE,
+                                             TUNE_KEY_ALTITUDE,
+                                             TUNE_KEY_LOCATION_HORIZONTAL_ACCURACY,
+                                             TUNE_KEY_LOCATION_TIMESTAMP,
+                                             TUNE_KEY_LOCATION_VERTICAL_ACCURACY
+                                             ]];
+    });
+    
+    return set;
+}
+
 @end

@@ -1404,6 +1404,11 @@
 // Determine if PII should be redacted for a profile variable key
 // Also used by TuneTracker.m
 - (BOOL)shouldRedactKey:(NSString *)key {
+    
+    if ([[TuneUserProfileKeys branchBlacklist] containsObject:key]) {
+        return YES;
+    }
+    
     if ([[TuneManager currentManager].userProfile tooYoungForTargetedAds]) {
         
         // only redact system variables that are not on the whitelist, custom variables are the responsibility of the client app

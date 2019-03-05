@@ -21,7 +21,7 @@
 #import "TuneEventItem.h"
 #import "TunePreloadData.h"
 
-#define TUNEVERSION @"6.0.4"
+#define TUNEVERSION @"6.1.0"
 
 
 @protocol TuneDelegate;
@@ -197,17 +197,21 @@
 + (void)setJailbroken:(BOOL)jailbroken;
 
 /**
+ @deprecated Location is no longer sent to the server.
+ 
  Disable auto collection of device location data.
  
  */
-+ (void)disableLocationAutoCollection;
++ (void)disableLocationAutoCollection __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Email hash is no longer sent to the server.
+ 
  Sets the SHA-256 hash representations of the user's email address.
 
  @param userEmail The user's email address.
  */
-+ (void)setUserEmail:(nullable NSString *)userEmail;
++ (void)setUserEmail:(nullable NSString *)userEmail __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
  Sets the user ID.
@@ -217,41 +221,53 @@
 + (void)setUserId:(nullable NSString *)userId;
 
 /**
+ @deprecated User name hash is no longer sent to the server.
+ 
  Sets the SHA-256 hash representations of the user's name.
 
  @param userName The user's name.
  */
-+ (void)setUserName:(nullable NSString *)userName;
++ (void)setUserName:(nullable NSString *)userName __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Phone number hash is no longer sent to the server.
+ 
  Sets the SHA-256 hash representations of the user's phone number.
 
  @param phoneNumber The user's phone number.
  */
-+ (void)setPhoneNumber:(nullable NSString *)phoneNumber;
++ (void)setPhoneNumber:(nullable NSString *)phoneNumber __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Facebook ID is no longer sent to the server.
+ 
  Set the user's Facebook ID.
 
  @param facebookUserId string containing the user's Facebook user ID.
  */
-+ (void)setFacebookUserId:(nullable NSString *)facebookUserId;
++ (void)setFacebookUserId:(nullable NSString *)facebookUserId __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Twitter ID is no longer sent to the server.
+ 
  Set the user's Twitter ID.
 
  @param twitterUserId string containing the user's Twitter user ID.
  */
-+ (void)setTwitterUserId:(nullable NSString *)twitterUserId;
++ (void)setTwitterUserId:(nullable NSString *)twitterUserId __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Google ID is no longer sent to the server.
+ 
  Set the user's Google ID.
 
  @param googleUserId string containing the user's Google user ID.
  */
-+ (void)setGoogleUserId:(nullable NSString *)googleUserId;
++ (void)setGoogleUserId:(nullable NSString *)googleUserId __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Age is no longer sent to the server.
+ 
  Sets the user's age.
  When age is set to a value less than 13 this device profile will be marked as privacy protected
  for the purposes of the protection of children from ad targeting and
@@ -261,12 +277,12 @@
 
  @param userAge user's age
  */
-+ (void)setAge:(NSInteger)userAge;
++ (void)setAge:(NSInteger)userAge __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
  Set this device profile as privacy protected for the purposes of the protection of children
  from ad targeting and personal data collection. In the US this is part of the COPPA law.
- You cannot turn privacy protection "off" for if the user's age is set to less than 13.
+ You cannot turn privacy protection "off", if age is set to less than 13.
 
  @see https://developers.tune.com/sdk/settings-for-user-characteristics/ for more information
 
@@ -283,27 +299,33 @@
 + (BOOL)isPrivacyProtectedDueToAge;
 
 /**
+ @deprecated Gender is no longer sent to the server.
+ 
  Sets the user's gender.
 
  @param userGender user's gender, possible values TuneGenderMale, TuneGenderFemale, TuneGenderUnknown
  */
-+ (void)setGender:(TuneGender)userGender;
++ (void)setGender:(TuneGender)userGender __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Location is no longer sent to the server.
+ 
  Sets the user's location. Manually setting the location through this method disables location auto-collection.
  
  @param location CLLocation from Core Location
  */
-+ (void)setLocation:(nonnull CLLocation *)location;
++ (void)setLocation:(nonnull CLLocation *)location __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
+ @deprecated Location is no longer sent to the server.
+ 
  Sets the user's location. Manually setting the location through this method disables location auto-collection.
  
  @param latitude device latitude
  @param longitude device longitude
  @param altitude device altitude
  */
-+ (void)setLocationWithLatitude:(nonnull NSNumber *)latitude longitude:(nonnull NSNumber *)longitude altitude:(nullable NSNumber *)altitude;
++ (void)setLocationWithLatitude:(nonnull NSNumber *)latitude longitude:(nonnull NSNumber *)longitude altitude:(nullable NSNumber *)altitude __attribute__((deprecated("Data is no longer transmitted. API will be removed.")));
 
 /**
  Set app level ad tracking.

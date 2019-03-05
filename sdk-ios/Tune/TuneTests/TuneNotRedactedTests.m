@@ -74,9 +74,12 @@
 // programmatically check every system variable
 - (void)testSystemVariables {
     NSSet *variables = [TuneUserProfileKeys systemVariables];
+    NSSet *blackList = [TuneUserProfileKeys branchBlacklist];
     
     for (NSString *key in variables) {
-        XCTAssertFalse([[TuneManager currentManager].userProfile shouldRedactKey:key]);
+        if (![blackList containsObject:key]) {
+            XCTAssertFalse([[TuneManager currentManager].userProfile shouldRedactKey:key]);
+        }
     }
 }
 

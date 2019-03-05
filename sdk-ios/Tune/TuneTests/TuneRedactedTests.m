@@ -77,8 +77,10 @@
     NSSet *variables = [TuneUserProfileKeys systemVariables];
     NSSet *whiteList = [TuneUserProfileKeys privacyProtectionWhiteList];
     
+    NSSet *blackList = [TuneUserProfileKeys branchBlacklist];
+    
     for (NSString *key in variables) {
-        if ([whiteList containsObject:key]) {
+        if ([whiteList containsObject:key] && ![blackList containsObject:key]) {
             XCTAssertFalse([[TuneManager currentManager].userProfile shouldRedactKey:key]);
         } else {
             XCTAssertTrue([[TuneManager currentManager].userProfile shouldRedactKey:key]);

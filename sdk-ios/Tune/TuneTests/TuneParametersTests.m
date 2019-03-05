@@ -92,7 +92,8 @@
     waitForQueuesToFinish();
 
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
+    
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_AGE);
 }
 
 - (void)testAgeYoung {
@@ -107,7 +108,7 @@
     
     // redaction removes some of the default values.  Also not sure why we're checking all of them when age is the item under test
     //XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_AGE);
 }
 
 - (void)testAgeOld {
@@ -119,7 +120,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_AGE);
 }
 
 - (void)testAgeZero {
@@ -132,7 +133,7 @@
     
     // redaction removes some of the default values.  Also not sure why we're checking all of them when age is the item under test
     //XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_AGE);
 }
 
 - (void)testAgeNegative {
@@ -145,7 +146,7 @@
     
     // redaction removes some of the default values.  Also not sure why we're checking all of them when age is the item under test
     //XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_AGE, expectedAge );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_AGE);
 }
 
 
@@ -160,7 +161,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GENDER);
 }
 
 - (void)testGenderFemale {
@@ -172,7 +173,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_GENDER, expectedGender );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GENDER);
 }
 
 - (void)testGenderUnknown {
@@ -183,7 +184,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GENDER);
 }
 
 - (void)testGenderLarge {
@@ -194,7 +195,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GENDER);
 }
 
 - (void)testGenderNegative {
@@ -205,7 +206,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_GENDER );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GENDER);
 }
 
 
@@ -223,8 +224,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongZero {
@@ -239,8 +240,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongSmall {
@@ -255,8 +256,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongVerySmall {
@@ -271,8 +272,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongOneSmall {
@@ -287,8 +288,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongLarge {
@@ -303,8 +304,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongVeryLarge {
@@ -319,8 +320,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
 }
 
 - (void)testLatLongAltValid {
@@ -337,9 +338,9 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
-    ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_ALTITUDE);
 }
 
 - (void)testLatLongAltZero {
@@ -356,9 +357,9 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
-    ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_ALTITUDE);
 }
 
 - (void)testLatLongAltVeryLarge {
@@ -375,9 +376,9 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
-    ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_ALTITUDE);
 }
 
 - (void)testLatLongAltVerySmall {
@@ -394,9 +395,9 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_LATITUDE, expectedLat );
-    ASSERT_KEY_VALUE( TUNE_KEY_LONGITUDE, expectedLon );
-    ASSERT_KEY_VALUE( TUNE_KEY_ALTITUDE, expectedAlt );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LATITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_LONGITUDE);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_ALTITUDE);
 }
 
 #pragma mark - Plugin name
@@ -541,9 +542,10 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA256, EMAIL_ID_SHA256 );
+    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_SHA256 );
     ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
     
+    // verifies hash settings are correct. though this value will no longer leave the device
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
     XCTAssertNil(var);
@@ -561,8 +563,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_EMAIL_SHA256, USER_EMAIL_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_EMAIL_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_EMAIL);
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_EMAIL];
@@ -580,8 +582,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_EMAIL );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_EMAIL_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_EMAIL);
 }
 
 - (void)testUserId {
@@ -604,8 +606,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_NAME_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_NAME);
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
@@ -624,8 +626,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_NAME_SHA256, USER_NAME_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_NAME );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_NAME_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_NAME);
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_NAME];
@@ -656,8 +658,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE);
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
@@ -676,8 +678,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_USER_PHONE_SHA256, USER_PHONE_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE);
     
     TuneAnalyticsVariable *var = nil;
     var = [[TuneManager currentManager].userProfile getProfileVariable:TUNE_KEY_USER_PHONE];
@@ -695,8 +697,8 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE_SHA256 );
-    ASSERT_NO_VALUE_FOR_KEY( TUNE_KEY_USER_PHONE );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE_SHA256);
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_USER_PHONE);
 }
 
 - (void)testFacebookUserId {
@@ -707,7 +709,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_FACEBOOK_USER_ID, ID );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_FACEBOOK_USER_ID);
 }
 
 - (void)testTwitterUserId {
@@ -718,7 +720,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_TWITTER_USER_ID, ID );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_TWITTER_USER_ID);
 }
 
 - (void)testGoogleUserId {
@@ -729,7 +731,7 @@
     waitForQueuesToFinish();
     
     XCTAssertTrue( [params checkDefaultValues], @"default value check failed: %@", params );
-    ASSERT_KEY_VALUE( TUNE_KEY_GOOGLE_USER_ID, ID );
+    ASSERT_NO_VALUE_FOR_KEY(TUNE_KEY_GOOGLE_USER_ID);
 }
 
 - (void)testPayingUser {
