@@ -231,7 +231,9 @@ public class EndpointTests extends TuneUnitTest {
         tune.setGender(TuneGender.MALE);
         tune.measureEvent("session");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
-        assertHasValueForKey(TuneUrlKeys.GENDER);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.GENDER);
 
         // Re-create the test params so the old ones are not counted here.
         params = new TuneTestParams();

@@ -42,9 +42,6 @@ public class TuneConstants {
     // Deeplink endpoint
     public static final String DEEPLINK_DOMAIN = "deeplink.mobileapptracking.com";
 
-    public static final String STRING_TRUE = "true";
-    public static final String STRING_FALSE = "false";
-
     public static final String SERVER_RESPONSE_SUCCESS = "success";
 
     public static final String PREF_UNSET = "0";

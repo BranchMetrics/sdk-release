@@ -537,7 +537,7 @@ public class TuneInternal implements ITune {
         // notify tuneListener of success or failure
         boolean success;
         try {
-            success = response.getString(TuneConstants.SERVER_RESPONSE_SUCCESS).equals(TuneConstants.STRING_TRUE);
+            success = response.getBoolean(TuneConstants.SERVER_RESPONSE_SUCCESS);
         } catch (JSONException e) {
             TuneDebugLog.e("Error parsing response " + response + " to check for success", e);
             safeReportFailureToTuneListener(fullLink, response);

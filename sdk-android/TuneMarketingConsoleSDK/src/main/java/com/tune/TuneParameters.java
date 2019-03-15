@@ -28,7 +28,6 @@ import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -1223,9 +1222,9 @@ public class TuneParameters {
     }
 
     public static Set<String> getRedactedKeys() {
-        Set<String> redactKeys = new HashSet<>();
+        Set<String> redactKeys = TuneUrlKeys.getAlwaysRedactedUrlKeys();
         if (Tune.getInstance().isPrivacyProtectedDueToAge()) {
-            redactKeys.addAll(TuneUrlKeys.getRedactedUrlKeys());
+            redactKeys.addAll(TuneUrlKeys.getPrivacyRedactedUrlKeys());
         }
 
         return redactKeys;

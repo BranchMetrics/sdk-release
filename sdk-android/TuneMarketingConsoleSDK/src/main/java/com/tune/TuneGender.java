@@ -2,7 +2,9 @@ package com.tune;
 
 /**
  * Gender enum for user.
+ * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
  */
+@Deprecated
 public enum TuneGender {
     MALE,
     FEMALE,

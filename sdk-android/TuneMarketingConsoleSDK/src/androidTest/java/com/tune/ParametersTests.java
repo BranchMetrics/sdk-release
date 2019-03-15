@@ -72,7 +72,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.AGE);
+
         assertEquals(age, tune.getAge());
     }
 
@@ -85,9 +88,8 @@ public class ParametersTests extends TuneUnitTest {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        // NOTE that COPPA redacts many of the default values
-        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
-        assertEquals(age, tune.getAge());
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.AGE);
     }
 
     @Test
@@ -100,7 +102,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.AGE);
+
         assertEquals(age, tune.getAge());
     }
 
@@ -114,7 +119,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.AGE);
+
         assertEquals(age, tune.getAge());
     }
 
@@ -128,7 +136,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.AGE, expectedAge);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.AGE);
+
         assertEquals(age, tune.getAge());
     }
 
@@ -162,7 +173,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
+
         assertEquals(altitude, tune.getLocation().getAltitude(), 0.0001);
     }
 
@@ -176,7 +190,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
+
         assertEquals(altitude, tune.getLocation().getAltitude(), 0.0001);
     }
 
@@ -190,7 +207,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification( TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
+
         assertEquals(altitude, tune.getLocation().getAltitude(), 0.0001);
     }
 
@@ -204,7 +224,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.ALTITUDE, expectedAltitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
+
         assertEquals(altitude, tune.getLocation().getAltitude(), 0.0001);
     }
 
@@ -642,7 +665,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.FACEBOOK_USER_ID, userId);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.FACEBOOK_USER_ID);
+
         assertEquals(userId, tune.getFacebookUserId());
     }
 
@@ -656,7 +682,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.GENDER, expectedGender);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.GENDER);
+
         assertEquals(gender, tune.getGender());
     }
 
@@ -670,7 +699,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.GENDER, expectedGender);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.GENDER);
+
         assertEquals(gender, tune.getGender());
     }
 
@@ -750,7 +782,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.GOOGLE_USER_ID, userId);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.GOOGLE_USER_ID);
+
         assertEquals(userId, tune.getGoogleUserId());
     }
 
@@ -808,7 +843,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+
         assertEquals(latitude, tune.getLocation().getLatitude(), 0.0001);
     }
 
@@ -822,7 +860,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+
         assertEquals(latitude, tune.getLocation().getLatitude(), 0.0001);
     }
 
@@ -836,7 +877,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+
         assertEquals(latitude, tune.getLocation().getLatitude(), 0.0001);
     }
 
@@ -850,7 +894,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+
         assertEquals(latitude, tune.getLocation().getLatitude(), 0.0001);
     }
 
@@ -864,7 +911,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+
         assertEquals(latitude, tune.getLocation().getLatitude(), 0.0001);
     }
 
@@ -946,8 +996,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LATITUDE, expectedLatitude);
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
     }
 
     @Test
@@ -960,7 +1012,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -974,7 +1029,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -988,7 +1046,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -1002,7 +1063,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -1016,7 +1080,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -1030,7 +1097,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.LONGITUDE, expectedLongitude);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+
         assertEquals(longitude, tune.getLocation().getLongitude(), 0.0001);
     }
 
@@ -1058,9 +1128,10 @@ public class ParametersTests extends TuneUnitTest {
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
 
-        assertKeyValue(TuneUrlKeys.LATITUDE, Double.toString(latitude));
-        assertKeyValue(TuneUrlKeys.LONGITUDE, Double.toString(longitude));
-        assertKeyValue(TuneUrlKeys.ALTITUDE, Double.toString(altutude));
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
     }
 
     @Test
@@ -1082,9 +1153,10 @@ public class ParametersTests extends TuneUnitTest {
         tune.measureEvent("registration");
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
-        assertKeyValue(TuneUrlKeys.LATITUDE, Double.toString(latitude));
-        assertKeyValue(TuneUrlKeys.LONGITUDE, Double.toString(longitude));
-        assertKeyValue(TuneUrlKeys.ALTITUDE, Double.toString(altutude));
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.LATITUDE);
+        assertNoValueForKey(TuneUrlKeys.LONGITUDE);
+        assertNoValueForKey(TuneUrlKeys.ALTITUDE);
     }
 
     @Test
@@ -1275,7 +1347,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.TWITTER_USER_ID, id);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.TWITTER_USER_ID);
+
         assertEquals(id, tune.getTwitterUserId());
     }
 
@@ -1457,7 +1532,10 @@ public class ParametersTests extends TuneUnitTest {
         assertTrue(waitForTuneNotification(TuneTestConstants.ENDPOINTTEST_SLEEP));
 
         assertTrue("params default values failed " + params, params.checkDefaultValues());
-        assertKeyValue(TuneUrlKeys.USER_ID, id);
+
+        // v6.0.5 redacted always
+        assertNoValueForKey(TuneUrlKeys.USER_ID);
+
         assertEquals(id, tune.getUserId());
     }
 

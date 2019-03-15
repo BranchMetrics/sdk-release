@@ -38,7 +38,7 @@ public class MockUrlRequester implements UrlRequester {
 
         try {
             if (requestUrlShouldSucceed) {
-                response.put(TuneConstants.SERVER_RESPONSE_SUCCESS, TuneConstants.STRING_TRUE);
+                response.put(TuneConstants.SERVER_RESPONSE_SUCCESS, true);
             } else {
                 response.put("error", "error");
             }

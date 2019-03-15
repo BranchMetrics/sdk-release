@@ -127,19 +127,25 @@ public interface ITune {
     /**
      * Gets the Facebook user ID previously set.
      * @return Facebook user ID
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     String getFacebookUserId();
 
     /**
      * Gets the user gender set with {@link #setGender(TuneGender)}.
      * @return gender
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     TuneGender getGender();
 
     /**
      * Gets the Google user ID previously set.
      * @return Google user ID
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     String getGoogleUserId();
 
     /**
@@ -261,7 +267,9 @@ public interface ITune {
     /**
      * Gets the Twitter user ID previously set.
      * @return Twitter user ID
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     String getTwitterUserId();
 
     /**
@@ -279,7 +287,9 @@ public interface ITune {
     /**
      * Gets the custom user ID.
      * @return custom user id
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     String getUserId();
 
     /**
@@ -301,7 +311,9 @@ public interface ITune {
      * This method is related to {@link #setPrivacyProtectedDueToAge(boolean)}
      * See https://developers.tune.com/sdk/settings-for-user-characteristics/ for more information
      * @param age User age
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setAge(int age);
 
     /**
@@ -319,19 +331,25 @@ public interface ITune {
     /**
      * Sets the user ID to associate with Facebook.
      * @param userId the Facebook user id
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setFacebookUserId(String userId);
 
     /**
      * Sets the user gender.
      * @param gender use TuneGender.MALE, TuneGender.FEMALE
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setGender(final TuneGender gender);
 
     /**
      * Sets the user ID to associate with Google.
      * @param userId the Google user id
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setGoogleUserId(String userId);
 
     /**
@@ -350,7 +368,9 @@ public interface ITune {
      * Sets the device location.
      * Manually setting the location through this method disables geo-location auto-collection.
      * @param location the device location
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setLocation(final Location location);
 
     /**
@@ -359,7 +379,9 @@ public interface ITune {
      * @param latitude the device latitude
      * @param longitude the device longitude
      * @param altitude the device altitude
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setLocation(double latitude, double longitude, double altitude);
 
     /**
@@ -394,7 +416,9 @@ public interface ITune {
     /**
      * Sets the user ID to associate with Twitter.
      * @param userId the Twitter user id
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setTwitterUserId(String userId);
 
     /**
@@ -406,7 +430,9 @@ public interface ITune {
     /**
      * Sets the custom user ID.
      * @param userId the user id
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void setUserId(String userId);
 
     /**
@@ -418,13 +444,17 @@ public interface ITune {
     /**
      * Enables primary Gmail address collection (and other emails linked to account.)
      * Requires GET_ACCOUNTS permission
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void collectEmails();
 
     /**
      * Disables primary Gmail address collection (and other emails linked to account.)
      * Requires GET_ACCOUNTS permission
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void clearEmails();
 
     /**
@@ -437,7 +467,9 @@ public interface ITune {
     /**
      * Disable auto collection of device location data.
      * Note that location data is auto-collected at initialization if not explicitly disabled.
+     * @deprecated data no longer transmitted.  API will be removed in version 7.0.0
      */
+    @Deprecated
     void disableLocationAutoCollection();
 
     /* ========================================================================================== */

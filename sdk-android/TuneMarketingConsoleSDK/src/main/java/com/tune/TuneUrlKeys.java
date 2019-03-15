@@ -221,7 +221,7 @@ public class TuneUrlKeys {
         TuneUrlKeys.USER_ID,
     };
 
-    private static final String[] URL_KEYS_REDACT = new String[] {
+    private static final String[] KEYS_PRIVACY_REDACT = new String[] {
         TuneUrlKeys.ALTITUDE,
         TuneUrlKeys.ANDROID_ID,
         TuneUrlKeys.CONNECTION_TYPE,
@@ -257,23 +257,45 @@ public class TuneUrlKeys {
         TuneUrlKeys.USER_PHONE_SHA256,
     };
 
+    // As of v6.0.5, these keys will always be redacted.
+    private static final String[] KEYS_ALWAYS_REDACT = new String[] {
+        TuneUrlKeys.AGE,
+        TuneUrlKeys.ALTITUDE,
+        TuneUrlKeys.FACEBOOK_USER_ID,
+        TuneUrlKeys.GENDER,
+        TuneUrlKeys.GOOGLE_USER_ID,
+        TuneUrlKeys.LATITUDE,
+        TuneUrlKeys.LONGITUDE,
+        TuneUrlKeys.TWITTER_USER_ID,
+        TuneUrlKeys.USER_EMAILS,
+        TuneUrlKeys.USER_ID,
+    };
+
     /**
      * Return a Set of All Url Keys, both redacted and non-redacted.
      * @return the full Set of Url Keys
      */
     public static final Set<String> getAllUrlKeys() {
         Set<String> keys = new HashSet<>(Arrays.asList(URL_KEYS));
-        keys.addAll(getRedactedUrlKeys());
+        keys.addAll(getPrivacyRedactedUrlKeys());
 
         return keys;
     }
 
     /**
-     * Return a Set of all Redacted Url Keys.
-     * @return the set of redacted Url Keys
+     * Return a Set of all Privacy Redacted Url Keys.
+     * @return the set of privacy redacted Url Keys
      */
-    public static final Set<String> getRedactedUrlKeys() {
-        return new HashSet<>(Arrays.asList(URL_KEYS_REDACT));
+    public static final Set<String> getPrivacyRedactedUrlKeys() {
+        return new HashSet<>(Arrays.asList(KEYS_PRIVACY_REDACT));
+    }
+
+    /**
+     * Return a Set of Always Redacted Url Keys, as of v6.0.5
+     * @return the set of always redacted keys
+     */
+    public static final Set<String> getAlwaysRedactedUrlKeys() {
+        return new HashSet<>(Arrays.asList(KEYS_ALWAYS_REDACT));
     }
 
 }
