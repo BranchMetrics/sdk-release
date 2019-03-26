@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
-import static android.support.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

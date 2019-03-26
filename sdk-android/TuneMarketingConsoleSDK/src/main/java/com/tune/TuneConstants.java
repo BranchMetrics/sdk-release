@@ -24,8 +24,6 @@ public class TuneConstants {
     static final String KEY_COPPA = "mat_is_coppa";
     // Key for user email (Gmail)
     static final String KEY_USER_EMAIL = "mat_user_email";
-    // Key for user emails (Other emails aside from primary Gmail)
-    static final String KEY_USER_EMAILS = "mat_user_emails";
     // Key for user ID
     static final String KEY_USER_ID = "mat_user_id";
     // Key for user name

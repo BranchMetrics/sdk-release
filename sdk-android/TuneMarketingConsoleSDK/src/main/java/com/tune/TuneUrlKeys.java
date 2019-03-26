@@ -49,7 +49,7 @@ public class TuneUrlKeys {
     public static final String ADVERTISER_SUB_KEYWORD = "advertiser_sub_keyword";
 
     // Encrypted data keys
-    public static final String ALTITUDE = "altitude";
+    public static final String ALTITUDE = "altitude";                       // OBSOLETE
     public static final String ANDROID_ID = "android_id";
     public static final String ANDROID_ID_SHA256 = "android_id_sha256";
     public static final String APP_AD_TRACKING = "app_ad_tracking";
@@ -72,9 +72,9 @@ public class TuneUrlKeys {
     public static final String INSTALLER = "installer";
     public static final String LANGUAGE = "language";
     public static final String LAST_OPEN_LOG_ID = "last_open_log_id";
-    public static final String LATITUDE = "latitude";
+    public static final String LATITUDE = "latitude";                       // OBSOLETE
     public static final String LOCALE = "locale";
-    public static final String LONGITUDE = "longitude";
+    public static final String LONGITUDE = "longitude";                     // OBSOLETE
     public static final String MAT_ID = "mat_id";
     public static final String MOBILE_COUNTRY_CODE = "mobile_country_code";
     public static final String MOBILE_NETWORK_CODE = "mobile_network_code";
@@ -116,24 +116,23 @@ public class TuneUrlKeys {
     public static final String SEARCH_STRING = "search_string";
 
     // User data keys
-    public static final String AGE = "age";
+    public static final String AGE = "age";                                 // OBSOLETE
     public static final String EXISTING_USER = "existing_user";
-    public static final String FACEBOOK_USER_ID = "facebook_user_id";
-    public static final String GENDER = "gender";
-    public static final String GOOGLE_USER_ID = "google_user_id";
+    public static final String FACEBOOK_USER_ID = "facebook_user_id";       // OBSOLETE
+    public static final String GENDER = "gender";                           // OBSOLETE
+    public static final String GOOGLE_USER_ID = "google_user_id";           // OBSOLETE
     public static final String IS_COPPA = "is_coppa";
     public static final String IS_PAYING_USER = "is_paying_user";
-    public static final String TWITTER_USER_ID = "twitter_user_id";
-    public static final String USER_EMAIL_SHA256 = "user_email_sha256";
+    public static final String TWITTER_USER_ID = "twitter_user_id";         // OBSOLETE
+    public static final String USER_EMAIL_SHA256 = "user_email_sha256";     // OBSOLETE
     public static final String USER_ID = "user_id";
-    public static final String USER_NAME_SHA256 = "user_name_sha256";
+    public static final String USER_NAME_SHA256 = "user_name_sha256";       // OBSOLETE
     public static final String USER_PHONE_SHA256 = "user_phone_sha256";
 
     // Post data keys
     public static final String EVENT_ITEMS = "data";
     public static final String RECEIPT_DATA = "store_iap_data";
     public static final String RECEIPT_SIGNATURE = "store_iap_signature";
-    public static final String USER_EMAILS = "user_emails";
 
     /**
      * WARNING: It is very important that all new profile variables get added to this array OR to the REDACT array.
@@ -251,7 +250,6 @@ public class TuneUrlKeys {
         TuneUrlKeys.SCREEN_LAYOUT_SIZE,
         TuneUrlKeys.TWITTER_USER_ID,
         TuneUrlKeys.USER_AGENT,
-        TuneUrlKeys.USER_EMAILS,
         TuneUrlKeys.USER_EMAIL_SHA256,
         TuneUrlKeys.USER_NAME_SHA256,
         TuneUrlKeys.USER_PHONE_SHA256,
@@ -267,8 +265,8 @@ public class TuneUrlKeys {
         TuneUrlKeys.LATITUDE,
         TuneUrlKeys.LONGITUDE,
         TuneUrlKeys.TWITTER_USER_ID,
-        TuneUrlKeys.USER_EMAILS,
-        TuneUrlKeys.USER_ID,
+        TuneUrlKeys.USER_EMAIL_SHA256,
+        TuneUrlKeys.USER_NAME_SHA256,
     };
 
     /**

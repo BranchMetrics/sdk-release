@@ -307,7 +307,7 @@ class TuneUrlBuilder {
      * Builds JSONObject for body of POST request
      * @return appropriately parameterized object
      */
-    static synchronized JSONObject buildBody(JSONArray eventItems, String iapData, String iapSignature, JSONArray emails) {
+    static synchronized JSONObject buildBody(JSONArray eventItems, String iapData, String iapSignature) {
         JSONObject postData = new JSONObject();
 
         try {
@@ -319,9 +319,6 @@ class TuneUrlBuilder {
             }
             if (iapSignature != null) {
                 postData.put(TuneUrlKeys.RECEIPT_SIGNATURE, iapSignature);
-            }
-            if (emails != null) {
-                postData.put(TuneUrlKeys.USER_EMAILS, emails);
             }
         } catch (JSONException e) {
             TuneDebugLog.d("Could not build JSON body of request", e);

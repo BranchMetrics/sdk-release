@@ -477,7 +477,7 @@ public class TuneInternal implements ITune {
                     }
                 }
                 JSONObject postBody =
-                        TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature(), params.getUserEmails());
+                        TuneUrlBuilder.buildBody(eventItemsJson, eventData.getReceiptData(), eventData.getReceiptSignature());
 
                 if (tuneRequest != null) {
                     tuneRequest.constructedRequest(link, data, postBody);
@@ -873,10 +873,6 @@ public class TuneInternal implements ITune {
         return params.getUserEmail();
     }
 
-    public JSONArray getUserEmails() {
-        return params.getUserEmails();
-    }
-
     @Override
     public String getUserId() {
         return params.getUserId();
@@ -1082,7 +1078,7 @@ public class TuneInternal implements ITune {
     }
 
     public void setUserEmails(String[] userEmails) {
-        params.setUserEmails(userEmails);
+        // Obsolete
     }
 
     @Override
@@ -1129,37 +1125,12 @@ public class TuneInternal implements ITune {
     @SuppressLint("MissingPermission")
     @Override
     public void collectEmails() {
-        Context context = mApplicationReference.get();
-
-        if (context != null) {
-            boolean accountPermission = TuneUtils.hasPermission(context, Manifest.permission.GET_ACCOUNTS);
-            if (accountPermission) {
-                AccountManager accountManager = getAccountManager(context);
-                // Set primary Gmail address as user email
-                Account[] accounts = accountManager.getAccountsByType(TuneConstants.GOOGLE_ACCOUNT_TYPE);
-                if (accounts.length > 0) {
-                    params.setUserEmail(accounts[0].name);
-                }
-
-                // Store the rest of email addresses
-                HashMap<String, String> emailMap = new HashMap<>();
-                accounts = accountManager.getAccounts();
-                for (Account account : accounts) {
-                    if (Patterns.EMAIL_ADDRESS.matcher(account.name).matches()) {
-                        emailMap.put(account.name, account.type);
-                    }
-                    Set<String> emailKeys = emailMap.keySet();
-                    String[] emailArr = emailKeys.toArray(new String[emailKeys.size()]);
-                    params.setUserEmails(emailArr);
-                }
-            }
-        }
+        // Obsolete
     }
 
     @Override
     public void clearEmails() {
         params.clearUserEmail();
-        params.clearUserEmails();
     }
 
     @Override

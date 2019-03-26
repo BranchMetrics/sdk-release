@@ -23,9 +23,6 @@ import com.tune.utils.TuneSharedPrefsDelegate;
 import com.tune.utils.TuneStringUtils;
 import com.tune.utils.TuneUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Locale;
@@ -1099,6 +1096,7 @@ public class TuneParameters {
         });
     }
     public synchronized void clearUserEmail() {
+        // Obsolete
         mUserEmail = null;
         clearUserEmailSha256();
 
@@ -1122,61 +1120,6 @@ public class TuneParameters {
         mUserEmailSha256 = null;
     }
     
-    private JSONArray mUserEmails = null;
-
-    public synchronized JSONArray getUserEmails() {
-        String userEmailsString = "";
-        if (mUserEmails == null) {
-            userEmailsString = mPrefs.getStringFromSharedPreferences(TuneConstants.KEY_USER_EMAILS);
-        }
-
-        if (TuneStringUtils.isNullOrEmpty(userEmailsString)) {
-            return mUserEmails;
-        }
-
-        try {
-            mUserEmails = new JSONArray(userEmailsString);
-        } catch (JSONException e) {
-//            Don't need to do anything with e
-        }
-        return mUserEmails;
-    }
-
-    public synchronized void setUserEmails(String[] emails) {
-        if (emails == null || emails.length == 0) {
-            clearUserEmails();
-            return;
-        }
-
-        mUserEmails = new JSONArray();
-        for (String email : emails) {
-            if (!TuneStringUtils.isNullOrEmpty(email)) {
-                mUserEmails.put(email);
-            }
-        }
-
-        if (mUserEmails.length() == 0) {
-            clearUserEmails();
-            return;
-        }
-
-        mExecutor.execute(new Runnable() {
-                public void run() {
-                    mPrefs.saveToSharedPreferences(TuneConstants.KEY_USER_EMAILS, mUserEmails.toString());
-                }
-            });
-    }
-
-    public synchronized void clearUserEmails() {
-        mUserEmails = null;
-
-        mExecutor.execute(new Runnable() {
-            public void run() {
-                mPrefs.remove(TuneConstants.KEY_USER_EMAILS);
-            }
-        });
-    }
-
     private String mUserId = null;
     public synchronized String getUserId() {
         if (mUserId == null) {
