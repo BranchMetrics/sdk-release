@@ -27,6 +27,8 @@
 #import "TuneUtils.h"
 #import "TuneLocation.h"
 
+#import "TuneUserAgentCollector.h"
+
 // private
 #import "TuneStoreKitDelegate.h"
 
@@ -51,19 +53,34 @@
 }
 
 + (void)initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name {
-    
+    #if TARGET_OS_IOS
+    [[self tuneQueue] addOperationWithBlock:^{
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+        [[TuneUserAgentCollector shared] loadUserAgentWithCompletion:^(NSString * _Nullable userAgent) {
+            [self private_initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:name];
+            dispatch_group_leave(group);
+        }];
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    }];
+    #else
+    [self private_initializeWithTuneAdvertiserId:aid tuneConversionKey:key tunePackageName:name];
+    #endif
+}
+
++ (void)private_initializeWithTuneAdvertiserId:(NSString *)aid tuneConversionKey:(NSString *)key tunePackageName:(NSString *)name {
     [TuneDeeplinker setTuneAdvertiserId:aid tuneConversionKey:key];
     [TuneDeeplinker setTunePackageName:name ?: [TuneUtils bundleId]];
-
+    
     TuneManager *tuneManager = [TuneManager currentManager];
-
+    
     [tuneManager.userProfile setAdvertiserId: [aid stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
     [tuneManager.userProfile setConversionKey: [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-
+    
     if (name) {
         [tuneManager.userProfile setPackageName:name];
     }
-
+    
     [[TuneTracker sharedInstance] startTracker];
 }
 

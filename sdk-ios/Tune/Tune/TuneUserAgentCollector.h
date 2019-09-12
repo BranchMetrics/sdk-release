@@ -1,16 +1,24 @@
 //
 //  TuneUserAgentCollector.h
-//  Tune
+//  Branch
 //
-//  Created by John Bender on 5/9/14.
-//  Copyright (c) 2014 Tune. All rights reserved.
+//  Created by Ernest Cho on 8/29/19.
+//  Copyright © 2019 Branch, Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import Foundation;
 
+NS_ASSUME_NONNULL_BEGIN
+
+// Copied and modified from Branch SDK
 @interface TuneUserAgentCollector : NSObject
 
-+ (void)startCollection;
-+ (NSString*)userAgent;
++ (TuneUserAgentCollector *)shared;
+
+@property (nonatomic, copy, readwrite) NSString *userAgent;
+
+- (void)loadUserAgentWithCompletion:(nullable void (^)(NSString * _Nullable userAgent))completion;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -128,7 +128,7 @@ static TuneDeeplinker *dplinkr;
     }
     
     [TuneUtils addUrlQueryParamValue:@(dplinkr.appleAdTrackingEnabled)  forKey:TUNE_KEY_IOS_AD_TRACKING          queryParams:urlString];
-    [TuneUtils addUrlQueryParamValue:[TuneUserAgentCollector userAgent] forKey:TUNE_KEY_CONVERSION_USER_AGENT    queryParams:urlString];
+    [TuneUtils addUrlQueryParamValue:[TuneUserAgentCollector shared].userAgent forKey:TUNE_KEY_CONVERSION_USER_AGENT    queryParams:urlString];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]
                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData

@@ -400,7 +400,7 @@ static dispatch_once_t sharedQueueOnceToken;
         searchString = [NSString stringWithFormat:@"%@=", TUNE_KEY_CONVERSION_USER_AGENT];
         if ([encryptParams rangeOfString:searchString].location == NSNotFound) {
             // url encoded user agent string
-            NSString *encodedUserAgent = [TuneUtils urlEncodeQueryParamValue:[TuneUserAgentCollector userAgent]];
+            NSString *encodedUserAgent = [TuneUtils urlEncodeQueryParamValue:[TuneUserAgentCollector shared].userAgent];
             if (encodedUserAgent) {
                 encryptParams = [encryptParams stringByAppendingFormat:@"&%@=%@", TUNE_KEY_CONVERSION_USER_AGENT, encodedUserAgent];
             }

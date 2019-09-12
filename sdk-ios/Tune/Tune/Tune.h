@@ -21,7 +21,7 @@
 #import "TuneEventItem.h"
 #import "TunePreloadData.h"
 
-#define TUNEVERSION @"6.1.0"
+#define TUNEVERSION @"6.2.0"
 
 
 @protocol TuneDelegate;
@@ -147,7 +147,7 @@
 
  @param callback where log messages are sent.  By default, only errors are logged.
  */
-+ (void)setDebugLogCallback:(void (^)(NSString * _Nonnull logMessage))callback;
++ (void)setDebugLogCallback:(nullable void (^)(NSString * _Nonnull logMessage))callback;
 
 /**
  Enables verbose log messages.  This will provide more log information to the log callback.

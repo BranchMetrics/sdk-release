@@ -15,9 +15,9 @@ typedef void (^TuneLogBlock)(NSString * _Nonnull message);
 @property (nonatomic, nullable, copy) TuneLogBlock logBlock;
 @property (nonatomic, readwrite, assign) BOOL verbose;
 
-+ (instancetype)shared;
++ (nonnull instancetype)shared;
 
-- (void)logError:(NSString *)message;
-- (void)logVerbose:(NSString *)message;
+- (void)logError:(nullable NSString *)message;
+- (void)logVerbose:(nullable NSString *)message;
 
 @end

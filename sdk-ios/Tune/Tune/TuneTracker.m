@@ -130,11 +130,6 @@ static dispatch_once_t sharedInstanceOnceToken;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        // delay user-agent collection to avoid threading related app crash
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            // initiate collection of user agent string
-            [TuneUserAgentCollector startCollection];
-        });
         
         #if TARGET_OS_IOS
         // provide access to location when available
@@ -874,7 +869,7 @@ static dispatch_once_t sharedInstanceOnceToken;
     
     [self addValue:TUNEVERSION                       			forKey:TUNE_KEY_VER                        encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
-    [self addValue:[TuneUserAgentCollector userAgent]           forKey:TUNE_KEY_CONVERSION_USER_AGENT      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
+    [self addValue:[TuneUserAgentCollector shared].userAgent         forKey:TUNE_KEY_CONVERSION_USER_AGENT      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
     
     // Rethink debugging
     //[self addValue:@(TRUE)                       			forKey:TUNE_KEY_DEBUG                      encryptedParams:encryptedParams plaintextParams:nonEncryptedParams];
