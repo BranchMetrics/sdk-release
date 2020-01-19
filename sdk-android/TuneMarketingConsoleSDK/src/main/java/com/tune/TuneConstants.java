@@ -52,8 +52,8 @@ public class TuneConstants {
     static final int MAX_DUMP_SIZE = 50;
     // Set a network timeout time of 60s
     public static final int TIMEOUT = 60000;
-    // Request delay time of 60s
-    static final int DELAY = 60000;
+    // First run logic wait time of 1.5s in case Play Referrer lib callback is never invoked
+    static final int FIRST_RUN_LOGIC_WAIT_TIME = 2000;
 
     static final String[] PLUGIN_NAMES = {
         "air",

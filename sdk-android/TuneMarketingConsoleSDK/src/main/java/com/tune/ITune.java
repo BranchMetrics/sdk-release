@@ -155,8 +155,8 @@ public interface ITune {
     long getInstallDate();
 
     /**
-     * Gets the Google Play INSTALL_REFERRER.
-     * @return Play INSTALL_REFERRER
+     * Gets the Google Play Referrer Library referrerUrl.
+     * @return referrerUrl
      */
     String getInstallReferrer();
 
@@ -353,8 +353,8 @@ public interface ITune {
     void setGoogleUserId(String userId);
 
     /**
-     * Overrides the Google Play INSTALL_REFERRER received.
-     * @param referrer Your custom referrer value
+     * Sets referrerUrl received from the Play Store Referrer Library
+     * @param referrer referrerUrl (page where user clicked on the url that lead to Play Store)
      */
     void setInstallReferrer(String referrer);
 

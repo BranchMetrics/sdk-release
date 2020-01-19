@@ -33,5 +33,6 @@ captures/
 
 # Android Studio
 *.iml
+.idea/*
 
 GoogleIO
