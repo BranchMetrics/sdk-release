@@ -11,12 +11,6 @@
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <application>
-        <receiver android:name=".TuneTracker">
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
-
         <activity android:name=".mocks.MockActivity" />
     </application>
 </manifest>

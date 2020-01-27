@@ -179,7 +179,7 @@ public class TuneEventQueue {
 
                             // For first session, try to wait for Google AID and install referrer before sending
                             if (firstSession) {
-                                tune.waitForFirstRunData(TuneConstants.DELAY);
+                                tune.waitForFirstRunData(TuneConstants.FIRST_RUN_LOGIC_WAIT_TIME);
                             }
 
                             if (tune != null) {

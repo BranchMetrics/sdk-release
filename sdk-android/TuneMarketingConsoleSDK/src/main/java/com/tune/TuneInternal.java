@@ -282,10 +282,6 @@ public class TuneInternal implements ITune {
         isRegistered = false;
         fbLogging = false;
         collectLocation = true;
-
-        if (params.getInstallReferrer() != null) {
-            firstRunLogic.receivedInstallReferrer();
-        }
     }
 
     /**
@@ -966,7 +962,6 @@ public class TuneInternal implements ITune {
             params.setReferrerDelay(referrerTime - initTime);
             params.setInstallReferrer(referrer);
         }
-        firstRunLogic.receivedInstallReferrer();
     }
 
     @Override
