@@ -1,30 +1,25 @@
 apply plugin: 'com.android.library'
 
-ext {
-    PUBLISH_GROUP_ID = 'com.tune'
-    PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '6.1.2'
-}
-
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionName PUBLISH_VERSION
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_MINIMUM)
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
             buildConfigField "Boolean", "DEBUG_MODE", "true"
-            buildConfigField "String", "SDK_VERSION_STRING", "\"!SDK-VERSION-STRING!:${PUBLISH_GROUP_ID}:${PUBLISH_ARTIFACT_ID}:${PUBLISH_VERSION}\""
+            buildConfigField "String", "SDK_VERSION_STRING", "\"!SDK-VERSION-STRING!:${project.GROUP}:${project.ARTIFACT_ID}:${project.VERSION_NAME}\""
         }
         release {
             buildConfigField "Boolean", "DEBUG_MODE", "false"
-            buildConfigField "String", "SDK_VERSION_STRING", "\"!SDK-VERSION-STRING!:${PUBLISH_GROUP_ID}:${PUBLISH_ARTIFACT_ID}:${PUBLISH_VERSION}\""
+            buildConfigField "String", "SDK_VERSION_STRING", "\"!SDK-VERSION-STRING!:${project.GROUP}:${project.ARTIFACT_ID}:${project.VERSION_NAME}\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
@@ -46,13 +41,10 @@ configurations {
 
 dependencies {
     api 'com.android.support:support-v4:27.1.1'
-    javadocDeps 'com.android.support:support-v4:27.1.1'
 
     api 'com.android.support:support-annotations:27.1.1'
-    javadocDeps 'com.android.support:support-annotations:27.1.1'
 
     api 'com.android.installreferrer:installreferrer:1.0'
-    javadocDeps 'com.android.installreferrer:installreferrer:1.0'
 
     // Unit testing dependencies
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -67,7 +59,7 @@ dependencies {
 tasks.whenTaskAdded { task ->
     if (task.name == 'androidJavadocs') {
         task.configure {
-            title = "Tune Android SDK " + PUBLISH_VERSION
+            title = "Tune Android SDK " + project.VERSION_NAME
 
             classpath += configurations.javadocDeps
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
@@ -80,13 +72,6 @@ tasks.whenTaskAdded { task ->
             }
         }
     }
-}
-
-afterEvaluate {
-    // fixes issue where javadoc can't find android symbols ref: http://stackoverflow.com/a/34572606
-    androidJavadocs.classpath += files(android.libraryVariants.collect { variant ->
-        variant.javaCompile.classpath.files
-    })
 }
 
 task clearAar(type: Delete) {
@@ -214,8 +199,38 @@ artifacts {
 }
 
 
-// Allow us to build as an Android Studio library
-apply from: "android-release-aar.gradle"
-
 // CheckStyle
-apply from: "../config/android-checkstyle.gradle"
+//apply from: "../config/android-checkstyle.gradle"
+
+apply from: 'https://raw.githubusercontent.com/BranchMetrics/GradleToMavenOptionalDependencies/master/gradle-maven-push.gradle'
+
+project.afterEvaluate {
+    // fixes issue where javadoc can't find android symbols ref: http://stackoverflow.com/a/34572606
+    androidJavadocs.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompile.classpath.files
+    })
+
+    publishing {
+        publications {
+            library(MavenPublication) {
+                setGroupId project.GROUP
+                setArtifactId project.ARTIFACT_ID
+                version android.defaultConfig.versionName
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+
+                //if lib contains subdendepndecies
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each {
+                        if (it.group != null && (it.name != null || "unspecified" == it.name) && it.version != null) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

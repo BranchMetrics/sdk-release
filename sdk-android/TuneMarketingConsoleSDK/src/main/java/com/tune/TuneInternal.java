@@ -200,6 +200,13 @@ public class TuneInternal implements ITune {
 
     /**
      * Internal constructor.
+     *
+     * @param tune TuneInternal
+     * @param advertiserId String
+     * @param conversionKey String
+     * @param packageName String
+     *
+     * @return ITUne interface
      */
     protected static synchronized ITune initAll(TuneInternal tune, String advertiserId, String conversionKey, String packageName) {
         // A valid Context is required to initialize Tune.
@@ -308,6 +315,7 @@ public class TuneInternal implements ITune {
 
     /**
      * Helper method to obtain the Account Manager for the provided context
+     * @param context Context
      * @return an Account Manager
      */
     protected AccountManager getAccountManager(Context context) {
@@ -366,7 +374,8 @@ public class TuneInternal implements ITune {
 
     /**
      * Allow (internal) access to setting the Tune Listener
-     * @param listener
+     *
+     * @param listener ITuneListener
      */
     public void setListener(ITuneListener listener) {
         tuneListener = listener;
