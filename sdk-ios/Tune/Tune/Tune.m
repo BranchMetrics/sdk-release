@@ -108,8 +108,13 @@
 }
 
 + (void)requestDeferredDeeplink {
+    // make sure this runs after init finishes
     [[self tuneQueue] addOperationWithBlock:^{
-        [TuneDeeplinker requestDeferredDeeplink];
+        
+        // callback on main, this is generally what the client expects and maintains our previous behavior
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [TuneDeeplinker requestDeferredDeeplink];
+        });
     }];
 }
 
