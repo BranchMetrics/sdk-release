@@ -102,11 +102,15 @@
 }
 
 + (void)unregisterDeeplinkListener {
-    [TuneDeeplinker setDelegate:nil];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneDeeplinker setDelegate:nil];
+    }];
 }
 
 + (void)requestDeferredDeeplink {
-    [TuneDeeplinker requestDeferredDeeplink];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneDeeplinker requestDeferredDeeplink];
+    }];
 }
 
 + (BOOL)isTuneLink:(NSString *)linkUrl {
