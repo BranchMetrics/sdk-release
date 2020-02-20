@@ -102,11 +102,20 @@
 }
 
 + (void)unregisterDeeplinkListener {
-    [TuneDeeplinker setDelegate:nil];
+    [[self tuneQueue] addOperationWithBlock:^{
+        [TuneDeeplinker setDelegate:nil];
+    }];
 }
 
 + (void)requestDeferredDeeplink {
-    [TuneDeeplinker requestDeferredDeeplink];
+    // make sure this runs after init finishes
+    [[self tuneQueue] addOperationWithBlock:^{
+        
+        // callback on main, this is generally what the client expects and maintains our previous behavior
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [TuneDeeplinker requestDeferredDeeplink];
+        });
+    }];
 }
 
 + (BOOL)isTuneLink:(NSString *)linkUrl {
