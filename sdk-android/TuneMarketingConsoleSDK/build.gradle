@@ -3,16 +3,16 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'com.tune'
     PUBLISH_ARTIFACT_ID = 'tune-marketing-console-sdk'
-    PUBLISH_VERSION = '6.1.2'
+    PUBLISH_VERSION = '6.1.3'
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 32
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 32
         versionName PUBLISH_VERSION
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
