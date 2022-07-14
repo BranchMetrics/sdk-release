@@ -27,7 +27,7 @@ task androidSourcesJar(type: Jar) {
 
 uploadArchives {
     repositories.mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
         pom.groupId = groupId
         pom.artifactId = artifactId

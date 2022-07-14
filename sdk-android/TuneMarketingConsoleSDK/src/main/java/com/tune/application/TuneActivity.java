@@ -2,7 +2,7 @@ package com.tune.application;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.tune.Tune;
 import com.tune.TuneDebugLog;

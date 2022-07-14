@@ -3,7 +3,7 @@ package com.tune.mocks;
 import android.app.Activity;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tune.LocationTests;
 import com.tune.location.TuneLocationListener;

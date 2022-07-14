@@ -1,7 +1,5 @@
 package com.tune;
 
-import android.Manifest;
-import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -14,9 +12,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Patterns;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.widget.Toast;
 
 import com.tune.http.TuneUrlRequester;
@@ -25,7 +23,6 @@ import com.tune.integrations.facebook.TuneFBBridge;
 import com.tune.location.TuneLocationListener;
 import com.tune.utils.TuneOptional;
 import com.tune.utils.TuneStringUtils;
-import com.tune.utils.TuneUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +33,6 @@ import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;

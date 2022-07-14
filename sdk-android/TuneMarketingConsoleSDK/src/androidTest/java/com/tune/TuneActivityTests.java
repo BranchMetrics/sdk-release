@@ -3,7 +3,7 @@ package com.tune;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tune.application.TuneActivity;
 import com.tune.mocks.MockUrlRequester;

@@ -1,7 +1,7 @@
 package com.tune;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.tune.http.UrlRequester;
 

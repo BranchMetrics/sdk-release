@@ -1,7 +1,7 @@
 package com.tune;
 
-import android.support.annotation.NonNull;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.annotation.NonNull;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tune.mocks.MockUrlRequester;
 

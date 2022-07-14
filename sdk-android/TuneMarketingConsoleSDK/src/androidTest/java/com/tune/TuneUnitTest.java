@@ -10,7 +10,7 @@ import org.junit.Before;
 
 import java.util.Locale;
 
-import static android.support.test.InstrumentationRegistry.getContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
