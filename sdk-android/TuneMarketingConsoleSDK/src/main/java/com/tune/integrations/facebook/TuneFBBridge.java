@@ -59,8 +59,6 @@ public class TuneFBBridge {
 
     /**
      * Log this event when the user has completed a purchase.
-     * The {@link AppEventsLogger#logPurchase(java.math.BigDecimal, java.util.Currency)} method is a shortcut for
-     * logging this event.
      */
     public static final String EVENT_NAME_PURCHASED = "fb_mobile_purchase";
 
@@ -83,7 +81,7 @@ public class TuneFBBridge {
 
     /**
      * Parameter key used to specify currency used with logged event.  E.g. "USD", "EUR", "GBP".
-     * See ISO-4217 for specific values.  One reference for these is <http://en.wikipedia.org/wiki/ISO_4217>.
+     * See ISO-4217 for specific values.  One reference for these is http://en.wikipedia.org/wiki/ISO_4217.
      */
     public static final String EVENT_PARAM_CURRENCY = "fb_currency";
     
